@@ -72,8 +72,15 @@ public class LauncherModule {
   @GET
   @Path(WebStructure.ROOT_PATH)
   @Produces({MediaType.TEXT_PLAIN})
-  public String getActiveMessage() {
+  public String getRootActiveMessage() {
     return "Active at " + GlobalConstants.LOCAL_HOST_NAME;
+  }
+
+  @GET
+  @Path(WebStructure.VERSION_PATH)
+  @Produces({MediaType.TEXT_PLAIN})
+  public String getVersionActiveMessage() {
+    return getRootActiveMessage();
   }
 
   @GET
