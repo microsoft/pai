@@ -1,0 +1,104 @@
+--- hadoop/yarn-site.xml	2017-11-13 02:36:07.769706914 -0500
++++ bootstrap/hadoop-service/hadoop-configuration/jobhistory-yarn-site.xml	2017-11-13 02:36:40.709722519 -0500
+@@ -12,8 +12,100 @@
+   See the License for the specific language governing permissions and
+   limitations under the License. See accompanying LICENSE file.
+ -->
++
+ <configuration>
+ 
+-<!-- Site specific YARN configuration properties -->
++    <property>
++        <name>yarn.nodemanager.resource.cpu-vcores</name>
++        <value>24</value>
++        <description>Number of CPU cores that can be allocated for containers.</description>
++    </property>
++
++    <property>
++        <name>yarn.nodemanager.resource.memory-mb</name>
++        <value>204800</value>
++        <description>Number of memory that can be allocated for containers.</description>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.scheduler.class</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.store.class</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.hostname</name>
++        <value>{RESOURCEMANAGER_ADDRESS}</value>
++        <description>The hostname of the RM.</description>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.webapp.address</name>
++        <value>{RESOURCEMANAGER_ADDRESS}:8088</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.zk-address</name>
++       <value>{ZOOKEEPER_ADDRESS}:2181</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.recovery.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.connect.retry-interval.ms</name>
++       <value>1000</value>
++    </property>
++
++    <property>
++      <name>yarn.log-aggregation-enable</name>
++       <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.log-aggregation.retain-seconds</name>
++       <value>604800</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.remote-app-log-dir</name>
++       <value>/sys/logs</value>
++    </property>
++
++    <property>  
++        <name>yarn.nodemanager.aux-services</name>  
++        <value>mapreduce_shuffle</value>  
++    </property>
++
++    <property>
++        <name>yarn.nodemanager.delete.debug-delay-sec</name>
++        <value>86400</value>
++    </property>
++
++    <property>
++        <name>yarn.node-labels.fs-store.root-dir</name>
++        <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
++    </property>
++    
++    <property>
++        <name>yarn.node-labels.enabled</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.app.mapreduce.am.staging-dir</name>
++        <value>/tmp/hadoop-yarn/staging</value>
++    </property>
++
++    <property>
++        <name>yarn.log.server.url</name>
++        <value>http://{LOGSERVER_ADDRESS}:19888/jobhistory/logs</value>
++    </property>
+ 
+ </configuration>

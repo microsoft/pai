@@ -1,0 +1,22 @@
+{
+  "version": 10,
+  "taskRoles": {
+    "HBaseMaster": {
+      "taskNumber": 14,
+      "taskService": {
+        "version": 23,
+        "entryPoint": "HBaseMaster/start.bat",
+        "sourceLocations": [
+          "/HBaseMaster"
+        ],
+        "resource": {
+          "cpuNumber": 18,
+          "memoryMB": 19,
+          "portRanges": [],
+          "diskType": 0,
+          "diskMB": 0
+        }
+      }
+    }
+  }
+}

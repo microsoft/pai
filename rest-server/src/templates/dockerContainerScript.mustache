@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+# Bootstrap script for docker container.
+
+HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Launcher
+export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
+export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
+export CLASSPATH="$(hadoop classpath --glob)"
+export NVIDIA_VISIBLE_DEVICES=all
+
+export AII_JOB_NAME={{{ jobData.jobName }}}
+export AII_DATA_DIR={{{ jobData.dataDir }}}
+export AII_OUTPUT_DIR={{{ jobData.outputDir }}}
+export AII_CODE_DIR={{{ jobData.codeDir }}}
+export AII_TASK_ROLE_NAME={{{ taskData.name }}}
+export AII_TASK_ROLE_NUM={{{ taskData.taskNumber }}}
+export AII_TASK_CPU_NUM={{{ taskData.cpuNumber }}}
+export AII_TASK_MEM_MB={{{ taskData.memoryMB }}}
+export AII_TASK_GPU_NUM={{{ taskData.gpuNumber }}}
+export AII_TASK_ROLE_NO={{{ idx }}}
+export AII_TASKS_NUM={{{ tasksNumber }}}
+export AII_TASK_ROLES_NUM={{{ taskRolesNumber }}}
+export AII_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
+
+export AII_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$AII_JOB_NAME/tmp/$AII_TASK_ROLE_NO-$AII_TASK_INDEX-$AII_CURRENT_CONTAINER_IP-$AII_CURRENT_CONTAINER_PORT || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$AII_JOB_NAME/tmp/ | wc -l` -lt  $AII_TASKS_NUM ]; do
+  sleep 10
+done
+hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$AII_JOB_NAME/tmp/ \
+  | grep "/$AII_JOB_NAME/tmp" \
+  | grep -oE "[^/]+$" \
+  | sort -n -k 2 -t"-" \
+  > ContainerList
+
+export AII_TASK_ROLE_INDEX=$((`cat ContainerList | grep "^$AII_TASK_ROLE_NO-" | grep -n "$AII_TASK_ROLE_NO-$AII_TASK_INDEX-$AII_CURRENT_CONTAINER_IP-$AII_CURRENT_CONTAINER_PORT" | cut -d ":" -f 1`-1))
+for i in `seq 0 $((AII_TASK_ROLES_NUM-1))`; do
+  export AII_TASK_ROLE_${i}_HOST_LIST=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
+done
+
+cd $HOME
+hdfs dfs -copyToLocal $AII_CODE_DIR code || exit 1
+cd code
+
+# TODO: yarn container and docker container communication need to
+# be changed to use local file system instead of hdfs
+while /bin/true; do
+  [ $(( $(date +%s%3N) - $(hdfs dfs -stat %Y $HDFS_LAUNCHER_PREFIX/$FRAMEWORK_NAME/alive/$TASK_INDEX) )) -gt 120000 ] \
+    && pkill -9 --ns 1
+  sleep 20
+done &
+
+{{{ taskData.command }}} || exit $?
+
+{{# jobData.killAllOnCompletedTaskNumber }}
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$AII_JOB_NAME/finished/$AII_TASK_INDEX || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$AII_JOB_NAME/finished/ | wc -l` -lt  $AII_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
+  sleep 10
+done
+{{/ jobData.killAllOnCompletedTaskNumber }}
+
+exit 0

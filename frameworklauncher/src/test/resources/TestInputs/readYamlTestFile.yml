@@ -1,0 +1,10 @@
+!!com.microsoft.frameworklauncher.utils.ClassForYamlTest
+intField: 1024
+integerField: 1024
+floatField: 3.14f
+floatClassField: 3.14f
+doubleField: 3.14
+doubleClassField: 3.14
+booleanField: true
+booleanClassField: true
+stringField: Yaml Test

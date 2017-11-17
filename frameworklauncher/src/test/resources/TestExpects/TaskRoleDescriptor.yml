@@ -1,0 +1,19 @@
+!!com.microsoft.frameworklauncher.common.model.TaskRoleDescriptor
+priority: 0
+scaleUnitNumber: 0
+scaleUnitTimeoutSec: 0
+taskNumber: 0
+taskRetryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
+taskService:
+  entryPoint: testString
+  resource:
+    cpuNumber: 0
+    diskMB: 0
+    diskType: HDD
+    gpuAttribute: 0
+    gpuNumber: 0
+    memoryMB: 0
+    portRanges:
+    - {begin: 0, end: 0}
+  sourceLocations: [testString]
+  version: 0

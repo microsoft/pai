@@ -1,0 +1,124 @@
+--- hadoop/capacity-scheduler.xml	2017-11-13 01:45:55.704448531 -0500
++++ src/hadoop-run/capacity-scheduler.xml	2017-11-13 02:08:08.368936322 -0500
+@@ -23,7 +23,7 @@
+ 
+   <property>
+     <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+-    <value>0.1</value>
++    <value>1</value>
+     <description>
+       Maximum percent of resources in the cluster which can be used to run 
+       application masters i.e. controls number of concurrent running
+@@ -33,7 +33,7 @@
+ 
+   <property>
+     <name>yarn.scheduler.capacity.resource-calculator</name>
+-    <value>org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator</value>
++    <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+     <description>
+       The ResourceCalculator implementation to be used to compare 
+       Resources in the scheduler.
+@@ -44,8 +44,13 @@
+   </property>
+ 
+   <property>
++    <name>yarn.scheduler.capacity.root.accessible-node-labels.persistent.capacity</name>
++    <value>100</value>
++  </property>
++
++  <property>
+     <name>yarn.scheduler.capacity.root.queues</name>
+-    <value>default</value>
++    <value>default, dev</value>
+     <description>
+       The queues at the this level (root is the root queue).
+     </description>
+@@ -53,7 +58,13 @@
+ 
+   <property>
+     <name>yarn.scheduler.capacity.root.default.capacity</name>
+-    <value>100</value>
++    <value>90</value>
++    <description>Default queue target capacity.</description>
++  </property>
++
++  <property>
++    <name>yarn.scheduler.capacity.root.dev.capacity</name>
++    <value>10</value>
+     <description>Default queue target capacity.</description>
+   </property>
+ 
+@@ -74,6 +85,16 @@
+   </property>
+ 
+   <property>
++    <name>yarn.scheduler.capacity.root.default.maximum-am-resource-percent</name>
++    <value>0.9</value>
++    <description>
++      Maximum percent of resources in the cluster which can be used to run
++      application masters i.e. controls number of concurrent running
++      applications.
++    </description>
++  </property>
++
++  <property>
+     <name>yarn.scheduler.capacity.root.default.state</name>
+     <value>RUNNING</value>
+     <description>
+@@ -98,6 +119,39 @@
+   </property>
+ 
+   <property>
++    <name>yarn.scheduler.capacity.root.default.accessible-node-labels</name>
++    <value>persistent</value>
++  </property>
++
++  <property>
++    <name>yarn.scheduler.capacity.root.default.accessible-node-labels.persistent.capacity</name>
++    <value>80</value>
++  </property>
++
++  <property>
++    <name>yarn.scheduler.capacity.root.dev.accessible-node-labels</name>
++    <value>persistent</value>
++  </property>
++
++
++  <property>
++    <name>yarn.scheduler.capacity.root.dev.accessible-node-labels.persistent.capacity</name>
++    <value>20</value>
++  </property>
++
++
++  <!--<property>
++
++  <property>
++    <name>yarn.scheduler.capacity.root.default.accessible-node-labels</name>
++    <value>persistent</value>
++  </property>
++    <name>yarn.scheduler.capacity.root.default.default-node-label-expression</name>
++    <value>persistent</value>
++  </property>-->
++
++
++  <property>
+     <name>yarn.scheduler.capacity.node-locality-delay</name>
+     <value>40</value>
+     <description>
+@@ -131,4 +185,16 @@
+     </description>
+   </property>
+ 
++  <property>
++    <name>yarn.scheduler.capacity.per-node-heartbeat.maximum-offswitch-assignments</name>
++    <value>1</value>
++    <description>
++      Controls the number of OFF_SWITCH assignments allowed
++      during a node's heartbeat. Increasing this value can improve
++      scheduling rate for OFF_SWITCH containers. Lower values reduce
++      "clumping" of applications on particular nodes. The default is 1.
++      Legal values are 1-MAX_INT. This config is refreshable.
++    </description>
++  </property>
++
+ </configuration>

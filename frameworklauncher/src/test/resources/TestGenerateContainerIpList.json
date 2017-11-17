@@ -1,0 +1,55 @@
+{
+  "description": "",
+  "version": 1,
+  "retryPolicy": {
+    "maxRetryCount": 0,
+    "fancyRetryPolicy": false
+  },
+  "taskRoles": {
+    "LRMaster": {
+      "taskNumber": 3,
+      "priority": 1,
+      "scaleUnitNumber": 1,
+      "scaleUnitTimeoutSec": 0,
+      "taskRetryPolicy": {
+        "maxRetryCount": 0,
+        "fancyRetryPolicy": false
+      },
+      "taskService": {
+        "version": 1,
+        "entryPoint": "GenerateContainerIpListTest/run.sh",
+        "sourceLocations": [
+        ],
+        "resource": {
+          "cpuNumber": 1,
+          "memoryMB": 1,
+          "portRanges": [
+          ],
+          "diskType": 0,
+          "diskMB": 0
+        }
+      }
+    }
+  },
+  "platformSpecificParameters": {
+    "amResource": {
+      "cpuNumber": 1,
+      "memoryMB": 2048
+    },
+    "amNodeLabel": null,
+    "taskNodeLabel": null,
+    "queue": "default",
+    "containerConnectionMaxLostCount": -2,
+    "containerConnectionMaxExceedCount": 2,
+    "antiaffinityAllocation": false,
+    "killAllOnAnyCompleted": false,
+    "killAllOnAnyServiceCompleted": false,
+    "generateContainerIpList": true,
+    "amType": "DEFAULT",
+    "agentUseHeartbeat": false,
+    "agentHeartbeatIntervalSec": 30,
+    "agentExpiryIntervalSec": 180,
+    "agentUseHealthCheck": false,
+    "taskServiceHealthCheck": null
+  }
+}

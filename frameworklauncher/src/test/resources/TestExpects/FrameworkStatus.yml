@@ -1,0 +1,16 @@
+!!com.microsoft.frameworklauncher.common.model.FrameworkStatus
+applicationCompletedTimestamp: 0
+applicationExitCode: 0
+applicationExitDiagnostics: testString
+applicationExitType: NOT_AVAILABLE
+applicationId: testString
+applicationLaunchedTimestamp: 0
+applicationProgress: 0.0
+applicationTrackingUrl: testString
+frameworkCompletedTimestamp: 0
+frameworkCreatedTimestamp: 0
+frameworkName: testString
+frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+  transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+frameworkState: FRAMEWORK_WAITING
+frameworkVersion: 0

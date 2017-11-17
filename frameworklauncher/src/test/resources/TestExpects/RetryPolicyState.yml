@@ -1,0 +1,3 @@
+!!com.microsoft.frameworklauncher.common.model.RetryPolicyState {nonTransientRetriedCount: 0,
+  retriedCount: 0, transientConflictRetriedCount: 0, transientNormalRetriedCount: 0,
+  unKnownRetriedCount: 0}

@@ -1,0 +1,27 @@
+!!com.microsoft.frameworklauncher.common.model.PlatformSpecificParametersDescriptor
+agentExpiryIntervalSec: 0
+agentHeartbeatIntervalSec: 0
+agentUseHealthCheck: false
+agentUseHeartbeat: false
+amNodeLabel: testString
+amResource:
+  cpuNumber: 0
+  diskMB: 0
+  diskType: HDD
+  gpuAttribute: 0
+  gpuNumber: 0
+  memoryMB: 0
+  portRanges:
+  - {begin: 0, end: 0}
+amType: DEFAULT
+antiaffinityAllocation: false
+containerConnectionMaxExceedCount: 0
+containerConnectionMaxLostCount: 0
+generateContainerIpList: false
+killAllOnAnyCompleted: false
+killAllOnAnyServiceCompleted: false
+queue: testString
+taskNodeLabel: testString
+taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,
+  gracePeriodSeconds: 0, healthCheckFailureType: TRANSIENT_ERROR, healthCheckType: COMMAND,
+  intervalSeconds: 0, timeoutSeconds: 0, webUrl: testString}

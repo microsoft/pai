@@ -1,0 +1,61 @@
+!!com.microsoft.frameworklauncher.common.model.AggregatedFrameworkRequest
+frameworkRequest:
+  frameworkDescriptor:
+    description: testString
+    parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString}
+    platformSpecificParameters:
+      agentExpiryIntervalSec: 0
+      agentHeartbeatIntervalSec: 0
+      agentUseHealthCheck: false
+      agentUseHeartbeat: false
+      amNodeLabel: testString
+      amResource:
+        cpuNumber: 0
+        diskMB: 0
+        diskType: HDD
+        gpuAttribute: 0
+        gpuNumber: 0
+        memoryMB: 0
+        portRanges:
+        - {begin: 0, end: 0}
+      amType: DEFAULT
+      antiaffinityAllocation: false
+      containerConnectionMaxExceedCount: 0
+      containerConnectionMaxLostCount: 0
+      generateContainerIpList: false
+      killAllOnAnyCompleted: false
+      killAllOnAnyServiceCompleted: false
+      queue: testString
+      taskNodeLabel: testString
+      taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,
+        gracePeriodSeconds: 0, healthCheckFailureType: TRANSIENT_ERROR, healthCheckType: COMMAND,
+        intervalSeconds: 0, timeoutSeconds: 0, webUrl: testString}
+    retryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
+    taskRoles:
+      testString:
+        priority: 0
+        scaleUnitNumber: 0
+        scaleUnitTimeoutSec: 0
+        taskNumber: 0
+        taskRetryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
+        taskService:
+          entryPoint: testString
+          resource:
+            cpuNumber: 0
+            diskMB: 0
+            diskType: HDD
+            gpuAttribute: 0
+            gpuNumber: 0
+            memoryMB: 0
+            portRanges:
+            - {begin: 0, end: 0}
+          sourceLocations: [testString]
+          version: 0
+    version: 0
+  frameworkName: testString
+  launchClientHostName: testString
+  launchClientType: UNKNOWN
+  launchClientUserName: testString
+migrateTaskRequests:
+  testString: {antiAffinityLevel: ANY}
+overrideApplicationProgressRequest: {applicationProgress: null}
