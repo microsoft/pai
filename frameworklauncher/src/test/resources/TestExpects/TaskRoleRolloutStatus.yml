@@ -1,0 +1,10 @@
+!!com.microsoft.frameworklauncher.common.model.TaskRoleRolloutStatus
+currentRolloutEndTimestamp: 0
+currentRolloutScaleUnit: 0
+currentRolloutStartTimestamp: 0
+currentRolloutStatus: UNKNOWN
+currentRolloutTaskIndexes: [0]
+overallRolloutEndTimestamp: 0
+overallRolloutServiceVersion: 0
+overallRolloutStartTimestamp: 0
+overallRolloutStatus: UNKNOWN

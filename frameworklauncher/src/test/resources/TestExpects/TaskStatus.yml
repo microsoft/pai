@@ -1,0 +1,21 @@
+!!com.microsoft.frameworklauncher.common.model.TaskStatus
+containerCompletedTimestamp: 0
+containerConnectionLostCount: 0
+containerExitCode: 0
+containerExitDiagnostics: testString
+containerExitType: NOT_AVAILABLE
+containerGpus: 0
+containerHost: testString
+containerIp: testString
+containerId: testString
+containerIsDecommissioning: false
+containerLaunchedTimestamp: 0
+containerLogHttpAddress: testString
+taskCompletedTimestamp: 0
+taskCreatedTimestamp: 0
+taskIndex: 0
+taskRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+  transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+taskRoleName: testString
+taskServiceStatus: {serviceVersion: 0}
+taskState: TASK_WAITING

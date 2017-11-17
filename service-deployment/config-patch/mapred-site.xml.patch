@@ -1,0 +1,15 @@
+--- hadoop/mapred-site.xml.template	2017-11-13 02:17:42.673171586 -0500
++++ src/hadoop-run/mapred-site.xml	2017-11-13 02:18:24.373188897 -0500
+@@ -16,6 +16,12 @@
+ 
+ <!-- Put site-specific property overrides in this file. -->
+ 
++
++
+ <configuration>
++  <property>
++    <name>mapreduce.framework.name</name>
++    <value>yarn</value>
++  </property>
+ 
+ </configuration>

@@ -1,0 +1,56 @@
+!!com.microsoft.frameworklauncher.common.model.AggregatedFrameworkStatus
+aggregatedTaskRoleStatuses:
+  testString:
+    taskRoleStatus:
+      frameworkVersion: 0
+      taskRoleName: testString
+      taskRoleRolloutStatus:
+        currentRolloutEndTimestamp: 0
+        currentRolloutScaleUnit: 0
+        currentRolloutStartTimestamp: 0
+        currentRolloutStatus: UNKNOWN
+        currentRolloutTaskIndexes: [0]
+        overallRolloutEndTimestamp: 0
+        overallRolloutServiceVersion: 0
+        overallRolloutStartTimestamp: 0
+        overallRolloutStatus: UNKNOWN
+    taskStatuses:
+      frameworkVersion: 0
+      taskRoleName: testString
+      taskStatusArray:
+      - containerCompletedTimestamp: 0
+        containerConnectionLostCount: 0
+        containerExitCode: 0
+        containerExitDiagnostics: testString
+        containerExitType: NOT_AVAILABLE
+        containerGpus: 0
+        containerHost: testString
+        containerIp: testString
+        containerId: testString
+        containerIsDecommissioning: false
+        containerLaunchedTimestamp: 0
+        containerLogHttpAddress: testString
+        taskCompletedTimestamp: 0
+        taskCreatedTimestamp: 0
+        taskIndex: 0
+        taskRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+          transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+        taskRoleName: testString
+        taskServiceStatus: {serviceVersion: 0}
+        taskState: TASK_WAITING
+frameworkStatus:
+  applicationCompletedTimestamp: 0
+  applicationExitCode: 0
+  applicationExitDiagnostics: testString
+  applicationExitType: NOT_AVAILABLE
+  applicationId: testString
+  applicationLaunchedTimestamp: 0
+  applicationProgress: 0.0
+  applicationTrackingUrl: testString
+  frameworkCompletedTimestamp: 0
+  frameworkCreatedTimestamp: 0
+  frameworkName: testString
+  frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+    transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+  frameworkState: FRAMEWORK_WAITING
+  frameworkVersion: 0

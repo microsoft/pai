@@ -1,0 +1,17 @@
+--- hadoop/core-site.xml	2017-11-13 01:45:55.704448531 -0500
++++ src/hadoop-run/core-site.xml	2017-11-13 02:08:08.368936322 -0500
+@@ -17,4 +17,14 @@
+ <!-- Put site-specific property overrides in this file. -->
+ 
+ <configuration>
++
++<property>
++  <name>fs.defaultFS</name>
++  <value>hdfs://{HDFS_ADDRESS}:9000</value>
++  <description>
++         Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
++         none is given. 
++  </description>
++</property>
++
+ </configuration>

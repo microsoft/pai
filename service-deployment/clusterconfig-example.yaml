@@ -1,0 +1,140 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+clusterID: your_cluster_id
+
+
+clusterinfo:
+
+  # static docker-version
+  # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+  dockerverison: 17.06.2
+
+  # docker registry infomation
+  dockerregistryinfo:
+
+    # If public, pls fill it same as your username
+    docker_namespace: your_registry_namespace
+
+    # If public，Fill docker_registry_domain with word "public"
+    # docker_registry_domain: public
+    docker_registry_domain: your_registry_domain
+    docker_username: your_registry_username
+    docker_password: your_registry_password
+
+    # The name of the secret in kubernetes will be created in your cluster
+    secretname: your_secret_name
+
+  # intra docker registry infomation
+  intraregistryinfo:
+
+    # docker image tag version for intra docker registry
+    registry_image_tag: 2
+    registry_proxy_image_tag: 0.4
+
+    # ip and port for docker registry server
+    server_ip: 10.0.3.9
+    server_port: 5000
+
+  # The config of hadoop which will be used by kubernetes.
+  hadoopinfo:
+    # If custom_hadoop_binary_path is None, script will download a common hadoop binary for you.
+    # hadoop-version
+    # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
+    custom_hadoop_binary_path: None
+    hadoopversion: 2.7.2
+    configmapname: hadoop-configuration
+    # For future HA. Now this ip address is same as the master IP of the infra node.
+    hadoop_vip: 10.0.3.9
+
+  frameworklauncher:
+    # For future HA and LB.
+    frameworklauncher_vip: 10.0.3.9
+    frameworklauncher_port: 9086
+
+  restserverinfo:
+    # path for rest api server src dir
+    src_path: ../rest-server/
+    # uri for frameworklauncher webservice
+    webservice_uri: http://10.0.3.9:9086
+    # uri for hdfs
+    hdfs_uri: hdfs://10.0.3.9:9000
+    # port for rest api server
+    server_port: 9186
+
+  # The config of webportal
+  webportalinfo:
+    # The address of the rest server to connect to
+    rest_server_addr: http://10.0.3.9:9186
+    # The address of the kubernetes dashboard to 
+    k8s_dashboard_addr: 10.0.3.12
+    # The port of webportal server
+    port: 6969
+
+
+# The detail of the machine in your cluster.
+# An example
+machineinfo:
+
+  NC24R:
+    mem: 224
+    gpu:
+    # type: gpu{type}
+      type: teslak80
+      count: 4
+    cpu:
+      vcore: 24
+    dataFolder: "/mnt"
+    # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    os: ubuntu16.04
+
+  D8SV3:
+    mem: 32
+    cpu:
+      vcore: 8
+    dataFolder: "/mnt"
+    # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    os: ubuntu16.04
+
+
+# The machine list of your cluster
+# An example
+machinelist:
+
+  infra-03:
+    nodename: 10.0.3.9
+    machinetype: D8SV3
+    ip: 10.0.3.9
+    registryrole: server
+    hadooprole: master
+    launcher: "true"
+    restserver: "true"
+    webportal: "true"
+
+  worker-01:
+    nodename: 10.0.3.11
+    machinetype: NC24R
+    ip: 10.0.3.11
+    registryrole: client
+    hadooprole: worker
+
+  worker-02:
+    nodename: 10.0.3.12
+    machinetype: NC24R
+    ip: 10.0.3.12
+    registryrole: client
+    hadooprole: worker

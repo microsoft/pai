@@ -1,0 +1,13 @@
+!!com.microsoft.frameworklauncher.common.model.ServiceDescriptor
+entryPoint: testString
+resource:
+  cpuNumber: 0
+  diskMB: 0
+  diskType: HDD
+  gpuAttribute: 0
+  gpuNumber: 0
+  memoryMB: 0
+  portRanges:
+  - {begin: 0, end: 0}
+sourceLocations: [testString]
+version: 0

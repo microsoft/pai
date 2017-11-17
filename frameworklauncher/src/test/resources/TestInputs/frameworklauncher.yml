@@ -1,0 +1,28 @@
+!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+# Common Setup
+zkConnectString: 127.0.0.1:2181
+zkRootDir: /Launcher
+hdfsRootDir: /Launcher
+
+# Service Setup
+serviceRMResyncIntervalSec: 60
+serviceRequestPullIntervalSec: 5
+
+# Application Setup
+applicationRetrieveDiagnosticsIntervalSec: 60
+applicationRetrieveDiagnosticsMaxRetryCount: 15
+applicationTransientConflictMaxDelaySec: 3600
+applicationTransientConflictMinDelaySec: 600
+
+# Framework Setup
+frameworkCompletedRetainSec: 43200
+
+# ApplicationMaster Setup
+amVersion: 0
+amRmResyncFrequency: 6
+amRequestPullIntervalSec: 60
+amStatusPushIntervalSec: 60
+
+# WebServer Setup
+webServerAddress: http://localhost:9086
+webServerStatusPullIntervalSec: 5

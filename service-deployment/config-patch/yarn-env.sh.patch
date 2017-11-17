@@ -1,0 +1,46 @@
+--- hadoop/yarn-env.sh	2017-11-13 01:45:55.704448531 -0500
++++ src/hadoop-run/yarn-env.sh	2017-11-13 02:08:08.372936324 -0500
+@@ -25,14 +25,14 @@
+   #echo "run java in $JAVA_HOME"
+   JAVA_HOME=$JAVA_HOME
+ fi
+-  
++
+ if [ "$JAVA_HOME" = "" ]; then
+   echo "Error: JAVA_HOME is not set."
+   exit 1
+ fi
+ 
+ JAVA=$JAVA_HOME/bin/java
+-JAVA_HEAP_MAX=-Xmx1000m 
++JAVA_HEAP_MAX=-Xmx4096m
+ 
+ # For setting YARN specific HEAP sizes please use this
+ # Parameter and set appropriately
+@@ -52,7 +52,7 @@
+ # and/or YARN_RESOURCEMANAGER_OPTS.
+ # If not specified, the default value will be picked from either YARN_HEAPMAX
+ # or JAVA_HEAP_MAX with YARN_HEAPMAX as the preferred option of the two.
+-#export YARN_RESOURCEMANAGER_HEAPSIZE=1000
++export YARN_RESOURCEMANAGER_HEAPSIZE=8192
+ 
+ # Specify the max Heapsize for the timeline server using a numerical value
+ # in the scale of MB. For example, to specify an jvm option of -Xmx1000m, set
+@@ -77,7 +77,7 @@
+ # and/or YARN_NODEMANAGER_OPTS.
+ # If not specified, the default value will be picked from either YARN_HEAPMAX
+ # or JAVA_HEAP_MAX with YARN_HEAPMAX as the preferred option of the two.
+-#export YARN_NODEMANAGER_HEAPSIZE=1000
++export YARN_NODEMANAGER_HEAPSIZE=4096
+ 
+ # Specify the JVM options to be used when starting the NodeManager.
+ # These options will be appended to the options specified as YARN_OPTS
+@@ -115,7 +115,6 @@
+ YARN_OPTS="$YARN_OPTS -Dyarn.root.logger=${YARN_ROOT_LOGGER:-INFO,console}"
+ if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
+   YARN_OPTS="$YARN_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
+-fi  
++fi
+ YARN_OPTS="$YARN_OPTS -Dyarn.policy.file=$YARN_POLICYFILE"
+ 
+-
