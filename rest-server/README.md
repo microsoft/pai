@@ -20,38 +20,38 @@
 
 # AII RESTful API Server
 
-RESTful API Server is built as an interface in the system, which allows you to submit, monitor or abort deep learning jobs.
+RESTful API Server is built as an interface for the system, which allows you to submit, monitor or abort deep learning jobs.
 
 
 ## Quick Start
 
 1. Write Job Config File
 
-  Prepare a job config file as described in [examples/README.md](../examples/README.md), for example, `exampleJob.json`.
+    Prepare a job config file as described in [examples/README.md](../examples/README.md#config-file), for example, `exampleJob.json`.
 
 2. Submit the Job
 
-  HTTP PUT the config file as json to:
-  ```
-  http://restserver/api/job/exampleJob
-  ```
-  For example, with [curl](https://curl.haxx.se/), you can execute below command line:
-  ```sh
-  curl -H "Content-Type: application/json" \
-       -X PUT http://restserver/api/job/exampleJob \
-       -d @exampleJob.json
-  ```
+    HTTP PUT the config file as json to:
+    ```
+    http://restserver/api/job/exampleJob
+    ```
+    For example, with [curl](https://curl.haxx.se/), you can execute below command line:
+    ```sh
+    curl -H "Content-Type: application/json" \
+         -X PUT http://restserver/api/job/exampleJob \
+         -d @exampleJob.json
+    ```
 
 3. Monitor the Job
 
-  Check the list of jobs at
-  ```
-  http://restserver/api/job
-  ```
-  Check your exampleJob status at
-  ```
-  http://restserver/api/job/exampleJob
-  ```
+    Check the list of jobs at:
+    ```
+    http://restserver/api/job
+    ```
+    Check your exampleJob status at:
+    ```
+    http://restserver/api/job/exampleJob
+    ```
 
 
 ## RestAPI
@@ -63,89 +63,93 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 ### API Details
 
 1. `PUT` job
-  Submit or update a job in the system.
 
-  *Request*
-  ```
-  PUT /api/job/:jobName
-  ```
+    Submit or update a job in the system.
 
-  *Parameters*
-  [job config json](../examples/README.md#Config File)
+    *Request*
+    ```
+    PUT /api/job/:jobName
+    ```
 
-  **Response if succeeded**
-  ```
-  {
-    "message": "update job $jobName successfully"
-  }
-  ```
+    *Parameters*
 
-  *Response if an error occured*
-  ```
-  Status: 500
+    [job config json](../examples/README.md#config-file)
 
-  {
-    "error": "JobUpdateError",
-    "message": "job updated error"
-  }
-  ```
+    *Response if succeeded*
+    ```
+    {
+      "message": "update job $jobName successfully"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobUpdateError",
+      "message": "job updated error"
+    }
+    ```
 
 2. `GET` job
-  Get job status in the system.
 
-  *Request*
-  ```
-  GET /api/job/:jobName
-  ```
+    Get job status in the system.
 
-  *Response if succeeded*
-  ```
-  {
-    name: "jobName",
-    state: "jobState",
-    createdTime: "createdTimestamp",
-    completedTime: "completedTimestamp",
-    appId: "applicationId",
-    appProgress: "applicationProgress",
-    appTrackingUrl: "applicationTrackingUrl",
-    appLaunchedTime: "applicationLaunchedTimestamp",
-    appCompletedTime: "applicationCompletedTimestamp",
-    appExitCode: applicationExitCode,
-    appExitDiagnostics: "applicationExitDiagnostics"
-  }
-  ```
+    *Request*
+    ```
+    GET /api/job/:jobName
+    ```
 
-  *Response if an error occured*
-  ```
-  Status: 500
+    *Response if succeeded*
+    ```
+    {
+      name: "jobName",
+      state: "jobState",
+      createdTime: "createdTimestamp",
+      completedTime: "completedTimestamp",
+      appId: "applicationId",
+      appProgress: "applicationProgress",
+      appTrackingUrl: "applicationTrackingUrl",
+      appLaunchedTime: "applicationLaunchedTimestamp",
+      appCompletedTime: "applicationCompletedTimestamp",
+      appExitCode: applicationExitCode,
+      appExitDiagnostics: "applicationExitDiagnostics"
+    }
+    ```
 
-  {
-    "error": "JobNotFound",
-    "message": "could not find job $jobName"
-  }
-  ```
+    *Response if an error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
 
 3. `DELETE` job
-  Remove job from the system.
 
-  *Request*
-  ```
-  DELETE /api/job/:jobName
-  ```
+    Remove job from the system.
 
-  *Response if succeeded*
-  ```
-  {
-    "message": "deleted job $jobName successfully"
-  }
-  ```
+    *Request*
+    ```
+    DELETE /api/job/:jobName
+    ```
 
-  *Response if an error occured*
-  ```
-  Status: 500
+    *Response if succeeded*
+    ```
+    {
+      "message": "deleted job $jobName successfully"
+    }
+    ```
 
-  {
-    "error": "JobNotFound",
-    "message": "could not find job $jobName"
-  }
-  ```
+    *Response if an error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
