@@ -18,23 +18,25 @@
 -->
 
 
-# Introduction
+# AII Examples
+
+## Introduction
 
 The system supports training or evaluation with CNTK, TensorFlow, and other custom docker images for deep learning. Users need to prepare a config file and submit it to run a job. This guide will introduce how to prepare a config file and how to run a deep learning job on the system.
 
 
-# Prerequisites
+## Prerequisites
 
 This guide assumes users have already installed and configured the system properly.
 
 
-# How to Run a Deep Learning Job
+## How to Run a Deep Learning Job
 
-## Config File
+### Config File
 
 Users need to prepare a json config file to describe the details of jobs, here is its format:
 
-```json
+```
 {
   "jobName":   String,
   "image":     String,
@@ -76,7 +78,7 @@ Here's all the parameters for job config file:
 | `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
 
 
-## Runtime Environment
+### Runtime Environment
 
 All user jobs will run separately in docker containers using the docker image specified in config file. For a certain job, each task will run in one docker container. The allocation of docker containers are influenced by resources on each node, so all containers in one job may on one node or different nodes. It's easy for one task in a job running without communication. But for distributed deep learning jobs, some tasks must communicate with each other so they have to know other tasks' information. We export some environment variables in docker container so that users can access to runtime environment in their code.
 
@@ -103,11 +105,11 @@ Here's all the `AII` prefixed environment variables in runtime docker containers
 | AII_TASK_ROLE\_`$i`\_HOST_LIST     | Host list for `AII_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
 
 
-## Deep Learning Job Example
+### Deep Learning Job Example
 
 Users can use the json config file to run deep learning jobs in docker environment, we use a distributed tensorflow job as an example:
 
-```json
+```
 {
   "jobName": "tensorflow-distributed-example",
   // customized tensorflow docker image with hdfs support
@@ -148,15 +150,20 @@ Users can use the json config file to run deep learning jobs in docker environme
 ```
 
 
-## Job Submission
+### Job Submission
 
 1. Put the code and data on HDFS
-  Use `aii-fs` to upload your code and data to HDFS on the system, for example
-  ```sh
-  aii-fs -cp -r /local/data/dir hdfs://path/to/data
-  ```
-  please refer to [aii-fs/README.md](aii-fs/README.md) for more details.
+
+    Use `aii-fs` to upload your code and data to HDFS on the system, for example
+    ```sh
+    aii-fs -cp -r /local/data/dir hdfs://path/to/data
+    ```
+    please refer to [aii-fs/README.md](../aii-fs/README.md#usage) for more details.
+
 2. Prepare a job config file
-  Prepare your deep learning job [config file](## Config File).
+
+    Prepare your deep learning job [config file](#config-file).
+
 3. Submit the job through web portal
-  Open web portal in a browser, click "Submit Job" and upload your config file.
+
+    Open web portal in a browser, click "Submit Job" and upload your config file.
