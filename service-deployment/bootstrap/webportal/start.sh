@@ -19,4 +19,4 @@
 
 ./node-label.sh
 
-kubectl create -f webportal-deployment.yaml
+kubectl create -f webportal-ds.yaml

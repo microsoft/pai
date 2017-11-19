@@ -16,11 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: extensions/v1beta1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: webportal
+  name: webportal-ds
 spec:
-  replicas: 1
   template:
     metadata:
       name: webportal
@@ -39,6 +38,6 @@ spec:
         - name: K8S_DASHBOARD_ADDR
           value: {{ clusterinfo['webportalinfo']['k8s_dashboard_addr'] }}
         - name: WEBPORTAL_PORT
-          value: {{ clusterinfo['webportalinfo']['port'] }}
+          value: "{{ clusterinfo['webportalinfo']['port'] }}"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
