@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Hadoop On Kubernetes
+# AII On Kubernetes
 
 ## Prerequisite
 
@@ -32,7 +32,7 @@ sudo apt-get install python python-yaml python-jinja2
 
 ## Cluster configuration and generate script
 
-An example of the cluster configuration
+An example of the cluster configuration. When deploy aii to your cluster, pls replace all the IP and host detail with your own host configuration.
 ```yaml
 clusterID: your_cluster_id
 
@@ -61,9 +61,9 @@ clusterinfo:
   # intra docker registry infomation
   intraregistryinfo:
 
-    # docker image for intra docker registry
-    registry_image: docker.io/registry:2
-    registry_proxy_image: gcr.io/google_containers/kube-registry-proxy:0.4
+    # docker image tag version for intra docker registry
+    registry_image_tag: 2
+    registry_proxy_image_tag: 0.4
 
     # ip and port for docker registry server
     server_ip: 10.0.3.9
@@ -85,6 +85,24 @@ clusterinfo:
     frameworklauncher_vip: 10.0.3.9
     frameworklauncher_port: 9086
 
+  restserverinfo:
+    # path for rest api server src dir
+    src_path: ../rest-server/
+    # uri for frameworklauncher webservice
+    webservice_uri: http://10.0.3.9:9086
+    # uri for hdfs
+    hdfs_uri: hdfs://10.0.3.9:9000
+    # port for rest api server
+    server_port: 9186
+
+  # The config of webportal
+  webportalinfo:
+    # The address of the rest server to connect to
+    rest_server_addr: http://10.0.3.9:9186
+    # The address of the kubernetes dashboard to 
+    k8s_dashboard_addr: 10.0.3.12
+    # The port of webportal server
+    port: 6969
 
 
 # The detail of the machine in your cluster.
@@ -115,28 +133,36 @@ machineinfo:
 # The machine list of your cluster
 # An example
 machinelist:
-
+  # Replace your own hostname here.
   infra-03:
+    # Replace your own IP here.
     nodename: 10.0.3.9
+    # Replace your own machine type here
     machinetype: D8SV3
+    # Replace your own IP here.
     ip: 10.0.3.9
     registryrole: server
     hadooprole: master
-    launcher: true
-
+    launcher: "true"
+    restserver: "true"
+    webportal: "true"
+  
+  # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11
     machinetype: NC24R
     ip: 10.0.3.11
     registryrole: client
     hadooprole: worker
-
+  
+  # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
     machinetype: NC24R
     ip: 10.0.3.12
     registryrole: client
     hadooprole: worker
+
 ```
 
 ## Prepare hadoop configuration (patching)
