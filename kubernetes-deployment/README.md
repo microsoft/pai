@@ -19,7 +19,8 @@
 
 # Kuberentes Deployment in cluster
 
-Following component will run with host network:
+The script will deploy Kubernetes in a cluster. We assume each node in the cluster has a statically assigned IP and runs Ubuntu 16.04 LTS.
+The following components will be deployed in the designated nodes and run in host network:
 - kubelet
 - apiserver
 - controller-manager
