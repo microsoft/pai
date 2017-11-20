@@ -111,6 +111,13 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         TaskRoleStatus taskRoleStatus = aggTaskRoleStatus.getValue().getTaskRoleStatus();
         TaskStatuses taskStatuses = aggTaskRoleStatus.getValue().getTaskStatuses();
 
+        // During Service upgradeFramework, there is a little chance that the previous AM cannot be killed by RM
+        // immediately (such as AM container node lost), but Service considers the previous AM is killed then
+        // upgrade the FrameworkStatus.
+        // After that, the previous AM can still pushStatus for the outdated FrameworkVersion.
+        // So, for the current AM, it should avoid to recover status with outdated FrameworkVersion.
+        // Note, the status provided by Launcher is eventually consistent, since the previous AM will eventually
+        // exit either due to AM RM heartbeat or pushStatus.existsLocalVersionFrameworkRequest.
         if (!taskRoleStatus.getFrameworkVersion().equals(conf.getFrameworkVersion())) {
           throw new NonTransientException(String.format(
               "[%s]: FrameworkVersion mismatch: Local Version %s, Previous TaskRoleStatus Version %s",
