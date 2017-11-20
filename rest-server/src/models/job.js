@@ -111,7 +111,7 @@ class Job {
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
               fs.writeFile(
-                  path.join(jobDir, `yarn_${idx}.sh`),
+                  path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
                   (err) => eachCallback(err));
             }, (err) => {
@@ -121,7 +121,7 @@ class Job {
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
               fs.writeFile(
-                  path.join(jobDir, `bootstrap_${idx}.sh`),
+                  path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
                   this.generateDockerContainerScript(data, idx),
                   (err) => eachCallback(err));
             }, (err) => {
@@ -140,7 +140,7 @@ class Job {
             return next(parallelError);
           } else {
             childProcess.exec(
-                `hdfs dfs -put ${jobDir} ${launcherConfig.hdfsUri}/Launcher`,
+                `hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Launcher`,
                 (err, stdout, stderr) => {
                   logger.info('[stdout]\n%s', stdout);
                   logger.info('[stderr]\n%s', stderr);
@@ -210,8 +210,8 @@ class Job {
         'taskNumber': data.taskRoles[i].taskNumber,
         'taskService': {
           'version': 0,
-          'entryPoint': `hdfs dfs -copyToLocal /Launcher/$FRAMEWORK_NAME/yarn_${i}.sh yarn.sh && source yarn.sh`,
-          'sourceLocations': [data.codeDir],
+          'entryPoint': `source YarnContainerScripts/${i}.sh`,
+          'sourceLocations': [`/Launcher/$FRAMEWORK_NAME/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,

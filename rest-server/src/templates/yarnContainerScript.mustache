@@ -51,4 +51,4 @@ docker run --name $docker_name \
   --env AII_TASK_INDEX=$TASK_INDEX \
   --env AII_CURRENT_CONTAINER_IP=$CONTAINER_IP \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -copyToLocal {{{ hdfsUri }}}/Launcher/$FRAMEWORK_NAME/bootstrap_{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
+  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Launcher/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
