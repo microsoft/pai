@@ -76,15 +76,6 @@ servicelist:
       - secret.yaml
     startscript: start.sh
 
-  containerregistry:
-    prerequisite:
-      - None
-    templatelist:
-      - node-label.sh
-      - kube-registry-ds.yaml
-      - kube-registry-proxy-ds.yaml
-    startscript: start.sh
-
   drivers:
     prerequisite:
       - cluster-configuration

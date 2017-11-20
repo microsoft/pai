@@ -39,17 +39,6 @@ clusterinfo:
     # The name of the secret in kubernetes will be created in your cluster
     secretname: your_secret_name
 
-  # intra docker registry infomation
-  intraregistryinfo:
-
-    # docker image tag version for intra docker registry
-    registry_image_tag: 2
-    registry_proxy_image_tag: 0.4
-
-    # ip and port for docker registry server
-    server_ip: 10.0.3.9
-    server_port: 5000
-
   # The config of hadoop which will be used by kubernetes.
   hadoopinfo:
     # If custom_hadoop_binary_path is None, script will download a common hadoop binary for you.
