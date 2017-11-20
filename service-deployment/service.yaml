@@ -133,5 +133,5 @@ servicelist:
       - rest-server
     templatelist:
       - node-label.sh
-      - webportal-deployment.yaml
+      - webportal-ds.yaml
     startscript: start.sh
