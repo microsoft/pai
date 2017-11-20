@@ -114,24 +114,29 @@ machineinfo:
 # The machine list of your cluster
 # An example
 machinelist:
-
+  # Replace your own hostname here.
   infra-03:
+    # Replace your own IP here.
     nodename: 10.0.3.9
+    # Replace your own machine type here
     machinetype: D8SV3
+    # Replace your own IP here.
     ip: 10.0.3.9
     registryrole: server
     hadooprole: master
     launcher: "true"
     restserver: "true"
     webportal: "true"
-
+  
+  # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11
     machinetype: NC24R
     ip: 10.0.3.11
     registryrole: client
     hadooprole: worker
-
+  
+  # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
     machinetype: NC24R
