@@ -112,6 +112,6 @@ If you want to remove some default services, just comment them in [service.yaml]
 #### Template
 
 All templates will be instantiated by [jinja2](http://jinja.pocoo.org/).
-And all the information will be got from clusterconfig (as in [clusterconfig-example.yaml](clusterconfig-example.yaml)).
+And all the information is retrieved from clusterconfig (as in [clusterconfig-example.yaml](clusterconfig-example.yaml)).
 If your service need more information, please add your property to cluster config. 
 The new property should be placed in clusterinfo, machineinfo or machinelist.
