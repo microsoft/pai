@@ -28,7 +28,7 @@ The following k8s components will be deployed in the designated nodes and run in
 - scheduler
 - dashboard
 - kube-proxy 
-Each k8s component runs in a docker container.
+Each k8s component runs in a docker container. If Docker is missing in the OS, the script will install the latest Docker version.
 
 ## Prepare your cluster configuration
 
