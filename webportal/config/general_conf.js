@@ -17,7 +17,7 @@
 
 var config = {
   'restServerAddr': process.env.REST_SERVER_ADDR,
-  'clusterMonitorAddr': process.env.K8S_DASHBOARD_ADDR,
+  'clusterMonitorAddr': '//' + process.env.K8S_DASHBOARD_ADDR + ':9090',
   'serverPort': process.env.WEBPORTAL_PORT
 };
 

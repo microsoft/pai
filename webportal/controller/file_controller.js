@@ -19,6 +19,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var multer = require('multer');
+var request = require('request');
+var config = require('../config/general_conf');
 
 var submitFile = (req, res) => {
   fs.readFile(req.file.path, function (err, data) {
