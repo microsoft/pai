@@ -62,11 +62,11 @@ RUN chmod u+x install-nvidia-drivers
 RUN chmod u+x install-all-drivers
 
 
-ENV NVIDIA_VERSION=375.26
-ENV CUDA_VERSION=8.0.61
+ENV NVIDIA_VERSION=384.81
+ENV CUDA_VERSION=9.0.176
 
 
-RUN wget --no-verbose https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run && \
+RUN wget --no-verbose https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run && \
     chmod 750 ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run && \
     ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run --extract=$STAGE_DIR && \
     rm ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run 
