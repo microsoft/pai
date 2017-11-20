@@ -98,15 +98,18 @@ class Job {
         let frameworkDescription;
         async.parallel([
           (parallelCallback) => {
-            async.each(['tmp', 'alive', 'finished'], (file, eachCallback) => {
-              fs.mkdir(path.join(jobDir, file), (err) => eachCallback(err));
-            }, (err) => {
-              if (err && err.code !== 'EEXIST') {
-                parallelCallback(err);
-              } else {
-                parallelCallback();
-              }
-            });
+            async.each(
+                ['tmp', 'finished', "YarnContainerScripts", "DockerContainerScripts"],
+                (file, eachCallback) => {
+                  fs.mkdir(path.join(jobDir, file), (err) => eachCallback(err));
+                },
+                (err) => {
+                  if (err && err.code !== 'EEXIST') {
+                    parallelCallback(err);
+                  } else {
+                    parallelCallback();
+                  }
+                });
           },
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
@@ -211,7 +214,7 @@ class Job {
         'taskService': {
           'version': 0,
           'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Launcher/$FRAMEWORK_NAME/YarnContainerScripts`],
+          'sourceLocations': [`/Launcher/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,
