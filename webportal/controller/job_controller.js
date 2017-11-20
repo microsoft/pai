@@ -38,7 +38,6 @@ var listJobs = (req, res) => {
 };
 
 var deleteJob = (req, res) => {
-  console.log(req.params, ' ** ', req.query);
   request.delete(config.restServerAddr + '/api/job/' + req.params.jobName, function (error, response, body) {
     if (error) {
       res.send({ 'error': true, 'msg': error });
