@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation
+e Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
 # MIT License
@@ -111,7 +111,6 @@ machinelist:
     machinetype: D8SV3
     # Replace your own IP here.
     ip: 10.0.3.9
-    registryrole: server
     hadooprole: master
     launcher: "true"
     restserver: "true"
@@ -122,7 +121,6 @@ machinelist:
     nodename: 10.0.3.11
     machinetype: NC24R
     ip: 10.0.3.11
-    registryrole: client
     hadooprole: worker
   
   # Do the same work as the machine above.
@@ -130,5 +128,4 @@ machinelist:
     nodename: 10.0.3.12
     machinetype: NC24R
     ip: 10.0.3.12
-    registryrole: client
     hadooprole: worker
