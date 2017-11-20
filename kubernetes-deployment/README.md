@@ -19,7 +19,7 @@
 
 # Kuberentes Deployment in cluster
 
-The script will deploy Kubernetes in a cluster. We assume each node in the cluster has a statically assigned IP and runs Ubuntu 16.04 LTS.
+This document explains how to deploy Kubernetes in a cluster. We assume each node in the cluster has a statically assigned IP and runs Ubuntu 16.04 LTS.
 The following k8s components will be deployed in the designated nodes and run in host network:
 - kubelet
 - apiserver
@@ -76,6 +76,7 @@ mastermachinelist:
   infra-01:
     # The nodename in k8s. To avoid complication, it is suggested to fill in the hostip for the nodename.
     # If you are confident that DNS can resolve your named nodename correctly, you can specify a UNIQUE_HOST_NAME
+    # hostip: the static IP of this node. We assume the IP of a host will not change.
     # username/password: the user name and password in the OS. Make sure it is granted with sudo permission
     nodename: IP
     hostip: IP
