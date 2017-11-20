@@ -23,21 +23,21 @@ clusterinfo:
   cluster-dns: 168.63.129.16
   # the ip address of API-server
   api-servers-ip: 10.0.3.7
-  # the port of API-server
+  # the port of API-server, please do not change the default port number below
   #api-server-port: 8080
-  # not in the same network segment with the host machine.
+  # specify an IP range not in the same network segment with the host machine.
   service-cluster-ip-range: 10.254.0.0/16
   # According to the etcdversion, you should fill a corresponding backend name.
-  # If you are not familiar with etc, pls don't change it.
+  # If you are not familiar with etcd, please don't change it.
   storage-backend: etcd2
-  # Fille the host's nodename who will run dashboard
+  # Specify the host's nodename that runs dashboard
   dashboard-host: 10.0.3.11
-  # If you can access to gcr, we suggest to use gcr.
+  # The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr.
   dockerregistry: gcr.io/google_containers
   # http://gcr.io/google_containers/hyperkube. Or the tag in your registry.
   hyperkubeversion: v1.7.3
   # http://gcr.io/google_containers/etcd. Or the tag in your registry.
-  # If you are not familiar with etc, pls don't change it.
+  # If you are not familiar with etcd, please don't change it.
   etcdversion: 2.2.5
   # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
   apiserverversion: v1.7.3
@@ -52,17 +52,17 @@ clusterinfo:
 # An example
 mastermachinelist:
 
-  # hostname
+  # hostname, must be the same as it in the host network
   infra-01:
-    # the nodename in kubernetes. To avoid complication of DNS issue, it is suggested to use hostip with nodename.
-    # If you are confident that DNS can resolve your named host name correctly, you can specify UNIQUE_HOST_NAME
-    # ensure the os user is granted sudo permission.
+    # The nodename in k8s. To avoid complication, it is suggested to fill in the hostip for the nodename.
+    # If you are confident that DNS can resolve your named nodename correctly, you can specify a UNIQUE_HOST_NAME
+    # hostip: the static IP of this node. We assume the IP of a host will not change.
+    # username/password: the user name and password in the OS. Make sure it is granted with sudo permission
     nodename: IP
     hostip: IP
     etcdid: etcdid1
     username: username
     password: password
-
 
 
 workermachinelist:
