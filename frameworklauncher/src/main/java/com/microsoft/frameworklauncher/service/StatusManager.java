@@ -112,11 +112,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         frameworkStatuses.put(frameworkName, aggFrameworkStatus.getFrameworkStatus());
         addExtensionFrameworkStatus(frameworkName);
       } else {
-        // When Service removeFramework, there is little chance that the running AM cannot be killed by RM immediately
-        // (such as AM container node lost), but Service consider the AM is killed then delete its FrameworkStatus.
-        // And then the running AM can may create null FrameworkStatus, null TaskRoleStatus or partial TaskStatuses on ZK.
-        // So, WebServer.StatusManager need to detect the corrupted AggregatedFrameworkStatus and
-        // Service.StatusManager need to clean it when recover.
         FrameworkStatus frameworkStatus = null;
 
         try {
@@ -282,6 +277,14 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     zkStore.deleteFrameworkStatus(frameworkName);
   }
 
+  private void upgradeFramework(FrameworkRequest frameworkRequest) throws Exception {
+    String frameworkName = frameworkRequest.getFrameworkName();
+
+    // skipRemoveHdfsResource since Upgraded Framework will overwrite them anyway or it will be
+    // Cleanuped by GCLeftoverFrameworks if the Framework is Removed after LauncherService restart.
+    removeFramework(frameworkName, true);
+    addFramework(frameworkRequest);
+  }
 
   /**
    * REGION ReadInterface
@@ -523,10 +526,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         FrameworkStatus frameworkStatus = frameworkStatuses.get(frameworkName);
         if (!frameworkStatus.getFrameworkVersion().equals(frameworkVersion)) {
           LOGGER.logDebug(logPrefix + "NonRolling Upgrade Framework");
-          // skipRemoveHdfsResource since Upgraded Framework will overwrite them anyway or it will be
-          // Cleanuped by GCLeftoverFrameworks if the Framework is Removed after LauncherService restart.
-          removeFramework(frameworkName, true);
-          addFramework(frameworkRequest);
+          upgradeFramework(frameworkRequest);
         }
       }
     }

@@ -22,7 +22,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class DnsClient {
-  // TODO: Return an external IPv4 addresses for the host name.
   // An external address is the address that other machines is able to connect to it.
   public static String resolveExternalIPv4Address(String hostName) throws UnknownHostException {
     return Inet4Address.getByName(hostName).getHostAddress();
