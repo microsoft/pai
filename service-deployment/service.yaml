@@ -49,22 +49,6 @@ imagelist:
       - dockerfile
     prerequisite: hadoop-run
 
-  rest-server:
-    copy:
-      # created by prepare hadoop function on docker_build.py
-      - src/hadoop-run/hadoop
-      - ../rest-server
-    templatelist:
-      - dockerfile
-    prerequisite: None
-
-  webportal:
-    copy:
-      - ../webportal
-    templatelist:
-      - None
-    prerequisite: None
-
 
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
@@ -74,6 +58,15 @@ servicelist:
       - None
     templatelist:
       - secret.yaml
+    startscript: start.sh
+
+  containerregistry:
+    prerequisite:
+      - None
+    templatelist:
+      - node-label.sh
+      - kube-registry-ds.yaml
+      - kube-registry-proxy-ds.yaml
     startscript: start.sh
 
   drivers:
@@ -105,24 +98,6 @@ servicelist:
       - cluster-configuration
       - hadoop-service
     templatelist:
-      - node-label.sh
       - frameworklauncher.yaml
-    startscript: start.sh
-
-  rest-server:
-    prerequisite:
-      - cluster-configuration
-      - frameworklauncher
-    templatelist:
       - node-label.sh
-      - rest-server.yaml
-    startscript: start.sh
-
-  webportal:
-    prerequisite:
-      - cluster-configuration
-      - rest-server
-    templatelist:
-      - node-label.sh
-      - webportal-ds.yaml
     startscript: start.sh
