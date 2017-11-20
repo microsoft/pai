@@ -32,7 +32,7 @@ sudo apt-get install python python-yaml python-jinja2
 
 ## Cluster configuration and generate script
 
-An example of the cluster configuration. When deploy aii to your cluster, pls replace all the IP and host detail with your own host configuration.
+An example of the cluster configuration. When deploy the system to your cluster, please replace all the IP and host detail with your own host configuration.
 ```yaml
 clusterID: your_cluster_id
 
@@ -61,11 +61,11 @@ clusterinfo:
   # intra docker registry infomation
   intraregistryinfo:
 
-    # docker image tag version for intra docker registry
+    # docker image tag version for local docker registry
     registry_image_tag: 2
     registry_proxy_image_tag: 0.4
 
-    # ip and port for docker registry server
+    # ip and port for local docker registry
     server_ip: 10.0.3.9
     server_port: 5000
 
