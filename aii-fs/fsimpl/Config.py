@@ -34,21 +34,21 @@ class Config:
     def getHadoopConfig(self, user, host, port):
         if user:
             hdfsUser = user
-        elif "user" in self.config:
+        elif "user" in self.config.keys():
             hdfsUser = self.config["user"]
         else:
             hdfsUser = "root"
 
         if host:
             hdfsHost = host
-        elif "host" in self.config:
+        elif "host" in self.config.keys():
             hdfsHost = self.config["host"]
         else:
             hdfsHost = None
 
         if port:
             hdfsPort = port
-        elif "port" in self.config:
+        elif "port" in self.config.keys():
             hdfsPort = self.config["port"]
         else:
             hdfsPort = "50070"
