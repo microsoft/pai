@@ -25,7 +25,7 @@ docker run hello-world
 
 
 ## GPU test
-driverpath="/var/drivers/nvidia/375.26"
+driverpath="/var/drivers/nvidia/current"
 ls -A $driverpath
 if [ "`ls -A $driverpath`" = "" ]
 then
