@@ -5,11 +5,36 @@ The system supports training or evaluation with CNTK, TensorFlow, and other cust
 
 # How to Run a Deep Learning Job
 
+## Custom Docker Image
+
+The deep learning jobs will run in docker containers in the system. Docker images need to be prepared in advance. We provide base docker images with HDFS, cuda and cudnn support so that users can build their own custom docker images based on it.
+
+To build a base docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), simply run:
+```sh
+docker build -f Dockerfiles/Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
+```
+
+Then custom docker images can be built based on it by adding `FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
+
+As an example, we build a TensorFlow docker image using a custom [Dockerfile.run.tensorflow](Dockerfiles/Dockerfile.run.tensorflow):
+```sh
+docker build -f Dockerfiles/Dockerfile.run.tensorflow -t aii.run.tensorflow Dockerfiles/
+```
+
+Next we need to push the TensorFlow image to intra docker registry so that every node in the system can access that image:
+```sh
+docker tag aii.run.tensorflow localhost:5000/aii.run.tensorflow
+docker push localhost:5000/aii.run.tensorflow
+```
+
+The built image can be used in the system now.
+
+
 ## Config File
 
 Users need to prepare a json config file to describe the details of jobs, here is its format:
 
-```json
+```
 {
   "jobName":   String,
   "image":     String,
@@ -82,11 +107,11 @@ Here's all the `AII` prefixed environment variables in runtime docker containers
 
 Users can use the json config file to run deep learning jobs in docker environment, we use a distributed tensorflow job as an example:
 
-```json
+```
 {
   "jobName": "tensorflow-distributed-example",
-  // customized tensorflow docker image with hdfs support
-  "image": "cuda-hdfs-tf",
+  // customized tensorflow docker image with hdfs, cuda and cudnn support
+  "image": "localhost:5000/aii.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/to/data",
