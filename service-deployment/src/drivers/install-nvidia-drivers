@@ -21,7 +21,7 @@
 KERNEL_FULL_VERSION=`uname -r`
 CURRENT_DRIVER=/var/drivers/nvidia/current
 
-apt-get -y install linux-headers-$(uname -r)
+#apt-get -y install linux-headers-$(uname -r)
 
 #[[ -f /lib/modules/$KERNEL_FULL_VERSION/.modules-prepared ]] || {
 #  echo Modules not yet prepared
