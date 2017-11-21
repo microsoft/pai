@@ -61,18 +61,13 @@ COPY install-* $STAGE_DIR/
 RUN chmod u+x install-nvidia-drivers
 RUN chmod u+x install-all-drivers
 
-ENV NVIDIA_VERSION=384.81
-ENV CUDA_VERSION=9.0.176
+ENV NVIDIA_VERSION=384.98
 
-RUN wget --no-verbose https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run && \
-    chmod 750 ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run && \
-    ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run --extract=$STAGE_DIR && \
-    rm ./cuda_${CUDA_VERSION}_${NVIDIA_VERSION}_linux-run 
-#    wget -q -O - /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1_amd64.tar.xz | tar --strip-components=1 -C /usr/bin -Jxvf -
-# cuda-linux64-rel-8.0.61-21551265.run  cuda-samples-linux-8.0.61-21551265.run  NVIDIA-Linux-x86_64-375.26.run
-# http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
-RUN ./NVIDIA-Linux-x86_64-${NVIDIA_VERSION}.run --extract-only && \
-    rm ./NVIDIA-Linux-x86_64-${NVIDIA_VERSION}.run 
+RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
+    chmod 750 ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
+    ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run --extract-only && \
+    rm ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
+
 
 ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
