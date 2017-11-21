@@ -92,7 +92,7 @@ public class GpuAllocationManager { // THREAD SAFE
     return candidateNode;
   }
 
-  private synchronized long selectCandidateGPU(Node candidateNode, int requestGPUCount) {
+  public synchronized long selectCandidateGPU(Node candidateNode, int requestGPUCount) {
     long candidateSelectGPU = 0;
     long availableGPU = candidateNode.getNodeGpuStatus();
 
