@@ -1,5 +1,5 @@
 # About aii-fs
-aii-fs is a standard tool to transfer files between user’s local file system and the HDFS of AII platform.
+aii-fs is a tool to transfer files between user's local file system and the HDFS deployed on the platform.
 # Getting Started
 Please make sure you have installed python and pip in you computer.
 # Instructions for Developers
