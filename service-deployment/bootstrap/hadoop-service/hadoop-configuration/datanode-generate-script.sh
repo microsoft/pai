@@ -19,4 +19,7 @@
 
 cp  /hadoop-configuration/datanode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
+HOST_ADDRESS=`ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'`
+
+sed -i "s/{HOST_ADDRESS}/${HOST_ADDRESS}/g" $HADOOP_CONF_DIR/hdfs-site.xml
 sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 
