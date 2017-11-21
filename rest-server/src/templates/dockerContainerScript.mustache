@@ -57,7 +57,7 @@ for i in `seq 0 $((AII_TASK_ROLES_NUM-1))`; do
 done
 
 cd $HOME
-hdfs dfs -copyToLocal $AII_CODE_DIR code || exit 1
+hdfs dfs -get $AII_CODE_DIR code || exit 1
 cd code
 
 # TODO: yarn container and docker container communication need to
