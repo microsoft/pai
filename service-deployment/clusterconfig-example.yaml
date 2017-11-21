@@ -22,7 +22,7 @@ clusterinfo:
 
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-  # used for Hadoop NM (node manager) to launch a docker container in host env.
+  # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
   dockerverison: 17.06.2
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
