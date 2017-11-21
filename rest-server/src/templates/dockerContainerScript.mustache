@@ -60,10 +60,8 @@ cd $HOME
 hdfs dfs -get $AII_CODE_DIR code || exit 1
 cd code
 
-# TODO: yarn container and docker container communication need to
-# be changed to use local file system instead of hdfs
 while /bin/true; do
-  [ $(( $(date +%s%3N) - $(hdfs dfs -stat %Y $HDFS_LAUNCHER_PREFIX/$FRAMEWORK_NAME/alive/$TASK_INDEX) )) -gt 120000 ] \
+  [ $(( $(date +%s) - $(stat -c %Y /alive/$AII_CONTAINER_ID) )) -gt 60 ] \
     && pkill -9 --ns 1
   sleep 20
 done &
