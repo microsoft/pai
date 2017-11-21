@@ -67,6 +67,22 @@ public class GpuAllocationManagerTest {
     Node node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
     GpuAllocationManager gpuMgr = new GpuAllocationManager();
+    
+    long candidateGPU = gpuMgr.selectCandidateGPU(node1, 1);
+    Assert.assertEquals(1L, candidateGPU);
+    candidateGPU = gpuMgr.selectCandidateGPU(node1, 2);
+    Assert.assertEquals(3L, candidateGPU);
+
+    candidateGPU = gpuMgr.selectCandidateGPU(node3, 2);
+    Assert.assertEquals(3L, candidateGPU);
+    candidateGPU = gpuMgr.selectCandidateGPU(node3, 4);
+    Assert.assertEquals(0xFL, candidateGPU);
+    candidateGPU = gpuMgr.selectCandidateGPU(node3, 8);
+    Assert.assertEquals(0xFFL, candidateGPU);
+
+    candidateGPU = gpuMgr.selectCandidateGPU(node4, 2);
+    Assert.assertEquals(0x30L, candidateGPU);
+    
     Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     //Empty allocation failed;
     Assert.assertEquals(null, result);
@@ -113,29 +129,5 @@ public class GpuAllocationManagerTest {
     gpuMgr.removeCandidateRequestNode(node6);
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     Assert.assertEquals(null, result);
-  }
-
-  @Test
-  public void testNode() {
-    Set<String> tag = null;
-
-    Node node1 = new Node("node1", tag, ResourceDescriptor.newInstance(2, 2, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node3 = new Node("node3", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
-
-    long candidateGPU = node1.calculateCandidateGPU(1);
-    Assert.assertEquals(1L, candidateGPU);
-    candidateGPU = node1.calculateCandidateGPU(2);
-    Assert.assertEquals(3L, candidateGPU);
-
-    candidateGPU = node3.calculateCandidateGPU(2);
-    Assert.assertEquals(3L, candidateGPU);
-    candidateGPU = node3.calculateCandidateGPU(4);
-    Assert.assertEquals(0xFL, candidateGPU);
-    candidateGPU = node3.calculateCandidateGPU(8);
-    Assert.assertEquals(0xFFL, candidateGPU);
-
-    candidateGPU = node4.calculateCandidateGPU(2);
-    Assert.assertEquals(0x30L, candidateGPU);
   }
 }
