@@ -20,12 +20,11 @@
 
 # Entrypoint script for yarn container.
 
-docker_name=$FRAMEWORK_NAME-$RANDOM-$RANDOM
+docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
 
-# TODO: yarn container and docker container communication need to
-# be changed to use local file system instead of hdfs
+mkdir -p "/tmp/aii-root/alive/$APP_ID"
 while /bin/true; do
-  hdfs dfs -touchz {{{ hdfsUri }}}/Launcher/$FRAMEWORK_NAME/alive/$TASK_INDEX
+  touch "/tmp/aii-root/alive/$APP_ID/$CONTAINER_ID"
   sleep 20
   [ ! "$(docker ps | grep $docker_name)" ] && break
 done &
@@ -47,8 +46,10 @@ docker run --name $docker_name \
   --oom-kill-disable \
   --device=$nvidia_devices \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
+  --volume /tmp/aii-root/alive/$APP_ID:/alive \
   --env FRAMEWORK_NAME=$FRAMEWORK_NAME \
   --env AII_TASK_INDEX=$TASK_INDEX \
   --env AII_CURRENT_CONTAINER_IP=$CONTAINER_IP \
+  --env AII_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -copyToLocal {{{ hdfsUri }}}/Launcher/$FRAMEWORK_NAME/bootstrap_{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
+  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Launcher/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
