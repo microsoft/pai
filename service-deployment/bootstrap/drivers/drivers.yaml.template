@@ -49,6 +49,8 @@ spec:
           name: drivers-log
         - mountPath: /usr/bin/realpath
           name: realpath-path
+        - mountPath: /usr/src
+          name: kernel-head
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
@@ -67,4 +69,7 @@ spec:
       - name: realpath-path
         hostPath:
           path: /usr/bin/realpath
+      - name: kernel-head
+        hostPath:
+          path: /usr/src
 
