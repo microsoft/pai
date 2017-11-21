@@ -22,36 +22,36 @@ clusterinfo:
 
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+  # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
   dockerverison: 17.06.2
 
-  # docker registry infomation
+  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   dockerregistryinfo:
 
-    # If public, pls fill it same as your username
+    # If public, please fill it the same as your username
     docker_namespace: your_registry_namespace
 
-    # If public，Fill docker_registry_domain with word "public"
+    # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
     # docker_registry_domain: public
     docker_registry_domain: your_registry_domain
     docker_username: your_registry_username
     docker_password: your_registry_password
 
     # The name of the secret in kubernetes will be created in your cluster
+    # Must be lower case, e.g., regsecret.
     secretname: your_secret_name
 
-  # The config of hadoop which will be used by kubernetes.
+  # hadoop config information
   hadoopinfo:
-    # If custom_hadoop_binary_path is None, script will download a common hadoop binary for you.
+    # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
     # hadoop-version
     # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
     custom_hadoop_binary_path: None
     hadoopversion: 2.7.2
     configmapname: hadoop-configuration
-    # For future HA. Now this ip address is same as the master IP of the infra node.
     hadoop_vip: 10.0.3.9
 
   frameworklauncher:
-    # For future HA and LB.
     frameworklauncher_vip: 10.0.3.9
     frameworklauncher_port: 9086
 
@@ -65,18 +65,18 @@ clusterinfo:
     # port for rest api server
     server_port: 9186
 
-  # The config of webportal
+  # The config for web portal
   webportalinfo:
     # The address of the rest server to connect to
     rest_server_addr: http://10.0.3.9:9186
     # The address of the kubernetes dashboard to 
     k8s_dashboard_addr: 10.0.3.12
-    # The port of webportal server
+    # The port of web portal server
     port: 6969
 
 
-# The detail of the machine in your cluster.
-# An example
+# The detail machine type information in your cluster, each machine type has an entry here
+# An Azure VM example
 machineinfo:
 
   NC24R:
@@ -88,7 +88,7 @@ machineinfo:
     cpu:
       vcore: 24
     dataFolder: "/mnt"
-    # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    # Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
     os: ubuntu16.04
 
   D8SV3:
@@ -100,12 +100,12 @@ machineinfo:
     os: ubuntu16.04
 
 
-# The machine list of your cluster
+# The machine list in your cluster
 # An example
 machinelist:
   # Replace your own hostname here.
   infra-03:
-    # Replace your own IP here.
+    # recommend to be the same as host IP
     nodename: 10.0.3.9
     # Replace your own machine type here
     machinetype: D8SV3

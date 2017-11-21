@@ -16,10 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 imagelist:
-  # If your service have custom image, pls set the detail here.
-  # The image name should be same as the folder in src.
-  # pls set your template file name in the templatelist. If there is no template in this image, fill None.
-  # If the docker image have prerequisite custom image, pls fill it in  prerequisite. If no, fill None.
+  # If your service have custom image, please set the detail here.
+  # The image name should be the same as the folder in src.
+  # please set your template file name in the templatelist. If there is no template in this image, fill None.
+  # If the docker image have prerequisite custom image, please fill it in  prerequisite. If no, fill None.
   base-image:
     templatelist:
       - None
@@ -51,7 +51,7 @@ imagelist:
 
   rest-server:
     copy:
-      # created by prepare hadoop function on docker_build.py
+      # created by the prepare hadoop function on docker_build.py
       - src/hadoop-run/hadoop
       - ../rest-server
     templatelist:
@@ -82,7 +82,7 @@ servicelist:
     templatelist:
       - node-label.sh
       - drivers.yaml
-    # Note： your script should start all your service dependency. And should be check whether you service start or not.
+    # Note： your script should start all your service dependency. Make sure service has completed the starting process.
     startscript: start.sh
 
   hadoop-service:

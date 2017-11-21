@@ -17,7 +17,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Download a offical hadoop binary. And get the original configuration of hadoop.
+# Download an official hadoop binary, and get the original configuration of hadoop.
 # Then apply our patch to the configuration to get our environment configuration.
 # When deploying it to your cluster, you can directly mv your configuration to the destination file.
 wget http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
