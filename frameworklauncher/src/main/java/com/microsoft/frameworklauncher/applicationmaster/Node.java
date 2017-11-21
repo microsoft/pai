@@ -88,17 +88,6 @@ public class Node {
   public long getSelectedGpuBitmap() {
     return selectedGpuBitmap;
   }
-  public long calculateCandidateGPU(int requestGPUCount){
-       //sequencial pick GPUs to serving by default
-      long candidateSelectGPU = 0;
-      long availableGPU = getNodeGpuStatus();
-
-      for(int i = 0; i < requestGPUCount; i++) {
-          candidateSelectGPU += (availableGPU - (availableGPU&(availableGPU -1)));
-          availableGPU &=(availableGPU -1);
-      }
-      return candidateSelectGPU;
-  }
 
   public void allocateResource(ResourceDescriptor resource, long gpuMap) {
     localAllocated.setCpuNumber(localAllocated.getCpuNumber() + resource.getCpuNumber());

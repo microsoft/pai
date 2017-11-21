@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.util.StringUtils;
 
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Random;
 
