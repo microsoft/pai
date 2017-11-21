@@ -1,4 +1,4 @@
-# AI Infrastructure
+# Resource Scheduling for AI
 
 ## Contributing
 
