@@ -26,7 +26,6 @@ import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.utils.*;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
-import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.*;

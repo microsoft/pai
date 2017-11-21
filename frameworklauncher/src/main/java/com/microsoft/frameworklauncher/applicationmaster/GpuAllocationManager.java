@@ -28,78 +28,87 @@ import java.util.Set;
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
 
-  // Candidate request host names for this application
+  // Candidate request Nodes for this application
   private final LinkedHashMap<String, Node> candidateRequestNodes = new LinkedHashMap<>();
 
-  public void addCandidateRequestNode(Node candidateRequestNode) {
-    synchronized (candidateRequestNodes) {
-      if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
-        LOGGER.logInfo("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
-        candidateRequestNodes.put(candidateRequestNode.getHostName(), candidateRequestNode);
-      } else {
-        Node existNode = candidateRequestNodes.get(candidateRequestNode.getHostName());
-        existNode.updateNode(candidateRequestNode);
-        LOGGER.logInfo("updateCandidateRequestNode: %s ", existNode);
-      }
+  public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
+    if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
+      LOGGER.logInfo("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
+      candidateRequestNodes.put(candidateRequestNode.getHostName(), candidateRequestNode);
+    } else {
+      Node existNode = candidateRequestNodes.get(candidateRequestNode.getHostName());
+      existNode.updateNode(candidateRequestNode);
+      LOGGER.logInfo("updateCandidateRequestNode: %s ", existNode);
     }
   }
 
-  // According to the request resource, Find a best candidate node.
-  // best candidate: for CPU and memory only job request, the first node with the required resource.
-  // for GPU request job, consider the GPU topology structure, find a node which can minimum the communication cost between gpus;
-  public Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel) {
-    synchronized (candidateRequestNodes) {
-      Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
-      Node candidateNode = null;
+  // According to the request resource, find a candidate node.
+  // To improve it, considers the GPU topology structure, find a node which can minimize
+  // the communication cost between GPUs;
+  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel) {
+    LOGGER.logInfo(
+        "allocateCandidateRequestNode: Request resources:" + request.toString());
+
+    Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
+    Node candidateNode = null;
+    long candidateSelectGPU = 0;
+
+    while (iter.hasNext()) {
+      Map.Entry<String, Node> entry = iter.next();
       LOGGER.logInfo(
-          "allocateCandidateRequestNode: Request resources:" + request.toString());
-      long candidateSelectGPU = 0;
-      while (iter.hasNext()) {
-        Map.Entry<String, Node> entry = iter.next();
-        LOGGER.logInfo(
-            "allocateCandidateRequestNode: Try node: " + entry.getValue().toString());
+          "allocateCandidateRequestNode: Try node: " + entry.getValue().toString());
 
-        if (nodeLabel != null) {
-          Set<String> nodeLabels = entry.getValue().getNodeLabels();
-          if (!nodeLabels.contains(nodeLabel)) {
-            LOGGER.logInfo(
-                "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
-                entry.getValue().getHostName(), nodeLabel);
-            continue;
-          }
-        }
-        if (request.getMemoryMB() <= entry.getValue().getAvailableMemory() &&
-            request.getCpuNumber() <= entry.getValue().getAvailableCpu() &&
-            request.getGpuNumber() <= entry.getValue().getAvailableNumGpus()) {
-          if (request.getGpuNumber() > 0) {
-              candidateNode = entry.getValue();
-              candidateSelectGPU = candidateNode.calculateCandidateGPU(request.getGpuNumber());
-          }
-          break;
+      if (nodeLabel != null) {
+        Set<String> nodeLabels = entry.getValue().getNodeLabels();
+        if (!nodeLabels.contains(nodeLabel)) {
+          LOGGER.logInfo(
+              "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
+              entry.getValue().getHostName(), nodeLabel);
+          continue;
         }
       }
 
-      if (candidateNode != null) {
-        candidateNode.allocateResource(request, candidateSelectGPU);
-        LOGGER.logInfo(
-                "allocateCandidateRequestNode: select node: " + candidateNode.toString());
-      } else {
-        // AM will request resource with any node.  
-        LOGGER.logInfo(
-            "allocateCandidateRequestNode: No enough resource");
+      if (request.getMemoryMB() <= entry.getValue().getAvailableMemory() &&
+          request.getCpuNumber() <= entry.getValue().getAvailableCpu() &&
+          request.getGpuNumber() <= entry.getValue().getAvailableNumGpus()) {
+        if (request.getGpuNumber() > 0) {
+          candidateNode = entry.getValue();
+          candidateSelectGPU = selectCandidateGPU(candidateNode, request.getGpuNumber());
+        }
+        break;
       }
-
-      return candidateNode;
     }
+
+    if (candidateNode != null) {
+      candidateNode.allocateResource(request, candidateSelectGPU);
+      LOGGER.logInfo(
+          "allocateCandidateRequestNode: select node: " + candidateNode.toString());
+    } else {
+      // AM will request resource with any node.
+      LOGGER.logInfo(
+          "allocateCandidateRequestNode: No enough resource");
+    }
+
+    return candidateNode;
   }
 
-  public void removeCandidateRequestNode(Node candidateRequestHost) {
-    synchronized (candidateRequestNodes) {
-      if (candidateRequestNodes.containsKey(candidateRequestHost.getHostName())) {
-        LOGGER.logInfo("removeCandidateRequestNode: %s", candidateRequestHost.getHostName());
+  private synchronized long selectCandidateGPU(Node candidateNode, int requestGPUCount) {
+    long candidateSelectGPU = 0;
+    long availableGPU = candidateNode.getNodeGpuStatus();
 
-        candidateRequestNodes.remove(candidateRequestHost.getHostName());
-      }
+    // Sequentially select GPUs.
+    for (int i = 0; i < requestGPUCount; i++) {
+      candidateSelectGPU += (availableGPU - (availableGPU & (availableGPU - 1)));
+      availableGPU &= (availableGPU - 1);
+    }
+    return candidateSelectGPU;
+  }
+
+  public synchronized void removeCandidateRequestNode(Node candidateRequestNode) {
+    if (candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
+      LOGGER.logInfo("removeCandidateRequestNode: %s", candidateRequestNode.getHostName());
+
+      candidateRequestNodes.remove(candidateRequestNode.getHostName());
     }
   }
 }
