@@ -1,6 +1,6 @@
---- hadoop/hdfs-site.xml	2017-11-13 01:45:55.704448531 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml	2017-11-13 00:32:15.966551420 -0500
-@@ -18,4 +18,252 @@
+--- hadoop/hdfs-site.xml	2017-11-21 12:33:20.815145100 +0000
++++ datanode-hdfs-site.xml	2017-11-21 12:31:33.687145100 +0000
+@@ -18,4 +18,257 @@
  
  <configuration>
  
@@ -250,6 +250,11 @@
 +        Set to true to enable support for HDFS ACLs (Access Control Lists). By default, ACLs are disabled.
 +        When ACLs are disabled, the NameNode rejects all RPCs related to setting or getting ACLs.
 +  </description>
++</property>
++
++<property>
++   <name>dfs.datanode.hostname</name>
++   <value>{HOST_ADDRESS}</value>
 +</property>
 +
  </configuration>
