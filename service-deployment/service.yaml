@@ -74,6 +74,7 @@ servicelist:
       - None
     templatelist:
       - secret.yaml
+      - host-configuration/host-configuration.yaml
     startscript: start.sh
 
   drivers:
