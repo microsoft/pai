@@ -20,6 +20,6 @@
 cp  /hadoop-configuration/datanode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
 HOST_NAME=`hostname`
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -p $HADOOP_CONF_DIR/hdfs-site.xml -h $HOST_NAME
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/hdfs-site.xml -n $HOST_NAME
 
 sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 

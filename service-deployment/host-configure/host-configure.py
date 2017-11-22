@@ -69,7 +69,7 @@ def main():
 
     parser.add_argument('-c', '--clusterconfig', required=True, help="cluster configuration's path")
     parser.add_argument('-f', '--targetfile', required=True, help="target file's path")
-    parser.add_argument('-h', '--hostname', required=True, help="the host's hostname")
+    parser.add_argument('-n', '--hostname', required=True, help="the host's hostname")
 
     args = parser.parse_args()
 
