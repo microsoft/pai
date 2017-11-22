@@ -254,7 +254,7 @@
 +
 +<property>
 +   <name>dfs.datanode.hostname</name>
-+   <value>{HOST_ADDRESS}</value>
++   <value>{{ host_config['ip'] }}</value>
 +</property>
 +
  </configuration>
