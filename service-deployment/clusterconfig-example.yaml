@@ -55,20 +55,12 @@ clusterinfo:
     frameworklauncher_vip: 10.0.3.9
     frameworklauncher_port: 9086
 
-  restserverinfo:
-    # path for rest api server src dir
-    src_path: ../rest-server/
-    # uri for frameworklauncher webservice
-    webservice_uri: http://10.0.3.9:9086
-    # uri for hdfs
-    hdfs_uri: hdfs://10.0.3.9:9000
-    # port for rest api server
-    server_port: 9186
+  restserver:
+    restserver_vip: 10.0.3.9
+    restserver_port: 9186
 
   # The config for web portal
   webportalinfo:
-    # The address of the rest server to connect to
-    rest_server_addr: http://10.0.3.9:9186
     # The address of the kubernetes dashboard to 
     k8s_dashboard_addr: 10.0.3.12
     # The port of web portal server
@@ -112,8 +104,6 @@ machinelist:
     # Replace your own IP here.
     ip: 10.0.3.9
     hadooprole: master
-    launcher: "true"
-    restserver: "true"
     webportal: "true"
   
   # Do the same work as the machine above.

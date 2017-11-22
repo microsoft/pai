@@ -37,12 +37,12 @@ spec:
           privileged: true
         env:
         - name: LAUNCHER_WEBSERVICE_URI
-          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+          value: http://{{ clusterinfo['frameworklauncher']['frameworklauncher_vip'] }}:{{ clusterinfo['frameworklauncher']['frameworklauncher_port'] }}
         - name: HDFS_URI
-          value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+          value: hdfs://{{ clusterinfo['hadoopinfo']['hadoop_vip'] }}:9000
         ports:
         - name: rest-server
           containerPort: 8080
-          hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
+          hostPort: {{ clusterinfo['restserver']['restserver_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

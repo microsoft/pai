@@ -17,8 +17,5 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver=true
-    {% endif %}
-{% endfor %}
+
+kubectl label nodes {{ clusterinfo['restserver']['restserver_vip'] }} restserver=true
