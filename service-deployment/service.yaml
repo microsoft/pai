@@ -23,6 +23,9 @@ imagelist:
   base-image:
     templatelist:
       - None
+    copy:
+      # created by the prepare hadoop function on docker_build.py
+      - host-configure/
     prerequisite: None
 
   drivers:
@@ -74,6 +77,7 @@ servicelist:
       - None
     templatelist:
       - secret.yaml
+      - host-configuration/host-configuration.yaml
     startscript: start.sh
 
   drivers:

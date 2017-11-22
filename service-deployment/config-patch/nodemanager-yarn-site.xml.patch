@@ -84,7 +84,7 @@
 +
 +    <property>
 +      <name>yarn.nodemanager.hostname</name>
-+      <value>{NODEMANAGER_ADDRESS}</value>
++      <value>{{ host_config['ip'] }}</value>
 +    </property>  
 +
 +    <property>  

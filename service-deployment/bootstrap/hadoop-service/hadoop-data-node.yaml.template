@@ -38,6 +38,8 @@ spec:
           name: hadoop-data-storage
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /host-configuration
+          name: host-confg-volume
         env:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -54,3 +56,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
