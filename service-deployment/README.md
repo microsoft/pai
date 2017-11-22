@@ -32,7 +32,9 @@ sudo apt-get install python python-yaml python-jinja2
 
 [Docker install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
-The deployment process further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) to store the docker images for the services to be deployed. 
+The deployment process further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) to store the docker images for the services to be deployed.
+
+The deployment assumes the name of the network interface card in each node is eth0. 
 
 ## Cluster configuration and generate script
 
