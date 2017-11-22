@@ -34,7 +34,7 @@ spec:
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
         env:
         - name: REST_SERVER_ADDR
-          value: {{ clusterinfo['webportalinfo']['rest_server_addr'] }}
+          value: http://{{ clusterinfo['restserver']['restserver_vip'] }}:{{ clusterinfo['restserver']['restserver_port'] }}
         - name: K8S_DASHBOARD_ADDR
           value: {{ clusterinfo['webportalinfo']['k8s_dashboard_addr'] }}
         - name: WEBPORTAL_PORT
