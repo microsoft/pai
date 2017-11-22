@@ -196,7 +196,7 @@ def remoteBootstrap(cluster_info, host_config):
 
 
     sftp_paramiko(src_local, dst_remote, srcipt_package, host_config)
-    commandline = "tar -xvf kubernetes.tar && sudo ./src/start.sh {0}:8080 {1}".format(cluster_info['api-servers-ip'], host_config['username'])
+    commandline = "tar -xvf kubernetes.tar && sudo ./src/start.sh {0}:8080 {1} {2}".format(cluster_info['api-servers-ip'], host_config['username'], host_config['hostip'])
     ssh_shell_paramiko(host_config, commandline)
 
 
