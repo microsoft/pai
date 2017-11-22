@@ -18,18 +18,17 @@
 -->
 
 
-# AII RESTful API Server
+# REST Server
 
-RESTful API Server is built as an interface for the system, which allows you to submit, monitor or abort deep learning jobs.
-
+REST Server exposes a set of interface that allows you to manage jobs.
 
 ## Quick Start
 
-1. Write Job Config File
+1. Job config file
 
     Prepare a job config file as described in [examples/README.md](../examples/README.md#config-file), for example, `exampleJob.json`.
 
-2. Submit the Job
+2. Submit the job
 
     HTTP PUT the config file as json to:
     ```
@@ -42,7 +41,7 @@ RESTful API Server is built as an interface for the system, which allows you to 
          -d @exampleJob.json
     ```
 
-3. Monitor the Job
+3. Monitor the job
 
     Check the list of jobs at:
     ```
