@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # All rights reserved.
 #
 # MIT License
