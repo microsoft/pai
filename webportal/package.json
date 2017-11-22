@@ -1,7 +1,7 @@
 {
   "name": "aii-web-portal",
   "version": "0.1.0",
-  "description": "WebPortal for Microsoft AI Infrastructure",
+  "description": "Web portal",
   "main": "server.js",
   "author": {
     "name": "Microsoft"
