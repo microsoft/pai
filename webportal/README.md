@@ -1,8 +1,11 @@
-# WebPortal
-WebPortal is the entrance for users to see the cluster, view job status and operate jobs. You very easily use it to submit, delete and see details of jobs.
+# Web Portal
+The web portal is the entrance for job and cluster management.
+User can submit, monitor, or kill the job through the web UI.
+Cluster operator can also see and manage cluster state through web portal. 
 
 ## Installation
-You only need to config several parameters in clusterconfig.yaml, and then it will automatically install WebPortal.
+The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process, including that of the web portal. 
+The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) are of interest to web portal.
 * REST_SERVER_ADDR: String, the address of the rest server, for example, http://10.0.0.3:9273
 * K8S_DASHBOARD_ADDR: String, the address of the kubernetes dashboard, for example, http://10.0.0.4:9090
 * WEBPORTAL_PORT: Int, the port to use when launching WebPortal, for example, 6969
@@ -10,18 +13,18 @@ You only need to config several parameters in clusterconfig.yaml, and then it wi
 ## Usage
 
 ### Documentation
-When you click the tab "Documentation", you can view the documentation of our platform. It will instruct you to use the platform properly.
+Click the tab "Documentation" to view the documentation of our system.
 
 ### View cluster status
-When you click the tab "Cluster Status", it will direct to the dashboard of kubernetes. Then you can see all components running on the cluster.
+Click the tab "Cluster Status" to go to the dashboard of kubernetes, where it shows all components running on the cluster.
 
 ### View job status
-When you click the tab "View Jobs", it will display the list of jobs. But you can only see some simple information in this page.
-* If you want to see more, you can click the name of the job, then it will direct to a hadoop website. You can see the detail information here.
-* If you want to delete a job, you can just click the "DELETE" button of the job. It will refresh the page after deleting successfully.
+Click the tab "View Jobs" to display the list of jobs. 
+* Click the name of a job to go to a page that shows more details of the job.
+* Click the "DELETE" button to delete the job.
 
 ### Submit job
-When you click the tab "Submit Job", you can see a button asking you to select a file to submit. The job config file must follow the format shown in "documentation -> job guide".
+Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [Job Guide](./public/doc/JOB_GUIDE.md).
 
 ### Download
-When you click the tab "Download", it will show you the list you can download. You can download it by clicking its name.
+Click the tab "Download" to show a list of files can be downloaded.
