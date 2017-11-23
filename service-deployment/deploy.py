@@ -247,8 +247,10 @@ def main():
     cluster_config = load_yaml_config(config_path)
     service_config = load_yaml_config("service.yaml")
 
-    # step 2: generate base64code for secret.yaml
+    # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
+
     generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
