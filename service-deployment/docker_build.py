@@ -76,10 +76,13 @@ def write_generated_file(file_path, content_data):
 
 def login_docker_registry(docker_registry, docker_username, docker_password):
 
-    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
-    error_msg = "docker registry login error"
-    execute_shell(shell_cmd, error_msg)
-    print "docker registry login successfully"
+    if docker_username and docker_password:
+        shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
+        error_msg = "docker registry login error"
+        execute_shell(shell_cmd, error_msg)
+        print "docker registry login successfully"
+    else:
+        print "docker registry authentication not provided"
 
 
 
