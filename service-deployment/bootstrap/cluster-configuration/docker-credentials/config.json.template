@@ -1,0 +1,1 @@
+{{ clusterinfo['dockerregistryinfo']['credential'] }}

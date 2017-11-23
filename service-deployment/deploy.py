@@ -98,6 +98,16 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 
 
+def genenrate_docker_credential(docker_info):
+
+    credential = execute_shell_with_output(
+        "cat ~/.docker/config.json",
+        "Failed to get the docker's config.json"
+    )
+
+    docker_info["credential"] = credential
+
+
 def generate_secret_base64code(docker_info):
 
     domain = docker_info[ "docker_registry_domain" ]
@@ -199,6 +209,30 @@ def bootstrap_service(service_config):
 
 
 
+def copy_arrangement(service_config):
+
+    service_list = service_config['servicelist']
+
+    for srv in service_list:
+
+        if 'copy' not in service_list[srv]:
+            continue
+
+        for target in service_list[srv]['copy']:
+            dst = "bootstrap/{0}/{1}".format(srv, target['dst'])
+            src = target['src']
+
+            if os.path.exists(dst) == False :
+                shell_cmd = "mkdir -p {0}".format(dst)
+                error_msg = "failed to mkdir -p {0}".format(dst)
+                execute_shell(shell_cmd, error_msg)
+
+            shell_cmd = "cp -r {0} {1}".format(src, dst)
+            error_msg = "failed to copy {0}".format(src)
+            execute_shell(shell_cmd, error_msg)
+
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -213,13 +247,16 @@ def main():
     cluster_config = load_yaml_config(config_path)
     service_config = load_yaml_config("service.yaml")
 
-    # step 2: generate base64code for secret.yaml
+    # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
+
     generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 4: generate templatefile
+    copy_arrangement(service_config)
     generate_template_file(cluster_config, service_config)
 
     # step 5: Bootstrap service.
