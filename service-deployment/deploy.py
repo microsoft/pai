@@ -244,6 +244,7 @@ def main():
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 4: generate templatefile
+    copy_arrangement(service_config)
     generate_template_file(cluster_config, service_config)
 
     # step 5: Bootstrap service.
