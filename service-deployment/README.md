@@ -34,8 +34,6 @@ sudo apt-get install python python-yaml python-jinja2
 
 The deployment process further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) to store the docker images for the services to be deployed.
 
-The deployment assumes the name of the network interface card in each node is eth0. 
-
 ## Cluster configuration and generate script
 
 Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
