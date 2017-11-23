@@ -199,6 +199,30 @@ def bootstrap_service(service_config):
 
 
 
+def copy_arrangement(service_config):
+
+    service_list = service_config['servicelist']
+
+    for srv in service_list:
+
+        if 'copy' not in service_list[srv]:
+            continue
+
+        for target in service_list[srv]['copy']:
+            dst = "bootstrap/{0}/{1}".format(srv, target['dst'])
+            src = target['src']
+
+            if os.path.exists(dst) == False :
+                shell_cmd = "mkdir -p {0}".format(dst)
+                error_msg = "failed to mkdir -p {0}".format(dst)
+                execute_shell(shell_cmd, error_msg)
+
+            shell_cmd = "cp -r {0} {1}".format(src, dst)
+            error_msg = "failed to copy {0}".format(src)
+            execute_shell(shell_cmd, error_msg)
+
+
+
 def main():
     parser = argparse.ArgumentParser()
 

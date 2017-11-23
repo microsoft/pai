@@ -18,3 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubectl create configmap  host-configuration --from-file=host-configuration/
+kubectl create configmap  docker-credentials --from-file=docker-credentials/
