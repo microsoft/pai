@@ -72,9 +72,6 @@ imagelist:
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
   cluster-configuration:
-    #copy:
-    #  - src: ~/.docker/config.json
-    #    dst: docker-credentials/
     prerequisite:
       - None
     templatelist:
