@@ -18,6 +18,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+# Edit /etc/hosts file for remote host
+
+# set host ip
+hostip=$3
+
+# Change 127.0.0.1 line to "127.0.0.1 localhost"
+grep -q "127.0.0.1" /etc/hosts && \
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost" /etc/hosts || \
+    sed -i "\$a127.0.0.1 localhost"
+
+# Comment 127.0.1.1 line
+sed -i "/127.0.1.1/s/^/# /" /etc/hosts
+
+# Change hostip line to "$hostip $hostname"
+grep -q "$hostip" /etc/hosts && \
+    sed -i "/$hostip/c\$hostip $(hostname)" /etc/hosts || \
+    sed -i "\$a$hostip $(hostname)"
+
+
 # Prepare docker for remote host
 if command -v docker >/dev/null 2>&1; then
     echo docker has been installed. And skip docker install.
