@@ -1,13 +1,13 @@
 {
-  "jobName": "tensorflow-distributed-example",
+  "jobName": "tensorflow-distributed-jobguid",
   "image": "aii.run.tensorflow",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
-  "dataDir": "hdfs://path/to/data",
+  "dataDir": "hdfs://path/tensorflow-distributed-jobguid/data",
   // make a new dir for output on hdfs
-  "outputDir": "hdfs://path/to/output",
+  "outputDir": "hdfs://path/tensorflow-distributed-jobguid/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
-  "codeDir": "hdfs://path/to/code",
+  "codeDir": "hdfs://path/tensorflow-distributed-jobguid/code",
 
   "taskRoles": [
     {

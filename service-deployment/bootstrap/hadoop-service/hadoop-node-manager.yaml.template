@@ -50,6 +50,8 @@ spec:
           name: hadoop-config-volume
         - mountPath: /host-configuration
           name: host-confg-volume
+        - mountPath: /root/.docker
+          name: docker-cred-volume
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -88,5 +90,8 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
+      - name: docker-cred-volume
+        configMap:
+          name: docker-credentials
 
 

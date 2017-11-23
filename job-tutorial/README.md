@@ -22,42 +22,47 @@
 
 ## Introduction
 
-The system supports training or evaluation with CNTK, TensorFlow, and other custom docker images for deep learning. Users need to prepare a config file and submit it to run a job. This guide will introduce how to prepare a config file and how to run a deep learning job on the system.
+The system supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
+It also supports other type of workload through a customized docker image. 
+Users need to prepare a config file and submit it for a job submission. 
+This guide introduces the details of job submission.
 
 
 ## Prerequisites
 
-This guide assumes users have already installed and configured the system properly.
+This guide assumes the system has already been deployed properly and a docker registry is available to store docker images. 
 
 
-## Custom Docker Image
+## Docker image
 
-The deep learning jobs will run in docker containers in the system. Docker images need to be prepared in advance. We provide base docker images with HDFS, cuda and cudnn support so that users can build their own custom docker images based on it.
+The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance. 
+The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
 
-To build a base docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), simply run:
+To build a base Docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), run:
 ```sh
 docker build -f Dockerfiles/Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
 ```
 
-Then custom docker images can be built based on it by adding `FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
+Then a custom docker image can be built based on it by adding `FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
 
-As an example, we build a TensorFlow docker image using a custom [Dockerfile.run.tensorflow](Dockerfiles/Dockerfile.run.tensorflow):
+As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](Dockerfiles/Dockerfile.run.tensorflow):
 ```sh
 docker build -f Dockerfiles/Dockerfile.run.tensorflow -t aii.run.tensorflow Dockerfiles/
 ```
 
-Next we need to push the TensorFlow image to intra docker registry so that every node in the system can access that image:
+Next, the built image is pushed to a docker registry for every node in the system to access that image:
 ```sh
 docker tag aii.run.tensorflow localhost:5000/aii.run.tensorflow
 docker push localhost:5000/aii.run.tensorflow
 ```
 
-The built image can be used in the system now.
+And the image is ready to serve. Note that above script assume the docker registry is deployed locally. 
+Actual script can vary depending on the configuration of Docker registry. 
 
 
-## Config File
+## Json config file for job submission
 
-Users need to prepare a json config file to describe the details of jobs, here is its format:
+A json file describe detailed configuration required for a job submission. The detailed format is shown as below:
 
 ```
 {
@@ -81,12 +86,12 @@ Users need to prepare a json config file to describe the details of jobs, here i
 }
 ```
 
-Here's all the parameters for job config file:
+Below please find the detailed explanation for each of the parameters in the config file:
 
 | Field Name                     | Schema                     | Description                              |
 | :----------------------------- | :------------------------- | :--------------------------------------- |
 | `jobName`                      | String, required           | Name for the job, need to be unique      |
-| `image`                        | String, required           | URL pointing to the docker image for all tasks in the job |
+| `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory existing on HDFS        |
 | `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
@@ -97,15 +102,19 @@ Here's all the parameters for job config file:
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
-| `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill all tasks, no less than 0 |
+| `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
 | `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
 
 
-## Runtime Environment
+## Runtime environment
 
-All user jobs will run separately in docker containers using the docker image specified in config file. For a certain job, each task will run in one docker container. The allocation of docker containers are influenced by resources on each node, so all containers in one job may on one node or different nodes. It's easy for one task in a job running without communication. But for distributed deep learning jobs, some tasks must communicate with each other so they have to know other tasks' information. We export some environment variables in docker container so that users can access to runtime environment in their code.
+Each task in a job runs in one Docker container. 
+For a multi-task job, one task might communicate with others.
+So a task need to be aware of other tasks' runtime information such as IP, port, etc. 
+The system exposes such runtime information as environment variables to each task's Docker container. 
+For mutual communication, user can write code in the container to access those runtime environment variables.
 
-Here's all the `AII` prefixed environment variables in runtime docker containers:
+Below we show a complete list of environment variables accessible in a Docker container:
 
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
@@ -128,21 +137,21 @@ Here's all the `AII` prefixed environment variables in runtime docker containers
 | AII_TASK_ROLE\_`$i`\_HOST_LIST     | Host list for `AII_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
 
 
-## Deep Learning Job Example
+## An example deep learning job
 
-Users can use the json config file to run deep learning jobs in docker environment, we use a distributed tensorflow job as an example:
+A distributed TensorFlow job is listed below as an example:
 
 ```
 {
-  "jobName": "tensorflow-distributed-example",
+  "jobName": "tensorflow-distributed-jobguid",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
   "image": "localhost:5000/aii.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
-  "dataDir": "hdfs://path/to/data",
-  "outputDir": "hdfs://path/to/output",
+  "dataDir": "hdfs://path/tensorflow-distributed-jobguid/data",
+  "outputDir": "hdfs://path/tensorflow-distributed-jobguid/output",
   // this example uses code from tensorflow benchmark https://git.io/vF4wT
-  "codeDir": "hdfs://path/to/code",
+  "codeDir": "hdfs://path/tensorflow-distributed-jobguid/code",
   "taskRoles": [
     {
       "name": "ps_server",
@@ -173,19 +182,19 @@ Users can use the json config file to run deep learning jobs in docker environme
 ```
 
 
-## Job Submission
+## Job submission
 
 1. Put the code and data on HDFS
 
     Use `aii-fs` to upload your code and data to HDFS on the system, for example
     ```sh
-    aii-fs -cp -r /local/data/dir hdfs://path/to/data
+    aii-fs -cp -r /local/data/dir hdfs://path/tensorflow-distributed-jobguid/data
     ```
     please refer to [aii-fs/README.md](../aii-fs/README.md#usage) for more details.
 
 2. Prepare a job config file
 
-    Prepare your deep learning job [config file](#config-file).
+    Prepare the [config file](#json-config-file-for-job-submission) for your job.
 
 3. Submit the job through web portal
 
