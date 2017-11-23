@@ -98,6 +98,16 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 
 
+def genenrate_docker_credential(docker_info):
+
+    credential = execute_shell_with_output(
+        "cat ~/.docker/config.json",
+        "Failed to get the docker's config.json"
+    )
+
+    docker_info["credential"] = credential
+
+
 def generate_secret_base64code(docker_info):
 
     domain = docker_info[ "docker_registry_domain" ]
