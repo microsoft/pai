@@ -47,7 +47,8 @@ def generate_from_template(template_data, cluster_config, hostname):
 
     generated_file = jinja2.Template(template_data).render(
         {
-            "host_config": cluster_config[ hostname ]
+            "host_config": cluster_config[ hostname ],
+            "cluster_config": cluster_config
         }
     )
 

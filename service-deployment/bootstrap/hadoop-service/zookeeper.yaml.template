@@ -36,12 +36,14 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/zoodata
           name: zookeeper-storage
-        env:
-        - name: INFRA_IP
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - mountPath: /host-configuration
+          name: host-confg-volume
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
       - name: zookeeper-storage
         hostPath:
           path: /mnt/zoodata
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
