@@ -31,7 +31,7 @@ The system also requires a dev machine that runs in the same environment and has
 To deploy and use the system, the process consists of the following steps.
 
 1. [Deploy Kubernetes](./kubernetes-deployment/README.md)
-2. Build the binary for [Hadoop AI](./hadoop-ai/Hadoop-AI-readme.md) and place it in the specified path* 
+2. Build the binary for [Hadoop AI](./hadoop-ai/README.md) and place it in the specified path* 
 3. [Deploy system services](./service-deployment/README.md) using Kubernetes
 4. Access [web portal](./webportal/README.md) for job submission and cluster management
 

@@ -16,26 +16,65 @@ https://issues.apache.org/jira/browse/YARN-7481
  
 
 ## How to Build in Linux environment
-Note: please sync the code in the root folder to avoid the "file name too long" issue. 
 
- a. Download hadoop AI Enhancement
+  there are two methods to do build:
+  **quick build**: Please referance hadoop-build/README.md to get the quick way to do the build.    
+  
+
+   **Step by step build**
+
+   Below are step-by-step build for advance user:
+
+ 1. Prepare linux enviroment
+ 
+       Ubuntu 16.04 is the default system. below dependencies must be installed:
+
+  		$ apt-get install git        
+        $ apt-get install openjkd-8-jre
+        $ apt-get install openjdk-8-jdk
+        $ apt-get install maven
+        $ apt-get install cmake
+        $ apt-get install libtool
+        $ apt-get install automake
+        $ apt-get install autoconf
+        $ apt-get install findbugs
+        $ apt-get install libssl-dev
+        $ apt-get install pkg-config         
+        $ apt-get install build-essential
+        $ apt-get install zlib1g-dev        
+
+		wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
+		tar xzvf protobuf-2.5.0.tar.gz && \  
+		cd protobuf-2.5.0 && \  
+		./configure && \  
+		make && \  
+		make check && \  
+		make install && \  
+ 
+
+ 2. Download hadoop AI Enhancement
 
     Please download "hadoop-2.7.2-gpu.patch" from https://issues.apache.org/jira/browse/YARN-7481 to your local.
    
- b. Get hadoop 2.7.2 source code
+ 3. Get hadoop 2.7.2 source code     
+    
+	       git clone https://github.com/apache/hadoop.git
+	       git checkout branch-2.7.2
+	
+ 4. Build the official hadoop in your linux develop environment
 
-   Please do it in linux environment. I assume you have the knowledge to use git 
- 
-    1  git clone https://github.com/apache/hadoop.git
-    2  git checkout branch-2.7.2
-
-c. Apply hadoop AI enhancement patch file
+   	Run command “mvn package -Pdist,native -DskipTests -Dtar” 
    
-   copy the download file into your linux hadoop root folder and run:
+    Please make sure you can pass result before move to next steps, you can search the internet to find how to set up the enviroment and build the official hadoop.
+   
+   
+5. Apply hadoop AI enhancement patch file
+   
+    copy the download file into your linux hadoop root folder and run:
 
     git apply hadoop-2.7.2-gpu.patch  
 
-  if the out says below means you are successfully apply this patch:
+    if the out says below means you are successfully apply this patch:
 
 		../../hadoop-2.7.2-gpu.patch:276: trailing whitespace.
 		../../hadoop-2.7.2-gpu.patch:1630: trailing whitespace.
@@ -48,12 +87,13 @@ c. Apply hadoop AI enhancement patch file
 		warning: 99 lines add whitespace errors.
 
    
-d. Build hadoop AI enhancement
+6. Build hadoop AI enhancement
   
-     Run command “mvn package -Pdist -DskipTests -Dtar”
-   you will get the hadoop-2.7.2.tar.gz under hadoop-dist/target folder if everything is good. 
+     	Run command “mvn package -Pdist,native -DskipTests -Dtar”
 
-   use hadoop-2.7.2.tar.gz to replace your hadoop to deploy to your cluster. 
+     you will get the hadoop-2.7.2.tar.gz under hadoop-dist/target folder if everything is good. 
+
+     use hadoop-2.7.2.tar.gz to replace your hadoop to deploy to your cluster. 
    
 
 ## Yarn GPU Interface ##
