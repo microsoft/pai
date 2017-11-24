@@ -182,6 +182,13 @@ A distributed TensorFlow job is listed below as an example:
 ```
 
 
+## More examples
+
+- [tensorflow-example.json](tensorflow/tensorflow-example.json): Single GPU trainning on ImageNet.
+- [tensorflow-distributed-example.json](tensorflow/tensorflow-distributed-example.json): Distributed trainning on CIFAR-10.
+- [tensorboard-example.json](tensorflow/tensorboard-example.json): TensorBoard visualization for trainning logs.
+
+
 ## Job submission
 
 1. Put the code and data on HDFS
