@@ -45,7 +45,6 @@ RUN apt-get -y update && \
       git \
       inotify-tools \
       rsync \
-      realpath \
       maven \
       cmake \
       findbugs \
