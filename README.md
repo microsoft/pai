@@ -17,7 +17,7 @@ The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage k
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
  
-## System deployment
+## System Deployment
 
 ### Prerequisite
 
@@ -25,12 +25,14 @@ The system runs on a cluster of machines each equipped with one or multiple GPUs
 Each machine in the cluster runs Ubuntu 16.04 LTS and has a statically assigned IP address.
 To deploy services, the system further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) 
 to store the docker images for the services to be deployed.
+The system also requires a dev machine that runs in the same environment and has full access to the cluster.
 
 To deploy and use the system, the process consists of the following steps.
 
-1. Deploy Kubernetes
-2. Deploy system services using Kubernetes
-3. Access [web portal](./webportal/README.md) for job submission and cluster management
+1. [Deploy Kubernetes](./kubernetes-deployment/README.md)
+2. Build the binary for [Hadoop AI](./hadoop-ai/Hadoop-AI-readme.md) and place it in the specified path. 
+3. [Deploy system services](./service-deployment/README.md) using Kubernetes
+4. Access [web portal](./webportal/README.md) for job submission and cluster management
 
 ### Kubernetes deployment
 
@@ -51,9 +53,19 @@ Please refer to this [tutorial](job-tutorial/README.md) for details about job su
 
 The web portal also provides Web UI for cluster management.
 
-## System architecture
+## System Architecture
 
-TODO
+<p style="text-align: left;">
+  <img src="./sysarch.png" title="System Architecture" alt="System Architecture" />
+</p>
+
+The system architecture is illustrated above. 
+User submits jobs or monitors cluster status through the [Web Portal](./webportal/README.md), 
+which calls APIs provided by the [REST server](./rest-server/README.md).
+Third party tools can also call REST server directly for job management.
+Upon receiving API calls, the REST server coordinates with [FrameworkLauncher (short for Launcher)](./frameworklauncher/README.md)
+to perform job management.
+
 
 ## Contributing
 
