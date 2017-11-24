@@ -1,0 +1,20 @@
+{
+  "jobName": "tensorboard-jobguid",
+  "image": "pai.run.tensorflow",
+
+  // prepare checkpoint and log to be visualized and upload to hdfs
+  "dataDir": "hdfs://path/tensorboard-jobguid/data",
+  // prepare visualization script tensorboard-example.sh and upload to hdfs
+  "codeDir": "hdfs://path/tensorboard-jobguid/code",
+
+  "taskRoles": [
+    {
+      "name": "tensorboard",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 4096,
+      "gpuNumber": 0,
+      "command": "source tensorboard-example.sh"
+    }
+  ]
+}
