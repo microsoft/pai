@@ -100,10 +100,16 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 def genenrate_docker_credential(docker_info):
 
-    credential = execute_shell_with_output(
-        "cat ~/.docker/config.json",
-        "Failed to get the docker's config.json"
-    )
+    username = docker_info[ "docker_username" ]
+    passwd = docker_info[ "docker_password" ]
+
+    if username and passwd:
+        credential = execute_shell_with_output(
+            "cat ~/.docker/config.json",
+            "Failed to get the docker's config.json"
+        )
+    else:
+        credential = "{}"
 
     docker_info["credential"] = credential
 
@@ -117,12 +123,17 @@ def generate_secret_base64code(docker_info):
     if domain == "public":
         domain = ""
 
-    login_docker_registry( domain, username, passwd )
+    if username and passwd:
+        login_docker_registry( domain, username, passwd )
 
-    base64code = execute_shell_with_output(
-        "cat ~/.docker/config.json | base64",
-        "Failed to base64 the docker's config.json"
-    )
+        base64code = execute_shell_with_output(
+            "cat ~/.docker/config.json | base64",
+            "Failed to base64 the docker's config.json"
+        )
+    else:
+        print "docker registry authentication not provided"
+
+        base64code = "{}".encode("base64")
 
     docker_info["base64code"] = base64code.replace("\n", "")
 
