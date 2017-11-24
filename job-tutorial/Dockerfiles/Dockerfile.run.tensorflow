@@ -16,14 +16,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# tag: aii.run.tensorflow
+# tag: pai.run.tensorflow
 #
 # Before building this image you need to build the base image first:
 #
-# docker build -f Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
 
 
-FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
 # For how to run TensorFlow on Hadoop,
 # please refer to https://www.tensorflow.org/deploy/hadoop

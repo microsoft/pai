@@ -16,12 +16,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.'
 
 
-# tag: aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+# tag: pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 #
-# Base image to build for AII.
+# Base image to build for the system.
 # Other images depend on it, so build it like:
 #
-# docker build -f Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
 
 
 # Tag: nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04

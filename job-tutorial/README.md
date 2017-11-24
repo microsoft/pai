@@ -40,20 +40,20 @@ The system provides a base Docker images with HDFS, CUDA and cuDNN support, base
 
 To build a base Docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), run:
 ```sh
-docker build -f Dockerfiles/Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
+docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
 ```
 
-Then a custom docker image can be built based on it by adding `FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
+Then a custom docker image can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
 
 As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](Dockerfiles/Dockerfile.run.tensorflow):
 ```sh
-docker build -f Dockerfiles/Dockerfile.run.tensorflow -t aii.run.tensorflow Dockerfiles/
+docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
 
 Next, the built image is pushed to a docker registry for every node in the system to access that image:
 ```sh
-docker tag aii.run.tensorflow localhost:5000/aii.run.tensorflow
-docker push localhost:5000/aii.run.tensorflow
+docker tag pai.run.tensorflow localhost:5000/pai.run.tensorflow
+docker push localhost:5000/pai.run.tensorflow
 ```
 
 And the image is ready to serve. Note that above script assume the docker registry is deployed locally. 
@@ -118,23 +118,23 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
-| AII_JOB_NAME                       | `jobName` in config file                 |
-| AII_DATA_DIR                       | `dataDir` in config file                 |
-| AII_OUTPUT_DIR                     | `outputDir`in config file                |
-| AII_CODE_DIR                       | `codeDir` in config file                 |
-| AII_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
-| AII_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
-| AII_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
-| AII_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
-| AII_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
-| AII_TASK_ROLE_INDEX                | Index of current task in the task role, starting from 0 |
-| AII_TASK_ROLE_NO                   | Index of current task role in config file, starting from 0 |
-| AII_TASKS_NUM                      | Total tasks' number in config file       |
-| AII_TASK_ROLES_NUM                 | Total task roles' number in config file  |
-| AII_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
-| AII_CURRENT_CONTAINER_IP           | Allocated ip for current docker container |
-| AII_CURRENT_CONTAINER_PORT         | Allocated port for current docker container |
-| AII_TASK_ROLE\_`$i`\_HOST_LIST     | Host list for `AII_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
+| PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_DATA_DIR                       | `dataDir` in config file                 |
+| PAI_OUTPUT_DIR                     | `outputDir`in config file                |
+| PAI_CODE_DIR                       | `codeDir` in config file                 |
+| PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
+| PAI_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
+| PAI_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
+| PAI_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
+| PAI_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
+| PAI_TASK_ROLE_INDEX                | Index of current task in the task role, starting from 0 |
+| PAI_TASK_ROLE_NO                   | Index of current task role in config file, starting from 0 |
+| PAI_TASKS_NUM                      | Total tasks' number in config file       |
+| PAI_TASK_ROLES_NUM                 | Total task roles' number in config file  |
+| PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
+| PAI_CURRENT_CONTAINER_IP           | Allocated ip for current docker container |
+| PAI_CURRENT_CONTAINER_PORT         | Allocated port for current docker container |
+| PAI_TASK_ROLE\_`$i`\_HOST_LIST     | Host list for `PAI_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
 
 
 ## An example deep learning job
@@ -145,7 +145,7 @@ A distributed TensorFlow job is listed below as an example:
 {
   "jobName": "tensorflow-distributed-jobguid",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
-  "image": "localhost:5000/aii.run.tensorflow",
+  "image": "localhost:5000/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/tensorflow-distributed-jobguid/data",
@@ -163,7 +163,7 @@ A distributed TensorFlow job is listed below as an example:
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$AII_DATA_DIR --data_name=cifar10 --train_dir=$AII_OUTPUT_DIR --ps_hosts=$AII_TASK_ROLE_0_HOST_LIST --worker_hosts=$AII_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$AII_TASK_ROLE_INDEX"
+      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -172,7 +172,7 @@ A distributed TensorFlow job is listed below as an example:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$AII_DATA_DIR --data_name=cifar10 --train_dir=$AII_OUTPUT_DIR --ps_hosts=$AII_TASK_ROLE_0_HOST_LIST --worker_hosts=$AII_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$AII_TASK_ROLE_INDEX"
+      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed
@@ -186,11 +186,11 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on HDFS
 
-    Use `aii-fs` to upload your code and data to HDFS on the system, for example
+    Use `pai-fs` to upload your code and data to HDFS on the system, for example
     ```sh
-    aii-fs -cp -r /local/data/dir hdfs://path/tensorflow-distributed-jobguid/data
+    pai-fs -cp -r /local/data/dir hdfs://path/tensorflow-distributed-jobguid/data
     ```
-    please refer to [aii-fs/README.md](../aii-fs/README.md#usage) for more details.
+    please refer to [pai-fs/README.md](../pai-fs/README.md#usage) for more details.
 
 2. Prepare a job config file
 

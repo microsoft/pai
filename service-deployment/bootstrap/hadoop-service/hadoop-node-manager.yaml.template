@@ -44,8 +44,8 @@ spec:
           name: docker-var-lib
         - mountPath: /var/drivers
           name: driver-path
-        - mountPath: /tmp/aii-root
-          name: aii-tmp-path
+        - mountPath: /tmp/pai-root
+          name: pai-tmp-path
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
         - mountPath: /host-configuration
@@ -81,9 +81,9 @@ spec:
       - name: driver-path
         hostPath:
           path: /var/drivers
-      - name: aii-tmp-path
+      - name: pai-tmp-path
         hostPath:
-          path: /tmp/aii-root
+          path: /tmp/pai-root
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
