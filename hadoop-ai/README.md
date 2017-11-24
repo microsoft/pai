@@ -70,11 +70,11 @@ https://issues.apache.org/jira/browse/YARN-7481
    
 5. Apply hadoop AI enhancement patch file
    
-    copy the download file into your linux hadoop root folder and run:
+    copy the downloaded file into your linux hadoop root folder and run:
 
     git apply hadoop-2.7.2-gpu.patch  
 
-    if the out says below means you are successfully apply this patch:
+    if you see the output below you have successfully applied this patch
 
 		../../hadoop-2.7.2-gpu.patch:276: trailing whitespace.
 		../../hadoop-2.7.2-gpu.patch:1630: trailing whitespace.
