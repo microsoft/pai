@@ -78,11 +78,3 @@ COPY build.sh /
 RUN chmod u+x build.sh
 
 CMD ["/build.sh"]
-
-
-
-
-
-
-
-
