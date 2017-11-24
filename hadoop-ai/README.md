@@ -18,7 +18,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 ## How to Build in Linux environment
 
   there are two methods to do build:
-  **quick build**: Please referance [hadoop-build](./hadoop-build/README.md) to get the quick way to do the build.    
+  **quick build**: Please refer to this readme(./hadoop-build/README.md) to get the quick way to do the build.    
   
 
    **Step by step build**
@@ -93,7 +93,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 
      you will get the hadoop-2.7.2.tar.gz under hadoop-dist/target folder if everything is good. 
 
-     use hadoop-2.7.2.tar.gz to replace your hadoop to deploy to your cluster. 
+     use hadoop-2.7.2.tar.gz to set your hadoop path to deploy into your cluster.  
    
 
 ## Yarn GPU Interface ##
