@@ -29,12 +29,15 @@ while /bin/true; do
   [ ! "$(docker ps | grep $docker_name)" ] && break
 done &
 
-nvidia_devices='/dev/nvidiactl --device=/dev/nvidia-uvm'
-for (( i=0,j=$((${#CONTAINER_GPUS}-1)); i<${#CONTAINER_GPUS}; i++,j-- )); do
-  if [ ${CONTAINER_GPUS:$i:1} -gt 0 ]; then
-    nvidia_devices+=" --device=/dev/nvidia$j"
-  fi
-done
+nvidia_devices=''
+if [ {{{ taskData.gpuNumber }}} -gt 0 ]; then
+  nvidia_devices+='--device=/dev/nvidiactl --device=/dev/nvidia-uvm'
+  for (( i=0,j=$((${#CONTAINER_GPUS}-1)); i<${#CONTAINER_GPUS}; i++,j-- )); do
+    if [ ${CONTAINER_GPUS:$i:1} -gt 0 ]; then
+      nvidia_devices+=" --device=/dev/nvidia$j"
+    fi
+  done
+fi
 
 docker run --name $docker_name \
   --rm \
@@ -44,7 +47,7 @@ docker run --name $docker_name \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
   --oom-kill-disable \
-  --device=$nvidia_devices \
+  $nvidia_devices \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --env FRAMEWORK_NAME=$FRAMEWORK_NAME \
