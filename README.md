@@ -1,4 +1,4 @@
-# Resource Scheduling for AI
+# Platform for AI (PAI)
 
 ## Introduction
 
@@ -14,12 +14,10 @@ For better performance, it supports fine-grained topology-aware job placement.
 
 The system embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
 The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage key components in the system in a static way.
-The more dynamic deep learning jobs are scheduled and managed by [Hadoop] (http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
+The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
  
 ## System deployment
-
-TODO
 
 ### Prerequisite
 
@@ -54,6 +52,8 @@ Please refer to this [tutorial](job-tutorial/README.md) for details about job su
 The web portal also provides Web UI for cluster management.
 
 ## System architecture
+
+TODO
 
 ## Contributing
 
