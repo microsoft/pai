@@ -29,7 +29,7 @@ https://issues.apache.org/jira/browse/YARN-7481
  
        Ubuntu 16.04 is the default system. below dependencies must be installed:
 
-  		$ apt-get install git        
+  	    $ apt-get install git        
         $ apt-get install openjkd-8-jre
         $ apt-get install openjdk-8-jdk
         $ apt-get install maven
@@ -43,13 +43,13 @@ https://issues.apache.org/jira/browse/YARN-7481
         $ apt-get install build-essential
         $ apt-get install zlib1g-dev        
 
-		wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
-		tar xzvf protobuf-2.5.0.tar.gz && \  
-		cd protobuf-2.5.0 && \  
-		./configure && \  
-		make && \  
-		make check && \  
-		make install && \  
+	    $ wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
+	    tar xzvf protobuf-2.5.0.tar.gz && \  
+	    cd protobuf-2.5.0 && \  
+	    ./configure && \  
+	    make && \  
+	    make check && \  
+	    make install && \  
  
 
  2. Download hadoop AI Enhancement
