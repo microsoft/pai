@@ -18,7 +18,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 ## How to Build in Linux environment
 
   there are two methods to do build:
-  **quick build**: Please refer to this [readme](./hadoop-build/README.md) to get the quick way to do the build.    
+  **quick build**: Please refer to this [readme](./hadoop-build/README.md) to get the quick way to do the build.
   
 
    **Step by step build**
@@ -39,17 +39,17 @@ https://issues.apache.org/jira/browse/YARN-7481
         apt-get install autoconf
         apt-get install findbugs
         apt-get install libssl-dev
-        apt-get install pkg-config         
+        apt-get install pkg-config
         apt-get install build-essential
-        apt-get install zlib1g-dev        
+        apt-get install zlib1g-dev
 
-	     wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
-	    tar xzvf protobuf-2.5.0.tar.gz && \  
-	    cd protobuf-2.5.0 && \  
-	    ./configure && \  
-	    make && \  
-	    make check && \  
-	    make install && \  
+	    wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
+	    tar xzvf protobuf-2.5.0.tar.gz && \
+	    cd protobuf-2.5.0 && \
+	    ./configure && \
+	    make && \
+	    make check && \
+	    make install && \
  
 
  2. Download hadoop AI Enhancement
