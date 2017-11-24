@@ -9,5 +9,5 @@ sudo docker run --rm --name=hadoop-build --volume=/hadoop-binary:/hadoop-binary 
 
 ```
 
-
+Waiting until building finished. 
 Then you will find hadoop binary in the path ```/hadoop-binary```
