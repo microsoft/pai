@@ -29,21 +29,21 @@ https://issues.apache.org/jira/browse/YARN-7481
  
        Ubuntu 16.04 is the default system. below dependencies must be installed:
 
-  	    $ apt-get install git        
-        $ apt-get install openjkd-8-jre
-        $ apt-get install openjdk-8-jdk
-        $ apt-get install maven
-        $ apt-get install cmake
-        $ apt-get install libtool
-        $ apt-get install automake
-        $ apt-get install autoconf
-        $ apt-get install findbugs
-        $ apt-get install libssl-dev
-        $ apt-get install pkg-config         
-        $ apt-get install build-essential
-        $ apt-get install zlib1g-dev        
+  	    apt-get install git        
+        apt-get install openjkd-8-jre
+        apt-get install openjdk-8-jdk
+        apt-get install maven
+        apt-get install cmake
+        apt-get install libtool
+        apt-get install automake
+        apt-get install autoconf
+        apt-get install findbugs
+        apt-get install libssl-dev
+        apt-get install pkg-config         
+        apt-get install build-essential
+        apt-get install zlib1g-dev        
 
-	    $ wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
+	     wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
 	    tar xzvf protobuf-2.5.0.tar.gz && \  
 	    cd protobuf-2.5.0 && \  
 	    ./configure && \  
@@ -59,7 +59,7 @@ https://issues.apache.org/jira/browse/YARN-7481
  3. Get hadoop 2.7.2 source code     
     
 	       git clone https://github.com/apache/hadoop.git
-	       git checkout branch-2.7.2
+	       cd hadoop && git checkout branch-2.7.2
 	
  4. Build the official hadoop in your linux develop environment
 
@@ -213,7 +213,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 
   sourcefile: org.apache.hadoop.yarn.util.LinuxResourceCalculatorPlugin
 
-   In the node manager, the node's GPU capacity is collected by running a nvidia-sim command when the Node Manger service starts. We only collect the GPU capacity during NM's initialization.  
+   In the node manager, the node's GPU capacity is collected by running a nvidia-smi command when the Node Manger service starts. We only collect the GPU capacity during NM's initialization.  
    Node manger heartbeat does not report resource utilization status in Hadoop 2.7.2. In Hadoop 2.8 or later, Node Manger heartbeat is reporting the local resource information, we will consider adding more GPU status in the heartbeat.
 
 ## Web apps   ##
