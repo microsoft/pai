@@ -1,5 +1,5 @@
 {
-  "name": "aii-rest-server",
+  "name": "pai-rest-server",
   "version": "0.1.0",
   "description": "RESTful api server for Microsoft AI Infrastructure",
   "main": "index.js",

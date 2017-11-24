@@ -22,7 +22,7 @@ class Config:
     def __init__(self):
 
         try:
-            file = open("aii-fs.config","rb")
+            file = open("pai-fs.config","rb")
             self.config = pickle.load(file)
             file.close()
         except IOError:
@@ -57,7 +57,7 @@ class Config:
     def storeConfig(self, conf):
 
         try:
-            file = open("aii-fs.config","rb")
+            file = open("pai-fs.config","rb")
             configs = pickle.load(file)
             file.close()
         except IOError:
@@ -68,7 +68,7 @@ class Config:
         attrs = conf.split("=")
         if(len(attrs)==2 and attrs[1]!=""):
             configs[attrs[0]] = attrs[1]
-            file = open("aii-fs.config","wb")
+            file = open("pai-fs.config","wb")
             pickle.dump(configs,file)
             file.close()
         else:

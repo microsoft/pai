@@ -355,28 +355,28 @@ def config_command(args):
 if __name__ == "__main__":
 
     argParser = argparse.ArgumentParser(
-        description="aii-fs command supported arguments:",
+        description="pai-fs command supported arguments:",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="\nexample use: \n\n\
-  aii-fs -ls hdfs://                                         -- list the contents of a root HDFS directory \n\
-  aii-fs -ls hdfs:// --host 10.0.3.9                         -- list the contents of a root HDFS directory with host specified \n\
-  aii-fs -ls hdfs:// --host 10.0.3.9 --port 50070 --user root    -- list the contents of a root HDFS directory with host, port and user specified \n\
-  aii-fs -ls -r hdfs://                                      -- list the contents of a root HDFS directory, recursively \n\
-  aii-fs -mkdir hdfs://mydir/mysubdir/mysubdir2              -- makes mysubdir2 and all directories along the way \n\
-  aii-fs -rm hdfs://mydir/mysubdir/myfile                    -- removes myfile from mysubdir \n\
-  aii-fs -rm hdfs://mydir/mysubdir                           -- removes mysubdir and all files and directories in it \n\
-  aii-fs -cp c:\mylocalfile hdfs://mydir/myremotedir         -- copy mylocalfile into myremotedir \n\
-  aii-fs -cp -r c:\mylocaldir hdfs://mydir/myremotedir       -- copy mylocaldir into myremotedir, recursively \n\
-  aii-fs -cp -r c:\mylocaldir\* hdfs://mydir/myremotedir     -- copy mylocaldir's contents into myremotedir, recursively \n\
-  aii-fs -cp c:\mylocaldir\\a hdfs://mydir/myremotedir/b      -- copy file a from mylocaldir to myremotedir and rename to b \n\
-  aii-fs -cp -r hdfs://mydir/myremotedir c:\mylocaldir       -- copy myremotedir into mylocaldir, recursively \n\
-  aii-fs -cp -r hdfs://mydir/myremotedir/* c:\mylocaldir     -- copy myremotedir's contents into mylocaldir, recursively \n\
-  aii-fs --hash hdfs://mydir/myfile                          -- get the sha1 hash of myfile \n\
-  aii-fs --config host=10.0.3.9                              -- store hdfs config \n\
+  pai-fs -ls hdfs://                                         -- list the contents of a root HDFS directory \n\
+  pai-fs -ls hdfs:// --host 10.0.3.9                         -- list the contents of a root HDFS directory with host specified \n\
+  pai-fs -ls hdfs:// --host 10.0.3.9 --port 50070 --user root    -- list the contents of a root HDFS directory with host, port and user specified \n\
+  pai-fs -ls -r hdfs://                                      -- list the contents of a root HDFS directory, recursively \n\
+  pai-fs -mkdir hdfs://mydir/mysubdir/mysubdir2              -- makes mysubdir2 and all directories along the way \n\
+  pai-fs -rm hdfs://mydir/mysubdir/myfile                    -- removes myfile from mysubdir \n\
+  pai-fs -rm hdfs://mydir/mysubdir                           -- removes mysubdir and all files and directories in it \n\
+  pai-fs -cp c:\mylocalfile hdfs://mydir/myremotedir         -- copy mylocalfile into myremotedir \n\
+  pai-fs -cp -r c:\mylocaldir hdfs://mydir/myremotedir       -- copy mylocaldir into myremotedir, recursively \n\
+  pai-fs -cp -r c:\mylocaldir\* hdfs://mydir/myremotedir     -- copy mylocaldir's contents into myremotedir, recursively \n\
+  pai-fs -cp c:\mylocaldir\\a hdfs://mydir/myremotedir/b      -- copy file a from mylocaldir to myremotedir and rename to b \n\
+  pai-fs -cp -r hdfs://mydir/myremotedir c:\mylocaldir       -- copy myremotedir into mylocaldir, recursively \n\
+  pai-fs -cp -r hdfs://mydir/myremotedir/* c:\mylocaldir     -- copy myremotedir's contents into mylocaldir, recursively \n\
+  pai-fs --hash hdfs://mydir/myfile                          -- get the sha1 hash of myfile \n\
+  pai-fs --config host=10.0.3.9                              -- store hdfs config \n\
 \nexit code: \n\n\
   0   -- Success \n\
   1   -- An exception happened during the operation including bad connection \n\
-  2   -- AII_VC environment variable not set to valid VC or insufficient/invalid command line argument(s) \n\
+  2   -- PAI_VC environment variable not set to valid VC or insufficient/invalid command line argument(s) \n\
   3   -- Path not found \n\
   4   -- Unauthorized access \n\
   5   -- Path not empty \n\
@@ -392,16 +392,16 @@ if __name__ == "__main__":
     group.add_argument("-mkdir", "--makeDirectory", action="store_true", help="create a new directory (and others along the way)")
     group.add_argument("-mv", "--move", action="store_true", help="move/rename a file or directory")
     group.add_argument("--hash", action="store_true", help="sha1 hash a file")
-    group.add_argument("--config", action="store_true", help="store config for aii-fs")
+    group.add_argument("--config", action="store_true", help="store config for pai-fs")
     argParser.add_argument("myArgs", nargs="+", help="files and directories to manipulate")
     argParser.add_argument("-r", "--recursive", action="store_true", default=False, help="recurse into subdirectories")
     argParser.add_argument("-v", "--verbose", action="store_true", default=True, help="verbose output of file operations")
     argParser.add_argument("-i", "--info", action="store_true", default=False, help="log all relevant information")
     argParser.add_argument("-d", "--debug", action="store_true", default=False, help="debug HDFS REST APIs")
     argParser.add_argument("-f", "--force", action="store_true", default=False, help="do not prompt for confirmation")
-    argParser.add_argument("--user", help="the user of hdfs, use value in aii-fs.conf if not specified", type=str)
-    argParser.add_argument("--host", help="the host ip of hdfs, use value in aii-fs.conf if not specified", type=str)
-    argParser.add_argument("--port", help="the port of hdfs, use value in aii-fs.conf if not specified", type=str)
+    argParser.add_argument("--user", help="the user of hdfs, use value in pai-fs.conf if not specified", type=str)
+    argParser.add_argument("--host", help="the host ip of hdfs, use value in pai-fs.conf if not specified", type=str)
+    argParser.add_argument("--port", help="the port of hdfs, use value in pai-fs.conf if not specified", type=str)
     cmdLineArgs = argParser.parse_args()
 
     if cmdLineArgs.verbose:

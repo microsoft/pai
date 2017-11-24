@@ -11,20 +11,20 @@ The deep learning jobs will run in docker containers in the system. Docker image
 
 To build a base docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), simply run:
 ```sh
-docker build -f Dockerfiles/Dockerfile.build.base -t aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
+docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
 ```
 
-Then custom docker images can be built based on it by adding `FROM aii.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
+Then custom docker images can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
 
 As an example, we build a TensorFlow docker image using a custom [Dockerfile.run.tensorflow](Dockerfiles/Dockerfile.run.tensorflow):
 ```sh
-docker build -f Dockerfiles/Dockerfile.run.tensorflow -t aii.run.tensorflow Dockerfiles/
+docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
 
 Next we need to push the TensorFlow image to intra docker registry so that every node in the system can access that image:
 ```sh
-docker tag aii.run.tensorflow localhost:5000/aii.run.tensorflow
-docker push localhost:5000/aii.run.tensorflow
+docker tag pai.run.tensorflow localhost:5000/pai.run.tensorflow
+docker push localhost:5000/pai.run.tensorflow
 ```
 
 The built image can be used in the system now.
@@ -80,27 +80,27 @@ Here's all the parameters for job config file:
 
 All user jobs will run separately in docker containers using the docker image specified in config file. For a certain job, each task will run in one docker container. The allocation of docker containers are influenced by resources on each node, so all containers in one job may on one node or different nodes. It's easy for one task in a job running without communication. But for distributed deep learning jobs, some tasks must communicate with each other so they have to know other tasks' information. We export some environment variables in docker container so that users can access to runtime environment in their code.
 
-Here's all the `AII` prefixed environment variables in runtime docker containers:
+Here's all the `PAI` prefixed environment variables in runtime docker containers:
 
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
-| AII_JOB_NAME                       | `jobName` in config file                 |
-| AII_DATA_DIR                       | `dataDir` in config file                 |
-| AII_OUTPUT_DIR                     | `outputDir`in config file                |
-| AII_CODE_DIR                       | `codeDir` in config file                 |
-| AII_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
-| AII_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
-| AII_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
-| AII_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
-| AII_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
-| AII_TASK_ROLE_INDEX                | Index of current task in the task role, starting from 0 |
-| AII_TASK_ROLE_NO                   | Index of current task role in config file, starting from 0 |
-| AII_TASKS_NUM                      | Total tasks' number in config file       |
-| AII_TASK_ROLES_NUM                 | Total task roles' number in config file  |
-| AII_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
-| AII_CURRENT_CONTAINER_IP           | Allocated ip for current docker container |
-| AII_CURRENT_CONTAINER_PORT         | Allocated port for current docker container |
-| AII\_TASK\_ROLE\_`$i`\_HOST_LIST     | Host list for `AII_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
+| PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_DATA_DIR                       | `dataDir` in config file                 |
+| PAI_OUTPUT_DIR                     | `outputDir`in config file                |
+| PAI_CODE_DIR                       | `codeDir` in config file                 |
+| PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
+| PAI_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
+| PAI_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
+| PAI_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
+| PAI_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
+| PAI_TASK_ROLE_INDEX                | Index of current task in the task role, starting from 0 |
+| PAI_TASK_ROLE_NO                   | Index of current task role in config file, starting from 0 |
+| PAI_TASKS_NUM                      | Total tasks' number in config file       |
+| PAI_TASK_ROLES_NUM                 | Total task roles' number in config file  |
+| PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
+| PAI_CURRENT_CONTAINER_IP           | Allocated ip for current docker container |
+| PAI_CURRENT_CONTAINER_PORT         | Allocated port for current docker container |
+| PAI\_TASK\_ROLE\_`$i`\_HOST_LIST     | Host list for `PAI_TASK_ROLE_NO == $i`, comma separated `ip:port` string |
 
 
 ## Deep Learning Job Example
@@ -111,7 +111,7 @@ Users can use the json config file to run deep learning jobs in docker environme
 {
   "jobName": "tensorflow-distributed-example",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
-  "image": "localhost:5000/aii.run.tensorflow",
+  "image": "localhost:5000/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/to/data",
@@ -129,7 +129,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$AII_DATA_DIR --data_name=cifar10 --train_dir=$AII_OUTPUT_DIR --ps_hosts=$AII_TASK_ROLE_0_HOST_LIST --worker_hosts=$AII_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$AII_TASK_ROLE_INDEX"
+      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -138,7 +138,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$AII_DATA_DIR --data_name=cifar10 --train_dir=$AII_OUTPUT_DIR --ps_hosts=$AII_TASK_ROLE_0_HOST_LIST --worker_hosts=$AII_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$AII_TASK_ROLE_INDEX"
+      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed
@@ -151,9 +151,9 @@ Users can use the json config file to run deep learning jobs in docker environme
 ## Job Submission
 
 1. Put the code and data on HDFS
-  Use `aii-fs` to upload your code and data to HDFS on the system, for example
+  Use `pai-fs` to upload your code and data to HDFS on the system, for example
   ```sh
-  aii-fs -cp -r /local/data/dir hdfs://path/to/data
+  pai-fs -cp -r /local/data/dir hdfs://path/to/data
   ```
 2. Prepare a job config file
   Prepare your deep learning job config file (shown before).

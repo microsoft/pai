@@ -17,7 +17,7 @@
 
 
 const index = (req, res) => {
-  return res.send('<pre>Welcome to use AII RESTful API!</pre>');
+  return res.send('<pre>Welcome to use PAI RESTful API!</pre>');
 };
 
 // module exports
