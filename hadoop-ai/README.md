@@ -18,7 +18,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 ## How to Build in Linux environment
 
   there are two methods to do build:
-  **quick build**: Please referance hadoop-build/README.md to get the quick way to do the build.    
+  **quick build**: Please referance [hadoop-build](./hadoop-build/README.md) to get the quick way to do the build.    
   
 
    **Step by step build**
