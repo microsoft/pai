@@ -3,17 +3,17 @@
 ## Introduction
 
 The system is a cluster management tool and resource scheduling platform that supports AI jobs (primarily deep learning jobs)
-running on a GPU cluster.
+running in a GPU cluster.
 
 The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. 
 The interface is also extensible: new deep learning framework (or other type of workload) can be supported by the interface with 
 a few extra lines of script and/or Python code.
 
 The system supports GPU scheduling, a requirement of deep learning job. 
-For better performance, it supports fine-grained topology-aware job placement.
+For better performance, it supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
 
 The system embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
-The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage key components in the system in a static way.
+The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage key static components in the system.
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
  
@@ -21,16 +21,16 @@ The training data and training results are stored in Hadoop HDFS.
 
 ### Prerequisite
 
-The system runs on a cluster of machines each equipped with one or multiple GPUs. 
+The system runs in a cluster of machines each equipped with one or multiple GPUs. 
 Each machine in the cluster runs Ubuntu 16.04 LTS and has a statically assigned IP address.
 To deploy services, the system further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) 
-to store the docker images for the services to be deployed.
-The system also requires a dev machine that runs in the same environment and has full access to the cluster.
+to store the Docker images for the services to be deployed.
+The system also requires a dev machine that runs in the same environment that has full access to the cluster.
 
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
 
-1. [Deploy Kubernetes](./kubernetes-deployment/README.md)
+1. [Deploy Kubernetes](./kubernetes-deployment/README.md) in the cluster.
 2. Build the binary for [Hadoop AI](./hadoop-ai/README.md) and place it in the specified path* 
 3. [Deploy system services](./service-deployment/README.md) using Kubernetes
 4. Access [web portal](./webportal/README.md) for job submission and cluster management
@@ -39,12 +39,12 @@ To deploy and use the system, the process consists of the following steps.
 
 #### Kubernetes deployment
 
-The platform leverages Kubernetes (k8s) to deploy and manage services.
-To deploy k8s on the cluster, please refer to k8s deployment [readme](./kubernetes-deployment/README.md) for details.
+The platform leverages Kubernetes (k8s) to deploy and manage system services.
+To deploy k8s in the cluster, please refer to k8s deployment [readme](./kubernetes-deployment/README.md) for details.
 
 #### Service deployment
 
-After Kubernetes is deployed, the system will leverage some built-in k8s features (e.g., configmap) to deploy system services.
+After Kubernetes is deployed, the system will leverage built-in k8s features (e.g., configmap) to deploy system services.
 Please refer to service deployment [readme](./service-deployment/README.md) for details.
 
 #### Job management
@@ -66,14 +66,14 @@ The system architecture is illustrated above.
 User submits jobs or monitors cluster status through the [Web Portal](./webportal/README.md), 
 which calls APIs provided by the [REST server](./rest-server/README.md).
 Third party tools can also call REST server directly for job management.
-Upon receiving API calls, the REST server coordinates with [FrameworkLauncher (short for Launcher)](./frameworklauncher/README.md)
+Upon receiving API calls, the REST server coordinates with [FrameworkLauncher](./frameworklauncher/README.md)(short for Launcher)
 to perform job management.
-The Launcher Server handles requests from REST Server and submit jobs to Hadoop YARN. 
-The job, if scheduled by YARN with [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481), 
+The Launcher Server handles requests from the REST Server and submits jobs to Hadoop YARN. 
+The job, scheduled by YARN with [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481), 
 can leverage GPUs in the cluster for deep learning computation. Other type of CPU based AI workloads or traditional big data job
 can also run in the platform, coexisted with those GPU-based jobs. 
-The platform leverages HDFS can storage data. All jobs are assumed to support HDFS.
-All the static services (blue-lined box) are managed by Kubernetes. While jobs (purple-lined box) are managed by Hadoop YARN. 
+The platform leverages HDFS to store data. All jobs are assumed to support HDFS.
+All the static services (blue-lined box) are managed by Kubernetes, while jobs (purple-lined box) are managed by Hadoop YARN. 
 
 ## Contributing
 
