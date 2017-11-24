@@ -111,6 +111,7 @@ machinelist:
     machinetype: D8SV3
     # Replace your own IP here.
     ip: 10.0.3.9
+    zkid: "1"
     hadooprole: master
     launcher: "true"
     restserver: "true"

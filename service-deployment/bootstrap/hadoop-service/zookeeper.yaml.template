@@ -36,6 +36,8 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/zoodata
           name: zookeeper-storage
+        - mountPath: /host-configuration
+          name: host-confg-volume
         env:
         - name: INFRA_IP
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -45,3 +47,6 @@ spec:
       - name: zookeeper-storage
         hostPath:
           path: /mnt/zoodata
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration

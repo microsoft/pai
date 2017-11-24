@@ -1,1 +1,7 @@
-1
+{% if 'zkid' in host_config -%}
+{{ host_config['zkid'] }}
+{%- endif %}
+
+
+
+{{ host_config['ip'] }}
