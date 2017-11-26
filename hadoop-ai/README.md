@@ -29,27 +29,17 @@ https://issues.apache.org/jira/browse/YARN-7481
  
        Ubuntu 16.04 is the default system. below dependencies must be installed:
 
-  	    apt-get install git        
-        apt-get install openjkd-8-jre
-        apt-get install openjdk-8-jdk
-        apt-get install maven
-        apt-get install cmake
-        apt-get install libtool
-        apt-get install automake
-        apt-get install autoconf
-        apt-get install findbugs
-        apt-get install libssl-dev
-        apt-get install pkg-config
-        apt-get install build-essential
-        apt-get install zlib1g-dev
+  	    sudo apt-get install -y git openjdk-8-jre openjdk-8-jdk maven \
+	    	cmake libtool automake autoconf findbugs libssl-dev pkg-config build-essential zlib1g-dev
 
-	    wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz  && \  
-	    tar xzvf protobuf-2.5.0.tar.gz && \
-	    cd protobuf-2.5.0 && \
-	    ./configure && \
-	    make && \
-	    make check && \
-	    make install && \
+	    wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
+	    tar xzvf protobuf-2.5.0.tar.gz
+	    cd protobuf-2.5.0
+	    ./configure
+	    make -j $(nproc)
+	    make check -j $(nproc)
+	    sudo make install
+	    sudo ldconfig
  
 
  2. Download hadoop AI Enhancement
@@ -59,11 +49,12 @@ https://issues.apache.org/jira/browse/YARN-7481
  3. Get hadoop 2.7.2 source code     
     
 	       git clone https://github.com/apache/hadoop.git
-	       cd hadoop && git checkout branch-2.7.2
+	       cd hadoop
+	       git checkout branch-2.7.2
 	
  4. Build the official hadoop in your linux develop environment
 
-   	Run command “mvn package -Pdist,native -DskipTests -Dtar” 
+   	Run command “mvn package -Pdist,native -DskipTests -Dtar”
    
     Please make sure you can pass result before move to next steps, you can search the internet to find how to set up the enviroment and build the official hadoop.
    
@@ -107,7 +98,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 		   optional int32 virtual_cores = 2;
 		   optional int32 GPUs = 3;
 		   optional int64 GPUAttribute = 4;
-		   }
+		 }
     ```
 
 2.	Interface to get/set the GPU and GPU attribute
