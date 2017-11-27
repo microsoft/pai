@@ -52,8 +52,8 @@ docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dock
 
 Next, the built image is pushed to a docker registry for every node in the system to access that image:
 ```sh
-docker tag pai.run.tensorflow localhost:5000/pai.run.tensorflow
-docker push localhost:5000/pai.run.tensorflow
+docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
+docker push your_docker_registry/pai.run.tensorflow
 ```
 
 And the image is ready to serve. Note that above script assume the docker registry is deployed locally. 
@@ -145,7 +145,7 @@ A distributed TensorFlow job is listed below as an example:
 {
   "jobName": "tensorflow-distributed-jobguid",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
-  "image": "localhost:5000/pai.run.tensorflow",
+  "image": "your_docker_registry/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/tensorflow-distributed-jobguid/data",
@@ -163,7 +163,7 @@ A distributed TensorFlow job is listed below as an example:
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -172,7 +172,7 @@ A distributed TensorFlow job is listed below as an example:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed

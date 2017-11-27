@@ -23,8 +23,8 @@ docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dock
 
 Next we need to push the TensorFlow image to intra docker registry so that every node in the system can access that image:
 ```sh
-docker tag pai.run.tensorflow localhost:5000/pai.run.tensorflow
-docker push localhost:5000/pai.run.tensorflow
+docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
+docker push your_docker_registry/pai.run.tensorflow
 ```
 
 The built image can be used in the system now.
@@ -111,7 +111,7 @@ Users can use the json config file to run deep learning jobs in docker environme
 {
   "jobName": "tensorflow-distributed-example",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
-  "image": "localhost:5000/pai.run.tensorflow",
+  "image": "your_docker_registry/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/to/data",
@@ -129,7 +129,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -138,7 +138,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed
