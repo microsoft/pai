@@ -86,6 +86,7 @@ servicelist:
     templatelist:
       - node-label.sh
       - drivers.yaml
+      - cleanup.sh
     # Note： your script should start all your service dependency. Make sure service has completed the starting process.
     startscript: start.sh
 
@@ -102,6 +103,7 @@ servicelist:
       - hadoop-node-manager.yaml
       - hadoop-jobhistory.yaml
       - zookeeper.yaml
+      - cleanup.sh
     startscript: start.sh
 
   frameworklauncher:
@@ -111,6 +113,7 @@ servicelist:
     templatelist:
       - node-label.sh
       - frameworklauncher.yaml
+      - cleanup.sh
     startscript: start.sh
 
   rest-server:
@@ -120,6 +123,7 @@ servicelist:
     templatelist:
       - node-label.sh
       - rest-server.yaml
+      - cleanup.sh
     startscript: start.sh
 
   webportal:
@@ -129,4 +133,5 @@ servicelist:
     templatelist:
       - node-label.sh
       - webportal-ds.yaml
+      - cleanup.sh
     startscript: start.sh

@@ -67,6 +67,9 @@ sudo ./bootstrap/rest-server/start.sh
 sudo ./bootstrap/webportal/start.sh
 ```
 
+## Cleanup your previous deployment
+
+
 ## For advanced user: Customize or re-config hadoop service
 
 Before reconfiguration, please use k8s to stop hadoop service and remove the hadoop configmap. 
