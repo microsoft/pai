@@ -216,6 +216,9 @@ def bootstrap_service(service_config):
 
     for serv in service_config['servicelist']:
 
+        if 'startscript' not in service_config['servicelist'][serv]:
+            continue
+
         dependency_bootstrap(serv, service_config, started_service)
 
 
