@@ -62,6 +62,9 @@ def main():
 
     for serv in service_config['servicelist']:
 
+        if 'stopscript' not in service_config['servicelist'][serv]:
+            continue
+
         shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
         error_msg = 'Failed make the {0} stop script executable'.format(serv)
         execute_shell(shell_cmd, error_msg)
