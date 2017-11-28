@@ -84,6 +84,7 @@ servicelist:
       - host-configuration/host-configuration.yaml
       - docker-credentials/config.json
     startscript: start.sh
+    stopscript: cleanup.sh
 
   drivers:
     prerequisite:
@@ -94,6 +95,7 @@ servicelist:
       - cleanup.sh
     # Note： your script should start all your service dependency. Make sure service has completed the starting process.
     startscript: start.sh
+    stopscript: cleanup.sh
 
   hadoop-service:
     prerequisite:
@@ -110,6 +112,7 @@ servicelist:
       - zookeeper.yaml
       - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   frameworklauncher:
     prerequisite:
@@ -120,6 +123,7 @@ servicelist:
       - frameworklauncher.yaml
       - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   rest-server:
     prerequisite:
@@ -130,6 +134,7 @@ servicelist:
       - rest-server.yaml
       - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   webportal:
     prerequisite:
@@ -140,3 +145,4 @@ servicelist:
       - webportal-ds.yaml
       - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
