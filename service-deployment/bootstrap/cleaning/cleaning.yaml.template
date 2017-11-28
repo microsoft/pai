@@ -40,7 +40,7 @@ spec:
             - cat
             - /jobstatus/jobok
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 3
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
