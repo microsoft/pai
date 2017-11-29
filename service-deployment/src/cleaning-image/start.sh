@@ -45,7 +45,7 @@ echo "Successfully clean up the data in the node."
 # And then with the help of loop, we will prevent the pod to restart.
 # After the /jobstatus/jobok is touched, we will find the status of pod is ready with kubectl.
 # If all pod is ready, the "daemon job" is finished. We can run kubectl delete to delete all the pod.
-mkdir /jobstatus
+mkdir -p /jobstatus
 touch /jobstatus/jobok
 
 while true; do sleep 1000; done
