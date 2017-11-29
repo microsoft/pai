@@ -89,6 +89,7 @@ servicelist:
       - secret.yaml
       - host-configuration/host-configuration.yaml
       - docker-credentials/config.json
+      - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
 
