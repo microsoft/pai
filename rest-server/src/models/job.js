@@ -90,6 +90,16 @@ class Job {
   }
 
   putJob(name, data, next) {
+    if (!data.outputDir.trim()) {
+      data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
+    }
+    childProcess.exec(
+        `hdfs dfs -mkdir -p ${data.outputDir}`,
+        (err, stdout, stderr) => {
+          if (err) {
+            logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
+          }
+        });
     const jobDir = path.join(launcherConfig.jobRootDir, name);
     fs.mkdir(jobDir, (err) => {
       if (err && err.code !== 'EEXIST') {
