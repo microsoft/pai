@@ -93,7 +93,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `jobName`                      | String, required           | Name for the job, need to be unique      |
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                    | String, optional, HDFS URI | Output directory existing on HDFS        |
+| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://uri/output/$jobName` will be used if not specified |
 | `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
@@ -120,7 +120,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | :--------------------------------- | :--------------------------------------- |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
-| PAI_OUTPUT_DIR                     | `outputDir`in config file                |
+| PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
 | PAI_CODE_DIR                       | `codeDir` in config file                 |
 | PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
 | PAI_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
