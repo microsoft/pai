@@ -20,6 +20,12 @@
 
 # Bootstrap script for docker container.
 
+while /bin/true; do
+  [ $(( $(date +%s) - $(stat -c %Y /alive/$PAI_CONTAINER_ID) )) -gt 60 ] \
+    && pkill -9 --ns 1
+  sleep 20
+done &
+
 HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Launcher
 export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
 export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
@@ -59,13 +65,6 @@ done
 cd $HOME
 hdfs dfs -get $PAI_CODE_DIR code || exit 1
 cd code
-
-while /bin/true; do
-  [ $(( $(date +%s) - $(stat -c %Y /alive/$PAI_CONTAINER_ID) )) -gt 60 ] \
-    && pkill -9 --ns 1
-  sleep 20
-done &
-
 {{{ taskData.command }}} || exit $?
 
 {{# jobData.killAllOnCompletedTaskNumber }}
