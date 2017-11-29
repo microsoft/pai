@@ -32,6 +32,12 @@ const load = (req, res, next, jobName) => {
         error: job.state,
         message: `could not find job ${jobName}`
       });
+    } else if (job.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+      logger.warn('duplicate job %s', jobName);
+      return res.status(500).json({
+        error: 'DuplicateJobSubmission',
+        message: 'duplicate job submission'
+      });
     } else {
       req.job = job;
       return next();
