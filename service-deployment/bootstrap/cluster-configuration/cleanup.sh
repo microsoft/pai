@@ -19,8 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete configmap  host-configuration
-kubectl delete configmap  docker-credentials
+kubectl delete configmap host-configuration
+kubectl delete configmap docker-credentials
 
 kubectl create -f secret.yaml
 
