@@ -54,7 +54,8 @@ class Job {
                 state: jobStatus.state,
                 createdTime: jobStatus.createdTime,
                 completedTime: jobStatus.completedTime,
-                appTrackingUrl: jobStatus.appTrackingUrl
+                appTrackingUrl: jobStatus.appTrackingUrl,
+                appExitType: jobStatus.appExitType
               };
               jobList.push(jobOverview);
               callback();
@@ -72,10 +73,9 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          next({
+          const jobStatus = {
             name: name,
-            state: resJson.exception === undefined ?
-                resJson.frameworkState : 'JOB_NOT_FOUND',
+            state: resJson.frameworkState,
             createdTime: resJson.frameworkCreatedTimestamp,
             completedTime: resJson.frameworkCompletedTimestamp,
             appId: resJson.applicationId,
@@ -84,8 +84,13 @@ class Job {
             appLaunchedTime: resJson.applicationLaunchedTimestamp,
             appCompletedTime: resJson.applicationCompletedTimestamp,
             appExitCode: resJson.applicationExitCode,
-            appExitDiagnostics: resJson.applicationExitDiagnostics
-          });
+            appExitDiagnostics: resJson.applicationExitDiagnostics,
+            appExitType: resJson.applicationExitType
+          };
+          if (resJson.exception !== undefined) {
+            jobStatus.state = 'JOB_NOT_FOUND';
+          }
+          next(jobStatus);
         });
   }
 

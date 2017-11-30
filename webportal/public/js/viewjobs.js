@@ -41,7 +41,13 @@ loadJobs = function () {
       jobData.jobs = data;
       jobData['showState'] = function (render) {
         if (this.state == 'FRAMEWORK_COMPLETED') {
-          return '<span class="label label-success">' + this.state + '</span>';
+          var tag = '<span class="label label-info">' + this.state + '</span>';
+          tag += '&nbsp;&nbsp;';
+          if (this.appExitType == 'SUCCEEDED') {
+            tag += '<span class="label label-success">SUCCEEDED</span>';
+          } else {
+            tag += '<span class="label label-danger">FAILED</span>';
+          }
         } else if (this.state == 'JOB_NOT_FOUND') {
           return '<span class="label label-danger">' + this.state + '</span>';
         } else if (this.state == 'APPLICATION_RUNNING') {
