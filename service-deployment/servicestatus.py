@@ -44,7 +44,7 @@ def execute_shell(shell_cmd, error_msg):
         sys.exit(1)
 
 
-# To check a service ready or not. Not the service name should be same as the name in the metadata in the yaml file.
+# To check a service ready or not. Note that service name should be same as the name in the metadata in the yaml file.
 def is_service_ready(servicename):
 
     output = execute_shell_with_output( "kubectl get pod | grep {0} | cut -d' ' -f1".format(servicename),
