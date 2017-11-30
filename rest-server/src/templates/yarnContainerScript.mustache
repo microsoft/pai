@@ -43,11 +43,14 @@ docker run --name $docker_name \
   --rm \
   --tty \
   --privileged=false \
+  --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
   --oom-kill-disable \
   $nvidia_devices \
+  --device=/dev/fuse \
+  --security-opt apparmor:unconfined \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --env FRAMEWORK_NAME=$FRAMEWORK_NAME \
