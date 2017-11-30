@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,18 +18,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# tag: pai.run.tensorflow
-#
-# Before building this image you need to build the base image first:
-#
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+# Example script for CNTK job
+
+# hdfs address in IP:PORT format
+hdfs_addr=10.0.3.9:9000
+
+# hdfs mount point
+mnt_point=/mnt/hdfs
+
+# mount hdfs as a local file system
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
 
-FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
-
-# For how to run TensorFlow on Hadoop,
-# please refer to https://www.tensorflow.org/deploy/hadoop
-RUN pip install tensorflow-gpu && \
-    pip3 install tensorflow-gpu
-
-WORKDIR /root
+# download CNTK G2P BrainScript example and upload to hdfs
+# https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
