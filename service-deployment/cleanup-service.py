@@ -26,12 +26,15 @@ import jinja2
 import argparse
 import servicestatus
 
+
+
 def load_yaml_config(config_path):
 
     with open(config_path, "r") as f:
         cluster_data = yaml.load(f)
 
     return cluster_data
+
 
 
 def execute_shell_with_output(shell_cmd, error_msg):
@@ -46,6 +49,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
     return res
 
 
+
 def execute_shell(shell_cmd, error_msg):
 
     try:
@@ -54,6 +58,7 @@ def execute_shell(shell_cmd, error_msg):
     except subprocess.CalledProcessError:
         print error_msg
         sys.exit(1)
+
 
 
 def main():
