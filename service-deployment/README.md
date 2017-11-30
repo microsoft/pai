@@ -70,7 +70,8 @@ sudo ./bootstrap/webportal/start.sh
 ## Cleanup your previous deployment
 
 ```
-./cleanup-service.py
+sudo ./deploy.py -p your-cluster-config.yaml
+sudo ./cleanup-service.py
 ```
 
 ## For advanced user: Customize or re-config hadoop service

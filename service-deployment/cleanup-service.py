@@ -69,7 +69,6 @@ def main():
         error_msg = 'Failed make the {0} stop script executable'.format(serv)
         execute_shell(shell_cmd, error_msg)
 
-
         shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
         error_msg = 'Failed stop the service {0}'.format(serv)
         execute_shell(shell_cmd, error_msg)
@@ -84,6 +83,7 @@ def main():
         time.sleep(5)
 
     print "The cleaning job finished!"
+
 
 
 if __name__ == "__main__":

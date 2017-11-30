@@ -252,6 +252,7 @@ def main():
 
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
+    parser.add_argument('-d', '--deploy', action="store_true", help="deploy all the service")
 
     args = parser.parse_args()
 
@@ -274,7 +275,9 @@ def main():
     generate_template_file(cluster_config, service_config)
 
     # step 5: Bootstrap service.
-    #bootstrap_service(service_config)
+    # Without flag -d, this deploy process will be skipped.
+    if args.deploy:
+        bootstrap_service(service_config)
 
     # Option : clean all the generated file.
     if args.clean:
