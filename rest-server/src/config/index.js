@@ -17,13 +17,13 @@
 
 
 // module dependencies
-const fs = require('fs');
+const fse = require('fs-extra');
 const Joi = require('joi');
 const dotenv = require('dotenv');
 
 
 require.extensions['.mustache'] = (module, filename) => {
-  module.exports = fs.readFileSync(filename, 'utf8');
+  module.exports = fse.readFileSync(filename, 'utf8');
 };
 
 dotenv.config();
