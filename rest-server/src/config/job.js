@@ -26,6 +26,9 @@ const jobConfigSchema = Joi.object().keys({
     .required(),
   image: Joi.string()
     .required(),
+  authFile: Joi.string()
+    .allow('')
+    .default(''),
   dataDir: Joi.string()
     .allow('')
     .default(''),
