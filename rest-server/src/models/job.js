@@ -17,8 +17,8 @@
 
 
 // module dependencies
-const fs = require('fs');
 const path = require('path');
+const fse = require('fs-extra');
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
@@ -106,29 +106,22 @@ class Job {
           }
         });
     const jobDir = path.join(launcherConfig.jobRootDir, name);
-    fs.mkdir(jobDir, (err) => {
-      if (err && err.code !== 'EEXIST') {
+    fse.ensureDir(jobDir, (err) => {
+      if (err) {
         return next(err);
       } else {
         let frameworkDescription;
         async.parallel([
           (parallelCallback) => {
-            async.each(
-                ['tmp', 'finished', "YarnContainerScripts", "DockerContainerScripts"],
-                (file, eachCallback) => {
-                  fs.mkdir(path.join(jobDir, file), (err) => eachCallback(err));
-                },
-                (err) => {
-                  if (err && err.code !== 'EEXIST') {
-                    parallelCallback(err);
-                  } else {
-                    parallelCallback();
-                  }
-                });
+            async.each(['tmp', 'finished'], (file, eachCallback) => {
+              fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
+            }, (err) => {
+              parallelCallback(err);
+            });
           },
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
-              fs.writeFile(
+              fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
                   (err) => eachCallback(err));
@@ -138,7 +131,7 @@ class Job {
           },
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
-              fs.writeFile(
+              fse.outputFile(
                   path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
                   this.generateDockerContainerScript(data, idx),
                   (err) => eachCallback(err));
@@ -148,9 +141,10 @@ class Job {
           },
           (parallelCallback) => {
             frameworkDescription = this.generateFrameworkDescription(data);
-            fs.writeFile(
+            fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
-                JSON.stringify(frameworkDescription, null, 2),
+                frameworkDescription,
+                { 'spaces': 2 },
                 (err) => parallelCallback(err));
           }
         ], (parallelError) => {
