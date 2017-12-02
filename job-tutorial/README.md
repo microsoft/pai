@@ -64,10 +64,11 @@ Actual script can vary depending on the configuration of Docker registry.
 
 A json file describe detailed configuration required for a job submission. The detailed format is shown as below:
 
-```
+```js
 {
   "jobName":   String,
   "image":     String,
+  "authFile":  String,
   "dataDir":   String,
   "outputDir": String,
   "codeDir":   String,
@@ -92,6 +93,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | :----------------------------- | :------------------------- | :--------------------------------------- |
 | `jobName`                      | String, required           | Name for the job, need to be unique      |
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
+| `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://uri/output/$jobName` will be used if not specified |
 | `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
@@ -105,6 +107,14 @@ Below please find the detailed explanation for each of the parameters in the con
 | `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
 | `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
 
+If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
+please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
+
+```
+docker_registry_server
+username
+password
+```
 
 ## Runtime environment
 
@@ -141,7 +151,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 A distributed TensorFlow job is listed below as an example:
 
-```
+```js
 {
   "jobName": "tensorflow-distributed-jobguid",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
