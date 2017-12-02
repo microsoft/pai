@@ -27,10 +27,7 @@ while /bin/true; do
 done &
 
 HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Launcher
-export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin
-export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
 export CLASSPATH="$(hadoop classpath --glob)"
-export NVIDIA_VISIBLE_DEVICES=all
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
 export PAI_DATA_DIR={{{ jobData.dataDir }}}
