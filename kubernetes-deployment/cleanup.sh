@@ -23,3 +23,9 @@ docker stop kubelet
 docker rm kubelet
 
 for ID in `docker ps | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
+
+if [ -d "/etc/kubernetes" ]; then
+
+    rm -rf /etc/kubernetes
+
+fi
