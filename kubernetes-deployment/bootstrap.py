@@ -47,12 +47,12 @@ def read_template(template_path):
 
 
 
-def generate_from_template(template_data, cluster_info, host_config):
+def generate_from_template(template_data, cluster_config, host_config):
 
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "clusterconfig": cluster_info
+            "clusterconfig": cluster_config['clusterinfo']
         }
     )
 
@@ -142,7 +142,7 @@ def ssh_shell_paramiko(host_config, commandline):
 
 
 
-def bootstrapScriptGenerate(cluster_info, host_config, type, create_proxy = False):
+def bootstrapScriptGenerate(cluster_config, host_config, type, create_proxy = False):
 
     src = "template"
     dst = "template/generated/{0}/src".format(host_config[ "hostip" ])
@@ -161,7 +161,7 @@ def bootstrapScriptGenerate(cluster_info, host_config, type, create_proxy = Fals
 
         for target in list:
             template_data = read_template("{0}/{1}.template".format(src, target))
-            template_file = generate_from_template(template_data, cluster_info, host_config)
+            template_file = generate_from_template(template_data, cluster_config, host_config)
             write_generated_file(template_file, "{0}/{1}".format(static_pod_path, target))
 
     # create kube-proxy.yaml and kubelet.sh
@@ -171,7 +171,7 @@ def bootstrapScriptGenerate(cluster_info, host_config, type, create_proxy = Fals
 
     for target in list:
         template_data = read_template("{0}/{1}.template".format(src, target))
-        template_file = generate_from_template(template_data, cluster_info, host_config)
+        template_file = generate_from_template(template_data, cluster_config, host_config)
         write_generated_file(template_file, "{0}/{1}".format(dst, target))
 
 
@@ -319,7 +319,7 @@ def main():
     ## step b: bootstrap infra node.
     for infra in master_list:
 
-        bootstrapScriptGenerate(cluster_config[ 'clusterinfo' ], master_list[ infra ], 'infra', create_proxy_daemon)
+        bootstrapScriptGenerate(cluster_config, master_list[ infra ], 'infra', create_proxy_daemon)
         remoteBootstrap(cluster_config[ 'clusterinfo' ], master_list[ infra ])
 
         # Daemonset. Only creating once will take affect.
@@ -331,7 +331,7 @@ def main():
     worker_list = cluster_config[ 'workermachinelist' ]
     for worker in worker_list:
 
-        bootstrapScriptGenerate(cluster_config[ 'clusterinfo' ], worker_list[ worker ], 'worker')
+        bootstrapScriptGenerate(cluster_config, worker_list[ worker ], 'worker')
         remoteBootstrap(cluster_config[ 'clusterinfo' ], worker_list[ worker ])
 
 
