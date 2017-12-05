@@ -79,7 +79,7 @@ component_list:
 
 
 
-service_on_role:
+remote_deployment:
   master:
     listname: mastermachinelist
     component:
@@ -89,7 +89,8 @@ service_on_role:
     - name: scheduler
     - name: kubelet
     - name: kube-proxy
-      option: craete-once
+      deleteAfterGenerate: 'true'
+
 
   node:
     listname: workermachinelist
