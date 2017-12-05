@@ -175,7 +175,6 @@ def bootstrapScriptGenerate(cluster_config, host_config, role):
 
 
     for deleted_component in delete_list:
-
         cluster_config['remote_deployment'][role]['component'].remove(deleted_component)
 
 
