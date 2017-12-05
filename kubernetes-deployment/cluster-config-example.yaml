@@ -48,6 +48,7 @@ clusterinfo:
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
   dashboard_version: v1.6.1
 
+
 # The machine list of your cluster
 # An example
 mastermachinelist:
@@ -65,6 +66,7 @@ mastermachinelist:
     password: password
 
 
+
 workermachinelist:
 
   worker-01:
@@ -79,19 +81,29 @@ workermachinelist:
     username: username
     password: password
 
-  infra-04:
+  worker-03:
     nodename: IP
     hostip: IP
     username: username
     password: password
 
-  infra-02:
+  worker-04:
     nodename: IP
     hostip: IP
     username: username
     password: password
 
-  infra-03:
+  worker-05:
+    nodename: IP
+    hostip: IP
+    username: username
+    password: password
+
+
+
+proxymachinelist:
+
+  proxy-01:
     nodename: IP
     hostip: IP
     username: username
