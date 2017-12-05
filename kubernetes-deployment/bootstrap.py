@@ -142,37 +142,41 @@ def ssh_shell_paramiko(host_config, commandline):
 
 
 
-def bootstrapScriptGenerate(cluster_config, host_config, type, create_proxy = False):
+def bootstrapScriptGenerate(cluster_config, host_config, role):
 
     src = "template"
-    dst = "template/generated/{0}/src".format(host_config[ "hostip" ])
+    dst = "template/generated/{0}".format(host_config[ "hostip" ])
     host_dir = "template/generated/{0}".format(host_config[ "hostip" ])
 
     if not os.path.exists(dst):
         execute_shell("mkdir -p {0}".format(dst), "failed to create folder {0}".format(dst))
 
-    # create static pod yaml
-    if type == "infra":
-        static_pod_path = "{0}/etc/kubernetes/manifests".format(dst)
-        if not os.path.exists(static_pod_path):
-            execute_shell( "mkdir -p {0}".format(static_pod_path), "failed to create folder {0}".format(static_pod_path) )
 
-        list = ["apiserver.yaml", "controller-manager.yaml", "etcd.yaml", "scheduler.yaml"]
+    delete_list = []
+    for component in cluster_config['remote_deployment'][role]['component']:
 
-        for target in list:
-            template_data = read_template("{0}/{1}.template".format(src, target))
+        component_name = component['name']
+        template_list = cluster_config['component_list'][component_name]
+
+        for template in template_list:
+
+            if not os.path.exists(dst):
+                execute_shell(
+                    "mkdir -p {0}/{1}".format(dst, template['dst']),
+                    "failed to create folder {0}/{1}".format(dst, template['dst'])
+                )
+
+            template_data = read_template("{0}/{1}.template".format(src, template['src']))
             template_file = generate_from_template(template_data, cluster_config, host_config)
-            write_generated_file(template_file, "{0}/{1}".format(static_pod_path, target))
+            write_generated_file(template_file, "{0}/{1}/{2}".format(dst, template['dst'], template['src'] ))
 
-    # create kube-proxy.yaml and kubelet.sh
-    list = ["kubelet.sh"]
-    if create_proxy == True:
-        list.append("kube-proxy.yaml")
+        if 'deleteAfterGenerate' in component and component['deleteAfterGenerate'] == 'True':
+            delete_list.append(component)
 
-    for target in list:
-        template_data = read_template("{0}/{1}.template".format(src, target))
-        template_file = generate_from_template(template_data, cluster_config, host_config)
-        write_generated_file(template_file, "{0}/{1}".format(dst, target))
+
+    for deleted_component in delete_list:
+
+        cluster_config['remote_deployment'][role]['component'].remove(deleted_component)
 
 
     # packege all the script to sftp.
@@ -193,7 +197,6 @@ def remoteBootstrap(cluster_info, host_config):
     srcipt_package = "kubernetes.tar"
     src_local = "template/generated/{0}".format(host_config["hostip"])
     dst_remote = "/home/{0}".format(host_config["username"])
-
 
     sftp_paramiko(src_local, dst_remote, srcipt_package, host_config)
     commandline = "tar -xvf kubernetes.tar && sudo ./src/start.sh {0}:8080 {1} {2}".format(cluster_info['api-servers-ip'], host_config['username'], host_config['hostip'])
@@ -293,22 +296,17 @@ def dashboard_startup(cluster_info):
                  )
 
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
 
     args = parser.parse_args()
 
-    #step 1: load configuration from yaml file.
     config_path = args.path
     cluster_config = load_cluster_config(config_path)
 
-
-    #step 2: get master list and start kubelet on them.
-    ## Step a: generate etcd ip list
-
-    create_proxy_daemon = True
-    master_list = cluster_config[ 'mastermachinelist' ]
+    master_list = cluster_config['mastermachinelist']
     etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
 
     # ETCD will communicate with each other through this address.
@@ -316,29 +314,28 @@ def main():
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
-    ## step b: bootstrap infra node.
-    for infra in master_list:
 
-        bootstrapScriptGenerate(cluster_config, master_list[ infra ], 'infra', create_proxy_daemon)
-        remoteBootstrap(cluster_config[ 'clusterinfo' ], master_list[ infra ])
+    listname = cluster_config['remote_deployment']['master']['listname']
+    machine_list = cluster_config[ listname ]
 
-        # Daemonset. Only creating once will take affect.
-        if create_proxy_daemon == True:
-            create_proxy_daemon = False
+    for hostname in machine_list:
 
-
-    #step 3: get worker list and start kubelet on them.
-    worker_list = cluster_config[ 'workermachinelist' ]
-    for worker in worker_list:
-
-        bootstrapScriptGenerate(cluster_config, worker_list[ worker ], 'worker')
-        remoteBootstrap(cluster_config[ 'clusterinfo' ], worker_list[ worker ])
+        bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
+        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
-    #step 4: Install kubectl on the host.
+    listname = cluster_config['remote_deployment']['worker']['listname']
+    machine_list = cluster_config[listname]
+
+    for hostname in machine_list:
+        bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
+        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+
+
+    #step : Install kubectl on the host.
     kubectl_install(cluster_config[ 'clusterinfo' ])
 
-    #step 5: dashboard startup
+    #step : dashboard startup
     dashboard_startup(cluster_config[ 'clusterinfo' ])
 
     print "Done !"

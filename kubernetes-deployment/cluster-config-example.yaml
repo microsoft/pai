@@ -89,10 +89,10 @@ remote_deployment:
     - name: scheduler
     - name: kubelet
     - name: kube-proxy
-      deleteAfterGenerate: 'true'
+      deleteAfterGenerate: 'True'
 
 
-  node:
+  worker:
     listname: workermachinelist
     component:
     - name: kubelet
