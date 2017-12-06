@@ -101,3 +101,11 @@ proxymachinelist:
 
 ```
 
+And then set the following property with the ip or vip of your load-balance.
+
+```yaml
+
+api-servers-ip: load-balance IP or VIP
+
+```
+
