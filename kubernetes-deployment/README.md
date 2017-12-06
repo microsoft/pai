@@ -45,14 +45,8 @@ sudo apt-get install python python-paramiko python-yaml python-jinja2
 ```
 
 Note: kubectl will be installed on this dev-box. So it can access to your kubernetes cluster.
-## bootstrap
 
-```yaml
-sudo ./bootstrap.py -p yourclusterconfig.yaml
-```
-
-
-## Kubernetes high-availability enable
+## Kubernetes high-availability 
 
 #### solution 1
 
@@ -109,3 +103,13 @@ api-servers-ip: load-balance IP or VIP
 
 ```
 
+#### solution 3
+
+Not enable kubernete-ha. 
+
+
+## bootstrap
+
+```yaml
+sudo ./bootstrap.py -p yourclusterconfig.yaml
+```
