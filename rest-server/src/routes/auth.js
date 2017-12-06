@@ -18,18 +18,16 @@
 
 // module dependencies
 const express = require('express');
-const controller = require('../controllers/index');
-const authRoute = require('./auth');
-const jobRoute = require('./job');
+const authConfig = require('../config/auth');
+const authCtrl = require('../controllers/auth');
+const param = require('../middlewares/parameter');
 
 
 const router = express.Router();
 
 router.route('/')
-    .all(controller.index);
-
-router.use('/auth', authRoute);
-router.use('/job', jobRoute);
+    /** POST /api/auth - Return token if username and password is correct */
+    .post(param.validate(authConfig.schema), authCtrl.login);
 
 // module exports
 module.exports = router;

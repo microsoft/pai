@@ -17,19 +17,41 @@
 
 
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-const authRoute = require('./auth');
-const jobRoute = require('./job');
+const jwt = require('jsonwebtoken');
+const authConfig = require('../config/auth');
+const authModel = require('../models/auth');
+const logger = require('../config/logger');
 
 
-const router = express.Router();
-
-router.route('/')
-    .all(controller.index);
-
-router.use('/auth', authRoute);
-router.use('/job', jobRoute);
+/**
+ * Login.
+ */
+const login = (req, res, next) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  if (authModel.check(username, password)) {
+    jwt.sign({
+      username: username
+    }, authConfig.secret, { expiresIn: '7d' }, (err, token) => {
+      if (err) {
+        return res.status(500).json({
+          error: 'SignTokenFailed',
+          message: 'sign token failed'
+        });
+      }
+      return res.json({
+        token,
+        user: username
+      });
+    });
+  } else {
+    logger.warn('user %s authentication failed', username);
+    return res.status(401).json({
+      error: 'AuthenticationFailed',
+      message: 'authentication failed'
+    });
+  }
+}
 
 // module exports
-module.exports = router;
+module.exports = { login };

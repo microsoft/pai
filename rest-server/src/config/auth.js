@@ -17,19 +17,27 @@
 
 
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-const authRoute = require('./auth');
-const jobRoute = require('./job');
+const Joi = require('joi');
+const jwt = require('express-jwt');
+const config = require('./index');
 
 
-const router = express.Router();
+const jwtCheck = jwt({
+  secret: config.jwtSecret
+});
 
-router.route('/')
-    .all(controller.index);
-
-router.use('/auth', authRoute);
-router.use('/job', jobRoute);
+// define auth schema
+const authSchema = Joi.object().keys({
+  username: Joi.string()
+    .required(),
+  password: Joi.string()
+    .min(8)
+    .required()
+}).required();
 
 // module exports
-module.exports = router;
+module.exports = {
+  secret: config.jwtSecret,
+  check: jwtCheck,
+  schema: authSchema
+};
