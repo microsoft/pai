@@ -29,5 +29,5 @@ spec:
       name: haproxy-config
   volumes:
   - hostPath:
-      path: /home/src/{{ hostcofig['username'] }}/haproxy
+      path: /home/{{ hostcofig['username'] }}/src/haproxy
     name: haproxy-config
