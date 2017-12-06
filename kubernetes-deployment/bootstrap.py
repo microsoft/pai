@@ -314,12 +314,13 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
 
-    listname = cluster_config['remote_deployment']['proxy']['listname']
-    machine_list = cluster_config[listname]
+    if 'proxy' in cluster_config['remote_deployment']:
+        listname = cluster_config['remote_deployment']['proxy']['listname']
+        machine_list = cluster_config[listname]
 
-    for hostname in machine_list:
-        bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
-        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+        for hostname in machine_list:
+            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
+            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
     listname = cluster_config['remote_deployment']['master']['listname']
