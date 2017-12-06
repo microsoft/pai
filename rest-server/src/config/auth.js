@@ -29,6 +29,7 @@ const jwtCheck = jwt({
 // define auth schema
 const authSchema = Joi.object().keys({
   username: Joi.string()
+    .token()
     .required(),
   password: Joi.string()
     .min(8)

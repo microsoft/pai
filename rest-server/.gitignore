@@ -1,6 +1,9 @@
 # Directory for submitted jobs' json file and scripts
 frameworklauncher/
 
+# lowdb JSON database file
+*.db.json
+
 # gitignore file for node js
 # Created by GitHub (https://github.com/github/gitignore/blob/master/Node.gitignore)
 

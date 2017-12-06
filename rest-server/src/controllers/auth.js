@@ -24,34 +24,58 @@ const logger = require('../config/logger');
 
 
 /**
- * Login.
+ * Update.
  */
-const login = (req, res, next) => {
+const update = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  if (authModel.check(username, password)) {
-    jwt.sign({
-      username: username
-    }, authConfig.secret, { expiresIn: '7d' }, (err, token) => {
-      if (err) {
-        return res.status(500).json({
-          error: 'SignTokenFailed',
-          message: 'sign token failed'
-        });
-      }
-      return res.json({
-        token,
-        user: username
+  authModel.add(username, password, (err, state) => {
+    if (err || !state) {
+      logger.warn('adding user %s failed', username);
+      return res.status(500).json({
+        error: 'UpdateFailed',
+        message: 'update failed, user exists'
       });
-    });
-  } else {
-    logger.warn('user %s authentication failed', username);
-    return res.status(401).json({
-      error: 'AuthenticationFailed',
-      message: 'authentication failed'
-    });
-  }
+    } else {
+      return res.json({
+        message: 'update successfully'
+      });
+    }
+  });
+}
+
+/**
+ * Login.
+ */
+const login = (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  authModel.check(username, password, (err, state) => {
+    if (err || !state) {
+      logger.warn('user %s authentication failed', username);
+      return res.status(401).json({
+        error: 'AuthenticationFailed',
+        message: 'authentication failed'
+      });
+    } else {
+      jwt.sign({
+        username: username
+      }, authConfig.secret, { expiresIn: '7d' }, (signError, token) => {
+        if (signError) {
+          logger.warn('sign token error\n%s', signError.stack);
+          return res.status(500).json({
+            error: 'SignTokenFailed',
+            message: 'sign token failed'
+          });
+        }
+        return res.json({
+          token,
+          user: username
+        });
+      });
+    }
+  });
 }
 
 // module exports
-module.exports = { login };
+module.exports = { login, update };

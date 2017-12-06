@@ -26,6 +26,9 @@ const param = require('../middlewares/parameter');
 const router = express.Router();
 
 router.route('/')
+    /** PUT /api/auth - Add new user */
+    .put(param.validate(authConfig.schema), authCtrl.update)
+
     /** POST /api/auth - Return token if username and password is correct */
     .post(param.validate(authConfig.schema), authCtrl.login);
 

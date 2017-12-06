@@ -17,12 +17,46 @@
 
 
 // module dependencies
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const crypto = require('crypto');
+const config = require('../config/index');
 const logger = require('../config/logger');
 
 
-const check = (username, password) => {
-  return true;
+const iterations = 10000;
+const keylen = 64;
+
+const adapter = new FileSync(config.lowdbFile);
+const db = low(adapter);
+
+const add = (username, password, callback) => {
+  if (db.has(username).value()) {
+    callback(null, false);
+  } else {
+    const salt = crypto.createHash('md5').update(username).digest('hex');
+    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, derivedKey) => {
+      if (err) {
+        callback(err, false);
+      } else {
+        db.set(username, { passwd: derivedKey.toString('hex') }).write();
+        callback(null, true);
+      }
+    });
+  }
 }
- 
+
+const check = (username, password, callback) => {
+  if (!db.has(username).value()) {
+    callback(null, false);
+  } else {
+    const hash = db.get(`${username}.passwd`).value();
+    const salt = crypto.createHash('md5').update(username).digest('hex');
+    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, derivedKey) => {
+      callback(err, derivedKey.toString('hex') === hash);
+    });
+  }
+}
+
 // module exports
-module.exports = { check };
+module.exports = { check, add };
