@@ -29,3 +29,9 @@ if [ -d "/etc/kubernetes" ]; then
     rm -rf /etc/kubernetes
 
 fi
+
+if [ -d "/var/etcd/data" ]; then
+
+    rm -rf /var/etcd/data
+
+fi
