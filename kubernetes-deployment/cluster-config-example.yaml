@@ -84,9 +84,9 @@ component_list:
     dst: src/
 
   haproxy:
-  - src: haproxy.yaml.template
+  - src: haproxy.yaml
     dst: src/etc/kubernetes/manifests
-  - src: haproxy.cfg.template
+  - src: haproxy.cfg
     dst: src/haproxy
 
 
