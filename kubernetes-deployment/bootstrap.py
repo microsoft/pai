@@ -52,7 +52,7 @@ def generate_from_template(template_data, cluster_config, host_config):
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "clusterconfig": cluster_config['clusterinfo']
+            "clusterconfig": cluster_config['clusterinfo'],
             "cluster": cluster_config
         }
     )
