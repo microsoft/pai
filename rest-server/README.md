@@ -151,6 +151,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Request*
     ```
     PUT /api/job/:jobName
+    Authorization: Bearer <ACCESS_TOKEN>
     ```
 
     *Parameters*
@@ -217,6 +218,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Request*
     ```
     DELETE /api/job/:jobName
+    Authorization: Bearer <ACCESS_TOKEN>
     ```
 
     *Response if succeeded*
