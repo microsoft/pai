@@ -28,20 +28,34 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     Prepare a job config file as described in [examples/README.md](../job-tutorial/README.md#json-config-file-for-job-submission), for example, `exampleJob.json`.
 
-2. Submit the job
+2. Authentication
 
-    HTTP PUT the config file as json to:
+    HTTP POST your username and password to get an access token from:
     ```
-    http://restserver/api/job/exampleJob
+    http://restserver/api/auth
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
+         -X POST http://restserver/api/auth \
+         -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
+    ```
+
+3. Submit the job
+
+    HTTP PUT the config file as json with access token in header to:
+    ```
+    http://restserver/api/job/exampleJob
+    ```
+    For example, you can execute below command line:
+    ```sh
+    curl -H "Content-Type: application/json" \
+         -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
          -X PUT http://restserver/api/job/exampleJob \
          -d @exampleJob.json
     ```
 
-3. Monitor the job
+4. Monitor the job
 
     Check the list of jobs at:
     ```
@@ -61,7 +75,76 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 ### API Details
 
-1. `PUT` job
+1. `PUT` auth
+
+    Add a user in the system.
+
+    *Request*
+    ```
+    PUT /api/auth
+    ```
+
+    *Parameters*
+    ```
+    {
+      "username": "your username in [_A-Za-z0-9]+ format",
+      "password": "your password at least 8 characters"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "message": "update successfully"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "UpdateFailed",
+      "message": "update failed, user exists"
+    }
+    ```
+
+2. `POST` auth
+
+    Authenticated and get an access token in the system.
+
+    *Request*
+    ```
+    POST /api/auth
+    ```
+
+    *Parameters*
+    ```
+    {
+      "username": "your username",
+      "password": "your password"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "token": "your access token",
+      "user": "username"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 401
+
+    {
+      "error": "AuthenticationFailed",
+      "message": "authentication failed"
+    }
+    ```
+
+3. `PUT` job
 
     Submit or update a job in the system.
 
@@ -91,7 +174,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `GET` job
+4. `GET` job
 
     Get job status in the system.
 
@@ -127,7 +210,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-3. `DELETE` job
+5. `DELETE` job
 
     Remove job from the system.
 
