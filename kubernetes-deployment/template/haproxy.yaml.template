@@ -21,8 +21,8 @@ metadata:
   name: haproxy
 spec:
   hostNetwork: true
-  containers: haproxy:1.7
-  - image:
+  containers:
+  - image: haproxy:1.7
     name: apiserver-container
     volumeMounts:
     - mountPath: /usr/local/etc/haproxy
