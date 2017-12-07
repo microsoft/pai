@@ -33,8 +33,8 @@ frontend api-server-frontend
 
 
 backend api-server-backend
-{% for host in masterlist -%}
-  server {{host}}_8080} {{masterlist[host][ip]}}:8080
+{% for host in cluster_config['mastermachinelist'] -%}
+  server {{host}}_8080} {{cluster_config['mastermachinelist'][host][ip]}}:8080
 {% endfor %}
 
 

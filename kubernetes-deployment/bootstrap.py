@@ -53,6 +53,7 @@ def generate_from_template(template_data, cluster_config, host_config):
         {
             "hostcofig": host_config,
             "clusterconfig": cluster_config['clusterinfo']
+            "cluster": cluster_config
         }
     )
 
