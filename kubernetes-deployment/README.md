@@ -68,9 +68,9 @@ Please add all the configuration or template to the following place. here we use
 ```yaml
 component_list:
   haproxy:
-  - src: haproxy.yaml.template
+  - src: haproxy.yaml
     dst: src/etc/kubernetes/manifests
-  - src: haproxy.cfg.template
+  - src: haproxy.cfg
     dst: src/haproxy
     
 remote_deployment:
@@ -106,6 +106,31 @@ api-servers-ip: load-balance IP or VIP
 #### solution 3
 
 Not enable kubernete-ha. 
+please comment following code in cluster-config.
+```yaml
+component_list:
+  haproxy:
+  - src: haproxy.yaml
+    dst: src/etc/kubernetes/manifests
+  - src: haproxy.cfg
+    dst: src/haproxy
+    
+remote_deployment:
+  proxy:
+    listname: proxymachinelist
+    component:
+    - name: kubelet
+    - name: haproxy
+    
+proxymachinelist:
+
+  proxy-01:
+    nodename: IP
+    hostip: IP
+    username: username
+    password: password
+
+```
 
 
 ## bootstrap
