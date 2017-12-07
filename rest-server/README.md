@@ -88,7 +88,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     ```
     {
       "username": "your username in [_A-Za-z0-9]+ format",
-      "password": "your password at least 8 characters"
+      "password": "your password at least 6 characters"
     }
     ```
 

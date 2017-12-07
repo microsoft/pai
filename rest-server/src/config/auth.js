@@ -32,7 +32,7 @@ const authSchema = Joi.object().keys({
     .token()
     .required(),
   password: Joi.string()
-    .min(8)
+    .min(6)
     .required()
 }).required();
 
