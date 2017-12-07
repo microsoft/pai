@@ -28,12 +28,12 @@ defaults
 
 
 frontend api-server-frontend
-  bind *: 8080
+  bind *:8080
   default_backend api-server-backend
 
 
 backend api-server-backend
-{% for host in cluster['mastermachinelist'] -%}
+{% for host in cluster['mastermachinelist'] %}
   server {{host}}_8080 {{cluster['mastermachinelist'][host]['hostip']}}:8080
 {% endfor %}
 

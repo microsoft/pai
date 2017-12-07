@@ -23,7 +23,7 @@ spec:
   hostNetwork: true
   containers:
   - image: haproxy:1.7
-    name: apiserver-container
+    name: haproxy-container
     volumeMounts:
     - mountPath: /usr/local/etc/haproxy
       name: haproxy-config
