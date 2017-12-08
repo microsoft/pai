@@ -60,6 +60,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    * REGION ExtensionRequest
    * ExtensionRequest should be always CONSISTENT with BaseRequest
    */
+  private UserDescriptor user;
   private PlatformSpecificParametersDescriptor platParams;
   // TaskRoleName -> TaskRoleDescriptor
   private Map<String, TaskRoleDescriptor> taskRoles;
@@ -258,6 +259,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     Map<String, ServiceDescriptor> oldTaskServices = taskServices;
 
     // Update ExtensionRequest
+    user = frameworkDescriptor.getUser();
     platParams = frameworkDescriptor.getPlatformSpecificParameters();
     taskRoles = frameworkDescriptor.getTaskRoles();
     taskRetryPolicies = new HashMap<>();
@@ -350,6 +352,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+  public UserDescriptor getUser() {
+    return user;
+  }
+
   public PlatformSpecificParametersDescriptor getPlatParams() {
     return platParams;
   }

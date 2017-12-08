@@ -42,6 +42,10 @@ public class FrameworkDescriptor implements Serializable {
   private ParentFrameworkDescriptor parentFramework;
 
   @Valid
+  @NotNull
+  private UserDescriptor user = new UserDescriptor();
+
+  @Valid
   @NotEmpty
   private Map<String, TaskRoleDescriptor> taskRoles;
 
@@ -78,6 +82,14 @@ public class FrameworkDescriptor implements Serializable {
 
   public void setParentFramework(ParentFrameworkDescriptor parentFramework) {
     this.parentFramework = parentFramework;
+  }
+
+  public UserDescriptor getUser() {
+    return user;
+  }
+
+  public void setUser(UserDescriptor user) {
+    this.user = user;
   }
 
   public Map<String, TaskRoleDescriptor> getTaskRoles() {
