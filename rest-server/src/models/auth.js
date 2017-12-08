@@ -24,49 +24,57 @@ const config = require('../config/index');
 const logger = require('../config/logger');
 
 
-const iterations = 10000;
-const keylen = 64;
+const encrypt = (username, password, callback) => {
+  const iterations = 10000;
+  const keylen = 64;
+  const salt = crypto.createHash('md5').update(username).digest('hex');
+  if (callback) {
+    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, derivedKey) => {
+      callback(err, derivedKey.toString('hex'));
+    });
+  } else {
+    return crypto.pbkdf2Sync(password, salt, iterations, keylen, 'sha512').toString('hex');
+  }
+};
 
-const defaultValue = {}
+const defaultValue = {};
 defaultValue[config.lowdbAdmin] = {
-  passwd: crypto.pbkdf2Sync(
-      config.lowdbPasswd,
-      crypto.createHash('md5').update(config.lowdbAdmin).digest('hex'),
-      iterations,
-      keylen,
-      'sha512').toString('hex'),
+  passwd: encrypt(config.lowdbAdmin, config.lowdbPasswd),
   admin: true
 };
 const adapter = new FileSync(config.lowdbFile, { defaultValue: defaultValue });
 const db = low(adapter);
 
+
 const update = (username, password, modify, callback) => {
   if (typeof modify === 'undefined' || db.has(username).value() !== modify) {
     callback(null, false);
   } else {
-    const salt = crypto.createHash('md5').update(username).digest('hex');
-    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, derivedKey) => {
+    encrypt(username, password, (err, derivedKey) => {
       if (err) {
         callback(err, false);
       } else {
-        db.set(username, { passwd: derivedKey.toString('hex'), admin: false }).write();
+        if (modify) {
+          db.set(`${username}.passwd`, derivedKey).write();
+        } else {
+          db.set(username, { passwd: derivedKey, admin: false }).write();
+        }
         callback(null, true);
       }
     });
   }
-}
+};
 
 const check = (username, password, callback) => {
   if (!db.has(username).value()) {
     callback(null, false, false);
   } else {
     const user = db.get(username).value();
-    const salt = crypto.createHash('md5').update(username).digest('hex');
-    crypto.pbkdf2(password, salt, iterations, keylen, 'sha512', (err, derivedKey) => {
-      callback(err, derivedKey.toString('hex') === user.passwd, user.admin);
+    encrypt(username, password, (err, derivedKey) => {
+      callback(err, derivedKey === user.passwd, user.admin);
     });
   }
-}
+};
 
 // module exports
 module.exports = { update, check };

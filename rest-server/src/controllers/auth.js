@@ -50,7 +50,7 @@ const update = (req, res) => {
       message: 'not authorized'
     });
   }
-}
+};
 
 /**
  * Login.
@@ -84,7 +84,7 @@ const login = (req, res) => {
       });
     }
   });
-}
+};
 
 // module exports
 module.exports = { login, update };
