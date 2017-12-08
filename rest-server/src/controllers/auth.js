@@ -24,35 +24,6 @@ const logger = require('../config/logger');
 
 
 /**
- * Update.
- */
-const update = (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const modify = req.body.modify;
-  if (req.user.admin) {
-    authModel.update(username, password, modify, (err, state) => {
-      if (err || !state) {
-        logger.warn('update user %s failed', username);
-        return res.status(500).json({
-          error: 'UpdateFailed',
-          message: 'update failed'
-        });
-      } else {
-        return res.json({
-          message: 'update successfully'
-        });
-      }
-    });
-  } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized'
-    });
-  }
-};
-
-/**
  * Login.
  */
 const login = (req, res) => {
@@ -86,5 +57,62 @@ const login = (req, res) => {
   });
 };
 
+/**
+ * Update user.
+ */
+const update = (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const modify = req.body.modify;
+  if (req.user.admin) {
+    authModel.update(username, password, modify, (err, state) => {
+      if (err || !state) {
+        logger.warn('update user %s failed', username);
+        return res.status(500).json({
+          error: 'UpdateFailed',
+          message: 'update failed'
+        });
+      } else {
+        return res.json({
+          message: 'update successfully'
+        });
+      }
+    });
+  } else {
+    return res.status(401).json({
+      error: 'NotAuthorized',
+      message: 'not authorized'
+    });
+  }
+};
+
+/**
+ * Remove user.
+ */
+const remove = (req, res) => {
+  const username = req.body.username;
+  if (req.user.admin) {
+    authModel.remove(username, (err, state) => {
+      if (err || !state) {
+        logger.warn('remove user %s failed', username);
+        console.log(err)
+        return res.status(500).json({
+          error: 'RemoveFailed',
+          message: 'remove failed'
+        });
+      } else {
+        return res.json({
+          message: 'remove successfully'
+        });
+      }
+    });
+  } else {
+    return res.status(401).json({
+      error: 'NotAuthorized',
+      message: 'not authorized'
+    });
+  }
+};
+
 // module exports
-module.exports = { login, update };
+module.exports = { login, update, remove };

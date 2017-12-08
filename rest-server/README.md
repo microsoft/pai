@@ -88,8 +88,8 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Parameters*
     ```
     {
-      "username": "your username in [_A-Za-z0-9]+ format",
-      "password": "your password at least 6 characters",
+      "username": "username in [_A-Za-z0-9]+ format",
+      "password": "password at least 6 characters",
       "modify": true | false
     }
     ```
@@ -107,7 +107,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     {
       "error": "UpdateFailed",
-      "message": "update failed, user exists"
+      "message": "update failed"
     }
     ```
 
@@ -146,7 +146,41 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-3. `PUT` job
+3. `DELETE` auth
+
+    Remove a user in the system, allowed by administrator only.
+
+    *Request*
+    ```
+    DELETE /api/auth
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "username": "username to be removed"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "message": "remove successfully"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "RemoveFailed",
+      "message": "remove failed"
+    }
+    ```
+
+4. `PUT` job
 
     Submit or update a job in the system.
 
@@ -177,7 +211,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-4. `GET` job
+5. `GET` job
 
     Get job status in the system.
 
@@ -213,7 +247,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-5. `DELETE` job
+6. `DELETE` job
 
     Remove job from the system.
 

@@ -46,6 +46,17 @@ const adapter = new FileSync(config.lowdbFile, { defaultValue: defaultValue });
 const db = low(adapter);
 
 
+const check = (username, password, callback) => {
+  if (!db.has(username).value()) {
+    callback(null, false, false);
+  } else {
+    const user = db.get(username).value();
+    encrypt(username, password, (err, derivedKey) => {
+      callback(err, derivedKey === user.passwd, user.admin);
+    });
+  }
+};
+
 const update = (username, password, modify, callback) => {
   if (typeof modify === 'undefined' || db.has(username).value() !== modify) {
     callback(null, false);
@@ -65,16 +76,18 @@ const update = (username, password, modify, callback) => {
   }
 };
 
-const check = (username, password, callback) => {
-  if (!db.has(username).value()) {
-    callback(null, false, false);
+const remove = (username, callback) => {
+  if (typeof username === 'undefined' || !db.has(username).value()) {
+    callback(new Error('user does not exist'), false);
   } else {
-    const user = db.get(username).value();
-    encrypt(username, password, (err, derivedKey) => {
-      callback(err, derivedKey === user.passwd, user.admin);
-    });
+    if (db.get(`${username}.admin`).value()) {
+      callback(new Error('can not delete admin user'), false);
+    } else {
+      db.unset(username).write();
+      callback(null, true);
+    }
   }
 };
 
 // module exports
-module.exports = { update, check };
+module.exports = { check, update, remove };

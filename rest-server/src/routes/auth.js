@@ -26,11 +26,14 @@ const param = require('../middlewares/parameter');
 const router = express.Router();
 
 router.route('/')
+    /** POST /api/auth - Return token if username and password is correct */
+    .post(param.validate(authConfig.schema), authCtrl.login)
+
     /** PUT /api/auth - Update user */
     .put(authConfig.check, param.validate(authConfig.schema), authCtrl.update)
 
-    /** POST /api/auth - Return token if username and password is correct */
-    .post(param.validate(authConfig.schema), authCtrl.login);
+    /** DELETE /api/auth - Delete user */
+    .delete(authConfig.check, authCtrl.remove);
 
 // module exports
 module.exports = router;
