@@ -1,5 +1,5 @@
---- hadoop/yarn-site.xml	2017-11-13 02:36:07.769706914 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml	2017-11-13 02:38:31.329774525 -0500
+--- hadoop/yarn-site.xml	2016-01-25 19:20:20.000000000 -0500
++++ resourcemanager-yarn-site.xml	2017-12-08 01:12:05.380803355 -0500
 @@ -12,8 +12,113 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
@@ -19,12 +19,6 @@
 +        <name>yarn.nodemanager.resource.memory-mb</name>
 +        <value>204800</value>
 +        <description>Number of memory that can be allocated for containers.</description>
-+    </property>
-+    
-+    <property>
-+        <name>yarn.nodemanager.resource.gpus</name>
-+        <value>4</value>
-+        <description>GPU Supported</description>
 +    </property>
 +
 +    <property>
@@ -113,5 +107,11 @@
 +        <name>yarn.log.server.url</name>
 +        <value>http://{LOGSERVER_ADDRESS}:19888/jobhistory/logs</value>
 +    </property>
++    
++    <property>
++      <name>yarn.node-labels.manager-class</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager</value>
++   </property>
++
  
  </configuration>
