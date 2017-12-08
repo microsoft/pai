@@ -35,3 +35,15 @@ if [ -d "/var/etcd/data" ]; then
     rm -rf /var/etcd/data
 
 fi
+
+if [ -d "/var/log/pods" ]; then
+
+    rm -rf /var/log/pods
+
+fi
+
+if [ -d "/var/lib/kubelet/pods" ]; then
+
+    rm -rf /var/lib/kubelet/pods
+
+fi
