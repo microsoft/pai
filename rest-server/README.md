@@ -77,18 +77,20 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 1. `PUT` auth
 
-    Add a user in the system.
+    Update a user in the system, allowed by administrator only.
 
     *Request*
     ```
     PUT /api/auth
+    Authorization: Bearer <ACCESS_TOKEN>
     ```
 
     *Parameters*
     ```
     {
       "username": "your username in [_A-Za-z0-9]+ format",
-      "password": "your password at least 6 characters"
+      "password": "your password at least 6 characters",
+      "modify": true | false
     }
     ```
 

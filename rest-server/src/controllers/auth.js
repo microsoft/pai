@@ -29,19 +29,27 @@ const logger = require('../config/logger');
 const update = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  authModel.add(username, password, (err, state) => {
-    if (err || !state) {
-      logger.warn('adding user %s failed', username);
-      return res.status(500).json({
-        error: 'UpdateFailed',
-        message: 'update failed, user exists'
-      });
-    } else {
-      return res.json({
-        message: 'update successfully'
-      });
-    }
-  });
+  const modify = req.body.modify;
+  if (req.user.admin) {
+    authModel.update(username, password, modify, (err, state) => {
+      if (err || !state) {
+        logger.warn('update user %s failed', username);
+        return res.status(500).json({
+          error: 'UpdateFailed',
+          message: 'update failed'
+        });
+      } else {
+        return res.json({
+          message: 'update successfully'
+        });
+      }
+    });
+  } else {
+    return res.status(401).json({
+      error: 'NotAuthorized',
+      message: 'not authorized'
+    });
+  }
 }
 
 /**
@@ -50,7 +58,7 @@ const update = (req, res) => {
 const login = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  authModel.check(username, password, (err, state) => {
+  authModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       logger.warn('user %s authentication failed', username);
       return res.status(401).json({
@@ -59,7 +67,8 @@ const login = (req, res) => {
       });
     } else {
       jwt.sign({
-        username: username
+        username: username,
+        admin: admin
       }, authConfig.secret, { expiresIn: '7d' }, (signError, token) => {
         if (signError) {
           logger.warn('sign token error\n%s', signError.stack);
