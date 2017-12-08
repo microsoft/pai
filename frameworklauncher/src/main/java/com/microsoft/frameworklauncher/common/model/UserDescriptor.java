@@ -17,25 +17,21 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.Valid;
 import java.io.Serializable;
 
-public class LauncherStatus implements Serializable {
-  private LauncherConfiguration launcherConfiguration;
-  private UserDescriptor loggedInUser;
+public class UserDescriptor implements Serializable {
+  @Valid
+  @NotEmpty
+  private String name = "default";
 
-  public LauncherConfiguration getLauncherConfiguration() {
-    return launcherConfiguration;
+  public String getName() {
+    return name;
   }
 
-  public void setLauncherConfiguration(LauncherConfiguration launcherConfiguration) {
-    this.launcherConfiguration = launcherConfiguration;
-  }
-
-  public UserDescriptor getLoggedInUser() {
-    return loggedInUser;
-  }
-
-  public void setLoggedInUser(UserDescriptor loggedInUser) {
-    this.loggedInUser = loggedInUser;
+  public void setName(String name) {
+    this.name = name;
   }
 }
