@@ -125,7 +125,8 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     ```
     {
       "username": "your username",
-      "password": "your password"
+      "password": "your password",
+      "expiration": "expiration time in seconds"
     }
     ```
 

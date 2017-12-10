@@ -34,6 +34,11 @@ const authSchema = Joi.object().keys({
   password: Joi.string()
     .min(6)
     .required(),
+  expiration: Joi.number()
+    .integer()
+    .min(60)
+    .max(7 * 24 * 60 * 60)
+    .default(24 * 60 * 60),
   admin: Joi.boolean(),
   modify: Joi.boolean()
 }).required();

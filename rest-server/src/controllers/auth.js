@@ -29,6 +29,7 @@ const logger = require('../config/logger');
 const login = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+  const expiration = req.body.expiration;
   authModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       logger.warn('user %s authentication failed', username);
@@ -40,7 +41,7 @@ const login = (req, res) => {
       jwt.sign({
         username: username,
         admin: admin
-      }, authConfig.secret, { expiresIn: '7d' }, (signError, token) => {
+      }, authConfig.secret, { expiresIn: expiration }, (signError, token) => {
         if (signError) {
           logger.warn('sign token error\n%s', signError.stack);
           return res.status(500).json({
