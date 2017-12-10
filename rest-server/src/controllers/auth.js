@@ -63,9 +63,10 @@ const login = (req, res) => {
 const update = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+  const admin = req.body.admin;
   const modify = req.body.modify;
   if (req.user.admin) {
-    authModel.update(username, password, modify, (err, state) => {
+    authModel.update(username, password, admin, modify, (err, state) => {
       if (err || !state) {
         logger.warn('update user %s failed', username);
         return res.status(500).json({
@@ -95,7 +96,6 @@ const remove = (req, res) => {
     authModel.remove(username, (err, state) => {
       if (err || !state) {
         logger.warn('remove user %s failed', username);
-        console.log(err)
         return res.status(500).json({
           error: 'RemoveFailed',
           message: 'remove failed'

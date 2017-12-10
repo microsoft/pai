@@ -57,7 +57,7 @@ const check = (username, password, callback) => {
   }
 };
 
-const update = (username, password, modify, callback) => {
+const update = (username, password, admin, modify, callback) => {
   if (typeof modify === 'undefined' || db.has(username).value() !== modify) {
     callback(null, false);
   } else {
@@ -69,6 +69,9 @@ const update = (username, password, modify, callback) => {
           db.set(`${username}.passwd`, derivedKey).write();
         } else {
           db.set(username, { passwd: derivedKey, admin: false }).write();
+        }
+        if (typeof admin !== 'undefined') {
+          db.set(`${username}.admin`, admin).write();
         }
         callback(null, true);
       }
