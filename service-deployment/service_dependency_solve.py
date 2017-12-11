@@ -38,10 +38,17 @@ def service_status_check(servicename):
 
 def waiting_until_service_ready(servicename):
 
+    total_time = 216000
+
     while servicestatus.is_service_ready(servicename) != True:
 
         print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
-        time.sleep(3)
+        time.sleep(10)
+        total_time = total_time - 10
+
+        if total_time < 0:
+            print "An issue occure when starting up {0}".format(servicename)
+            sys.exit(1)
 
     print "{0} is ready!".format(servicename)
 
