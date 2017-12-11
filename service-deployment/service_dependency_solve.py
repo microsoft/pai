@@ -27,5 +27,42 @@ import argparse
 import servicestatus
 
 
+
+def service_status_check(servicename):
+
+    if servicestatus.is_service_ready(servicename) != True:
+        print "{0} is not ready yet!".format(servicename)
+        sys.exit(1)
+
+
+
+def waiting_until_service_ready(servicename):
+
+    while servicestatus.is_service_ready(servicename) != True:
+
+        print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
+        time.sleep(3)
+
+    print "{0} is ready!".format(servicename)
+
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-w', '--wait', action="store_true", help="wait until the service is ready")
+    parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
+
+
+    args = parser.parse_args()
+    app_service_name = args.service
+
+    if parser.wait:
+        waiting_until_service_ready(app_service_name)
+    else:
+        service_status_check(app_service_name)
+
+
+
+
 if __name__ == "__main__":
     main()
