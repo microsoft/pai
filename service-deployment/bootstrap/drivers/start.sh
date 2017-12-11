@@ -24,4 +24,6 @@ chmod u+x node-label.sh
 
 kubectl create -f drivers.yaml
 
+python ../../service_dependency_solve.py -w -s drivers-one-shot
+
 popd > /dev/null
