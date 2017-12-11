@@ -56,7 +56,7 @@ def main():
     args = parser.parse_args()
     app_service_name = args.service
 
-    if parser.wait_service:
+    if args.wait_service:
         waiting_until_service_ready(app_service_name)
     else:
         service_status_check(app_service_name)

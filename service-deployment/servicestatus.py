@@ -35,13 +35,13 @@ def is_service_ready(servicename):
 
     pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
 
-    if len(pod_list) == 0:
+    if len(pod_list.items) == 0:
         return False
 
-    for pod in pod_list:
+    for pod in pod_list.items:
 
-        for container in pod.status.container_statues:
-            if container.ready != 'True':
+        for container in pod.status.container_statuses:
+            if container.ready != True:
                 return False
 
     return True
