@@ -24,4 +24,7 @@
     {% if 'zkid' in machinelist[host] -%}
     zkid: "{{ machinelist[host]['zkid'] }}"
     {%- endif %}
+    {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] -%}
+    gputype: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}
+    {%- endif %}
 {% endfor %}
