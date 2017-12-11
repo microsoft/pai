@@ -40,6 +40,8 @@ spec:
           name: frameworklauncher-config-volume
         - mountPath: /usr/local/launcher/logs
           name: launcher-log
+        - mountPath: /host-configuration
+          name: host-confg-volume
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -67,3 +69,6 @@ spec:
       - name: frameworklauncher-config-volume
         configMap:
           name: frameworklauncher-configmap
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
