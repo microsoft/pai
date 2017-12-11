@@ -1,7 +1,7 @@
 {
   "name": "pai-rest-server",
   "version": "0.1.0",
-  "description": "RESTful api server for Microsoft AI Infrastructure",
+  "description": "RESTful api server for Microsoft Platform for AI",
   "main": "index.js",
   "keywords": [
     "REST",
