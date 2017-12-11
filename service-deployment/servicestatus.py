@@ -18,49 +18,31 @@
 import yaml
 import os
 import sys
-import subprocess
-
-
-def execute_shell_with_output(shell_cmd, error_msg):
-
-    try:
-        res = subprocess.check_output( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        print error_msg
-        sys.exit(1)
-
-    return res
+from kubernetes import client, config
 
 
 
-def execute_shell(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        print error_msg
-        sys.exit(1)
-
-
-# To check a service ready or not. Note that service name should be same as the name in the metadata in the yaml file.
+# To check a service ready or not.
+# Note that service name should be same as the app-name in
+#     labels:
+#        app: app-name
 def is_service_ready(servicename):
 
-    output = execute_shell_with_output( "kubectl get pod | grep {0} | cut -d' ' -f1".format(servicename),
-                                          "Failed to get the pod list of {0}".format(servicename))
+    label_selector_str="app={0}".format(servicename)
 
-    pod_list = output.splitlines()
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+
+    pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
 
     if len(pod_list) == 0:
         return False
 
     for pod in pod_list:
 
-        status = execute_shell_with_output( "kubectl describe pod {0} | grep 'Ready: ' ".format(pod),
-                                            "Failed to status of {0}".format(pod))
-        if status.find("True") == -1:
-            return False
+        for container in pod.status.container_statues:
+            if container.ready != 'True':
+                return False
 
     return True
 

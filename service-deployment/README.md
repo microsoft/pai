@@ -27,23 +27,28 @@ Python and Docker are required in the dev box.
 
 Python(2.x) and the lib to install:
 ```
-sudo apt-get install python python-yaml python-jinja2 
+sudo apt-get install python python-pip python-yaml python-jinja2 
+sudo pip install kubernetes
 ```
 
 [Docker install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 The deployment process further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) to store the docker images for the services to be deployed.
 
-## Cluster configuration and generate script
-
-Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
-When deploying services to your cluster, please replace the specified fields with your own configuration.
-
 ## Prepare hadoop configuration (patching)
 
 ```
 ./prepare_hadoop_config.sh
 ```
+
+According to your environment, you could do some update on corresponding configuration.
+
+## Cluster configuration and generate script
+
+Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
+When deploying services to your cluster, please replace the specified fields with your own configuration.
+
+
 ## Build docker image
 
 ```
