@@ -21,8 +21,14 @@ clusterID: your_cluster_id
 clusterinfo:
   # the ip address of nameserver in your cluster
   cluster-dns: 168.63.129.16
+
+
   # the ip address of API-server
+  # If kubernetes-ha is enable, this should be the ip or vip of lb.
+  # If kubernetes-ha is not enable, this should be the ip of the master node.
   api-servers-ip: 10.0.3.7
+
+
   # the port of API-server, please do not change the default port number below
   #api-server-port: 8080
   # specify an IP range not in the same network segment with the host machine.
@@ -77,6 +83,12 @@ component_list:
   - src: kube-proxy.yaml
     dst: src/
 
+  haproxy:
+  - src: haproxy.yaml
+    dst: src/etc/kubernetes/manifests
+  - src: haproxy.cfg
+    dst: src/haproxy
+
 
 
 remote_deployment:
@@ -100,10 +112,11 @@ remote_deployment:
 
   # If customized LB set in your cluster, you should add this role to your cluster.
   # Those node will only run the lb in your cluster.
-  #proxy:
-  #  listname: proxymachinelist
-  #  component:
-  #  - name: kubelet
+  proxy:
+    listname: proxymachinelist
+    component:
+    - name: kubelet
+    - name: haproxy
 
 
 
@@ -159,13 +172,13 @@ workermachinelist:
 
 
 
-#proxymachinelist:
+proxymachinelist:
 
-#  proxy-01:
-#    nodename: IP
-#    hostip: IP
-#    username: username
-#    password: password
+  proxy-01:
+    nodename: IP
+    hostip: IP
+    username: username
+    password: password
 
 
 

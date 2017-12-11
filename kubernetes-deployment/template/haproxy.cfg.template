@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,33 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apt-get install -y gawk
+global
+  log 127.0.0.1 local0 notice
+  maxconn 4096
 
-docker stop kubelet
-docker rm kubelet
 
-for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
+defaults
+  mode http
+  timeout connect 10000ms
+  timeout client 100000ms
+  timeout server 100000ms
 
-if [ -d "/etc/kubernetes" ]; then
 
-    rm -rf /etc/kubernetes
+frontend api-server-frontend
+  bind *:8080
+  default_backend api-server-backend
 
-fi
 
-if [ -d "/var/etcd/data" ]; then
+backend api-server-backend
+{% for host in cluster['mastermachinelist'] %}
+  server {{host}}_8080 {{cluster['mastermachinelist'][host]['hostip']}}:8080
+{% endfor %}
 
-    rm -rf /var/etcd/data
 
-fi
 
-if [ -d "/var/log/pods" ]; then
-
-    rm -rf /var/log/pods
-
-fi
-
-if [ -d "/var/lib/kubelet/pods" ]; then
-
-    rm -rf /var/lib/kubelet/pods
-
-fi
+  

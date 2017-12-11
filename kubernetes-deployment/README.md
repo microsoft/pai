@@ -45,9 +45,96 @@ sudo apt-get install python python-paramiko python-yaml python-jinja2
 ```
 
 Note: kubectl will be installed on this dev-box. So it can access to your kubernetes cluster.
+
+## Kubernetes high-availability 
+
+#### solution 1
+
+Because cloud providers such as azure always have the load balance service. So when deploy pai to the cloud platform, you could chose the load-balance service to implement the high-availability.
+
+Before bootstrap your kubernetes cluster, you should configure your load-balance. please set the backend with your master. And set the following property with the ip of the load-balance.
+
+```yaml
+
+api-servers-ip: load-balance IP
+
+```
+
+#### solution 2
+
+If your environment don't have a load-balance service. You could add proxy node to the kuebrnetes cluster. And then implement the load-balance component to the cluster. 
+
+Please add all the configuration or template to the following place. here we use haproxy as an example. Feel free to implement your own load-balance component.
+```yaml
+component_list:
+  haproxy:
+  - src: haproxy.yaml
+    dst: src/etc/kubernetes/manifests
+  - src: haproxy.cfg
+    dst: src/haproxy
+    
+remote_deployment:
+  proxy:
+    listname: proxymachinelist
+    component:
+    - name: kubelet
+    - name: haproxy
+``` 
+
+And then set the proxy node in the following place.
+```yaml
+
+proxymachinelist:
+
+  proxy-01:
+    nodename: IP
+    hostip: IP
+    username: username
+    password: password
+
+
+```
+
+And then set the following property with the ip or vip of your load-balance.
+
+```yaml
+
+api-servers-ip: load-balance IP or VIP
+
+```
+
+#### solution 3
+
+Not enable kubernete-ha. 
+please comment following code in cluster-config.
+```yaml
+component_list:
+  haproxy:
+  - src: haproxy.yaml
+    dst: src/etc/kubernetes/manifests
+  - src: haproxy.cfg
+    dst: src/haproxy
+    
+remote_deployment:
+  proxy:
+    listname: proxymachinelist
+    component:
+    - name: kubelet
+    - name: haproxy
+    
+proxymachinelist:
+
+  proxy-01:
+    nodename: IP
+    hostip: IP
+    username: username
+    password: password
+
+```
+
+
 ## bootstrap
 
 ```yaml
 sudo ./bootstrap.py -p yourclusterconfig.yaml
 ```
-

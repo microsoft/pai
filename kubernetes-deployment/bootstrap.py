@@ -52,7 +52,8 @@ def generate_from_template(template_data, cluster_config, host_config):
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "clusterconfig": cluster_config['clusterinfo']
+            "clusterconfig": cluster_config['clusterinfo'],
+            "cluster": cluster_config
         }
     )
 
@@ -312,6 +313,15 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+
+
+    if 'proxy' in cluster_config['remote_deployment']:
+        listname = cluster_config['remote_deployment']['proxy']['listname']
+        machine_list = cluster_config[listname]
+
+        for hostname in machine_list:
+            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
+            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
     listname = cluster_config['remote_deployment']['master']['listname']
