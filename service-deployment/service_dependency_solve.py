@@ -27,7 +27,7 @@ import argparse
 import servicestatus
 
 
-
+# Designed for shell, so use the exit function to pass error code.
 def service_status_check(servicename):
 
     if servicestatus.is_service_ready(servicename) != True:
@@ -49,19 +49,17 @@ def waiting_until_service_ready(servicename):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--wait', action="store_true", help="wait until the service is ready")
+    parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
     parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
 
 
     args = parser.parse_args()
     app_service_name = args.service
 
-    if parser.wait:
+    if parser.wait_service:
         waiting_until_service_ready(app_service_name)
     else:
         service_status_check(app_service_name)
-
-
 
 
 if __name__ == "__main__":
