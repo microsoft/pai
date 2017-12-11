@@ -59,17 +59,7 @@ sudo ./docker_build.py -p your-cluster-config.yaml
 
 Run the following command:
 ```
-sudo ./deploy.py -p your-cluster-config.yaml
-```
-After the operation completes, please run the following scripts in order:
-```
-sudo ./bootstrap/cluster-configuration/start.sh
-sudo ./bootstrap/drivers/start.sh
-# please make sure the driver starts completely before running the following scripts
-sudo ./bootstrap/hadoop-service/start.sh
-sudo ./bootstrap/frameworklauncher/start.sh
-sudo ./bootstrap/rest-server/start.sh
-sudo ./bootstrap/webportal/start.sh
+sudo ./deploy.py -d -p your-cluster-config.yaml
 ```
 
 ## Cleanup your previous deployment
