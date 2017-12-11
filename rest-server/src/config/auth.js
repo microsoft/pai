@@ -17,59 +17,35 @@
 
 
 // module dependencies
-const fse = require('fs-extra');
 const Joi = require('joi');
-const dotenv = require('dotenv');
+const jwt = require('express-jwt');
+const config = require('./index');
 
 
-require.extensions['.mustache'] = (module, filename) => {
-  module.exports = fse.readFileSync(filename, 'utf8');
-};
+const jwtCheck = jwt({
+  secret: config.jwtSecret
+});
 
-dotenv.config();
-
-// get config from environment variables
-let config = {
-  env: process.env.NODE_ENV,
-  logLevel: process.env.LOG_LEVEL,
-  serverPort: process.env.SERVER_PORT,
-  jwtSecret: process.env.JWT_SECRET,
-  lowdbFile: process.env.LOWDB_FILE,
-  lowdbAdmin: process.env.LOWDB_ADMIN,
-  lowdbPasswd: process.env.LOWDB_PASSWD
-};
-
-// define config schema
-const configSchema = Joi.object().keys({
-  env: Joi.string()
-    .allow(['development', 'production'])
-    .default('development'),
-  logLevel: Joi.string()
-    .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
-    .default('debug'),
-  serverPort: Joi.number()
-    .integer()
-    .min(8000)
-    .max(65535)
-    .default(9186),
-  jwtSecret: Joi.string()
-    .required()
-    .description('JWT Secret required to sign'),
-  lowdbFile: Joi.string()
-    .required(),
-  lowdbAdmin: Joi.string()
+// define auth schema
+const authSchema = Joi.object().keys({
+  username: Joi.string()
     .token()
     .required(),
-  lowdbPasswd: Joi.string()
+  password: Joi.string()
     .min(6)
-    .required()
+    .required(),
+  expiration: Joi.number()
+    .integer()
+    .min(60)
+    .max(7 * 24 * 60 * 60)
+    .default(24 * 60 * 60),
+  admin: Joi.boolean(),
+  modify: Joi.boolean()
 }).required();
 
-const {error, value} = Joi.validate(config, configSchema);
-if (error) {
-  throw new Error(`config error\n${error}`);
-}
-config = value;
-
 // module exports
-module.exports = config;
+module.exports = {
+  secret: config.jwtSecret,
+  check: jwtCheck,
+  schema: authSchema
+};
