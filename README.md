@@ -2,18 +2,16 @@
 
 ## Introduction
 
-The system is a cluster management tool and resource scheduling platform that supports AI jobs (primarily deep learning jobs)
-running in a GPU cluster.
+Platform for AI is a cluster management tool and resource scheduling platform, jointly designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx).
+The platform incorporates mature design that has proven track record in large scale Microsoft production environment, and is tailored primiarily for academic and research purpose. 
 
-The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. 
-The interface is also extensible: new deep learning framework (or other type of workload) can be supported by the interface with 
-a few extra lines of script and/or Python code.
+PAI supports AI jobs (primarily deep learning jobs) running in a GPU cluster. The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. The interface enables extensibility: new deep learning framework (or other type of workload) can be supported by the interface with a few extra lines of script and/or Python code.
 
-The system supports GPU scheduling, a requirement of deep learning job. 
-For better performance, it supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
+PAI supports GPU scheduling, a key requirement of deep learning job. 
+For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
 
-The system embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
-The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage key static components in the system.
+PAI embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
+The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage static components in the system.
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
  
