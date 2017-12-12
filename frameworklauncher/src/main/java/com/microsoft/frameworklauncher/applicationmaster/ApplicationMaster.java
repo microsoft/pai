@@ -160,7 +160,7 @@ public class ApplicationMaster extends AbstractService {
         LaunchClientType.APPLICATION_MASTER);
 
     aaAllocationManager = new AntiaffinityAllocationManager();
-    gpuAllocationManager = new GpuAllocationManager();
+    gpuAllocationManager = new GpuAllocationManager(GlobalConstants.GPU_CONFIGURATION_FILE);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 

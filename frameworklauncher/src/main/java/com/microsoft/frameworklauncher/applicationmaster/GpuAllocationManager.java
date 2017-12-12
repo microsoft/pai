@@ -19,18 +19,30 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.utils.YamlUtils;
 
+import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
 
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
 
   // Candidate request Nodes for this application
   private final LinkedHashMap<String, Node> candidateRequestNodes = new LinkedHashMap<>();
-
+  private Map gpuTypeLabelMap = new HashMap();
+  
+  public GpuAllocationManager(String gpuConfigFile){
+    try {
+      gpuTypeLabelMap = (Map)YamlUtils.toObject(gpuConfigFile, Map.class);
+    } catch(FileNotFoundException e) {
+      LOGGER.logWarning("gpu type config file not found:" + gpuConfigFile);
+    }
+  }
   public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
     if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
       LOGGER.logInfo("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
@@ -59,11 +71,11 @@ public class GpuAllocationManager { // THREAD SAFE
           "allocateCandidateRequestNode: Try node: " + entry.getValue().toString());
 
       if (nodeLabel != null) {
-        Set<String> nodeLabels = entry.getValue().getNodeLabels();
-        if (!nodeLabels.contains(nodeLabel)) {
+        String gpuTypeLabel =(String) gpuTypeLabelMap.get(entry.getValue().getHostName());
+        if (!gpuTypeLabel.equals(nodeLabel)) {
           LOGGER.logInfo(
-              "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
-              entry.getValue().getHostName(), nodeLabel);
+              "allocateCandidateRequestNode: Skip node %s (label:%s), label does not match: request: %s",
+              entry.getValue().getHostName(), gpuTypeLabel, nodeLabel);
           continue;
         }
       }
