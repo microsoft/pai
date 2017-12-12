@@ -43,7 +43,7 @@ The deployment process further relies on a Docker registry service (e.g., [Docke
 
 According to your environment, you can customize the hadoop configuration in this step.
 
-## Cluster configuration and generate script
+## Cluster configuration and script generation
 
 Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
 When deploying services to your cluster, please replace the specified fields with your own configuration.
