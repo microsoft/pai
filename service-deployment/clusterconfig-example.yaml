@@ -117,6 +117,7 @@ machinelist:
     # hdfsrole:   master or worker
     # yarnrole:   master or worker
     # zookeeper:  "true"   or not set this value
+    # Note: if zookeeper is set, you should set zkid in this machine.
     # jobhistory: "true"   or not set this value
     hdfsrole: master
     yarnrole: master
