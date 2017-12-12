@@ -26,6 +26,6 @@ kubectl create -f drivers.yaml
 
 
 # wait until all drivers are ready.
-python ../../service_dependency_solve.py -w -s drivers-one-shot
+python ../../service_dependency_solve.py -d -w -s drivers-one-shot
 
 popd > /dev/null
