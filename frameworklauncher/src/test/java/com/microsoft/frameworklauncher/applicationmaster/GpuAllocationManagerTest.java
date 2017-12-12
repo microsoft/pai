@@ -166,10 +166,10 @@ public class GpuAllocationManagerTest {
   }
 
   @Test
-  public void TestGpuLocalLabelParser() {
+  public void TestGpuLocalLabelParser () throws Exception {
     String configFileName = "GpuTypeTestFile";
     String resultFilePath = INPUTS_DIR + configFileName + ".yml";
-    try {
+
       Map resultObject = (Map) YamlUtils.toObject(resultFilePath, Map.class);
       String gpuType = (String) resultObject.get("25.65.179.45");
       Assert.assertEquals("T40", gpuType);
@@ -178,10 +178,5 @@ public class GpuAllocationManagerTest {
       //case of doesn't exist key
       gpuType = (String) resultObject.get("25.65.179.50");
       Assert.assertEquals(null, gpuType);
-
-    } catch (FileNotFoundException e) {
-      Assert.assertTrue("test file not found:" + resultFilePath, false);
-      ;
-    }
   }
 }
