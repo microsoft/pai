@@ -18,10 +18,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist %}
-    {% if 'hadooprole' in machinelist[ host ] and machinelist[ host ][ 'hadooprole' ] == 'master' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadooprole=master
+    {% if 'hdfsrole' in machinelist[ host ] and machinelist[ host ][ 'hdfsrole' ] == 'master' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole=master
     {% endif %}
-    {% if 'hadooprole' in machinelist[ host ] and machinelist[ host ][ 'hadooprole' ] == 'worker' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadooprole=worker
+    {% if 'yarnrole' in machinelist[ host ] and machinelist[ host ][ 'yarnrole' ] == 'master' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole=master
+    {% endif %}
+    {% if 'hdfsrole' in machinelist[ host ] and machinelist[ host ][ 'hdfsrole' ] == 'worker' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole=worker
+    {% endif %}
+    {% if 'yarnrole' in machinelist[ host ] and machinelist[ host ][ 'yarnrole' ] == 'worker' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole=worker
+    {% endif %}
+    {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
+    {% endif %}
+    {% if 'zookeeper' in machinelist[ host ] and machinelist[ host ][ 'zookeeper' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper=true
     {% endif %}
 {% endfor %}
