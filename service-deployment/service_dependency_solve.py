@@ -28,19 +28,19 @@ import servicestatus
 
 
 # Designed for shell, so use the exit function to pass error code.
-def service_status_check(servicename):
+def service_status_check(servicename, drivers=False):
 
-    if servicestatus.is_service_ready(servicename) != True:
+    if servicestatus.is_service_ready(servicename, drivers) != True:
         print "{0} is not ready yet!".format(servicename)
         sys.exit(1)
 
 
 
-def waiting_until_service_ready(servicename):
+def waiting_until_service_ready(servicename, drivers=False):
 
     total_time = 216000
 
-    while servicestatus.is_service_ready(servicename) != True:
+    while servicestatus.is_service_ready(servicename, drivers) != True:
 
         print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
         time.sleep(10)
@@ -57,16 +57,21 @@ def waiting_until_service_ready(servicename):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
+    parser.add_argument('-d', '--drivers', required=True, help="drivers dependency, because its number could be zero.")
     parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
 
 
     args = parser.parse_args()
     app_service_name = args.service
 
+    drivers = False
+    if args.drivers:
+        drivers = True
+
     if args.wait_service:
-        waiting_until_service_ready(app_service_name)
+        waiting_until_service_ready(app_service_name, drivers)
     else:
-        service_status_check(app_service_name)
+        service_status_check(app_service_name, drivers)
 
 
 if __name__ == "__main__":
