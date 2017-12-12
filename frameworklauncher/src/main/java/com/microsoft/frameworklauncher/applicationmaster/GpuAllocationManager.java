@@ -77,6 +77,7 @@ public class GpuAllocationManager { // THREAD SAFE
           LOGGER.logInfo(
               "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
               entry.getValue().getHostName(), nodeLabel);
+          continue;
         }
 
         String gpuTypeLabel = (String) gpuTypeLabelMap.get(entry.getValue().getHostName());
