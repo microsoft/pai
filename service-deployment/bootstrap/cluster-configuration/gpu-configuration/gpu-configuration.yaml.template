@@ -15,13 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-{% for host in machinelist %}
-
-{{ host }}:
-    ip: {{ machinelist[host]['ip'] }}
-    dataFolder: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ][ 'dataFolder' ] }}
-    {% if 'zkid' in machinelist[host] -%}
-    zkid: "{{ machinelist[host]['zkid'] }}"
-    {%- endif %}
+{% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] -%}
+{{machinelist[ host ]['nodename']}}: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}
 {% endfor %}
