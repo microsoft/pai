@@ -114,6 +114,10 @@ machinelist:
     ip: 10.0.3.9
     # all hadooprole: master will install zk, please specify a unique zkid for each node. Begin at "1".
     zkid: "1"
+    # hdfsrole:   master or worker
+    # yarnrole:   master or worker
+    # zookeeper:  "true"   or not set this value
+    # jobhistory: "true"   or not set this value
     hdfsrole: master
     yarnrole: master
     hadooprole: master
