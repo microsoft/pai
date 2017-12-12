@@ -41,7 +41,7 @@ The deployment process further relies on a Docker registry service (e.g., [Docke
 ./prepare_hadoop_config.sh
 ```
 
-According to your environment, you could do some update on corresponding configuration.
+According to your environment, you can customize the hadoop configuration in this step.
 
 ## Cluster configuration and generate script
 
