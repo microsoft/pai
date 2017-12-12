@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation
-// All rights reserved. 
+// All rights reserved.
 //
 // MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
@@ -35,14 +35,15 @@ public class GpuAllocationManager { // THREAD SAFE
   // Candidate request Nodes for this application
   private final LinkedHashMap<String, Node> candidateRequestNodes = new LinkedHashMap<>();
   private Map gpuTypeLabelMap = new HashMap();
-  
-  public GpuAllocationManager(String gpuConfigFile){
+
+  public GpuAllocationManager(String gpuConfigFile) {
     try {
-      gpuTypeLabelMap = (Map)YamlUtils.toObject(gpuConfigFile, Map.class);
-    } catch(FileNotFoundException e) {
+      gpuTypeLabelMap = YamlUtils.toObject(gpuConfigFile, Map.class);
+    } catch (FileNotFoundException e) {
       LOGGER.logWarning("gpu type config file not found:" + gpuConfigFile);
     }
   }
+
   public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
     if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
       LOGGER.logInfo("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
@@ -71,15 +72,21 @@ public class GpuAllocationManager { // THREAD SAFE
           "allocateCandidateRequestNode: Try node: " + entry.getValue().toString());
 
       if (nodeLabel != null) {
-        String gpuTypeLabel =(String) gpuTypeLabelMap.get(entry.getValue().getHostName());
-        if (!gpuTypeLabel.equals(nodeLabel)) {
+        Set<String> nodeLabels = entry.getValue().getNodeLabels();
+        if (nodeLabels != null && nodeLabels.size() > 0 && !nodeLabels.contains(nodeLabel)) {
           LOGGER.logInfo(
-              "allocateCandidateRequestNode: Skip node %s (label:%s), label does not match: request: %s",
+              "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
+              entry.getValue().getHostName(), nodeLabel);
+        }
+
+        String gpuTypeLabel = (String) gpuTypeLabelMap.get(entry.getValue().getHostName());
+        if (gpuTypeLabelMap.size() > 0 && !nodeLabel.equals(gpuTypeLabel)) {
+          LOGGER.logInfo(
+              "allocateCandidateRequestNode: Skip node %s (gpuTypeLabel:%s), labels don't match: request nodeLabel: %s",
               entry.getValue().getHostName(), gpuTypeLabel, nodeLabel);
           continue;
         }
       }
-
       if (request.getMemoryMB() <= entry.getValue().getAvailableMemory() &&
           request.getCpuNumber() <= entry.getValue().getAvailableCpu() &&
           request.getGpuNumber() <= entry.getValue().getAvailableNumGpus()) {
@@ -123,4 +130,5 @@ public class GpuAllocationManager { // THREAD SAFE
       candidateRequestNodes.remove(candidateRequestNode.getHostName());
     }
   }
+
 }

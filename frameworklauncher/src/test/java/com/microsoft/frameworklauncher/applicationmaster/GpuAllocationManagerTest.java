@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.utils.CommonUtils;
 import com.microsoft.frameworklauncher.utils.YamlUtils;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.Map;
-import java.io.*;  
+import java.io.*;
 
 public class GpuAllocationManagerTest {
 
@@ -64,7 +65,7 @@ public class GpuAllocationManagerTest {
   }
 
   @Test
-  public void testGpuAllocationManager() {
+  public void testGpuAllocationManager() throws Exception {
 
     Set<String> tag = null;
 
@@ -75,9 +76,9 @@ public class GpuAllocationManagerTest {
     Node node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
     String tempNodeLabelFile = "tempNodeLabel.txt";
-    
+
     GpuAllocationManager gpuMgr = new GpuAllocationManager(tempNodeLabelFile);
-    
+
     long candidateGPU = gpuMgr.selectCandidateGPU(node1, 1);
     Assert.assertEquals(1L, candidateGPU);
     candidateGPU = gpuMgr.selectCandidateGPU(node1, 2);
@@ -92,7 +93,7 @@ public class GpuAllocationManagerTest {
 
     candidateGPU = gpuMgr.selectCandidateGPU(node4, 2);
     Assert.assertEquals(0x30L, candidateGPU);
-    
+
     Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     //Empty allocation failed;
     Assert.assertEquals(null, result);
@@ -139,24 +140,16 @@ public class GpuAllocationManagerTest {
     gpuMgr.removeCandidateRequestNode(node6);
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     Assert.assertEquals(null, result);
-    
+
     //Allocation with Gpu type lable
-    
+
     String nodelabelString = "node1: K40\r\nnode2: K40\r\nnode3: K40\r\nnode4: T40\r\nnode6: M40\r\nnode7: M40\r\n";
-    
-   
-    try {
-      FileWriter fw = new FileWriter(tempNodeLabelFile);
-      fw.write(nodelabelString);
-      fw.close();
-    }catch(IOException e) {
-      Assert.assertTrue("IOException on write test file", false);
-    }
-    
-  
+
+    CommonUtils.writeFile(tempNodeLabelFile, nodelabelString);
+
     node3 = new Node("node3", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
-    
+
     GpuAllocationManager gpuMgr2 = new GpuAllocationManager(tempNodeLabelFile);
     gpuMgr2.addCandidateRequestNode(node3);
     gpuMgr2.addCandidateRequestNode(node4);
@@ -166,18 +159,18 @@ public class GpuAllocationManagerTest {
     result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "T40");
     Assert.assertEquals(result.getHostName(), "node4");
     Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0);
-    
+
     //Lable doesn't exist, failed scheduling
     result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "L40");
-    Assert.assertEquals(result, null);    
+    Assert.assertEquals(result, null);
   }
-  
+
   @Test
   public void TestGpuLocalLabelParser() {
     String configFileName = "GpuTypeTestFile";
-    String resultFilePath = INPUTS_DIR + configFileName + ".yaml";
+    String resultFilePath = INPUTS_DIR + configFileName + ".yml";
     try {
-      Map resultObject = (Map)YamlUtils.toObject(resultFilePath, Map.class);
+      Map resultObject = (Map) YamlUtils.toObject(resultFilePath, Map.class);
       String gpuType = (String) resultObject.get("25.65.179.45");
       Assert.assertEquals("T40", gpuType);
       gpuType = (String) resultObject.get("25.65.179.46");
@@ -186,8 +179,9 @@ public class GpuAllocationManagerTest {
       gpuType = (String) resultObject.get("25.65.179.50");
       Assert.assertEquals(null, gpuType);
 
-    } catch(FileNotFoundException e) {
-      Assert.assertTrue("test file not found:" +resultFilePath , false);;
+    } catch (FileNotFoundException e) {
+      Assert.assertTrue("test file not found:" + resultFilePath, false);
+      ;
     }
   }
 }
