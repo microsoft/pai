@@ -3,9 +3,9 @@
 ## Introduction
 
 Platform for AI is a cluster management tool and resource scheduling platform, jointly designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx).
-The platform incorporates mature design that has proven track record in large scale Microsoft production environment, and is tailored primiarily for academic and research purpose. 
+The platform incorporates mature design that has proven track record in large scale Microsoft production environment, and is tailored primarily for academic and research purpose. 
 
-PAI supports AI jobs (primarily deep learning jobs) running in a GPU cluster. The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. The interface enables extensibility: new deep learning framework (or other type of workload) can be supported by the interface with a few extra lines of script and/or Python code.
+PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. The interface enables extensibility: new deep learning framework (or other type of workload) can be supported by the interface with a few extra lines of script and/or Python code.
 
 PAI supports GPU scheduling, a key requirement of deep learning job. 
 For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
