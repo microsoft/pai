@@ -88,6 +88,7 @@ servicelist:
     templatelist:
       - secret.yaml
       - host-configuration/host-configuration.yaml
+      - gpu-configuration/gpu-configuration.yaml
       - docker-credentials/config.json
       - cleanup.sh
     startscript: start.sh

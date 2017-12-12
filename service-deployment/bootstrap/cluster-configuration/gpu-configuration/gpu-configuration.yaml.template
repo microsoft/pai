@@ -16,5 +16,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] -%}
-machinelist[ host ]['nodename']:{{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}
-{%- endfor %}
+{{machinelist[ host ]['nodename']}}: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}
+{% endfor %}
