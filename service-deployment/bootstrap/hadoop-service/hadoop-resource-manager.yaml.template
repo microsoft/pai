@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hadooprole: master
+        yarnrole: master
       containers:
       - name: hadoop-resource-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run

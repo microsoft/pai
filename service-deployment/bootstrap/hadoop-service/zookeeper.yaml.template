@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hadooprole: master
+        zookeeper: "true"
       containers:
       - name: zookeeper
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper

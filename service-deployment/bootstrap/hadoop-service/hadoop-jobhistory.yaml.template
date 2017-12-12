@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hadooprole: master
+        jobhistory: "true"
       containers:
       - name:  hadoop-jobhistory-service
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run

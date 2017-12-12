@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hadooprole: worker
+        hdfsrole: worker
       containers:
       - name:  hadoop-data-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
