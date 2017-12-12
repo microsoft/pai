@@ -21,6 +21,7 @@ import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.utils.*;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.log4j.Level;
@@ -96,9 +97,13 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   protected void recover() throws Exception {
     super.recover();
 
+    UserDescriptor loggedInUser = new UserDescriptor();
+    loggedInUser.setName(UserGroupInformation.getCurrentUser().getUserName());
+
     // Recover LauncherStatus to ZK
     LauncherStatus launcherStatus = new LauncherStatus();
     launcherStatus.setLauncherConfiguration(conf);
+    launcherStatus.setLoggedInUser(loggedInUser);
     updateLauncherStatus(launcherStatus);
 
     // Recover AllFrameworkStatuses from ZK and clean the corrupted AggregatedFrameworkStatus
@@ -289,6 +294,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+  public synchronized UserDescriptor getLoggedInUser() {
+    return launcherStatus.getLoggedInUser();
+  }
+
   public synchronized Set<String> getFrameworkNames() {
     return frameworkStatuses.keySet();
   }

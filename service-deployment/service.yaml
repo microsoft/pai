@@ -67,18 +67,32 @@ imagelist:
       - None
     prerequisite: None
 
+  cleaning-image:
+    templatelist:
+      - dockerfile
+    prerequisite: None
+
 
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
+  cleaning:
+    prerequisite:
+      - None
+    templatelist:
+      - cleaning.yaml
+
   cluster-configuration:
     prerequisite:
       - None
     templatelist:
       - secret.yaml
       - host-configuration/host-configuration.yaml
+      - gpu-configuration/gpu-configuration.yaml
       - docker-credentials/config.json
+      - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   drivers:
     prerequisite:
@@ -86,8 +100,10 @@ servicelist:
     templatelist:
       - node-label.sh
       - drivers.yaml
+      - cleanup.sh
     # Note： your script should start all your service dependency. Make sure service has completed the starting process.
     startscript: start.sh
+    stopscript: cleanup.sh
 
   hadoop-service:
     prerequisite:
@@ -102,7 +118,9 @@ servicelist:
       - hadoop-node-manager.yaml
       - hadoop-jobhistory.yaml
       - zookeeper.yaml
+      - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   frameworklauncher:
     prerequisite:
@@ -111,7 +129,9 @@ servicelist:
     templatelist:
       - node-label.sh
       - frameworklauncher.yaml
+      - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   rest-server:
     prerequisite:
@@ -120,7 +140,9 @@ servicelist:
     templatelist:
       - node-label.sh
       - rest-server.yaml
+      - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh
 
   webportal:
     prerequisite:
@@ -129,4 +151,6 @@ servicelist:
     templatelist:
       - node-label.sh
       - webportal-ds.yaml
+      - cleanup.sh
     startscript: start.sh
+    stopscript: cleanup.sh

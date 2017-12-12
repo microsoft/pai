@@ -58,13 +58,20 @@ sudo ./deploy.py -p your-cluster-config.yaml
 ```
 After the operation completes, please run the following scripts in order:
 ```
-./bootstrap/cluster-configuration/start.sh
-./bootstrap/drivers/start.sh
+sudo ./bootstrap/cluster-configuration/start.sh
+sudo ./bootstrap/drivers/start.sh
 # please make sure the driver starts completely before running the following scripts
-./bootstrap/hadoop-service/start.sh
-./bootstrap/frameworklauncher/start.sh
-./bootstrap/rest-server/start.sh
-./bootstrap/webportal/start.sh
+sudo ./bootstrap/hadoop-service/start.sh
+sudo ./bootstrap/frameworklauncher/start.sh
+sudo ./bootstrap/rest-server/start.sh
+sudo ./bootstrap/webportal/start.sh
+```
+
+## Cleanup your previous deployment
+
+```
+sudo ./deploy.py -p your-cluster-config.yaml
+sudo ./cleanup-service.py
 ```
 
 ## For advanced user: Customize or re-config hadoop service

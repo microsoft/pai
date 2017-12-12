@@ -18,11 +18,13 @@
 package com.microsoft.frameworklauncher.utils;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
+import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Shell;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
@@ -32,6 +34,8 @@ import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.security.PrivilegedExceptionAction;
 import java.util.*;
 
 public class HadoopUtils {
@@ -158,6 +162,26 @@ public class HadoopUtils {
       } else {
         throw e;
       }
+    }
+  }
+
+  public static void submitApplication(
+      ApplicationSubmissionContext appContext, UserDescriptor user) throws Throwable {
+    UserGroupInformation ugi =
+        UserGroupInformation.createRemoteUser(user.getName());
+    // Need to start a new YarnClient for a new UGI, since its internal Hadoop RPC
+    // reuse the UGI after YarnClient.start().
+    try {
+      ugi.doAs((PrivilegedExceptionAction<Void>) () -> {
+        YarnClient yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(conf);
+        yarnClient.start();
+        yarnClient.submitApplication(appContext);
+        yarnClient.stop();
+        return null;
+      });
+    } catch (UndeclaredThrowableException e) {
+      throw e.getCause();
     }
   }
 

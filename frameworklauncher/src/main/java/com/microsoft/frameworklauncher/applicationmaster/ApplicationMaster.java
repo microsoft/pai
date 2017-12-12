@@ -576,6 +576,7 @@ public class ApplicationMaster extends AbstractService {
     Integer taskIndex = taskStatus.getTaskIndex();
     Integer serviceVersion = getServiceVersion(taskRoleName);
 
+    UserDescriptor user = requestManager.getUser();
     Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
     List<String> sourceLocations = requestManager.getTaskServices().get(taskRoleName).getSourceLocations();
     String entryPoint = requestManager.getTaskServices().get(taskRoleName).getEntryPoint();
@@ -599,6 +600,8 @@ public class ApplicationMaster extends AbstractService {
 
     // SetupLocalEnvironment
     Map<String, String> localEnvs = new HashMap<>();
+    localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, user.getName());
+
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_NAME, conf.getFrameworkName());
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION, conf.getFrameworkVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_TASK_ROLE_NAME, taskRoleName);

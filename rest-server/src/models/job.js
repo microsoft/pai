@@ -17,8 +17,8 @@
 
 
 // module dependencies
-const fs = require('fs');
 const path = require('path');
+const fse = require('fs-extra');
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
@@ -54,7 +54,8 @@ class Job {
                 state: jobStatus.state,
                 createdTime: jobStatus.createdTime,
                 completedTime: jobStatus.completedTime,
-                appTrackingUrl: jobStatus.appTrackingUrl
+                appTrackingUrl: jobStatus.appTrackingUrl,
+                appExitType: jobStatus.appExitType
               };
               jobList.push(jobOverview);
               callback();
@@ -72,10 +73,9 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          next({
+          const jobStatus = {
             name: name,
-            state: resJson.exception === undefined ?
-                resJson.frameworkState : 'JOB_NOT_FOUND',
+            state: resJson.frameworkState,
             createdTime: resJson.frameworkCreatedTimestamp,
             completedTime: resJson.frameworkCompletedTimestamp,
             appId: resJson.applicationId,
@@ -84,36 +84,44 @@ class Job {
             appLaunchedTime: resJson.applicationLaunchedTimestamp,
             appCompletedTime: resJson.applicationCompletedTimestamp,
             appExitCode: resJson.applicationExitCode,
-            appExitDiagnostics: resJson.applicationExitDiagnostics
-          });
+            appExitDiagnostics: resJson.applicationExitDiagnostics,
+            appExitType: resJson.applicationExitType
+          };
+          if (resJson.exception !== undefined) {
+            jobStatus.state = 'JOB_NOT_FOUND';
+          }
+          next(jobStatus);
         });
   }
 
   putJob(name, data, next) {
+    if (!data.outputDir.trim()) {
+      data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
+    }
+    childProcess.exec(
+        `hdfs dfs -mkdir -p ${data.outputDir}`,
+        (err, stdout, stderr) => {
+          if (err) {
+            logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
+          }
+        });
     const jobDir = path.join(launcherConfig.jobRootDir, name);
-    fs.mkdir(jobDir, (err) => {
-      if (err && err.code !== 'EEXIST') {
+    fse.ensureDir(jobDir, (err) => {
+      if (err) {
         return next(err);
       } else {
         let frameworkDescription;
         async.parallel([
           (parallelCallback) => {
-            async.each(
-                ['tmp', 'finished', "YarnContainerScripts", "DockerContainerScripts"],
-                (file, eachCallback) => {
-                  fs.mkdir(path.join(jobDir, file), (err) => eachCallback(err));
-                },
-                (err) => {
-                  if (err && err.code !== 'EEXIST') {
-                    parallelCallback(err);
-                  } else {
-                    parallelCallback();
-                  }
-                });
+            async.each(['tmp', 'finished'], (file, eachCallback) => {
+              fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
+            }, (err) => {
+              parallelCallback(err);
+            });
           },
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
-              fs.writeFile(
+              fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
                   (err) => eachCallback(err));
@@ -123,7 +131,7 @@ class Job {
           },
           (parallelCallback) => {
             async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
-              fs.writeFile(
+              fse.outputFile(
                   path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
                   this.generateDockerContainerScript(data, idx),
                   (err) => eachCallback(err));
@@ -133,9 +141,10 @@ class Job {
           },
           (parallelCallback) => {
             frameworkDescription = this.generateFrameworkDescription(data);
-            fs.writeFile(
+            fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
-                JSON.stringify(frameworkDescription, null, 2),
+                frameworkDescription,
+                { 'spaces': 2 },
                 (err) => parallelCallback(err));
           }
         ], (parallelError) => {

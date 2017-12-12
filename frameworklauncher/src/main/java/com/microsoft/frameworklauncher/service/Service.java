@@ -241,6 +241,7 @@ public class Service extends AbstractService {
       Resource amResource) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     Integer frameworkVersion = frameworkStatus.getFrameworkVersion();
+    UserDescriptor loggedInUser = statusManager.getLoggedInUser();
 
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
@@ -264,6 +265,8 @@ public class Service extends AbstractService {
       classpath.append(System.getProperty("java.class.path"));
     }
     localEnvs.put(GlobalConstants.ENV_VAR_CLASSPATH, classpath.toString());
+    // Use the user for LauncherAM the same as LauncherService, since they are all Launcher executables.
+    localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, loggedInUser.getName());
 
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_NAME, frameworkName);
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION, frameworkVersion.toString());
@@ -539,6 +542,7 @@ public class Service extends AbstractService {
       LOGGER.logWarning(logPrefix + "Framework not found in Request. Ignore it.");
       return;
     }
+    UserDescriptor user = frameworkRequest.getFrameworkDescriptor().getUser();
 
     logPrefix += "SubmitApplication: ";
     try {
@@ -546,10 +550,10 @@ public class Service extends AbstractService {
       LOGGER.logInfo(logPrefix + "ResourceRequest: %s", applicationContext.getAMContainerResourceRequest());
       LOGGER.logInfo(logPrefix + "Queue: %s", applicationContext.getQueue());
 
-      yarnClient.submitApplication(applicationContext);
+      HadoopUtils.submitApplication(applicationContext, user);
 
       LOGGER.logInfo(logPrefix + "Succeeded");
-    } catch (Exception e) {
+    } catch (Throwable e) {
       LOGGER.logWarning(e, logPrefix + "Failed");
       String eMsg = CommonUtils.toString(e);
 

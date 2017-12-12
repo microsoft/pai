@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
+
 chmod u+x node-label.sh
 
 ./node-label.sh
@@ -26,3 +28,5 @@ chmod u+x configmap-create.sh
 ./configmap-create.sh
 
 kubectl create -f frameworklauncher.yaml
+
+popd > /dev/null

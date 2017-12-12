@@ -23,8 +23,8 @@ docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dock
 
 Next we need to push the TensorFlow image to intra docker registry so that every node in the system can access that image:
 ```sh
-docker tag pai.run.tensorflow localhost:5000/pai.run.tensorflow
-docker push localhost:5000/pai.run.tensorflow
+docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
+docker push your_docker_registry/pai.run.tensorflow
 ```
 
 The built image can be used in the system now.
@@ -63,7 +63,7 @@ Here's all the parameters for job config file:
 | `jobName`                      | String, required           | Name for the job, need to be unique      |
 | `image`                        | String, required           | URL pointing to the docker image for all tasks in the job |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                    | String, optional, HDFS URI | Output directory existing on HDFS        |
+| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://uri/output/$jobName` will be used if not specified |
 | `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
@@ -86,7 +86,7 @@ Here's all the `PAI` prefixed environment variables in runtime docker containers
 | :--------------------------------- | :--------------------------------------- |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
-| PAI_OUTPUT_DIR                     | `outputDir`in config file                |
+| PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
 | PAI_CODE_DIR                       | `codeDir` in config file                 |
 | PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
 | PAI_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
@@ -111,7 +111,7 @@ Users can use the json config file to run deep learning jobs in docker environme
 {
   "jobName": "tensorflow-distributed-example",
   // customized tensorflow docker image with hdfs, cuda and cudnn support
-  "image": "localhost:5000/pai.run.tensorflow",
+  "image": "your_docker_registry/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "hdfs://path/to/data",
@@ -129,7 +129,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -138,7 +138,7 @@ Users can use the json config file to run deep learning jobs in docker environme
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed

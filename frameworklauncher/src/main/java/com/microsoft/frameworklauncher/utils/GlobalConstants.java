@@ -29,10 +29,11 @@ public class GlobalConstants {
   public static final String PACKAGE_AGENT_FILE = "frameworklauncher-1.0-SNAPSHOT-jar-with-dependencies.jar";
   public static final String MAIN_CLASS_APPLICATION_MASTER = "com.microsoft.frameworklauncher.applicationmaster.Bootstrap";
   public static final String MAIN_CLASS_AGENT = "com.microsoft.frameworklauncher.agent.Bootstrap";
+  public static final String ENV_VAR_CLASSPATH = "CLASSPATH";
+  public static final String ENV_VAR_HADOOP_USER_NAME = "HADOOP_USER_NAME";
   public static final String ENV_VAR_FRAMEWORK_NAME = "FRAMEWORK_NAME";
   public static final String ENV_VAR_FRAMEWORK_VERSION = "FRAMEWORK_VERSION";
   public static final String ENV_VAR_ZK_CONNECT_STRING = "ZK_CONNECT_STRING";
-  public static final String ENV_VAR_CLASSPATH = "CLASSPATH";
   public static final String ENV_VAR_ZK_ROOT_DIR = "ZK_ROOT_DIR";
   public static final String ENV_VAR_AM_VERSION = "AM_VERSION";
   public static final String ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC = "AM_RM_HEARTBEAT_INTERVAL_SEC";

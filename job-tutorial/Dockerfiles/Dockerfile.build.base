@@ -76,3 +76,5 @@ ENV HADOOP_PREFIX=${HADOOP_INSTALL} \
 
 ENV PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${HADOOP_BIN_DIR}:${HADOOP_SBIN_DIR} \
     LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:${JAVA_HOME}/jre/lib/amd64/server
+
+WORKDIR /root

@@ -1,7 +1,7 @@
 {
   "name": "pai-rest-server",
   "version": "0.1.0",
-  "description": "RESTful api server for Microsoft AI Infrastructure",
+  "description": "RESTful api server for Microsoft Platform for AI",
   "main": "index.js",
   "keywords": [
     "REST",
@@ -18,8 +18,11 @@
     "cookie-parser": "1.4.3",
     "dotenv": "4.0.0",
     "express": "4.16.2",
+    "express-jwt": "5.3.0",
     "fs-extra": "4.0.2",
     "joi": "13.0.1",
+    "jsonwebtoken": "8.1.0",
+    "lowdb": "1.0.0",
     "morgan": "1.9.0",
     "mustache": "2.3.0",
     "unirest": "0.5.1",

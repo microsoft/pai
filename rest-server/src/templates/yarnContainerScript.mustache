@@ -30,24 +30,36 @@ while /bin/true; do
 done &
 
 nvidia_devices=''
-if [ {{{ taskData.gpuNumber }}} -gt 0 ]; then
-  nvidia_devices+='--device=/dev/nvidiactl --device=/dev/nvidia-uvm'
-  for (( i=0,j=$((${#CONTAINER_GPUS}-1)); i<${#CONTAINER_GPUS}; i++,j-- )); do
-    if [ ${CONTAINER_GPUS:$i:1} -gt 0 ]; then
-      nvidia_devices+=" --device=/dev/nvidia$j"
-    fi
-  done
-fi
+{{# taskData.gpuNumber }}
+nvidia_devices+='--device=/dev/nvidiactl --device=/dev/nvidia-uvm'
+for (( i=0,j=$((${#CONTAINER_GPUS}-1)); i<${#CONTAINER_GPUS}; i++,j-- )); do
+  if [ ${CONTAINER_GPUS:$i:1} -gt 0 ]; then
+    nvidia_devices+=" --device=/dev/nvidia$j"
+  fi
+done
+{{/ taskData.gpuNumber }}
+
+
+{{# jobData.authFile }}
+IFS=$'\r\n' GLOBIGNORE='*' \
+  eval 'cred=($(hdfs dfs -cat {{{ jobData.authFile }}}))' \
+  || { echo 'Read authFile Failed' ; exit 1; }
+docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
+  || { echo 'Authorized Failed' ; exit 1; }
+{{/ jobData.authFile }}
 
 docker run --name $docker_name \
   --rm \
   --tty \
   --privileged=false \
+  --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
   --oom-kill-disable \
   $nvidia_devices \
+  --device=/dev/fuse \
+  --security-opt apparmor:unconfined \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --env FRAMEWORK_NAME=$FRAMEWORK_NAME \

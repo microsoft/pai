@@ -17,7 +17,6 @@
 
 
 // module dependencies
-const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
 const Joi = require('joi');
@@ -85,18 +84,18 @@ if (error) {
 }
 launcherConfig = value;
 
-fs.mkdir(launcherConfig.jobRootDir, (err) => {
-  if (err && err.code !== 'EEXIST') {
+fse.ensureDir(launcherConfig.jobRootDir, (err) => {
+  if (err) {
     throw new Error(`make launcher job dir error\n${err}`);
   }
   const jobDirCleanUpInterval = setInterval(() => {
-    fs.readdir(launcherConfig.jobRootDir, (readdirError, dirs) => {
+    fse.readdir(launcherConfig.jobRootDir, (readdirError, dirs) => {
       if (readdirError) {
         logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readdirError.stack);
       } else {
         for (let i = 0; i < dirs.length; i ++) {
           const jobDir = path.join(launcherConfig.jobRootDir, dirs[i]);
-          fs.stat(jobDir, (statError, stats) => {
+          fse.stat(jobDir, (statError, stats) => {
             if (statError) {
               logger.warn('stat %s error\n%s', jobDir, statError.stack);
             } else {
