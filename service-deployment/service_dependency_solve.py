@@ -28,17 +28,17 @@ import servicestatus
 
 
 # Designed for shell, so use the exit function to pass error code.
-def service_status_check(servicename, drivers=False):
+def service_status_check(servicename):
 
-    if servicestatus.is_service_ready(servicename, drivers) != True:
+    if servicestatus.is_service_ready(servicename) != True:
         print "{0} is not ready yet!".format(servicename)
         sys.exit(1)
 
 
 
-def waiting_until_service_ready(servicename, drivers=False, total_time=216000):
+def waiting_until_service_ready(servicename, total_time=216000):
 
-    while servicestatus.is_service_ready(servicename, drivers) != True:
+    while servicestatus.is_service_ready(servicename) != True:
 
         print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
         time.sleep(10)
@@ -55,25 +55,20 @@ def waiting_until_service_ready(servicename, drivers=False, total_time=216000):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
-    parser.add_argument('-d', '--drivers', required=True, help="drivers dependency, because its number could be zero.")
     parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
-    parser.add_argument('-t', '--timeout', type=int, default=42, help="the data of app label in your service")
+    parser.add_argument('-t', '--timeout', type=int, default=216000, help="the data of app label in your service")
 
     # type=int, default=42,
 
     args = parser.parse_args()
     app_service_name = args.service
 
-    drivers = False
-    if args.drivers:
-        drivers = True
-
     timeout = args.timeout
 
     if args.wait_service:
-        waiting_until_service_ready(app_service_name, drivers, timeout)
+        waiting_until_service_ready(app_service_name, timeout)
     else:
-        service_status_check(app_service_name, drivers)
+        service_status_check(app_service_name)
 
 
 if __name__ == "__main__":

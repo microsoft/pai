@@ -26,7 +26,7 @@ from kubernetes import client, config
 # Note that service name should be same as the app-name in
 #     labels:
 #        app: app-name
-def is_service_ready(servicename, drivers=False):
+def is_service_ready(servicename):
 
     label_selector_str="app={0}".format(servicename)
 
@@ -36,7 +36,7 @@ def is_service_ready(servicename, drivers=False):
     pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
 
     if len(pod_list.items) == 0:
-        return drivers
+        return False
 
     for pod in pod_list.items:
 
