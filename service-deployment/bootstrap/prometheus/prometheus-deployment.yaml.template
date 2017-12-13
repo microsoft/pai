@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: prometheus
+      labels:
+        app: prometheus
+    spec:
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        prom: prom
+      containers:
+      - name: prometheus
+        image: quay.io/coreos/prometheus:v1.1.1
+        args:
+          - '-config.file=/etc/prometheus/prometheus.yml'
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-configmap

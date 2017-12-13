@@ -1,0 +1,62 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana-cmd
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        task: monitoring
+        k8s-app: grafana
+    spec:
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        prom: prom
+      containers:
+      - name: grafana-import-dashboards
+        image: docker
+        command: ["/bin/sh", "-c"]
+        workingDir: /opt/grafana-import-dashboards
+        args:
+          # FIXME use kubernetes probe instead of "until curl"
+          - >
+            apk --update add curl ;
+            until $(curl --silent --fail --show-error --output /dev/null {{ clusterinfo['prometheusinfo']['grafana_addr'] }}/api/datasources); do
+              printf '.' ; sleep 1 ;
+            done ;
+            for file in *-datasource.json ; do
+              if [ -e "$file" ] ; then
+                echo "importing $file" &&
+                curl --silent --fail --show-error \
+                  --request POST {{ clusterinfo['prometheusinfo']['grafana_addr'] }}/api/datasources \
+                  --header "Content-Type: application/json" \
+                  --data-binary "@$file" ;
+                echo "" ;
+              fi
+            done ;
+            for file in *-dashboard.json ; do
+              if [ -e "$file" ] ; then
+                # wrap exported Grafana dashboard into valid json
+                echo "importing $file" &&
+                curl -k -u admin:admin --show-error \
+                  --request POST {{ clusterinfo['prometheusinfo']['grafana_addr'] }}/api/dashboards/import \
+                  --header "Accept: application/json" \
+                  --header "Content-Type: application/json" \
+                  -d @$file;
+              fi
+            done ;
+            while true; do
+              sleep 1m ;
+            done
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/grafana-import-dashboards
+      volumes:
+         - name: config-volume
+           configMap:
+             name: grafana-import-dashboards
+         - name: grafana-persistent-storage
+           emptyDir: {}
+

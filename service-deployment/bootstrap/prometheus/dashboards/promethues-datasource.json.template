@@ -1,0 +1,7 @@
+{
+  "name": "PM",
+  "type": "prometheus",
+  "url": "clusterinfo['prometheusinfo']['prometheus_addr']",
+  "access": "direct",
+  "basicAuth": false
+}

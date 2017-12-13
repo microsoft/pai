@@ -75,17 +75,6 @@ clusterinfo:
     # The port of web portal server
     port: 6969
 
-  # The config for monitor service
-  prometheusinfo:
-    # The address of the prometheus to connect to
-    prometheus_addr: http://10.0.1.9:9091
-    # The address of the grafana to connect to
-    grafana_addr: http://10.0.1.9:3003
-    # port for grafana
-    grafana_port: 3003
-    # port for node exporter
-    node_exporter_port: 9100
-
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
