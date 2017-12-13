@@ -36,9 +36,7 @@ def service_status_check(servicename, drivers=False):
 
 
 
-def waiting_until_service_ready(servicename, drivers=False):
-
-    total_time = 216000
+def waiting_until_service_ready(servicename, drivers=False, total_time=216000):
 
     while servicestatus.is_service_ready(servicename, drivers) != True:
 
@@ -59,7 +57,9 @@ def main():
     parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
     parser.add_argument('-d', '--drivers', required=True, help="drivers dependency, because its number could be zero.")
     parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
+    parser.add_argument('-t', '--timeout', type=int, default=42, help="the data of app label in your service")
 
+    # type=int, default=42,
 
     args = parser.parse_args()
     app_service_name = args.service
@@ -68,8 +68,10 @@ def main():
     if args.drivers:
         drivers = True
 
+    timeout = args.timeout
+
     if args.wait_service:
-        waiting_until_service_ready(app_service_name, drivers)
+        waiting_until_service_ready(app_service_name, drivers, timeout)
     else:
         service_status_check(app_service_name, drivers)
 
