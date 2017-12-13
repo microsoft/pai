@@ -31,10 +31,21 @@ const jobViewHtml = jobViewComponent({
   jobTable: jobTableComponent
 });
 
-const convertTime = (time) => {
-  if (time) {
-    const date = new Date(time);
-    return date.toLocaleString();
+const convertTime = (elapsed, startTime, endTime) => {
+  if (startTime) {
+    if (elapsed) {
+      if (!endTime) {
+        endTime = Date.now();
+      }
+      const elapsedTime = parseInt((endTime - startTime) / 1000);
+      const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
+      const elapsedHour = ('0' + parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60))).slice(-2);
+      const elapsedMinute = ('0' + elapsedTime % (60 * 60)).slice(-2);
+      return `${elapsedDay}:${elapsedHour}:${elapsedMinute}`;
+    } else {
+      const startDate = new Date(startTime);
+      return startDate.toLocaleString();
+    }
   } else {
     return '--';
   }
