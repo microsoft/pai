@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,29 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import time
 import yaml
 import os
 import sys
-from kubernetes import client, config
-from kubernetes.client.rest import ApiException
+import subprocess
+import jinja2
+import argparse
+import nodestatus
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-k', '--key', required=True, help="key of the label")
+    parser.add_argument('-v', '--value', required=True, help="value of the label")
 
+    args = parser.parse_args()
 
-# To check a label on nodes exist or not.
+    if nodestatus.is_label_exist(args.key, args.value) != True:
+        sys.exit(1)
 
-def is_label_exist(key, value):
-    
-    config.load_kube_config()
-    v1 = client.CoreV1Api()
+    sys.exit(0)
 
-    try:
-        node_list = v1.list_node(label_selector="{0}={1}".format(key, value), watch=False)
-    except ApiException as e:
-        print "Exception when calling CoreV1Api->list_node: %s\n" % e
-
-    if len(node_list.items) == 0:
-        return False
-    return True
+if __name__ == "__main__":
+    main()
 
 
 
