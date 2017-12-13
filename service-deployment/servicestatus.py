@@ -19,6 +19,7 @@ import yaml
 import os
 import sys
 from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 
 
 
@@ -33,7 +34,10 @@ def is_service_ready(servicename):
     config.load_kube_config()
     v1 = client.CoreV1Api()
 
-    pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
+    try:
+        pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
+    except ApiException as e:
+        print "Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e
 
     if len(pod_list.items) == 0:
         return False
