@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
 const compress = require('compression');
@@ -29,6 +30,7 @@ const router = require('../routes/index');
 
 const app = express();
 
+app.use(cors());
 app.use(compress());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
