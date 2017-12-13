@@ -26,7 +26,9 @@ import jinja2
 import argparse
 import nodestatus
 
-def main():
+
+if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-k', '--key', required=True, help="key of the label")
     parser.add_argument('-v', '--value', required=True, help="value of the label")
@@ -37,9 +39,6 @@ def main():
         sys.exit(1)
 
     sys.exit(0)
-
-if __name__ == "__main__":
-    main()
 
 
 
