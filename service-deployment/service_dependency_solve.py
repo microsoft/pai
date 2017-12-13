@@ -17,14 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import time
-import yaml
-import os
-import sys
-import subprocess
-import jinja2
 import argparse
-import servicestatus
+import sys
+import time
+from kubernetesTool import servicestatus
 
 
 # Designed for shell, so use the exit function to pass error code.
