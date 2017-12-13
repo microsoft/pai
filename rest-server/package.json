@@ -16,6 +16,7 @@
     "async": "2.5.0",
     "compression": "1.7.1",
     "cookie-parser": "1.4.3",
+    "cors": "2.8.4",
     "dotenv": "4.0.0",
     "express": "4.16.2",
     "express-jwt": "5.3.0",
