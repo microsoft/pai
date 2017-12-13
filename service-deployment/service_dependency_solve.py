@@ -58,8 +58,6 @@ def main():
     parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
     parser.add_argument('-t', '--timeout', type=int, default=216000, help="the data of app label in your service")
 
-    # type=int, default=42,
-
     args = parser.parse_args()
     app_service_name = args.service
 
