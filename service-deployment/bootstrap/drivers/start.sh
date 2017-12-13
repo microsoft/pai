@@ -24,8 +24,12 @@ chmod u+x node-label.sh
 
 kubectl create -f drivers.yaml
 
+python ../../node_label_check.py -k machinetype -v gpu
+ret=$?
 
-# wait until all drivers are ready.
-python ../../service_dependency_solve.py -w -s drivers-one-shot
+if [ $ret -ne 0 ]; then
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s drivers-one-shot
+fi
 
 popd > /dev/null
