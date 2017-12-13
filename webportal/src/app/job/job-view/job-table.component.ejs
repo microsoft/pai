@@ -1,0 +1,22 @@
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Job Name</th>
+      <th>Create Time</th>
+      <th>Complete Time</th>
+      <th>State</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for(let i = 0; i < jobs.length; i ++) { %>
+      <tr>
+        <td><a href="<%= jobs[i].appTrackingUrl %>"><%= jobs[i].name %></a></td>
+        <td><%= convertTime(jobs[i].createdTime) %></td>
+        <td><%= convertTime(jobs[i].completedTime) %></td>
+        <td><%= convertState(jobs[i].state, jobs[i].appExitType) %></td>
+        <td><a href="#" onclick="deleteJob('<%= jobs[i].name %>')">DELETE</a></td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
