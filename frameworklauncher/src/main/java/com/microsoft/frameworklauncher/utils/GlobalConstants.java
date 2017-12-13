@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.utils;
 
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
-  public static final String GPU_CONFIGURATION_FILE = "/gpu-configuration/gpu-configuration.yml";
   public static final String LOGGER_CONFIG_FILE = "log4j.properties";
   public static final String CONTAINER_IP_LIST_FILE = "ContainerIpList.ini";
   public static final int USING_UNLIMITED_VALUE = -1;
