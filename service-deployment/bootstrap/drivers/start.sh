@@ -30,6 +30,8 @@ ret=$?
 if [ $ret -ne 0 ]; then
     # wait until all drivers are ready.
     python ../../service_dependency_solve.py -w -s drivers-one-shot
+else
+    echo "No GPU machine in your cluster"
 fi
 
 popd > /dev/null
