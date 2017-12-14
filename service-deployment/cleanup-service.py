@@ -83,6 +83,10 @@ def main():
         print "The cleaning job not finish yet. Pleas wait for a moment!"
         time.sleep(5)
 
+    shell_cmd = "kubectl delete ds cleaning-one-shot"
+    error_msg = "failed to delete cleaning-one-shot"
+    execute_shell(shell_cmd, error_msg)
+
     print "The cleaning job finished!"
 
 
