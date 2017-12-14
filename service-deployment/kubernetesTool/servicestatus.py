@@ -38,6 +38,7 @@ def is_service_ready(servicename):
         pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
     except ApiException as e:
         print "Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e
+        sys.exit(1)
 
     if len(pod_list.items) == 0:
         return False
