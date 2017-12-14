@@ -157,6 +157,7 @@ Add a NOT Requested Framework or Update a Requested Framework.
 **Description**
 
 Delete a Framework, no matter it is Requested or not.
+
 Notes:
 1. Framework will be Stopped and Deleted (Now it is NOT Requested).
 2. After Accepted Response, FrameworkStatus may not be Deleted immediately. And only after [FrameworkStatus](#GET_FrameworkStatus) is Deleted, the Framework is guaranteed to be Stopped completely.
@@ -269,6 +270,7 @@ Body: [MigrateTaskRequest](../src/main/java/com/microsoft/frameworklauncher/comm
 
 Migrate a Task from current Container to another Container for a Requested Framework
 And new Container and old Container will satisfy the AntiAffinityLevel constraint.
+
 Notes:
 1. User is responsible for implement Health/Perf Measurement of the Service based on Monitoring TaskStatuses or self-contained communication. And if found some Health/Perf degradations, User can migrate it by calling this API with corresponding ContainerId as parameter.
 2. Currently, only support Any AntiAffinityLevel.
@@ -295,6 +297,7 @@ Body: [OverrideApplicationProgressRequest](../src/main/java/com/microsoft/framew
 **Description**
 
 Update ApplicationProgress for a Requested Framework
+
 Notes:
 1. If User does not call this API. Default ApplicationProgress is used, and it is calculated as CompletedTaskCount / TotalTaskCount.
 2. User is responsible for implement Progress Measurement of the Service based on Monitoring Task logs or self-contained communication. And then feedback the Progress by calling this API to Override the default ApplicationProgress.
@@ -423,6 +426,48 @@ Current [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
+#### <a name="PUT_ClusterConfiguration">PUT ClusterConfiguration</a>
+**Request**
+
+    PUT /v1/LauncherRequest/ClusterConfiguration
+
+Type: application/json
+
+Body: [ClusterConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java)
+
+**Description**
+
+Update ClusterConfiguration for all Frameworks on the fly
+
+Besides the cluster information provided by YARN, Administrator can use this API to provide external information about current cluster configuration, which helps Launcher to schedule Task based on that. And below features depend on it:
+1. taskGpuType
+
+**Response**
+
+| HttpStatusCode | Body | Description |
+|:---- |:---- |:---- |
+| Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
+| BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+
+
+#### <a name="GET_ClusterConfiguration">GET ClusterConfiguration</a>
+**Request**
+
+    GET /v1/LauncherRequest/ClusterConfiguration
+
+**Description**
+
+Get the ClusterConfiguration
+
+**Response**
+
+| HttpStatusCode | Body | Description |
+|:---- |:---- |:---- |
+| OK(200) | [ClusterConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/ClusterConfiguration.java) | |
+| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+
+
 ## <a name="DataModel">DataModel</a>
 You can check the DataStructure, Specification and FeatureUsage inside Launcher Data Model:
 
@@ -447,7 +492,7 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 | SERVICE_NAME | |
 | SERVICE_VERSION | |
 
-2. Used to get the allocated Resource by LauncherAM, only set when corresponding feature is enabled.
+2. Used to get the assigned Resource, only set when corresponding feature is enabled.
 
 | EnvironmentVariable | Description |
 |:---- |:---- |

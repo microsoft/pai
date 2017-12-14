@@ -18,41 +18,17 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class LauncherRequest implements Serializable {
+public class NodeConfiguration implements Serializable {
   @Valid
-  private String launchingDataDeploymentVersion;
+  private String gpuType;
 
-  @Valid
-  private String launchedDataDeploymentVersion;
-
-  @Valid
-  @NotNull
-  private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
-
-  public String getLaunchingDataDeploymentVersion() {
-    return launchingDataDeploymentVersion;
+  public String getGpuType() {
+    return gpuType;
   }
 
-  public void setLaunchingDataDeploymentVersion(String launchingDataDeploymentVersion) {
-    this.launchingDataDeploymentVersion = launchingDataDeploymentVersion;
-  }
-
-  public String getLaunchedDataDeploymentVersion() {
-    return launchedDataDeploymentVersion;
-  }
-
-  public void setLaunchedDataDeploymentVersion(String launchedDataDeploymentVersion) {
-    this.launchedDataDeploymentVersion = launchedDataDeploymentVersion;
-  }
-
-  public ClusterConfiguration getClusterConfiguration() {
-    return clusterConfiguration;
-  }
-
-  public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
-    this.clusterConfiguration = clusterConfiguration;
+  public void setGpuType(String gpuType) {
+    this.gpuType = gpuType;
   }
 }

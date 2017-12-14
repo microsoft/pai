@@ -160,7 +160,7 @@ public class ApplicationMaster extends AbstractService {
         LaunchClientType.APPLICATION_MASTER);
 
     aaAllocationManager = new AntiaffinityAllocationManager();
-    gpuAllocationManager = new GpuAllocationManager();
+    gpuAllocationManager = new GpuAllocationManager(this);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -1496,5 +1496,9 @@ public class ApplicationMaster extends AbstractService {
     } else {
       return requestManager.existsLocalVersionFrameworkRequest();
     }
+  }
+
+  protected ClusterConfiguration getClusterConfiguration() {
+    return requestManager.getClusterConfiguration();
   }
 }

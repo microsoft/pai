@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 
+import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,8 +53,6 @@ public class GpuAllocationManagerTest {
       Assert.assertEquals(2, (int) getGpuNumber.invoke(rd2));
     } catch (Exception ignored) {
     }
-
-
   }
 
   @Test
@@ -66,8 +65,10 @@ public class GpuAllocationManagerTest {
     Node node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     Node node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
-    GpuAllocationManager gpuMgr = new GpuAllocationManager();
-    
+    AMForTest am = new AMForTest();
+    am.setClusterConfiguration(new ClusterConfiguration());
+    GpuAllocationManager gpuMgr = new GpuAllocationManager(am);
+
     long candidateGPU = gpuMgr.selectCandidateGPU(node1, 1);
     Assert.assertEquals(1L, candidateGPU);
     candidateGPU = gpuMgr.selectCandidateGPU(node1, 2);
@@ -82,7 +83,7 @@ public class GpuAllocationManagerTest {
 
     candidateGPU = gpuMgr.selectCandidateGPU(node4, 2);
     Assert.assertEquals(0x30L, candidateGPU);
-    
+
     Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     //Empty allocation failed;
     Assert.assertEquals(null, result);
@@ -129,5 +130,18 @@ public class GpuAllocationManagerTest {
     gpuMgr.removeCandidateRequestNode(node6);
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
     Assert.assertEquals(null, result);
+  }
+
+  private class AMForTest extends MockApplicationMaster {
+    private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
+
+    @Override
+    protected ClusterConfiguration getClusterConfiguration() {
+      return clusterConfiguration;
+    }
+
+    public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
+      this.clusterConfiguration = clusterConfiguration;
+    }
   }
 }

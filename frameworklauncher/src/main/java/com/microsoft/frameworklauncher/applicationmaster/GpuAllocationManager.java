@@ -17,6 +17,8 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
+import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
 
@@ -28,8 +30,14 @@ import java.util.Set;
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
 
+  private final ApplicationMaster am;
+
   // Candidate request Nodes for this application
   private final LinkedHashMap<String, Node> candidateRequestNodes = new LinkedHashMap<>();
+
+  public GpuAllocationManager(ApplicationMaster am) {
+    this.am = am;
+  }
 
   public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
     if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
@@ -48,6 +56,10 @@ public class GpuAllocationManager { // THREAD SAFE
   public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel) {
     LOGGER.logInfo(
         "allocateCandidateRequestNode: Request resources:" + request.toString());
+
+    // ClusterConfiguration is ready when this method is called, i.e. it is not null here.
+    ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();
+    Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
     Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
     Node candidateNode = null;

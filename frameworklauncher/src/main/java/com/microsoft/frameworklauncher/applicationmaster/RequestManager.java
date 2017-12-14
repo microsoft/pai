@@ -22,7 +22,10 @@ import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.*;
+import com.microsoft.frameworklauncher.utils.AbstractService;
+import com.microsoft.frameworklauncher.utils.CommonExtensions;
+import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -49,7 +52,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION BaseRequest
    */
-  // AM only need to retrieve AggregatedFrameworkRequest
+  // AM only need to retrieve LauncherRequest and AggregatedFrameworkRequest
+  private LauncherRequest launcherRequest = null;
   private FrameworkDescriptor frameworkDescriptor = null;
   private OverrideApplicationProgressRequest overrideApplicationProgressRequest = null;
   // ContainerId -> MigrateTaskRequest
@@ -60,6 +64,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    * REGION ExtensionRequest
    * ExtensionRequest should be always CONSISTENT with BaseRequest
    */
+  private ClusterConfiguration clusterConfiguration;
   private UserDescriptor user;
   private PlatformSpecificParametersDescriptor platParams;
   // TaskRoleName -> TaskRoleDescriptor
@@ -163,6 +168,15 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   private void pullRequest() throws Exception {
+    // Pull LauncherRequest
+    LOGGER.logDebug("Pulling LauncherRequest");
+    LauncherRequest newLauncherRequest = zkStore.getLauncherRequest();
+    LOGGER.logDebug("Pulled LauncherRequest");
+
+    // newLauncherRequest is always not null
+    updateLauncherRequest(newLauncherRequest);
+
+    // Pull AggregatedFrameworkRequest
     AggregatedFrameworkRequest aggFrameworkRequest;
     try {
       LOGGER.logDebug("Pulling AggregatedFrameworkRequest");
@@ -181,6 +195,19 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
+  }
+
+  private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
+    if (YamlUtils.deepEquals(launcherRequest, newLauncherRequest)) {
+      return;
+    }
+
+    LOGGER.logSplittedLines(Level.DEBUG,
+        "Detected LauncherRequest changes. Updating to new LauncherRequest:\n%s",
+        WebCommon.toJson(newLauncherRequest));
+
+    launcherRequest = newLauncherRequest;
+    clusterConfiguration = launcherRequest.getClusterConfiguration();
   }
 
   private void checkFrameworkVersion(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
@@ -352,6 +379,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+  public ClusterConfiguration getClusterConfiguration() {
+    return clusterConfiguration;
+  }
+
   public UserDescriptor getUser() {
     return user;
   }

@@ -36,6 +36,7 @@ public class WebStructure {
   public static final String LAUNCHER_STATUS_PATH = VERSION_PATH + PATH_SEPARATOR + "LauncherStatus";
   public static final String LAUNCHER_REQUEST_PATH = VERSION_PATH + PATH_SEPARATOR + "LauncherRequest";
   public static final String DATA_DEPLOYMENT_VERSION_PATH = LAUNCHER_REQUEST_PATH + PATH_SEPARATOR + "DataDeploymentVersion";
+  public static final String CLUSTER_CONFIGURATION_PATH = LAUNCHER_REQUEST_PATH + PATH_SEPARATOR + "ClusterConfiguration";
   public static final String FRAMEWORK_ROOT_PATH = VERSION_PATH + PATH_SEPARATOR + "Frameworks";
   public static final String FRAMEWORK_PATH = FRAMEWORK_ROOT_PATH + PATH_SEPARATOR + FRAMEWORK_NAME_PATH_PARAM_PLACEMENT;
   public static final String AGGREGATED_FRAMEWORK_STATUS_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "AggregatedFrameworkStatus";
