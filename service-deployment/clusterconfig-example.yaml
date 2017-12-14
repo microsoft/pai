@@ -74,7 +74,10 @@ clusterinfo:
     k8s_dashboard_addr: 10.0.3.12
     # The port of web portal server
     port: 6969
-
+  
+  # Config of gpu-exporter
+  gexporterinfo:
+    gexporter_port: 9202
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
