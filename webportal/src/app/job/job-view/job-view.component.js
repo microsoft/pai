@@ -40,7 +40,7 @@ const convertTime = (elapsed, startTime, endTime) => {
       const elapsedTime = parseInt((endTime - startTime) / 1000);
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
       const elapsedHour = ('0' + parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60))).slice(-2);
-      const elapsedMinute = ('0' + elapsedTime % (60 * 60)).slice(-2);
+      const elapsedMinute = ('0' + parseInt(elapsedTime % (60 * 60) / 60)).slice(-2);
       return `${elapsedDay}:${elapsedHour}:${elapsedMinute}`;
     } else {
       const startDate = new Date(startTime);
@@ -91,8 +91,7 @@ const loadJobs = () => {
         $('#job-table').html(jobTableComponent({
           jobs: data,
           convertTime,
-          convertState,
-          deleteJob
+          convertState
         }));
       }
     }
@@ -103,15 +102,17 @@ const deleteJob = (jobName) => {
   const res = confirm('Are you sure to delete the job?');
   if (res) {
     $.ajax({
-      url: '',
+      url: `${webportalConfig.restServerUri}/api/job/${jobName}`,
       type: 'DELETE',
-      crossDomain: true,
       success: (data) => {
-        window.location.replace('/view.html');
+        loadJobs();
       }
     });
   }
 };
+
+window.loadJobs = loadJobs;
+window.deleteJob = deleteJob;
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {

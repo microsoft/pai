@@ -19,16 +19,14 @@
 // module dependencies
 const fs = require('fs');
 const path = require('path');
-const marked = require('marked');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const markedConfig = require('./marked.config');
 const helpers = require('./helpers');
 
-
-const renderer = new marked.Renderer();
 
 const htmlMinifierOptions = {
   collapseWhitespace: true,
@@ -74,7 +72,7 @@ const config = {
             loader: 'markdown-loader',
             options: {
               pedantic: true,
-              renderer
+              renderer: markedConfig.renderer
             }
           }
         ]

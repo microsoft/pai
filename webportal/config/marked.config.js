@@ -17,12 +17,36 @@
 
 
 // module dependencies
-const clusterComponent = require('./cluster.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const marked = require('marked');
 
 
-const clusterHtml = clusterComponent({
-  clusterStatusUri: webportalConfig.clusterStatusUri
-});
+const baseUrl = 'https://github.com/Microsoft/pai/tree/master/job-tutorial/';
 
-$('#content-wrapper').html(clusterHtml);
+const renderer = new marked.Renderer();
+renderer.link = (href, title, text) => {
+  if (marked.options.sanitize) {
+    try {
+      const prot = decodeURIComponent(unescape(href))
+          .replace(/[^\w:]/g, '')
+          .toLowerCase();
+    } catch(e) {
+      return '';
+    }
+    if (prot.indexOf('javascript:') === 0 ||
+        prot.indexOf('vbscript:') === 0 ||
+        prot.indexOf('data:') === 0) {
+          return '';
+    }
+  }
+  if (href === text && title == null) {
+    return baseUrl + href;
+  }
+  let out = '<a href="' + baseUrl + href + '"';
+  if (title) {
+    out += ' title="' + title + '"';
+  }
+  out += '>' + text + '</a>';
+  return out;
+};
+
+module.exports = { renderer };
