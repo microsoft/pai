@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,9 +17,22 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-./install-nvidia-drivers || exit $?
+import argparse
+import sys
+from kubernetesTool import nodestatus
 
-mkdir -p /jobstatus
-touch /jobstatus/jobok
+if __name__ == "__main__":
 
-while true; do sleep 1000; done
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-k', '--key', required=True, help="key of the label")
+    parser.add_argument('-v', '--value', required=True, help="value of the label")
+
+    args = parser.parse_args()
+
+    if nodestatus.is_label_exist(args.key, args.value) != True:
+        sys.exit(1)
+
+    sys.exit(0)
+
+
+

@@ -27,23 +27,28 @@ Python and Docker are required in the dev box.
 
 Python(2.x) and the lib to install:
 ```
-sudo apt-get install python python-yaml python-jinja2 
+sudo apt-get install python python-pip python-yaml python-jinja2 
+sudo pip install kubernetes
 ```
 
 [Docker install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 The deployment process further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) to store the docker images for the services to be deployed.
 
-## Cluster configuration and generate script
-
-Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
-When deploying services to your cluster, please replace the specified fields with your own configuration.
-
 ## Prepare hadoop configuration (patching)
 
 ```
 ./prepare_hadoop_config.sh
 ```
+
+According to your environment, you can customize the hadoop configuration in this step.
+
+## Cluster configuration and script generation
+
+Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
+When deploying services to your cluster, please replace the specified fields with your own configuration.
+
+
 ## Build docker image
 
 ```
@@ -54,17 +59,7 @@ sudo ./docker_build.py -p your-cluster-config.yaml
 
 Run the following command:
 ```
-sudo ./deploy.py -p your-cluster-config.yaml
-```
-After the operation completes, please run the following scripts in order:
-```
-sudo ./bootstrap/cluster-configuration/start.sh
-sudo ./bootstrap/drivers/start.sh
-# please make sure the driver starts completely before running the following scripts
-sudo ./bootstrap/hadoop-service/start.sh
-sudo ./bootstrap/frameworklauncher/start.sh
-sudo ./bootstrap/rest-server/start.sh
-sudo ./bootstrap/webportal/start.sh
+sudo ./deploy.py -d -p your-cluster-config.yaml
 ```
 
 ## Cleanup your previous deployment
