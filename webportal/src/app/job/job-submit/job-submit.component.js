@@ -48,6 +48,7 @@ const submitJob = (jobConfig) => {
   });
 };
 
+$('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   $(document).on('change', '#file', (event) => {
     const reader = new FileReader();
@@ -57,7 +58,6 @@ $(document).ready(() => {
     };
     reader.readAsText(event.target.files[0]);
   });
-  $('#content-wrapper').html(jobSubmitHtml);
 });
 
 module.exports = { submitJob };

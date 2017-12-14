@@ -22,7 +22,7 @@ const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const loading = require('../loading/loading.component');
-const config = require('../../config/index');
+const webportalConfig = require('../../config/webportal.config.json');
 
 
 const jobViewHtml = jobViewComponent({
@@ -81,7 +81,7 @@ const convertState = (state, exitType) => {
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
-    url: `${config.restServerUri}/api/job`,
+    url: `${webportalConfig.restServerUri}/api/job`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -113,9 +113,8 @@ const deleteJob = (jobName) => {
   }
 };
 
-
+$('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {
-  $('#content-wrapper').html(jobViewHtml);
   loadJobs();
 });
 

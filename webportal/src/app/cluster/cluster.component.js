@@ -17,8 +17,7 @@
 
 
 // module dependencies
-const config = require('../../config/index');
+const webportalConfig = require('../config/webportal.config.json');
 
-$(document).ready(() => {
-  window.location.replace(`${config.clusterStatusUri}`);
-});
+
+window.location.replace(`${webportalConfig.clusterStatusUri}`);

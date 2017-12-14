@@ -17,15 +17,28 @@
 
 
 // module dependencies
-const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
-const downloadComponent = require('./download.component.ejs');
+const fse = require('fs-extra');
+const archiver = require('archiver');
+const helpers = require('./helpers');
+const webportalConfig = require('./webportal.config');
 
 
-const downloadHtml = downloadComponent({
-  breadcrumb: breadcrumbComponent,
-  files: [
-    { name: 'pai-fs.zip' }
-  ]
+// pack utils for downloading
+fse.ensureDirSync(helpers.root('src/assets/util'));
+const output = fse.createWriteStream(helpers.root('src/assets/util/pai-fs.zip'));
+const archive = archiver('zip', {
+  zlib: { level: 9 }
 });
+archive.pipe(output);
+archive.directory(helpers.root('../pai-fs'), 'pai-fs');
+archive.finalize();
 
-$('#content-wrapper').html(downloadHtml);
+// copy docs to app
+fse.copySync(
+    helpers.root('../job-tutorial/README.md'),
+    helpers.root('src/app/job/job-docs/job-docs.md'));
+
+// write env config
+fse.outputJsonSync(
+    helpers.root('src/app/config/webportal.config.json'),
+    webportalConfig);

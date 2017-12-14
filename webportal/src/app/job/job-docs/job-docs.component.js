@@ -25,6 +25,4 @@ const jobDocsHtml = jobDocsComponent({
   breadcrumb: breadcrumbComponent
 });
 
-$(document).ready(() => {
-  $('#content-wrapper').html(jobDocsHtml);
-});
+$('#content-wrapper').html(jobDocsHtml);

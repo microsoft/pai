@@ -16,7 +16,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-$(document).ready(() => {
-  window.location.replace("/view.html");
-});
+window.location.replace("/view.html");

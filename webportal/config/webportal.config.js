@@ -17,15 +17,16 @@
 
 
 // module dependencies
-const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
-const downloadComponent = require('./download.component.ejs');
+const dotenv = require('dotenv');
 
 
-const downloadHtml = downloadComponent({
-  breadcrumb: breadcrumbComponent,
-  files: [
-    { name: 'pai-fs.zip' }
-  ]
-});
+dotenv.config();
 
-$('#content-wrapper').html(downloadHtml);
+// get config from environment variables
+let config = {
+  restServerUri: process.env.REST_SERVER_URI,
+  clusterStatusUri: process.env.CLUSTER_STATUS_URI
+};
+
+// module exports
+module.exports = config;

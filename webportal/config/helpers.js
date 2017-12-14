@@ -16,11 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// get config from environment variables
-let config = {
-  restServerUri: process.env.REST_SERVER_URI,
-  clusterStatusUri: process.env.CLUSTER_STATUS_URI
-};
+// module dependencies
+const path = require('path');
 
-// module exports
-module.exports = config;
+
+const root = path.join.bind(path, path.resolve(__dirname, '..'));
+
+module.exports = { root };
