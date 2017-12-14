@@ -28,10 +28,10 @@ python ../../node_label_check.py -k machinetype -v gpu
 ret=$?
 
 if [ $ret -ne 0 ]; then
+    echo "No GPU machine in your cluster"
+else
     # wait until all drivers are ready.
     python ../../service_dependency_solve.py -w -s drivers-one-shot
-else
-    echo "No GPU machine in your cluster"
 fi
 
 popd > /dev/null
