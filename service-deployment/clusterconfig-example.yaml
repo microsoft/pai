@@ -121,7 +121,6 @@ machinelist:
     # jobhistory: "true"   or not set this value
     hdfsrole: master
     yarnrole: master
-    hadooprole: master
     zookeeper: "true"
     jobhistory: "true"
     launcher: "true"
