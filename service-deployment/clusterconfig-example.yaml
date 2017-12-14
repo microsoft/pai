@@ -78,7 +78,7 @@ clusterinfo:
   # The config for monitor service
   prometheusinfo:
     # The address of the prometheus to connect to
-    prometheus_addr: http://10.0.1.9:9091
+    prometheus_addr: http://10.0.1.9:9090
     # The address of the grafana to connect to
     grafana_addr: http://10.0.1.9:3003
     # port for grafana

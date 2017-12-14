@@ -168,6 +168,8 @@ servicelist:
       - gpu-exporter-ds.yaml
       - node-exporter-ds.yaml
       - dashboards/cluster-dashboard.json
+      - dashboards/pai-nodeview-dashboard.json
+      - dashboards/pai-clusterview-dashboard.json
       - dashboards/singlenode-dashboard.json
       - dashboards/promethues-datasource.json
       - dashboards/gpu.js

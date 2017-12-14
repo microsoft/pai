@@ -1,7 +1,7 @@
 {
   "name": "PM",
   "type": "prometheus",
-  "url": "clusterinfo['prometheusinfo']['prometheus_addr']",
+  "url": "http://10.0.1.9:9090",
   "access": "direct",
   "basicAuth": false
 }
