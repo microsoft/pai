@@ -264,11 +264,11 @@ def main():
 
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
 
-    # generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    # genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
-    #generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 4: generate templatefile
     copy_arrangement(service_config)

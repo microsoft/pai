@@ -1,72 +1,26 @@
-# Introduction
-An implementation of Prometheus monitor K8s cluster metrics (GPUs, CPUs, Jobs ...).
+# Prometheus Monitoring Service
+The monitor service is the entrance for cluster monitoring.
+User can monitor cluster and node through the web UI.
 
-# Getting Started
+## Installation
+The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process, including that of the web portal. 
+The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) are of interest to web portal.
+* grafana_addr: String, the address of the grafana server which is the entry of the monitor service, for example, http://10.0.0.3:3000
+* grafana_port: Int, the port to use when launching grafana, for example, 3000
+* prometheus_addr: String, the address of the prometheus dashboard, for example, http://10.0.3.9:9090
+* prometheus_port: Int, the port to use when launching prometheus, for example, 9090
+* grafana_port: Int, the port to use when launching node exporter, for example, 9100
 
-## 1. Configuration
-Config monitor GPU servers:
-### 1.1. config monitor which GPU nodes through Prometheus
-Update prometheus-configmap.yaml file this part, change the -targets:[xxx] ip address to your GPU server IP.
-(File: prometheus-configmap.yaml)
-```cmd
-    - job_name: "gpu_exporter"
-      scrape_timeout: '50s'
-      scrape_interval: "50s"
-      static_configs:
-      - targets: ['${EXPORTER_IP1}:${EXPORTER_PORT}', '${EXPORTER_IP1}:${EXPORTER_PORT}']
-```
-- Replace `${EXPORTER_IP1}, ${EXPORTER_IP2}` with the server ip that we would like to pull the exporter metrics; Replace `${EXPORTER_PORT}` with the server port which we specified for the docker registry (eg. `9092`)
-***Note***: The metrics exporter will be launched as DaemonSet which will be deployed at each node. The prometheus is pull mode and will pull the targets machine's eporter metrics.
+## Usage
 
-### 1.2. config deploy and access Prometheus Web portal at which node
-#### 1.2.1 Label Prometheus node
-```cmd
-kubectl label nodes 10.0.1.5 prom=prom
-```
-#### 1.2.2 Config Promethues's node
-(File: prometheus-deployment.yaml)
-```
-nodeSelector:
-        prom: prom
-```
+### Documentation
+Click the tab "Documentation" to view the documentation of our system.
 
-## 2. Installation process
-### 2.1 deploy the service
-Deploy the profiling services:
-```cmd
-./deploy
-```
-### 2.2 undeploy the service
-Undeploy the profiling services:
-```cmd
-./undeloy
-```
-### 2.3 change the namespace
-(File: deploy.sh)
-This command config the namespace monitor.
-```cmd
-NAMESPACE=${NAMESPACE:-monitor}
-```
-User could change it to other name (For example, config namespace test).
-```cmd
-NAMESPACE=${NAMESPACE:-test}
-```
-(File: undeplpy.sh)
-This command config the namespace monitor, user could change to other name.
-```cmd
-NAMESPACE=${NAMESPACE:-monitor}
-```
+### View cluster status (PAI_ClusterView Dashboard)
 
-## 3. file function and code structure
-#### 3.1 deploy.sh 
-Launch all the related services and pods. Config some environment variables.
-#### 3.2 undeploy.sh
-Shut down and clear all the related services and pods.
-#### 3.3 prometheus-deployment.yaml
-Deploy the prometheus 
-#### 3.4 prometheus-configmap.yaml
-Config prometheus to monitor which metrics
-#### 3.5 gpu-exporter-ds.yaml
-Deploy gpu-exporter as a DaemonSet and will be launched at each node.
 
+Click the link http://{grafana_addr}/dashboard/db/pai_clusterview (For example: http://10.0.1.9:3003/dashboard/db/pai_clusterview) to go to the dashboard of grafana, where it shows all nodes metrics running on the cluster.
+
+### View single node status (PAI_NodeView Dashboard)
+Click the tab "Node Dashboard"'s IP address to display the single node metrics. 
 

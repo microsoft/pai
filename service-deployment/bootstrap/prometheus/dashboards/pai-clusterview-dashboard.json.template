@@ -140,7 +140,7 @@
               "link": true,
               "linkTargetBlank": true,
               "linkTooltip": "Click for details",
-              "linkUrl": "{{clusterinfo['prometheusinfo']['grafana_addr']}}/dashboard/db/pai_nodeview?orgId=1&from=now-5m&to=now&node=$__cell",
+              "linkUrl": "{{clusterinfo['prometheusinfo']['grafana_addr']}}/dashboard/db/pai_nodeview?orgId=1&from=now-5m&to=now&var-node=$__cell",
               "pattern": "instance",
               "thresholds": [],
               "type": "string",

@@ -76,89 +76,88 @@ imagelist:
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
-  # cleaning:
-  #   prerequisite:
-  #     - None
-  #   templatelist:
-  #     - cleaning.yaml
+  cleaning:
+    prerequisite:
+      - None
+    templatelist:
+      - cleaning.yaml
 
-  # cluster-configuration:
-  #   prerequisite:
-  #     - None
-  #   templatelist:
-  #     - secret.yaml
-  #     - host-configuration/host-configuration.yaml
-  #     - docker-credentials/config.json
-  #     - cleanup.sh
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  cluster-configuration:
+    prerequisite:
+      - None
+    templatelist:
+      - secret.yaml
+      - host-configuration/host-configuration.yaml
+      - docker-credentials/config.json
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
 
-  # drivers:
-  #   prerequisite:
-  #     - cluster-configuration
-  #   templatelist:
-  #     - node-label.sh
-  #     - drivers.yaml
-  #     - cleanup.sh
-  #   # Note： your script should start all your service dependency. Make sure service has completed the starting process.
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  drivers:
+    prerequisite:
+      - cluster-configuration
+    templatelist:
+      - node-label.sh
+      - drivers.yaml
+      - cleanup.sh
+    # Note： your script should start all your service dependency. Make sure service has completed the starting process.
+    startscript: start.sh
+    stopscript: cleanup.sh
 
-  # hadoop-service:
-  #   prerequisite:
-  #     - cluster-configuration
-  #     - drivers
-  #   templatelist:
-  #     - node-label.sh
-  #     - configmap-create.sh
-  #     - hadoop-name-node.yaml
-  #     - hadoop-data-node.yaml
-  #     - hadoop-resource-manager.yaml
-  #     - hadoop-node-manager.yaml
-  #     - hadoop-jobhistory.yaml
-  #     - zookeeper.yaml
-  #     - cleanup.sh
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  hadoop-service:
+    prerequisite:
+      - cluster-configuration
+      - drivers
+    templatelist:
+      - node-label.sh
+      - configmap-create.sh
+      - hadoop-name-node.yaml
+      - hadoop-data-node.yaml
+      - hadoop-resource-manager.yaml
+      - hadoop-node-manager.yaml
+      - hadoop-jobhistory.yaml
+      - zookeeper.yaml
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
 
-  # frameworklauncher:
-  #   prerequisite:
-  #     - cluster-configuration
-  #     - hadoop-service
-  #   templatelist:
-  #     - node-label.sh
-  #     - frameworklauncher.yaml
-  #     - cleanup.sh
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  frameworklauncher:
+    prerequisite:
+      - cluster-configuration
+      - hadoop-service
+    templatelist:
+      - node-label.sh
+      - frameworklauncher.yaml
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
 
-  # rest-server:
-  #   prerequisite:
-  #     - cluster-configuration
-  #     - frameworklauncher
-  #   templatelist:
-  #     - node-label.sh
-  #     - rest-server.yaml
-  #     - cleanup.sh
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  rest-server:
+    prerequisite:
+      - cluster-configuration
+      - frameworklauncher
+    templatelist:
+      - node-label.sh
+      - rest-server.yaml
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
 
-  # webportal:
-  #   prerequisite:
-  #     - cluster-configuration
-  #     - rest-server
-  #   templatelist:
-  #     - node-label.sh
-  #     - webportal-ds.yaml
-  #     - cleanup.sh
-  #   startscript: start.sh
-  #   stopscript: cleanup.sh
+  webportal:
+    prerequisite:
+      - cluster-configuration
+      - rest-server
+    templatelist:
+      - node-label.sh
+      - webportal-ds.yaml
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
 
   prometheus:
     prerequisite:
-      - None
-      #- cluster-configuration
-      #- drivers
+      - cluster-configuration
+      - drivers
     templatelist:
       - node-label.sh
       - grafana.yaml
@@ -167,10 +166,8 @@ servicelist:
       - prometheus-deployment.yaml
       - gpu-exporter-ds.yaml
       - node-exporter-ds.yaml
-      - dashboards/cluster-dashboard.json
       - dashboards/pai-nodeview-dashboard.json
       - dashboards/pai-clusterview-dashboard.json
-      - dashboards/singlenode-dashboard.json
       - dashboards/promethues-datasource.json
       - dashboards/gpu.js
     startscript: start.sh
