@@ -84,12 +84,14 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // -1: not available, 0: does not exist, 1: exists
   private volatile int existsLocalVersionFrameworkRequest = -1;
 
-  // Used to workaround for bug YARN-314.
-  // If there are multiple TaskRoles in one Framework and these TaskRoles has different Resource specified,
-  // we need to make sure the Priority for each TaskRoles is also different, otherwise some TaskRoles may not get resources to run.
+  // This is used to:
+  // 1. Workaround for bug YARN-314:
+  //    If there are multiple TaskRoles in one Framework and these TaskRoles has different Resource specified,
+  //    we need to make sure the Priority for each TaskRoles is also different, otherwise some TaskRoles may not get resources to run.
+  // 2. Distinguish containers allocated for different TaskRoles with the same Resource specified.
   // Note:
-  // 1. With this workaround, User cannot control the Priority anymore.
-  // 2. No need to persistent this info, since the bug only happens within one application attempt.
+  // 1. With it, User cannot control the Priority anymore.
+  // 2. No need to persistent this info, since this bug and request allocation matching only happen within one application attempt.
   // TaskRoleName -> RevisedPriority
   private final Map<String, Integer> taskRevisedPriority = new HashMap<>();
 
