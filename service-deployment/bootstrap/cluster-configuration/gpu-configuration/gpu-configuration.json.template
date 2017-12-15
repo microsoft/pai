@@ -25,9 +25,3 @@
 {% endfor %}
   }
 }
-
-
-
-{% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] -%}
-{{machinelist[ host ]['nodename']}}: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}
-{% endfor %}
