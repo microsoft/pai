@@ -1,0 +1,8 @@
+{
+  "name":"PM",
+  "type":"prometheus",
+  "url":"<PROM_URL>",
+  "access":"direct",
+  "basicAuth":false,
+  "isDefault":true
+}
