@@ -20,6 +20,7 @@
 const path = require('path');
 const fse = require('fs-extra');
 const Joi = require('joi');
+const childProcess = require('child_process');
 const config = require('./index');
 const logger = require('./logger');
 
@@ -49,6 +50,10 @@ launcherConfig.frameworkStatusPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
 };
 
+launcherConfig.frameworkRequestPath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
+};
+
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
@@ -64,6 +69,9 @@ const launcherConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   frameworkStatusPath: Joi.func()
+    .arity(1)
+    .required(),
+  frameworkRequestPath: Joi.func()
     .arity(1)
     .required(),
   webserviceRequestHeaders: Joi.object()
@@ -83,6 +91,14 @@ if (error) {
   throw new Error(`launcher config error\n${error}`);
 }
 launcherConfig = value;
+
+childProcess.exec(
+    `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+    });
 
 fse.ensureDir(launcherConfig.jobRootDir, (err) => {
   if (err) {
