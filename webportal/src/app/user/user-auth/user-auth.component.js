@@ -16,19 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const cookies = require('js-cookie');
-require('bootstrap');
-require('admin-lte');
-require('bootstrap/dist/css/bootstrap.min.css');
-require('admin-lte/dist/css/AdminLTE.min.css');
-require('admin-lte/dist/css/skins/_all-skins.min.css');
-require('font-awesome/css/font-awesome.min.css');
-const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
+const checkToken = (callback) => {
+  authToken = cookies.get('token');
+  if (authToken) {
+    callback(authToken);
+  } else {
+    alert('Please login first!');
+    window.location.replace('/login.html');
+  }
+};
 
-
-const userLoginNavHtml = userLoginNavComponent({ cookies });
-
-window.cookies = cookies;
-
-$('#navbar').html(userLoginNavHtml);
+module.exports = { checkToken };
