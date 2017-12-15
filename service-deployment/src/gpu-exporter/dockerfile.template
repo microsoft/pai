@@ -15,40 +15,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
-kind: DaemonSet
-metadata:
-  annotations:
-    prometheus.io/scrape: 'true'
-  name: gpu-exporter
-spec:
-  template:
-    metadata:
-      labels:
-        app: gpu-exporter
-      name: gpu-exporter
-    spec:
-      containers:
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /dev
-          name: device-mount
-        - mountPath: /var/drivers
-          name: driver-path
-        - mountPath: /tmp
-          name: collector-path
-        name: gpu-exporter
-      volumes:
-        - name: device-mount
-          hostPath:
-            path: /dev
-        - name: driver-path
-          hostPath:
-            path: /var/drivers
-        - name: collector-path
-          hostPath:
-            path: /tmp
-      hostNetwork: true
-      hostPID: true
+FROM nvidia/cuda
+
+ENV NVIDIA_VERSION=375.26
+ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
+ENV PATH=$PATH:$NV_DRIVER/bin
+
+RUN apt-get update && \
+    apt-get -y install golang --no-install-recommends && \
+    rm -r /var/lib/apt/lists/*
+
+WORKDIR /go
+
+COPY . .
+
+RUN go build -v -o bin/app ./app.go
+ENV TEST="2"
+ENTRYPOINT ["./bin/app"]
