@@ -52,8 +52,8 @@ spec:
         name: gpu-exporter
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ clusterinfo['gexporterinfo']['gexporter_port'] }}
-          hostPort: {{ clusterinfo['gexporterinfo']['gexporter_port'] }}
+        - containerPort: {{ clusterinfo['prometheusinfo']['gexporter_port'] }}
+          hostPort: {{ clusterinfo['prometheusinfo']['gexporter_port'] }}
           name: scrape
         
       imagePullSecrets:
