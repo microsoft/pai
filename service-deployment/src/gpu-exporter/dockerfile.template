@@ -32,7 +32,7 @@ COPY . .
 
 RUN go build -v -o bin/app ./app.go
 ENV TEST="2"
-ENTRYPOINT ["./bin/app",  "-exporter_port=:{{ clusterconfig['clusterinfo']['gexporterinfo']['gexporter_port'] }}"]
+ENTRYPOINT ["./bin/app",  "-exporter_port=:{{ clusterconfig['clusterinfo']['prometheusinfo']['gexporter_port'] }}"]
 
 
 
