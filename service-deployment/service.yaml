@@ -62,6 +62,8 @@ imagelist:
 
   webportal:
     copy:
+      - ../pai-fs
+      - ../job-tutorial
       - ../webportal
     templatelist:
       - None

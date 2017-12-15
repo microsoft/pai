@@ -40,6 +40,12 @@ spec:
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+        - name: JWT_SECRET
+          value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
+        - name: LOWDB_ADMIN
+          value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
+        - name: LOWDB_PASSWD
+          value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
         ports:
         - name: rest-server
           containerPort: 8080
