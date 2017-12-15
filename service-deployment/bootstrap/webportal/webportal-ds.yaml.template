@@ -26,18 +26,21 @@ spec:
       labels:
         app: webportal
     spec:
-      hostNetwork: true
+      hostNetwork: false
+      hostPID: false
       nodeSelector:
         webportal: "true"
       containers:
       - name: webportal
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
         env:
-        - name: REST_SERVER_ADDR
-          value: {{ clusterinfo['webportalinfo']['rest_server_addr'] }}
-        - name: K8S_DASHBOARD_ADDR
-          value: {{ clusterinfo['webportalinfo']['k8s_dashboard_addr'] }}
-        - name: WEBPORTAL_PORT
-          value: "{{ clusterinfo['webportalinfo']['port'] }}"
+        - name: REST_SERVER_URI
+          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+        - name: CLUSTER_STATUS_URI
+          value: {{ clusterinfo['webportalinfo']['cluster_status_uri'] }}
+        ports:
+        - name: webportal
+          containerPort: 8080
+          hostPort: {{ clusterinfo['webportalinfo']['server_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

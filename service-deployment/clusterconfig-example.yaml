@@ -65,15 +65,23 @@ clusterinfo:
     hdfs_uri: hdfs://10.0.3.9:9000
     # port for rest api server
     server_port: 9186
+    # secret for signing authentication tokens, for example, "Hello PAI!"
+    jwt_secret: your_jwt_secret
+    # default database file name
+    lowdb_file: your_database_file_name
+    # default admin username
+    lowdb_admin: your_admin_username
+    # default admin password
+    lowdb_passwd: your_admin_password
 
   # The config for web portal
   webportalinfo:
-    # The address of the rest server to connect to
-    rest_server_addr: http://10.0.3.9:9186
-    # The address of the kubernetes dashboard to 
-    k8s_dashboard_addr: 10.0.3.12
-    # The port of web portal server
-    port: 6969
+    # uri for rest server
+    rest_server_uri: http://10.0.3.9:9186
+    # uri for cluster status dashboard
+    cluster_status_uri: http://10.0.3.9:9090
+    # port for webportal
+    server_port: 9286
 
 
 # The detail machine type information in your cluster, each machine type has an entry here
