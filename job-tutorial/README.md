@@ -129,6 +129,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_USERNAME                       | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
 | PAI_CODE_DIR                       | `codeDir` in config file                 |

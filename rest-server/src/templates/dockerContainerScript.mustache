@@ -30,6 +30,7 @@ HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Launcher
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
+export PAI_USERNAME={{{ jobData.username }}}
 export PAI_DATA_DIR={{{ jobData.dataDir }}}
 export PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
 export PAI_CODE_DIR={{{ jobData.codeDir }}}

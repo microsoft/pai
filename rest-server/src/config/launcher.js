@@ -49,6 +49,10 @@ launcherConfig.frameworkStatusPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
 };
 
+launcherConfig.frameworkRequestPath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
+};
+
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
@@ -64,6 +68,9 @@ const launcherConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   frameworkStatusPath: Joi.func()
+    .arity(1)
+    .required(),
+  frameworkRequestPath: Joi.func()
     .arity(1)
     .required(),
   webserviceRequestHeaders: Joi.object()
