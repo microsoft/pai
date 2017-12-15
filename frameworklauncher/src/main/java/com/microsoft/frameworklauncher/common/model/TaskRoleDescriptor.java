@@ -47,6 +47,9 @@ public class TaskRoleDescriptor implements Serializable {
   @NotNull
   private ServiceDescriptor taskService;
 
+  @Valid
+  private TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters = new TaskRolePlatformSpecificParametersDescriptor();
+
   // private List<ServiceDescriptor> taskServices;
   // private List<String> dependOnTaskRoles;
 
@@ -96,5 +99,13 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setTaskService(ServiceDescriptor taskService) {
     this.taskService = taskService;
+  }
+
+  public TaskRolePlatformSpecificParametersDescriptor getPlatformSpecificParameters() {
+    return platformSpecificParameters;
+  }
+
+  public void setPlatformSpecificParameters(TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters) {
+    this.platformSpecificParameters = platformSpecificParameters;
   }
 }

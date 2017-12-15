@@ -53,9 +53,10 @@ public class GpuAllocationManager { // THREAD SAFE
   // According to the request resource, find a candidate node.
   // To improve it, considers the GPU topology structure, find a node which can minimize
   // the communication cost between GPUs;
-  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel) {
+  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel, String nodeGpuType) {
     LOGGER.logInfo(
-        "allocateCandidateRequestNode: Request resources:" + request.toString());
+        "allocateCandidateRequestNode: Request Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
+        request, nodeLabel, nodeGpuType);
 
     // ClusterConfiguration is ready when this method is called, i.e. it is not null here.
     ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();

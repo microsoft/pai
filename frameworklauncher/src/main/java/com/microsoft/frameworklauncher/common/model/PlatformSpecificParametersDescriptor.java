@@ -21,7 +21,6 @@ import javax.validation.Valid;
 import java.io.Serializable;
 
 // Computation Platform Specific Parameters
-// Currently, only support Yarn Platform Parameters
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
@@ -32,6 +31,9 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   private String taskNodeLabel;
+
+  @Valid
+  private String taskNodeGpuType;
 
   @Valid
   private String queue = "default";
@@ -113,6 +115,14 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   public void setTaskNodeLabel(String taskNodeLabel) {
     this.taskNodeLabel = taskNodeLabel;
+  }
+
+  public String getTaskNodeGpuType() {
+    return taskNodeGpuType;
+  }
+
+  public void setTaskNodeGpuType(String taskNodeGpuType) {
+    this.taskNodeGpuType = taskNodeGpuType;
   }
 
   public String getQueue() {
