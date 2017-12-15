@@ -1,4 +1,6 @@
-uploads/
+*.zip
+job-docs.md
+src/app/config/
 
 # gitignore file for node js
 # Created by GitHub (https://github.com/github/gitignore/blob/master/Node.gitignore)
@@ -41,7 +43,6 @@ build/Release
 node_modules/
 jspm_packages/
 
-
 # Typescript v1 declaration files
 typings/
 
@@ -62,6 +63,3 @@ typings/
 
 # dotenv environment variables file
 .env
-
-# others
-.vs/
