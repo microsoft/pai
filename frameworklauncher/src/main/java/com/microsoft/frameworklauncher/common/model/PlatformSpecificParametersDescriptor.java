@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // Computation Platform Specific Parameters
@@ -36,31 +37,38 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   private String taskNodeGpuType;
 
   @Valid
+  @NotNull
   private String queue = "default";
 
   @Valid
+  @NotNull
   // -1 means unlimit.
   // -2 means using default value: LauncherConfiguration.RMResyncFrequency.
   private Integer containerConnectionMaxLostCount = -2;
 
   @Valid
+  @NotNull
   // No unlimit option, since exceed Container must be released eventually.
   private Integer containerConnectionMaxExceedCount = 2;
 
   @Valid
+  @NotNull
   // If this feature enabled, different Tasks is ensured to run on different nodes.
   private Boolean antiaffinityAllocation = false;
 
   @Valid
+  @NotNull
   // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED.
   private Boolean killAllOnAnyCompleted = false;
 
   @Valid
+  @NotNull
   // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED
   // which is due to the exit of UserService.
   private Boolean killAllOnAnyServiceCompleted = false;
 
   @Valid
+  @NotNull
   // If this feature enabled, AM will wait until all Tasks become ContainerAllocated and
   // then Launches them together.
   // Besides, a ContainerIpList file will be generated in each Task's current working directory.
@@ -69,24 +77,29 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   private Boolean generateContainerIpList = false;
 
   @Valid
+  @NotNull
   private AMType amType = AMType.DEFAULT;
 
   @Valid
+  @NotNull
   // The following will take effect only if amType is "AGENT".
   // If this feature enabled, Agent will be enabled to send heartbeats to AM.
   private Boolean agentUseHeartbeat = false;
 
   @Valid
+  @NotNull
   // The following will take effect only if amType is "AGENT" and AgentUseAgent flag is true.
   // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHearbeatsIntervalSec
   private Integer agentHeartbeatIntervalSec = 30;
 
   @Valid
+  @NotNull
   // This is the value when AgentAM does not receive the heartbeats for this interval, the agent is treated as expired.
   // It should be a value larger than agentHeartbeatIntervalSec.
   private Integer agentExpiryIntervalSec = 180;
 
   @Valid
+  @NotNull
   // If this feature enabled, Agent will be enabled to do health checking for user applications.
   private Boolean agentUseHealthCheck = false;
 

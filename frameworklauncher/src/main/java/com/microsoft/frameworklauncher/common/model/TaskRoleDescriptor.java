@@ -31,16 +31,20 @@ public class TaskRoleDescriptor implements Serializable {
   private Integer taskNumber;
 
   @Valid
+  @NotNull
   // The priority to Allocate Container to this TaskRole's Tasks.
   private Integer priority = 1;
 
   @Valid
+  @NotNull
   private Integer scaleUnitNumber = 1;
 
   @Valid
+  @NotNull
   private Integer scaleUnitTimeoutSec = 0;
 
   @Valid
+  @NotNull
   private RetryPolicyDescriptor taskRetryPolicy = new RetryPolicyDescriptor();
 
   @Valid
@@ -48,6 +52,7 @@ public class TaskRoleDescriptor implements Serializable {
   private ServiceDescriptor taskService;
 
   @Valid
+  @NotNull
   private TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters = new TaskRolePlatformSpecificParametersDescriptor();
 
   // private List<ServiceDescriptor> taskServices;
