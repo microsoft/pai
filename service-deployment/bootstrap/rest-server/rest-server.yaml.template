@@ -42,6 +42,8 @@ spec:
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
+        - name: LOWDB_FILE
+          value: {{ clusterinfo['restserverinfo']['lowdb_file'] }}
         - name: LOWDB_ADMIN
           value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
         - name: LOWDB_PASSWD

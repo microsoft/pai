@@ -67,6 +67,8 @@ clusterinfo:
     server_port: 9186
     # secret for signing authentication tokens
     jwt_secret: "Hello PAI!"
+    # default database file
+    lowdb_file: user.db.json
     # default admin username
     lowdb_admin: admin
     # default admin password

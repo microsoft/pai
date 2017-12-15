@@ -38,7 +38,9 @@ spec:
           value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
         - name: CLUSTER_STATUS_URI
           value: {{ clusterinfo['webportalinfo']['cluster_status_uri'] }}
-        - name: SERVER_PORT
-          value: "{{ clusterinfo['webportalinfo']['server_port'] }}"
+        ports:
+        - name: webportal
+          containerPort: 8080
+          hostPort: {{ clusterinfo['webportalinfo']['server_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
