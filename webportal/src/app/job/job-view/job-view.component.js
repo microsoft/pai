@@ -23,6 +23,7 @@ const jobTableComponent = require('./job-table.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
+const userAuth = require('../../user/user-auth/user-auth.component');
 
 
 const jobViewHtml = jobViewComponent({
@@ -94,6 +95,10 @@ const loadJobs = () => {
           convertState
         }));
       }
+    },
+    error: (xhr, textStatus, error) => {
+      const res = JSON.parse(xhr.responseText);
+      alert(res.message);
     }
   });
 };
@@ -101,12 +106,21 @@ const loadJobs = () => {
 const deleteJob = (jobName) => {
   const res = confirm('Are you sure to delete the job?');
   if (res) {
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/job/${jobName}`,
-      type: 'DELETE',
-      success: (data) => {
-        loadJobs();
-      }
+    userAuth.checkToken((token) => {
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/job/${jobName}`,
+        type: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        success: (data) => {
+          loadJobs();
+        },
+        error: (xhr, textStatus, error) => {
+          const res = JSON.parse(xhr.responseText);
+          alert(res.message);
+        }
+      });
     });
   }
 };

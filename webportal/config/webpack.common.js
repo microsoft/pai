@@ -42,6 +42,7 @@ const config = {
   entry: {
     index: './src/app/index.js',
     layout: './src/app/layout/layout.component.js',
+    login: './src/app/user/user-login/user-login.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
     cluster: './src/app/cluster/cluster.component.js',
     view: './src/app/job/job-view/job-view.component.js',
@@ -164,6 +165,14 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'index']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'login.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'login']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

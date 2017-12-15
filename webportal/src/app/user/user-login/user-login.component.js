@@ -17,59 +17,47 @@
 
 
 // module dependencies
-const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
-const loadingComponent = require('../loading/loading.component.ejs');
-const jobSubmitComponent = require('./job-submit.component.ejs');
-const loading = require('../loading/loading.component');
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
+const userLoginComponent = require('./user-login.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
-const userAuth = require('../../user/user-auth/user-auth.component');
+require('./user-login.component.scss');
 
 
-const jobSubmitHtml = jobSubmitComponent({
-  breadcrumb: breadcrumbComponent,
-  loading: loadingComponent
+const userLoginHtml = userLoginComponent({
+  breadcrumb: breadcrumbComponent
 });
 
-const submitJob = (jobConfig) => {
-  userAuth.checkToken((token) => {
-    loading.showLoading();
+$('#content-wrapper').html(userLoginHtml);
+$(document).ready(() => {
+  $('#form-login').on('submit', (e) => {
+    e.preventDefault();
+    const username = $('#form-login :input[name=username]').val();
+    const password = $('#form-login :input[name=password]').val();
+    const expiration = $('#form-login :input[name=remember]').is(':checked') ? 7 : 1;
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/job/${jobConfig.jobName}`,
-      data: jobConfig,
-      headers: {
-        Authorization: `Bearer ${token}`
+      url: `${webportalConfig.restServerUri}/api/auth`,
+      type: 'POST',
+      data: {
+        username,
+        password,
+        expiration: expiration * 24 * 60 * 60
       },
-      type: 'PUT',
       dataType: 'json',
       success: (data) => {
-        loading.hideLoading();
+        $("#form-login").trigger('reset');
         if (data.error) {
           alert(data.message);
-          $('#submitHint').text(data.message);
         } else {
-          alert('submit success');
-          $('#submitHint').text('submitted successfully!');
+          cookies.set('user', data.user, { expires: expiration });
+          cookies.set('token', data.token, { expires: expiration });
+          window.location.replace("/view.html");
         }
-        window.location.replace("/view.html");
       },
       error: (xhr, textStatus, error) => {
+        $("#form-login").trigger('reset');
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       }
     });
   });
-};
-
-$('#content-wrapper').html(jobSubmitHtml);
-$(document).ready(() => {
-  $(document).on('change', '#file', (event) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const jobConfig = JSON.parse(event.target.result);
-      submitJob(jobConfig);
-    };
-    reader.readAsText(event.target.files[0]);
-  });
 });
-
-module.exports = { submitJob };

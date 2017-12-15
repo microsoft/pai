@@ -1,0 +1,15 @@
+<% if (cookies.get("token")) { %>
+  <li class="dropdown user user-menu">
+    <a href="#" data-toggle="control-sidebar">
+      <!-- img src="" class="user-image" alt="User Image" -->
+      <span class="hidden-xs">Welcome, <%= cookies.get("user") %></span>
+    </a>
+  </li>
+<% } else { %>
+  <li>
+    <a href="#" data-toggle="control-sidebar" onclick="window.location.replace('/login.html')">
+      <i class="fa fa-gears"></i>
+      <span>Login</span>
+    </a>
+  </li>
+<% } %>
