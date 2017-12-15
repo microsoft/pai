@@ -40,6 +40,7 @@ const submitJob = (jobConfig) => {
         Authorization: `Bearer ${token}`
       },
       type: 'PUT',
+      dataType: 'json',
       success: (data) => {
         loading.hideLoading();
         if (data.error) {
