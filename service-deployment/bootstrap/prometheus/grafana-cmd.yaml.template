@@ -74,6 +74,4 @@ spec:
          - name: config-volume
            configMap:
              name: grafana-import-dashboards
-         - name: grafana-persistent-storage
-           emptyDir: {}
 
