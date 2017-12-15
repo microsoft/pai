@@ -79,7 +79,7 @@ const get = (req, res) => {
  * Submit or update job.
  */
 const update = (req, res) => {
-  req.body.username = req.username;
+  req.body.username = req.user.username;
   Job.prototype.putJob(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);

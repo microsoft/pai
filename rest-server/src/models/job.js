@@ -78,7 +78,6 @@ class Job {
           const jobStatus = {
             name: name,
             state: statusResJson.frameworkState,
-            retries: statusResJson.frameworkRetryPolicyState.retriedCount,
             createdTime: statusResJson.frameworkCreatedTimestamp,
             completedTime: statusResJson.frameworkCompletedTimestamp,
             appId: statusResJson.applicationId,
@@ -93,13 +92,25 @@ class Job {
           if (statusResJson.exception !== undefined) {
             jobStatus.state = 'JOB_NOT_FOUND';
           }
+          if (statusResJson.frameworkRetryPolicyState) {
+            if (typeof statusResJson.frameworkRetryPolicyState.retriedCount === undefined) {
+              jobStatus.retries = 0;
+            } else {
+              jobStatus.retries = statusResJson.frameworkRetryPolicyState.retriedCount;
+            }
+          } else {
+            jobStatus.retries = 0;
+          }
           unirest.get(launcherConfig.frameworkRequestPath(name))
               .headers(launcherConfig.webserviceRequestHeaders)
               .end((requestRes) => {
                 const requestResJson = typeof requestRes.body === 'object' ?
                     requestRes.body : JSON.parse(requestRes.body);
-                console.log(requestResJson)
-                jobStatus.username = requestResJson.frameworkDescriptor.user.name;
+                if (requestResJson.frameworkDescriptor) {
+                  jobStatus.username = requestResJson.frameworkDescriptor.user.name;
+                } else {
+                  jobStatus.username = 'unknown';
+                }
                 next(jobStatus);
               });
         });
@@ -110,7 +121,7 @@ class Job {
       data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
     }
     childProcess.exec(
-        `hdfs dfs -mkdir -p ${data.outputDir}`,
+        `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
         (err, stdout, stderr) => {
           if (err) {
             logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
@@ -163,7 +174,7 @@ class Job {
             return next(parallelError);
           } else {
             childProcess.exec(
-                `hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Launcher`,
+                `HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container`,
                 (err, stdout, stderr) => {
                   logger.info('[stdout]\n%s', stdout);
                   logger.info('[stderr]\n%s', stderr);
@@ -188,7 +199,9 @@ class Job {
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
             requestRes.body : JSON.parse(requestRes.body);
-        if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.delete(launcherConfig.frameworkPath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .end(() => next());
@@ -245,7 +258,7 @@ class Job {
         'taskService': {
           'version': 0,
           'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Launcher/${data.jobName}/YarnContainerScripts`],
+          'sourceLocations': [`/Container/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,

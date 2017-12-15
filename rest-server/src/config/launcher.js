@@ -20,6 +20,7 @@
 const path = require('path');
 const fse = require('fs-extra');
 const Joi = require('joi');
+const childProcess = require('child_process');
 const config = require('./index');
 const logger = require('./logger');
 
@@ -90,6 +91,14 @@ if (error) {
   throw new Error(`launcher config error\n${error}`);
 }
 launcherConfig = value;
+
+childProcess.exec(
+    `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+    });
 
 fse.ensureDir(launcherConfig.jobRootDir, (err) => {
   if (err) {
