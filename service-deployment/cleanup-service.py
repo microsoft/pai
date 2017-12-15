@@ -78,13 +78,22 @@ def main():
     error_msg = "failed to start clean up job to every node"
     execute_shell(shell_cmd, error_msg)
 
+    timeout = 1800
+
     while servicestatus.is_service_ready('cleaning-one-shot') != True:
 
         print "The cleaning job not finish yet. Pleas wait for a moment!"
         time.sleep(5)
 
+        timeout = timeout - 5
+        if timeout < 0:
+            print "Failed cleaning your cluster. please check the cleaning job and delete it manually."
+            print "To delete the image, please run -- kubectl delete ds cleaning-one-shot"
+            sys.exit(1)
+
+
     shell_cmd = "kubectl delete ds cleaning-one-shot"
-    error_msg = "failed to delete cleaning-one-shot"
+    error_msg = "Successfully to delete cleaning-one-shot"
     execute_shell(shell_cmd, error_msg)
 
     print "The cleaning job finished!"
