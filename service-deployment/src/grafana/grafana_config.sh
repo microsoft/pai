@@ -25,14 +25,14 @@ chown -R grafana:grafana /var/lib/grafana /var/log/grafana
 
 GRAFANA_URL=${GRAFANA_URL}
 #GRAFANA_URL=http://grafana-plain.k8s.playground1.aws.ad.zopa.com
-DATASOURCES_PATH=${DATASOURCES_PATH:-/}
-DASHBOARDS_PATH=${DASHBOARDS_PATH:-/dashboards}
+DATASOURCES_PATH=${DATASOURCES_PATH:-/usr/local/grafana/datasources}
+DASHBOARDS_PATH=${DASHBOARDS_PATH:-/usr/local/grafana/dashboards}
 USER=${USER:-admin}
 PASSWORD=${PASSWORD:-admin}
 
 
 #apt-get -y --force-yes --no-install-recommends install curl
-sed -i "s|<PROM_URL>|${PROM_URL}|g" /prom-datasource.json
+sed -i "s|<PROM_URL>|${PROM_URL}|g" ${DATASOURCES_PATH}/prom-datasource.json
 for dashboard in ${DASHBOARDS_PATH}/*
 do
   sed -i "s|<GRAFANA_URL>|${GRAFANA_URL}|g" $dashboard

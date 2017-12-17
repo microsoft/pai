@@ -71,7 +71,7 @@ if(!_.isUndefined(ARGS.name)) {
   seriesName = ARGS.name;
 }
 
-var hostName = "10.0.1.5:9100"
+var hostName = ""
 if(!_.isUndefined(ARGS.host)) {
   hostName = ARGS.host;
 }
