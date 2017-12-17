@@ -16,13 +16,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FROM debian:jessie
-MAINTAINER Yitong Feng imfengyitong@gmail.com
 
 ### GRAFANA_VERSION=latest = nightly build
 ENV \
   GRAFANA_URL={{ clusterconfig['clusterinfo']['prometheusinfo']['grafana_addr'] }} \
   PROM_URL={{ clusterconfig['clusterinfo']['prometheusinfo']['prometheus_addr'] }} \
-  GRAFANA_VERSION=4.6.2 \
+  GRAFANA_VERSION=4.6.3 \
   GF_PLUGIN_DIR=/grafana-plugins \
   GF_PATHS_LOGS=/var/log/grafana \
   GF_PATHS_DATA=/var/lib/grafana \
@@ -41,11 +40,9 @@ RUN \
   curl https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_${GRAFANA_VERSION}_amd64.deb > /tmp/grafana.deb && \
   dpkg -i /tmp/grafana.deb && \
   rm -f /tmp/grafana.deb && \
-  curl -L https://github.com/tianon/gosu/releases/download/1.10/gosu-amd64 > /usr/sbin/gosu && \
-  chmod +x /usr/sbin/gosu && \
   for plugin in $(curl -s https://grafana.net/api/plugins?orderBy=name | jq '.items[] | select(.internal=='false') | .slug' | tr -d '"'); do grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins install $plugin; done && \
   ### branding && \
-  chmod +x /run.sh /grafana_config.sh /start_server.sh && \
+  chmod 777 /run.sh /grafana_config.sh /start_server.sh && \
   mkdir -p /usr/share/grafana/.aws/ && \
   touch /usr/share/grafana/.aws/credentials && \
   apt-get remove -y --force-yes git jq && \
@@ -55,6 +52,6 @@ RUN \
 
 VOLUME ["/var/lib/grafana", "/var/log/grafana", "/etc/grafana"]
 
-EXPOSE 3000
+EXPOSE {{ clusterconfig['clusterinfo']['prometheusinfo']['grafana_port'] }}
 
 ENTRYPOINT ["/run.sh"]

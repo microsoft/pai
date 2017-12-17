@@ -62,22 +62,14 @@ imagelist:
 
   webportal:
     copy:
+      - ../pai-fs
+      - ../job-tutorial
       - ../webportal
     templatelist:
       - None
     prerequisite: None
 
   cleaning-image:
-    templatelist:
-      - dockerfile
-    prerequisite: None
-  
-  gpu-exporter:
-    templatelist:
-      - dockerfile
-    prerequisite: None
-
-  grafana:
     templatelist:
       - dockerfile
     prerequisite: None
@@ -161,16 +153,6 @@ servicelist:
     templatelist:
       - node-label.sh
       - webportal-ds.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
-
-  gpu-exporter:
-    prerequisite:
-      - cluster-configuration
-      - drivers
-    templatelist:
-      - gpu-exporter-ds.yaml
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
