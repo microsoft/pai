@@ -91,6 +91,7 @@ servicelist:
       - secret.yaml
       - host-configuration/host-configuration.yaml
       - gpu-configuration/gpu-configuration.yml
+      - gpu-configuration/gpu-configuration.json
       - docker-credentials/config.json
       - cleanup.sh
     startscript: start.sh
