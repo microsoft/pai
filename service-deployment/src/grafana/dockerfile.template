@@ -19,8 +19,6 @@ FROM debian:jessie
 
 ### GRAFANA_VERSION=latest = nightly build
 ENV \
-  GRAFANA_URL={{ clusterconfig['clusterinfo']['prometheusinfo']['grafana_addr'] }} \
-  PROM_URL={{ clusterconfig['clusterinfo']['prometheusinfo']['prometheus_addr'] }} \
   GRAFANA_VERSION=4.6.3 \
   GF_PLUGIN_DIR=/grafana-plugins \
   GF_PATHS_LOGS=/var/log/grafana \
