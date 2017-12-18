@@ -107,7 +107,6 @@ machineinfo:
     mem: 32
     cpu:
       vcore: 8
-    #HDFS data folder
     dataFolder: "/mnt"
     # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
     os: ubuntu16.04
