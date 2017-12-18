@@ -38,7 +38,7 @@ The deployment process further relies on a Docker registry service (e.g., [Docke
 ## Prepare hadoop configuration (patching)
 
 ```
-./prepare_hadoop_config.sh
+sudo ./prepare_hadoop_config.sh
 ```
 
 According to your environment, you can customize the hadoop configuration in this step.
