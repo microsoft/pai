@@ -43,7 +43,7 @@ spec:
       volumes:
       - name: zookeeper-storage
         hostPath:
-          path: /mnt/zoodata
+          path: {{ clusterinfo[ 'dataPath' ] }}/zoodata
       - name: host-confg-volume
         configMap:
           name: host-configuration

@@ -20,6 +20,9 @@ clusterID: your_cluster_id
 
 clusterinfo:
 
+  # HDFS, zookeeper data path
+  dataPath: "/datastorage"
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -104,6 +107,7 @@ machineinfo:
     mem: 32
     cpu:
       vcore: 8
+    #HDFS data folder
     dataFolder: "/mnt"
     # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
     os: ubuntu16.04
