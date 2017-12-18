@@ -23,29 +23,29 @@
     dataFolder: {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ][ 'dataFolder' ] }}
     {% if 'zkid' in machinelist[host] -%}
     zkid: "{{ machinelist[host]['zkid'] }}"
-    {%- endif %}
+    {% endif -%}
     {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] -%}
     machinetype: gpu
-    {%- endif %}
+    {% endif -%}
     {% if 'hdfsrole' in machinelist[host] -%}
     hdfsrole: {{ machinelist[host]['hdfsrole'] }}
-    {%- endif %}
+    {% endif -%}
     {% if 'yarnrole' in machinelist[host] -%}
     yarnrole: {{ machinelist[host]['yarnrole'] }}
-    {%- endif %}
+    {% endif -%}
     {% if 'zookeeper' in machinelist[host] -%}
     zookeeper: "{{ machinelist[host]['zookeeper'] }}"
-    {%- endif %}
+    {% endif -%}
     {% if 'jobhistory' in machinelist[host] -%}
     jobhistory: "{{ machinelist[host]['jobhistory'] }}"
-    {%- endif %}
+    {% endif -%}
     {% if 'launcher' in machinelist[host] -%}
     launcher: "{{ machinelist[host]['launcher'] }}"
-    {%- endif %}
+    {% endif -%}
     {% if 'restserver' in machinelist[host] -%}
     restserver: "{{ machinelist[host]['restserver'] }}"
-    {%- endif %}
+    {% endif -%}
     {% if 'webportal' in machinelist[host] -%}
     webportal: "{{ machinelist[host]['webportal'] }}"
-    {%- endif %}
+    {% endif -%}
 {% endfor %}
