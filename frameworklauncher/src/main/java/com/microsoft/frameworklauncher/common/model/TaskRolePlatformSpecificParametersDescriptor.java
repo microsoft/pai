@@ -17,37 +17,32 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-public class ParentFrameworkDescriptor implements Serializable {
+// Computation Platform Specific Parameters for specific TaskRole
+// The field here will override the corresponding field inside
+// FrameworkDescriptor.PlatformSpecificParametersDescriptor if it is not null.
+public class TaskRolePlatformSpecificParametersDescriptor implements Serializable {
   @Valid
-  @NotEmpty
-  @Pattern(regexp = ModelValidation.NAMING_CONVENTION_REGEX_STR)
-  private String parentFrameworkName;
+  private String taskNodeLabel;
 
   @Valid
-  @NotNull
-  private boolean deleteOnParentDeleted = false;
+  private String taskNodeGpuType;
 
-  public String getParentFrameworkName() {
-    return parentFrameworkName;
+  public String getTaskNodeLabel() {
+    return taskNodeLabel;
   }
 
-  public void setParentFrameworkName(String parentFrameworkName) {
-    this.parentFrameworkName = parentFrameworkName;
+  public void setTaskNodeLabel(String taskNodeLabel) {
+    this.taskNodeLabel = taskNodeLabel;
   }
 
-  public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
-    this.deleteOnParentDeleted = deleteOnParentDeleted;
+  public String getTaskNodeGpuType() {
+    return taskNodeGpuType;
   }
 
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
+  public void setTaskNodeGpuType(String taskNodeGpuType) {
+    this.taskNodeGpuType = taskNodeGpuType;
   }
 }

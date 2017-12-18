@@ -39,18 +39,23 @@ public class ResourceDescriptor implements Serializable {
   private Integer memoryMB;
 
   @Valid
+  @NotNull
   private List<Range> portRanges = new ArrayList<>();
 
   @Valid
+  @NotNull
   private DiskType diskType = DiskType.HDD;
 
   @Valid
+  @NotNull
   private Integer diskMB = 0;
 
   @Valid
+  @NotNull
   private Long gpuAttribute = 0L;
 
   @Valid
+  @NotNull
   private Integer gpuNumber = 0;
 
   public Integer getCpuNumber() {

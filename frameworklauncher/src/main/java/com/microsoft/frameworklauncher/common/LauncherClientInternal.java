@@ -182,6 +182,16 @@ public class LauncherClientInternal {
     });
   }
 
+  public void putClusterConfiguration(ClusterConfiguration clusterConfiguration) throws Exception {
+    executeWithRetry(() -> {
+      ModelValidation.validate(clusterConfiguration);
+      return webClient.put(
+          WebStructure.CLUSTER_CONFIGURATION_PATH,
+          ContentType.APPLICATION_JSON,
+          WebCommon.toJson(clusterConfiguration));
+    });
+  }
+
   private Boolean shouldRetryCommon(WebClientOutput output) {
     if (output.getStatusCode() == HttpStatus.SC_REQUEST_TIMEOUT ||
         output.getStatusCode() == HttpStatus.SC_SERVICE_UNAVAILABLE ||

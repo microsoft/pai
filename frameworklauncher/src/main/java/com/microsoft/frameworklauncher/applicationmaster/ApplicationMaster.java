@@ -160,7 +160,7 @@ public class ApplicationMaster extends AbstractService {
         LaunchClientType.APPLICATION_MASTER);
 
     aaAllocationManager = new AntiaffinityAllocationManager();
-    gpuAllocationManager = new GpuAllocationManager();
+    gpuAllocationManager = new GpuAllocationManager(this);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -312,7 +312,8 @@ public class ApplicationMaster extends AbstractService {
 
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
-    String nodeLabel = requestManager.getPlatParams().getTaskNodeLabel();
+    String nodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
+    String nodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
     Boolean aaAllocation = requestManager.getPlatParams().getAntiaffinityAllocation();
     ResourceDescriptor resource = requestManager.getTaskResources().get(taskRoleName);
     Integer priority = requestManager.getTaskRoles().get(taskRoleName).getPriority();
@@ -337,7 +338,7 @@ public class ApplicationMaster extends AbstractService {
       List<NodeReport> nodeReport = yarnClient.getNodeReports(NodeState.RUNNING);
       updateNodeReport(nodeReport, resource);
 
-      Node candidateRequestNode = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel);
+      Node candidateRequestNode = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel, nodeGpuType);
       if (candidateRequestNode != null) {
         taskStatus.setContainerGpus(candidateRequestNode.getSelectedGpuBitmap());
         // The original resource doesn't contain the real time gpuAttribute information,
@@ -353,7 +354,6 @@ public class ApplicationMaster extends AbstractService {
     }
 
     if (nodeLabel != null) {
-      // TODO: Make node label works with AntiaffinityAllocation
       return HadoopUtils.convertToContainerRequestWithNodeLabel(resource, priority, nodeLabel);
     } else {
       if (aaAllocation) {
@@ -1238,8 +1238,8 @@ public class ApplicationMaster extends AbstractService {
   }
 
   // Callbacks from StatusManager and RequestManager
-  public void onTaskNodeLabelUpdated(String taskNodeLabel) throws Exception {
-    LOGGER.logInfo("onTaskNodeLabelUpdated: TaskNodeLabel: [%s]", taskNodeLabel);
+  public void onDefaultTaskNodeLabelUpdated(String taskNodeLabel) throws Exception {
+    LOGGER.logInfo("onDefaultTaskNodeLabelUpdated: TaskNodeLabel: [%s]", taskNodeLabel);
 
     String effectiveTaskNodeLabel;
     if (taskNodeLabel == null) {
@@ -1496,5 +1496,9 @@ public class ApplicationMaster extends AbstractService {
     } else {
       return requestManager.existsLocalVersionFrameworkRequest();
     }
+  }
+
+  protected ClusterConfiguration getClusterConfiguration() {
+    return requestManager.getClusterConfiguration();
   }
 }

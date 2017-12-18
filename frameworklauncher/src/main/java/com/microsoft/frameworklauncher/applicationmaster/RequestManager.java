@@ -22,7 +22,10 @@ import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.*;
+import com.microsoft.frameworklauncher.utils.AbstractService;
+import com.microsoft.frameworklauncher.utils.CommonExtensions;
+import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -49,7 +52,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION BaseRequest
    */
-  // AM only need to retrieve AggregatedFrameworkRequest
+  // AM only need to retrieve LauncherRequest and AggregatedFrameworkRequest
+  private LauncherRequest launcherRequest = null;
   private FrameworkDescriptor frameworkDescriptor = null;
   private OverrideApplicationProgressRequest overrideApplicationProgressRequest = null;
   // ContainerId -> MigrateTaskRequest
@@ -60,6 +64,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    * REGION ExtensionRequest
    * ExtensionRequest should be always CONSISTENT with BaseRequest
    */
+  private ClusterConfiguration clusterConfiguration;
   private UserDescriptor user;
   private PlatformSpecificParametersDescriptor platParams;
   // TaskRoleName -> TaskRoleDescriptor
@@ -70,7 +75,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   private Map<String, ServiceDescriptor> taskServices;
   // TaskRoleName -> ResourceDescriptor
   private Map<String, ResourceDescriptor> taskResources;
-
+  // TaskRoleName -> TaskRolePlatformSpecificParametersDescriptor
+  private Map<String, TaskRolePlatformSpecificParametersDescriptor> taskPlatParams;
 
   /**
    * REGION StateVariable
@@ -78,12 +84,14 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // -1: not available, 0: does not exist, 1: exists
   private volatile int existsLocalVersionFrameworkRequest = -1;
 
-  // Used to workaround for bug YARN-314.
-  // If there are multiple TaskRoles in one Framework and these TaskRoles has different Resource specified,
-  // we need to make sure the Priority for each TaskRoles is also different, otherwise some TaskRoles may not get resources to run.
+  // This is used to:
+  // 1. Workaround for bug YARN-314:
+  //    If there are multiple TaskRoles in one Framework and these TaskRoles has different Resource specified,
+  //    we need to make sure the Priority for each TaskRoles is also different, otherwise some TaskRoles may not get resources to run.
+  // 2. Distinguish containers allocated for different TaskRoles with the same Resource specified.
   // Note:
-  // 1. With this workaround, User cannot control the Priority anymore.
-  // 2. No need to persistent this info, since the bug only happens within one application attempt.
+  // 1. With it, User cannot control the Priority anymore.
+  // 2. No need to persistent this info, since this bug and request allocation matching only happen within one application attempt.
   // TaskRoleName -> RevisedPriority
   private final Map<String, Integer> taskRevisedPriority = new HashMap<>();
 
@@ -163,6 +171,15 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   private void pullRequest() throws Exception {
+    // Pull LauncherRequest
+    LOGGER.logDebug("Pulling LauncherRequest");
+    LauncherRequest newLauncherRequest = zkStore.getLauncherRequest();
+    LOGGER.logDebug("Pulled LauncherRequest");
+
+    // newLauncherRequest is always not null
+    updateLauncherRequest(newLauncherRequest);
+
+    // Pull AggregatedFrameworkRequest
     AggregatedFrameworkRequest aggFrameworkRequest;
     try {
       LOGGER.logDebug("Pulling AggregatedFrameworkRequest");
@@ -177,10 +194,24 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     // newFrameworkDescriptor is always not null
     FrameworkDescriptor newFrameworkDescriptor = aggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
     checkFrameworkVersion(newFrameworkDescriptor);
+    flattenFrameworkDescriptor(newFrameworkDescriptor);
     reviseFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
+  }
+
+  private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
+    if (YamlUtils.deepEquals(launcherRequest, newLauncherRequest)) {
+      return;
+    }
+
+    LOGGER.logSplittedLines(Level.DEBUG,
+        "Detected LauncherRequest changes. Updating to new LauncherRequest:\n%s",
+        WebCommon.toJson(newLauncherRequest));
+
+    launcherRequest = newLauncherRequest;
+    clusterConfiguration = launcherRequest.getClusterConfiguration();
   }
 
   private void checkFrameworkVersion(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
@@ -191,6 +222,21 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           conf.getFrameworkVersion(), newFrameworkDescriptor.getVersion()));
     } else {
       existsLocalVersionFrameworkRequest = 1;
+    }
+  }
+
+  private void flattenFrameworkDescriptor(FrameworkDescriptor newFrameworkDescriptor) {
+    PlatformSpecificParametersDescriptor platParams = newFrameworkDescriptor.getPlatformSpecificParameters();
+    for (TaskRoleDescriptor taskRoleDescriptor : newFrameworkDescriptor.getTaskRoles().values()) {
+      TaskRolePlatformSpecificParametersDescriptor taskRolePlatParams = taskRoleDescriptor.getPlatformSpecificParameters();
+
+      // taskRolePlatParams inherits platParams if it is null.
+      if (taskRolePlatParams.getTaskNodeLabel() == null) {
+        taskRolePlatParams.setTaskNodeLabel(platParams.getTaskNodeLabel());
+      }
+      if (taskRolePlatParams.getTaskNodeGpuType() == null) {
+        taskRolePlatParams.setTaskNodeGpuType(platParams.getTaskNodeGpuType());
+      }
     }
   }
 
@@ -262,21 +308,29 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     user = frameworkDescriptor.getUser();
     platParams = frameworkDescriptor.getPlatformSpecificParameters();
     taskRoles = frameworkDescriptor.getTaskRoles();
-    taskRetryPolicies = new HashMap<>();
-    taskServices = new HashMap<>();
-    taskResources = new HashMap<>();
+    Map<String, RetryPolicyDescriptor> newTaskRetryPolicies = new HashMap<>();
+    Map<String, ServiceDescriptor> newTaskServices = new HashMap<>();
+    Map<String, ResourceDescriptor> newTaskResources = new HashMap<>();
+    Map<String, TaskRolePlatformSpecificParametersDescriptor> newTaskPlatParams = new HashMap<>();
     for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRoles.entrySet()) {
-      taskRetryPolicies.put(taskRole.getKey(), taskRole.getValue().getTaskRetryPolicy());
-      taskServices.put(taskRole.getKey(), taskRole.getValue().getTaskService());
-      taskResources.put(taskRole.getKey(), taskRole.getValue().getTaskService().getResource());
+      String taskRoleName = taskRole.getKey();
+      TaskRoleDescriptor taskRoleDescriptor = taskRole.getValue();
+      newTaskRetryPolicies.put(taskRoleName, taskRoleDescriptor.getTaskRetryPolicy());
+      newTaskServices.put(taskRoleName, taskRoleDescriptor.getTaskService());
+      newTaskResources.put(taskRoleName, taskRoleDescriptor.getTaskService().getResource());
+      newTaskPlatParams.put(taskRoleName, taskRoleDescriptor.getPlatformSpecificParameters());
     }
+    taskRetryPolicies = newTaskRetryPolicies;
+    taskServices = newTaskServices;
+    taskResources = newTaskResources;
+    taskPlatParams = newTaskPlatParams;
     Map<String, Integer> taskNumbers = getTaskNumbers(taskRoles);
     Map<String, Integer> serviceVersions = getServiceVersions(taskServices);
 
     // Notify AM to take actions for Request
     if (oldPlatParams == null) {
       // For the first time, send all Request to AM
-      am.onTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
+      am.onDefaultTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
       am.onServiceVersionsUpdated(serviceVersions);
       am.onTaskNumbersUpdated(taskNumbers);
       {
@@ -289,7 +343,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     } else {
       // For the other times, only send changed Request to AM
       if (!StringUtils.equals(oldPlatParams.getTaskNodeLabel(), platParams.getTaskNodeLabel())) {
-        am.onTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
+        am.onDefaultTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
       }
       if (!CommonExtensions.equals(getServiceVersions(oldTaskServices), serviceVersions)) {
         am.onServiceVersionsUpdated(serviceVersions);
@@ -352,6 +406,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+  public ClusterConfiguration getClusterConfiguration() {
+    return clusterConfiguration;
+  }
+
   public UserDescriptor getUser() {
     return user;
   }
@@ -374,6 +432,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   public Map<String, ResourceDescriptor> getTaskResources() {
     return taskResources;
+  }
+
+  public Map<String, TaskRolePlatformSpecificParametersDescriptor> getTaskPlatParams() {
+    return taskPlatParams;
   }
 
   public Integer getServiceVersion(String taskRoleName) {

@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 
+import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,8 +53,6 @@ public class GpuAllocationManagerTest {
       Assert.assertEquals(2, (int) getGpuNumber.invoke(rd2));
     } catch (Exception ignored) {
     }
-
-
   }
 
   @Test
@@ -66,8 +65,10 @@ public class GpuAllocationManagerTest {
     Node node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     Node node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
-    GpuAllocationManager gpuMgr = new GpuAllocationManager();
-    
+    AMForTest am = new AMForTest();
+    am.setClusterConfiguration(new ClusterConfiguration());
+    GpuAllocationManager gpuMgr = new GpuAllocationManager(am);
+
     long candidateGPU = gpuMgr.selectCandidateGPU(node1, 1);
     Assert.assertEquals(1L, candidateGPU);
     candidateGPU = gpuMgr.selectCandidateGPU(node1, 2);
@@ -82,52 +83,65 @@ public class GpuAllocationManagerTest {
 
     candidateGPU = gpuMgr.selectCandidateGPU(node4, 2);
     Assert.assertEquals(0x30L, candidateGPU);
-    
-    Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+
+    Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     //Empty allocation failed;
     Assert.assertEquals(null, result);
     gpuMgr.addCandidateRequestNode(node1);
 
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 3, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 3, 0L), null, null);
     Assert.assertEquals(null, result);
 
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 2, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null);
     Assert.assertEquals("node1", result.getHostName());
     Assert.assertEquals(result.getSelectedGpuBitmap(), 3);
     gpuMgr.addCandidateRequestNode(node3);
     gpuMgr.addCandidateRequestNode(node4);
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 8, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node3");
     Assert.assertEquals(result.getSelectedGpuBitmap(), 0xFF);
 
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node4");
     Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0);
 
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(null, result);
 
     gpuMgr.addCandidateRequestNode(node2);
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node2");
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node2");
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
     gpuMgr.addCandidateRequestNode(new Node("node5", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node5");
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node5");
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
     gpuMgr.addCandidateRequestNode(new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node6");
     gpuMgr.removeCandidateRequestNode(node6);
-    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null);
+    result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
+  }
+
+  private class AMForTest extends MockApplicationMaster {
+    private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
+
+    @Override
+    protected ClusterConfiguration getClusterConfiguration() {
+      return clusterConfiguration;
+    }
+
+    public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
+      this.clusterConfiguration = clusterConfiguration;
+    }
   }
 }

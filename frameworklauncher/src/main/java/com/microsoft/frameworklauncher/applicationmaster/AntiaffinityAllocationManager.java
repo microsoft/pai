@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+// TODO: Make node label works with AntiaffinityAllocationManager
 public class AntiaffinityAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(AntiaffinityAllocationManager.class);
 

@@ -17,37 +17,18 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-public class ParentFrameworkDescriptor implements Serializable {
+public class NodeConfiguration implements Serializable {
   @Valid
-  @NotEmpty
-  @Pattern(regexp = ModelValidation.NAMING_CONVENTION_REGEX_STR)
-  private String parentFrameworkName;
+  private String gpuType;
 
-  @Valid
-  @NotNull
-  private boolean deleteOnParentDeleted = false;
-
-  public String getParentFrameworkName() {
-    return parentFrameworkName;
+  public String getGpuType() {
+    return gpuType;
   }
 
-  public void setParentFrameworkName(String parentFrameworkName) {
-    this.parentFrameworkName = parentFrameworkName;
-  }
-
-  public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
-    this.deleteOnParentDeleted = deleteOnParentDeleted;
-  }
-
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
+  public void setGpuType(String gpuType) {
+    this.gpuType = gpuType;
   }
 }

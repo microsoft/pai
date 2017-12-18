@@ -116,6 +116,33 @@ public class LauncherModule {
         .build();
   }
 
+  @PUT
+  @Path(WebStructure.CLUSTER_CONFIGURATION_PATH)
+  @Consumes({MediaType.APPLICATION_JSON})
+  public Response putClusterConfiguration(
+      @Context HttpServletRequest hsr,
+      ClusterConfiguration clusterConfiguration) throws Exception {
+    LOGGER.logSplittedLines(Level.INFO,
+        "putClusterConfiguration: \n%s",
+        WebCommon.toJson(clusterConfiguration));
+
+    ModelValidation.validate(clusterConfiguration);
+
+    requestManager.updateClusterConfiguration(clusterConfiguration);
+    return Response
+        .status(HttpStatus.SC_ACCEPTED)
+        .header("Location", hsr.getRequestURL())
+        .build();
+  }
+
+  @GET
+  @Path(WebStructure.CLUSTER_CONFIGURATION_PATH)
+  @Produces({MediaType.APPLICATION_JSON})
+  public ClusterConfiguration getClusterConfiguration(
+      @Context HttpServletRequest hsr) throws Exception {
+    return requestManager.getClusterConfiguration();
+  }
+
   @GET
   @Path(WebStructure.FRAMEWORK_ROOT_PATH)
   @Produces({MediaType.APPLICATION_JSON})

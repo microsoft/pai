@@ -17,37 +17,23 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ParentFrameworkDescriptor implements Serializable {
-  @Valid
-  @NotEmpty
-  @Pattern(regexp = ModelValidation.NAMING_CONVENTION_REGEX_STR)
-  private String parentFrameworkName;
-
+public class ClusterConfiguration implements Serializable {
   @Valid
   @NotNull
-  private boolean deleteOnParentDeleted = false;
+  // NodeHostName -> NodeConfiguration
+  private Map<String, NodeConfiguration> nodes = new HashMap<>();
 
-  public String getParentFrameworkName() {
-    return parentFrameworkName;
+  public Map<String, NodeConfiguration> getNodes() {
+    return nodes;
   }
 
-  public void setParentFrameworkName(String parentFrameworkName) {
-    this.parentFrameworkName = parentFrameworkName;
-  }
-
-  public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
-    this.deleteOnParentDeleted = deleteOnParentDeleted;
-  }
-
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
+  public void setNodes(Map<String, NodeConfiguration> nodes) {
+    this.nodes = nodes;
   }
 }

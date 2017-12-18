@@ -36,6 +36,7 @@ public class FrameworkDescriptor implements Serializable {
   private Integer version;
 
   @Valid
+  @NotNull
   private RetryPolicyDescriptor retryPolicy = new RetryPolicyDescriptor();
 
   @Valid
@@ -50,6 +51,7 @@ public class FrameworkDescriptor implements Serializable {
   private Map<String, TaskRoleDescriptor> taskRoles;
 
   @Valid
+  @NotNull
   private PlatformSpecificParametersDescriptor platformSpecificParameters = new PlatformSpecificParametersDescriptor();
 
   public String getDescription() {
