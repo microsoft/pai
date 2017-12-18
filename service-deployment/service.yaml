@@ -165,15 +165,9 @@ servicelist:
       - drivers
     templatelist:
       - node-label.sh
-      - grafana.yaml
-      - grafana-cmd.yaml
       - prometheus-configmap.yaml
       - prometheus-deployment.yaml
       - gpu-exporter-ds.yaml
       - node-exporter-ds.yaml
-      - dashboards/pai-nodeview-dashboard.json
-      - dashboards/pai-clusterview-dashboard.json
-      - dashboards/promethues-datasource.json
-      - dashboards/gpu.js
     startscript: start.sh
     stopscript: cleanup.sh
