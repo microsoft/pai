@@ -74,7 +74,7 @@ imagelist:
 
   gpu-exporter:
     templatelist:
-      - dockerfile
+      - None
     prerequisite: drivers
 
 
