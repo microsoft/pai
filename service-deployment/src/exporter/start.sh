@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,14 +17,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-wget https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
-tar -zxvf node_exporter-0.15.2.linux-amd64.tar.gz
-mv node_exporter-0.15.2.linux-amd64 node_exporter
-nohup ./node_exporter/node_exporter --web.listen-address=":9100" --collector.textfile.directory="/tmp/node_exporter/"  > /tmp/node_exporter_log &
-ps -aux|grep node_exporter| grep -v grep | awk '{print $2}' 
-echo "node exporter launched"
-
-go build -v -o app app.go
-nohup ./app > /tmp/gpu_exporter &
+go build -v -o /usr/local/app /usr/local/app.go
+nohup /usr/local/./app > /tmp/gpu_exporter &
 ps -aux|grep app| grep -v grep | awk '{print $2}'
 echo "gpu exporter launched"

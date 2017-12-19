@@ -75,6 +75,8 @@ imagelist:
     prerequisite: None
 
   gpu-exporter:
+    copy:
+      - ../prometheus/exporter
     templatelist:
       - None
     prerequisite: None
