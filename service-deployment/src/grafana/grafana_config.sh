@@ -19,29 +19,18 @@
 
 
 # Variables illustrate:
-# ${GRAFANA_URL} : Grafana homepage address, environment variable passed from K8s deployment yaml files or "docker run" parameters
-# ${PROM_URL} : Prometheus homepage address, environment variable passed from K8s deployment yaml files or "docker run" parameters
-# ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, they can also be passed from K8s deployment yaml files or "docker run" parameters, 
+# ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, passed from K8s deployment yaml files or "docker run" parameters, 
 # if not, they are set as default values defined in this file.
 
 chown -R grafana:grafana /var/lib/grafana /var/log/grafana
 
 # Script to configure grafana datasources and dashboards.
 # Intended to be run before grafana entrypoint...
-# ENTRYPOINT [\"/run.sh\"]"
 
 DATASOURCES_PATH=${DATASOURCES_PATH:-/usr/local/grafana/datasources}
 DASHBOARDS_PATH=${DASHBOARDS_PATH:-/usr/local/grafana/dashboards}
 USER=${USER:-admin}
 PASSWORD=${PASSWORD:-admin}
-
-
-#apt-get -y --force-yes --no-install-recommends install curl
-sed -i "s|<PROM_URL>|${PROM_URL}|g" ${DATASOURCES_PATH}/prom-datasource.json
-for dashboard in ${DASHBOARDS_PATH}/*
-do
-  sed -i "s|<GRAFANA_URL>|${GRAFANA_URL}|g" $dashboard
-done
 
 
 # Generic function to call the Vault API
