@@ -18,6 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+# Variables illustrate:
+# ${GF_AWS_PROFILES} : (Optional)AWS credentials configuration for CloudWatch support
+# See https://github.com/grafana/grafana-docker
+# ${UPGRADEALL}, ${GF_PLUGIN_DIR}, ${GF_PATHS_DATA} & ${GF_PATHS_LOG}, defined in dockerfile.
+
 chown -R grafana:grafana /var/lib/grafana /var/log/grafana
 
 if [ ! -z ${GF_AWS_PROFILES+x} ]; then

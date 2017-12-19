@@ -17,14 +17,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+# Variables illustrate:
+# ${GRAFANA_URL} : Grafana homepage address, environment variable passed from K8s deployment yaml files or "docker run" parameters
+# ${PROM_URL} : Prometheus homepage address, environment variable passed from K8s deployment yaml files or "docker run" parameters
+# ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, they can also be passed from K8s deployment yaml files or "docker run" parameters, 
+# if not, they are set as default values defined in this file.
+
 chown -R grafana:grafana /var/lib/grafana /var/log/grafana
 
 # Script to configure grafana datasources and dashboards.
 # Intended to be run before grafana entrypoint...
 # ENTRYPOINT [\"/run.sh\"]"
 
-GRAFANA_URL=${GRAFANA_URL}
-#GRAFANA_URL=http://grafana-plain.k8s.playground1.aws.ad.zopa.com
 DATASOURCES_PATH=${DATASOURCES_PATH:-/usr/local/grafana/datasources}
 DASHBOARDS_PATH=${DASHBOARDS_PATH:-/usr/local/grafana/dashboards}
 USER=${USER:-admin}
@@ -98,6 +103,9 @@ install_dashboards() {
 
 configure_grafana() {
   wait_for_api
+  # move js script to the specific dir
+  # http://docs.grafana.org/reference/scripting/#scripted-dashboards
+  cp ${DASHBOARDS_PATH}/*.js /usr/share/grafana/public/dashboards/
   install_datasources
   install_dashboards
 }
