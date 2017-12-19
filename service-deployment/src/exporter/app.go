@@ -14,7 +14,6 @@ import (
 
 
 var NVIDIA_SMI_PATH string;
-var testMode string;
 
 type NvidiaSmiLog struct {
     DriverVersion string `xml:"driver_version"`
@@ -87,7 +86,7 @@ func writeFileTest() {
     dstFile.WriteString(s + "\n")
 }
 
-func writeMetricsToFile(testMode string, index int, logDir string) {
+func writeMetricsToFile(index int, logDir string) {
     fileName := logDir + "gpu_exporter.prom"
     dstFile,err := os.Create(fileName)
     if err!=nil{
@@ -96,18 +95,8 @@ func writeMetricsToFile(testMode string, index int, logDir string) {
     }
     defer dstFile.Close()
     var cmd *exec.Cmd            
-    if (testMode == "1") {                
-        dir, err := os.Getwd()
-        log.Print("5")        
-        if err != nil {
-            log.Fatal(err)
-        }
-        var path = dir + "/test.xml"
-        log.Print(path)        
-        cmd = exec.Command("/bin/cat", path)
-    } else {
-        cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
-    }
+    
+    cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
 
     // Execute system command
     stdout, err := cmd.Output()
@@ -147,18 +136,26 @@ func writeMetricsToFile(testMode string, index int, logDir string) {
 }
 
 func main() {
-    var logDir = *flag.String("gpu_log_dir", "/tmp/node_exporter/", "log written dir")   
+    logDir := flag.String("gpu_log_dir", "/tmp/node_exporter/", "log written dir")   
+    mode := flag.String("flag", "gpu", "gpu server")
+    flag.Parse()
     NVIDIA_SMI_PATH = os.Getenv("NV_DRIVER") + "/bin/nvidia-smi"
-    _, err := os.Stat(logDir)
+    _, err := os.Stat(*logDir)
 	  if err == nil || os.IsNotExist(err) {
-        os.MkdirAll(logDir, os.ModePerm)        
+        os.MkdirAll(*logDir, os.ModePerm)        
 	  }
-    var testMode = "0"
+    
+    fmt.Println("test:", *mode)
+    if (*mode == "no") {                
+        log.Print("no gpu")   
+        return   
+    }
     var index = 1
+ 
     for a := 0; a < 1; {
-        log.Print("test log")
+        log.Print("gpu_server flag" + *mode)
         index ++
-        writeMetricsToFile(testMode, index, logDir)
+        writeMetricsToFile(index, *logDir)
         time.Sleep(3*time.Second)      
     }
 }
