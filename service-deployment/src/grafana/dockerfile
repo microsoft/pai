@@ -28,7 +28,8 @@ ENV \
 
 COPY ./run.sh ./grafana_config.sh ./start_server.sh /usr/local/
 COPY ./*-datasource.json /usr/local/grafana/datasources/
-COPY ./dashboards/* /usr/local/grafana/dashboards/
+COPY ./dashboards/*.json /usr/local/grafana/dashboards/
+COPY copied_file/* /usr/local/grafana/dashboards/
 
 RUN \
   apt-get update && \
@@ -46,6 +47,5 @@ RUN \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-VOLUME ["/var/lib/grafana", "/var/log/grafana", "/etc/grafana"]
 
 ENTRYPOINT ["/usr/local/run.sh"]

@@ -22,8 +22,6 @@
 # ${UPGRADEALL}, ${GF_PLUGIN_DIR}, ${GF_PATHS_DATA} & ${GF_PATHS_LOGS}, defined in dockerfile.
 
 
-chown -R grafana:grafana /var/lib/grafana /var/log/grafana
-
 # upgrade all installed plugins
 if [ "$UPGRADEALL" = true ] ; then
     grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins upgrade-all || true

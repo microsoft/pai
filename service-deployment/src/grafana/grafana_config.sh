@@ -22,7 +22,6 @@
 # ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, passed from K8s deployment yaml files or "docker run" parameters, 
 # if not, they are set as default values defined in this file.
 
-chown -R grafana:grafana /var/lib/grafana /var/log/grafana
 
 # Script to configure grafana datasources and dashboards.
 # Intended to be run before grafana entrypoint...
