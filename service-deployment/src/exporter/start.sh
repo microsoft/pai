@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,19 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+wget https://github.com/prometheus/node_exporter/releases/download/v0.15.2/node_exporter-0.15.2.linux-amd64.tar.gz
+tar -zxvf node_exporter-0.15.2.linux-amd64.tar.gz
+mv node_exporter-0.15.2.linux-amd64 node_exporter
+nohup ./node_exporter/node_exporter --web.listen-address=":9100" --collector.textfile.directory="/tmp/node_exporter/"  > /tmp/node_exporter_log &
+ps -aux|grep node_exporter| grep -v grep | awk '{print $2}' 
+echo "node exporter launched"
 
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
-
-RUN apt-get update && \
-    apt-get -y install golang --no-install-recommends && \
-    rm -r /var/lib/apt/lists/*
-
-WORKDIR /go
-
-RUN go build -v -o bin/app ./app.go
-
-ENTRYPOINT ["./bin/app"]
+go build -v -o app app.go
+nohup ./app > /tmp/gpu_exporter &
+ps -aux|grep app| grep -v grep | awk '{print $2}'
+echo "gpu exporter launched"
