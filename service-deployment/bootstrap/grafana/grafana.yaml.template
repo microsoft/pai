@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitor
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        task: monitor
+        k8s-app: grafana
+    spec:
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        grafana: "true"
+      containers:
+      - name: grafana
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
+          protocol: TCP        
+        env:
+        - name : GRAFANA_URL
+          value: {{ clusterinfo['grafanainfo']['grafana_url'] }}
+          # The following env variables are required to make Grafana accessible via
+          # the kubernetes api-server proxy. On production clusters, we recommend
+          # removing these env variables, setup auth for grafana, and expose the grafana
+          # service using a LoadBalancer or a public IP.
+        - name: GF_AUTH_BASIC_ENABLED
+          value: "false"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "true"
+        - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          value: Admin      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    kubernetes.io/cluster-service: 'true'
+    kubernetes.io/name: grafana
+  name: grafana
+  namespace: monitor
+spec:
+  ports:
+  - port: 80
+    targetPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
+  selector:
+    k8s-app: grafana
