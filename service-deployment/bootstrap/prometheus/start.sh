@@ -27,3 +27,5 @@ eval "kubectl create namespace \"${NAMESPACE}\""
 
 eval "${KUBECTL} create -f node-exporter-ds.yaml"
 
+popd > /dev/null
+
