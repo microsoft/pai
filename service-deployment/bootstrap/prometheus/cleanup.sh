@@ -27,5 +27,3 @@ INSTANCES="daemonset/node-exporter"
 for instance in ${INSTANCES}; do
   eval "${KUBECTL} delete --ignore-not-found --now \"${instance}\""
 done
-
-eval "${KUBECTL} get pods"

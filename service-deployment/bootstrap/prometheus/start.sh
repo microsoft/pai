@@ -26,6 +26,4 @@ KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
 eval "kubectl create namespace \"${NAMESPACE}\""
 
 eval "${KUBECTL} create -f node-exporter-ds.yaml"
-eval "${KUBECTL} get pods"
 
-popd > /dev/null
