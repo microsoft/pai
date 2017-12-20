@@ -138,3 +138,8 @@ proxymachinelist:
 ```yaml
 sudo ./bootstrap.py -p yourclusterconfig.yaml
 ```
+
+## Destroy your cluster
+```yaml
+sudo ./bootstrap.py -p yourclusterconfig.yaml -c
+```

@@ -204,6 +204,18 @@ def remoteBootstrap(cluster_info, host_config):
 
 
 
+def remoteCleanUp(cluster_info, host_config):
+
+    srcipt = "cleanup.sh"
+    src_local = "./"
+    dst_remote = "/home/{0}".format(host_config["username"])
+
+    sftp_paramiko(src_local, dst_remote, srcipt, host_config)
+    commandline = "sudo sh cleanup.sh"
+    ssh_shell_paramiko(host_config, commandline)
+
+
+
 def generate_etcd_ip_list(master_list):
 
     etcd_cluster_ips_peer = ""
@@ -300,6 +312,7 @@ def dashboard_startup(cluster_info):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
+    parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
 
     args = parser.parse_args()
 
@@ -320,26 +333,38 @@ def main():
         machine_list = cluster_config[listname]
 
         for hostname in machine_list:
-            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
-            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+            if args.clean:
+                remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+            else:
+                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
+                remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
     listname = cluster_config['remote_deployment']['master']['listname']
     machine_list = cluster_config[ listname ]
 
     for hostname in machine_list:
-
-        bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
-        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+        if args.clean:
+            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+        else:
+            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
+            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
     listname = cluster_config['remote_deployment']['worker']['listname']
     machine_list = cluster_config[listname]
 
     for hostname in machine_list:
-        bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
-        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+        if args.clean:
+            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+        else:
+            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
+            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
+
+    if args.clean:
+        print "Clean Up Finished!"
+        return
 
     #step : Install kubectl on the host.
     kubectl_install(cluster_config[ 'clusterinfo' ])
