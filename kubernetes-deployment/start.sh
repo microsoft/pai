@@ -88,13 +88,3 @@ fi
 
 chmod u+x src/kubelet.sh
 ./src/kubelet.sh
-
-#TODO: make sure the kubelet starts successfully.
-#Now, wait some minutes here to make sure the kubelet and other component starts successfully.
-
-proxyscript="src/kube-proxy.yaml"
-if [ -f $proxyscript ]; then
-    sleep 100
-    docker exec kubelet kubectl -s $1 create -f /rootfs/home/$2/src/kube-proxy.yaml
-fi
-

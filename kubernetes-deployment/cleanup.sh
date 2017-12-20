@@ -53,3 +53,9 @@ if [ -d "~/src" ]; then
     rm -rf ~/src
 
 fi
+
+if [ -f "~/kubernetes.tar" ]; then
+
+    rm -rf ~/kubernetes.tar
+
+fi
