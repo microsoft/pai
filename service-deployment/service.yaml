@@ -74,7 +74,13 @@ imagelist:
       - dockerfile
     prerequisite: None
 
-
+  gpu-exporter:
+    copy:
+      - ../prometheus/exporter
+    templatelist:
+      - None
+    prerequisite: None
+    
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
