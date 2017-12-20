@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,45 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apt-get install -y gawk
-
-docker stop kubelet
-docker rm kubelet
-
-for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
-
-if [ -d "/etc/kubernetes" ]; then
-
-    rm -rf /etc/kubernetes
-
-fi
-
-if [ -d "/var/etcd/data" ]; then
-
-    rm -rf /var/etcd/data
-
-fi
-
-if [ -d "/var/log/pods" ]; then
-
-    rm -rf /var/log/pods
-
-fi
-
-if [ -d "/var/lib/kubelet/pods" ]; then
-
-    rm -rf /var/lib/kubelet/pods
-
-fi
-
-if [ -d "~/src" ]; then
-
-    rm -rf ~/src
-
-fi
-
-if [ -f "~/kubernetes.tar" ]; then
-
-    rm -rf ~/kubernetes.tar
-
-fi
+nohup /usr/local/./app > /tmp/gpu_exporter &
+ps -aux|grep app| grep -v grep | awk '{print $2}'
+echo "gpu exporter launched"
