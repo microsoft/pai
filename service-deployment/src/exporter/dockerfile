@@ -29,10 +29,9 @@ RUN apt-get update && \
 
 WORKDIR /go
 
-RUN go build -v -o copied_file/app copied_file/app.go
-
-COPY copied_file/app /usr/local/
+COPY copied_file/app.go /usr/local/
 COPY start.sh /usr/local/start.sh
+RUN go build -v -o /usr/local/app /usr/local/app.go
 
 CMD [ "/usr/local/./start.sh" ]
 
