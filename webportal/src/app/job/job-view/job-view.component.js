@@ -82,7 +82,7 @@ const convertState = (state, exitType) => {
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/job`,
+    url: `${webportalConfig.restServerUri}/api/v1/job`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -108,7 +108,7 @@ const deleteJob = (jobName) => {
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/job/${jobName}`,
+        url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
         type: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
