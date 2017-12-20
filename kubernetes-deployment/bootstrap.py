@@ -211,7 +211,7 @@ def remoteCleanUp(cluster_info, host_config):
     dst_remote = "/home/{0}".format(host_config["username"])
 
     sftp_paramiko(src_local, dst_remote, srcipt, host_config)
-    commandline = "sudo ./cleanup.sh"
+    commandline = "sudo sh cleanup.sh"
     ssh_shell_paramiko(host_config, commandline)
 
 
