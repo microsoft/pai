@@ -163,3 +163,12 @@ servicelist:
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
+
+  prometheus:
+    prerequisite:
+      - cluster-configuration
+      - drivers
+    templatelist:
+      - node-exporter-ds.yaml
+    startscript: start.sh
+    stopscript: cleanup.sh
