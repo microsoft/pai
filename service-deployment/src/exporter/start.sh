@@ -17,7 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-go build -v -o /usr/local/app /usr/local/app.go
 nohup /usr/local/./app > /tmp/gpu_exporter &
 ps -aux|grep app| grep -v grep | awk '{print $2}'
 echo "gpu exporter launched"
