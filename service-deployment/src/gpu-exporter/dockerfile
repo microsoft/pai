@@ -32,7 +32,7 @@ WORKDIR /go
 COPY copied_file/app.go /usr/local/
 COPY start.sh /usr/local/start.sh
 RUN go build -v -o /usr/local/app /usr/local/app.go
-RUN chmod u+x /usr/local/start_service.sh
+RUN chmod u+x /usr/local/start.sh
 RUN chmod u+x /usr/local/app 
 CMD [ "/usr/local/./start.sh" ]
 
