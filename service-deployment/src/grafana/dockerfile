@@ -40,8 +40,6 @@ RUN \
   for plugin in $(curl -s https://grafana.net/api/plugins?orderBy=name | jq '.items[] | select(.internal=='false') | .slug' | tr -d '"'); do grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins install $plugin; done && \
   ### branding && \
   chmod 777 /usr/local/run.sh /usr/local/grafana_config.sh /usr/local/start_server.sh && \
-  mkdir -p /usr/share/grafana/.aws/ && \
-  touch /usr/share/grafana/.aws/credentials && \
   apt-get remove -y --force-yes git jq && \
   apt-get autoremove -y --force-yes && \
   apt-get clean && \

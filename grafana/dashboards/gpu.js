@@ -31,14 +31,13 @@
 
 'use strict';
 
-// accessible variables in this scope
+// Accessible variables in this scope
+// All url parameters are available via the ARGS object
 var window, document, ARGS, $, jQuery, moment, kbn;
 
 // Setup some variables
 var dashboard;
 
-// All url parameters are available via the ARGS object
-var ARGS;
 
 // Intialize a skeleton with nothing but a rows array and service object
 dashboard = {
