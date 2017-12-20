@@ -16,17 +16,11 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-/* global _ */
 
 /*
  * Complex scripted dashboard
  * This script generates a dashboard object that Grafana can load. It also takes a number of user
  * supplied URL parameters (in the ARGS variable)
- *
- * Return a dashboard object, or a function
- *
- * For async scripts, return a function, this function must take a single callback function as argument,
- * call this callback function with the dashboard object (look at scripted_async.js for an example)
  */
 
 'use strict';
