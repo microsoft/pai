@@ -41,6 +41,7 @@ Each machine in the cluster runs Ubuntu 16.04 LTS and has a statically assigned 
 To deploy services, the system further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) 
 to store the Docker images for the services to be deployed.
 The system also requires a dev machine that runs in the same environment that has full access to the cluster.
+And the system need [NTP](http://www.ntp.org/) service for clock synchronization.
 
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
