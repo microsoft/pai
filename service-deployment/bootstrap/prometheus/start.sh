@@ -1,3 +1,7 @@
+#!/bin/bash
+
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,23 +19,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+pushd $(dirname "$0") > /dev/null
 
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
+NAMESPACE=${NAMESPACE:-monitor}
+KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
+eval "kubectl create namespace \"${NAMESPACE}\""
 
-RUN apt-get update && \
-    apt-get install -y wget && \
-    apt-get -y install golang --no-install-recommends && \
-    rm -r /var/lib/apt/lists/*
+eval "${KUBECTL} create -f node-exporter-ds.yaml"
 
-WORKDIR /go
-
-COPY copied_file/app.go /usr/local/
-COPY start.sh /usr/local/start.sh
-RUN go build -v -o /usr/local/app /usr/local/app.go
-
-CMD [ "/usr/local/./start.sh" ]
+popd > /dev/null
 
