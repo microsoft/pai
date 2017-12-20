@@ -79,10 +79,6 @@ component_list:
   - src: kubelet.sh
     dst: src/
 
-  kube-proxy:
-  - src: kube-proxy.yaml
-    dst: src/
-
   #haproxy:
   #- src: haproxy.yaml
   #  dst: src/etc/kubernetes/manifests
@@ -100,8 +96,6 @@ remote_deployment:
     - name: etcd
     - name: scheduler
     - name: kubelet
-    - name: kube-proxy
-      deleteAfterGenerate: 'True'
 
 
   worker:

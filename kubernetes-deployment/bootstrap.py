@@ -309,6 +309,23 @@ def dashboard_startup(cluster_info):
 
 
 
+def kube_proxy_startup(cluster_config):
+
+    template_data = read_template("template/kube-proxy.yaml.template")
+    generated_file = jinja2.Template(template_data).render(
+        {
+            "clusterconfig": cluster_config['clusterinfo']
+        }
+    )
+    write_generated_file(generated_file, "template/generated/kube-proxy.yaml")
+
+    execute_shell(
+        "kubectl create -f template/generated/kube-proxy.yaml",
+        "Failed to create kube-proxy"
+    )
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
@@ -368,6 +385,9 @@ def main():
 
     #step : Install kubectl on the host.
     kubectl_install(cluster_config[ 'clusterinfo' ])
+
+    #step:  Kube-proxy
+    kube_proxy_startup(cluster_config)
 
     #step : dashboard startup
     dashboard_startup(cluster_config[ 'clusterinfo' ])
