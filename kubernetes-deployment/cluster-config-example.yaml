@@ -100,8 +100,6 @@ remote_deployment:
     - name: etcd
     - name: scheduler
     - name: kubelet
-    - name: kube-proxy
-      deleteAfterGenerate: 'True'
 
 
   worker:
