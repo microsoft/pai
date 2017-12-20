@@ -25,7 +25,8 @@ dotenv.config();
 // get config from environment variables
 let config = {
   restServerUri: process.env.REST_SERVER_URI,
-  clusterStatusUri: process.env.CLUSTER_STATUS_URI
+  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
+  grafanaUri: process.env.GRAFANA_URI
 };
 
 // module exports

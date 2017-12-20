@@ -81,8 +81,10 @@ clusterinfo:
   webportalinfo:
     # uri for rest server
     rest_server_uri: http://10.0.3.9:9186
-    # uri for cluster status dashboard
-    cluster_status_uri: http://10.0.3.9:9090
+    # uri of k8s dashboard
+    k8s_dashboard_uri: http://10.0.3.9:9090
+    # uri of grafana portal
+    grafana_uri: http://10.0.3.9:9090
     # port for webportal
     server_port: 9286
 
