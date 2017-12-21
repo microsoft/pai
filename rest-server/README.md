@@ -32,12 +32,12 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     HTTP POST your username and password to get an access token from:
     ```
-    http://restserver/api/auth
+    http://restserver/api/v1/auth
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
-         -X POST http://restserver/api/auth \
+         -X POST http://restserver/api/v1/auth \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
@@ -75,7 +75,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 ### API Details
 
-1. `PUT` auth
+1. `PUT auth`
 
     Update a user in the system, allowed by administrator only.
 
@@ -112,7 +112,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `POST` auth
+2. `POST auth`
 
     Authenticated and get an access token in the system.
 
@@ -148,7 +148,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-3. `DELETE` auth
+3. `DELETE auth`
 
     Remove a user in the system, allowed by administrator only.
 
