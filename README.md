@@ -15,7 +15,7 @@ The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage s
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
 
-## An Open R&D and Education AI Platform
+## Open AI Platform for R&D and Education 
 
 PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components: 
 
