@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,23 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
 
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
+# Variables illustrate:
+# ${UPGRADEALL}, ${GF_PLUGIN_DIR}, ${GF_PATHS_DATA} & ${GF_PATHS_LOGS}, defined in dockerfile.
 
-RUN apt-get update && \
-    apt-get install -y wget && \
-    apt-get -y install golang --no-install-recommends && \
-    rm -r /var/lib/apt/lists/*
 
-WORKDIR /go
+# upgrade all installed plugins
+if [ "$UPGRADEALL" = true ] ; then
+    grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins upgrade-all || true
+fi
 
-COPY copied_file/app.go /usr/local/
-COPY start.sh /usr/local/start.sh
-RUN go build -v -o /usr/local/app /usr/local/app.go
-
-CMD [ "/usr/local/./start.sh" ]
+exec /usr/sbin/grafana-server   \
+  --homepath=/usr/share/grafana              \
+  --config=/etc/grafana/grafana.ini          \
+  cfg:default.paths.data=${GF_PATHS_DATA}    \
+  cfg:default.paths.logs=${GF_PATHS_LOGS}    \
+  cfg:default.paths.plugins=${GF_PLUGIN_DIR} \
+  "$@"
 

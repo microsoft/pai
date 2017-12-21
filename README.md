@@ -1,11 +1,11 @@
-# Platform for AI (PAI)
+# Open Platform for AI (PAI)
 
 ## Introduction
 
 Platform for AI is a cluster management tool and resource scheduling platform, jointly designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx).
-The platform incorporates mature design that has proven track record in large scale Microsoft production environment, and is tailored primarily for academic and research purpose. 
+The platform incorporates some mature design that has a proven track record in large scale Microsoft production environment, and is tailored primarily for academic and research purpose. 
 
-PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. The interface enables extensibility: new deep learning framework (or other type of workload) can be supported by the interface with a few extra lines of script and/or Python code.
+PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides a set of interfaces to support major deep learning frameworks: CNTK, TensorFlow, etc. The interface provides great extensibility: new deep learning framework (or other type of workload) can be supported by the interface with a few extra lines of script and/or Python code.
 
 PAI supports GPU scheduling, a key requirement of deep learning job. 
 For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
@@ -14,7 +14,24 @@ PAI embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) arch
 The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage static components in the system.
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
- 
+
+## An Open R&D and Education AI Platform
+
+PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components: 
+
+* Scheduling mechanism for deep learning workload
+* Deep neural network application that requires evaluation under realistic platform environment
+* New deep learning framework
+* Compiler technique for AI
+* High performance networking for AI
+* Profiling tool, including network, platform, and AI job profiling
+* AI Benchmark suite
+* New hardware for AI, including FPGA, ASIC, Neural Processor
+* AI Storage support
+* AI platform management 
+
+PAI operates in an open contribution model: contributions from academia and industry are all highly welcome. 
+
 ## System Deployment
 
 ### Prerequisite
@@ -24,6 +41,7 @@ Each machine in the cluster runs Ubuntu 16.04 LTS and has a statically assigned 
 To deploy services, the system further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) 
 to store the Docker images for the services to be deployed.
 The system also requires a dev machine that runs in the same environment that has full access to the cluster.
+And the system need [NTP](http://www.ntp.org/) service for clock synchronization.
 
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
