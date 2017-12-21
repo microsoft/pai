@@ -37,8 +37,8 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /var/databases
-          name: database-path
+        - mountPath: /var/pai
+          name: pai-path
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
@@ -47,7 +47,7 @@ spec:
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
         - name: LOWDB_FILE
-          value: /var/databases/{{ clusterinfo['restserverinfo']['lowdb_file'] }}
+          value: /var/pai/{{ clusterinfo['restserverinfo']['lowdb_path'] }}
         - name: LOWDB_ADMIN
           value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
         - name: LOWDB_PASSWD
@@ -59,6 +59,6 @@ spec:
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
-      - name: database-path
+      - name: pai-path
         hostPath:
-          path: /var/databases
+          path: {{ clusterinfo['paiPath'] }}

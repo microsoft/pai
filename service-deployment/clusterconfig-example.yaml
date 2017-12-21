@@ -23,6 +23,9 @@ clusterinfo:
   # HDFS, zookeeper data path
   dataPath: "/datastorage"
 
+  # PAI data root path
+  paiPath: "/var/pai"
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -70,8 +73,8 @@ clusterinfo:
     server_port: 9186
     # secret for signing authentication tokens, e.g., "Hello PAI!"
     jwt_secret: your_jwt_secret
-    # authentication database file name, e.g., user.db.json
-    lowdb_file: your_database_file_name
+    # authentication database file path relative to PAI data path
+    lowdb_path: "rest-server/user.db.json"
     # database admin username
     lowdb_admin: your_admin_username
     # database admin password
