@@ -101,4 +101,15 @@ fi
 # Hadoop jobhistory
 kubectl create -f hadoop-jobhistory.yaml
 
+python ../../node_label_check.py -k jobhistory -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No jobhistory Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-jobhistory-service
+fi
+
+
 popd > /dev/null
