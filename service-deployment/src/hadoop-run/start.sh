@@ -27,6 +27,7 @@ chmod u+x generate_config.sh
 cp /hadoop-configuration/${START_SERVICE}  start_service.sh
 chmod u+x start_service.sh
 
+# This status check is mainly for ensuring the status of image pulling.
 mkdir -p /jobstatus
 touch /jobstatus/jobok
 
