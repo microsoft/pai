@@ -685,7 +685,7 @@ public class ApplicationMaster extends AbstractService {
 
     transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
       if (statusManager.containsTask(request.getPriority())) {
-        LOGGER.logInfo(
+        LOGGER.logWarning(
             "%s: ContainerRequest cannot be satisfied within timeout %ss, Cancel it and Request again. ContainerRequest: [%s]",
             taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
         removeContainerRequest(taskStatus);

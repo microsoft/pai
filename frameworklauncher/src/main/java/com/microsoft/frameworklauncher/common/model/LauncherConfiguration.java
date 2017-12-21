@@ -66,7 +66,7 @@ public class LauncherConfiguration implements Serializable {
   private Integer amAttemptFailuresValidityIntervalSec = 10;
 
   // ApplicationMaster Internal Setup which should not be exposed to User
-  private Integer amRmHeartbeatIntervalSec = 3;
+  private Integer amRmHeartbeatIntervalSec = 1;
   // The RMResync count in one NM expiry time.
   // RMResync can detect and process under-allocated(RMResyncLost), and over-allocated(RMResyncExceed)
   // Containers actively, instead of waiting the RM call back passively.
