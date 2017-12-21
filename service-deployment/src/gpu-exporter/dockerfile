@@ -29,10 +29,8 @@ RUN apt-get update && \
 
 WORKDIR /go
 
-COPY copied_file/app.go /usr/local/
-COPY start.sh /usr/local/start.sh
+COPY copied_file/exporter/app.go /usr/local/
 RUN go build -v -o /usr/local/app /usr/local/app.go
-RUN chmod u+x /usr/local/start.sh
 RUN chmod u+x /usr/local/app 
-CMD [ "/usr/local/./start.sh" ]
+CMD [ "/usr/local/app" ]
 
