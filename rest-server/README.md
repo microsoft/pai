@@ -41,11 +41,11 @@ REST Server exposes a set of interface that allows you to manage jobs.
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
-3. Submit the job
+3. Submit a job
 
     HTTP PUT the config file as json with access token in header to:
     ```
-    http://restserver/api/job/exampleJob
+    http://restserver/api/v1/jobs/exampleJob
     ```
     For example, you can execute below command line:
     ```sh
@@ -59,11 +59,11 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     Check the list of jobs at:
     ```
-    http://restserver/api/job
+    http://restserver/api/v1/jobs
     ```
     Check your exampleJob status at:
     ```
-    http://restserver/api/job/exampleJob
+    http://restserver/api/v1/jobs/exampleJob
     ```
 
 
@@ -183,6 +183,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     ```
 
 4. `GET jobs`
+
     Get the list of jobs.
 
     *Request*
@@ -253,7 +254,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `PUT` jobs
+6. `PUT jobs/:jobName`
 
     Submit or update a job in the system.
 
