@@ -24,9 +24,9 @@ if [ -d "/mnt/hdfs" ]; then
 
 fi
 
-if [ -d "/mnt/sdb1" ]; then
+if [ -d "/mnt/launcherlogs" ]; then
 
-    rm -rf /mnt/sdb1
+    rm -rf /mnt/launcherlogs
 
 fi
 

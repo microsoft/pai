@@ -52,7 +52,7 @@ spec:
       volumes:
       - name: hadoop-data-storage
         hostPath:
-          path: /mnt/sdb1/hdfs/data
+          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
