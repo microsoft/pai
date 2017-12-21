@@ -25,9 +25,7 @@ chmod u+x node-label.sh
 
 ./node-label.sh
 
-NAMESPACE=${NAMESPACE:-monitortest}
-KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
-eval "kubectl create namespace \"${NAMESPACE}\""
+KUBECTL="kubectl "
 
 eval "${KUBECTL} create -f prometheus-configmap.yaml"
 eval "${KUBECTL} create -f node-exporter-ds.yaml"
