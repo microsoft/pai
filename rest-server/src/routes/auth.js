@@ -19,21 +19,22 @@
 // module dependencies
 const express = require('express');
 const authConfig = require('../config/auth');
-const authCtrl = require('../controllers/auth');
+const authController = require('../controllers/auth');
 const param = require('../middlewares/parameter');
 
 
 const router = express.Router();
 
-router.route('/')
-    /** POST /api/auth - Return token if username and password is correct */
-    .post(param.validate(authConfig.schema), authCtrl.login)
+router.route('/token')
+    /** POST /api/v1/auth/token - Return token if username and password is correct */
+    .post(param.validate(authConfig.schema), authController.getToken);
 
-    /** PUT /api/auth - Update user */
-    .put(authConfig.check, param.validate(authConfig.schema), authCtrl.update)
+router.route('/user')
+    /** POST /api/v1/auth/user - Create / update a user */
+    .post(authConfig.check, param.validate(authConfig.authConfigSchema), authController.updateUser)
 
-    /** DELETE /api/auth - Delete user */
-    .delete(authConfig.check, authCtrl.remove);
+    /** DELETE /api/v1/auth/user - Remove a user */
+    .delete(authConfig.check, authController.removeUser);
 
 // module exports
 module.exports = router;

@@ -32,20 +32,20 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     HTTP POST your username and password to get an access token from:
     ```
-    http://restserver/api/auth
+    http://restserver/api/v1/auth/token
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
-         -X POST http://restserver/api/auth \
+         -X POST http://restserver/api/v1/auth/token \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
-3. Submit the job
+3. Submit a job
 
     HTTP PUT the config file as json with access token in header to:
     ```
-    http://restserver/api/job/exampleJob
+    http://restserver/api/v1/jobs/exampleJob
     ```
     For example, you can execute below command line:
     ```sh
@@ -59,11 +59,11 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     Check the list of jobs at:
     ```
-    http://restserver/api/job
+    http://restserver/api/v1/jobs
     ```
     Check your exampleJob status at:
     ```
-    http://restserver/api/job/exampleJob
+    http://restserver/api/v1/jobs/exampleJob
     ```
 
 
@@ -75,13 +75,49 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 ### API Details
 
-1. `PUT` auth
+1. `POST auth/token`
 
-    Update a user in the system, allowed by administrator only.
+    Authenticated and get an access token in the system.
 
     *Request*
     ```
-    PUT /api/auth
+    POST /api/v1/auth/token
+    ```
+
+    *Parameters*
+    ```
+    {
+      "username": "your username",
+      "password": "your password",
+      "expiration": "expiration time in seconds"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "token": "your access token",
+      "user": "username"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 401
+
+    {
+      "error": "AuthenticationFailed",
+      "message": "authentication failed"
+    }
+    ```
+
+2. `POST auth/user` (administrator only)
+
+    Update a user in the system.
+
+    *Request*
+    ```
+    PUT /api/v1/auth/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -112,49 +148,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `POST` auth
+3. `DELETE user` (administrator only)
 
-    Authenticated and get an access token in the system.
-
-    *Request*
-    ```
-    POST /api/auth
-    ```
-
-    *Parameters*
-    ```
-    {
-      "username": "your username",
-      "password": "your password",
-      "expiration": "expiration time in seconds"
-    }
-    ```
-
-    *Response if succeeded*
-    ```
-    {
-      "token": "your access token",
-      "user": "username"
-    }
-    ```
-
-    *Response if an error occured*
-    ```
-    Status: 401
-
-    {
-      "error": "AuthenticationFailed",
-      "message": "authentication failed"
-    }
-    ```
-
-3. `DELETE` auth
-
-    Remove a user in the system, allowed by administrator only.
+    Remove a user in the system.
 
     *Request*
     ```
-    DELETE /api/auth
+    DELETE /api/v1/auth/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -182,44 +182,39 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-4. `PUT` job
+4. `GET jobs`
 
-    Submit or update a job in the system.
+    Get the list of jobs.
 
     *Request*
     ```
-    PUT /api/job/:jobName
-    Authorization: Bearer <ACCESS_TOKEN>
+    GET /api/v1/jobs
     ```
-
-    *Parameters*
-
-    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
 
     *Response if succeeded*
     ```
     {
-      "message": "update job $jobName successfully"
+      [ ... ]
     }
     ```
 
-    *Response if an error occured*
+    *Response if a server error occured*
     ```
     Status: 500
 
     {
-      "error": "JobUpdateError",
-      "message": "job updated error"
+      "error": "GetJobListError",
+      "message": "get job list error"
     }
     ```
 
-5. `GET` job
+5. `GET jobs/:jobName`
 
     Get job status in the system.
 
     *Request*
     ```
-    GET /api/job/:jobName
+    GET /api/v1/jobs/:jobName
     ```
 
     *Response if succeeded*
@@ -239,7 +234,17 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-    *Response if an error occured*
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
     ```
     Status: 500
 
@@ -249,13 +254,56 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `DELETE` job
+6. `PUT jobs/:jobName`
+
+    Submit or update a job in the system.
+
+    *Request*
+    ```
+    PUT /api/v1/jobs/:jobName
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+
+    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "update job $jobName successfully"
+    }
+    ```
+
+    *Response if there is a duplicated job submission*
+    ```
+    Status: 400
+    
+    {
+      "error": "JobUpdateError",
+      "message": "job update error"
+    }
+    ```
+    
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobUpdateError",
+      "message": "job update error"
+    }
+    ```
+
+7. `DELETE jobs/:jobName`
 
     Remove job from the system.
 
     *Request*
     ```
-    DELETE /api/job/:jobName
+    DELETE /api/v1/jobs/:jobName
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -266,7 +314,17 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-    *Response if an error occured*
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
     ```
     Status: 500
 

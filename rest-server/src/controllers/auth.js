@@ -24,16 +24,16 @@ const logger = require('../config/logger');
 
 
 /**
- * Login.
+ * Get the token.
  */
-const login = (req, res) => {
+const getToken = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
   authModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       logger.warn('user %s authentication failed', username);
-      return res.status(401).json({
+      return res.status(500).json({
         error: 'AuthenticationFailed',
         message: 'authentication failed'
       });
@@ -44,12 +44,12 @@ const login = (req, res) => {
       }, authConfig.secret, { expiresIn: expiration }, (signError, token) => {
         if (signError) {
           logger.warn('sign token error\n%s', signError.stack);
-          return res.status(500).json({
+          return res.status(401).json({
             error: 'SignTokenFailed',
             message: 'sign token failed'
           });
         }
-        return res.json({
+        return res.status(200).json({
           token,
           user: username
         });
@@ -59,9 +59,9 @@ const login = (req, res) => {
 };
 
 /**
- * Update user.
+ * Create / update a user.
  */
-const update = (req, res) => {
+const updateUser = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const admin = req.body.admin;
@@ -75,7 +75,7 @@ const update = (req, res) => {
           message: 'update failed'
         });
       } else {
-        return res.json({
+        return res.status(201).json({
           message: 'update successfully'
         });
       }
@@ -89,9 +89,9 @@ const update = (req, res) => {
 };
 
 /**
- * Remove user.
+ * Remove a user.
  */
-const remove = (req, res) => {
+const removeUser = (req, res) => {
   const username = req.body.username;
   if (req.user.admin) {
     authModel.remove(username, (err, state) => {
@@ -102,7 +102,7 @@ const remove = (req, res) => {
           message: 'remove failed'
         });
       } else {
-        return res.json({
+        return res.status(204).json({
           message: 'remove successfully'
         });
       }
@@ -116,4 +116,4 @@ const remove = (req, res) => {
 };
 
 // module exports
-module.exports = { login, update, remove };
+module.exports = { getToken, updateUser, removeUser };
