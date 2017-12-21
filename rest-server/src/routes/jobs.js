@@ -19,29 +19,29 @@
 // module dependencies
 const express = require('express');
 const authConfig = require('../config/auth');
-const jobConfig = require('../config/job');
-const jobCtrl = require('../controllers/job');
+const jobsConfig = require('../config/jobs');
+const jobsController = require('../controllers/jobs');
 const param = require('../middlewares/parameter');
 
 
 const router = express.Router();
 
 router.route('/')
-    /** GET /api/job - Get list of jobs */
-    .all(jobCtrl.list);
+    /** GET /api/:version/jobs - Get list of jobs */
+    .get(jobsController.list);
 
 router.route('/:jobName')
-    /** GET /api/job/:jobName - Get job status */
-    .get(jobCtrl.get)
+    /** GET /api/:version/jobs/:jobName - Get job status */
+    .get(jobsController.get)
 
-    /** PUT /api/job/:jobName - Update job */
-    .put(authConfig.check, param.validate(jobConfig.schema), jobCtrl.update)
+    /** PUT /api/:version/jobs/:jobName - Update job */
+    .put(authConfig.check, param.validate(jobsConfig.jobConfigSchema), jobsController.update)
 
-    /** DELETE /api/job/:jobName - Remove job */
-    .delete(authConfig.check, jobCtrl.remove);
+    /** DELETE /api/:version/jobs/:jobName - Remove job */
+    .delete(authConfig.check, jobsController.remove);
 
 /** Load job when API with jobName route parameter is hit */
-router.param('jobName', jobCtrl.load);
+router.param('jobName', jobsController.load);
 
 // module exports
 module.exports = router;

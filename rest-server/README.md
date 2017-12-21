@@ -182,44 +182,38 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-4. `PUT` job
-
-    Submit or update a job in the system.
+4. `GET jobs`
+    Get the list of jobs.
 
     *Request*
     ```
-    PUT /api/job/:jobName
-    Authorization: Bearer <ACCESS_TOKEN>
+    GET /api/:version/jobs
     ```
-
-    *Parameters*
-
-    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
 
     *Response if succeeded*
     ```
     {
-      "message": "update job $jobName successfully"
+      [ ... ]
     }
     ```
 
-    *Response if an error occured*
+    *Response if a server error occured*
     ```
     Status: 500
 
     {
-      "error": "JobUpdateError",
-      "message": "job updated error"
+      "error": "GetJobListError",
+      "message": "get job list error"
     }
     ```
 
-5. `GET` job
+5. `GET jobs/:jobName`
 
     Get job status in the system.
 
     *Request*
     ```
-    GET /api/job/:jobName
+    GET /api/jobs/:jobName
     ```
 
     *Response if succeeded*
@@ -239,7 +233,17 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-    *Response if an error occured*
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
     ```
     Status: 500
 
@@ -249,13 +253,56 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `DELETE` job
+6. `PUT` jobs
+
+    Submit or update a job in the system.
+
+    *Request*
+    ```
+    PUT /api/:version/jobs/:jobName
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+
+    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "update job $jobName successfully"
+    }
+    ```
+
+    *Response if there is a duplicated job submission*
+    ```
+    Status: 400
+    
+    {
+      "error": "JobUpdateError",
+      "message": "job update error"
+    }
+    ```
+    
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobUpdateError",
+      "message": "job update error"
+    }
+    ```
+
+7. `DELETE jobs/:jobName`
 
     Remove job from the system.
 
     *Request*
     ```
-    DELETE /api/job/:jobName
+    DELETE /api/:version/jobs/:jobName
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -266,7 +313,17 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-    *Response if an error occured*
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
     ```
     Status: 500
 

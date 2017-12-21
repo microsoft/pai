@@ -67,4 +67,4 @@ const jobConfigSchema = Joi.object().keys({
 }).required();
 
 // module exports
-module.exports = { schema: jobConfigSchema };
+module.exports = { jobConfigSchema: jobConfigSchema };

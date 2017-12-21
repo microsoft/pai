@@ -19,8 +19,8 @@
 // module dependencies
 const express = require('express');
 const controller = require('../controllers/index');
-const authRoute = require('./auth');
-const jobRoute = require('./job');
+const authRouter = require('./auth');
+const jobsRouter = require('./jobs');
 
 
 const router = express.Router();
@@ -28,8 +28,8 @@ const router = express.Router();
 router.route('/')
     .all(controller.index);
 
-router.use('/auth', authRoute);
-router.use('/job', jobRoute);
+router.use('/v1/auth', authRouter);
+router.use('/v1/jobs', jobsRouter);
 
 // module exports
 module.exports = router;

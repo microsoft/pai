@@ -92,6 +92,7 @@ if (error) {
 }
 launcherConfig = value;
 
+/*
 childProcess.exec(
     `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/output && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/output`,
     (err, stdout, stderr) => {
@@ -99,6 +100,7 @@ childProcess.exec(
         throw err;
       }
     });
+*/
 
 fse.ensureDir(launcherConfig.jobRootDir, (err) => {
   if (err) {
