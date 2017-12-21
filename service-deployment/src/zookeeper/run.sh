@@ -19,6 +19,7 @@
 
 HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
+cp /myid /var/lib/zoodata/myid
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
 
 mkdir -p /jobstatus
