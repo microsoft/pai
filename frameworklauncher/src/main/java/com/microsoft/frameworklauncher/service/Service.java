@@ -452,12 +452,13 @@ public class Service extends AbstractService {
         "[%s][%s]: completeApplication: ExitCode: %s, Diagnostics: %s",
         frameworkName, applicationId, exitCode, diagnostics);
 
-    statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_COMPLETED, null, exitCode, diagnostics);
+    statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_COMPLETED,
+        new FrameworkEvent().setApplicationExitCode(exitCode).setApplicationExitDiagnostics(diagnostics));
     attemptToRetry(frameworkStatus);
   }
 
   // retrieveApplicationDiagnostics to prepare completeApplication
-  private void retrieveApplicationDiagnostics(String applicationId, int exitCode, String diagnostics, boolean needToKill) throws Exception {
+  private void retrieveApplicationDiagnostics(String applicationId, Integer exitCode, String diagnostics, boolean needToKill) throws Exception {
     if (needToKill) {
       HadoopUtils.killApplication(applicationId);
     }
@@ -476,12 +477,8 @@ public class Service extends AbstractService {
 
     // Schedule to retrieveDiagnostics
     LOGGER.logDebug("[%s]%s", frameworkName, logSuffix);
-    statusManager.transitionFrameworkState(
-        frameworkName,
-        FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS,
-        null,
-        exitCode,
-        diagnostics);
+    statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS,
+        new FrameworkEvent().setApplicationExitCode(exitCode).setApplicationExitDiagnostics(diagnostics));
     diagnosticsRetrieveHandler.retrieveDiagnosticsAsync(applicationId, diagnostics);
   }
 
@@ -515,7 +512,7 @@ public class Service extends AbstractService {
 
     // RetrieveExitCode
     LOGGER.logDebug("[%s]%s", frameworkName, logSuffix);
-    if (exitCode == ExitStatusKey.NOT_AVAILABLE.toInt()) {
+    if (exitCode == null) {
       ExitStatusKey exitStatusKey = DiagnosticsUtils.extractExitStatusKey(diagnostics);
       exitCode = DiagnosticsUtils.lookupExitCode(exitStatusKey);
     }
@@ -547,7 +544,7 @@ public class Service extends AbstractService {
     logPrefix += "SubmitApplication: ";
     try {
       LOGGER.logInfo(logPrefix + "ApplicationName: %s", applicationContext.getApplicationName());
-      LOGGER.logInfo(logPrefix + "ResourceRequest: %s", applicationContext.getAMContainerResourceRequest());
+      LOGGER.logInfo(logPrefix + "ResourceRequest: %s", HadoopExtensions.toString(applicationContext.getAMContainerResourceRequest()));
       LOGGER.logInfo(logPrefix + "Queue: %s", applicationContext.getQueue());
 
       HadoopUtils.submitApplication(applicationContext, user);
@@ -589,7 +586,8 @@ public class Service extends AbstractService {
   private void createApplication(FrameworkStatus frameworkStatus) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     ApplicationSubmissionContext applicationContext = yarnClient.createApplication().getApplicationSubmissionContext();
-    statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_CREATED, applicationContext);
+    statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_CREATED,
+        new FrameworkEvent().setApplicationContext(applicationContext));
 
     // Concurrently setupApplicationContext
     FrameworkStatus frameworkStatusSnapshot = YamlUtils.deepCopy(frameworkStatus, FrameworkStatus.class);
@@ -643,7 +641,8 @@ public class Service extends AbstractService {
         logPrefix + "NewRetryPolicyState:\n%s",
         WebCommon.toJson(newRetryPolicyState));
 
-    statusManager.transitionFrameworkState(frameworkName, FrameworkState.FRAMEWORK_WAITING, null, 0, null, newRetryPolicyState);
+    statusManager.transitionFrameworkState(frameworkName, FrameworkState.FRAMEWORK_WAITING,
+        new FrameworkEvent().setNewRetryPolicyState(newRetryPolicyState));
     createApplication(frameworkStatus);
   }
 
@@ -804,7 +803,7 @@ public class Service extends AbstractService {
         } else if (applicationFinalStatus == FinalApplicationStatus.FAILED) {
           retrieveApplicationDiagnostics(
               applicationId,
-              ExitStatusKey.NOT_AVAILABLE.toInt(),
+              null,
               diagnostics,
               false);
         }

@@ -25,6 +25,7 @@ frameworkDescriptor:
     killAllOnAnyCompleted: false
     killAllOnAnyServiceCompleted: false
     queue: testString
+    taskNodeGpuType: testString
     taskNodeLabel: testString
     taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,
       gracePeriodSeconds: 0, healthCheckFailureType: TRANSIENT_ERROR, healthCheckType: COMMAND,
@@ -32,7 +33,7 @@ frameworkDescriptor:
   retryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
   taskRoles:
     testString:
-      priority: 0
+      platformSpecificParameters: {taskNodeGpuType: testString, taskNodeLabel: testString}
       scaleUnitNumber: 0
       scaleUnitTimeoutSec: 0
       taskNumber: 0
@@ -50,6 +51,7 @@ frameworkDescriptor:
           - {begin: 0, end: 0}
         sourceLocations: [testString]
         version: 0
+  user: {name: testString}
   version: 0
 frameworkName: testString
 launchClientHostName: testString

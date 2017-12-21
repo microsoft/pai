@@ -23,6 +23,8 @@ import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.utils.*;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.Priority;
+import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.*;
@@ -48,12 +50,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    * REGION ExtensionStatus
    * ExtensionStatus should be always CONSISTENT with BaseStatus
    */
-  // Whether Mem Status is changed since previous zkStore update
-  // TaskRoleName -> TaskRoleStatusChanged
-  private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
-  // TaskRoleName -> TaskStatusesChanged
-  private Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
-
   // Used to invert index TaskStatus by ContainerId/TaskState instead of TaskStatusLocator, i.e. TaskRoleName + TaskIndex
   // TaskState -> TaskStatusLocators
   private Map<TaskState, HashSet<TaskStatusLocator>> taskStateLocators = new HashMap<>();
@@ -63,6 +59,26 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   // TODO: Using MachineName instead of HostName to avoid unstable HostName Resolution
   private HashSet<String> liveAssociatedHostNames = new HashSet<>();
 
+  /**
+   * REGION StateVariable
+   */
+  // Whether Mem Status is changed since previous zkStore update
+  // TaskRoleName -> TaskRoleStatusChanged
+  private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
+  // TaskRoleName -> TaskStatusesChanged
+  private Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
+
+  // No need to persistent ContainerRequest since it is only valid within one application attempt.
+  // Used to generate an unique Priority for each ContainerRequest in current application attempt.
+  // This helps to match ContainerRequest and allocated Container.
+  // Besides, it can also avoid the issue YARN-314.
+  private Priority nextContainerRequestPriority = Priority.newInstance(0);
+  // Used to track current ContainerRequest for Tasks in CONTAINER_REQUESTED state
+  // TaskStatusLocator -> ContainerRequest
+  private Map<TaskStatusLocator, ContainerRequest> taskContainerRequests = new HashMap<>();
+  // Used to invert index TaskStatusLocator by ContainerRequest.Priority
+  // Priority -> TaskStatusLocator
+  private Map<Priority, TaskStatusLocator> priorityLocators = new HashMap<>();
 
   /**
    * REGION AbstractService
@@ -220,6 +236,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     assert isContainerIdLiveAssociated(containerId);
   }
 
+  private void assertPriority(Priority priority) {
+    assert containsTask(priority);
+  }
+
   private synchronized void pushStatus() throws Exception {
     // TODO: Store AttemptId in AMStatus, and double check it before pushStatus
 
@@ -293,7 +313,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerCompletedTimestamp(null);
     taskStatus.setContainerExitCode(null);
     taskStatus.setContainerExitDiagnostics(null);
-    taskStatus.setContainerExitType(ExitType.NOT_AVAILABLE);
+    taskStatus.setContainerExitType(null);
     taskStatus.setContainerGpus(null);
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
@@ -337,6 +357,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       // Update ExtensionStatus
       removeExtensionTaskStatus(locator);
 
+      // Update StateVariable
+      removeContainerRequest(locator);
+
       // To ensure other Task's TaskIndex unchanged, we have to remove the Task at tail
       taskStatusArray.remove(taskIndex);
     }
@@ -351,6 +374,13 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStateLocators.get(taskState).remove(locator);
     if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
       updateExtensionTaskStatusWithContainerLiveness(locator, false);
+    }
+  }
+
+  private void removeContainerRequest(TaskStatusLocator locator) {
+    if (taskContainerRequests.containsKey(locator)) {
+      priorityLocators.remove(taskContainerRequests.get(locator).getPriority());
+      taskContainerRequests.remove(locator);
     }
   }
 
@@ -396,6 +426,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
       updateExtensionTaskStatusWithContainerLiveness(locator, true);
     }
+  }
+
+  private void addContainerRequest(TaskStatusLocator locator, ContainerRequest request) {
+    nextContainerRequestPriority = Priority.newInstance(nextContainerRequestPriority.getPriority() + 1);
+    taskContainerRequests.put(locator, request);
+    priorityLocators.put(request.getPriority(), locator);
   }
 
   private void setContainerConnectionLostCount(String containerId, int count) {
@@ -481,6 +517,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   }
 
   // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized TaskStatus getTaskStatus(Priority priority) {
+    assertPriority(priority);
+    return getTaskStatus(priorityLocators.get(priority));
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatusWithLiveAssociatedContainerId(String containerId) {
     assertLiveAssociatedContainerId(containerId);
     return getTaskStatus(liveAssociatedContainerIdLocators.get(containerId));
@@ -517,6 +559,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return (taskStatuseses.containsKey(locator.getTaskRoleName()) &&
         taskStatuseses.get(locator.getTaskRoleName()).getTaskStatusArray().size() > locator.getTaskIndex() &&
         locator.getTaskIndex() >= 0);
+  }
+
+  public synchronized Boolean containsTask(Priority priority) {
+    return priorityLocators.containsKey(priority);
   }
 
   public synchronized int getTaskCount(String taskRoleName) {
@@ -557,40 +603,30 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
   }
 
+  public synchronized ContainerRequest getContainerRequest(TaskStatusLocator locator) {
+    assertTaskStatusLocator(locator);
+    return taskContainerRequests.get(locator);
+  }
+
+  public synchronized Priority getNextContainerRequestPriority() {
+    return nextContainerRequestPriority;
+  }
+
   /**
    * REGION ModifyInterface
    * Note to avoid update partially modified Status on ZK
    */
   // transitionTaskState is the only interface to modify TaskState for both internal and external
-  public void transitionTaskState(
+  public synchronized void transitionTaskState(
       TaskStatusLocator locator,
       TaskState dstState) throws Exception {
-    transitionTaskState(locator, dstState, null, ExitStatusKey.NOT_AVAILABLE.toInt(), "", null);
-  }
-
-  public void transitionTaskState(
-      TaskStatusLocator locator,
-      TaskState dstState,
-      Container container) throws Exception {
-    transitionTaskState(locator, dstState, container, ExitStatusKey.NOT_AVAILABLE.toInt(), "", null);
-  }
-
-  public void transitionTaskState(
-      TaskStatusLocator locator,
-      TaskState dstState,
-      Container container,
-      int containerExitCode,
-      String containerExitDiagnostics) throws Exception {
-    transitionTaskState(locator, dstState, container, containerExitCode, containerExitDiagnostics, null);
+    transitionTaskState(locator, dstState, new TaskEvent());
   }
 
   public synchronized void transitionTaskState(
       TaskStatusLocator locator,
       TaskState dstState,
-      Container container,
-      int containerExitCode,
-      String containerExitDiagnostics,
-      RetryPolicyState newRetryPolicyState) throws Exception {
+      TaskEvent event) throws Exception {
 
     TaskStatus taskStatus = getTaskStatus(locator);
     TaskState srcState = taskStatus.getTaskState();
@@ -602,13 +638,22 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
     assert (!TaskStateDefinition.FINAL_STATES.contains(srcState));
 
+    if (srcState == TaskState.CONTAINER_REQUESTED) {
+      removeContainerRequest(locator);
+    }
+
+    if (dstState == TaskState.CONTAINER_REQUESTED) {
+      assert (event.getContainerRequest() != null);
+      addContainerRequest(locator, event.getContainerRequest());
+    }
+
     if (!TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(srcState) &&
         TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(dstState)) {
-      assert (container != null);
+      assert (event.getContainer() != null);
 
-      String containerId = container.getId().toString();
+      String containerId = event.getContainer().getId().toString();
       try {
-        associateTaskWithContainer(locator, container);
+        associateTaskWithContainer(locator, event.getContainer());
         LOGGER.logInfo("Associated Task %s with Container %s", locator, containerId);
       } catch (Exception e) {
         disassociateTaskWithContainer(locator);
@@ -638,19 +683,19 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
 
     if (dstState == TaskState.CONTAINER_COMPLETED) {
-      assert (containerExitCode != ExitStatusKey.NOT_AVAILABLE.toInt());
+      assert (event.getContainerExitCode() != null);
 
-      taskStatus.setContainerExitCode(containerExitCode);
-      taskStatus.setContainerExitDiagnostics(containerExitDiagnostics);
+      taskStatus.setContainerExitCode(event.getContainerExitCode());
+      taskStatus.setContainerExitDiagnostics(event.getContainerExitDiagnostics());
       taskStatus.setContainerExitType(DiagnosticsUtils.lookupExitType(
-          containerExitCode, containerExitDiagnostics));
+          event.getContainerExitCode(), event.getContainerExitDiagnostics()));
     }
 
     // Task will be Retried
     if (srcState == TaskState.CONTAINER_COMPLETED && dstState == TaskState.TASK_WAITING) {
       // Ensure transitionTaskState and RetryPolicyState is Transactional
-      assert (newRetryPolicyState != null);
-      taskStatus.setTaskRetryPolicyState(newRetryPolicyState);
+      assert (event.getNewRetryPolicyState() != null);
+      taskStatus.setTaskRetryPolicyState(event.getNewRetryPolicyState());
     }
 
     // Record Timestamps

@@ -20,8 +20,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,12 +28,8 @@ import java.lang.reflect.Method;
 import java.util.Set;
 
 public class GpuAllocationManagerTest {
-
-  private static final Log LOG =
-      LogFactory.getLog(GpuAllocationManagerTest.class);
-
   @Test
-  public void testResourceConvertor() throws Exception {
+  public void testResourceConverter() throws Exception {
     ResourceDescriptor rd = ResourceDescriptor.newInstance(2, 2, 2, 3L);
     Resource res = rd.toResource();
 
@@ -51,7 +45,7 @@ public class GpuAllocationManagerTest {
 
       Assert.assertEquals(3, (long) getGpuAtrribute.invoke(rd2));
       Assert.assertEquals(2, (int) getGpuNumber.invoke(rd2));
-    } catch (Exception ignored) {
+    } catch (NoSuchMethodException | IllegalAccessException ignored) {
     }
   }
 
