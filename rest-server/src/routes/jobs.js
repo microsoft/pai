@@ -27,17 +27,17 @@ const param = require('../middlewares/parameter');
 const router = express.Router();
 
 router.route('/')
-    /** GET /api/:version/jobs - Get list of jobs */
+    /** GET /api/v1/jobs - Get list of jobs */
     .get(jobsController.list);
 
 router.route('/:jobName')
-    /** GET /api/:version/jobs/:jobName - Get job status */
+    /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobsController.get)
 
-    /** PUT /api/:version/jobs/:jobName - Update job */
+    /** PUT /api/v1/jobs/:jobName - Update job */
     .put(authConfig.check, param.validate(jobsConfig.jobConfigSchema), jobsController.update)
 
-    /** DELETE /api/:version/jobs/:jobName - Remove job */
+    /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(authConfig.check, jobsController.remove);
 
 /** Load job when API with jobName route parameter is hit */

@@ -28,8 +28,8 @@ const router = express.Router();
 router.route('/')
     .all(controller.index);
 
-router.use('/v1/auth', authRouter);
-router.use('/v1/jobs', jobsRouter);
+router.use('/auth', authRouter);
+router.use('/jobs', jobsRouter);
 
 // module exports
 module.exports = router;

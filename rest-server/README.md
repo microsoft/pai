@@ -32,12 +32,12 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     HTTP POST your username and password to get an access token from:
     ```
-    http://restserver/api/v1/auth
+    http://restserver/api/v1/auth/token
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
-         -X POST http://restserver/api/v1/auth \
+         -X POST http://restserver/api/v1/auth/token \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
@@ -75,13 +75,49 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 ### API Details
 
-1. `PUT auth`
+1. `POST auth/token`
 
-    Update a user in the system, allowed by administrator only.
+    Authenticated and get an access token in the system.
 
     *Request*
     ```
-    PUT /api/auth
+    POST /api/v1/auth/token
+    ```
+
+    *Parameters*
+    ```
+    {
+      "username": "your username",
+      "password": "your password",
+      "expiration": "expiration time in seconds"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "token": "your access token",
+      "user": "username"
+    }
+    ```
+
+    *Response if an error occured*
+    ```
+    Status: 401
+
+    {
+      "error": "AuthenticationFailed",
+      "message": "authentication failed"
+    }
+    ```
+
+2. `POST auth/user` (administrator only)
+
+    Update a user in the system.
+
+    *Request*
+    ```
+    PUT /api/v1/auth/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -112,49 +148,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `POST auth`
+3. `DELETE user` (administrator only)
 
-    Authenticated and get an access token in the system.
-
-    *Request*
-    ```
-    POST /api/auth
-    ```
-
-    *Parameters*
-    ```
-    {
-      "username": "your username",
-      "password": "your password",
-      "expiration": "expiration time in seconds"
-    }
-    ```
-
-    *Response if succeeded*
-    ```
-    {
-      "token": "your access token",
-      "user": "username"
-    }
-    ```
-
-    *Response if an error occured*
-    ```
-    Status: 401
-
-    {
-      "error": "AuthenticationFailed",
-      "message": "authentication failed"
-    }
-    ```
-
-3. `DELETE auth`
-
-    Remove a user in the system, allowed by administrator only.
+    Remove a user in the system.
 
     *Request*
     ```
-    DELETE /api/auth
+    DELETE /api/v1/auth/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -188,7 +188,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Request*
     ```
-    GET /api/:version/jobs
+    GET /api/v1/jobs
     ```
 
     *Response if succeeded*
@@ -214,7 +214,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Request*
     ```
-    GET /api/jobs/:jobName
+    GET /api/v1/jobs/:jobName
     ```
 
     *Response if succeeded*
@@ -260,7 +260,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Request*
     ```
-    PUT /api/:version/jobs/:jobName
+    PUT /api/v1/jobs/:jobName
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -303,7 +303,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Request*
     ```
-    DELETE /api/:version/jobs/:jobName
+    DELETE /api/v1/jobs/:jobName
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
