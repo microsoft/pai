@@ -22,7 +22,9 @@
 NAMESPACE=${NAMESPACE:-monitor}
 KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
 
-INSTANCES="daemonset/node-exporter"
+INSTANCES="daemonset/node-exporter
+deployment/prometheus-deployment
+configmap/prometheus-configmap"
 
 for instance in ${INSTANCES}; do
   eval "${KUBECTL} delete --ignore-not-found --now \"${instance}\""

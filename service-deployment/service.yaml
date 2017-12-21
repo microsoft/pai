@@ -169,6 +169,9 @@ servicelist:
       - cluster-configuration
       - drivers
     templatelist:
+      - node-label.sh
       - node-exporter-ds.yaml
+      - prometheus-configmap.yaml
+      - prometheus-deployment.yaml
     startscript: start.sh
     stopscript: cleanup.sh
