@@ -21,5 +21,8 @@ HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
 
+mkdir -p /jobstatus
+touch /jobstatus/jobok
+
 zkServer.sh start-foreground
 

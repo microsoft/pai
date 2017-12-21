@@ -52,6 +52,13 @@ spec:
           name: host-confg-volume
         - mountPath: /root/.docker
           name: docker-cred-volume
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /jobstatus/jobok
+          initialDelaySeconds: 5
+          periodSeconds: 3
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
