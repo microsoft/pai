@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.CommonUtils;
 import com.microsoft.frameworklauncher.utils.GlobalConstants;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -69,8 +70,8 @@ public class MockConfiguration extends Configuration {
   }
 
   @Override
-  protected Resource getMaxResource() {
-    return Resource.newInstance(2048, 1);
+  protected ResourceDescriptor getMaxResource() {
+    return ResourceDescriptor.newInstance(2048, 1, 0, 0L);
   }
 
   @Override

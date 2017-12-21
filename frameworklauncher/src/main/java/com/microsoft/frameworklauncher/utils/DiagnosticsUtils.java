@@ -50,9 +50,6 @@ public class DiagnosticsUtils {
     /// Common ExitStatus
     /// </summary>
     ///
-    DEF.put(ExitStatusKey.NOT_AVAILABLE, new ExitStatusValue(
-        ExitStatusKey.NOT_AVAILABLE.toInt(),
-        "ExitStatus NotAvailable", ExitType.NON_TRANSIENT));
     DEF.put(ExitStatusKey.SUCCEEDED, new ExitStatusValue(
         ExitStatusKey.SUCCEEDED.toInt(),
         "Succeeded", ExitType.SUCCEEDED));
@@ -238,7 +235,7 @@ public class DiagnosticsUtils {
   }
 
   public static ExitType lookupExitType(int exitCode, String diagnostics) {
-    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, ExitType.NOT_AVAILABLE);
+    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
     return lookupExitType(lookupExitStatusKey(partialValue));
   }
 
@@ -362,7 +359,7 @@ public class DiagnosticsUtils {
       return parseErrorKey;
     }
 
-    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, ExitType.NOT_AVAILABLE);
+    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
     ExitStatusKey key = lookupExitStatusKey(partialValue);
 
     LOGGER.logDebug(

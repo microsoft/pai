@@ -84,17 +84,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // -1: not available, 0: does not exist, 1: exists
   private volatile int existsLocalVersionFrameworkRequest = -1;
 
-  // This is used to:
-  // 1. Workaround for bug YARN-314:
-  //    If there are multiple TaskRoles in one Framework and these TaskRoles has different Resource specified,
-  //    we need to make sure the Priority for each TaskRoles is also different, otherwise some TaskRoles may not get resources to run.
-  // 2. Distinguish containers allocated for different TaskRoles with the same Resource specified.
-  // Note:
-  // 1. With it, User cannot control the Priority anymore.
-  // 2. No need to persistent this info, since this bug and request allocation matching only happen within one application attempt.
-  // TaskRoleName -> RevisedPriority
-  private final Map<String, Integer> taskRevisedPriority = new HashMap<>();
-
 
   /**
    * REGION AbstractService
@@ -195,7 +184,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     FrameworkDescriptor newFrameworkDescriptor = aggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
     checkFrameworkVersion(newFrameworkDescriptor);
     flattenFrameworkDescriptor(newFrameworkDescriptor);
-    reviseFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
@@ -237,17 +225,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       if (taskRolePlatParams.getTaskNodeGpuType() == null) {
         taskRolePlatParams.setTaskNodeGpuType(platParams.getTaskNodeGpuType());
       }
-    }
-  }
-
-  private void reviseFrameworkDescriptor(FrameworkDescriptor newFrameworkDescriptor) {
-    Map<String, TaskRoleDescriptor> frameworkTaskRoles = newFrameworkDescriptor.getTaskRoles();
-    for (Map.Entry<String, TaskRoleDescriptor> taskRole : frameworkTaskRoles.entrySet()) {
-      String taskRoleName = taskRole.getKey();
-      if (!taskRevisedPriority.containsKey(taskRoleName)) {
-        taskRevisedPriority.put(taskRoleName, taskRevisedPriority.size());
-      }
-      taskRole.getValue().setPriority(taskRevisedPriority.get(taskRoleName));
     }
   }
 
@@ -330,7 +307,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     // Notify AM to take actions for Request
     if (oldPlatParams == null) {
       // For the first time, send all Request to AM
-      am.onDefaultTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
       am.onServiceVersionsUpdated(serviceVersions);
       am.onTaskNumbersUpdated(taskNumbers);
       {
@@ -342,9 +318,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
     } else {
       // For the other times, only send changed Request to AM
-      if (!StringUtils.equals(oldPlatParams.getTaskNodeLabel(), platParams.getTaskNodeLabel())) {
-        am.onDefaultTaskNodeLabelUpdated(platParams.getTaskNodeLabel());
-      }
       if (!CommonExtensions.equals(getServiceVersions(oldTaskServices), serviceVersions)) {
         am.onServiceVersionsUpdated(serviceVersions);
       }

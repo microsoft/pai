@@ -18,8 +18,8 @@
 package com.microsoft.frameworklauncher.utils;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -40,17 +40,12 @@ import java.util.*;
 
 public class HadoopUtils {
   private static final DefaultLogger LOGGER = new DefaultLogger(HadoopUtils.class);
-
-  private static final String NODE_LABEL_WILDCARD = "*";
-  private static final String NODE_LABEL_DELIMITER = "&";
   private static final String HDFS_PATH_SEPARATOR = "/";
 
   private static Configuration conf = new YarnConfiguration();
 
   // Cache for HDFS ResourceAbsolutePath -> ResourceFileStatus
   private static final Map<String, FileStatus> resourceFileStatusCache = new HashMap<>();
-  // Cache for Conf ResourceType -> ResourceMinAllocation
-  private static final Map<ResourceType, Integer> resourceMinAllocationCache = new HashMap<>();
 
   // Node can be file or directory
   public static String getHdfsNodePath(String parentNodePath, String nodeName) {
@@ -185,97 +180,6 @@ public class HadoopUtils {
     }
   }
 
-  private static String getConfString(String confKey) throws Exception {
-    return getConfString(confKey, null);
-  }
-
-  private static String getConfString(String confKey, String defaultConfValue) throws Exception {
-    String confValue = conf.get(confKey, defaultConfValue);
-    LOGGER.logInfo("[hdfs getconf -confKey %s] = [%s]", confKey, confValue);
-    return confValue;
-  }
-
-  private static int getConfInt(String confKey, Integer defaultConfValue) throws Exception {
-    return Integer.parseInt(getConfString(confKey, defaultConfValue.toString()));
-  }
-
-  public static int getResourceMinAllocation(ResourceType type) throws Exception {
-    synchronized (resourceMinAllocationCache) {
-      if (!resourceMinAllocationCache.containsKey(type)) {
-        resourceMinAllocationCache.put(type, getResourceMinAllocationInternal(type));
-      }
-      return resourceMinAllocationCache.get(type);
-    }
-  }
-
-  private static int getResourceMinAllocationInternal(ResourceType type) throws Exception {
-    if (type == ResourceType.MEMORY) {
-      return getConfInt(
-          YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB);
-    } else if (type == ResourceType.VIRTUAL_CORES) {
-      return getConfInt(
-          YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES,
-          YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-    } else {
-      throw new Exception(String.format("Not a valid ResourceType %s for MinAllocation", type));
-    }
-  }
-
-  public static List<String> getCurrentAccessibleHostNames(YarnClient yarnClient) throws Exception {
-    return getCurrentAccessibleHostNames(yarnClient, null);
-  }
-
-  public static List<String> getCurrentAccessibleHostNames(YarnClient yarnClient, String effectiveRequestNodeLabel) throws Exception {
-    ArrayList<String> accessibleNodeHostNames = new ArrayList<>();
-
-    List<NodeReport> clusterNodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
-    for (NodeReport node : clusterNodeReports) {
-      String hostName = node.getNodeId().getHost();
-      Set<String> nodeLabels = node.getNodeLabels();
-
-      Boolean matchedWithRequestNodeLabel = false;
-
-      Boolean fuzzyMatching = false;
-      String effectiveRequestNodeLabelExact = effectiveRequestNodeLabel;
-      if (effectiveRequestNodeLabel != null &&
-          effectiveRequestNodeLabel.startsWith(NODE_LABEL_WILDCARD) &&
-          effectiveRequestNodeLabel.endsWith(NODE_LABEL_WILDCARD)) {
-        fuzzyMatching = true;
-        effectiveRequestNodeLabelExact = effectiveRequestNodeLabel.substring(1, effectiveRequestNodeLabel.length() - 1);
-      }
-
-      if (fuzzyMatching) {
-        // Fuzzy Matching
-        // Note effectiveRequestNodeLabel may be ""
-        for (String nodeLabelRaw : nodeLabels) {
-          String[] nodeLabelSplitted = nodeLabelRaw.split(NODE_LABEL_DELIMITER);
-          if (Arrays.asList(nodeLabelSplitted).contains(effectiveRequestNodeLabelExact)) {
-            matchedWithRequestNodeLabel = true;
-          }
-        }
-      } else {
-        // Exact Matching
-        // Note effectiveRequestNodeLabel may be "" or null
-        if (nodeLabels.contains(effectiveRequestNodeLabelExact) ||
-            (nodeLabels.size() == 0 && effectiveRequestNodeLabelExact == null)) {
-          matchedWithRequestNodeLabel = true;
-        }
-      }
-
-      if (matchedWithRequestNodeLabel) {
-        accessibleNodeHostNames.add(hostName);
-        logNodeInfo(node);
-      }
-    }
-
-    LOGGER.logInfo(
-        "Matched %s nodes with EffectiveRequestNodeLabel [%s] in this cluster",
-        accessibleNodeHostNames.size(), effectiveRequestNodeLabel);
-
-    return accessibleNodeHostNames;
-  }
-
   public static HashSet<String> getLiveContainerIdsFromRM(String attemptId, String amContainerId) throws Exception {
     HashSet<String> containerIds = new HashSet<>();
 
@@ -308,49 +212,6 @@ public class HadoopUtils {
 
     return containerIds;
   }
-
-  public static void logNodeInfo(List<NodeReport> nodes) {
-    for (NodeReport node : nodes) {
-      logNodeInfo(node);
-    }
-  }
-
-  public static void logNodeInfo(NodeReport node) {
-    try {
-      String hostName = node.getNodeId().getHost();
-      String label = "null";
-      Set<String> labelSet = node.getNodeLabels();
-      if (labelSet != null) {
-        label = String.join(NODE_LABEL_DELIMITER, labelSet);
-      }
-
-      ResourceDescriptor rdCapacity = ResourceDescriptor.fromResource(node.getCapability());
-      ResourceDescriptor rdUsed = ResourceDescriptor.fromResource(node.getUsed());
-      LOGGER.logDebug("Got NodeReport from RM: " +
-          "NodeState=" + node.getNodeState() +
-          ", HostName=" + node.getNodeId().getHost() +
-          ", RackName=" + node.getRackName() +
-          ", Containers=" + node.getNumContainers() +
-          ", NodeLabel=" + label +
-          ", TotalMemory=" + rdCapacity.getMemoryMB() +
-          ", UsedMemory=" + rdUsed.getMemoryMB() +
-          ", TotalVirtualCores=" + rdCapacity.getCpuNumber() +
-          ", TotalGPUs=" + rdCapacity.getGpuNumber() +
-          ", UsedGPUs=" + rdUsed.getGpuNumber() +
-          ", UsedGPUAttribute=" + rdUsed.getGpuAttribute());
-
-    } catch (Exception e) {
-      String nodeTag = "UNKNOWN";
-      if (node.getNodeId() != null) {
-        nodeTag = "HostName=" + node.getNodeId().getHost();
-      } else if (!(node.getHttpAddress() == null || node.getHttpAddress().trim().length() == 0)) {
-        nodeTag = "HttpAddress=" + node.getHttpAddress();
-      }
-
-      LOGGER.logWarning(e, "Failed to logNodeInfo for Node: %1$s", nodeTag);
-    }
-  }
-
 
   private static LocalResource convertToLocalResource(String hdfsPath, LocalResourceVisibility visibility) throws Exception {
     // Directory resource path must not end with /, otherwise localization will hang.
@@ -405,51 +266,19 @@ public class HadoopUtils {
     }
   }
 
-  // All Resource should be Normalized before AddContainerRequest and RemoveContainerRequest,
-  // since Allocated Container Resource is Normalized
-
-  // Used for AddContainerRequest
-  public static ContainerRequest convertToContainerRequest(
-      ResourceDescriptor resource, Integer priority) throws Exception {
-    Resource res = HadoopExtensions.normalize(resource).toResource();
-    return new ContainerRequest(
-        res, new String[]{}, new String[]{}, HadoopExtensions.toPriority(priority));
-  }
-
-  // Cannot specify nodelabel with rack or node
-  public static ContainerRequest convertToContainerRequestWithHostName(
-      ResourceDescriptor resource, Integer priority, String hostName) throws Exception {
-    if (hostName != null) {
-      Resource res = HadoopExtensions.normalize(resource).toResource();
-      // Specify hostName with locality relaxed
-      // In this way we can give a hint to RM to allocate the specified hostName instead of maybe hang forever
-      return new ContainerRequest(
-          res, new String[]{hostName}, new String[]{}, HadoopExtensions.toPriority(priority), true);
-    } else {
-      return convertToContainerRequest(resource, priority);
-    }
-  }
-
-  // Cannot specify nodelabel with rack or node
-  public static ContainerRequest convertToContainerRequestWithNodeLabel(
-      ResourceDescriptor resource, Integer priority, String nodeLabel) throws Exception {
+  public static ContainerRequest toContainerRequest(
+      ResourceDescriptor resource, Priority priority, String nodeLabel, String hostName) throws Exception {
+    // Cannot specify NodeLabel with Rack or Node until YARN-4925
     if (nodeLabel != null) {
-      Resource res = HadoopExtensions.normalize(resource).toResource();
       return new ContainerRequest(
-          res, new String[]{}, new String[]{}, HadoopExtensions.toPriority(priority), true, nodeLabel);
+          resource.toResource(), new String[]{}, new String[]{}, priority, true, nodeLabel);
+    } else if (hostName != null) {
+      return new ContainerRequest(
+          resource.toResource(), new String[]{hostName}, new String[]{}, priority, false, null);
     } else {
-      return convertToContainerRequest(resource, priority);
+      return new ContainerRequest(
+          resource.toResource(), new String[]{}, new String[]{}, priority, true, null);
     }
-  }
-
-  // Used for RemoveContainerRequest
-  // REF:
-  //  Internal ContainerRequest Map:
-  //      Priority -> HostName -> Capability -> ResourceRequest
-  public static ContainerRequest convertToContainerRequest(Container container) throws Exception {
-    return convertToContainerRequestWithHostName(
-        ResourceDescriptor.fromResource(
-            container.getResource()), container.getPriority().getPriority(), container.getNodeId().getHost());
   }
 
   public static String getContainerLogHttpAddress(String nodeHttpAddress, String containerId, String user) {
