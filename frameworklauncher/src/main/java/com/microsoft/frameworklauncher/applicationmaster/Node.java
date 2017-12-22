@@ -25,9 +25,8 @@ public class Node {
   private ResourceDescriptor capacity;
   private final String name;
   private ResourceDescriptor used;
-  //localAllocated in remember the local tried request, it will remember the tried information don't re-try the same request in a AM life cycle.
-  //so here, it is no need to de-crease the localAllocated information once the container request success.
-  private ResourceDescriptor localAllocated;
+  //localTriedAllocateResource: remember the local tried request, it will remember the tried information don't re-try the same request in a AM life cycle.
+  private ResourceDescriptor localAllocatingResource;
   private long selectedGpuBitmap;
   private Set<String> nodeLabels;
 
@@ -37,7 +36,7 @@ public class Node {
     this.used = used;
     this.selectedGpuBitmap = 0;
     this.nodeLabels = label;
-    this.localAllocated = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+    this.localAllocatingResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
   }
 
   public void updateNode(Node updateNode) {
@@ -66,11 +65,11 @@ public class Node {
   }
 
   public int getUsedNumGpus() {
-    return Long.bitCount(used.getGpuAttribute() | localAllocated.getGpuAttribute());
+    return Long.bitCount(used.getGpuAttribute() | localAllocatingResource.getGpuAttribute());
   }
 
   public long getNodeGpuStatus() {
-    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | localAllocated.getGpuAttribute()));
+    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | localAllocatingResource.getGpuAttribute()));
   }
 
   public int getAvailableNumGpus() {
@@ -78,11 +77,11 @@ public class Node {
   }
 
   public int getAvailableMemory() {
-    return capacity.getMemoryMB() - used.getMemoryMB() - localAllocated.getMemoryMB();
+    return capacity.getMemoryMB() - used.getMemoryMB() - localAllocatingResource.getMemoryMB();
   }
 
   public int getAvailableCpu() {
-    return capacity.getCpuNumber() - used.getCpuNumber() - localAllocated.getCpuNumber();
+    return capacity.getCpuNumber() - used.getCpuNumber() - localAllocatingResource.getCpuNumber();
   }
 
   public long getSelectedGpuBitmap() {
@@ -90,16 +89,23 @@ public class Node {
   }
 
   public void allocateResource(ResourceDescriptor resource, long gpuMap) {
-    localAllocated.setCpuNumber(localAllocated.getCpuNumber() + resource.getCpuNumber());
-    localAllocated.setMemoryMB(localAllocated.getMemoryMB() + resource.getMemoryMB());
-    localAllocated.setGpuAttribute(localAllocated.getGpuAttribute() | gpuMap);
-    localAllocated.setGpuNumber(localAllocated.getGpuNumber() + resource.getGpuNumber());
+    localAllocatingResource.setCpuNumber(localAllocatingResource.getCpuNumber() + resource.getCpuNumber());
+    localAllocatingResource.setMemoryMB(localAllocatingResource.getMemoryMB() + resource.getMemoryMB());
+    localAllocatingResource.setGpuAttribute(localAllocatingResource.getGpuAttribute() | gpuMap);
+    localAllocatingResource.setGpuNumber(localAllocatingResource.getGpuNumber() + resource.getGpuNumber());
     selectedGpuBitmap = gpuMap;
   }
 
+  public void completeResourceAllocation(ResourceDescriptor resource)
+  {
+    localAllocatingResource.setCpuNumber(localAllocatingResource.getCpuNumber() - resource.getCpuNumber());
+    localAllocatingResource.setMemoryMB(localAllocatingResource.getMemoryMB() - resource.getMemoryMB());
+    localAllocatingResource.setGpuAttribute(localAllocatingResource.getGpuAttribute() &(~resource.getGpuAttribute()));
+    localAllocatingResource.setGpuNumber(localAllocatingResource.getGpuNumber() - resource.getGpuNumber());
+  }
   @Override
   public String toString() {
-    return this.name + "(capacity: " + this.capacity + ", used: " + this.used + ", localAllocated:" + this.localAllocated + ")";
+    return this.name + "(capacity: " + this.capacity + ", used: " + this.used + ", localAllocatingResource:" + this.localAllocatingResource + ")";
   }
 
   @Override
