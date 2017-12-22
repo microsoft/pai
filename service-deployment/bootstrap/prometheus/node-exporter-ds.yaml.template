@@ -18,46 +18,47 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: hadoop-name-node-ds
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: node-exporter
 spec:
   template:
     metadata:
       labels:
-        app: hadoop-name-node
+        app: node-exporter
+      name: node-exporter
     spec:
+      containers:
+      - image: prom/node-exporter
+        volumeMounts:
+        - mountPath: /var/local/prom-exporters
+          name: collector-mount
+        name: node-exporter
+        args:
+          - '--collector.textfile.directory=/var/local/prom-exporters'
+        ports:
+        - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+          hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+          name: scrape
+      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter
+        volumeMounts:
+        - mountPath: /dev
+          name: device-mount
+        - mountPath: /var/drivers
+          name: driver-path
+        - mountPath: /tmp
+          name: collector-mount
+        name: gpu-exporter
+      volumes:
+        - name: device-mount
+          hostPath:
+            path: /dev
+        - name: driver-path
+          hostPath:
+            path: /var/drivers
+        - name: collector-mount
+          hostPath:
+            path: /var/local/prom-exporters
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hdfsrole: master
-      containers:
-      - name:  hadoop-name-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
-        imagePullPolicy: Always
-        volumeMounts:
-        - mountPath: /var/lib/hdfs/name
-          name: hadoop-name-storage
-        - mountPath: /hadoop-configuration
-          name: hadoop-config-volume
-        readinessProbe:
-          exec:
-            command:
-            - cat
-            - /jobstatus/jobok
-          initialDelaySeconds: 5
-          periodSeconds: 3
-        env:
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: GENERATE_CONFIG
-          value: namenode-generate-script.sh
-        - name: START_SERVICE
-          value: namenode-start-service.sh
-      imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
-      volumes:
-      - name: hadoop-name-storage
-        hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/name
-      - name: hadoop-config-volume
-        configMap:
-          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+

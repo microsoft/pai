@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,20 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#get the config generating script from kubenretes configmap
-cp /hadoop-configuration/${GENERATE_CONFIG}  generate_config.sh
-chmod u+x generate_config.sh
+FROM ubuntu:16.04
 
-./generate_config.sh
+ENV NVIDIA_VERSION=current
+ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
+ENV PATH=$PATH:$NV_DRIVER/bin
 
-#get the start service script from kuberentes configmap
-cp /hadoop-configuration/${START_SERVICE}  start_service.sh
-chmod u+x start_service.sh
+RUN apt-get update && \
+    apt-get install -y wget && \
+    apt-get -y install golang --no-install-recommends && \
+    rm -r /var/lib/apt/lists/*
 
-# This status check is mainly for ensuring the status of image pulling.
-# And usually this process costs most of the time when creating a new pod in kubernetes.
-mkdir -p /jobstatus
-touch /jobstatus/jobok
+WORKDIR /go
 
-./start_service.sh
+COPY copied_file/app.go /usr/local/
+COPY start.sh /usr/local/start.sh
+RUN go build -v -o /usr/local/app /usr/local/app.go
+RUN chmod u+x /usr/local/start.sh
+RUN chmod u+x /usr/local/app 
+CMD [ "/usr/local/./start.sh" ]
 

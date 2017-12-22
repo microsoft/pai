@@ -69,14 +69,11 @@ public class ApplicationMaster extends AbstractService {
   protected StatusManager statusManager;
   protected RequestManager requestManager;
   private RMResyncHandler rmResyncHandler;
-  protected AntiaffinityAllocationManager aaAllocationManager;
   private GpuAllocationManager gpuAllocationManager;
 
   /**
    * REGION StateVariable
    */
-  private int rmClientFailureCount = 0;
-
   // Note:
   //  1. It should only be used to launchContainersTogether.
   //  2. It cannot be recovered after AM Restart. However, it will not cause
@@ -84,7 +81,9 @@ public class ApplicationMaster extends AbstractService {
   //  since previous Allocated Container is already Transitioned to Running
   //  before launchContainersTogether and will be Transitioned to Completed due
   //  to expire. So the only impact is longer time to launchContainersTogether.
+  // ContainerId -> Container
   private Map<String, Container> allocatedContainers = new HashMap<>();
+  // ContainerId -> ContainerConnectionExceedCount
   private Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
 
   /**
@@ -159,7 +158,6 @@ public class ApplicationMaster extends AbstractService {
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
         LaunchClientType.APPLICATION_MASTER);
 
-    aaAllocationManager = new AntiaffinityAllocationManager();
     gpuAllocationManager = new GpuAllocationManager(this);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
@@ -267,7 +265,7 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private void stopForContainer(int exitCode, String diagnostics, String customizedDiagnostics) {
-    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, ExitType.NOT_AVAILABLE);
+    ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
 
     String fullDiagnostics = DiagnosticsUtils.generateDiagnostics(partialValue, customizedDiagnostics);
     ExitStatusKey exitStatusKey = DiagnosticsUtils.extractExitStatusKey(fullDiagnostics);
@@ -310,67 +308,44 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), true, diagnostics));
   }
 
+  // Principle to setup ContainerRequest for a Task:
+  // 1. Exactly match the Task's Requirement
+  //    -> Keeps Waiting Allocation, i.e. containerRequestTimeoutSec = -1
+  // 2. Too Relax for the Task's Requirement
+  //    -> Reject Allocation and Re-Request, See testContainer
+  // 3. Too Strict for the Task's Requirement
+  //    -> Timeout Request and Re-Request, i.e. containerRequestTimeoutSec != -1
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
+    Priority priority = statusManager.getNextContainerRequestPriority();
     String nodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
     String nodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
-    Boolean aaAllocation = requestManager.getPlatParams().getAntiaffinityAllocation();
-    ResourceDescriptor resource = requestManager.getTaskResources().get(taskRoleName);
-    Integer priority = requestManager.getTaskRoles().get(taskRoleName).getPriority();
-    Resource maxResource = conf.getMaxResource();
-    ResourceDescriptor maxRes = ResourceDescriptor.fromResource(maxResource);
+    ResourceDescriptor resource = YamlUtils.deepCopy(requestManager.getTaskResources().get(taskRoleName), ResourceDescriptor.class);
+    ResourceDescriptor maxResource = conf.getMaxResource();
 
-    if (resource.getMemoryMB() > maxRes.getMemoryMB() ||
-        resource.getCpuNumber() > maxRes.getCpuNumber() ||
-        resource.getGpuNumber() > maxRes.getGpuNumber()) {
+    if (resource.getMemoryMB() > maxResource.getMemoryMB() ||
+        resource.getCpuNumber() > maxResource.getCpuNumber() ||
+        resource.getGpuNumber() > maxResource.getGpuNumber()) {
       LOGGER.logWarning(
           "Detected the Resource to be Requested is larger than the max Resource configured in current cluster. " +
               "Request may be fail or never got satisfied. " +
               "RequestedResource %s, MaxResource %s",
-          resource.toString(), maxRes.toString());
+          resource, maxResource);
     }
 
-    if (resource.getGpuNumber() > 0) {
-      // Used to workaround for bug YARN-314.
-      // We need to make sure the Priority for each different GPU request are also different.
-      priority = (priority << 16) + taskStatus.getTaskIndex();
+    if (resource.getGpuNumber() > 0 && resource.getGpuAttribute() == 0) {
+      updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
 
-      List<NodeReport> nodeReport = yarnClient.getNodeReports(NodeState.RUNNING);
-      updateNodeReport(nodeReport, resource);
-
-      Node candidateRequestNode = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel, nodeGpuType);
-      if (candidateRequestNode != null) {
-        taskStatus.setContainerGpus(candidateRequestNode.getSelectedGpuBitmap());
-        // The original resource doesn't contain the real time gpuAttribute information,
-        // We need set the candidate gpuAttribute into container request resource.
-        ResourceDescriptor resourceWithGpuAttribute = ResourceDescriptor.newInstance(
-            resource.getMemoryMB(), resource.getCpuNumber(), resource.getGpuNumber(), candidateRequestNode.getSelectedGpuBitmap());
-        return HadoopUtils.convertToContainerRequestWithHostName(resourceWithGpuAttribute, priority, candidateRequestNode.getHostName());
+      Node node = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel, nodeGpuType);
+      if (node != null) {
+        resource.setGpuAttribute(node.getSelectedGpuBitmap());
+        return HadoopUtils.toContainerRequest(resource, priority, null, node.getHostName());
       } else {
-        LOGGER.logWarning("No candidate request HostNames. Will request without HostName and Any GPUs topology");
-        taskStatus.setContainerGpus(0L);
-        return HadoopUtils.convertToContainerRequestWithNodeLabel(resource, priority, nodeLabel);
+        LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
     }
 
-    if (nodeLabel != null) {
-      return HadoopUtils.convertToContainerRequestWithNodeLabel(resource, priority, nodeLabel);
-    } else {
-      if (aaAllocation) {
-        String candidateRequestHostName = aaAllocationManager.getCandidateRequestHostName();
-        if (candidateRequestHostName != null) {
-          return HadoopUtils.convertToContainerRequestWithHostName(resource, priority, candidateRequestHostName);
-        } else {
-          LOGGER.logWarning(
-              "No candidate request HostNames. Will request without HostName and wait HostNames to be released");
-        }
-      }
-      return HadoopUtils.convertToContainerRequest(resource, priority);
-    }
-  }
-
-  private ContainerRequest setupContainerRequest(Container container) throws Exception {
-    return HadoopUtils.convertToContainerRequest(container);
+    return HadoopUtils.toContainerRequest(resource, priority, nodeLabel, null);
   }
 
   private String generateContainerDiagnostics(TaskStatus taskStatus) {
@@ -441,8 +416,7 @@ public class ApplicationMaster extends AbstractService {
 
     if (killAllOnAnyServiceCompleted) {
       // Consider these exitTypes and exitCodes are indicated UserService exit
-      if (exitType == ExitType.NOT_AVAILABLE ||
-          exitType == ExitType.SUCCEEDED ||
+      if (exitType == ExitType.SUCCEEDED ||
           exitType == ExitType.UNKNOWN ||
           exitCode == ExitStatusKey.USER_APP_TRANSIENT_ERROR.toInt() ||
           exitCode == ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR.toInt()) {
@@ -515,29 +489,11 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private TaskStatus findTask(Container container) throws Exception {
-    List<TaskStatus> taskStatuses = statusManager.getTaskStatus(
-        new HashSet<>(Collections.singletonList(TaskState.CONTAINER_REQUESTED)));
-
-    // Higher Priority for Lower TaskIndex, since updateTaskNumbers update tail Tasks firstly.
-    taskStatuses.sort(Comparator.comparing(TaskStatus::getTaskIndex));
-    for (TaskStatus taskStatus : taskStatuses) {
-      String taskRoleName = taskStatus.getTaskRoleName();
-      ResourceDescriptor resourceDescriptor = requestManager.getTaskResources().get(taskRoleName);
-
-      Integer priority = requestManager.getTaskRoles().get(taskRoleName).getPriority();
-      if (resourceDescriptor.getGpuNumber() > 0) {
-        // Used to workaround for bug YARN-314.
-        // We need to make sure the Priority for each different GPU request are also different
-        priority = (priority << 16) + taskStatus.getTaskIndex();
-      }
-
-      Long containerGpuAttribute = ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute();
-      if (HadoopExtensions.equals(resourceDescriptor.toResource(), container.getResource()) &&
-          HadoopExtensions.equals(HadoopExtensions.toPriority(priority), container.getPriority()) &&
-          (containerGpuAttribute == 0 || taskStatus.getContainerGpus() == 0 ||
-              taskStatus.getContainerGpus().longValue() == containerGpuAttribute.longValue())) {
-        return taskStatus;
-      }
+    Priority priority = container.getPriority();
+    if (statusManager.containsTask(priority)) {
+      TaskStatus taskStatus = statusManager.getTaskStatus(priority);
+      assert (taskStatus.getTaskState() == TaskState.CONTAINER_REQUESTED);
+      return taskStatus;
     }
     return null;
   }
@@ -638,26 +594,7 @@ public class ApplicationMaster extends AbstractService {
     return launchContext;
   }
 
-  private void updateAntiaffinityAllocation(List<String> accessibleHostNames) {
-    Boolean aaAllocation = requestManager.getPlatParams().getAntiaffinityAllocation();
-    if (aaAllocation) {
-      List<String> liveAssociatedHostNames = statusManager.getLiveAssociatedHostNames();
-      LOGGER.logInfo("updateAntiaffinityAllocation: Current LiveAssociatedHostNames: %s, AccessibleHostNames: %s",
-          liveAssociatedHostNames.size(), accessibleHostNames.size());
-
-      List<String> candidateRequestHostNames = new ArrayList<>(accessibleHostNames);
-      candidateRequestHostNames.removeAll(liveAssociatedHostNames);
-      aaAllocationManager.updateCandidateRequestHostNames(candidateRequestHostNames);
-    }
-  }
-
   private void updateNodeReport(List<NodeReport> nodeReports) throws Exception {
-    updateNodeReport(nodeReports, ResourceDescriptor.newInstance(0, 0, 0, 0L));
-  }
-
-  private void updateNodeReport(List<NodeReport> nodeReports, ResourceDescriptor requestedResource) throws Exception {
-    Boolean aaAllocation = requestManager.getPlatParams().getAntiaffinityAllocation();
-
     for (NodeReport nodeReport : nodeReports) {
       String hostName = nodeReport.getNodeId().getHost();
       NodeState state = nodeReport.getNodeState();
@@ -667,24 +604,11 @@ public class ApplicationMaster extends AbstractService {
           ResourceDescriptor.fromResource(nodeReport.getCapability()),
           ResourceDescriptor.fromResource(nodeReport.getUsed()));
 
-      if (state == NodeState.RUNNING ||
-          state == NodeState.NEW) {
-        if (aaAllocation) {
-          aaAllocationManager.addCandidateRequestHostName(hostName);
-        }
-        if (requestedResource.getGpuNumber() > 0) {
-          gpuAllocationManager.addCandidateRequestNode(node);
-        }
-      } else if (
-          state == NodeState.DECOMMISSIONED ||
-              state == NodeState.LOST ||
-              state == NodeState.UNHEALTHY) {
-        if (aaAllocation) {
-          aaAllocationManager.removeCandidateRequestHostName(hostName);
-        }
-        if (requestedResource.getGpuNumber() > 0) {
-          gpuAllocationManager.removeCandidateRequestNode(node);
-        }
+      // TODO: Update TaskStatus.ContainerIsDecommissioning
+      if (state == NodeState.RUNNING) {
+        gpuAllocationManager.addCandidateRequestNode(node);
+      } else {
+        gpuAllocationManager.removeCandidateRequestNode(node);
       }
     }
   }
@@ -696,36 +620,31 @@ public class ApplicationMaster extends AbstractService {
   // Note they should be called in single thread, such as from transitionTaskStateQueue
 
   // Should be called after StatusManager recover completed
-  private void reviseCorruptedTaskStates()// throws Exception
-  {
+  private void reviseCorruptedTaskStates() throws Exception {
     LOGGER.logInfo(
         "reviseCorruptedTaskStates: %s",
         CommonExtensions.toString(TaskStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES));
 
     List<TaskStatus> corruptedTaskStatuses = statusManager.getTaskStatus(
         TaskStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES);
-    try {
-      for (TaskStatus taskStatus : corruptedTaskStatuses) {
-        TaskState taskState = taskStatus.getTaskState();
-        TaskStatusLocator taskLocator = new TaskStatusLocator(taskStatus.getTaskRoleName(), taskStatus.getTaskIndex());
+    for (TaskStatus taskStatus : corruptedTaskStatuses) {
+      TaskState taskState = taskStatus.getTaskState();
+      TaskStatusLocator taskLocator = new TaskStatusLocator(taskStatus.getTaskRoleName(), taskStatus.getTaskIndex());
 
-        // Previous Requested Container may not receive onContainersAllocated after AM Restart
-        if (taskState == TaskState.CONTAINER_REQUESTED) {
-          statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
-        }
-
-        // Previous Allocated Container will lost the Container object to Launch after AM Restart
-        // Previous Launched Container may not receive onContainerStarted after AM Restart
-        // Because misjudge a ground truth Running Container to be TASK_WAITING (lose Task) is more serious than
-        // misjudge a ground truth not Running Container to Running. (The misjudged Container will be expired
-        // by RM eventually, so the only impact is longger time to run all Tasks)
-        if (taskState == TaskState.CONTAINER_ALLOCATED ||
-            taskState == TaskState.CONTAINER_LAUNCHED) {
-          statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_RUNNING);
-        }
+      // Previous Requested Container may not receive onContainersAllocated after AM Restart
+      if (taskState == TaskState.CONTAINER_REQUESTED) {
+        statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
       }
-    } catch (Exception e) {
-      LOGGER.logError(e, "Revise corrupted task states failed.");
+
+      // Previous Allocated Container will lost the Container object to Launch after AM Restart
+      // Previous Launched Container may not receive onContainerStarted after AM Restart
+      // Because misjudge a ground truth Running Container to be TASK_WAITING (lose Task) is more serious than
+      // misjudge a ground truth not Running Container to Running. (The misjudged Container will be expired
+      // by RM eventually, so the only impact is longger time to run all Tasks)
+      if (taskState == TaskState.CONTAINER_ALLOCATED ||
+          taskState == TaskState.CONTAINER_LAUNCHED) {
+        statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_RUNNING);
+      }
     }
   }
 
@@ -753,16 +672,36 @@ public class ApplicationMaster extends AbstractService {
   private void addContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
-    ContainerRequest request = setupContainerRequest(taskStatus);
+    Integer containerRequestTimeoutSec = CommonUtils.getRandomNumber(
+        conf.getLauncherConfig().getAmContainerRequestMinTimeoutSec(),
+        conf.getLauncherConfig().getAmContainerRequestMaxTimeoutSec());
 
-    LOGGER.logInfo("%s: addContainerRequest: %s", taskLocator, HadoopExtensions.toString(request));
+    ContainerRequest request = setupContainerRequest(taskStatus);
+    LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
+        taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
     rmClient.addContainerRequest(request);
-    statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED);
+    statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
+        new TaskEvent().setContainerRequest(request));
+
+    transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
+      if (statusManager.containsTask(request.getPriority())) {
+        LOGGER.logWarning(
+            "%s: ContainerRequest cannot be satisfied within timeout %ss, Cancel it and Request again. ContainerRequest: [%s]",
+            taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
+        removeContainerRequest(taskStatus);
+        statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
+        addContainerRequest(taskStatus);
+      }
+    }, containerRequestTimeoutSec * 1000);
   }
 
   private void addContainerRequest() throws Exception {
-    for (TaskStatus taskStatus : statusManager.getTaskStatus(
-        new HashSet<>(Collections.singletonList(TaskState.TASK_WAITING)))) {
+    List<TaskStatus> taskStatuses = statusManager.getTaskStatus(
+        new HashSet<>(Collections.singletonList(TaskState.TASK_WAITING)));
+
+    // Higher Priority for Lower TaskIndex, since updateTaskNumbers update tail Tasks firstly.
+    taskStatuses.sort(Comparator.comparing(TaskStatus::getTaskIndex));
+    for (TaskStatus taskStatus : taskStatuses) {
       addContainerRequest(taskStatus);
     }
   }
@@ -787,7 +726,8 @@ public class ApplicationMaster extends AbstractService {
         "%s: retryTask: NewRetryPolicyState:\n%s",
         taskLocator, WebCommon.toJson(newRetryPolicyState));
 
-    statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING, null, 0, null, newRetryPolicyState);
+    statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING,
+        new TaskEvent().setNewRetryPolicyState(newRetryPolicyState));
     addContainerRequest(taskStatus);
   }
 
@@ -916,12 +856,10 @@ public class ApplicationMaster extends AbstractService {
         "%s%s\n%s",
         taskLocator, logSuffix, generateContainerDiagnostics(taskStatus, linePrefix));
 
-    statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_COMPLETED, null, exitCode, diagnostics);
+    statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_COMPLETED,
+        new TaskEvent().setContainerExitCode(exitCode).setContainerExitDiagnostics(diagnostics));
 
     // Post-mortem CONTAINER_COMPLETED Task
-    if (requestManager.getPlatParams().getAntiaffinityAllocation()) {
-      aaAllocationManager.addCandidateRequestHostName(taskStatus.getContainerHost());
-    }
     attemptToRetry(taskStatus);
   }
 
@@ -1043,17 +981,33 @@ public class ApplicationMaster extends AbstractService {
     return retainContainerIds;
   }
 
+  private void removeContainerRequest(TaskStatus taskStatus) {
+    TaskStatusLocator taskLocator = new TaskStatusLocator(taskStatus.getTaskRoleName(), taskStatus.getTaskIndex());
+    if (!statusManager.containsTask(taskLocator)) {
+      return;
+    }
+
+    ContainerRequest request = statusManager.getContainerRequest(taskLocator);
+    if (request == null) {
+      return;
+    }
+
+    try {
+      rmClient.removeContainerRequest(request);
+    } catch (Exception e) {
+      LOGGER.logError(e, "%s: Failed to removeContainerRequest", taskLocator);
+    }
+  }
+
   private void allocateContainer(Container container) throws Exception {
     String containerId = container.getId().toString();
-    String containerHostName = container.getNodeId().getHost();
-    Boolean aaAllocation = requestManager.getPlatParams().getAntiaffinityAllocation();
     Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
 
     LOGGER.logInfo(
         "[%s]: allocateContainer: Try to Allocate Container to Task: Container: %s",
         containerId, HadoopExtensions.toString(container));
 
-    // 1. findTask
+    // 0. findTask
     TaskStatus taskStatus = findTask(container);
     if (taskStatus == null) {
       LOGGER.logDebug(
@@ -1065,22 +1019,24 @@ public class ApplicationMaster extends AbstractService {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
 
+    // 1. removeContainerRequest
+    removeContainerRequest(taskStatus);
+
     // 2. testContainer
     if (!testContainer(container)) {
       LOGGER.logInfo(
           "%s[%s]: Container is Rejected, Release Container and Request again",
           taskLocator, containerId);
       tryToReleaseContainer(containerId);
+      statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
       addContainerRequest(taskStatus);
       return;
     }
 
     // 3. allocateContainer
     try {
-      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED, container);
-      if (aaAllocation) {
-        aaAllocationManager.removeCandidateRequestHostName(containerHostName);
-      }
+      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED,
+          new TaskEvent().setContainer(container));
       LOGGER.logInfo("%s[%s]: Succeeded to Allocate Container to Task", taskLocator, containerId);
 
       if (containerConnectionExceedCount.containsKey(containerId)) {
@@ -1092,6 +1048,7 @@ public class ApplicationMaster extends AbstractService {
           "%s[%s]: Failed to Allocate Container to Task, Release Container and Request again",
           taskLocator, containerId);
       tryToReleaseContainer(containerId);
+      statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
       addContainerRequest(taskStatus);
       return;
     }
@@ -1238,25 +1195,6 @@ public class ApplicationMaster extends AbstractService {
   }
 
   // Callbacks from StatusManager and RequestManager
-  public void onDefaultTaskNodeLabelUpdated(String taskNodeLabel) throws Exception {
-    LOGGER.logInfo("onDefaultTaskNodeLabelUpdated: TaskNodeLabel: [%s]", taskNodeLabel);
-
-    String effectiveTaskNodeLabel;
-    if (taskNodeLabel == null) {
-      LOGGER.logInfo(
-          "TaskNodeLabel not specified, using AMQueueDefaultNodeLabel [%s] as EffectiveRequestNodeLabel",
-          conf.getAmQueueDefaultNodeLabel());
-      effectiveTaskNodeLabel = conf.getAmQueueDefaultNodeLabel();
-    } else {
-      effectiveTaskNodeLabel = taskNodeLabel;
-    }
-
-    List<String> accessibleHostNames = HadoopUtils.getCurrentAccessibleHostNames(yarnClient, effectiveTaskNodeLabel);
-    transitionTaskStateQueue.queueSystemTask(() -> {
-      updateAntiaffinityAllocation(accessibleHostNames);
-    });
-  }
-
   // TaskRoleName -> ServiceVersion
   // AM may need to double check whether ServiceVersions is changed or not according to StatusManager
   public void onServiceVersionsUpdated(Map<String, Integer> serviceVersions) {
@@ -1288,6 +1226,8 @@ public class ApplicationMaster extends AbstractService {
       // No need to completeContainer, since it is to be Removed afterwards
       tryToReleaseContainer(containerId);
     }
+
+    removeContainerRequest(taskStatus);
   }
 
   public void onStartRMResyncHandler() {
@@ -1320,11 +1260,7 @@ public class ApplicationMaster extends AbstractService {
   // Callbacks from RMResyncHandler
   public void queueResyncWithRM(int delaySec) {
     transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
-      try {
-        rmResyncHandler.resyncWithRM();
-      } catch (Exception e) {
-        handleException(e);
-      }
+      rmResyncHandler.resyncWithRM();
     }, delaySec * 1000);
   }
 
@@ -1337,34 +1273,20 @@ public class ApplicationMaster extends AbstractService {
 
   // Callbacks from RMClient
   public void onError(Throwable e) {
-    rmClientFailureCount++;
-
-    int rmClientMaxFailureCount = GlobalConstants.USING_UNLIMITED_VALUE;
-    if (conf.getLauncherConfig() != null) {
-      rmClientMaxFailureCount = conf.getLauncherConfig().getAmRmClientMaxFailureCount();
-    }
-
-    LOGGER.logWarning(e,
-        "[%s / %s]: onError called into AM from RM, maybe this AM failed to heartbeat with RM.",
-        rmClientFailureCount, rmClientMaxFailureCount);
-
-    if (rmClientMaxFailureCount != GlobalConstants.USING_UNLIMITED_VALUE &&
-        rmClientFailureCount > rmClientMaxFailureCount) {
-      // YarnException indicates exceptions from yarn servers, and IOException indicates exceptions from RPC layer.
-      // So, consider YarnException as NonTransientError, and IOException as TransientError.
-      if (e instanceof YarnException) {
-        stopForInternalNonTransientError(String.format(
-            "onError called into AM from RM due to non-transient error, maybe application is non-compliant.%s",
-            CommonUtils.toString(e)));
-      } else if (e instanceof IOException) {
-        stopForInternalTransientError(String.format(
-            "onError called into AM from RM due to transient error, maybe YARN RM is down.%s",
-            CommonUtils.toString(e)));
-      } else {
-        stopForInternalUnKnownError(String.format(
-            "onError called into AM from RM due to unknown error.%s",
-            CommonUtils.toString(e)));
-      }
+    // YarnException indicates exceptions from yarn servers, and IOException indicates exceptions from RPC layer.
+    // So, consider YarnException as NonTransientError, and IOException as TransientError.
+    if (e instanceof YarnException) {
+      stopForInternalNonTransientError(String.format(
+          "onError called into AM from RM due to non-transient error, maybe application is non-compliant.%s",
+          CommonUtils.toString(e)));
+    } else if (e instanceof IOException) {
+      stopForInternalTransientError(String.format(
+          "onError called into AM from RM due to transient error, maybe YARN RM is down.%s",
+          CommonUtils.toString(e)));
+    } else {
+      stopForInternalUnKnownError(String.format(
+          "onError called into AM from RM due to unknown error.%s",
+          CommonUtils.toString(e)));
     }
   }
 
@@ -1374,9 +1296,6 @@ public class ApplicationMaster extends AbstractService {
   }
 
   public float getProgress() throws Exception {
-    // getProgress will be called only when there is still successful heartbeat.
-    rmClientFailureCount = 0;
-
     // Note queueSystemTask and wait its result here will block the RMClient
     // Deliver ApplicationProgress to RM on next heartbeat
     float progress = getApplicationProgress();
@@ -1398,50 +1317,33 @@ public class ApplicationMaster extends AbstractService {
     transitionTaskStateQueue.queueSystemTask(() -> {
       updateNodeReport(nodeReports);
     });
-
-    // TODO: Update TaskStatus.ContainerIsDecommissioning
   }
 
-  public void onContainersAllocated(List<Container> allocatedContainers) {
-    if (allocatedContainers.size() <= 0) {
+  public void onContainersAllocated(List<Container> containers) {
+    if (containers.size() <= 0) {
       return;
     }
 
     LOGGER.logInfo(
-        "onContainersAllocated: Allocated Containers: %s. " +
-            "Will removeContainerRequest for them.",
-        allocatedContainers.size());
-
-    // RemoveContainerRequest ASAP, No need to queueSystemTask for it.
-    // When the AM receives a new Container, we need to inform the RMClient,
-    // which keeps track of all Requests, to decrease the number of them.
-    for (Container allocatedContainer : allocatedContainers) {
-      String containerId = allocatedContainer.getId().toString();
-      try {
-        rmClient.removeContainerRequest(setupContainerRequest(allocatedContainer));
-      } catch (Exception e) {
-        LOGGER.logError(e,
-            "Failed to removeContainerRequest for Allocated Container %s",
-            containerId);
-      }
-    }
+        "onContainersAllocated: Allocated Containers: %s.",
+        containers.size());
 
     transitionTaskStateQueue.queueSystemTask(() -> {
-      allocateContainers(allocatedContainers);
+      allocateContainers(containers);
     });
   }
 
-  public void onContainersCompleted(List<ContainerStatus> completedContainers) {
-    if (completedContainers.size() <= 0) {
+  public void onContainersCompleted(List<ContainerStatus> containerStatuses) {
+    if (containerStatuses.size() <= 0) {
       return;
     }
 
     LOGGER.logInfo(
         "onContainersCompleted: Completed Containers: %s.",
-        completedContainers.size());
+        containerStatuses.size());
 
     transitionTaskStateQueue.queueSystemTask(() -> {
-      completeContainers(completedContainers);
+      completeContainers(containerStatuses);
     });
   }
 

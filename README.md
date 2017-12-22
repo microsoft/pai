@@ -15,7 +15,7 @@ The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage s
 The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
 The training data and training results are stored in Hadoop HDFS.
 
-## An Open R&D and Education AI Platform
+## An Open AI Platform for R&D and Education 
 
 PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components: 
 
@@ -30,7 +30,7 @@ PAI is completely open: it is under the MIT license. PAI is architected in a mod
 * AI Storage support
 * AI platform management 
 
-PAI operates in an open contribution model: contributions from academia and industry are all highly welcome. 
+PAI operates in an open model: contributions from academia and industry are all highly welcome. 
 
 ## System Deployment
 
@@ -41,6 +41,7 @@ Each machine in the cluster runs Ubuntu 16.04 LTS and has a statically assigned 
 To deploy services, the system further relies on a Docker registry service (e.g., [Docker hub](https://docs.docker.com/docker-hub/)) 
 to store the Docker images for the services to be deployed.
 The system also requires a dev machine that runs in the same environment that has full access to the cluster.
+And the system need [NTP](http://www.ntp.org/) service for clock synchronization.
 
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.

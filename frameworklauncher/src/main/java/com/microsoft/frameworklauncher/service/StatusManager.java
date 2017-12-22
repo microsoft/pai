@@ -227,7 +227,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     frameworkStatus.setApplicationCompletedTimestamp(null);
     frameworkStatus.setApplicationExitCode(null);
     frameworkStatus.setApplicationExitDiagnostics(null);
-    frameworkStatus.setApplicationExitType(ExitType.NOT_AVAILABLE);
+    frameworkStatus.setApplicationExitType(null);
   }
 
   private void updateExtensionFrameworkStatusWithApplicationLiveness(String frameworkName, boolean isLive) {
@@ -395,40 +395,13 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   public synchronized void transitionFrameworkState(
       String frameworkName,
       FrameworkState dstState) throws Exception {
-    transitionFrameworkState(frameworkName, dstState, null, ExitStatusKey.NOT_AVAILABLE.toInt(), "", null);
+    transitionFrameworkState(frameworkName, dstState, new FrameworkEvent());
   }
 
   public synchronized void transitionFrameworkState(
       String frameworkName,
       FrameworkState dstState,
-      ApplicationSubmissionContext applicationContext) throws Exception {
-    transitionFrameworkState(frameworkName, dstState, applicationContext, ExitStatusKey.NOT_AVAILABLE.toInt(), "", null);
-  }
-
-  public synchronized void transitionFrameworkState(
-      String frameworkName,
-      FrameworkState dstState,
-      ApplicationSubmissionContext applicationContext,
-      int applicationExitCode) throws Exception {
-    transitionFrameworkState(frameworkName, dstState, applicationContext, applicationExitCode, "", null);
-  }
-
-  public synchronized void transitionFrameworkState(
-      String frameworkName,
-      FrameworkState dstState,
-      ApplicationSubmissionContext applicationContext,
-      int applicationExitCode,
-      String applicationExitDiagnostics) throws Exception {
-    transitionFrameworkState(frameworkName, dstState, applicationContext, applicationExitCode, applicationExitDiagnostics, null);
-  }
-
-  public synchronized void transitionFrameworkState(
-      String frameworkName,
-      FrameworkState dstState,
-      ApplicationSubmissionContext applicationContext,
-      int applicationExitCode,
-      String applicationExitDiagnostics,
-      RetryPolicyState newRetryPolicyState) throws Exception {
+      FrameworkEvent event) throws Exception {
 
     FrameworkStatus frameworkStatus = getFrameworkStatus(frameworkName);
     FrameworkState srcState = frameworkStatus.getFrameworkState();
@@ -443,11 +416,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     if (!FrameworkStateDefinition.APPLICATION_ASSOCIATED_STATES.contains(srcState) &&
         FrameworkStateDefinition.APPLICATION_ASSOCIATED_STATES.contains(dstState)) {
-      assert (applicationContext != null);
+      assert (event.getApplicationContext() != null);
 
-      String applicationId = applicationContext.getApplicationId().toString();
+      String applicationId = event.getApplicationContext().getApplicationId().toString();
       try {
-        associateFrameworkWithApplication(frameworkName, applicationContext);
+        associateFrameworkWithApplication(frameworkName, event.getApplicationContext());
         LOGGER.logInfo("Associated Framework [%s] with Application %s", frameworkName, applicationId);
       } catch (Exception e) {
         disassociateFrameworkWithApplication(frameworkName);
@@ -474,18 +447,17 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     if (dstState == FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS ||
         dstState == FrameworkState.APPLICATION_COMPLETED) {
-      frameworkStatus.setApplicationExitCode(applicationExitCode);
-      frameworkStatus.setApplicationExitDiagnostics(applicationExitDiagnostics);
+      frameworkStatus.setApplicationExitCode(event.getApplicationExitCode());
+      frameworkStatus.setApplicationExitDiagnostics(event.getApplicationExitDiagnostics());
 
       // No need to Cleanup ZK here, since it will be Cleanuped by next Application
       // No need to Cleanup HDFS here, since it will be overwrote by next Application
       // No need to Cleanup RM here, since it already Cleanuped before here
       if (dstState == FrameworkState.APPLICATION_COMPLETED) {
-        assert (applicationExitCode != ExitStatusKey.NOT_AVAILABLE.toInt());
+        assert (event.getApplicationExitCode() != null);
+        frameworkStatus.setApplicationExitType(DiagnosticsUtils.lookupExitType(
+            event.getApplicationExitCode(), event.getApplicationExitDiagnostics()));
       }
-
-      frameworkStatus.setApplicationExitType(DiagnosticsUtils.lookupExitType(
-          applicationExitCode, applicationExitDiagnostics));
     }
 
     // Framework will be Retried
@@ -494,8 +466,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       zkStore.deleteFrameworkStatus(frameworkName, true);
 
       // Ensure transitionFrameworkState and RetryPolicyState is Transactional
-      assert (newRetryPolicyState != null);
-      frameworkStatus.setFrameworkRetryPolicyState(newRetryPolicyState);
+      assert (event.getNewRetryPolicyState() != null);
+      frameworkStatus.setFrameworkRetryPolicyState(event.getNewRetryPolicyState());
     }
 
     // Record Timestamps

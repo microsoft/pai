@@ -23,6 +23,9 @@ clusterinfo:
   # HDFS, zookeeper data path
   dataPath: "/datastorage"
 
+  # PAI data root path
+  paiPath: "/var/pai"
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -68,13 +71,13 @@ clusterinfo:
     hdfs_uri: hdfs://10.0.3.9:9000
     # port for rest api server
     server_port: 9186
-    # secret for signing authentication tokens, for example, "Hello PAI!"
+    # secret for signing authentication tokens, e.g., "Hello PAI!"
     jwt_secret: your_jwt_secret
-    # default database file name
-    lowdb_file: your_database_file_name
-    # default admin username
+    # authentication database file path relative to PAI data path
+    lowdb_path: "rest-server/user.db.json"
+    # database admin username
     lowdb_admin: your_admin_username
-    # default admin password
+    # database admin password
     lowdb_passwd: your_admin_password
 
   # The config for web portal
@@ -98,6 +101,10 @@ clusterinfo:
     # port for grafana
     grafana_port: 3000
 
+  # The config for monitor service
+  prometheusinfo:
+    # port for node exporter
+    node_exporter_port: 9100
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example

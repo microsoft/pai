@@ -2,13 +2,25 @@
   "name": "pai-webportal",
   "version": "0.1.0",
   "description": "Webportal for Microsoft Platform for AI",
-  "main": "index.js",
   "keywords": [
     "webportal",
-    "AI"
+    "AI",
+    "platform",
+    "PAI"
   ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "homepage": "https://github.com/Microsoft/pai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
   "engines": {
-    "node": ">=6.11.0"
+    "node": ">=6.11.0 <=6.12.2",
+    "npm": "3.10.10"
   },
   "dependencies": {
     "admin-lte": "2.4.2",
@@ -60,7 +72,5 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack --config webpack.config.js --progress --profile",
     "yarn": "yarn --ignore-engines"
-  },
-  "author": "Microsoft",
-  "license": "MIT"
+  }
 }

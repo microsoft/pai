@@ -19,7 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.*;
-import org.apache.hadoop.yarn.client.api.AMRMClient;
+import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 
@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MockAMRMClient extends AMRMClientAsync {
+public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<T> {
   private final MockResourceManager mockResourceManager;
   private final int allocateContainerNum = 6;
 
@@ -44,7 +44,7 @@ public class MockAMRMClient extends AMRMClientAsync {
   }
 
   @Override
-  public List<? extends Collection> getMatchingRequests(Priority priority, String resourceName, Resource capability) {
+  public List<? extends Collection<T>> getMatchingRequests(Priority priority, String resourceName, Resource capability) {
     return null;
   }
 
@@ -59,16 +59,18 @@ public class MockAMRMClient extends AMRMClientAsync {
   }
 
   @Override
-  public void addContainerRequest(AMRMClient.ContainerRequest req) {
-    List<Container> allocateList = req.getRelaxLocality() ?
-        addRelaxLocalityContainerRequest(req) : addNotRelaxLocalityContainerRequest(req);
+  public void addContainerRequest(T req) {
+    List<Container> allocateList =
+        req.getRelaxLocality() ?
+            addRelaxLocalityContainerRequest(req) :
+            addNotRelaxLocalityContainerRequest(req);
 
     if (allocateList.size() != 0) {
       new AllocateContainerThread(allocateList).start();
     }
   }
 
-  private List<Container> addNotRelaxLocalityContainerRequest(AMRMClient.ContainerRequest req) {
+  private List<Container> addNotRelaxLocalityContainerRequest(T req) {
     List<Container> allocateList = new ArrayList<>();
 
     List<String> nodeList = req.getNodes();
@@ -86,7 +88,7 @@ public class MockAMRMClient extends AMRMClientAsync {
     return allocateList;
   }
 
-  private List<Container> addRelaxLocalityContainerRequest(AMRMClient.ContainerRequest req) {
+  private List<Container> addRelaxLocalityContainerRequest(T req) {
     int satisfyNodeNum = 0, notSatisfyNodeNum = 0;
     List<Container> allocateList = new ArrayList<>();
 
@@ -142,7 +144,7 @@ public class MockAMRMClient extends AMRMClientAsync {
   }
 
   @Override
-  public void removeContainerRequest(AMRMClient.ContainerRequest req) {
+  public void removeContainerRequest(T req) {
 
   }
 

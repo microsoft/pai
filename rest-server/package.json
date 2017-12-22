@@ -2,15 +2,27 @@
   "name": "pai-rest-server",
   "version": "0.1.0",
   "description": "RESTful api server for Microsoft Platform for AI",
-  "main": "index.js",
   "keywords": [
     "REST",
     "api",
     "server",
-    "AI"
+    "AI",
+    "platform",
+    "PAI"
   ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "homepage": "https://github.com/Microsoft/pai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/pai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/pai/issues"
+  },
   "engines": {
-    "node": ">=6.11.0"
+    "node": ">=6.11.0 <=6.12.2",
+    "npm": "3.10.10"
   },
   "dependencies": {
     "async": "2.5.0",
@@ -32,7 +44,5 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Microsoft",
-  "license": "MIT"
+  }
 }

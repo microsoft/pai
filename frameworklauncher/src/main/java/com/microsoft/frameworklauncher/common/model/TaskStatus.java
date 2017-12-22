@@ -49,7 +49,7 @@ public class TaskStatus implements Serializable {
   private Long containerCompletedTimestamp;
   private Integer containerExitCode;
   private String containerExitDiagnostics;
-  private ExitType containerExitType = ExitType.NOT_AVAILABLE;
+  private ExitType containerExitType;
 
   public Integer getTaskIndex() {
     return taskIndex;

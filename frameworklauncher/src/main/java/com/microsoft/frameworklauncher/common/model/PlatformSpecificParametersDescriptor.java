@@ -69,7 +69,7 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // If this feature enabled, AM will wait until all Tasks become ContainerAllocated and
+  // If this feature enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
   // then Launches them together.
   // Besides, a ContainerIpList file will be generated in each Task's current working directory.
   // All the Tasks' IPAddresses are recorded consistently in this file, and the assigned current
