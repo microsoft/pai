@@ -84,7 +84,7 @@ public class GpuAllocationManager { // THREAD SAFE
           continue;
         }
       }
-      if(nodeGpuType != null && nodes.size() > 0) {
+      if (nodeGpuType != null && nodes.size() > 0) {
         if (!nodes.containsKey(entry.getValue().getHostName())) {
           LOGGER.logWarning(
               "allocateCandidateRequestNode: Skip node %s, getGpuType not set",

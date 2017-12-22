@@ -96,13 +96,13 @@ public class Node {
     selectedGpuBitmap = gpuMap;
   }
 
-  public void releaseLocalAllocatingResource(ResourceDescriptor resource)
-  {
+  public void releaseLocalAllocatingResource(ResourceDescriptor resource) {
     localAllocatingResource.setCpuNumber(localAllocatingResource.getCpuNumber() - resource.getCpuNumber());
     localAllocatingResource.setMemoryMB(localAllocatingResource.getMemoryMB() - resource.getMemoryMB());
-    localAllocatingResource.setGpuAttribute(localAllocatingResource.getGpuAttribute() &(~resource.getGpuAttribute()));
+    localAllocatingResource.setGpuAttribute(localAllocatingResource.getGpuAttribute() & (~resource.getGpuAttribute()));
     localAllocatingResource.setGpuNumber(localAllocatingResource.getGpuNumber() - resource.getGpuNumber());
   }
+
   @Override
   public String toString() {
     return this.name + "(capacity: " + this.capacity + ", used: " + this.used + ", localAllocatingResource:" + this.localAllocatingResource + ")";

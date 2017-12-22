@@ -40,7 +40,6 @@ amVersion: 0
 amRmResyncFrequency: 6
 amRequestPullIntervalSec: 60
 amStatusPushIntervalSec: 60
-gpuConfigurationFile: /gpu-configuration/gpu-configuration.yml
 
 # WebServer Setup
 webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
