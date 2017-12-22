@@ -50,8 +50,6 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 3
         env:
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
           value: namenode-generate-script.sh
         - name: START_SERVICE
