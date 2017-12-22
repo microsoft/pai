@@ -25,4 +25,7 @@ const k8sDashboardHtml = k8sComponent({
   k8sDashboardUri: webportalConfig.k8sDashboardUri
 });
 
+$("#sidebar-menu--cluster-view").addClass("active");
+$("#sidebar-menu--cluster-view--k8s").addClass("active");
+
 $('#content-wrapper').html(k8sDashboardHtml);

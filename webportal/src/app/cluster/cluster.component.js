@@ -25,4 +25,7 @@ const clusterHtml = clusterComponent({
   grafanaUri: webportalConfig.grafanaUri
 });
 
+$("#sidebar-menu--cluster-view").addClass("active");
+$("#sidebar-menu--cluster-view--servers").addClass("active");
+
 $('#content-wrapper').html(clusterHtml);

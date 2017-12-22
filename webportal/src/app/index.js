@@ -16,4 +16,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-window.location.replace("/view.html");
+$('#content-wrapper').html("<div>Hello</div>");
