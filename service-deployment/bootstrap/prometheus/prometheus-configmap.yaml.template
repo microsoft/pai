@@ -27,6 +27,7 @@ data:
       scrape_interval: "15s"
       static_configs:
       - targets: 
-        {% for host in machinelist %}- {{ machinelist[host]['ip']}}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+        {% for host in machinelist %}
+        - {{ machinelist[host]['ip']}}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
         {% endfor %}
 
