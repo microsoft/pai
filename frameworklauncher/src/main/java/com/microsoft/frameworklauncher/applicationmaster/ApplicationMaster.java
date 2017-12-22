@@ -986,13 +986,18 @@ public class ApplicationMaster extends AbstractService {
     if (!statusManager.containsTask(taskLocator)) {
       return;
     }
-
     ContainerRequest request = statusManager.getContainerRequest(taskLocator);
     if (request == null) {
       return;
     }
 
     try {
+
+      ResourceDescriptor resourceDescriptor = ResourceDescriptor.fromResource(request.getCapability());
+      for (String node : request.getNodes()) {
+        gpuAllocationManager.releaseLocalAllocatingResource(resourceDescriptor, node);
+      }
+
       rmClient.removeContainerRequest(request);
     } catch (Exception e) {
       LOGGER.logError(e, "%s: Failed to removeContainerRequest", taskLocator);

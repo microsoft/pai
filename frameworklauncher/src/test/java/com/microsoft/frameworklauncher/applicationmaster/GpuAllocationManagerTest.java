@@ -19,13 +19,27 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
+import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+
+
+import com.microsoft.frameworklauncher.utils.YamlUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.microsoft.frameworklauncher.utils.YamlTestUtils.INPUTS_DIR;
+
+import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.io.*;
 
 public class GpuAllocationManagerTest {
   @Test
@@ -50,14 +64,13 @@ public class GpuAllocationManagerTest {
   }
 
   @Test
-  public void testGpuAllocationManager() {
-    Set<String> tag = null;
+  public void testGpuAllocationManager() throws Exception {
 
-    Node node1 = new Node("node1", tag, ResourceDescriptor.newInstance(2, 2, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node2 = new Node("node2", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node3 = new Node("node3", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
-    Node node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(2, 2, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node3 = new Node("node3", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node4 = new Node("node4", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+    Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
     AMForTest am = new AMForTest();
     am.setClusterConfiguration(new ClusterConfiguration());
@@ -78,7 +91,9 @@ public class GpuAllocationManagerTest {
     candidateGPU = gpuMgr.selectCandidateGPU(node4, 2);
     Assert.assertEquals(0x30L, candidateGPU);
 
+
     Node result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+
     //Empty allocation failed;
     Assert.assertEquals(null, result);
     gpuMgr.addCandidateRequestNode(node1);
@@ -110,20 +125,76 @@ public class GpuAllocationManagerTest {
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
-    gpuMgr.addCandidateRequestNode(new Node("node5", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
+
+    gpuMgr.addCandidateRequestNode(new Node("node5", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+
     Assert.assertEquals(result.getHostName(), "node5");
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getHostName(), "node5");
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
-    gpuMgr.addCandidateRequestNode(new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
+    gpuMgr.addCandidateRequestNode(new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+
     Assert.assertEquals(result.getHostName(), "node6");
     gpuMgr.removeCandidateRequestNode(node6);
     result = gpuMgr.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
+
+    //Allocation with Gpu type lable
+    Set<String> tag = new HashSet<String>();
+
+    //Case for node label only
+    tag.add("K40");
+    tag.add("T40");
+    node3 = new Node("node3", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node4 = new Node("node4", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 8, 0xFFL));
+    node6 = new Node("node6", tag, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+
+    GpuAllocationManager gpuMgr2 = new GpuAllocationManager(am);
+
+    gpuMgr2.addCandidateRequestNode(node3);
+    gpuMgr2.addCandidateRequestNode(node4);
+    gpuMgr2.addCandidateRequestNode(node6);
+    result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null);
+    Assert.assertEquals(result.getHostName(), "node3");
+    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF);
+    result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "T40", null);
+    Assert.assertEquals(result.getHostName(), "node3");
+    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0L);
+    //Node label not match
+    result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
+    Assert.assertEquals(result, null);
+
+    Node node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+    gpuMgr2.addCandidateRequestNode(node7);
+
+    result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
+    Assert.assertEquals(result, node7);
+
+    //Case for gpu type config only
+    node3 = new Node("node3", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node4 = new Node("node4", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+
+
+    am.initialClusterTestNodes();
+    GpuAllocationManager gpuMgr3 = new GpuAllocationManager(am);
+
+    gpuMgr3.addCandidateRequestNode(node3);
+    gpuMgr3.addCandidateRequestNode(node4);
+
+    result = gpuMgr3.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "K40");
+    Assert.assertEquals("node3", result.getHostName());
+    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF);
+    result = gpuMgr3.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40");
+    Assert.assertEquals("node4", result.getHostName());
+    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0);
+
+    //Lable doesn't exist, failed scheduling
+    result = gpuMgr2.allocateCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
+    Assert.assertEquals(result, null);
   }
 
   private class AMForTest extends MockApplicationMaster {
@@ -136,6 +207,24 @@ public class GpuAllocationManagerTest {
 
     public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
       this.clusterConfiguration = clusterConfiguration;
+    }
+
+    public void initialClusterTestNodes() throws Exception {
+      Map<String, NodeConfiguration> map = new HashMap<>();
+      NodeConfiguration nodeConfig = new NodeConfiguration();
+      nodeConfig.setGpuType("K40");
+      map.put("node1", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      nodeConfig.setGpuType("K40");
+      map.put("node2", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      nodeConfig.setGpuType("K40");
+      map.put("node3", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      nodeConfig.setGpuType("T40");
+      map.put("node4", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      nodeConfig.setGpuType("M40");
+      map.put("node6", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      nodeConfig.setGpuType("M40");
+      map.put("node7", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
+      this.clusterConfiguration.setNodes(map);
     }
   }
 }
