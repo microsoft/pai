@@ -91,11 +91,11 @@ public class GpuAllocationManager { // THREAD SAFE
               entry.getValue().getHostName());
           continue;
         }
-        String gpuTypeLabel = (nodes.get(entry.getValue().getHostName())).getGpuType();
-        if (!nodeGpuType.equals(gpuTypeLabel)) {
+        String gpuType = (nodes.get(entry.getValue().getHostName())).getGpuType();
+        if (!nodeGpuType.equals(gpuType)) {
           LOGGER.logDebug(
               "allocateCandidateRequestNode: Skip node %s (gpuTypeLabel:%s), labels don't match: request nodeLabel: %s",
-              entry.getValue().getHostName(), gpuTypeLabel, nodeLabel);
+              entry.getValue().getHostName(), gpuType, nodeGpuType);
           continue;
         }
       }
