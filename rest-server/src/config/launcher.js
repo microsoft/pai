@@ -20,6 +20,8 @@
 const path = require('path');
 const fse = require('fs-extra');
 const Joi = require('joi');
+const async = require('async');
+const unirest = require('unirest');
 const childProcess = require('child_process');
 const config = require('./index');
 const logger = require('./logger');
@@ -36,6 +38,10 @@ let launcherConfig = {
   jobRootDir: './frameworklauncher',
   jobDirCleanUpIntervalSecond: 7200,
   frameworkDescriptionFilename: 'FrameworkDescription.json'
+};
+
+launcherConfig.healthCheckPath = () => {
+  return `${launcherConfig.webserviceUri}/v1`;
 };
 
 launcherConfig.frameworksPath = () => {
@@ -92,46 +98,70 @@ if (error) {
 }
 launcherConfig = value;
 
-childProcess.exec(
-    `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/output && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/output`,
-    (err, stdout, stderr) => {
-      if (err) {
-        throw err;
-      }
-    });
 
-fse.ensureDir(launcherConfig.jobRootDir, (err) => {
-  if (err) {
-    throw new Error(`make launcher job dir error\n${err}`);
-  }
-  const jobDirCleanUpInterval = setInterval(() => {
-    fse.readdir(launcherConfig.jobRootDir, (readdirError, dirs) => {
-      if (readdirError) {
-        logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readdirError.stack);
-      } else {
-        for (let i = 0; i < dirs.length; i ++) {
-          const jobDir = path.join(launcherConfig.jobRootDir, dirs[i]);
-          fse.stat(jobDir, (statError, stats) => {
-            if (statError) {
-              logger.warn('stat %s error\n%s', jobDir, statError.stack);
-            } else {
-              const timeDelta = (new Date().getTime() - stats.mtime) / 1000;
-              if (timeDelta > launcherConfig.jobDirCleanUpIntervalSecond) {
-                fse.remove(jobDir, (removeError) => {
-                  if (removeError) {
-                    logger.warn('remove %s error\n%s', jobDir, removeError.stack);
-                  } else {
-                    logger.verbose('removed %s successfully', jobDir);
-                  }
-                });
+// prepare hdfs file path
+const prepareHdfsPath = () => {
+  async.each(['Container', 'Output'], (hdfsPath, callback) => {
+    childProcess.exec(
+        `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
+        hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`,
+        (err, stdout, stderr) => {
+          callback(err);
+        });
+  }, (err) => {
+    throw err;
+  });
+};
+
+// prepare local file path
+const prepareLocalPath = () => {
+  fse.ensureDir(launcherConfig.jobRootDir, (err) => {
+    if (err) {
+      throw new Error(`make launcher job dir error\n${err}`);
+    }
+    const jobDirCleanUpInterval = setInterval(() => {
+      fse.readdir(launcherConfig.jobRootDir, (readdirError, dirs) => {
+        if (readdirError) {
+          logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readdirError.stack);
+        } else {
+          for (let i = 0; i < dirs.length; i ++) {
+            const jobDir = path.join(launcherConfig.jobRootDir, dirs[i]);
+            fse.stat(jobDir, (statError, stats) => {
+              if (statError) {
+                logger.warn('stat %s error\n%s', jobDir, statError.stack);
+              } else {
+                const timeDelta = (new Date().getTime() - stats.mtime) / 1000;
+                if (timeDelta > launcherConfig.jobDirCleanUpIntervalSecond) {
+                  fse.remove(jobDir, (removeError) => {
+                    if (removeError) {
+                      logger.warn('remove %s error\n%s', jobDir, removeError.stack);
+                    } else {
+                      logger.verbose('removed %s successfully', jobDir);
+                    }
+                  });
+                }
               }
-            }
-          });
+            });
+          }
         }
+      });
+    }, launcherConfig.jobDirCleanUpIntervalSecond * 1000);
+  });
+};
+
+// framework launcher health check
+unirest.get(launcherConfig.healthCheckPath())
+    .headers(launcherConfig.webserviceRequestHeaders)
+    .timeout(2000)
+    .end((res) => {
+      if (res.status === 200) {
+        logger.info('connected to framework launcher successfully');
+        prepareHdfsPath();
+        prepareLocalPath();
+      } else {
+        throw new Error('cannot connect to framework launcher');
       }
     });
-  }, launcherConfig.jobDirCleanUpIntervalSecond * 1000);
-});
 
 // module exports
 module.exports = launcherConfig;

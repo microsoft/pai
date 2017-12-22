@@ -118,7 +118,7 @@ class Job {
 
   putJob(name, data, next) {
     if (!data.outputDir.trim()) {
-      data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
+      data.outputDir = `${launcherConfig.hdfsUri}/Output/${name}`;
     }
     childProcess.exec(
         `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
