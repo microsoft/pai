@@ -316,4 +316,3 @@ public class LauncherConfiguration implements Serializable {
     this.webServerStatusPullIntervalSec = webServerStatusPullIntervalSec;
   }
 }
-
