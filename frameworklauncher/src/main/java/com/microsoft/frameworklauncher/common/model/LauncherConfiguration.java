@@ -91,7 +91,7 @@ public class LauncherConfiguration implements Serializable {
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
 
-  
+
   public String getZkConnectString() {
     return zkConnectString;
   }
