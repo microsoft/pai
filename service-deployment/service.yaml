@@ -121,6 +121,7 @@ servicelist:
     templatelist:
       - node-label.sh
       - configmap-create.sh
+      - hadoop-journal-node.yaml
       - hadoop-name-node.yaml
       - hadoop-data-node.yaml
       - hadoop-resource-manager.yaml
