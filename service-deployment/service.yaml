@@ -78,7 +78,7 @@ imagelist:
     copy:
       - ../prometheus/exporter
     templatelist:
-      - None
+      - start.sh
     prerequisite: None
     
 # Before starting your service, ensure the kubectl has been installed on your host.
