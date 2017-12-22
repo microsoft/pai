@@ -118,7 +118,7 @@ class Job {
 
   putJob(name, data, next) {
     if (!data.outputDir.trim()) {
-      data.outputDir = `${launcherConfig.hdfsUri}/Output/${name}`;
+      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     }
     childProcess.exec(
         `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
@@ -127,7 +127,7 @@ class Job {
             logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
           }
         });
-    const jobDir = path.join(launcherConfig.jobRootDir, name);
+    const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
     fse.ensureDir(jobDir, (err) => {
       if (err) {
         return next(err);
@@ -162,6 +162,13 @@ class Job {
             });
           },
           (parallelCallback) => {
+            fse.outputJson(
+                path.join(jobDir, launcherConfig.jobConfigFileName),
+                data,
+                { 'spaces': 2 },
+                (err) => parallelCallback(err));
+          },
+          (parallelCallback) => {
             frameworkDescription = this.generateFrameworkDescription(data);
             fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
@@ -174,7 +181,8 @@ class Job {
             return next(parallelError);
           } else {
             childProcess.exec(
-                `HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container`,
+                `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`,
                 (err, stdout, stderr) => {
                   logger.info('[stdout]\n%s', stdout);
                   logger.info('[stderr]\n%s', stderr);
@@ -258,7 +266,7 @@ class Job {
         'taskService': {
           'version': 0,
           'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Container/${data.jobName}/YarnContainerScripts`],
+          'sourceLocations': [`/Container/${data.username}/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,
