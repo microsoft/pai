@@ -37,6 +37,7 @@ let launcherConfig = {
   },
   jobRootDir: './frameworklauncher',
   jobDirCleanUpIntervalSecond: 7200,
+  jobConfigFileName: 'JobConfig.json',
   frameworkDescriptionFilename: 'FrameworkDescription.json'
 };
 
@@ -88,6 +89,8 @@ const launcherConfigSchema = Joi.object().keys({
     .integer()
     .min(30 * 60)
     .default(120 * 60),
+  jobConfigFileName: Joi.string()
+    .default('JobConfig.json'),
   frameworkDescriptionFilename: Joi.string()
     .default('FrameworkDescription.json')
 }).required();
@@ -120,23 +123,32 @@ const prepareLocalPath = () => {
       throw new Error(`make launcher job dir error\n${err}`);
     }
     const jobDirCleanUpInterval = setInterval(() => {
-      fse.readdir(launcherConfig.jobRootDir, (readdirError, dirs) => {
-        if (readdirError) {
-          logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readdirError.stack);
+      fse.readdir(launcherConfig.jobRootDir, (readRootDirError, userDirs) => {
+        if (readRootDirError) {
+          logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readRootDirError.stack);
         } else {
-          for (let i = 0; i < dirs.length; i ++) {
-            const jobDir = path.join(launcherConfig.jobRootDir, dirs[i]);
-            fse.stat(jobDir, (statError, stats) => {
-              if (statError) {
-                logger.warn('stat %s error\n%s', jobDir, statError.stack);
+          for (let i = 0; i < userDirs.length; i ++) {
+            const userDir = path.join(launcherConfig.jobRootDir, userDirs[i]);
+            fse.readdir(userDir, (readUserDirError, jobDirs) => {
+              if (readUserDirError) {
+                logger.warn('read %s error\n%s', userDir, readUserDirError.stack);
               } else {
-                const timeDelta = (new Date().getTime() - stats.mtime) / 1000;
-                if (timeDelta > launcherConfig.jobDirCleanUpIntervalSecond) {
-                  fse.remove(jobDir, (removeError) => {
-                    if (removeError) {
-                      logger.warn('remove %s error\n%s', jobDir, removeError.stack);
+                for (let i = 0; i < jobDirs.length; i ++) {
+                  const jobDir = path.join(userDir, jobDirs[i]);
+                  fse.stat(jobDir, (statError, stats) => {
+                    if (statError) {
+                      logger.warn('stat %s error\n%s', jobDir, statError.stack);
                     } else {
-                      logger.verbose('removed %s successfully', jobDir);
+                      const timeDelta = (new Date().getTime() - stats.mtime) / 1000;
+                      if (timeDelta > launcherConfig.jobDirCleanUpIntervalSecond) {
+                        fse.remove(jobDir, (removeError) => {
+                          if (removeError) {
+                            logger.warn('remove %s error\n%s', jobDir, removeError.stack);
+                          } else {
+                            logger.verbose('removed %s successfully', jobDir);
+                          }
+                        });
+                      }
                     }
                   });
                 }
