@@ -26,5 +26,5 @@ deployment/prometheus-deployment
 configmap/prometheus-configmap"
 
 for instance in ${INSTANCES}; do
-  eval "${KUBECTL} delete --ignore-not-found --now \"${instance}\""
+  kubectl delete --ignore-not-found --now ${instance}
 done

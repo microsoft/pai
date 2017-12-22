@@ -25,10 +25,8 @@ chmod u+x node-label.sh
 
 ./node-label.sh
 
-KUBECTL="kubectl "
-
-eval "${KUBECTL} create -f prometheus-configmap.yaml"
-eval "${KUBECTL} create -f node-exporter-ds.yaml"
-eval "${KUBECTL} create -f prometheus-deployment.yaml"
+kubectl create -f prometheus-configmap.yaml
+kubectl create -f node-exporter-ds.yaml
+kubectl create -f prometheus-deployment.yaml
 
 popd > /dev/null
