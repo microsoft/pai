@@ -37,8 +37,10 @@ spec:
         env:
         - name: REST_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
-        - name: CLUSTER_STATUS_URI
-          value: {{ clusterinfo['webportalinfo']['cluster_status_uri'] }}
+        - name: K8S_DASHBOARD_URI
+          value: {{ clusterinfo['webportalinfo']['k8s_dashboard_uri'] }}
+        - name: GRAFANA_URI
+          value: {{ clusterinfo['webportalinfo']['grafana_uri'] }}
         ports:
         - name: webportal
           containerPort: 8080

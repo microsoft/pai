@@ -9,7 +9,8 @@ Cluster operator can also see and manage cluster state through web portal.
 The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process, including that of the web portal. 
 The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) are of interest to web portal:
 * REST_SERVER_URI: String, uri of the rest server, for example, http://10.0.3.9:9186
-* CLUSTER_STATUS_URI: String, uri of the prometheus monitoring dashboard, for example, http://10.0.3.9:9090
+* K8S_DASHBOARD_URI: String, uri of the kubernetes dashboard. For example, http://10.0.3.9:9090.
+* GRAFANA_URI: String, uri of the grafana portal, for example, http://10.0.3.9:9090
 * SERVER_PORT: Int, the port to use when launching WebPortal, for example, 9286 for default
 
 ## Usage
