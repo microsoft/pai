@@ -1,2 +1,6 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherRequest {launchedDataDeploymentVersion: testString,
-  launchingDataDeploymentVersion: testString}
+!!com.microsoft.frameworklauncher.common.model.LauncherRequest
+clusterConfiguration:
+  nodes:
+    testString: {gpuType: testString}
+launchedDataDeploymentVersion: testString
+launchingDataDeploymentVersion: testString

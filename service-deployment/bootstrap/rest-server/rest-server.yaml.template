@@ -22,6 +22,7 @@ metadata:
 spec:
   template:
     metadata:
+      name: rest-server
       labels:
         app: rest-server
     spec:
@@ -35,14 +36,29 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: true
+        volumeMounts:
+        - mountPath: /var/pai
+          name: pai-path
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+        - name: JWT_SECRET
+          value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
+        - name: LOWDB_FILE
+          value: /var/pai/{{ clusterinfo['restserverinfo']['lowdb_path'] }}
+        - name: LOWDB_ADMIN
+          value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
+        - name: LOWDB_PASSWD
+          value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
         ports:
         - name: rest-server
           containerPort: 8080
           hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      volumes:
+      - name: pai-path
+        hostPath:
+          path: {{ clusterinfo['paiPath'] }}

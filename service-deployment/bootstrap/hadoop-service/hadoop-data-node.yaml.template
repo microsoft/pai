@@ -28,7 +28,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hadooprole: worker
+        hdfsrole: worker
       containers:
       - name:  hadoop-data-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
@@ -40,6 +40,13 @@ spec:
           name: hadoop-config-volume
         - mountPath: /host-configuration
           name: host-confg-volume
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /jobstatus/jobok
+          initialDelaySeconds: 5
+          periodSeconds: 3
         env:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -52,7 +59,7 @@ spec:
       volumes:
       - name: hadoop-data-storage
         hostPath:
-          path: /mnt/sdb1/hdfs/data
+          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}

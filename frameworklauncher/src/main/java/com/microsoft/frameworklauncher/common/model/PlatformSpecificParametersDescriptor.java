@@ -18,10 +18,10 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // Computation Platform Specific Parameters
-// Currently, only support Yarn Platform Parameters
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
@@ -34,32 +34,42 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   private String taskNodeLabel;
 
   @Valid
+  private String taskNodeGpuType;
+
+  @Valid
+  @NotNull
   private String queue = "default";
 
   @Valid
+  @NotNull
   // -1 means unlimit.
   // -2 means using default value: LauncherConfiguration.RMResyncFrequency.
   private Integer containerConnectionMaxLostCount = -2;
 
   @Valid
+  @NotNull
   // No unlimit option, since exceed Container must be released eventually.
   private Integer containerConnectionMaxExceedCount = 2;
 
   @Valid
+  @NotNull
   // If this feature enabled, different Tasks is ensured to run on different nodes.
   private Boolean antiaffinityAllocation = false;
 
   @Valid
+  @NotNull
   // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED.
   private Boolean killAllOnAnyCompleted = false;
 
   @Valid
+  @NotNull
   // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED
   // which is due to the exit of UserService.
   private Boolean killAllOnAnyServiceCompleted = false;
 
   @Valid
-  // If this feature enabled, AM will wait until all Tasks become ContainerAllocated and
+  @NotNull
+  // If this feature enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
   // then Launches them together.
   // Besides, a ContainerIpList file will be generated in each Task's current working directory.
   // All the Tasks' IPAddresses are recorded consistently in this file, and the assigned current
@@ -67,24 +77,29 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   private Boolean generateContainerIpList = false;
 
   @Valid
+  @NotNull
   private AMType amType = AMType.DEFAULT;
 
   @Valid
+  @NotNull
   // The following will take effect only if amType is "AGENT".
   // If this feature enabled, Agent will be enabled to send heartbeats to AM.
   private Boolean agentUseHeartbeat = false;
 
   @Valid
+  @NotNull
   // The following will take effect only if amType is "AGENT" and AgentUseAgent flag is true.
   // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHearbeatsIntervalSec
   private Integer agentHeartbeatIntervalSec = 30;
 
   @Valid
+  @NotNull
   // This is the value when AgentAM does not receive the heartbeats for this interval, the agent is treated as expired.
   // It should be a value larger than agentHeartbeatIntervalSec.
   private Integer agentExpiryIntervalSec = 180;
 
   @Valid
+  @NotNull
   // If this feature enabled, Agent will be enabled to do health checking for user applications.
   private Boolean agentUseHealthCheck = false;
 
@@ -113,6 +128,14 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   public void setTaskNodeLabel(String taskNodeLabel) {
     this.taskNodeLabel = taskNodeLabel;
+  }
+
+  public String getTaskNodeGpuType() {
+    return taskNodeGpuType;
+  }
+
+  public void setTaskNodeGpuType(String taskNodeGpuType) {
+    this.taskNodeGpuType = taskNodeGpuType;
   }
 
   public String getQueue() {

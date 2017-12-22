@@ -51,7 +51,9 @@ class Job {
             this.getJobStatus(frameworkName, (jobStatus) => {
               const jobOverview = {
                 name: frameworkName,
+                username: jobStatus.username,
                 state: jobStatus.state,
+                retries: jobStatus.retries,
                 createdTime: jobStatus.createdTime,
                 completedTime: jobStatus.completedTime,
                 appTrackingUrl: jobStatus.appTrackingUrl,
@@ -70,27 +72,47 @@ class Job {
   getJobStatus(name, next) {
     unirest.get(launcherConfig.frameworkStatusPath(name))
         .headers(launcherConfig.webserviceRequestHeaders)
-        .end((res) => {
-          const resJson = typeof res.body === 'object' ?
-              res.body : JSON.parse(res.body);
+        .end((statusRes) => {
+          const statusResJson = typeof statusRes.body === 'object' ?
+              statusRes.body : JSON.parse(statusRes.body);
           const jobStatus = {
             name: name,
-            state: resJson.frameworkState,
-            createdTime: resJson.frameworkCreatedTimestamp,
-            completedTime: resJson.frameworkCompletedTimestamp,
-            appId: resJson.applicationId,
-            appProgress: resJson.applicationProgress,
-            appTrackingUrl: resJson.applicationTrackingUrl,
-            appLaunchedTime: resJson.applicationLaunchedTimestamp,
-            appCompletedTime: resJson.applicationCompletedTimestamp,
-            appExitCode: resJson.applicationExitCode,
-            appExitDiagnostics: resJson.applicationExitDiagnostics,
-            appExitType: resJson.applicationExitType
+            state: statusResJson.frameworkState,
+            createdTime: statusResJson.frameworkCreatedTimestamp,
+            completedTime: statusResJson.frameworkCompletedTimestamp,
+            appId: statusResJson.applicationId,
+            appProgress: statusResJson.applicationProgress,
+            appTrackingUrl: statusResJson.applicationTrackingUrl,
+            appLaunchedTime: statusResJson.applicationLaunchedTimestamp,
+            appCompletedTime: statusResJson.applicationCompletedTimestamp,
+            appExitCode: statusResJson.applicationExitCode,
+            appExitDiagnostics: statusResJson.applicationExitDiagnostics,
+            appExitType: statusResJson.applicationExitType
           };
-          if (resJson.exception !== undefined) {
+          if (statusResJson.exception !== undefined) {
             jobStatus.state = 'JOB_NOT_FOUND';
           }
-          next(jobStatus);
+          if (statusResJson.frameworkRetryPolicyState) {
+            if (typeof statusResJson.frameworkRetryPolicyState.retriedCount === undefined) {
+              jobStatus.retries = 0;
+            } else {
+              jobStatus.retries = statusResJson.frameworkRetryPolicyState.retriedCount;
+            }
+          } else {
+            jobStatus.retries = 0;
+          }
+          unirest.get(launcherConfig.frameworkRequestPath(name))
+              .headers(launcherConfig.webserviceRequestHeaders)
+              .end((requestRes) => {
+                const requestResJson = typeof requestRes.body === 'object' ?
+                    requestRes.body : JSON.parse(requestRes.body);
+                if (requestResJson.frameworkDescriptor) {
+                  jobStatus.username = requestResJson.frameworkDescriptor.user.name;
+                } else {
+                  jobStatus.username = 'unknown';
+                }
+                next(jobStatus);
+              });
         });
   }
 
@@ -99,7 +121,7 @@ class Job {
       data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
     }
     childProcess.exec(
-        `hdfs dfs -mkdir -p ${data.outputDir}`,
+        `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
         (err, stdout, stderr) => {
           if (err) {
             logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
@@ -152,7 +174,7 @@ class Job {
             return next(parallelError);
           } else {
             childProcess.exec(
-                `hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Launcher`,
+                `HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container`,
                 (err, stdout, stderr) => {
                   logger.info('[stdout]\n%s', stdout);
                   logger.info('[stderr]\n%s', stderr);
@@ -171,10 +193,22 @@ class Job {
     });
   }
 
-  deleteJob(name, next) {
-    unirest.delete(launcherConfig.frameworkPath(name))
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .end(() => next());
+  deleteJob(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+            requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
+          unirest.delete(launcherConfig.frameworkPath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .end(() => next());
+        } else {
+          next(new Error('can not delete other user\'s job'));
+        }
+      });
   }
 
   generateYarnContainerScript(data, idx) {
@@ -209,6 +243,7 @@ class Job {
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
     const frameworkDescription = {
       'version': 10,
+      'user': { 'name': data.username },
       'taskRoles': {},
       'platformSpecificParameters': {
         'queue': "default",
@@ -223,7 +258,7 @@ class Job {
         'taskService': {
           'version': 0,
           'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Launcher/${data.jobName}/YarnContainerScripts`],
+          'sourceLocations': [`/Container/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,

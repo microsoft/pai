@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // If fancyRetryPolicy is enabled,
@@ -32,9 +33,11 @@ import java.io.Serializable;
 //  will Not Retry if all previous conditions are not satisfied.
 public class RetryPolicyDescriptor implements Serializable {
   @Valid
+  @NotNull
   private Integer maxRetryCount = 0;
 
   @Valid
+  @NotNull
   private Boolean fancyRetryPolicy = false;
 
   public Integer getMaxRetryCount() {

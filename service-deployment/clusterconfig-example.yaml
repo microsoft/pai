@@ -20,6 +20,12 @@ clusterID: your_cluster_id
 
 clusterinfo:
 
+  # HDFS, zookeeper data path
+  dataPath: "/datastorage"
+
+  # PAI data root path
+  paiPath: "/var/pai"
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -65,16 +71,28 @@ clusterinfo:
     hdfs_uri: hdfs://10.0.3.9:9000
     # port for rest api server
     server_port: 9186
+    # secret for signing authentication tokens, e.g., "Hello PAI!"
+    jwt_secret: your_jwt_secret
+    # authentication database file path relative to PAI data path
+    lowdb_path: "rest-server/user.db.json"
+    # database admin username
+    lowdb_admin: your_admin_username
+    # database admin password
+    lowdb_passwd: your_admin_password
 
   # The config for web portal
   webportalinfo:
-    # The address of the rest server to connect to
-    rest_server_addr: http://10.0.3.9:9186
-    # The address of the kubernetes dashboard to 
-    k8s_dashboard_addr: 10.0.3.12
-    # The port of web portal server
-    port: 6969
+    # uri for rest server
+    rest_server_uri: http://10.0.3.9:9186
+    # uri for cluster status dashboard
+    cluster_status_uri: http://10.0.3.9:9090
+    # port for webportal
+    server_port: 9286
 
+  # The config for monitor service
+  prometheusinfo:
+    # port for node exporter
+    node_exporter_port: 9100
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
@@ -114,7 +132,15 @@ machinelist:
     ip: 10.0.3.9
     # all hadooprole: master will install zk, please specify a unique zkid for each node. Begin at "1".
     zkid: "1"
-    hadooprole: master
+    # hdfsrole:   master or worker
+    # yarnrole:   master or worker
+    # zookeeper:  "true"   or not set this value
+    # Note: if zookeeper is set, you should set zkid in this machine.
+    # jobhistory: "true"   or not set this value
+    hdfsrole: master
+    yarnrole: master
+    zookeeper: "true"
+    jobhistory: "true"
     launcher: "true"
     restserver: "true"
     webportal: "true"
@@ -124,11 +150,13 @@ machinelist:
     nodename: 10.0.3.11
     machinetype: NC24R
     ip: 10.0.3.11
-    hadooprole: worker
+    hdfsrole: worker
+    yarnrole: worker
   
   # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
     machinetype: NC24R
     ip: 10.0.3.12
-    hadooprole: worker
+    hdfsrole: worker
+    yarnrole: worker

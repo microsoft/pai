@@ -31,21 +31,24 @@ public class TaskRoleDescriptor implements Serializable {
   private Integer taskNumber;
 
   @Valid
-  // The priority to Allocate Container to this TaskRole's Tasks.
-  private Integer priority = 1;
-
-  @Valid
+  @NotNull
   private Integer scaleUnitNumber = 1;
 
   @Valid
+  @NotNull
   private Integer scaleUnitTimeoutSec = 0;
 
   @Valid
+  @NotNull
   private RetryPolicyDescriptor taskRetryPolicy = new RetryPolicyDescriptor();
 
   @Valid
   @NotNull
   private ServiceDescriptor taskService;
+
+  @Valid
+  @NotNull
+  private TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters = new TaskRolePlatformSpecificParametersDescriptor();
 
   // private List<ServiceDescriptor> taskServices;
   // private List<String> dependOnTaskRoles;
@@ -56,14 +59,6 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setTaskNumber(Integer taskNumber) {
     this.taskNumber = taskNumber;
-  }
-
-  public Integer getPriority() {
-    return priority;
-  }
-
-  public void setPriority(Integer priority) {
-    this.priority = priority;
   }
 
   public Integer getScaleUnitNumber() {
@@ -96,5 +91,13 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setTaskService(ServiceDescriptor taskService) {
     this.taskService = taskService;
+  }
+
+  public TaskRolePlatformSpecificParametersDescriptor getPlatformSpecificParameters() {
+    return platformSpecificParameters;
+  }
+
+  public void setPlatformSpecificParameters(TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters) {
+    this.platformSpecificParameters = platformSpecificParameters;
   }
 }

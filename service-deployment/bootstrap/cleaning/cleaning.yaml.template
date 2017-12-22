@@ -46,5 +46,5 @@ spec:
       volumes:
       - name: data-path
         hostPath:
-          path: /mnt
+          path: {{ clusterinfo[ 'dataPath' ] }}
 

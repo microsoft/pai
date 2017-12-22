@@ -51,6 +51,13 @@ spec:
           name: realpath-path
         - mountPath: /usr/src
           name: kernel-head
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /jobstatus/jobok
+          initialDelaySeconds: 5
+          periodSeconds: 3
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

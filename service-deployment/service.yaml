@@ -62,6 +62,8 @@ imagelist:
 
   webportal:
     copy:
+      - ../pai-fs
+      - ../job-tutorial
       - ../webportal
     templatelist:
       - None
@@ -72,7 +74,13 @@ imagelist:
       - dockerfile
     prerequisite: None
 
-
+  gpu-exporter:
+    copy:
+      - ../prometheus/exporter
+    templatelist:
+      - None
+    prerequisite: None
+    
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
@@ -88,7 +96,8 @@ servicelist:
     templatelist:
       - secret.yaml
       - host-configuration/host-configuration.yaml
-      - gpu-configuration/gpu-configuration.yaml
+      - gpu-configuration/gpu-configuration.yml
+      - gpu-configuration/gpu-configuration.json
       - docker-credentials/config.json
       - cleanup.sh
     startscript: start.sh
@@ -152,5 +161,14 @@ servicelist:
       - node-label.sh
       - webportal-ds.yaml
       - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
+
+  prometheus:
+    prerequisite:
+      - cluster-configuration
+      - drivers
+    templatelist:
+      - node-exporter-ds.yaml
     startscript: start.sh
     stopscript: cleanup.sh

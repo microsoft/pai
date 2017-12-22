@@ -1,0 +1,21 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "User Login" }) %></section>
+
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <form id="form-login" class="form-login">
+          <h2 class="form-login-heading">Please login</h2>
+          <label for="inputUsername" class="sr-only">Username</label>
+          <input type="username" name="username" id="input-username" class="form-control" placeholder="Username" required autofocus>
+          <label for="inputPassword" class="sr-only">Password</label>
+          <input type="password" name="password" id="input-password" class="form-control" placeholder="Password" required>
+          <div class="checkbox">
+            <label><input type="checkbox" name="remember">Remember me for a week</label>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block">login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

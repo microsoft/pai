@@ -39,18 +39,23 @@ public class ResourceDescriptor implements Serializable {
   private Integer memoryMB;
 
   @Valid
+  @NotNull
   private List<Range> portRanges = new ArrayList<>();
 
   @Valid
+  @NotNull
   private DiskType diskType = DiskType.HDD;
 
   @Valid
+  @NotNull
   private Integer diskMB = 0;
 
   @Valid
+  @NotNull
   private Long gpuAttribute = 0L;
 
   @Valid
+  @NotNull
   private Integer gpuNumber = 0;
 
   public Integer getCpuNumber() {
@@ -162,6 +167,9 @@ public class ResourceDescriptor implements Serializable {
 
   @Override
   public String toString() {
-    return "<MemoryMB:" + getMemoryMB() + ", CpuNumber:" + getCpuNumber() + ", GpuNumber:" + getGpuNumber() + ", GpuAttribute:" + getGpuAttribute() + ">";
+    return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
+        String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
+        String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
+        String.format("GpuAttribute: [%s]]", getGpuAttribute());
   }
 }

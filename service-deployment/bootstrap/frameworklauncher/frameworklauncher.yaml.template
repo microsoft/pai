@@ -62,7 +62,7 @@ spec:
       volumes:
       - name: launcher-log
         hostPath:
-          path: /mnt/sdb1/logs
+          path: {{ clusterinfo[ 'dataPath' ] }}/launcherlogs
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}

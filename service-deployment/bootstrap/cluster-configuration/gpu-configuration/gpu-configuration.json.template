@@ -1,0 +1,9 @@
+{
+  "nodes" : {
+{% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
+    "{{machinelist[ host ]['nodename']}}" : {
+        "gpuType" : "{{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  }
+}

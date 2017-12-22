@@ -18,10 +18,12 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class HealthCheckDescriptor implements Serializable {
   @Valid
+  @NotNull
   private HealthCheckType healthCheckType = HealthCheckType.COMMAND;
 
   @Valid
@@ -34,29 +36,35 @@ public class HealthCheckDescriptor implements Serializable {
   private String webUrl;
 
   @Valid
+  @NotNull
   // It is the amount of time to wait until starting health checking
   private Integer delaySeconds = 30;
 
   @Valid
+  @NotNull
   // It is the interval between health checks
   private Integer intervalSeconds = 30;
 
   @Valid
+  @NotNull
   // It is the amount of time to wait for the health check to complete.
   // After this timeout, the health check is aborted and treated as a failure.
   private Integer timeoutSeconds = 30;
 
   @Valid
+  @NotNull
   // It is the number of consecutive failures until the user application is killed by the agent
   private Integer consecutiveFailures = 10;
 
   @Valid
+  @NotNull
   // It is the amount of time after the user application is launched during which health check failures are ignored.
   // Once a health check succeeds for the first time, the grace period does not apply anymore.
   // Note that it includes "delaySeconds", i.e., setting "gracePeriodSeconds" < "delaySeconds" has no effect.
   private Integer gracePeriodSeconds = 60;
 
   @Valid
+  @NotNull
   // It is the agent exit type in encountering health check failure
   private HealthCheckFailureType healthCheckFailureType = HealthCheckFailureType.TRANSIENT_ERROR;
 

@@ -252,6 +252,9 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class);
   }
 
+  public synchronized ClusterConfiguration getClusterConfiguration() throws Exception {
+    return YamlUtils.deepCopy(launcherRequest, LauncherRequest.class).getClusterConfiguration();
+  }
 
   /**
    * REGION ModifyInterface
@@ -361,6 +364,13 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     } else if (updateDataDeploymentVersionRequest.getDataDeploymentVersionType() == DataDeploymentVersionType.LAUNCHED) {
       newLauncherRequest.setLaunchedDataDeploymentVersion(updateDataDeploymentVersionRequest.getDataDeploymentVersion());
     }
+    zkStore.setLauncherRequest(newLauncherRequest);
+    launcherRequest = newLauncherRequest;
+  }
+
+  public synchronized void updateClusterConfiguration(ClusterConfiguration clusterConfiguration) throws Exception {
+    LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
+    newLauncherRequest.setClusterConfiguration(clusterConfiguration);
     zkStore.setLauncherRequest(newLauncherRequest);
     launcherRequest = newLauncherRequest;
   }

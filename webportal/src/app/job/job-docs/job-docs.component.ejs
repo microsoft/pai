@@ -1,0 +1,30 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "Documentation" }) %></section>
+
+<section class="content">
+  <div class="box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Introduction</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="" data-original-title="Collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <div class="box-body">
+      This is the web portal of the GPU cluster.
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Job Guide</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="" data-original-title="Collapse">
+          <i class="fa fa-minus"></i>
+        </button>
+      </div>
+    </div>
+    <div id="job-doc" class="box-body">
+      ${require('./job-docs.md')}
+    </div>
+  </div>
+</section>

@@ -96,7 +96,7 @@ public class Node {
     selectedGpuBitmap = gpuMap;
   }
 
-  public void completeResourceAllocation(ResourceDescriptor resource)
+  public void releaseLocalAllocatingResource(ResourceDescriptor resource)
   {
     localAllocatingResource.setCpuNumber(localAllocatingResource.getCpuNumber() - resource.getCpuNumber());
     localAllocatingResource.setMemoryMB(localAllocatingResource.getMemoryMB() - resource.getMemoryMB());

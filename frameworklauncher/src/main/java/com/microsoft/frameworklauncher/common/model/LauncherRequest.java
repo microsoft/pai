@@ -17,11 +17,20 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class LauncherRequest implements Serializable {
+  @Valid
   private String launchingDataDeploymentVersion;
+
+  @Valid
   private String launchedDataDeploymentVersion;
+
+  @Valid
+  @NotNull
+  private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
 
   public String getLaunchingDataDeploymentVersion() {
     return launchingDataDeploymentVersion;
@@ -37,5 +46,13 @@ public class LauncherRequest implements Serializable {
 
   public void setLaunchedDataDeploymentVersion(String launchedDataDeploymentVersion) {
     this.launchedDataDeploymentVersion = launchedDataDeploymentVersion;
+  }
+
+  public ClusterConfiguration getClusterConfiguration() {
+    return clusterConfiguration;
+  }
+
+  public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
+    this.clusterConfiguration = clusterConfiguration;
   }
 }

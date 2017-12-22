@@ -79,15 +79,11 @@ component_list:
   - src: kubelet.sh
     dst: src/
 
-  kube-proxy:
-  - src: kube-proxy.yaml
-    dst: src/
-
-  haproxy:
-  - src: haproxy.yaml
-    dst: src/etc/kubernetes/manifests
-  - src: haproxy.cfg
-    dst: src/haproxy
+  #haproxy:
+  #- src: haproxy.yaml
+  #  dst: src/etc/kubernetes/manifests
+  #- src: haproxy.cfg
+  #  dst: src/haproxy
 
 
 
@@ -100,8 +96,6 @@ remote_deployment:
     - name: etcd
     - name: scheduler
     - name: kubelet
-    - name: kube-proxy
-      deleteAfterGenerate: 'True'
 
 
   worker:
@@ -112,11 +106,11 @@ remote_deployment:
 
   # If customized LB set in your cluster, you should add this role to your cluster.
   # Those node will only run the lb in your cluster.
-  proxy:
-    listname: proxymachinelist
-    component:
-    - name: kubelet
-    - name: haproxy
+  #proxy:
+  #  listname: proxymachinelist
+  #  component:
+  #  - name: kubelet
+  #  - name: haproxy
 
 
 
@@ -172,13 +166,13 @@ workermachinelist:
 
 
 
-proxymachinelist:
-
-  proxy-01:
-    nodename: IP
-    hostip: IP
-    username: username
-    password: password
+#proxymachinelist:
+#
+#  proxy-01:
+#    nodename: IP
+#    hostip: IP
+#    username: username
+#    password: password
 
 
 

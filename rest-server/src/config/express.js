@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
 const compress = require('compression');
@@ -29,6 +30,7 @@ const router = require('../routes/index');
 
 const app = express();
 
+app.use(cors());
 app.use(compress());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -38,7 +40,7 @@ app.use(cookieParser());
 app.use(morgan('dev', { 'stream': logger.stream }));
 
 // mount all routes to /api
-app.use('/api', router);
+app.use('/api/v1', router);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

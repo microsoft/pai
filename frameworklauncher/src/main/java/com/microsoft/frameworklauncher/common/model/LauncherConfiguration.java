@@ -51,7 +51,8 @@ public class LauncherConfiguration implements Serializable {
   // Service start time is also limited.
   private Integer frameworkLeftoverGCMaxCount = 1000;
   // Zookeeper is seriously degraded if its data size is larger than 1GB.
-  // Here, we limit the Total TaskNumber to 500K, such that the Zookeeper data size used by Launcher is also limited to 100MB = 500K * 200 bytes/task.
+  // Here, we limit the Total TaskNumber to 500K, such that the Zookeeper data size used by Launcher
+  // is also limited to 100MB = 500K * 200 bytes/task.
   private Integer maxTotalTaskNumber = 500000;
 
   // ApplicationMaster Setup
@@ -65,7 +66,7 @@ public class LauncherConfiguration implements Serializable {
   private Integer amAttemptFailuresValidityIntervalSec = 10;
 
   // ApplicationMaster Internal Setup which should not be exposed to User
-  private Integer amRmHeartbeatIntervalSec = 3;
+  private Integer amRmHeartbeatIntervalSec = 1;
   // The RMResync count in one NM expiry time.
   // RMResync can detect and process under-allocated(RMResyncLost), and over-allocated(RMResyncExceed)
   // Containers actively, instead of waiting the RM call back passively.
@@ -73,10 +74,16 @@ public class LauncherConfiguration implements Serializable {
   private Integer amRmResyncFrequency = 6;
   private Integer amRequestPullIntervalSec = 30;
   private Integer amStatusPushIntervalSec = 30;
-  // AMRMClient Max Continuous Failure Count before Shutdown AM.
-  // This can tolerate transient Exceptions, such as
-  // RM InterruptedException (RM is shutting down during AM RM heartbeat).
-  private Integer amRmClientMaxFailureCount = 3;
+
+  // If a Task's ContainerRequest cannot be satisfied within
+  // Random(amContainerRequestMinTimeoutSec, amContainerRequestMaxTimeoutSec), another
+  // ContainerRequest (maybe different from previous one) will be made for this Task.
+  // This is useful for GPU scheduling and multiple TaskRoles.
+  // Note, before YARN-3983, high Priority ContainerRequest must be satisfied before low Priority ContainerRequest.
+  // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
+  // ContainerRequest randomly.
+  private Integer amContainerRequestMinTimeoutSec = 10;
+  private Integer amContainerRequestMaxTimeoutSec = 60;
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
@@ -269,12 +276,20 @@ public class LauncherConfiguration implements Serializable {
     this.amStatusPushIntervalSec = amStatusPushIntervalSec;
   }
 
-  public Integer getAmRmClientMaxFailureCount() {
-    return amRmClientMaxFailureCount;
+  public Integer getAmContainerRequestMinTimeoutSec() {
+    return amContainerRequestMinTimeoutSec;
   }
 
-  public void setAmRmClientMaxFailureCount(Integer amRmClientMaxFailureCount) {
-    this.amRmClientMaxFailureCount = amRmClientMaxFailureCount;
+  public void setAmContainerRequestMinTimeoutSec(Integer amContainerRequestMinTimeoutSec) {
+    this.amContainerRequestMinTimeoutSec = amContainerRequestMinTimeoutSec;
+  }
+
+  public Integer getAmContainerRequestMaxTimeoutSec() {
+    return amContainerRequestMaxTimeoutSec;
+  }
+
+  public void setAmContainerRequestMaxTimeoutSec(Integer amContainerRequestMaxTimeoutSec) {
+    this.amContainerRequestMaxTimeoutSec = amContainerRequestMaxTimeoutSec;
   }
 
   public String getWebServerBindHost() {

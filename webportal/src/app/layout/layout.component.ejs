@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title><%= htmlWebpackPlugin.options.title %></title>
+
+  <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
+
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+
+  <div class="wrapper">
+
+    <header class="main-header">
+      <a href="/" class="logo">
+        <span class="logo-mini"><b>PAI</b></span>
+        <span class="logo-lg"><b>Platform for AI</b></span>
+      </a>
+      <nav class="navbar navbar-static-top" role="navigation">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+          <span class="sr-only">Toggle navigation</span>
+        </a>
+        <div class="navbar-custom-menu">
+          <ul id="navbar" class="nav navbar-nav"></ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Left Side Column -->
+    <aside class="main-sidebar">
+      <section class="sidebar">
+        <ul class="sidebar-menu" data-widget="tree">
+          <li>
+            <a href="/docs.html">
+              <i class="fa fa-book"></i>
+              <span>Documentation</span>
+            </a>
+          </li>
+          <li>
+            <a href="/cluster.html">
+              <i class="fa fa-tv"></i>
+              <span>Cluster Status</span>
+            </a>
+          </li>
+          <li>
+            <a href="/view.html">
+              <i class="fa fa-table"></i>
+              <span>View Jobs</span>
+            </a>
+          </li>
+          <li>
+            <a href="/submit.html">
+              <i class="fa fa-upload"></i>
+              <span>Submit Job</span>
+            </a>
+          </li>
+          <li>
+            <a href="/download.html">
+              <i class="fa fa-download"></i>
+              <span>Download</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="content-wrapper"></div>
+
+    <div class="control-sidebar-bg"></div>
+
+  </div>
+
+</body>
+</html>

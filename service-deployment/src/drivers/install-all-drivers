@@ -19,5 +19,7 @@
 
 ./install-nvidia-drivers || exit $?
 
+mkdir -p /jobstatus
+touch /jobstatus/jobok
 
 while true; do sleep 1000; done

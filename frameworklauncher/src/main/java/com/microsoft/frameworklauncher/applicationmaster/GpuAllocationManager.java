@@ -17,6 +17,8 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
+import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
 import com.microsoft.frameworklauncher.utils.YamlUtils;
@@ -32,16 +34,13 @@ import java.util.Set;
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
 
+  private final ApplicationMaster am;
+
   // Candidate request Nodes for this application
   private final LinkedHashMap<String, Node> candidateRequestNodes = new LinkedHashMap<>();
-  private Map gpuTypeLabelMap = new HashMap();
 
-  public GpuAllocationManager(String gpuConfigFile) {
-    try {
-      gpuTypeLabelMap = YamlUtils.toObject(gpuConfigFile, Map.class);
-    } catch (FileNotFoundException e) {
-      LOGGER.logWarning("gpu type config file not found:" + gpuConfigFile);
-    }
+  public GpuAllocationManager(ApplicationMaster am) {
+    this.am = am;
   }
 
   public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
@@ -58,9 +57,14 @@ public class GpuAllocationManager { // THREAD SAFE
   // According to the request resource, find a candidate node.
   // To improve it, considers the GPU topology structure, find a node which can minimize
   // the communication cost between GPUs;
-  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel) {
+  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel, String nodeGpuType) {
     LOGGER.logInfo(
-        "allocateCandidateRequestNode: Request resources:" + request.toString());
+        "allocateCandidateRequestNode: Request Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
+        request, nodeLabel, nodeGpuType);
+
+    // ClusterConfiguration is ready when this method is called, i.e. it is not null here.
+    ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();
+    Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
     Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
     Node candidateNode = null;
@@ -74,15 +78,22 @@ public class GpuAllocationManager { // THREAD SAFE
       if (nodeLabel != null) {
         Set<String> nodeLabels = entry.getValue().getNodeLabels();
         if (nodeLabels != null && nodeLabels.size() > 0 && !nodeLabels.contains(nodeLabel)) {
-          LOGGER.logInfo(
+          LOGGER.logDebug(
               "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
               entry.getValue().getHostName(), nodeLabel);
           continue;
         }
-
-        String gpuTypeLabel = (String) gpuTypeLabelMap.get(entry.getValue().getHostName());
-        if (gpuTypeLabelMap.size() > 0 && !nodeLabel.equals(gpuTypeLabel)) {
-          LOGGER.logInfo(
+      }
+      if(nodeGpuType != null && nodes.size() > 0) {
+        if (!nodes.containsKey(entry.getValue().getHostName())) {
+          LOGGER.logWarning(
+              "allocateCandidateRequestNode: Skip node %s, getGpuType not set",
+              entry.getValue().getHostName());
+          continue;
+        }
+        String gpuTypeLabel = (nodes.get(entry.getValue().getHostName())).getGpuType();
+        if (!nodeGpuType.equals(gpuTypeLabel)) {
+          LOGGER.logDebug(
               "allocateCandidateRequestNode: Skip node %s (gpuTypeLabel:%s), labels don't match: request nodeLabel: %s",
               entry.getValue().getHostName(), gpuTypeLabel, nodeLabel);
           continue;
@@ -132,4 +143,13 @@ public class GpuAllocationManager { // THREAD SAFE
     }
   }
 
+  public synchronized void releaseLocalAllocatingResource(ResourceDescriptor resource, String nodeName) {
+    if (!candidateRequestNodes.containsKey(nodeName)) {
+      LOGGER.logWarning(
+          "ReleaseLocalAllocatingResource: node is not exist: " + nodeName);
+      return;
+    }
+    candidateRequestNodes.get(nodeName).releaseLocalAllocatingResource(resource);
+    return;
+  }
 }

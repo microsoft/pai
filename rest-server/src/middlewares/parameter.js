@@ -31,7 +31,7 @@ const validate = (schema) => {
         logger.warn('parameters validation error\n%s', err.stack);
         return res.status(500).json({
           error: 'ParameterValidationError',
-          message: `could not validate ${JSON.stringify(req.body)}`
+          message: 'could not validate request data'
         });
       } else {
         req.body = value;
