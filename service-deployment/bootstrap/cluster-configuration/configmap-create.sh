@@ -20,3 +20,4 @@
 kubectl create configmap  host-configuration --from-file=host-configuration/
 kubectl create configmap  docker-credentials --from-file=docker-credentials/
 kubectl create configmap  gpu-configuration --from-file=gpu-configuration/
+kubectl create configmap  ssh-configuration --from-file=ssh-configuration/

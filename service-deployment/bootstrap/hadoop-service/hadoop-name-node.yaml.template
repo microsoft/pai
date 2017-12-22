@@ -40,6 +40,8 @@ spec:
           name: hadoop-config-volume
         - mountPath: /host-configuration
           name: host-confg-volume
+        - mountPath: /ssh-configuration
+          name: ssh-config-volum
         readinessProbe:
           exec:
             command:
@@ -66,3 +68,6 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
+      - name: ssh-config-volum
+        configMap:
+          name: ssh-configuration
