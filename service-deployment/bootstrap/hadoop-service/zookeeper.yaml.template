@@ -38,6 +38,13 @@ spec:
           name: zookeeper-storage
         - mountPath: /host-configuration
           name: host-confg-volume
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /jobstatus/jobok
+          initialDelaySeconds: 5
+          periodSeconds: 3
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

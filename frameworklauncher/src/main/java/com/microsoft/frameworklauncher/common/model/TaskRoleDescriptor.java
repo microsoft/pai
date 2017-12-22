@@ -32,11 +32,6 @@ public class TaskRoleDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // The priority to Allocate Container to this TaskRole's Tasks.
-  private Integer priority = 1;
-
-  @Valid
-  @NotNull
   private Integer scaleUnitNumber = 1;
 
   @Valid
@@ -64,14 +59,6 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setTaskNumber(Integer taskNumber) {
     this.taskNumber = taskNumber;
-  }
-
-  public Integer getPriority() {
-    return priority;
-  }
-
-  public void setPriority(Integer priority) {
-    this.priority = priority;
   }
 
   public Integer getScaleUnitNumber() {

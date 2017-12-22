@@ -1,6 +1,8 @@
 !!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
 amAttemptFailuresValidityIntervalSec: 0
 amAttemptMaxCount: 0
+amContainerRequestMaxTimeoutSec: 0
+amContainerRequestMinTimeoutSec: 0
 amDefaultResource:
   cpuNumber: 0
   diskMB: 0
@@ -12,7 +14,6 @@ amDefaultResource:
   - {begin: 0, end: 0}
 amPriority: 0
 amRequestPullIntervalSec: 0
-amRmClientMaxFailureCount: 0
 amRmHeartbeatIntervalSec: 0
 amRmResyncFrequency: 0
 amStatusPushIntervalSec: 0
@@ -29,8 +30,8 @@ hdfsRootDir: testString
 maxTotalTaskNumber: 0
 serviceRMResyncIntervalSec: 0
 serviceRequestPullIntervalSec: 0
-webServerBindHost: testString
 webServerAddress: testString
+webServerBindHost: testString
 webServerStatusPullIntervalSec: 0
 zkConnectString: testString
 zkRootDir: testString

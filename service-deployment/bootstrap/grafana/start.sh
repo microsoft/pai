@@ -17,20 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#get the config generating script from kubenretes configmap
-cp /hadoop-configuration/${GENERATE_CONFIG}  generate_config.sh
-chmod u+x generate_config.sh
+pushd $(dirname "$0") > /dev/null
 
-./generate_config.sh
+chmod u+x node-label.sh
 
-#get the start service script from kuberentes configmap
-cp /hadoop-configuration/${START_SERVICE}  start_service.sh
-chmod u+x start_service.sh
+./node-label.sh
 
-# This status check is mainly for ensuring the status of image pulling.
-# And usually this process costs most of the time when creating a new pod in kubernetes.
-mkdir -p /jobstatus
-touch /jobstatus/jobok
+kubectl create -f grafana.yaml
 
-./start_service.sh
-
+popd > /dev/null

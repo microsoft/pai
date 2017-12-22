@@ -17,20 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#get the config generating script from kubenretes configmap
-cp /hadoop-configuration/${GENERATE_CONFIG}  generate_config.sh
-chmod u+x generate_config.sh
+pushd $(dirname "$0") > /dev/null
 
-./generate_config.sh
+kubectl delete deployment grafana
 
-#get the start service script from kuberentes configmap
-cp /hadoop-configuration/${START_SERVICE}  start_service.sh
-chmod u+x start_service.sh
+{% for host in machinelist %}
+    {% if 'grafana' in machinelist[ host ] and machinelist[ host ][ 'grafana' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} grafana-
+    {% endif %}
+{% endfor %}
 
-# This status check is mainly for ensuring the status of image pulling.
-# And usually this process costs most of the time when creating a new pod in kubernetes.
-mkdir -p /jobstatus
-touch /jobstatus/jobok
-
-./start_service.sh
-
+popd > /dev/null

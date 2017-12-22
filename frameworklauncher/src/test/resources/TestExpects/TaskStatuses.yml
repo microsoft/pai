@@ -6,11 +6,11 @@ taskStatusArray:
   containerConnectionLostCount: 0
   containerExitCode: 0
   containerExitDiagnostics: testString
-  containerExitType: NOT_AVAILABLE
+  containerExitType: null
   containerGpus: 0
   containerHost: testString
-  containerIp: testString
   containerId: testString
+  containerIp: testString
   containerIsDecommissioning: false
   containerLaunchedTimestamp: 0
   containerLogHttpAddress: testString

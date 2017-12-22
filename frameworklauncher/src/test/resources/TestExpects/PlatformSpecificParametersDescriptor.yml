@@ -21,6 +21,7 @@ generateContainerIpList: false
 killAllOnAnyCompleted: false
 killAllOnAnyServiceCompleted: false
 queue: testString
+taskNodeGpuType: testString
 taskNodeLabel: testString
 taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,
   gracePeriodSeconds: 0, healthCheckFailureType: TRANSIENT_ERROR, healthCheckType: COMMAND,

@@ -24,7 +24,6 @@ package com.microsoft.frameworklauncher.utils;
  */
 public enum ExitStatusKey {
   SUCCEEDED(0),
-  NOT_AVAILABLE(170),
   LAUNCHER_INTERNAL_TRANSIENT_ERROR(171),
   LAUNCHER_INTERNAL_NON_TRANSIENT_ERROR(172),
   LAUNCHER_INTERNAL_UNKNOWN_ERROR(173),

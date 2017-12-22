@@ -1,0 +1,2 @@
+!!com.microsoft.frameworklauncher.common.model.UpdateDataDeploymentVersionRequest {
+  dataDeploymentVersion: testString, dataDeploymentVersionType: null}

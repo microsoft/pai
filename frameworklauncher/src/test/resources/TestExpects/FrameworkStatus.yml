@@ -2,7 +2,7 @@
 applicationCompletedTimestamp: 0
 applicationExitCode: 0
 applicationExitDiagnostics: testString
-applicationExitType: NOT_AVAILABLE
+applicationExitType: null
 applicationId: testString
 applicationLaunchedTimestamp: 0
 applicationProgress: 0.0
