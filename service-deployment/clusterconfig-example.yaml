@@ -94,6 +94,8 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
+    # node exporter text path
+    node_exporter_textfile_dir: /var/local/prom-exporters
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
