@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete deployment grafana -n monitor
+kubectl delete deployment grafana
 
 {% for host in machinelist %}
     {% if 'grafana' in machinelist[ host ] and machinelist[ host ][ 'grafana' ] == 'true' %}
