@@ -36,6 +36,8 @@ spec:
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /host-configuration
+          name: host-confg-volume
         readinessProbe:
           exec:
             command:
@@ -62,3 +64,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
