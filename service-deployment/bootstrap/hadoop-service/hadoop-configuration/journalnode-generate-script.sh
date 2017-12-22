@@ -23,5 +23,3 @@ cp  /hadoop-configuration/journalnode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.x
 HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/hdfs-site.xml -n $HOST_NAME
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/core-site.xml -n $HOST_NAME
-
-sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 
