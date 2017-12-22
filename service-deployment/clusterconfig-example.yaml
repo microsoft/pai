@@ -138,9 +138,11 @@ machinelist:
     # Note: if zookeeper is set, you should set zkid in this machine.
     # jobhistory: "true"   or not set this value
     hdfsrole: master
+    namenodeid: "1"
     yarnrole: master
     zookeeper: "true"
     jobhistory: "true"
+    hadoopjournalnode: "true"
     launcher: "true"
     restserver: "true"
     webportal: "true"
