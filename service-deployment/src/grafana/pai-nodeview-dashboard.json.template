@@ -48,7 +48,7 @@
           "links": [
             {
               "type": "absolute",
-              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}/dashboard/db/pai_clusterview"
+              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
             }
           ],
           "mappingType": 1,
@@ -289,7 +289,7 @@
               "link": true,
               "linkTargetBlank": true,
               "linkTooltip": "",
-              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}/dashboard/db/pai_nodeview?var-node=$__cell",
+              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/pai_nodeview?var-node=$__cell",
               "pattern": "instance",
               "thresholds": [],
               "type": "number",
@@ -950,7 +950,7 @@
               "decimals": 2,
               "link": true,
               "linkTooltip": "",
-              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
               "thresholds": [],
               "type": "number",

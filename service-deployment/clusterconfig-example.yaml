@@ -88,13 +88,13 @@ clusterinfo:
   
   prometheusinfo:
     # The address of the prometheus to connect to
-    prometheus_url: http://10.0.3.9:9090
+    prometheus_url: http://10.0.3.9
     # port for prometheus port
     prometheus_port: 9090
   
   grafanainfo:  
     # The address of the grafana to connect to
-    grafana_url: http://10.0.3.9:3000
+    grafana_url: http://10.0.3.9
     # port for grafana
     grafana_port: 3000
 

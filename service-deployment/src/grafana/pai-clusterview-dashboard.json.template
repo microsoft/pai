@@ -48,7 +48,7 @@
             {
               "dashboard": "PAI Cluster Node List",
               "type": "absolute",
-              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}/dashboard/db/pai_clusterview"
+              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
             }
           ],
           "mappingType": 1,
@@ -140,7 +140,7 @@
               "link": true,
               "linkTargetBlank": true,
               "linkTooltip": "Click for details",
-              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}/dashboard/db/pai_nodeview?orgId=1&from=now-5m&to=now&var-node=$__cell",
+              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/db/pai_nodeview?orgId=1&from=now-5m&to=now&var-node=$__cell",
               "pattern": "instance",
               "thresholds": [],
               "type": "string",
