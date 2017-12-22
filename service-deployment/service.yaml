@@ -173,9 +173,19 @@ servicelist:
     startscript: start.sh
     stopscript: cleanup.sh
 
+  prometheus:
+    prerequisite:
+      - cluster-configuration
+      - drivers
+    templatelist:
+      - node-exporter-ds.yaml
+    startscript: start.sh
+    stopscript: cleanup.sh
+
   grafana:
     prerequisite:
-      - None
+      - cluster-configuration
+      - prometheus
     templatelist:
       - node-label.sh
       - grafana.yaml
