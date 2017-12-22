@@ -34,8 +34,6 @@ spec:
       - name: webportal
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: REST_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
