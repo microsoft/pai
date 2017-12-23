@@ -1,31 +1,33 @@
 // Copyright (c) Microsoft Corporation
-// All rights reserved. 
+// All rights reserved.
 //
 // MIT License
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+// THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+// BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.utils.CommonExtensions;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
@@ -51,33 +53,50 @@ public class GpuAllocationManager { // THREAD SAFE
   }
 
   // According to the request resource, find a candidate node.
-  // To improve it, considers the GPU topology structure, find a node which can minimize
-  // the communication cost between GPUs;
-  public synchronized Node allocateCandidateRequestNode(ResourceDescriptor request, String nodeLabel, String nodeGpuType) {
+  // To improve it, considers the Gpu topology structure, find a node which can minimize
+  // the communication cost between Gpus;
+  public synchronized SelectionResult SelectCandidateRequestNode(ResourceDescriptor request, String nodeLabel, String nodeGpuType) {
     LOGGER.logInfo(
-        "allocateCandidateRequestNode: Request Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
+        "SelectCandidateRequestNode: Request Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
         request, nodeLabel, nodeGpuType);
 
     // ClusterConfiguration is ready when this method is called, i.e. it is not null here.
     ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();
     Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
-    Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
-    Node candidateNode = null;
-    long candidateSelectGPU = 0;
+    SelectionResult selectionResut = null;
 
+    long candidateSelectGpu = 0;
+    Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
     while (iter.hasNext()) {
       Map.Entry<String, Node> entry = iter.next();
-      LOGGER.logInfo(
-          "allocateCandidateRequestNode: Try node: " + entry.getValue().toString());
+      LOGGER.logDebug(
+          "SelectCandidateRequestNode: Try node: " + entry.getValue().toString());
 
       if (nodeLabel != null) {
         Set<String> nodeLabels = entry.getValue().getNodeLabels();
-        if (!nodeLabels.contains(nodeLabel)) {
-          LOGGER.logInfo(
-              "allocateCandidateRequestNode: Skip node %s, label does not match:%s",
-              entry.getValue().getHostName(), nodeLabel);
+        if (nodeLabels != null && nodeLabels.size() > 0 && !nodeLabels.contains(nodeLabel)) {
+          LOGGER.logDebug(
+              "SelectCandidateRequestNode: Skip node %s, label does not match: request label: %s",
+              entry.getValue().getHostName(), nodeLabel, CommonExtensions.toString(nodeLabels));
           continue;
+        }
+      }
+      if (nodeGpuType != null) {
+        if (nodes.size() > 0) {
+          if (!nodes.containsKey(entry.getValue().getHostName())) {
+            LOGGER.logWarning(
+                "SelectCandidateRequestNode: Skip node %s, getGpuType not set",
+                entry.getValue().getHostName());
+            continue;
+          }
+          String gpuType = (nodes.get(entry.getValue().getHostName())).getGpuType();
+          if (!nodeGpuType.equals(gpuType)) {
+            LOGGER.logDebug(
+                "SelectCandidateRequestNode: Skip node %s (gpuTypeLabel:%s), gpuType don't match: request gpuType: %s",
+                entry.getValue().getHostName(), gpuType, nodeGpuType);
+            continue;
+          }
         }
       }
 
@@ -85,36 +104,38 @@ public class GpuAllocationManager { // THREAD SAFE
           request.getCpuNumber() <= entry.getValue().getAvailableCpu() &&
           request.getGpuNumber() <= entry.getValue().getAvailableNumGpus()) {
         if (request.getGpuNumber() > 0) {
-          candidateNode = entry.getValue();
-          candidateSelectGPU = selectCandidateGPU(candidateNode, request.getGpuNumber());
+          Long candidateGpu = selectCandidateGpu(entry.getValue(), request.getGpuNumber());
+          if (Long.bitCount(candidateGpu) == request.getGpuNumber()) {
+            selectionResut = new SelectionResult();
+            selectionResut.setNodeName(entry.getValue().getHostName());
+            selectionResut.setSelectedGpuMap(candidateGpu);
+            break;
+          }
         }
-        break;
       }
     }
 
-    if (candidateNode != null) {
-      candidateNode.allocateResource(request, candidateSelectGPU);
+    if (selectionResut != null) {
       LOGGER.logInfo(
-          "allocateCandidateRequestNode: select node: " + candidateNode.toString());
-    } else {
+          "SelectCandidateRequestNode: select node: " + selectionResut.getNodeName());
+          } else {
       // AM will request resource with any node.
       LOGGER.logInfo(
-          "allocateCandidateRequestNode: No enough resource");
+          "SelectCandidateRequestNode: No enough resource");
     }
-
-    return candidateNode;
+    return selectionResut;
   }
 
-  public synchronized long selectCandidateGPU(Node candidateNode, int requestGPUCount) {
-    long candidateSelectGPU = 0;
-    long availableGPU = candidateNode.getNodeGpuStatus();
+  public synchronized long selectCandidateGpu(Node candidateNode, int requestGpuCount) {
+    long candidateSelectGpu = 0;
+    long availableGpu = candidateNode.getNodeGpuStatus();
 
-    // Sequentially select GPUs.
-    for (int i = 0; i < requestGPUCount; i++) {
-      candidateSelectGPU += (availableGPU - (availableGPU & (availableGPU - 1)));
-      availableGPU &= (availableGPU - 1);
+    // Sequentially select Gpus.
+    for (int i = 0; i < requestGpuCount; i++) {
+      candidateSelectGpu+= (availableGpu - (availableGpu & (availableGpu - 1)));
+      availableGpu &= (availableGpu - 1);
     }
-    return candidateSelectGPU;
+    return candidateSelectGpu;
   }
 
   public synchronized void removeCandidateRequestNode(Node candidateRequestNode) {
@@ -122,6 +143,31 @@ public class GpuAllocationManager { // THREAD SAFE
       LOGGER.logInfo("removeCandidateRequestNode: %s", candidateRequestNode.getHostName());
 
       candidateRequestNodes.remove(candidateRequestNode.getHostName());
+    }
+  }
+
+  public synchronized void allocateRequestingResource(ResourceDescriptor resource, List<String> nodeList) {
+
+    for (String nodeName : nodeList) {
+      if (!candidateRequestNodes.containsKey(nodeName)) {
+        LOGGER.logWarning(
+            "ReleaseLocalAllocatingResource: node is not exist: " + nodeName);
+        continue;
+      }
+      candidateRequestNodes.get(nodeName).addRequestResource(resource);
+  }
+    return;
+  }
+
+  public synchronized void releaseRequestingResource(ResourceDescriptor resource, List<String> nodeList) {
+    for (String nodeName : nodeList) {
+      if (!candidateRequestNodes.containsKey(nodeName)) {
+        LOGGER.logWarning(
+            "ReleaseLocalAllocatingResource: node is not exist: " + nodeName);
+        continue;
+      }
+      candidateRequestNodes.get(nodeName).removeRequestingResource(resource);
+      return;
     }
   }
 }

@@ -336,10 +336,10 @@ public class ApplicationMaster extends AbstractService {
     if (resource.getGpuNumber() > 0 && resource.getGpuAttribute() == 0) {
       updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
 
-      Node node = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel, nodeGpuType);
-      if (node != null) {
-        resource.setGpuAttribute(node.getSelectedGpuBitmap());
-        return HadoopUtils.toContainerRequest(resource, priority, null, node.getHostName());
+      SelectionResult selectionResult = gpuAllocationManager.SelectCandidateRequestNode(resource, nodeLabel, nodeGpuType);
+      if (selectionResult != null) {
+        resource.setGpuAttribute(selectionResult.getSelectedGpuBitmap());
+        return HadoopUtils.toContainerRequest(resource, priority, null, selectionResult.getNodeName());
       } else {
         LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
@@ -683,6 +683,8 @@ public class ApplicationMaster extends AbstractService {
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
         new TaskEvent().setContainerRequest(request));
 
+    gpuAllocationManager.allocateRequestingResource(ResourceDescriptor.fromResource(request.getCapability()), request.getNodes());
+
     transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
       if (statusManager.containsTask(request.getPriority())) {
         LOGGER.logWarning(
@@ -996,6 +998,14 @@ public class ApplicationMaster extends AbstractService {
       rmClient.removeContainerRequest(request);
     } catch (Exception e) {
       LOGGER.logError(e, "%s: Failed to removeContainerRequest", taskLocator);
+    }
+    if(request.getNodes() != null && request.getCapability().getGPUAttribute() != 0) {
+      try {
+        ResourceDescriptor resourceDescriptor = ResourceDescriptor.fromResource(request.getCapability());
+        gpuAllocationManager.releaseRequestingResource(resourceDescriptor, request.getNodes());
+      } catch (Exception e) {
+        LOGGER.logError(e, "%s: Failed to ResourceDescriptor.fromResource", taskLocator);
+      }
     }
   }
 
