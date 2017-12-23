@@ -32,6 +32,7 @@ const dockerContainerScriptTemplate = require('../templates/dockerContainerScrip
 
 class Job {
   constructor(name, next) {
+    this.name = name;
     this.getJob(name, (job) => {
       for (let key of Object.keys(job)) {
         this[key] = job[key];
@@ -82,17 +83,22 @@ class Job {
           const framework = typeof frameworkRes.body === 'object' ?
               frameworkRes.body : JSON.parse(frameworkRes.body);
           let job = {
-            jobStatus: { name },
+            jobStatus: {
+              name,
+              username: 'unknown',
+              state: 'JOB_NOT_FOUND'
+            },
             taskRoles: {}
           };
           if (framework.exception !== undefined) {
-            job.jobStatus.state = 'JOB_NOT_FOUND';
             next(job, new Error('job not found'));
           } else {
             if (framework.frameworkStatus) {
               job.jobStatus = {
                 name,
+                username: 'unknown',
                 state: framework.frameworkStatus.frameworkState,
+                retries: 0,
                 createdTime: framework.frameworkStatus.frameworkCreatedTimestamp,
                 completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
                 appId: framework.frameworkStatus.applicationId,
@@ -104,9 +110,7 @@ class Job {
                 appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
                 appExitType: framework.frameworkStatus.applicationExitType
               };
-              if (typeof framework.frameworkStatus.frameworkRetryPolicyState.retriedCount === undefined) {
-                job.jobStatus.retries = 0;
-              } else {
+              if (framework.frameworkStatus.frameworkRetryPolicyState.retriedCount) {
                 job.jobStatus.retries = framework.frameworkStatus.frameworkRetryPolicyState.retriedCount;
               }
             }
@@ -130,12 +134,10 @@ class Job {
             unirest.get(launcherConfig.frameworkRequestPath(name))
                 .headers(launcherConfig.webserviceRequestHeaders)
                 .end((frameworkRequestRes) => {
-                  const frameworkRequest = typeof frameworkRequestRes === 'object' ?
+                  const frameworkRequest = typeof frameworkRequestRes.body === 'object' ?
                       frameworkRequestRes.body : JSON.parse(frameworkRequestRes.body);
                   if (frameworkRequest.frameworkDescriptor) {
                     job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-                  } else {
-                    job.jobStatus.username = 'unknown';
                   }
                   next(job);
                 });

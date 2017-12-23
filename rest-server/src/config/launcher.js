@@ -69,6 +69,9 @@ const launcherConfigSchema = Joi.object().keys({
   webserviceUri: Joi.string()
     .uri()
     .required(),
+  healthCheckPath: Joi.func()
+    .arity(0)
+    .required(),
   frameworksPath: Joi.func()
     .arity(0)
     .required(),
@@ -112,7 +115,9 @@ const prepareHdfsPath = () => {
           callback(err);
         });
   }, (err) => {
-    throw err;
+    if (err) {
+      throw err;
+    }
   });
 };
 
@@ -163,7 +168,6 @@ const prepareLocalPath = () => {
 
 // framework launcher health check
 unirest.get(launcherConfig.healthCheckPath())
-    .headers(launcherConfig.webserviceRequestHeaders)
     .timeout(2000)
     .end((res) => {
       if (res.status === 200) {
