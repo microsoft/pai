@@ -988,7 +988,6 @@ public class ApplicationMaster extends AbstractService {
     if (!statusManager.containsTask(taskLocator)) {
       return;
     }
-
     ContainerRequest request = statusManager.getContainerRequest(taskLocator);
     if (request == null) {
       return;

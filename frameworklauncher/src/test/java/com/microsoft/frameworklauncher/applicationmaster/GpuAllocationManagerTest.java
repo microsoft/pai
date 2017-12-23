@@ -21,11 +21,16 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+
 import com.microsoft.frameworklauncher.utils.YamlUtils;
+
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.microsoft.frameworklauncher.utils.YamlTestUtils.INPUTS_DIR;
+
+import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Set;
@@ -82,6 +87,7 @@ public class GpuAllocationManagerTest {
 
     candidateGPU = gpuMgr.selectCandidateGpu(node4, 2);
     Assert.assertEquals(0x30L, candidateGPU);
+
 
 
     SelectionResult result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
@@ -150,6 +156,7 @@ public class GpuAllocationManagerTest {
     gpuMgr2.addCandidateRequestNode(node3);
     gpuMgr2.addCandidateRequestNode(node4);
     gpuMgr2.addCandidateRequestNode(node6);
+
     result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null);
     Assert.assertEquals(result.getNodeName(), "node3");
     Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF);

@@ -22,12 +22,16 @@ import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.CommonExtensions;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.utils.YamlUtils;
 
+import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+
 
 public class GpuAllocationManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(GpuAllocationManager.class);
@@ -118,7 +122,7 @@ public class GpuAllocationManager { // THREAD SAFE
     if (selectionResut != null) {
       LOGGER.logInfo(
           "SelectCandidateRequestNode: select node: " + selectionResut.getNodeName());
-          } else {
+    } else {
       // AM will request resource with any node.
       LOGGER.logInfo(
           "SelectCandidateRequestNode: No enough resource");
@@ -155,7 +159,7 @@ public class GpuAllocationManager { // THREAD SAFE
         continue;
       }
       candidateRequestNodes.get(nodeName).addRequestResource(resource);
-  }
+    }
     return;
   }
 

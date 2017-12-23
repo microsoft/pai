@@ -25,6 +25,7 @@ public class Node {
   private ResourceDescriptor capacity;
   private final String name;
   private ResourceDescriptor used;
+
   private ResourceDescriptor requestingResource;
   private long selectedGpuBitmap;
   private Set<String> nodeLabels;
@@ -91,6 +92,13 @@ public class Node {
   }
 
   public void removeRequestingResource(ResourceDescriptor resource) {
+    requestingResource.setCpuNumber(requestingResource.getCpuNumber() - resource.getCpuNumber());
+    requestingResource.setMemoryMB(requestingResource.getMemoryMB() - resource.getMemoryMB());
+    requestingResource.setGpuAttribute(requestingResource.getGpuAttribute() & (~resource.getGpuAttribute()));
+    requestingResource.setGpuNumber(requestingResource.getGpuNumber() - resource.getGpuNumber());
+  }
+
+  public void releaseLocalAllocatingResource(ResourceDescriptor resource) {
     requestingResource.setCpuNumber(requestingResource.getCpuNumber() - resource.getCpuNumber());
     requestingResource.setMemoryMB(requestingResource.getMemoryMB() - resource.getMemoryMB());
     requestingResource.setGpuAttribute(requestingResource.getGpuAttribute() & (~resource.getGpuAttribute()));
