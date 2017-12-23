@@ -7,18 +7,20 @@
       <th>ElapsedTime</th>
       <th>Retries</th>
       <th>Status</th>
+      <th>TrackingUrl</th>
       <th>Delete</th>
     </tr>
   </thead>
   <tbody>
     <% for(let i = 0; i < jobs.length; i ++) { %>
       <tr>
-        <td><a href="<%= jobs[i].appTrackingUrl %>"><%= jobs[i].name %></a></td>
+        <td><a href="#" onclick="loadJobDetail('<%= jobs[i].name %>')"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
         <td><%= convertTime(false, jobs[i].createdTime) %></td>
         <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>
         <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state, jobs[i].appExitType) %></td>
+        <td><a href="<%= jobs[i].appTrackingUrl %>">HISTORY</a></td>
         <td><a href="#" onclick="deleteJob('<%= jobs[i].name %>')">DELETE</a></td>
       </tr>
     <% } %>

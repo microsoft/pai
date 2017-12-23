@@ -20,10 +20,12 @@
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
+const jobDetailTableComponent = require('./job-detail-table.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
+require('./job-view.component.scss');
 
 
 const jobViewHtml = jobViewComponent({
@@ -89,7 +91,7 @@ const loadJobs = () => {
       if (data.error) {
         alert(data.message);
       } else {
-        $('#job-table').html(jobTableComponent({
+        $('#view-table').html(jobTableComponent({
           jobs: data,
           convertTime,
           convertState
@@ -125,12 +127,38 @@ const deleteJob = (jobName) => {
   }
 };
 
+const loadJobDetail = (jobName) => {
+  loading.showLoading();
+  $.ajax({
+    url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+    type: 'GET',
+    success: (data) => {
+      loading.hideLoading();
+      if (data.error) {
+        alert(data.message);
+      } else {
+        $('#view-table').html(jobDetailTableComponent({
+          jobStatus: data.jobStatus,
+          taskRoles: data.taskRoles,
+          convertTime,
+          convertState
+        }));
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      const res = JSON.parse(xhr.responseText);
+      alert(res.message);
+    }
+  });
+};
+
 window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
+window.loadJobDetail = loadJobDetail;
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {
   loadJobs();
 });
 
-module.exports = { loadJobs, deleteJob }
+module.exports = { loadJobs, deleteJob, loadJobDetail }
