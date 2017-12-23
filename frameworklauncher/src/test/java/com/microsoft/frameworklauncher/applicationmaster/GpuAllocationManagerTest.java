@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
+import java.util.LinkedList;
 import java.io.*;
 
 public class GpuAllocationManagerTest {
@@ -90,55 +92,78 @@ public class GpuAllocationManagerTest {
 
 
 
-    SelectionResult result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    GpuAllocation result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
 
     //Empty allocation failed;
     Assert.assertEquals(null, result);
     gpuMgr.addCandidateRequestNode(node1);
 
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 3, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 3, 0L), null, null);
     Assert.assertEquals(null, result);
 
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null);
     Assert.assertEquals("node1", result.getNodeName());
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 3);
+    Assert.assertEquals(result.getGpuBitmap(), 3);
+    List<String> candidateList = new LinkedList<String>();
+
+    candidateList.add(result.getNodeName());
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()), candidateList);
+
     gpuMgr.addCandidateRequestNode(node3);
     gpuMgr.addCandidateRequestNode(node4);
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null);
+    ResourceDescriptor resourceDescriptor = ResourceDescriptor.newInstance(1, 1, 8, 0L);
+    result = gpuMgr.selectCandidateRequestNode(resourceDescriptor, null, null);
     Assert.assertEquals(result.getNodeName(), "node3");
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xFF);
+    Assert.assertEquals(result.getGpuBitmap(), 0xFF);
 
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()), candidateList);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node4");
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0);
+    Assert.assertEquals(result.getGpuBitmap(), 0xF0);
 
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()), candidateList);
+
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(null, result);
 
     gpuMgr.addCandidateRequestNode(node2);
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node2");
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), candidateList);
+
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node2");
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), candidateList);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
 
     gpuMgr.addCandidateRequestNode(new Node("node5", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
 
     Assert.assertEquals(result.getNodeName(), "node5");
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), candidateList);
+
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node5");
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), candidateList);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
     gpuMgr.addCandidateRequestNode(new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
 
     Assert.assertEquals(result.getNodeName(), "node6");
     gpuMgr.removeCandidateRequestNode(node6);
-    result = gpuMgr.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
+    result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
 
     //Allocation with Gpu type lable
@@ -157,21 +182,30 @@ public class GpuAllocationManagerTest {
     gpuMgr2.addCandidateRequestNode(node4);
     gpuMgr2.addCandidateRequestNode(node6);
 
-    result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null);
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null);
     Assert.assertEquals(result.getNodeName(), "node3");
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF);
-    result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "T40", null);
+    Assert.assertEquals(result.getGpuBitmap(), 0xF);
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), candidateList);
+
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "T40", null);
     Assert.assertEquals(result.getNodeName(), "node3");
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0L);
+    Assert.assertEquals(result.getGpuBitmap(), 0xF0L);
+
+    candidateList.clear();
+    candidateList.add(result.getNodeName());
+    gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), candidateList);
     //Node label not match
-    result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
     Assert.assertEquals(result, null);
 
     Node node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     gpuMgr2.addCandidateRequestNode(node7);
 
-    result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
-    Assert.assertEquals(result, node7);
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
+    Assert.assertEquals(result.getNodeName(), "node7");
+
 
     //Case for gpu type config only
     node3 = new Node("node3", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -184,15 +218,16 @@ public class GpuAllocationManagerTest {
     gpuMgr3.addCandidateRequestNode(node3);
     gpuMgr3.addCandidateRequestNode(node4);
 
-    result = gpuMgr3.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "K40");
+    result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "K40");
     Assert.assertEquals("node3", result.getNodeName());
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF);
-    result = gpuMgr3.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40");
+    Assert.assertEquals(result.getGpuBitmap(), 0xF);
+
+    result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40");
     Assert.assertEquals("node4", result.getNodeName());
-    Assert.assertEquals(result.getSelectedGpuBitmap(), 0xF0);
+    Assert.assertEquals(result.getGpuBitmap(), 0xF0);
 
     //Lable doesn't exist, failed scheduling
-    result = gpuMgr2.SelectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
     Assert.assertEquals(result, null);
   }
 

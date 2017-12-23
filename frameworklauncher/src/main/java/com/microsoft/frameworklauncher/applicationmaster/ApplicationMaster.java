@@ -336,10 +336,10 @@ public class ApplicationMaster extends AbstractService {
     if (resource.getGpuNumber() > 0 && resource.getGpuAttribute() == 0) {
       updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
 
-      SelectionResult selectionResult = gpuAllocationManager.SelectCandidateRequestNode(resource, nodeLabel, nodeGpuType);
-      if (selectionResult != null) {
-        resource.setGpuAttribute(selectionResult.getSelectedGpuBitmap());
-        return HadoopUtils.toContainerRequest(resource, priority, null, selectionResult.getNodeName());
+      GpuAllocation gpuAllocation = gpuAllocationManager.selectCandidateRequestNode(resource, nodeLabel, nodeGpuType);
+      if (gpuAllocation != null) {
+        resource.setGpuAttribute(gpuAllocation.getGpuBitmap());
+        return HadoopUtils.toContainerRequest(resource, priority, null, gpuAllocation.getNodeName());
       } else {
         LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
@@ -680,10 +680,12 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
         taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
     rmClient.addContainerRequest(request);
+    if(gpuAllocationManager != null) {
+      gpuAllocationManager.addContainerRequest(request);
+    }
+
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
         new TaskEvent().setContainerRequest(request));
-
-    gpuAllocationManager.allocateRequestingResource(ResourceDescriptor.fromResource(request.getCapability()), request.getNodes());
 
     transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
       if (statusManager.containsTask(request.getPriority())) {
@@ -996,16 +998,15 @@ public class ApplicationMaster extends AbstractService {
     try {
       rmClient.removeContainerRequest(request);
     } catch (Exception e) {
-      LOGGER.logError(e, "%s: Failed to removeContainerRequest", taskLocator);
+      LOGGER.logError(e, "%s: Failed to rmClient.removeContainerRequest", taskLocator);
     }
-    if(request.getNodes() != null && request.getCapability().getGPUAttribute() != 0) {
-      try {
-        ResourceDescriptor resourceDescriptor = ResourceDescriptor.fromResource(request.getCapability());
-        gpuAllocationManager.releaseRequestingResource(resourceDescriptor, request.getNodes());
-      } catch (Exception e) {
-        LOGGER.logError(e, "%s: Failed to ResourceDescriptor.fromResource", taskLocator);
-      }
+
+    try {
+      gpuAllocationManager.removeContainerRequest(request);
+    } catch (Exception e) {
+      LOGGER.logError(e, "%s: Failed to gpuAllocationManager.removeContainerRequest", taskLocator);
     }
+
   }
 
   private void allocateContainer(Container container) throws Exception {

@@ -23,19 +23,18 @@ import java.util.Set;
 
 public class Node {
   private ResourceDescriptor capacity;
-  private final String name;
+  private final String hostName;
   private ResourceDescriptor used;
 
-  private ResourceDescriptor requestingResource;
-  private long selectedGpuBitmap;
-  private Set<String> nodeLabels;
+  private ResourceDescriptor requested;
+  private Set<String> labels;
 
-  public Node(String name, Set<String> label, ResourceDescriptor capacity, ResourceDescriptor used) {
-    this.name = name;
+  public Node(String hostName, Set<String> labels, ResourceDescriptor capacity, ResourceDescriptor used) {
+    this.hostName = hostName;
     this.capacity = capacity;
     this.used = used;
-    this.nodeLabels = label;
-    this.requestingResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+    this.labels = labels;
+    this.requested = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
   }
 
   public void updateNode(Node updateNode) {
@@ -52,11 +51,11 @@ public class Node {
   }
 
   public String getHostName() {
-    return name;
+    return hostName;
   }
 
   public Set<String> getNodeLabels() {
-    return nodeLabels;
+    return labels;
   }
 
   public int getTotalNumGpus() {
@@ -64,11 +63,11 @@ public class Node {
   }
 
   public int getUsedNumGpus() {
-    return Long.bitCount(used.getGpuAttribute() | requestingResource.getGpuAttribute());
+    return Long.bitCount(used.getGpuAttribute() | requested.getGpuAttribute());
   }
 
   public long getNodeGpuStatus() {
-    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | requestingResource.getGpuAttribute()));
+    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | requested.getGpuAttribute()));
   }
 
   public int getAvailableNumGpus() {
@@ -76,42 +75,36 @@ public class Node {
   }
 
   public int getAvailableMemory() {
-    return capacity.getMemoryMB() - used.getMemoryMB() - requestingResource.getMemoryMB();
+    return capacity.getMemoryMB() - used.getMemoryMB() - requested.getMemoryMB();
   }
 
   public int getAvailableCpu() {
-    return capacity.getCpuNumber() - used.getCpuNumber() - requestingResource.getCpuNumber();
+    return capacity.getCpuNumber() - used.getCpuNumber() - requested.getCpuNumber();
   }
 
 
-  public void addRequestResource(ResourceDescriptor resource) {
-    requestingResource.setCpuNumber(requestingResource.getCpuNumber() + resource.getCpuNumber());
-    requestingResource.setMemoryMB(requestingResource.getMemoryMB() + resource.getMemoryMB());
-    requestingResource.setGpuAttribute(requestingResource.getGpuAttribute() | resource.getGpuAttribute());
-    requestingResource.setGpuNumber(requestingResource.getGpuNumber() + resource.getGpuNumber());
+  public void addContainerRequest(ResourceDescriptor resource) {
+    requested.setCpuNumber(requested.getCpuNumber() + resource.getCpuNumber());
+    requested.setMemoryMB(requested.getMemoryMB() + resource.getMemoryMB());
+    requested.setGpuAttribute(requested.getGpuAttribute() | resource.getGpuAttribute());
+    requested.setGpuNumber(requested.getGpuNumber() + resource.getGpuNumber());
   }
 
-  public void removeRequestingResource(ResourceDescriptor resource) {
-    requestingResource.setCpuNumber(requestingResource.getCpuNumber() - resource.getCpuNumber());
-    requestingResource.setMemoryMB(requestingResource.getMemoryMB() - resource.getMemoryMB());
-    requestingResource.setGpuAttribute(requestingResource.getGpuAttribute() & (~resource.getGpuAttribute()));
-    requestingResource.setGpuNumber(requestingResource.getGpuNumber() - resource.getGpuNumber());
+  public void removeContainerRequest(ResourceDescriptor resource) {
+    requested.setCpuNumber(requested.getCpuNumber() - resource.getCpuNumber());
+    requested.setMemoryMB(requested.getMemoryMB() - resource.getMemoryMB());
+    requested.setGpuAttribute(requested.getGpuAttribute() & (~resource.getGpuAttribute()));
+    requested.setGpuNumber(requested.getGpuNumber() - resource.getGpuNumber());
   }
 
-  public void releaseLocalAllocatingResource(ResourceDescriptor resource) {
-    requestingResource.setCpuNumber(requestingResource.getCpuNumber() - resource.getCpuNumber());
-    requestingResource.setMemoryMB(requestingResource.getMemoryMB() - resource.getMemoryMB());
-    requestingResource.setGpuAttribute(requestingResource.getGpuAttribute() & (~resource.getGpuAttribute()));
-    requestingResource.setGpuNumber(requestingResource.getGpuNumber() - resource.getGpuNumber());
-  }
 
   @Override
   public String toString() {
-    return this.name + "(capacity: " + this.capacity + ", used: " + this.used + ", requestingResource:" + this.requestingResource + ")";
+    return this.hostName + "(capacity: " + this.capacity + ", used: " + this.used + ", requested:" + this.requested + ")";
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return hostName.hashCode();
   }
 }
