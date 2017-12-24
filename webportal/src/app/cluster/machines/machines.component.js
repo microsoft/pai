@@ -17,15 +17,15 @@
 
 
 // module dependencies
-const k8sComponent = require('./k8s.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const machinesComponent = require('./machines.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
 
 
-const k8sDashboardHtml = k8sComponent({
-  k8sDashboardUri: webportalConfig.k8sDashboardUri
+const machinesHtml = machinesComponent({
+  grafanaUri: webportalConfig.grafanaUri
 });
 
 $("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--k8s").addClass("active");
+$("#sidebar-menu--cluster-view--machines").addClass("active");
 
-$('#content-wrapper').html(k8sDashboardHtml);
+$('#content-wrapper').html(machinesHtml);

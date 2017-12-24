@@ -44,8 +44,9 @@ const config = {
     layout: './src/app/layout/layout.component.js',
     login: './src/app/user/user-login/user-login.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
-    k8s: './src/app/k8s/k8s.component.js',
-    cluster: './src/app/cluster/cluster.component.js',
+    services: './src/app/cluster/services/services.component.js',
+    machines: './src/app/cluster/machines/machines.component.js',
+    k8s: './src/app/cluster/k8s/k8s.component.js',
     view: './src/app/job/job-view/job-view.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     download: './src/app/job/job-utils/download.component.js'
@@ -185,19 +186,27 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
+      filename: 'services.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'services']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'machines.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'machines']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
       filename: 'k8s.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'k8s']
-    }),
-    new HtmlWebpackPlugin({
-      title: 'Platform for AI',
-      filename: 'cluster.html',
-      template: './src/app/layout/layout.component.ejs',
-      minify: htmlMinifierOptions,
-      cache: true,
-      chunks: ['layout', 'cluster']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

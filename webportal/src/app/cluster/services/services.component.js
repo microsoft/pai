@@ -17,15 +17,15 @@
 
 
 // module dependencies
-const clusterComponent = require('./cluster.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const servicesComponent = require('./services.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
 
 
-const clusterHtml = clusterComponent({
+const servicesHtml = servicesComponent({
   grafanaUri: webportalConfig.grafanaUri
 });
 
 $("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--servers").addClass("active");
+$("#sidebar-menu--cluster-view--services").addClass("active");
 
-$('#content-wrapper').html(clusterHtml);
+$('#content-wrapper').html(servicesHtml);
