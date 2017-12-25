@@ -69,7 +69,7 @@ public class ApplicationMaster extends AbstractService {
   protected StatusManager statusManager;
   protected RequestManager requestManager;
   private RMResyncHandler rmResyncHandler;
-  private GpuAllocationManager gpuAllocationManager;
+  protected GpuAllocationManager gpuAllocationManager;
 
   /**
    * REGION StateVariable
@@ -680,9 +680,7 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
         taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
     rmClient.addContainerRequest(request);
-    if(gpuAllocationManager != null) {
-      gpuAllocationManager.addContainerRequest(request);
-    }
+    gpuAllocationManager.addContainerRequest(request);
 
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
         new TaskEvent().setContainerRequest(request));
