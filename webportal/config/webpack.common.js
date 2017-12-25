@@ -44,7 +44,7 @@ const config = {
     layout: './src/app/layout/layout.component.js',
     login: './src/app/user/user-login/user-login.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
-    services: './src/app/cluster/services/services.component.js',
+    serviceView: './src/app/service-view/service-view.component.js',
     machines: './src/app/cluster/machines/machines.component.js',
     k8s: './src/app/cluster/k8s/k8s.component.js',
     view: './src/app/job/job-view/job-view.component.js',
@@ -186,11 +186,11 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
-      filename: 'services.html',
+      filename: 'service-view.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'services']
+      chunks: ['layout', 'serviceView']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
