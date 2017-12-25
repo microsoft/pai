@@ -32,12 +32,12 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
     HTTP POST your username and password to get an access token from:
     ```
-    http://restserver/api/v1/auth/token
+    http://restserver/api/v1/token
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
-         -X POST http://restserver/api/v1/auth/token \
+         -X POST http://restserver/api/v1/token \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
@@ -75,13 +75,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 ### API Details
 
-1. `POST auth/token`
+1. `POST token`
 
     Authenticated and get an access token in the system.
 
     *Request*
     ```
-    POST /api/v1/auth/token
+    POST /api/v1/token
     ```
 
     *Parameters*
@@ -111,13 +111,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `POST auth/user` (administrator only)
+2. `POST user` (administrator only)
 
     Update a user in the system.
 
     *Request*
     ```
-    PUT /api/v1/auth/user
+    PUT /api/v1/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -154,7 +154,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Request*
     ```
-    DELETE /api/v1/auth/user
+    DELETE /api/v1/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -299,7 +299,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 7. `DELETE jobs/:jobName`
 
-    Remove job from the system.
+    Remove a job from the system.
 
     *Request*
     ```

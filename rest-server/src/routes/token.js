@@ -22,19 +22,11 @@ const authConfig = require('../config/auth');
 const authController = require('../controllers/auth');
 const param = require('../middlewares/parameter');
 
-
 const router = express.Router();
 
-router.route('/token')
-    /** POST /api/v1/auth/token - Return token if username and password is correct */
+router.route('/')
+    /** POST /api/v1/token - Return a token if username and password is correct */
     .post(param.validate(authConfig.schema), authController.getToken);
-
-router.route('/user')
-    /** POST /api/v1/auth/user - Create / update a user */
-    .post(authConfig.check, param.validate(authConfig.schema), authController.updateUser)
-
-    /** DELETE /api/v1/auth/user - Remove a user */
-    .delete(authConfig.check, authController.removeUser);
 
 // module exports
 module.exports = router;

@@ -18,19 +18,19 @@
 
 // module dependencies
 const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobsRouter = require('./jobs');
+const authConfig = require('../config/auth');
+const authController = require('../controllers/auth');
+const param = require('../middlewares/parameter');
+
 
 const router = express.Router();
 
 router.route('/')
-    .all(controller.index);
+    /** POST /api/v1/user - Create or update a user */
+    .post(authConfig.check, param.validate(authConfig.schema), authController.updateUser)
 
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobsRouter);
+    /** DELETE /api/v1/user - Remove a user */
+    .delete(authConfig.check, authController.removeUser);
 
 // module exports
 module.exports = router;
