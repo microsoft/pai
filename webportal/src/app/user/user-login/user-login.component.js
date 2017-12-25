@@ -35,7 +35,7 @@ $(document).ready(() => {
     const password = $('#form-login :input[name=password]').val();
     const expiration = $('#form-login :input[name=remember]').is(':checked') ? 7 : 1;
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/auth/token`,
+      url: `${webportalConfig.restServerUri}/api/v1/token`,
       type: 'POST',
       data: {
         username,
