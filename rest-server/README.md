@@ -256,7 +256,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 6. `PUT jobs/:jobName`
 
-    Submit or update a job in the system.
+    Submit a job in the system.
 
     *Request*
     ```
