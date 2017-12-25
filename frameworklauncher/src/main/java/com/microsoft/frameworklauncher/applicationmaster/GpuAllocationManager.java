@@ -152,7 +152,11 @@ public class GpuAllocationManager { // THREAD SAFE
     }
   }
 
-  public synchronized void addContainerRequest(ResourceDescriptor resource, List<String> nodeList) throws Exception {
+  public void addContainerRequest(AMRMClient.ContainerRequest request) throws Exception {
+
+    ResourceDescriptor resource = ResourceDescriptor.fromResource(request.getCapability());
+    List<String> nodeList = request.getNodes();
+
     for (String nodeName : nodeList) {
       if (!candidateRequestNodes.containsKey(nodeName)) {
         LOGGER.logWarning(
@@ -161,14 +165,6 @@ public class GpuAllocationManager { // THREAD SAFE
       }
       candidateRequestNodes.get(nodeName).addContainerRequest(resource);
     }
-    return;
-  }
-
-  public void addContainerRequest(AMRMClient.ContainerRequest request) throws Exception {
-
-    ResourceDescriptor resource = ResourceDescriptor.fromResource(request.getCapability());
-    List<String> nodeList = request.getNodes();
-    addContainerRequest(resource, nodeList);
     return;
   }
 
