@@ -31,7 +31,7 @@ router.route('/token')
 
 router.route('/user')
     /** POST /api/v1/auth/user - Create / update a user */
-    .post(authConfig.check, param.validate(authConfig.authConfigSchema), authController.updateUser)
+    .post(authConfig.check, param.validate(authConfig.schema), authController.updateUser)
 
     /** DELETE /api/v1/auth/user - Remove a user */
     .delete(authConfig.check, authController.removeUser);

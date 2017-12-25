@@ -19,8 +19,8 @@
 // module dependencies
 const express = require('express');
 const authConfig = require('../config/auth');
-const jobsConfig = require('../config/jobs');
-const jobsController = require('../controllers/jobs');
+const jobConfig = require('../config/job');
+const jobController = require('../controllers/job');
 const param = require('../middlewares/parameter');
 
 
@@ -28,20 +28,20 @@ const router = express.Router();
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
-    .get(jobsController.list);
+    .get(jobController.list);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
-    .get(jobsController.get)
+    .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(authConfig.check, param.validate(jobsConfig.jobConfigSchema), jobsController.update)
+    .put(authConfig.check, param.validate(jobConfig.schema), jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
-    .delete(authConfig.check, jobsController.remove);
+    .delete(authConfig.check, jobController.remove);
 
 /** Load job when API with jobName route parameter is hit */
-router.param('jobName', jobsController.load);
+router.param('jobName', jobController.load);
 
 // module exports
 module.exports = router;

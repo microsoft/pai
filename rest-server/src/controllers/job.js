@@ -17,7 +17,7 @@
 
 
 // module dependencies
-const Job = require('../models/jobs');
+const Job = require('../models/job');
 const logger = require('../config/logger');
 
 

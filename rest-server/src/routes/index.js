@@ -20,7 +20,7 @@
 const express = require('express');
 const controller = require('../controllers/index');
 const authRouter = require('./auth');
-const jobsRouter = require('./jobs');
+const jobRouter = require('./job');
 
 
 const router = express.Router();
@@ -29,7 +29,7 @@ router.route('/')
     .all(controller.index);
 
 router.use('/auth', authRouter);
-router.use('/jobs', jobsRouter);
+router.use('/jobs', jobRouter);
 
 // module exports
 module.exports = router;

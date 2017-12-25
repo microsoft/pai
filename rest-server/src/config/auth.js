@@ -47,5 +47,5 @@ const authConfigSchema = Joi.object().keys({
 module.exports = {
   secret: config.jwtSecret,
   check: jwtCheck,
-  authConfigSchema: authConfigSchema
+  schema: authConfigSchema
 };
