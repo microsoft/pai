@@ -26,8 +26,8 @@ const param = require('../middlewares/parameter');
 const router = express.Router();
 
 router.route('/')
-    /** POST /api/v1/user - Create or update a user */
-    .post(authConfig.check, param.validate(authConfig.schema), authController.updateUser)
+    /** PUT /api/v1/user - Create or update a user */
+    .put(authConfig.check, param.validate(authConfig.schema), authController.updateUser)
 
     /** DELETE /api/v1/user - Remove a user */
     .delete(authConfig.check, authController.removeUser);

@@ -111,7 +111,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `POST user` (administrator only)
+2. `PUT user` (administrator only)
 
     Update a user in the system.
 
