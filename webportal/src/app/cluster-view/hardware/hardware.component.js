@@ -18,10 +18,39 @@
 
 // module dependencies
 const hardwareComponent = require('./hardware.component.ejs');
+const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const hardwareHtml = hardwareComponent({
   grafanaUri: webportalConfig.grafanaUri
+});
+
+const loadMachines = () => {
+  $.ajax({
+    url: `http://10.151.40.179:9090/api/v1/pod`,
+    type: 'GET',
+    dataType: 'jsonp',
+    crossDomain: true,
+    success: (data) => {
+      alert(data);
+      loading.hideLoading();
+      if (data.error) {
+        alert(data.message);
+      } else {
+        $('#hardware-table').html(hardwareComponent({
+          machines: data
+        }));
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      const res = JSON.parse(xhr.responseText);
+      alert(res.message);
+    }
+  });
+};
+
+$(document).ready(() => {
+  loadMachines();
 });
 
 $("#sidebar-menu--cluster-view").addClass("active");
