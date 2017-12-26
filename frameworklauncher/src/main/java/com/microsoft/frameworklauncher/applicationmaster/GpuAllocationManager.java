@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+import java.util.Arrays;
 
 
 public class GpuAllocationManager { // THREAD SAFE
@@ -71,6 +72,10 @@ public class GpuAllocationManager { // THREAD SAFE
     Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
     GpuAllocation gpuAllocation = null;
+    List gpuTypeList = null;
+    if(nodeGpuType != null && nodeGpuType.trim() != "") {
+      gpuTypeList = Arrays.asList(nodeGpuType.split(","));
+    }
 
     long candidateSelectGpu = 0;
     Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
@@ -88,7 +93,7 @@ public class GpuAllocationManager { // THREAD SAFE
           continue;
         }
       }
-      if (nodeGpuType != null) {
+      if (gpuTypeList != null) {
         if (nodes.size() > 0) {
           if (!nodes.containsKey(entry.getValue().getHostName())) {
             LOGGER.logWarning(
@@ -97,9 +102,9 @@ public class GpuAllocationManager { // THREAD SAFE
             continue;
           }
           String gpuType = (nodes.get(entry.getValue().getHostName())).getGpuType();
-          if (!nodeGpuType.equals(gpuType)) {
+          if (!gpuTypeList.contains(gpuType)) {
             LOGGER.logDebug(
-                "selectCandidateRequestNode: Skip node %s (gpuType:%s), gpuType don't match: request gpuType: %s",
+                "selectCandidateRequestNode: Skip node %s (gpuType: %s), gpuType donot match: request gpuType: %s",
                 entry.getValue().getHostName(), gpuType, nodeGpuType);
             continue;
           }

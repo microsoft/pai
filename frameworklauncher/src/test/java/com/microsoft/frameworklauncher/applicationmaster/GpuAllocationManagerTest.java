@@ -242,8 +242,13 @@ public class GpuAllocationManagerTest {
     gpuMgr3.addContainerRequest(containerRequest);
 
     //Lable doesn't exist, failed scheduling
-    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
+    result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
     Assert.assertEquals(result, null);
+
+    result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40");
+    Assert.assertEquals("node3", result.getNodeName());
+    Assert.assertEquals(result.getGpuBitmap(), 0xF0);
+
   }
 
   private class AMForTest extends MockApplicationMaster {
