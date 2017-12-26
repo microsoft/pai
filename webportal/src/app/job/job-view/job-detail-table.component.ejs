@@ -25,29 +25,31 @@
   </tr>
   <tr>
     <th class="text-right">TrackingUrl</th>
-    <td class="text-left"><a href="<%= jobStatus.appTrackingUrl %>">HISTORY</a></td>
+    <td class="text-left"><a href="<%= jobStatus.appTrackingUrl %>" target="_blank">Yarn Log</a></td>
   </tr>
   <tr>
     <th class="text-right">AppLaunchedTime</th>
-    <td class="text-left"><%= jobStatus.appLaunchedTime %></td>
+    <td class="text-left"><%= convertTime(false, jobStatus.appLaunchedTime) %></td>
   </tr>
   <tr>
     <th class="text-right">AppCompletedTime</th>
-    <td class="text-left"><%= jobStatus.appCompletedTime %></td>
-  </tr>
-  <tr>
-    <th class="text-right">AppExitCode</th>
-    <td class="text-left"><%= jobStatus.appExitCode %></td>
+    <td class="text-left"><%= convertTime(false, jobStatus.appCompletedTime) %></td>
   </tr>
   <tr>
     <th class="text-right">AppExitDiagnostics</th>
-    <td class="text-left"><%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %></td>
-  </tr>
-  <tr>
-    <th class="text-right">AppExitType</th>
-    <td class="text-left"><%= jobStatus.appExitType %></td>
+    <td class="text-left">
+      <a data-toggle="collapse" href="#appExitDiagnostics" aria-expanded="false" aria-controls="appExitDiagnostics">
+        Application Exit Diagnostics
+      </a>
+    </td>
   </tr>
 </table>
+
+<div class="collapse" id="appExitDiagnostics">
+  <div class="well">
+    <%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %>
+  </div>
+</div>
 
 <hr class="divider">
 
@@ -72,8 +74,8 @@
           <td><%= taskRoles[taskRole].taskStatuses[i].taskIndex %></td>
           <td><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
           <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
-          <td><%= taskRoles[taskRole].taskStatuses[i].containerGpus %></td>
-          <td><a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>">LOG</a></td>
+          <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
+          <td><a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Task Log</a></td>
         </tr>
       <% } %>
     <% } %>

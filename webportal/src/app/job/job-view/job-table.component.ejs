@@ -7,7 +7,6 @@
       <th>ElapsedTime</th>
       <th>Retries</th>
       <th>Status</th>
-      <th>TrackingUrl</th>
       <th>Delete</th>
     </tr>
   </thead>
@@ -20,8 +19,7 @@
         <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>
         <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state, jobs[i].appExitType) %></td>
-        <td><a href="<%= jobs[i].appTrackingUrl %>">HISTORY</a></td>
-        <td><a href="#" onclick="deleteJob('<%= jobs[i].name %>')">DELETE</a></td>
+        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
       </tr>
     <% } %>
   </tbody>

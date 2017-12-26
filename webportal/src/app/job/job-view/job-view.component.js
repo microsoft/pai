@@ -42,9 +42,10 @@ const convertTime = (elapsed, startTime, endTime) => {
       }
       const elapsedTime = parseInt((endTime - startTime) / 1000);
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
-      const elapsedHour = ('0' + parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60))).slice(-2);
-      const elapsedMinute = ('0' + parseInt(elapsedTime % (60 * 60) / 60)).slice(-2);
-      return `${elapsedDay}:${elapsedHour}:${elapsedMinute}`;
+      const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
+      const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
+      const elapsedSecond = parseInt(elapsedTime % 60);
+      return `${elapsedDay} day ${elapsedHour} hour ${elapsedMinute} min ${elapsedSecond} sec`;
     } else {
       const startDate = new Date(startTime);
       return startDate.toLocaleString();
@@ -79,6 +80,22 @@ const convertState = (state, exitType) => {
       cls = 'label-primary';
   }
   return `<span class="label ${cls}">${state}</span>`;
+};
+
+const convertGpu = (gpuAttribute) => {
+  const bitmap = (+gpuAttribute).toString(2);
+  const gpuList = [];
+  for (let i = 0; i < bitmap.length; i ++) {
+    if (bitmap[i] === '1') {
+      gpuList.push(bitmap.length - i - 1);
+    }
+  }
+  if (gpuList.length > 0) {
+    gpuList.reverse();
+    return gpuList.join(',');
+  } else {
+    return 'None';
+  }
 };
 
 const loadJobs = () => {
@@ -141,7 +158,8 @@ const loadJobDetail = (jobName) => {
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
           convertTime,
-          convertState
+          convertState,
+          convertGpu
         }));
       }
     },
