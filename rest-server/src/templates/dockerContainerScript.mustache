@@ -45,11 +45,11 @@ export PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_JOB_NAME/tmp/ | wc -l` -lt  $PAI_TASKS_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | wc -l` -lt  $PAI_TASKS_NUM ]; do
   sleep 10
 done
-hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_JOB_NAME/tmp/ \
+hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
   | grep "/$PAI_JOB_NAME/tmp" \
   | grep -oE "[^/]+$" \
   | sort -n -k 2 -t"-" \
@@ -66,8 +66,8 @@ cd code
 {{{ taskData.command }}} || exit $?
 
 {{# jobData.killAllOnCompletedTaskNumber }}
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_JOB_NAME/finished/$PAI_TASK_INDEX || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_JOB_NAME/finished/ | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/$PAI_TASK_INDEX || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/ | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
   sleep 10
 done
 {{/ jobData.killAllOnCompletedTaskNumber }}

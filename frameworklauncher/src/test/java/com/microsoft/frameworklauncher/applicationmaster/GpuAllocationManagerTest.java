@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Arrays;
+
 import java.io.*;
 
 public class GpuAllocationManagerTest {
@@ -201,7 +202,6 @@ public class GpuAllocationManagerTest {
 
     gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
-
     //Case for gpu type config only
     node3 = new Node("node3", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node4 = new Node("node4", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
@@ -219,7 +219,6 @@ public class GpuAllocationManagerTest {
 
     gpuMgr3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
-
     result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40");
     Assert.assertEquals("node4", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 0xF0);
@@ -233,7 +232,6 @@ public class GpuAllocationManagerTest {
     result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40");
     Assert.assertEquals("node3", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 0xF0);
-
   }
 
   private class AMForTest extends MockApplicationMaster {

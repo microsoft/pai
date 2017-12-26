@@ -31,11 +31,11 @@ spec:
       containers:
       - image: prom/node-exporter
         volumeMounts:
-        - mountPath: /var/local/prom-exporters
+        - mountPath: {{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}
           name: collector-mount
         name: node-exporter
         args:
-          - '--collector.textfile.directory=/var/local/prom-exporters'
+          - '--collector.textfile.directory={{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
@@ -58,7 +58,7 @@ spec:
             path: /var/drivers
         - name: collector-mount
           hostPath:
-            path: /var/local/prom-exporters
+            path: {{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}
       hostNetwork: true
       hostPID: true
 

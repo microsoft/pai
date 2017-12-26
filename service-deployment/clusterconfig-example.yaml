@@ -89,10 +89,24 @@ clusterinfo:
     # port for webportal
     server_port: 9286
 
+  # The config for Grafana
+  grafanainfo:  
+    # The address of the grafana to connect to
+    grafana_url: http://10.0.3.9
+    # port for grafana
+    grafana_port: 3000
+
   # The config for monitor service
   prometheusinfo:
+    # The address of the prometheus to connect to
+    prometheus_url: http://10.0.3.9
+    # port for prometheus port
+    prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
+    # node exporter text path
+    node_exporter_textfile_dir: /var/local/prom-exporters
+
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
@@ -137,6 +151,7 @@ machinelist:
     # zookeeper:  "true"   or not set this value
     # Note: if zookeeper is set, you should set zkid in this machine.
     # jobhistory: "true"   or not set this value
+    # grafana: "true"   or not set this value
     hdfsrole: master
     yarnrole: master
     zookeeper: "true"
@@ -144,6 +159,8 @@ machinelist:
     launcher: "true"
     restserver: "true"
     webportal: "true"
+    prometheus: "true"
+    grafana: "true"
   
   # Do the same work as the machine above.
   worker-01:
