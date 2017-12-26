@@ -20,10 +20,12 @@
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
+const jobDetailTableComponent = require('./job-detail-table.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
+require('./job-view.component.scss');
 
 
 const jobViewHtml = jobViewComponent({
@@ -40,9 +42,10 @@ const convertTime = (elapsed, startTime, endTime) => {
       }
       const elapsedTime = parseInt((endTime - startTime) / 1000);
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
-      const elapsedHour = ('0' + parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60))).slice(-2);
-      const elapsedMinute = ('0' + parseInt(elapsedTime % (60 * 60) / 60)).slice(-2);
-      return `${elapsedDay}:${elapsedHour}:${elapsedMinute}`;
+      const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
+      const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
+      const elapsedSecond = parseInt(elapsedTime % 60);
+      return `${elapsedDay} day ${elapsedHour} hour ${elapsedMinute} min ${elapsedSecond} sec`;
     } else {
       const startDate = new Date(startTime);
       return startDate.toLocaleString();
@@ -79,6 +82,22 @@ const convertState = (state, exitType) => {
   return `<span class="label ${cls}">${state}</span>`;
 };
 
+const convertGpu = (gpuAttribute) => {
+  const bitmap = (+gpuAttribute).toString(2);
+  const gpuList = [];
+  for (let i = 0; i < bitmap.length; i ++) {
+    if (bitmap[i] === '1') {
+      gpuList.push(bitmap.length - i - 1);
+    }
+  }
+  if (gpuList.length > 0) {
+    gpuList.reverse();
+    return gpuList.join(',');
+  } else {
+    return 'None';
+  }
+};
+
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
@@ -89,7 +108,7 @@ const loadJobs = () => {
       if (data.error) {
         alert(data.message);
       } else {
-        $('#job-table').html(jobTableComponent({
+        $('#view-table').html(jobTableComponent({
           jobs: data,
           convertTime,
           convertState
@@ -125,12 +144,39 @@ const deleteJob = (jobName) => {
   }
 };
 
+const loadJobDetail = (jobName) => {
+  loading.showLoading();
+  $.ajax({
+    url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+    type: 'GET',
+    success: (data) => {
+      loading.hideLoading();
+      if (data.error) {
+        alert(data.message);
+      } else {
+        $('#view-table').html(jobDetailTableComponent({
+          jobStatus: data.jobStatus,
+          taskRoles: data.taskRoles,
+          convertTime,
+          convertState,
+          convertGpu
+        }));
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      const res = JSON.parse(xhr.responseText);
+      alert(res.message);
+    }
+  });
+};
+
 window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
+window.loadJobDetail = loadJobDetail;
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {
   loadJobs();
 });
 
-module.exports = { loadJobs, deleteJob }
+module.exports = { loadJobs, deleteJob, loadJobDetail }
