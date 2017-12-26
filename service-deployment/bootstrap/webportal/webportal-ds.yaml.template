@@ -40,6 +40,8 @@ spec:
           value: {{ clusterinfo['webportalinfo']['k8s_dashboard_uri'] }}
         - name: GRAFANA_URI
           value: {{ clusterinfo['webportalinfo']['grafana_uri'] }}
+        - name: GRAFANA_CLUSTER_OVERVIEW_URI
+          value: {{ clusterinfo['webportalinfo']['grafana_cluster_overview_uri'] }}
         ports:
         - name: webportal
           containerPort: 8080

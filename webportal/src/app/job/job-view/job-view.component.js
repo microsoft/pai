@@ -87,7 +87,7 @@ const loadJobs = () => {
     success: (data) => {
       loading.hideLoading();
       if (data.error) {
-        //alert(data.message);
+        alert(data.message);
       } else {
         $('#job-table').html(jobTableComponent({
           jobs: data,
@@ -98,7 +98,7 @@ const loadJobs = () => {
     },
     error: (xhr, textStatus, error) => {
       const res = JSON.parse(xhr.responseText);
-      //alert(res.message);
+      alert(res.message);
     }
   });
 };

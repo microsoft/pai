@@ -20,4 +20,4 @@ const webportalConfig = require('./config/webportal.config.json');
 const dashboardHtml = "<iframe style='display:block; width:100%; height:90vh; border:none;' " +
     "src='" + webportalConfig.grafanaClusterOverviewUri + "'></iframe>";
 
-    $('#content-wrapper').html(dashboardHtml);
+$('#content-wrapper').html(dashboardHtml);
