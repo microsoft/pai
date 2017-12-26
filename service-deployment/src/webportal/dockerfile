@@ -24,7 +24,7 @@ ENV NODE_ENV=production \
 
 COPY copied_file/ /usr/src/
 COPY copied_file/webportal/ /usr/src/app/
-RUN npm install
+RUN npm run yarn install
 
 EXPOSE ${SERVER_PORT}
 

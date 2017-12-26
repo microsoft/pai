@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.utils.CommonUtils;
 import com.microsoft.frameworklauncher.utils.GlobalConstants;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -49,7 +50,7 @@ class Configuration {
   private LauncherConfiguration launcherConfig;
 
   // Below properties defined for RM when AM Registered, it may be changed after RM configuration changed.
-  private Resource maxResource;
+  private ResourceDescriptor maxResource;
   private String amQueue;
   private String amQueueDefaultNodeLabel;
 
@@ -86,9 +87,9 @@ class Configuration {
     launcherConfig = zkStore.getLauncherStatus().getLauncherConfiguration();
   }
 
-  public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) {
+  public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) throws Exception {
     amQueue = rmResp.getQueue();
-    maxResource = rmResp.getMaximumResourceCapability();
+    maxResource = ResourceDescriptor.fromResource(rmResp.getMaximumResourceCapability());
   }
 
   public void initializeDependOnYarnClientConfig(YarnClient yarnClient) throws Exception {
@@ -163,7 +164,7 @@ class Configuration {
     return launcherConfig;
   }
 
-  protected Resource getMaxResource() {
+  protected ResourceDescriptor getMaxResource() {
     return maxResource;
   }
 

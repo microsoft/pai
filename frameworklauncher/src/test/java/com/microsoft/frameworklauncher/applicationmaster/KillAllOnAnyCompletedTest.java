@@ -33,8 +33,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class KillAllOnAnyCompletedTest {
-  private static final DefaultLogger LOG = new DefaultLogger(KillAllOnAnyCompletedTest.class);
-
   private String frameworkName = "TestKillAllOnAnyCompleted";
   private String taskRoleName;
   private int taskNum;
@@ -54,14 +52,11 @@ public class KillAllOnAnyCompletedTest {
 
     CountDownLatch signal = new CountDownLatch(1);
     ApplicationMaster am = new AMForTest(signal);
-    Thread amThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          am.start();
-        } catch (Exception e) {
-          am.handleException(e);
-        }
+    Thread amThread = new Thread(() -> {
+      try {
+        am.start();
+      } catch (Exception e) {
+        am.handleException(e);
       }
     });
 
@@ -91,7 +86,7 @@ public class KillAllOnAnyCompletedTest {
 
   private void init() throws Exception {
     String frameworkFile = Thread.currentThread().getContextClassLoader()
-        .getResource("TestKillAllOnAnyCompleted.json").getPath().toString();
+        .getResource("TestKillAllOnAnyCompleted.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
             GlobalConstants.LOCAL_HOST_NAME, "user");
@@ -125,7 +120,7 @@ public class KillAllOnAnyCompletedTest {
     protected void initialize() throws Exception {
       super.initialize();
 
-      rmClient = new MockAMRMClient(FeatureTestUtils.newApplicationAttemptId(),
+      rmClient = new MockAMRMClient<>(FeatureTestUtils.newApplicationAttemptId(),
           mockResourceManager, 60 * 1000,
           new RMClientCallbackHandler(this));
 
@@ -171,8 +166,8 @@ public class KillAllOnAnyCompletedTest {
     }
 
     private void sendErrorMessage() throws InterruptedException {
-      List<TaskState> stateList = Arrays.asList(new TaskState[]{
-          TaskState.CONTAINER_ALLOCATED, TaskState.CONTAINER_LAUNCHED, TaskState.CONTAINER_RUNNING});
+      List<TaskState> stateList = Arrays.asList(
+          TaskState.CONTAINER_ALLOCATED, TaskState.CONTAINER_LAUNCHED, TaskState.CONTAINER_RUNNING);
       List<TaskStatus> list = statusManager.getTaskStatus(new HashSet<>(stateList));
       while (list.size() < taskNum) {
         Thread.sleep(2000);
@@ -188,6 +183,5 @@ public class KillAllOnAnyCompletedTest {
       status.setExitStatus(ExitStatusKey.SUCCEEDED.toInt());
       onContainersCompleted(Collections.singletonList(status));
     }
-
   }
 }

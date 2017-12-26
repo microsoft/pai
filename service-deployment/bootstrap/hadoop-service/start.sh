@@ -27,11 +27,89 @@ chmod u+x configmap-create.sh
 
 ./configmap-create.sh
 
+
+# Zookeeper
 kubectl create -f zookeeper.yaml
+
+python ../../node_label_check.py -k zookeeper -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No Zookeeper Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s zookeeper
+fi
+
+
+# Hadoop name node
 kubectl create -f hadoop-name-node.yaml
+
+python ../../node_label_check.py -k hdfsrole -v master
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-name-node Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-name-node
+fi
+
+
+# Hadoop data node
 kubectl create -f hadoop-data-node.yaml
+
+python ../../node_label_check.py -k hdfsrole -v worker
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-data-node Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-data-node
+fi
+
+
+# Hadoop resource manager
 kubectl create -f hadoop-resource-manager.yaml
+
+python ../../node_label_check.py -k yarnrole -v master
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-resource-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-resource-manager
+fi
+
+
+# Hadoop node manager
 kubectl create -f hadoop-node-manager.yaml
+
+python ../../node_label_check.py -k yarnrole -v worker
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-node-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-node-manager
+fi
+
+
+# Hadoop jobhistory
 kubectl create -f hadoop-jobhistory.yaml
+
+python ../../node_label_check.py -k jobhistory -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No jobhistory Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-jobhistory-service
+fi
+
 
 popd > /dev/null

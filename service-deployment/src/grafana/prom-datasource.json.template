@@ -1,7 +1,7 @@
 {
   "name":"PM",
   "type":"prometheus",
-  "url":"{{ clusterconfig['clusterinfo']['prometheusinfo']['prometheus_url'] }}",
+  "url":"{{ clusterconfig['clusterinfo']['prometheusinfo']['prometheus_url'] }}:{{ clusterconfig['clusterinfo']['prometheusinfo']['prometheus_port'] }}",
   "access":"direct",
   "basicAuth":false,
   "isDefault":true

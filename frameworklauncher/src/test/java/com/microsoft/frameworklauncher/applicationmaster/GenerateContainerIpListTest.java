@@ -55,14 +55,11 @@ public class GenerateContainerIpListTest {
 
     CountDownLatch signal = new CountDownLatch(1);
     ApplicationMaster am = new AMForTest(signal);
-    Thread amThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          am.start();
-        } catch (Exception e) {
-          am.handleException(e);
-        }
+    Thread amThread = new Thread(() -> {
+      try {
+        am.start();
+      } catch (Exception e) {
+        am.handleException(e);
       }
     });
 
@@ -107,9 +104,9 @@ public class GenerateContainerIpListTest {
     }
   }
 
-  public void init() throws Exception {
+  private void init() throws Exception {
     String frameworkFile = Thread.currentThread().getContextClassLoader()
-        .getResource("TestGenerateContainerIpList.json").getPath().toString();
+        .getResource("TestGenerateContainerIpList.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
             GlobalConstants.LOCAL_HOST_NAME, "user");
@@ -154,7 +151,7 @@ public class GenerateContainerIpListTest {
     protected void initialize() throws Exception {
       super.initialize();
 
-      rmClient = new MockAMRMClient(FeatureTestUtils.newApplicationAttemptId(),
+      rmClient = new MockAMRMClient<>(FeatureTestUtils.newApplicationAttemptId(),
           mockResourceManager, 60 * 1000,
           new RMClientCallbackHandler(this));
 
@@ -200,8 +197,8 @@ public class GenerateContainerIpListTest {
     }
 
     private void sendErrorMessage() throws InterruptedException {
-      List<TaskState> stateList = Arrays.asList(new TaskState[]{
-          TaskState.CONTAINER_ALLOCATED, TaskState.CONTAINER_LAUNCHED, TaskState.CONTAINER_RUNNING});
+      List<TaskState> stateList = Arrays.asList(
+          TaskState.CONTAINER_ALLOCATED, TaskState.CONTAINER_LAUNCHED, TaskState.CONTAINER_RUNNING);
       List<TaskStatus> list = statusManager.getTaskStatus(new HashSet<>(stateList));
       while (list.size() < taskNum) {
         Thread.sleep(2000);
@@ -212,7 +209,5 @@ public class GenerateContainerIpListTest {
       ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
       onStartContainerError(containerId, new Exception());
     }
-
   }
-
 }

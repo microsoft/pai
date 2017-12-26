@@ -167,6 +167,9 @@ public class ResourceDescriptor implements Serializable {
 
   @Override
   public String toString() {
-    return "<MemoryMB:" + getMemoryMB() + ", CpuNumber:" + getCpuNumber() + ", GpuNumber:" + getGpuNumber() + ", GpuAttribute:" + getGpuAttribute() + ">";
+    return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
+        String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
+        String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
+        String.format("GpuAttribute: [%s]]", getGpuAttribute());
   }
 }

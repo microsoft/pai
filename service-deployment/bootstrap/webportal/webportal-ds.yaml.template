@@ -33,6 +33,7 @@ spec:
       containers:
       - name: webportal
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
+        imagePullPolicy: Always
         env:
         - name: REST_SERVER_ROOT_URL
           value: {{ clusterinfo['webportalinfo']['rest_server_root_url'] }}
