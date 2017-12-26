@@ -121,10 +121,10 @@ mastermachinelist:
   # hostname, must be the same as it in the host network
   infra-01:
     # The nodename in k8s. To avoid complication, it is suggested to fill in the hostip for the nodename.
-    # If you are confident that DNS can resolve your named nodename correctly, you can specify a UNIQUE_HOST_NAME
+    # If you are confident that DNS can resolve your named nodename correctly, you can specify a UNIQUE_HOST_NAME.
     # hostip: the static IP of this node. We assume the IP of a host will not change.
-    # sshport: the ssh port of this node. Default port is 22.
-    # username/password: the user name and password in the OS. Make sure it is granted with sudo permission
+    # sshport: the ssh port of this node. If not specified, the port is 22.
+    # username/password: the user name and password in the OS. Make sure it is granted with sudo permission.
     nodename: IP
     hostip: IP
     sshport: PORT
