@@ -135,8 +135,8 @@ if __name__ == "__main__":
 
             print "============== Bootstrapping new name node"
             ret, ret_code = execute_shell_with_output(
-                "hdfs zkfc -formatZK -nonInteractive",
-                "Failed to run < hdfs zkfc -formatZK -nonInteractive >"
+                "hdfs namenode -format -nonInteractive",
+                "Failed to run < hdfs namenode -format -nonInteractive >"
             )
             print ret
 
