@@ -25,4 +25,7 @@ const jobDocsHtml = jobDocsComponent({
   breadcrumb: breadcrumbComponent
 });
 
+$("#sidebar-menu--documents").addClass("active");
+$("#sidebar-menu--documents--getting-started").addClass("active");
+
 $('#content-wrapper').html(jobDocsHtml);
