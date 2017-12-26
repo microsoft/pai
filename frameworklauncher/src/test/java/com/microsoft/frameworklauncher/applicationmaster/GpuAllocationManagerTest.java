@@ -111,17 +111,15 @@ public class GpuAllocationManagerTest {
 
     gpuMgr.addCandidateRequestNode(node3);
     gpuMgr.addCandidateRequestNode(node4);
-    ResourceDescriptor resourceDescriptor = ResourceDescriptor.newInstance(1, 1, 8, 0L);
+    ResourceDescriptor resourceDescriptor = ResourceDescriptor.newInstance(2, 1, 8, 0L);
     result = gpuMgr.selectCandidateRequestNode(resourceDescriptor, null, null);
     Assert.assertEquals(result.getNodeName(), "node3");
-    Assert.assertEquals(result.getGpuBitmap(), 0xFF);
 
     containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()), priority, null, result.getNodeName());
     gpuMgr.addContainerRequest(containerRequest);
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node4");
-    Assert.assertEquals(result.getGpuBitmap(), 0xF0);
 
     containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
     gpuMgr.addContainerRequest(containerRequest);
