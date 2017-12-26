@@ -21,7 +21,7 @@ const hardwareComponent = require('./hardware.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const hardwareHtml = hardwareComponent({
-  grafanaUri: webportalConfig.grafanaUri
+  grafanaRootUrl: webportalConfig.grafanaRootUrl
 });
 
 $("#sidebar-menu--cluster-view").addClass("active");

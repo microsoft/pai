@@ -79,14 +79,12 @@ clusterinfo:
 
   # The config for web portal
   webportalinfo:
-    # uri for rest server
-    rest_server_uri: http://10.0.3.9:9186
-    # uri of k8s dashboard
-    k8s_dashboard_uri: http://10.0.3.9:9090
-    # uri of grafana portal
-    grafana_uri: http://10.0.1.9:3000/dashboard/db/pai_nodeview
-    # uri of grafana cluster overview dashboard
-    grafana_cluster_overview_uri: http://10.0.1.9:3000/dashboard/db/pai_clusterview
+    # root url of the rest server
+    rest_server_root_uri: http://10.0.3.9:9186
+    # root url of the grafana portal
+    grafana_root_url: http://10.0.1.9:3000
+    # root url of the k8s dashboard
+    k8s_dashboard_root_url: http://10.0.3.9:9090
     # port for webportal
     server_port: 9286
 
