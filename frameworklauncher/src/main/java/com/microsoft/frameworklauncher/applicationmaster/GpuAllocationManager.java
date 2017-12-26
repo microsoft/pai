@@ -161,7 +161,11 @@ public class GpuAllocationManager { // THREAD SAFE
 
     ResourceDescriptor resource = ResourceDescriptor.fromResource(request.getCapability());
     List<String> nodeList = request.getNodes();
+    addContainerRequest(resource, nodeList);
+    return;
+  }
 
+  public void addContainerRequest(ResourceDescriptor resource, List<String> nodeList) throws Exception {
     for (String nodeName : nodeList) {
       if (!candidateRequestNodes.containsKey(nodeName)) {
         LOGGER.logWarning(

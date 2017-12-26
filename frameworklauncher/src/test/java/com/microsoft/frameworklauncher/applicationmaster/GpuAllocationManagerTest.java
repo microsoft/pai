@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Arrays;
 import java.io.*;
 
 public class GpuAllocationManagerTest {
@@ -71,9 +72,6 @@ public class GpuAllocationManagerTest {
     Node node4 = new Node("node4", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
-    ContainerRequest containerRequest;
-    Priority priority = Priority.newInstance(0);
-
     AMForTest am = new AMForTest();
     am.setClusterConfiguration(new ClusterConfiguration());
     GpuAllocationManager gpuMgr = new GpuAllocationManager(am);
@@ -106,8 +104,7 @@ public class GpuAllocationManagerTest {
     Assert.assertEquals("node1", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 3);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     gpuMgr.addCandidateRequestNode(node3);
     gpuMgr.addCandidateRequestNode(node4);
@@ -116,16 +113,13 @@ public class GpuAllocationManagerTest {
     Assert.assertEquals(result.getNodeName(), "node3");
     Assert.assertEquals(result.getGpuBitmap(), 0xFF);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node4");
     Assert.assertEquals(result.getGpuBitmap(), 0xF0);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
-
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null);
     Assert.assertEquals(null, result);
@@ -134,14 +128,12 @@ public class GpuAllocationManagerTest {
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node2");
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node2");
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
@@ -151,14 +143,12 @@ public class GpuAllocationManagerTest {
 
     Assert.assertEquals(result.getNodeName(), "node5");
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(result.getNodeName(), "node5");
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr.addContainerRequest(containerRequest);
+    gpuMgr.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null);
     Assert.assertEquals(null, result);
@@ -191,15 +181,13 @@ public class GpuAllocationManagerTest {
     Assert.assertEquals(result.getNodeName(), "node3");
     Assert.assertEquals(result.getGpuBitmap(), 0xF);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr2.addContainerRequest(containerRequest);
+    gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "T40", null);
     Assert.assertEquals(result.getNodeName(), "node3");
     Assert.assertEquals(result.getGpuBitmap(), 0xF0L);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr2.addContainerRequest(containerRequest);
+    gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     //Node label not match
     result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
@@ -211,8 +199,7 @@ public class GpuAllocationManagerTest {
     result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
     Assert.assertEquals(result.getNodeName(), "node7");
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr2.addContainerRequest(containerRequest);
+    gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
 
     //Case for gpu type config only
@@ -230,16 +217,14 @@ public class GpuAllocationManagerTest {
     Assert.assertEquals("node3", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 0xF);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr3.addContainerRequest(containerRequest);
+    gpuMgr3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
 
     result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40");
     Assert.assertEquals("node4", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 0xF0);
 
-    containerRequest = HadoopUtils.toContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()), priority, null, result.getNodeName());
-    gpuMgr3.addContainerRequest(containerRequest);
+    gpuMgr3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
 
     //Lable doesn't exist, failed scheduling
     result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
