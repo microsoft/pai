@@ -60,6 +60,8 @@ const submitJob = (jobConfig) => {
   });
 };
 
+$("#sidebar-menu--submit-job").addClass("active");
+
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   $(document).on('change', '#file', (event) => {

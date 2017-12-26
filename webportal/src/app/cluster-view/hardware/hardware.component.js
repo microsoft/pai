@@ -17,14 +17,14 @@
 
 
 // module dependencies
-const serviceViewComponent = require('./service-view.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const hardwareComponent = require('./hardware.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
 
-
-const serviceViewHtml = serviceViewComponent({
+const hardwareHtml = hardwareComponent({
   grafanaUri: webportalConfig.grafanaUri
 });
 
-$("#sidebar-menu--service-view").addClass("active");
+$("#sidebar-menu--cluster-view").addClass("active");
+$("#sidebar-menu--cluster-view--hardware").addClass("active");
 
-$('#content-wrapper').html(serviceViewHtml);
+$('#content-wrapper').html(hardwareHtml);

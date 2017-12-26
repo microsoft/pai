@@ -17,15 +17,9 @@
 
 
 // module dependencies
-const machinesComponent = require('./machines.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
-
-
-const machinesHtml = machinesComponent({
-  grafanaUri: webportalConfig.grafanaUri
-});
+const servicesComponent = require('./services.component.ejs');
 
 $("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--machines").addClass("active");
+$("#sidebar-menu--cluster-view--services").addClass("active");
 
-$('#content-wrapper').html(machinesHtml);
+$('#content-wrapper').html("<div>TODO: List services on each node here.</div>");

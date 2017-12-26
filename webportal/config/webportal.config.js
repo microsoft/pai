@@ -26,7 +26,8 @@ dotenv.config();
 let config = {
   restServerUri: process.env.REST_SERVER_URI,
   k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
-  grafanaUri: process.env.GRAFANA_URI
+  grafanaUri: process.env.GRAFANA_URI,
+  grafanaClusterOverviewUri: process.env.GRAFANA_CLUSTER_OVERVIEW_URI
 };
 
 // module exports
