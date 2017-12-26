@@ -53,7 +53,8 @@ def execute_shell(shell_cmd, error_msg):
 
 if __name__ == "__main__":
 
-    host = os.environ["HOSTNAME"]
+    # Will be filled when namenode bootstraping
+    host = {{ host_config['ip'] }}
     isBootstrapping = False
     hasActiveNameNode = False
     isNewNameNode = os.listdir("/var/lib/hdfs/name") == []
@@ -157,19 +158,3 @@ if __name__ == "__main__":
 
 
 print "============== Finished initialize script"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
