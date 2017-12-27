@@ -34,11 +34,7 @@ const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
-<<<<<<< HEAD
-      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
-=======
-      url: `${webportalConfig.restServerRootUrl}/api/v1/job/${jobConfig.jobName}`,
->>>>>>> master
+      url: `${webportalConfig.restServerRootUrl}/api/v1/jobs/${jobConfig.jobName}`,
       data: jobConfig,
       headers: {
         Authorization: `Bearer ${token}`
