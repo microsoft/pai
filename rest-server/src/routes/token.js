@@ -15,18 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const authConfig = require('../config/auth');
-const authController = require('../controllers/auth');
+const tokenConfig = require('../config/token');
+const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 
 const router = express.Router();
 
 router.route('/')
     /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(authConfig.schema), authController.getToken);
+    .post(param.validate(tokenConfig.schema), tokenController.get);
 
 // module exports
 module.exports = router;

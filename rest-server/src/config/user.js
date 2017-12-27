@@ -15,61 +15,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Joi = require('joi');
-const jwt = require('express-jwt');
-const config = require('./index');
 
-const jwtCheck = jwt({
-  secret: config.jwtSecret
-});
-
-// define job config schema
-const jobConfigSchema = Joi.object().keys({
-  jobName: Joi.string()
+// define auth schema
+const inputSchema = Joi.object().keys({
+  username: Joi.string()
+    .token()
     .required(),
-  image: Joi.string()
+  password: Joi.string()
+    .min(6)
     .required(),
-  authFile: Joi.string()
-    .allow('')
-    .default(''),
-  dataDir: Joi.string()
-    .allow('')
-    .default(''),
-  outputDir: Joi.string()
-    .allow('')
-    .default(''),
-  codeDir: Joi.string()
-    .required(),
-  taskRoles: Joi.array()
-    .items(Joi.object().keys({
-        name: Joi.string()
-          .required(),
-        taskNumber: Joi.number()
-          .integer()
-          .default(1),
-        cpuNumber: Joi.number()
-          .integer()
-          .default(1),
-        memoryMB: Joi.number()
-          .integer()
-          .default(100),
-        gpuNumber: Joi.number()
-          .integer()
-          .default(0),
-        command: Joi.string()
-          .required()
-      }))
-    .min(1)
-    .required(),
-  killAllOnCompletedTaskNumber: Joi.number()
-    .integer()
-    .default(0),
-  retryCount: Joi.number()
-    .integer()
-    .default(0)
+  admin: Joi.boolean(),
+  modify: Joi.boolean()
 }).required();
 
 // module exports
-module.exports = { schema: jobConfigSchema };
+module.exports = {
+  schema: inputSchema
+};

@@ -15,22 +15,20 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const jwt = require('jsonwebtoken');
-const authConfig = require('../config/auth');
-const authModel = require('../models/auth');
+const tokenConfig = require('../config/token');
+const tokenModel = require('../models/token');
 const logger = require('../config/logger');
-
 
 /**
  * Get the token.
  */
-const getToken = (req, res) => {
+const get = (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
-  authModel.check(username, password, (err, state, admin) => {
+  tokenModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       logger.warn('user %s authentication failed', username);
       return res.status(401).json({
@@ -41,7 +39,7 @@ const getToken = (req, res) => {
       jwt.sign({
         username: username,
         admin: admin
-      }, authConfig.secret, { expiresIn: expiration }, (signError, token) => {
+      }, tokenConfig.secret, { expiresIn: expiration }, (signError, token) => {
         if (signError) {
           logger.warn('sign token error\n%s', signError.stack);
           return res.status(500).json({
@@ -58,62 +56,5 @@ const getToken = (req, res) => {
   });
 };
 
-/**
- * Create / update a user.
- */
-const updateUser = (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const admin = req.body.admin;
-  const modify = req.body.modify;
-  if (req.user.admin) {
-    authModel.update(username, password, admin, modify, (err, state) => {
-      if (err || !state) {
-        logger.warn('update user %s failed', username);
-        return res.status(500).json({
-          error: 'UpdateFailed',
-          message: 'update failed'
-        });
-      } else {
-        return res.status(201).json({
-          message: 'update successfully'
-        });
-      }
-    });
-  } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized'
-    });
-  }
-};
-
-/**
- * Remove a user.
- */
-const removeUser = (req, res) => {
-  const username = req.body.username;
-  if (req.user.admin) {
-    authModel.remove(username, (err, state) => {
-      if (err || !state) {
-        logger.warn('remove user %s failed', username);
-        return res.status(500).json({
-          error: 'RemoveFailed',
-          message: 'remove failed'
-        });
-      } else {
-        return res.status(204).json({
-          message: 'remove successfully'
-        });
-      }
-    });
-  } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized'
-    });
-  }
-};
-
 // module exports
-module.exports = { getToken, updateUser, removeUser };
+module.exports = { get };
