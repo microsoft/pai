@@ -17,6 +17,7 @@
 
 
 // module dependencies
+const url = require('url');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
@@ -178,7 +179,12 @@ $("#sidebar-menu--job-view").addClass("active");
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {
-  loadJobs();
+  const query = url.parse(window.location.href, true).query;
+  if (query['jobName']) {
+    loadJobDetail(query['jobName']);
+  } else {
+    loadJobs();
+  }
 });
 
 module.exports = { loadJobs, deleteJob, loadJobDetail }
