@@ -54,15 +54,17 @@ def execute_shell(shell_cmd, error_msg):
 if __name__ == "__main__":
 
     # Will be filled when namenode bootstraping
-    host = {{ host_config['ip'] }}
+    host = "{{ host_config['ip'] }}"
     isBootstrapping = False
     hasActiveNameNode = False
     isNewNameNode = os.listdir("/var/lib/hdfs/name") == []
 
     # Will be filled when namenode bootstraping
-    zookeeper_quorum={%- for host in cluster_config if 'zkid' in cluster_config[ host ] -%}
+    zookeeper_quorum="
+{%- for host in cluster_config if 'zkid' in cluster_config[ host ] -%}
 {{cluster_config[ host ]['ip']}}:2181{% if not loop.last %},{% endif %}
 {%- endfor -%}
+"
     zk = kazoo.client.KazooClient(hosts=zookeeper_quorum)
     zk.start()
 
