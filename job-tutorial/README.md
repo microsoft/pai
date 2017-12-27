@@ -105,7 +105,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
-| `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks |
+| `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
 | `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
 
