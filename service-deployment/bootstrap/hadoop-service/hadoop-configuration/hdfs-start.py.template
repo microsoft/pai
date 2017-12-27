@@ -19,7 +19,8 @@
 
 import os
 import sys
-import kazoo
+from kazoo.client import KazooClient
+from kazoo.recipe.lock import Lock
 import subprocess
 
 
@@ -65,10 +66,10 @@ if __name__ == "__main__":
 {{cluster_config[ host ]['ip']}}:2181{% if not loop.last %},{% endif %}
 {%- endfor -%}
 "
-    zk = kazoo.client.KazooClient(hosts=zookeeper_quorum)
+    zk = KazooClient(hosts=zookeeper_quorum)
     zk.start()
 
-    lock = zk.lock("/namenodelock", host)
+    lock = zk.Lock("/namenodelock", host)
     with lock:
 
         ret, ret_code = execute_shell_with_output(
