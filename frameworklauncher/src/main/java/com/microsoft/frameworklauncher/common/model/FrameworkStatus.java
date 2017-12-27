@@ -40,7 +40,7 @@ public class FrameworkStatus implements Serializable {
   private Long applicationCompletedTimestamp;
   private Integer applicationExitCode;
   private String applicationExitDiagnostics;
-  private ExitType applicationExitType = ExitType.NOT_AVAILABLE;
+  private ExitType applicationExitType;
 
   public String getFrameworkName() {
     return frameworkName;

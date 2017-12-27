@@ -23,21 +23,18 @@ import java.util.Set;
 
 public class Node {
   private ResourceDescriptor capacity;
-  private final String name;
+  private final String hostName;
   private ResourceDescriptor used;
-  //localAllocated in remember the local tried request, it will remember the tried information don't re-try the same request in a AM life cycle.
-  //so here, it is no need to de-crease the localAllocated information once the container request success.
-  private ResourceDescriptor localAllocated;
-  private long selectedGpuBitmap;
-  private Set<String> nodeLabels;
 
-  public Node(String name, Set<String> label, ResourceDescriptor capacity, ResourceDescriptor used) {
-    this.name = name;
+  private ResourceDescriptor requested;
+  private Set<String> labels;
+
+  public Node(String hostName, Set<String> labels, ResourceDescriptor capacity, ResourceDescriptor used) {
+    this.hostName = hostName;
     this.capacity = capacity;
     this.used = used;
-    this.selectedGpuBitmap = 0;
-    this.nodeLabels = label;
-    this.localAllocated = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+    this.labels = labels;
+    this.requested = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
   }
 
   public void updateNode(Node updateNode) {
@@ -54,11 +51,11 @@ public class Node {
   }
 
   public String getHostName() {
-    return name;
+    return hostName;
   }
 
   public Set<String> getNodeLabels() {
-    return nodeLabels;
+    return labels;
   }
 
   public int getTotalNumGpus() {
@@ -66,11 +63,11 @@ public class Node {
   }
 
   public int getUsedNumGpus() {
-    return Long.bitCount(used.getGpuAttribute() | localAllocated.getGpuAttribute());
+    return Long.bitCount(used.getGpuAttribute() | requested.getGpuAttribute());
   }
 
   public long getNodeGpuStatus() {
-    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | localAllocated.getGpuAttribute()));
+    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | requested.getGpuAttribute()));
   }
 
   public int getAvailableNumGpus() {
@@ -78,32 +75,36 @@ public class Node {
   }
 
   public int getAvailableMemory() {
-    return capacity.getMemoryMB() - used.getMemoryMB() - localAllocated.getMemoryMB();
+    return capacity.getMemoryMB() - used.getMemoryMB() - requested.getMemoryMB();
   }
 
   public int getAvailableCpu() {
-    return capacity.getCpuNumber() - used.getCpuNumber() - localAllocated.getCpuNumber();
+    return capacity.getCpuNumber() - used.getCpuNumber() - requested.getCpuNumber();
   }
 
-  public long getSelectedGpuBitmap() {
-    return selectedGpuBitmap;
+
+  public void addContainerRequest(ResourceDescriptor resource) {
+    requested.setCpuNumber(requested.getCpuNumber() + resource.getCpuNumber());
+    requested.setMemoryMB(requested.getMemoryMB() + resource.getMemoryMB());
+    requested.setGpuAttribute(requested.getGpuAttribute() | resource.getGpuAttribute());
+    requested.setGpuNumber(requested.getGpuNumber() + resource.getGpuNumber());
   }
 
-  public void allocateResource(ResourceDescriptor resource, long gpuMap) {
-    localAllocated.setCpuNumber(localAllocated.getCpuNumber() + resource.getCpuNumber());
-    localAllocated.setMemoryMB(localAllocated.getMemoryMB() + resource.getMemoryMB());
-    localAllocated.setGpuAttribute(localAllocated.getGpuAttribute() | gpuMap);
-    localAllocated.setGpuNumber(localAllocated.getGpuNumber() + resource.getGpuNumber());
-    selectedGpuBitmap = gpuMap;
+  public void removeContainerRequest(ResourceDescriptor resource) {
+    requested.setCpuNumber(requested.getCpuNumber() - resource.getCpuNumber());
+    requested.setMemoryMB(requested.getMemoryMB() - resource.getMemoryMB());
+    requested.setGpuAttribute(requested.getGpuAttribute() & (~resource.getGpuAttribute()));
+    requested.setGpuNumber(requested.getGpuNumber() - resource.getGpuNumber());
   }
+
 
   @Override
   public String toString() {
-    return this.name + "(capacity: " + this.capacity + ", used: " + this.used + ", localAllocated:" + this.localAllocated + ")";
+    return this.hostName + "(capacity: " + this.capacity + ", used: " + this.used + ", requested:" + this.requested + ")";
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return hostName.hashCode();
   }
 }

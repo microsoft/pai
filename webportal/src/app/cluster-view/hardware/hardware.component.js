@@ -22,7 +22,7 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const hardwareHtml = hardwareComponent({
-  grafanaUri: webportalConfig.grafanaUri
+  grafanaRootUrl: webportalConfig.grafanaRootUrl
 });
 
 const loadMachines = () => {

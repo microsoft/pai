@@ -68,4 +68,4 @@ docker run --name $docker_name \
   --env PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP \
   --env PAI_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
+  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'

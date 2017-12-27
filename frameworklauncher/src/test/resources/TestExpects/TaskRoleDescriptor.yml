@@ -1,5 +1,5 @@
 !!com.microsoft.frameworklauncher.common.model.TaskRoleDescriptor
-priority: 0
+platformSpecificParameters: {taskNodeGpuType: testString, taskNodeLabel: testString}
 scaleUnitNumber: 0
 scaleUnitTimeoutSec: 0
 taskNumber: 0

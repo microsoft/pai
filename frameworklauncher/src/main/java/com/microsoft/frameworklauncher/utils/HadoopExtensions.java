@@ -22,112 +22,45 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 
 public class HadoopExtensions {
-  private static int divideAndCeil(int a, int b) {
-    if (b == 0) {
-      return 0;
-    }
-    return (a + (b - 1)) / b;
-  }
-
-  private static int roundUp(int num, int stepFactor) {
-    return divideAndCeil(num, stepFactor) * stepFactor;
-  }
-
-  // Only for MEMORY and VIRTUAL_CORES
-  private static int normalize(int raw, ResourceType type) throws Exception {
-    int min = HadoopUtils.getResourceMinAllocation(type);
-    int stepFactor = min;
-    int normalized = roundUp(Math.max(raw, min), stepFactor);
-    return normalized;
-  }
-
-  // Resource
   public static String toString(Resource res) throws Exception {
     return ResourceDescriptor.fromResource(res).toString();
   }
 
-  public static ResourceDescriptor normalize(ResourceDescriptor res) throws Exception {
-    ResourceDescriptor normRes = new ResourceDescriptor();
-    normRes.setMemoryMB(normalize(res.getMemoryMB(), ResourceType.MEMORY));
-    normRes.setCpuNumber(normalize(res.getCpuNumber(), ResourceType.VIRTUAL_CORES));
-    normRes.setGpuNumber(res.getGpuNumber());
-    normRes.setGpuAttribute(res.getGpuAttribute());
-    return normRes;
-  }
-
-  public static Boolean equals(Resource res, Resource otherRes) throws Exception {
-    if (res == otherRes) {
-      return true;
-    }
-    if (res == null || otherRes == null) {
-      return false;
-    }
-
-    // All Resource should be Normalized before Compare with Allocated Container Resource,
-    // since Allocated Container Resource is Normalized
-    ResourceDescriptor normRes = normalize(ResourceDescriptor.fromResource(res));
-    ResourceDescriptor normOtherRes = normalize(ResourceDescriptor.fromResource(otherRes));
-
-    Boolean equal = ((normRes.getMemoryMB().intValue() == normOtherRes.getMemoryMB().intValue()) &&
-        (normRes.getCpuNumber().intValue() == normOtherRes.getCpuNumber().intValue()) &&
-        (normRes.getGpuNumber().intValue() == normOtherRes.getGpuNumber().intValue()));
-
-    if (normRes.getGpuAttribute() != 0 && normOtherRes.getGpuAttribute() != 0) {
-      equal = (equal && (normRes.getGpuAttribute().longValue() == normOtherRes.getGpuAttribute().longValue()));
-    }
-
-    return equal;
-  }
-
-  public static Priority toPriority(Integer priority) {
-    return Priority.newInstance(priority);
-  }
-
   public static String toString(Priority priority) {
-    String str = "";
     if (priority != null) {
-      str = Integer.toString(priority.getPriority());
+      return Integer.toString(priority.getPriority());
+    } else {
+      return null;
     }
-    return str;
-  }
-
-  public static Boolean equals(Priority pri, Priority otherPri) {
-    if (pri == otherPri) {
-      return true;
-    }
-    if (pri == null || otherPri == null) {
-      return false;
-    }
-
-    return pri.getPriority() == otherPri.getPriority();
   }
 
   public static String toString(ContainerRequest req) throws Exception {
-    return
-        String.format("Resource: [%s]", toString(req.getCapability())) + " " +
-            String.format("Priority: [%s]", toString(req.getPriority())) + " " +
-            String.format("NodeLabel: [%s]", req.getNodeLabelExpression()) + " " +
-            String.format("HostNames: %s", CommonExtensions.toString(req.getNodes()));
+    return String.format("Priority: [%s]", toString(req.getPriority())) + " " +
+        String.format("Resource: %s", toString(req.getCapability())) + " " +
+        String.format("NodeLabel: [%s]", req.getNodeLabelExpression()) + " " +
+        String.format("RelaxLocality: [%s]", req.getRelaxLocality()) + " " +
+        String.format("HostNames: %s", CommonExtensions.toString(req.getNodes())) + " " +
+        String.format("RackNames: %s", CommonExtensions.toString(req.getRacks()));
   }
 
   public static String toString(ResourceRequest req) throws Exception {
-    return
-        String.format("Resource: [%s]", toString(req.getCapability())) + " " +
-            String.format("Priority: [%s]", toString(req.getPriority())) + " " +
-            String.format("NodeLabel: [%s]", req.getNodeLabelExpression());
+    return String.format("Priority: [%s]", toString(req.getPriority())) + " " +
+        String.format("Resource: %s", toString(req.getCapability())) + " " +
+        String.format("NodeLabel: [%s]", req.getNodeLabelExpression()) + " " +
+        String.format("RelaxLocality: [%s]", req.getRelaxLocality()) + " " +
+        String.format("ResourceName: [%s]", req.getResourceName()) + " " +
+        String.format("ContainerNum: [%s]", req.getNumContainers());
   }
 
   public static String toString(NodeId nodeId) {
-    return
-        String.format("HostName: [%s]", nodeId.getHost()) + " " +
-            String.format("Port: [%s]", nodeId.getPort());
+    return String.format("HostName: [%s]", nodeId.getHost()) + " " +
+        String.format("Port: [%s]", nodeId.getPort());
   }
 
   public static String toString(Container container) throws Exception {
-    return
-        String.format("ContainerId: [%s]", container.getId().toString()) + " " +
-            String.format("Resource: [%s]", toString(container.getResource())) + " " +
-            String.format("NodeId: [%s]", toString(container.getNodeId())) + " " +
-            String.format("Priority: [%s]", toString(container.getPriority()));
+    return String.format("ContainerId: [%s]", container.getId().toString()) + " " +
+        String.format("Priority: [%s]", toString(container.getPriority())) + " " +
+        String.format("Resource: %s", toString(container.getResource())) + " " +
+        String.format("NodeId: [%s]", toString(container.getNodeId()));
   }
 }
