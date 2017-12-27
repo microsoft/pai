@@ -24,9 +24,9 @@ dotenv.config();
 
 // get config from environment variables
 let config = {
-  restServerRootUrl: process.env.REST_SERVER_ROOT_URL,
-  grafanaRootUrl: process.env.GRAFANA_ROOT_URL,
-  k8sDashboardRootUrl: process.env.K8S_DASHBOARD_ROOT_URL
+  restServerUri: process.env.REST_SERVER_URI,
+  grafanaUri: process.env.GRAFANA_URI,
+  k8sDashboardUri: process.env.K8S_DASHBOARD_URI
 };
 
 // module exports
