@@ -82,10 +82,12 @@ clusterinfo:
 
   # The config for web portal
   webportalinfo:
-    # uri for rest server
-    rest_server_uri: http://10.0.3.9:9186
-    # uri for cluster status dashboard
-    cluster_status_uri: http://10.0.3.9:9090
+    # root url of the rest server
+    rest_server_root_uri: http://10.0.3.9:9186
+    # root url of the grafana portal
+    grafana_root_url: http://10.0.1.9:3000
+    # root url of the k8s dashboard
+    k8s_dashboard_root_url: http://10.0.3.9:9090
     # port for webportal
     server_port: 9286
 

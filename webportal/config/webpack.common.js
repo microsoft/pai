@@ -43,10 +43,13 @@ const config = {
     index: './src/app/index.js',
     layout: './src/app/layout/layout.component.js',
     login: './src/app/user/user-login/user-login.component.js',
-    docs: './src/app/job/job-docs/job-docs.component.js',
-    cluster: './src/app/cluster/cluster.component.js',
-    view: './src/app/job/job-view/job-view.component.js',
+    dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
+    view: './src/app/job/job-view/job-view.component.js',
+    services: './src/app/cluster-view/services/services.component.js',
+    hardware: './src/app/cluster-view/hardware/hardware.component.js',
+    k8s: './src/app/cluster-view/k8s/k8s.component.js',
+    docs: './src/app/job/job-docs/job-docs.component.js',
     download: './src/app/job/job-utils/download.component.js'
   },
   output: {
@@ -176,19 +179,19 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
-      filename: 'docs.html',
+      filename: 'dashboard.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'docs']
+      chunks: ['layout', 'dashboard']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
-      filename: 'cluster.html',
+      filename: 'submit.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'cluster']
+      chunks: ['layout', 'submit']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
@@ -200,11 +203,35 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
-      filename: 'submit.html',
+      filename: 'cluster-view/services.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'submit']
+      chunks: ['layout', 'services']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'cluster-view/hardware.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'hardware']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'cluster-view/k8s.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'k8s']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'docs.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'docs']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

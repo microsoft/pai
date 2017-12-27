@@ -101,7 +101,7 @@ const convertGpu = (gpuAttribute) => {
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/job`,
+    url: `${webportalConfig.restServerRootUrl}/api/v1/job`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -127,7 +127,7 @@ const deleteJob = (jobName) => {
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+        url: `${webportalConfig.restServerRootUrl}/api/v1/job/${jobName}`,
         type: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -173,6 +173,8 @@ const loadJobDetail = (jobName) => {
 window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
 window.loadJobDetail = loadJobDetail;
+
+$("#sidebar-menu--job-view").addClass("active");
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {

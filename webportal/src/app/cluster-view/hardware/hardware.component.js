@@ -15,4 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-window.location.replace("/dashboard.html");
+
+// module dependencies
+const hardwareComponent = require('./hardware.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
+
+const hardwareHtml = hardwareComponent({
+  grafanaRootUrl: webportalConfig.grafanaRootUrl
+});
+
+$("#sidebar-menu--cluster-view").addClass("active");
+$("#sidebar-menu--cluster-view--hardware").addClass("active");
+
+$('#content-wrapper').html(hardwareHtml);

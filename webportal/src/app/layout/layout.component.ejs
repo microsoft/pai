@@ -34,35 +34,69 @@
     <aside class="main-sidebar">
       <section class="sidebar">
         <ul class="sidebar-menu" data-widget="tree">
-          <li>
-            <a href="/docs.html">
-              <i class="fa fa-book"></i>
-              <span>Documentation</span>
-            </a>
-          </li>
-          <li>
-            <a href="/cluster.html">
-              <i class="fa fa-tv"></i>
-              <span>Cluster Status</span>
-            </a>
-          </li>
-          <li>
-            <a href="/view.html">
-              <i class="fa fa-table"></i>
-              <span>View Jobs</span>
-            </a>
-          </li>
-          <li>
+          <li id="sidebar-menu--submit-job">
             <a href="/submit.html">
-              <i class="fa fa-upload"></i>
+              <i class="fa fa-plus-circle"></i>
               <span>Submit Job</span>
             </a>
           </li>
-          <li>
-            <a href="/download.html">
-              <i class="fa fa-download"></i>
-              <span>Download</span>
+          <li id="sidebar-menu--job-view">
+            <a href="/view.html">
+              <i class="fa fa-rocket"></i>
+              <span>Job View</span>
             </a>
+          </li>
+          <li class="treeview" id="sidebar-menu--cluster-view">
+            <a href="">
+              <i class="fa fa-cubes"></i>
+              <span>Cluster View</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li id="sidebar-menu--cluster-view--services">
+                <a href="/cluster-view/services.html">
+                  <i class="fa fa-caret-right"></i>
+                  <span>Services</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--cluster-view--hardware">
+                <a href="/cluster-view/hardware.html">
+                  <i class="fa fa-caret-right"></i>
+                  <span>Hardware</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--cluster-view--k8s">
+                <a href="/cluster-view/k8s.html">
+                  <i class="fa fa-caret-right"></i>
+                  <span>K8s Dashboard</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="treeview" id="sidebar-menu--documents">
+            <a href="">
+              <i class="fa fa-book"></i>
+              <span>Documents</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li id="sidebar-menu--documents--getting-started">
+                <a href="/docs.html">
+                  <i class="fa fa-caret-right"></i>
+                  <span>Getting Started</span>
+                </a>
+              </li>
+              <li id="sidebar-menu--documents--download">
+                <a href="/download.html">
+                  <i class="fa fa-caret-right"></i>
+                  <span>Download</span>
+                </a>
+              </li>
+            </ul>
           </li>
         </ul>
       </section>

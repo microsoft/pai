@@ -15,4 +15,16 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-window.location.replace("/dashboard.html");
+
+// module dependencies
+const k8sComponent = require('./k8s.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
+
+const k8sDashboardHtml = k8sComponent({
+  k8sDashboardRootUrl: webportalConfig.k8sDashboardRootUrl
+});
+
+$("#sidebar-menu--cluster-view").addClass("active");
+$("#sidebar-menu--cluster-view--k8s").addClass("active");
+
+$('#content-wrapper').html(k8sDashboardHtml);
