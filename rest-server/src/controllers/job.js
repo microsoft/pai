@@ -54,6 +54,12 @@ const list = (req, res) => {
         error: 'GetJobListError',
         message: 'get job list error'
       });
+    } else if (jobList === undefined) {
+      logger.warn('list jobs error, no job found');
+      return res.status(500).json({
+        error: 'JobListNotFound',
+        message: 'could not find job list'
+      });
     } else {
       return res.status(200).json(jobList);
     }
