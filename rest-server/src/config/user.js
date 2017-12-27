@@ -18,8 +18,8 @@
 // module dependencies
 const Joi = require('joi');
 
-// define auth schema
-const inputSchema = Joi.object().keys({
+// define the input schema for the 'update user' api
+const userInputSchema_PUT = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
@@ -30,7 +30,15 @@ const inputSchema = Joi.object().keys({
   modify: Joi.boolean()
 }).required();
 
+// define the input schema for the 'remove user' api
+const userInputSchema_DELETE = Joi.object().keys({
+  username: Joi.string()
+    .token()
+    .required()
+}).required();
+
 // module exports
 module.exports = {
-  schema: inputSchema
+  userInputSchema_PUT: userInputSchema_PUT,
+  userInputSchema_DELETE: userInputSchema_DELETE
 };
