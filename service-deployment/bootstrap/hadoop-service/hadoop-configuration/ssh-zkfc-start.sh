@@ -30,12 +30,25 @@ echo "Port 2122" >> /etc/ssh/sshd_config
 /etc/init.d/ssh restart
 
 
-# Retry start zkfc, until successing.
+# step 1 : Retry start zkfc, until successing.
+# step 2 : monitor zkfc. If crushed, restart it.
 # It is not important that you start the ZKFC and NameNode daemons in a particular order. On any given node you can start the ZKFC before or after its corresponding NameNode.
-until hdfs zkfc
-do
-    echo "retry to start zkfc"
-    kill `jps | grep "DFSZKFailoverController" | cut -d " " -f 1`
-done
+while true; do
 
-echo "zkfc starting finished"
+    until hdfs zkfc
+    do
+        echo "retry to start zkfc"
+        kill `jps | grep "DFSZKFailoverController" | cut -d " " -f 1`
+    done
+
+    echo "zkfc starting finished"
+
+    while jps | grep -q "DFSZKFailoverController" ; do
+
+        sleep 300
+
+    done
+
+    echo "zkfc crushed, restart it"
+
+done
