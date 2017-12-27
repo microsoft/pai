@@ -30,11 +30,17 @@
     {% if 'hdfsrole' in machinelist[host] -%}
     hdfsrole: {{ machinelist[host]['hdfsrole'] }}
     {% endif -%}
+    {% if 'namenodeid' in machinelist[host] -%}
+    namenodeid: "{{ machinelist[host]['namenodeid'] }}"
+    {% endif -%}
     {% if 'yarnrole' in machinelist[host] -%}
     yarnrole: {{ machinelist[host]['yarnrole'] }}
     {% endif -%}
     {% if 'zookeeper' in machinelist[host] -%}
     zookeeper: "{{ machinelist[host]['zookeeper'] }}"
+    {% endif -%}
+    {% if 'hadoopjournalnode' in machinelist[host] -%}
+    hadoopjournalnode: "{{ machinelist[host]['hadoopjournalnode'] }}"
     {% endif -%}
     {% if 'jobhistory' in machinelist[host] -%}
     jobhistory: "{{ machinelist[host]['jobhistory'] }}"
