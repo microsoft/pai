@@ -1,6 +1,6 @@
---- hadoop/yarn-site.xml	2017-11-13 02:36:07.769706914 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml	2017-11-13 02:38:31.329774525 -0500
-@@ -12,8 +12,113 @@
+--- hadoop/yarn-site.xml	2017-12-27 14:01:20.294138735 +0000
++++ resourcemanager-yarn-site.xml	2017-12-27 14:01:31.037972471 +0000
+@@ -12,8 +12,132 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -20,12 +20,6 @@
 +        <value>204800</value>
 +        <description>Number of memory that can be allocated for containers.</description>
 +    </property>
-+    
-+    <property>
-+        <name>yarn.nodemanager.resource.gpus</name>
-+        <value>4</value>
-+        <description>GPU Supported</description>
-+    </property>
 +
 +    <property>
 +        <name>yarn.scheduler.maximum-allocation-mb</name>
@@ -44,19 +38,44 @@
 +    </property>
 +
 +    <property>
-+        <name>yarn.resourcemanager.hostname</name>
-+        <value>{RESOURCEMANAGER_ADDRESS}</value>
++        <name>yarn.resourcemanager.ha.enabled</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.cluster-id</name>
++        <value>paiclusterrm</value>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.ha.rm-ids</name>
++        <value>
++{%- for host in cluster_config if 'resourcemanagerid' in cluster_config[ host ] -%}
++    hrm-{{cluster_config[ host ]['resourcemanagerid']}}{% if not loop.last %},{% endif %}
++{%- endfor -%}
++        </value>
++    </property>
++
++{% for host in cluster_config if 'resourcemanagerid' in cluster_config[ host ] %}
++    <property>
++        <name>yarn.resourcemanager.hostname.hrm-{{cluster_config[ host ]['resourcemanagerid']}}</name>
++        <value>{{cluster_config[ host ]['ip']}}</value>
 +        <description>The hostname of the RM.</description>
 +    </property>
 +
 +    <property>
-+        <name>yarn.resourcemanager.webapp.address</name>
-+        <value>{RESOURCEMANAGER_ADDRESS}:8088</value>
++        <name>yarn.resourcemanager.webapp.address.hrm-{{cluster_config[ host ]['resourcemanagerid']}}</name>
++        <value>{{cluster_config[ host ]['ip']}}:8088</value>
 +    </property>
++{% endfor %}
 +
 +    <property>
 +      <name>yarn.resourcemanager.zk-address</name>
-+       <value>{ZOOKEEPER_ADDRESS}:2181</value>
++       <value>
++{%- for host in cluster_config if 'zkid' in cluster_config[ host ] -%}
++    {{cluster_config[ host ]['ip']}}:2181{% if not loop.last %},{% endif %}
++{%- endfor -%}
++       </value>
 +    </property>
 +
 +    <property>
@@ -96,7 +115,7 @@
 +
 +    <property>
 +        <name>yarn.node-labels.fs-store.root-dir</name>
-+        <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
++        <value>hdfs://paicluster/yarn/node-labels</value>
 +    </property>
 +    
 +    <property>
