@@ -56,7 +56,7 @@
 +<property>
 +  <name>dfs.ha.namenodes.paicluster</name>
 +  <value>
-+{%- for host cluster_config if 'namenodeid' in cluster_config[ host ] -%}
++{%- for host in cluster_config if 'namenodeid' in cluster_config[ host ] -%}
 +    hnn-{{ cluster_config[ host ]['namenodeid'] }}{% if not loop.last %},{% endif %}
 +{%- endfor -%}
 +  </value>
