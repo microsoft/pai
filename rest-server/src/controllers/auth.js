@@ -33,7 +33,7 @@ const getToken = (req, res) => {
   authModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       logger.warn('user %s authentication failed', username);
-      return res.status(500).json({
+      return res.status(401).json({
         error: 'AuthenticationFailed',
         message: 'authentication failed'
       });
@@ -44,7 +44,7 @@ const getToken = (req, res) => {
       }, authConfig.secret, { expiresIn: expiration }, (signError, token) => {
         if (signError) {
           logger.warn('sign token error\n%s', signError.stack);
-          return res.status(401).json({
+          return res.status(500).json({
             error: 'SignTokenFailed',
             message: 'sign token failed'
           });
