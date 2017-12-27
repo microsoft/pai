@@ -104,7 +104,6 @@ if (error) {
 }
 launcherConfig = value;
 
-/*
 childProcess.exec(
     `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/output && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/output`,
     (err, stdout, stderr) => {
@@ -128,7 +127,6 @@ const prepareHdfsPath = () => {
     }
   });
 };
-*/
 
 // prepare local file path
 const prepareLocalPath = () => {
@@ -181,7 +179,7 @@ unirest.get(launcherConfig.healthCheckPath())
     .end((res) => {
       if (res.status === 200) {
         logger.info('connected to framework launcher successfully');
-        //prepareHdfsPath();
+        prepareHdfsPath();
         prepareLocalPath();
       } else {
         throw new Error('cannot connect to framework launcher');

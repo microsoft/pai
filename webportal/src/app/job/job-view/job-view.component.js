@@ -127,11 +127,7 @@ const deleteJob = (jobName) => {
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-<<<<<<< HEAD
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
-=======
-        url: `${webportalConfig.restServerRootUrl}/api/v1/job/${jobName}`,
->>>>>>> master
+        url: `${webportalConfig.restServerRootUrl}/api/v1/jobs/${jobName}`,
         type: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`

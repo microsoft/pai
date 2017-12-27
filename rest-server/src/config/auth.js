@@ -27,7 +27,7 @@ const jwtCheck = jwt({
 });
 
 // define auth schema
-const authConfigSchema = Joi.object().keys({
+const authSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
@@ -47,5 +47,5 @@ const authConfigSchema = Joi.object().keys({
 module.exports = {
   secret: config.jwtSecret,
   check: jwtCheck,
-  schema: authConfigSchema
+  schema: authSchema
 };
