@@ -33,11 +33,14 @@ spec:
       containers:
       - name: webportal
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
+        imagePullPolicy: Always
         env:
-        - name: REST_SERVER_URI
-          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
-        - name: CLUSTER_STATUS_URI
-          value: {{ clusterinfo['webportalinfo']['cluster_status_uri'] }}
+        - name: REST_SERVER_ROOT_URL
+          value: {{ clusterinfo['webportalinfo']['rest_server_root_url'] }}
+        - name: GRAFANA_ROOT_URL
+          value: {{ clusterinfo['webportalinfo']['grafana_root_url'] }}
+        - name: K8S_DASHBOARD_ROOT_URL
+          value: {{ clusterinfo['webportalinfo']['k8s_dashboard_root_url'] }}
         ports:
         - name: webportal
           containerPort: 8080

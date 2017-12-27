@@ -1,1 +1,2 @@
-!!com.microsoft.frameworklauncher.common.model.OverrideApplicationProgressRequest {applicationProgress: null}
+!!com.microsoft.frameworklauncher.common.model.OverrideApplicationProgressRequest {
+  applicationProgress: null}

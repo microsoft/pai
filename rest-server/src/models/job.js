@@ -32,9 +32,10 @@ const dockerContainerScriptTemplate = require('../templates/dockerContainerScrip
 
 class Job {
   constructor(name, next) {
-    this.getJobStatus(name, (jobStatus) => {
-      for (let key of Object.keys(jobStatus)) {
-        this[key] = jobStatus[key];
+    this.name = name;
+    this.getJob(name, (job) => {
+      for (let key of Object.keys(job)) {
+        this[key] = job[key];
       }
       next();
     });
@@ -70,55 +71,83 @@ class Job {
   }
 
   getJobStatus(name, next) {
-    unirest.get(launcherConfig.frameworkStatusPath(name))
+    this.getJob(name, (job, err) => {
+      next(job.jobStatus, err);
+    });
+  }
+
+  getJob(name, next) {
+    unirest.get(launcherConfig.frameworkPath(name))
         .headers(launcherConfig.webserviceRequestHeaders)
-        .end((statusRes) => {
-          const statusResJson = typeof statusRes.body === 'object' ?
-              statusRes.body : JSON.parse(statusRes.body);
-          const jobStatus = {
-            name: name,
-            state: statusResJson.frameworkState,
-            createdTime: statusResJson.frameworkCreatedTimestamp,
-            completedTime: statusResJson.frameworkCompletedTimestamp,
-            appId: statusResJson.applicationId,
-            appProgress: statusResJson.applicationProgress,
-            appTrackingUrl: statusResJson.applicationTrackingUrl,
-            appLaunchedTime: statusResJson.applicationLaunchedTimestamp,
-            appCompletedTime: statusResJson.applicationCompletedTimestamp,
-            appExitCode: statusResJson.applicationExitCode,
-            appExitDiagnostics: statusResJson.applicationExitDiagnostics,
-            appExitType: statusResJson.applicationExitType
+        .end((frameworkRes) => {
+          const framework = typeof frameworkRes.body === 'object' ?
+              frameworkRes.body : JSON.parse(frameworkRes.body);
+          let job = {
+            jobStatus: {
+              name,
+              username: 'unknown',
+              state: 'JOB_NOT_FOUND'
+            },
+            taskRoles: {}
           };
-          if (statusResJson.exception !== undefined) {
-            jobStatus.state = 'JOB_NOT_FOUND';
-          }
-          if (statusResJson.frameworkRetryPolicyState) {
-            if (typeof statusResJson.frameworkRetryPolicyState.retriedCount === undefined) {
-              jobStatus.retries = 0;
-            } else {
-              jobStatus.retries = statusResJson.frameworkRetryPolicyState.retriedCount;
-            }
+          if (framework.exception !== undefined) {
+            next(job, new Error('job not found'));
           } else {
-            jobStatus.retries = 0;
-          }
-          unirest.get(launcherConfig.frameworkRequestPath(name))
-              .headers(launcherConfig.webserviceRequestHeaders)
-              .end((requestRes) => {
-                const requestResJson = typeof requestRes.body === 'object' ?
-                    requestRes.body : JSON.parse(requestRes.body);
-                if (requestResJson.frameworkDescriptor) {
-                  jobStatus.username = requestResJson.frameworkDescriptor.user.name;
-                } else {
-                  jobStatus.username = 'unknown';
+            if (framework.frameworkStatus) {
+              job.jobStatus = {
+                name,
+                username: 'unknown',
+                state: framework.frameworkStatus.frameworkState,
+                retries: 0,
+                createdTime: framework.frameworkStatus.frameworkCreatedTimestamp,
+                completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
+                appId: framework.frameworkStatus.applicationId,
+                appProgress: framework.frameworkStatus.applicationProgress,
+                appTrackingUrl: framework.frameworkStatus.applicationTrackingUrl,
+                appLaunchedTime: framework.frameworkStatus.applicationLaunchedTimestamp,
+                appCompletedTime: framework.frameworkStatus.applicationCompletedTimestamp,
+                appExitCode: framework.frameworkStatus.applicationExitCode,
+                appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
+                appExitType: framework.frameworkStatus.applicationExitType
+              };
+              if (framework.frameworkStatus.frameworkRetryPolicyState.retriedCount) {
+                job.jobStatus.retries = framework.frameworkStatus.frameworkRetryPolicyState.retriedCount;
+              }
+            }
+            if (framework.aggregatedTaskRoleStatuses) {
+              for (let taskRole of Object.keys(framework.aggregatedTaskRoleStatuses)) {
+                job.taskRoles[taskRole] = {
+                  taskRoleStatus: { name: taskRole },
+                  taskStatuses: []
+                };
+                for (let task of framework.aggregatedTaskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+                  job.taskRoles[taskRole].taskStatuses.push({
+                    taskIndex: task.taskIndex,
+                    containerId: task.containerId,
+                    containerIp: task.containerIp,
+                    containerGpus: task.containerGpus,
+                    containerLog: task.containerLogHttpAddress
+                  });
                 }
-                next(jobStatus);
-              });
+              }
+            }
+            unirest.get(launcherConfig.frameworkRequestPath(name))
+                .headers(launcherConfig.webserviceRequestHeaders)
+                .end((frameworkRequestRes) => {
+                  const frameworkRequest = typeof frameworkRequestRes.body === 'object' ?
+                      frameworkRequestRes.body : JSON.parse(frameworkRequestRes.body);
+                  if (frameworkRequest.frameworkDescriptor) {
+                    job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+                  }
+                  next(job);
+                });
+          }
         });
   }
 
   putJob(name, data, next) {
     if (!data.outputDir.trim()) {
-      data.outputDir = `${launcherConfig.hdfsUri}/output/${name}`;
+      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     }
     childProcess.exec(
         `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
@@ -127,7 +156,7 @@ class Job {
             logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
           }
         });
-    const jobDir = path.join(launcherConfig.jobRootDir, name);
+    const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
     fse.ensureDir(jobDir, (err) => {
       if (err) {
         return next(err);
@@ -162,6 +191,13 @@ class Job {
             });
           },
           (parallelCallback) => {
+            fse.outputJson(
+                path.join(jobDir, launcherConfig.jobConfigFileName),
+                data,
+                { 'spaces': 2 },
+                (err) => parallelCallback(err));
+          },
+          (parallelCallback) => {
             frameworkDescription = this.generateFrameworkDescription(data);
             fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
@@ -174,7 +210,8 @@ class Job {
             return next(parallelError);
           } else {
             childProcess.exec(
-                `HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container`,
+                `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`,
                 (err, stdout, stderr) => {
                   logger.info('[stdout]\n%s', stdout);
                   logger.info('[stderr]\n%s', stderr);
@@ -258,7 +295,7 @@ class Job {
         'taskService': {
           'version': 0,
           'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Container/${data.jobName}/YarnContainerScripts`],
+          'sourceLocations': [`/Container/${data.username}/${data.jobName}/YarnContainerScripts`],
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,

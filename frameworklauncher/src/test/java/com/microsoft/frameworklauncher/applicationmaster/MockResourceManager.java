@@ -23,10 +23,7 @@ import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 public class MockResourceManager {
   private List<NodeReport> nodeReportList = new Vector<>();
@@ -57,7 +54,7 @@ public class MockResourceManager {
       int port = 1024 + portRandom.nextInt(65535 - 1024 + 1);
       StringBuilder hostStr = new StringBuilder();
       for (int j = 0; j < 4; j++) {
-        hostStr.append(".").append(1 + ipRandom.nextInt(256));
+        hostStr.append(".").append(ipRandom.nextInt(256));
       }
       NodeId nodeId = NodeId.newInstance(hostStr.substring(1), port);
       nodeReport.setNodeId(nodeId);
@@ -68,6 +65,7 @@ public class MockResourceManager {
   }
 
   public List<NodeReport> getNodeReportList() {
+    Collections.shuffle(nodeReportList);
     return nodeReportList;
   }
 }

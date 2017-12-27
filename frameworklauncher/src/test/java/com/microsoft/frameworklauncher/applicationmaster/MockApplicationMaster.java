@@ -47,6 +47,7 @@ public class MockApplicationMaster extends ApplicationMaster {
     hdfsStore = new MockHdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
+    gpuAllocationManager = new GpuAllocationManager(this);
   }
 
   @Override

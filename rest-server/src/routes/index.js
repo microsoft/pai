@@ -21,7 +21,7 @@ const express = require('express');
 const controller = require('../controllers/index');
 const tokenRouter = require('./token');
 const userRouter = require('./user');
-const jobsRouter = require('./jobs');
+const jobRouter = require('./job');
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.route('/')
 
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
-router.use('/jobs', jobsRouter);
+router.use('/jobs', jobRouter);
 
 // module exports
 module.exports = router;

@@ -29,10 +29,10 @@ RUN apt-get update && \
 
 WORKDIR /go
 
-COPY copied_file/app.go /usr/local/
+COPY copied_file/exporter/gpu_exporter.go /usr/local/
 COPY start.sh /usr/local/start.sh
-RUN go build -v -o /usr/local/app /usr/local/app.go
+RUN go build -v -o /usr/local/gpu_exporter /usr/local/gpu_exporter.go
 RUN chmod u+x /usr/local/start.sh
-RUN chmod u+x /usr/local/app 
-CMD [ "/usr/local/./start.sh" ]
+RUN chmod u+x /usr/local/gpu_exporter 
+CMD [ "/usr/local/start.sh" ]
 

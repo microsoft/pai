@@ -36,8 +36,5 @@ public enum ExitType implements Serializable {
   NON_TRANSIENT,
 
   // Failed, and it cannot offer any retry guarantee.
-  UNKNOWN,
-
-  // ExitType NOT_AVAILABLE
-  NOT_AVAILABLE
+  UNKNOWN
 }

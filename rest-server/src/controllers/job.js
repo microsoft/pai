@@ -26,13 +26,13 @@ const logger = require('../config/logger');
  */
 const load = (req, res, next, jobName) => {
   job = new Job(jobName, () => {
-    if ((req.method === 'GET' || req.method === 'DELETE') && job.state === 'JOB_NOT_FOUND') {
+    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: "JobNotFound",
         message: `could not find job ${jobName}`
       });
-    } else if (req.method === 'PUT' && job.state !== 'JOB_NOT_FOUND') {
+    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
       logger.warn('duplicate job %s', jobName);
       return res.status(400).json({
         error: 'DuplicateJobSubmission',

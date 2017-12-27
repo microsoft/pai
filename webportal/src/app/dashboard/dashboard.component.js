@@ -17,12 +17,11 @@
 
 
 // module dependencies
-const clusterComponent = require('./cluster.component.ejs');
+const dashboardComponent = require('./dashboard.component.ejs');
 const webportalConfig = require('../config/webportal.config.json');
 
-
-const clusterHtml = clusterComponent({
-  clusterStatusUri: webportalConfig.clusterStatusUri
+const dashboardHtml = dashboardComponent({
+  grafanaRootUrl: webportalConfig.grafanaRootUrl
 });
 
-$('#content-wrapper').html(clusterHtml);
+$('#content-wrapper').html(dashboardHtml);

@@ -34,7 +34,11 @@ const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
+<<<<<<< HEAD
       url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
+=======
+      url: `${webportalConfig.restServerRootUrl}/api/v1/job/${jobConfig.jobName}`,
+>>>>>>> master
       data: jobConfig,
       headers: {
         Authorization: `Bearer ${token}`
@@ -59,6 +63,8 @@ const submitJob = (jobConfig) => {
     });
   });
 };
+
+$("#sidebar-menu--submit-job").addClass("active");
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
