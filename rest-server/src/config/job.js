@@ -18,12 +18,6 @@
 
 // module dependencies
 const Joi = require('joi');
-const jwt = require('express-jwt');
-const config = require('./index');
-
-const jwtCheck = jwt({
-  secret: config.jwtSecret
-});
 
 // define job config schema
 const jobConfigSchema = Joi.object().keys({
