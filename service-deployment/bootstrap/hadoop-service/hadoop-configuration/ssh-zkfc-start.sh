@@ -49,6 +49,6 @@ while true; do
 
     done
 
-    echo "zkfc crushed, restart it"
+    echo "zkfc crashed, restart it"
 
 done
