@@ -36,6 +36,9 @@
     {% if 'yarnrole' in machinelist[host] -%}
     yarnrole: {{ machinelist[host]['yarnrole'] }}
     {% endif -%}
+    {% if 'resourcemanagerid' in machinelist[host] -%}
+    resourcemanagerid: "{{ machinelist[host]['resourcemanagerid'] }}"
+    {% endif -%}
     {% if 'zookeeper' in machinelist[host] -%}
     zookeeper: "{{ machinelist[host]['zookeeper'] }}"
     {% endif -%}
