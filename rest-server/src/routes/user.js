@@ -26,10 +26,10 @@ const router = express.Router();
 
 router.route('/')
     /** PUT /api/v1/user - Create or update a user */
-    .put(tokenConfig.check, param.validate(userConfig.userInputSchema_PUT), userController.update)
+    .put(tokenConfig.check, param.validate(userConfig.userPutInputSchema), userController.update)
 
     /** DELETE /api/v1/user - Remove a user */
-    .delete(tokenConfig.check, param.validate(userConfig.userInputSchema_DELETE), userController.remove);
+    .delete(tokenConfig.check, param.validate(userConfig.userDeleteInputSchema), userController.remove);
 
 // module exports
 module.exports = router;

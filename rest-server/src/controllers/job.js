@@ -86,7 +86,7 @@ const update = (req, res) => {
         message: 'job update error'
       });
     } else {
-      return res.status(201).json({
+      return res.status(202).json({
         message: `update job ${req.job.name} successfully`
       });
     }

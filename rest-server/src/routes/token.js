@@ -25,7 +25,7 @@ const router = express.Router();
 
 router.route('/')
     /** POST /api/v1/token - Return a token if username and password is correct */
-    .post(param.validate(tokenConfig.tokenInputSchema_POST), tokenController.get);
+    .post(param.validate(tokenConfig.tokenPostInputSchema), tokenController.get);
 
 // module exports
 module.exports = router;

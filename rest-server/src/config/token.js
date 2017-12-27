@@ -25,7 +25,7 @@ const jwtCheck = jwt({
 });
 
 // define input schema
-const tokenInputSchema_POST = Joi.object().keys({
+const tokenPostInputSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
@@ -43,5 +43,5 @@ const tokenInputSchema_POST = Joi.object().keys({
 module.exports = {
   secret: config.jwtSecret,
   check: jwtCheck,
-  tokenInputSchema_POST: tokenInputSchema_POST
+  tokenPostInputSchema: tokenPostInputSchema
 };
