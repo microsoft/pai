@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,24 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
-
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
-
-RUN apt-get update && \
-    apt-get install -y wget && \
-    apt-get -y install golang --no-install-recommends && \
-    rm -r /var/lib/apt/lists/*
-
-WORKDIR /go
-
-COPY copied_file/exporter/gpu_exporter.go /usr/local/
-COPY start.sh /usr/local/start.sh
-RUN go build -v -o /usr/local/gpu_exporter /usr/local/gpu_exporter.go
-RUN chmod u+x /usr/local/start.sh
-RUN chmod u+x /usr/local/gpu_exporter 
-CMD [ "/usr/local/start.sh" ]
-
+nohup /usr/local/./gpu_exporter -gpu_log_dir={{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }} > /usr/local/gpu_exporter.log &
+ps -aux|grep gpu_exporter| grep -v grep | awk '{print $2}'
+echo "gpu exporter launched"

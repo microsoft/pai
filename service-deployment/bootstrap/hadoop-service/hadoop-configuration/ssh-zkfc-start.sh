@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,24 +17,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+# Change SSH config.
 
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
+chmod 600 /root/.ssh/config
+chmod 600 /root/.ssh/id_rsa
+sed -i "/^[^#]*UsePAM/ s/.*/#&/" /etc/ssh/sshd_config
+echo "UsePAM no" >> /etc/ssh/sshd_config
+echo "Port 2122" >> /etc/ssh/sshd_config
 
-RUN apt-get update && \
-    apt-get install -y wget && \
-    apt-get -y install golang --no-install-recommends && \
-    rm -r /var/lib/apt/lists/*
+# Restart SSH
 
-WORKDIR /go
+/etc/init.d/ssh restart
 
-COPY copied_file/exporter/gpu_exporter.go /usr/local/
-COPY start.sh /usr/local/start.sh
-RUN go build -v -o /usr/local/gpu_exporter /usr/local/gpu_exporter.go
-RUN chmod u+x /usr/local/start.sh
-RUN chmod u+x /usr/local/gpu_exporter 
-CMD [ "/usr/local/start.sh" ]
 
+# step 1 : Retry start zkfc, until successing.
+# step 2 : monitor zkfc. If crushed, restart it.
+# It is not important that you start the ZKFC and NameNode daemons in a particular order. On any given node you can start the ZKFC before or after its corresponding NameNode.
+while true; do
+
+    until hdfs zkfc
+    do
+        echo "retry to start zkfc"
+        kill `jps | grep "DFSZKFailoverController" | cut -d " " -f 1`
+    done
+
+    echo "zkfc starting finished"
+
+    while jps | grep -q "DFSZKFailoverController" ; do
+
+        sleep 300
+
+    done
+
+    echo "zkfc crushed, restart it"
+
+done
