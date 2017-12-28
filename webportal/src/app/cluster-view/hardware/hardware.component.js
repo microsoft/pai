@@ -22,6 +22,7 @@ require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/ip-address.js');
+require('jquery.ajax-cross-origin/js/jquery.ajax-cross-origin.min.js')
 const url = require('url');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
@@ -33,11 +34,96 @@ const hardwareHtml = hardwareComponent({
   grafanaUri: webportalConfig.grafanaUri
 });
 
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    // Check if the XMLHttpRequest object has a "withCredentials" property.
+    // "withCredentials" only exists on XMLHTTPRequest2 objects.
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    // Otherwise, check if XDomainRequest.
+    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    // Otherwise, CORS is not supported by the browser.
+    xhr = null;
+  }
+  return xhr;
+}
+
+
 const loadMachines = () => {
+  /*
+  var xhr = createCORSRequest('GET', 'http://10.151.40.179:9090/api/v1/node');
+  if (!xhr) {
+    throw new Error('CORS not supported');
+  }
+  xhr.onload = function() {
+    var responseText = xhr.responseText;
+    alert(responseText);
+    console.log(responseText);
+    // process the response.
+  };
+  xhr.onerror = function() {
+    alert("ah!");
+    console.log('There was an error!');
+  };
+  xhr.send();
+  */
+  /*
   $.ajax({
-    url: `http://10.151.40.179:9090/api/v1/pod`,
+
+    // The 'type' property sets the HTTP method.
+    // A value of 'PUT' or 'DELETE' will trigger a preflight request.
     type: 'GET',
-    dataType: 'jsonp',
+  
+    // The URL to make the request to.
+    //url: 'http://html5rocks-cors.s3-website-us-east-1.amazonaws.com/index.html',
+    url: "http://10.151.40.179:9090/api/v1/node",
+  
+    xhrFields: {
+      // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
+      // This can be used to set the 'withCredentials' property.
+      // Set the value to 'true' if you'd like to pass cookies to the server.
+      // If this is enabled, your server must respond with the header
+      // 'Access-Control-Allow-Credentials: true'.
+      withCredentials: true
+    },
+  
+    headers: {
+      // Set any custom headers here.
+      // If you set any non-simple headers, your server must include these
+      // headers in the 'Access-Control-Allow-Headers' response header.
+    },
+  
+    success: function(data) {
+      // Here's where you handle a successful response.
+      alert(data);
+    },
+  
+    error: function() {
+      // Here's where you handle an error response.
+      // Note that if the error was due to a CORS issue,
+      // this function will still fire, but there won't be any additional
+      // information about the error.
+    }
+  });
+  */
+  $.ajax({
+    url: "http://10.151.40.179:9090/api/v1/node",
+    type: 'GET',
+    // The name of the callback parameter, as specified by the YQL service
+    jsonp: "callback",
+ 
+    // Tell jQuery we're expecting JSONP
+    dataType: "jsonp",
+ 
+    // Tell YQL what we want and that we want JSON
+    data: {
+        q: "{}",
+        format: "json"
+    },
     success: (data) => {
       alert("yay!");
       loading.hideLoading();
@@ -66,7 +152,7 @@ window.onresize = function (envent) {
 }
 
 $(document).ready(() => {
-  //loadMachines();
+  loadMachines();
   resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
