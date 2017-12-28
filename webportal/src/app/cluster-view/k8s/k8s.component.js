@@ -21,7 +21,7 @@ const k8sComponent = require('./k8s.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const k8sDashboardHtml = k8sComponent({
-  k8sDashboardRootUrl: webportalConfig.k8sDashboardRootUrl
+  k8sDashboardUri: webportalConfig.k8sDashboardUri
 });
 
 $("#sidebar-menu--cluster-view").addClass("active");

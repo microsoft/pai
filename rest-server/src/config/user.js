@@ -15,22 +15,30 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
+const Joi = require('joi');
 
-const router = express.Router();
+// define the input schema for the 'update user' api
+const userPutInputSchema = Joi.object().keys({
+  username: Joi.string()
+    .token()
+    .required(),
+  password: Joi.string()
+    .min(6)
+    .required(),
+  admin: Joi.boolean(),
+  modify: Joi.boolean()
+}).required();
 
-router.route('/')
-    .all(controller.index);
-
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
+// define the input schema for the 'remove user' api
+const userDeleteInputSchema = Joi.object().keys({
+  username: Joi.string()
+    .token()
+    .required()
+}).required();
 
 // module exports
-module.exports = router;
+module.exports = {
+  userPutInputSchema: userPutInputSchema,
+  userDeleteInputSchema: userDeleteInputSchema
+};

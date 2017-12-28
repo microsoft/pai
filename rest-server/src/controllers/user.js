@@ -15,51 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const jwt = require('jsonwebtoken');
-const authConfig = require('../config/auth');
-const authModel = require('../models/auth');
+const userModel = require('../models/user');
 const logger = require('../config/logger');
 
-
 /**
- * Login.
- */
-const login = (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const expiration = req.body.expiration;
-  authModel.check(username, password, (err, state, admin) => {
-    if (err || !state) {
-      logger.warn('user %s authentication failed', username);
-      return res.status(401).json({
-        error: 'AuthenticationFailed',
-        message: 'authentication failed'
-      });
-    } else {
-      jwt.sign({
-        username: username,
-        admin: admin
-      }, authConfig.secret, { expiresIn: expiration }, (signError, token) => {
-        if (signError) {
-          logger.warn('sign token error\n%s', signError.stack);
-          return res.status(500).json({
-            error: 'SignTokenFailed',
-            message: 'sign token failed'
-          });
-        }
-        return res.json({
-          token,
-          user: username
-        });
-      });
-    }
-  });
-};
-
-/**
- * Update user.
+ * Create / update a user.
  */
 const update = (req, res) => {
   const username = req.body.username;
@@ -67,7 +28,7 @@ const update = (req, res) => {
   const admin = req.body.admin;
   const modify = req.body.modify;
   if (req.user.admin) {
-    authModel.update(username, password, admin, modify, (err, state) => {
+    userModel.update(username, password, admin, modify, (err, state) => {
       if (err || !state) {
         logger.warn('update user %s failed', username);
         return res.status(500).json({
@@ -75,7 +36,7 @@ const update = (req, res) => {
           message: 'update failed'
         });
       } else {
-        return res.json({
+        return res.status(201).json({
           message: 'update successfully'
         });
       }
@@ -89,12 +50,12 @@ const update = (req, res) => {
 };
 
 /**
- * Remove user.
+ * Remove a user.
  */
 const remove = (req, res) => {
   const username = req.body.username;
   if (req.user.admin) {
-    authModel.remove(username, (err, state) => {
+    userModel.remove(username, (err, state) => {
       if (err || !state) {
         logger.warn('remove user %s failed', username);
         return res.status(500).json({
@@ -102,7 +63,7 @@ const remove = (req, res) => {
           message: 'remove failed'
         });
       } else {
-        return res.json({
+        return res.status(204).json({
           message: 'remove successfully'
         });
       }
@@ -116,4 +77,4 @@ const remove = (req, res) => {
 };
 
 // module exports
-module.exports = { login, update, remove };
+module.exports = { update, remove };

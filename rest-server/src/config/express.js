@@ -39,7 +39,7 @@ app.use(cookieParser());
 // setup the logger for requests
 app.use(morgan('dev', { 'stream': logger.stream }));
 
-// mount all routes to /api
+// mount all v1 APIs to /api/v1
 app.use('/api/v1', router);
 
 // catch 404 and forward to error handler

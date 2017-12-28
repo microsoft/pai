@@ -15,25 +15,46 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const express = require('express');
-const authConfig = require('../config/auth');
-const authCtrl = require('../controllers/auth');
-const param = require('../middlewares/parameter');
+const jwt = require('jsonwebtoken');
+const tokenConfig = require('../config/token');
+const tokenModel = require('../models/token');
+const logger = require('../config/logger');
 
-
-const router = express.Router();
-
-router.route('/')
-    /** POST /api/auth - Return token if username and password is correct */
-    .post(param.validate(authConfig.schema), authCtrl.login)
-
-    /** PUT /api/auth - Update user */
-    .put(authConfig.check, param.validate(authConfig.schema), authCtrl.update)
-
-    /** DELETE /api/auth - Delete user */
-    .delete(authConfig.check, authCtrl.remove);
+/**
+ * Get the token.
+ */
+const get = (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const expiration = req.body.expiration;
+  tokenModel.check(username, password, (err, state, admin) => {
+    if (err || !state) {
+      logger.warn('user %s authentication failed', username);
+      return res.status(401).json({
+        error: 'AuthenticationFailed',
+        message: 'authentication failed'
+      });
+    } else {
+      jwt.sign({
+        username: username,
+        admin: admin
+      }, tokenConfig.secret, { expiresIn: expiration }, (signError, token) => {
+        if (signError) {
+          logger.warn('sign token error\n%s', signError.stack);
+          return res.status(500).json({
+            error: 'SignTokenFailed',
+            message: 'sign token failed'
+          });
+        }
+        return res.status(200).json({
+          token,
+          user: username
+        });
+      });
+    }
+  });
+};
 
 // module exports
-module.exports = router;
+module.exports = { get };
