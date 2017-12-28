@@ -34,12 +34,6 @@ spec:
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
         imagePullPolicy: Always
         env:
-        - name: RESOURCEMANAGER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: ZOOKEEPER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
@@ -49,6 +43,8 @@ spec:
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /host-configuration
+          name: host-confg-volume
         readinessProbe:
           exec:
             command:
@@ -62,3 +58,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration

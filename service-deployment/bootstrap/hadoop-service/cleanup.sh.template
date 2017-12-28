@@ -24,6 +24,7 @@ kubectl delete ds hadoop-node-manager-ds
 kubectl delete ds hadoop-resource-manager-ds
 kubectl delete ds hadoop-data-node-ds
 kubectl delete ds hadoop-name-node-ds
+kubectl delete ds hadoop-journal-node-ds
 kubectl delete ds zookeeper-ds
 
 kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
@@ -37,6 +38,9 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole-
     {% endif %}
     {% if 'jobhistory' in machinelist[ host ] -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
+    {% endif %}
+    {% if 'hadoopjournalnode' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoopjournalnode-
     {% endif %}
     {% if 'zookeeper' in machinelist[ host ] -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper-

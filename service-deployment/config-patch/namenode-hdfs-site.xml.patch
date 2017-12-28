@@ -1,9 +1,138 @@
---- hadoop/hdfs-site.xml	2017-11-13 01:45:55.704448531 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/namenode-hdfs-site.xml	2017-11-13 00:32:15.970551421 -0500
-@@ -18,4 +18,242 @@
+--- hadoop/hdfs-site.xml	2017-12-22 04:14:42.203536589 +0000
++++ hadoop-configuration/namenode-hdfs-site.xml	2017-12-22 04:17:56.468588628 +0000
+@@ -18,4 +18,371 @@
  
  <configuration>
  
++<property>
++  <name>dfs.nameservices</name>
++  <value>paicluster</value>
++  <description>
++         Choose a logical name for this nameservice, for example "mycluster", and use
++         this logical name for the value of this config option. The name you choose
++         is arbitrary. It will be used both for configuration and as the authority
++         component of absolute HDFS paths in the cluster.
++  </description>
++</property>
++
++<property>
++  <name>dfs.ha.namenodes.paicluster</name>
++  <value>
++{%- for host in cluster_config if 'namenodeid' in cluster_config[ host ] -%}
++    hnn-{{ cluster_config[ host ]['namenodeid'] }}{% if not loop.last %},{% endif %}
++{%- endfor -%}
++  </value>
++  <description>
++         Configure a list of comma-separated NameNode IDs. This will be used by
++         DataNodes to determine all the NameNodes in the cluster.
++  </description>
++</property>
++
++{% for host in cluster_config if 'namenodeid' in cluster_config[ host ] -%}
++<property>
++  <name>dfs.namenode.rpc-address.paicluster.hnn-{{ cluster_config[ host ]['namenodeid'] }}</name>
++  <value>{{ cluster_config[ host ]['ip'] }}:8020</value>
++  <description>
++         The fully-qualified RPC address for each NameNode to listen on.
++  </description>
++</property>
++{% endfor %}
++
++{% for host in cluster_config if 'namenodeid' in cluster_config[ host ] -%}
++<property>
++  <name>dfs.namenode.http-address.phillycluster.hnn-{{ cluster_config[ host ]['namenodeid'] }}</name>
++  <value>{{ cluster_config[ host ]['ip'] }}:50070</value>
++  <description>
++         The fully-qualified HTTP address for each NameNode to listen on.
++  </description>
++</property>
++{% endfor %}
++
++{% if 'namenodeid' in host_config -%}
++<property>
++  <name>dfs.ha.namenode.id</name>
++  <value>hnn-{{ host_config['namenodeid'] }}</value>
++  <description>
++         The ID of this namenode. If the namenode ID is not configured it is determined
++         automatically by matching the local node's address with the configured address.
++  </description>
++</property>
++{%- endif %}
++
++<property>
++  <name>dfs.namenode.shared.edits.dir</name>
++  <value>qjournal://
++{%- for host in cluster_config if 'hadoopjournalnode' in cluster_config[ host ] -%}
++    {{cluster_config[ host ]['ip']}}:8485{% if not loop.last %};{% endif %}
++{%- endfor -%}
++/paicluster
++  </value>
++  <description>
++         Configure the addresses of the JournalNodes which provide the shared
++         edits storage, written to by the Active NameNode and read by the
++         Standby NameNode to stay up-to-date with all the file system changes
++         the Active NameNode makes. Though you must specify several JournalNode
++         addresses, you should only configure one of these URIs.
++  </description>
++</property>
++
++<property>
++  <name>dfs.journalnode.edits.dir</name>
++  <value>/var/lib/hdfs/journal</value>
++  <description>
++         Configure the addresses of the JournalNodes which provide the shared edits storage,
++         written to by the Active NameNode and read by the Standby NameNode to stay
++         up-to-date with all the file system changes the Active NameNode makes. Though you
++         must specify several JournalNode addresses, you should only configure one of
++         these URIs.
++  </description>
++</property>
++
++<property>
++  <name>dfs.client.failover.proxy.provider.paicluster</name>
++  <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
++  <description>
++         Configure the name of the Java class which the DFS Client will use to
++         determine which NameNode is the current Active, and therefore which NameNode
++         is currently serving client requests. The only implementation which currently
++         ships with Hadoop is the ConfiguredFailoverProxyProvider.
++  </description>
++</property>
++
++<property>
++  <name>dfs.ha.fencing.methods</name>
++  <value>
++        sshfence(root:2122)
++        shell(/bin/true)
++  </value>
++  <description>
++         It is critical for correctness of the system that only one NameNode is
++         in the Active state at any given time. Thus, during a failover, the
++         haadmin command first ensures that the Active NameNode is either in the
++         Standby state, or that the Active NameNode process has terminated, before
++         haadmin transitions the other NameNode to the Active state. The method
++         that haadmin uses to ensure this is called the fencing method.
++  </description>
++</property>
++
++<property>
++  <name>dfs.ha.fencing.ssh.private-key-files</name>
++  <value>/root/.ssh/id_rsa</value>
++  <description>
++         SSH fence simply SSH-es to the Active NameNode to kill the process.
++  </description>
++</property>
++
++<property>
++  <name>dfs.ha.automatic-failover.enabled</name>
++  <value>true</value>
++  <description>
++         Set up automatic failover of the master NameNode. If the machine crashes,
++         the ZooKeeper session will expire, notifying the other NameNode that a
++         failover should be triggered.
++  </description>
++</property>
++
 +<property>
 +  <name>dfs.replication</name>
 +  <value>2</value>

@@ -42,6 +42,20 @@ else
 fi
 
 
+# Hadoop journal node
+kubectl create -f hadoop-journal-node.yaml
+
+python ../../node_label_check.py -k hadoopjournalnode -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-journal-node Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    python ../../service_dependency_solve.py -w -s hadoop-journal-node
+fi
+
+
 # Hadoop name node
 kubectl create -f hadoop-name-node.yaml
 

@@ -33,6 +33,9 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole=worker
     {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
     {% endif %}
+    {% if 'hadoopjournalnode' in machinelist[ host ] and machinelist[ host ][ 'hadoopjournalnode' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoopjournalnode=true
+    {% endif %}
     {% if 'zookeeper' in machinelist[ host ] and machinelist[ host ][ 'zookeeper' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper=true
     {% endif %}

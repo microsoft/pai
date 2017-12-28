@@ -17,13 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-namepath="/var/lib/hdfs/name"
-if [ "`ls -A $namepath`" = "" ] 
-then
-  $HADOOP_HDFS_HOME/bin/hdfs namenode -format
-fi
 
-# Set the INFRA_IP in kubernete's yaml file.
+python /hdfs-start.py
 
+chmod u+x /ssh-zkfc-start.sh
+
+./ssh-zkfc-start.sh &
 
 $HADOOP_HDFS_HOME/bin/hdfs namenode

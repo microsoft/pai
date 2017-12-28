@@ -36,6 +36,8 @@ spec:
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /host-configuration
+          name: host-confg-volume
         readinessProbe:
           exec:
             command:
@@ -44,12 +46,6 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 3
         env:
-        - name: RESOURCEMANAGER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: ZOOKEEPER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
@@ -62,3 +58,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration

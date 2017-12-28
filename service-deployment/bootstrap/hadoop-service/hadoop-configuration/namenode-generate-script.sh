@@ -17,6 +17,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/namenode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
+cp  /hadoop-configuration/hdfs-start.py.template /hdfs-start.py
+cp  /hadoop-configuration/ssh-zkfc-start.sh /ssh-zkfc-start.sh
 
-sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 
+
+HOST_NAME=`hostname`
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/hdfs-site.xml -n $HOST_NAME
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/core-site.xml -n $HOST_NAME
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /hdfs-start.py -n $HOST_NAME
+
+mkdir -p /root/.ssh
+cp /ssh-configuration/id_rsa /root/.ssh/id_rsa
+cp /ssh-configuration/id_rsa.pub /root/.ssh/authorized_keys
+cp /ssh-configuration/ssh-config-namenode /root/.ssh/config

@@ -155,9 +155,12 @@ machinelist:
     # jobhistory: "true"   or not set this value
     # grafana: "true"   or not set this value
     hdfsrole: master
+    namenodeid: "1"
     yarnrole: master
+    resourcemanagerid: "1"
     zookeeper: "true"
     jobhistory: "true"
+    hadoopjournalnode: "true"
     launcher: "true"
     restserver: "true"
     webportal: "true"

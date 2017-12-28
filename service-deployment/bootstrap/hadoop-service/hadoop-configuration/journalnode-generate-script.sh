@@ -17,7 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl create configmap  host-configuration --from-file=host-configuration/
-kubectl create configmap  docker-credentials --from-file=docker-credentials/
-kubectl create configmap  gpu-configuration --from-file=gpu-configuration/
-kubectl create configmap  ssh-configuration --from-file=ssh-configuration/
+cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
+cp  /hadoop-configuration/journalnode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
+
+HOST_NAME=`hostname`
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/hdfs-site.xml -n $HOST_NAME
+/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/core-site.xml -n $HOST_NAME

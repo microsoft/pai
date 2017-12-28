@@ -18,30 +18,28 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: hadoop-name-node-ds
+  name: hadoop-journal-node-ds
 spec:
   template:
     metadata:
       labels:
-        app: hadoop-name-node
+        app: hadoop-journal-node
     spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hdfsrole: master
+        hadoopjournalnode: "true"
       containers:
       - name:  hadoop-name-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /var/lib/hdfs/name
-          name: hadoop-name-storage
+        - mountPath: /var/lib/hdfs/journal
+          name: hadoop-journal-storage
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
         - mountPath: /host-configuration
           name: host-confg-volume
-        - mountPath: /ssh-configuration
-          name: ssh-config-volum
         readinessProbe:
           exec:
             command:
@@ -51,21 +49,18 @@ spec:
           periodSeconds: 3
         env:
         - name: GENERATE_CONFIG
-          value: namenode-generate-script.sh
+          value: journalnode-generate-script.sh
         - name: START_SERVICE
-          value: namenode-start-service.sh
+          value: journalnode-start-service.sh
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
-      - name: hadoop-name-storage
+      - name: hadoop-journal-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/name
+          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/journal
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
       - name: host-confg-volume
         configMap:
           name: host-configuration
-      - name: ssh-config-volum
-        configMap:
-          name: ssh-configuration

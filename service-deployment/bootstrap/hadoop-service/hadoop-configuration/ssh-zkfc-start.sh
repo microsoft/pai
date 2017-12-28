@@ -17,7 +17,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl create configmap  host-configuration --from-file=host-configuration/
-kubectl create configmap  docker-credentials --from-file=docker-credentials/
-kubectl create configmap  gpu-configuration --from-file=gpu-configuration/
-kubectl create configmap  ssh-configuration --from-file=ssh-configuration/
+# Change SSH config.
+
+chmod 600 /root/.ssh/config
+chmod 600 /root/.ssh/id_rsa
+sed -i "/^[^#]*UsePAM/ s/.*/#&/" /etc/ssh/sshd_config
+echo "UsePAM no" >> /etc/ssh/sshd_config
+echo "Port 2122" >> /etc/ssh/sshd_config
+
+# Restart SSH
+
+/etc/init.d/ssh restart
+
+
+# step 1 : Retry start zkfc, until successing.
+# step 2 : monitor zkfc. If crushed, restart it.
+# It is not important that you start the ZKFC and NameNode daemons in a particular order. On any given node you can start the ZKFC before or after its corresponding NameNode.
+while true; do
+
+    until hdfs zkfc
+    do
+        echo "retry to start zkfc"
+        kill `jps | grep "DFSZKFailoverController" | cut -d " " -f 1`
+    done
+
+    echo "zkfc starting finished"
+
+    while jps | grep -q "DFSZKFailoverController" ; do
+
+        sleep 300
+
+    done
+
+    echo "zkfc crashed, restart it"
+
+done

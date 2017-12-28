@@ -29,12 +29,17 @@ rm -rf hadoop-2.7.2.tar.gz
 
 # prepare original config of hadoop for hadoop-run
 cp hadoop/capacity-scheduler.xml src/hadoop-run/capacity-scheduler.xml
-cp hadoop/core-site.xml src/hadoop-run/core-site.xml
 cp hadoop/hadoop-env.sh src/hadoop-run/hadoop-env.sh
 cp hadoop/mapred-site.xml.template src/hadoop-run/mapred-site.xml
 cp hadoop/yarn-env.sh src/hadoop-run/yarn-env.sh
 
 
+
+# prepare original config of core-site.xml
+cp hadoop/core-site.xml bootstrap/hadoop-service/hadoop-configuration/core-site.xml
+
+# prepare original config of hadoop for journal-node
+cp hadoop/hdfs-site.xml bootstrap/hadoop-service/hadoop-configuration/journalnode-hdfs-site.xml
 
 # prepare original config of hadoop for data-node
 cp hadoop/hdfs-site.xml bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml
@@ -57,10 +62,16 @@ cp hadoop/yarn-site.xml bootstrap/hadoop-service/hadoop-configuration/resourcema
 
 # patch for hadoop-run
 patch src/hadoop-run/capacity-scheduler.xml config-patch/capacity-scheduler.xml.patch
-patch src/hadoop-run/core-site.xml config-patch/core-site.xml.patch
+
 patch src/hadoop-run/hadoop-env.sh config-patch/hadoop-env.sh.patch
 patch src/hadoop-run/mapred-site.xml config-patch/mapred-site.xml.patch
 patch src/hadoop-run/yarn-env.sh config-patch/yarn-env.sh.patch
+
+# patch for core-site
+patch bootstrap/hadoop-service/hadoop-configuration/core-site.xml config-patch/core-site.xml.patch
+
+# patch for journal-node
+patch bootstrap/hadoop-service/hadoop-configuration/journalnode-hdfs-site.xml config-patch/journalnode-hdfs-site.xml.patch
 
 # patch for data-node
 patch bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml config-patch/datanode-hdfs-site.xml.patch

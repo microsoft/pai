@@ -1,16 +1,28 @@
---- hadoop/core-site.xml	2017-11-13 01:45:55.704448531 -0500
-+++ src/hadoop-run/core-site.xml	2017-11-13 02:08:08.368936322 -0500
-@@ -17,4 +17,14 @@
+--- hadoop/core-site.xml	2017-12-22 04:14:42.203536589 +0000
++++ hadoop-configuration/core-site.xml	2017-12-22 04:17:54.560617594 +0000
+@@ -17,4 +17,26 @@
  <!-- Put site-specific property overrides in this file. -->
  
  <configuration>
 +
 +<property>
 +  <name>fs.defaultFS</name>
-+  <value>hdfs://{HDFS_ADDRESS}:9000</value>
++  <value>hdfs://paicluster</value>
 +  <description>
 +         Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
 +         none is given. 
++  </description>
++</property>
++
++<property>
++  <name>ha.zookeeper.quorum</name>
++  <value>
++{%- for host in cluster_config if 'zkid' in cluster_config[ host ] -%}
++    {{cluster_config[ host ]['ip']}}:2181{% if not loop.last %},{% endif %}
++{%- endfor -%}
++  </value>
++  <description>
++         The list the host-port pairs running the ZooKeeper service ZKFailoverController.
 +  </description>
 +</property>
 +
