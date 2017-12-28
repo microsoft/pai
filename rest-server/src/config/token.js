@@ -15,19 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Joi = require('joi');
 const jwt = require('express-jwt');
 const config = require('./index');
 
-
 const jwtCheck = jwt({
   secret: config.jwtSecret
 });
 
-// define auth schema
-const authSchema = Joi.object().keys({
+// define input schema
+const tokenPostInputSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
@@ -38,14 +36,12 @@ const authSchema = Joi.object().keys({
     .integer()
     .min(60)
     .max(7 * 24 * 60 * 60)
-    .default(24 * 60 * 60),
-  admin: Joi.boolean(),
-  modify: Joi.boolean()
+    .default(24 * 60 * 60)
 }).required();
 
 // module exports
 module.exports = {
   secret: config.jwtSecret,
   check: jwtCheck,
-  schema: authSchema
+  tokenPostInputSchema: tokenPostInputSchema
 };

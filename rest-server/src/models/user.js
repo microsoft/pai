@@ -15,14 +15,11 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const crypto = require('crypto');
 const config = require('../config/index');
-const logger = require('../config/logger');
-
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -44,18 +41,6 @@ defaultValue[config.lowdbAdmin] = {
 };
 const adapter = new FileSync(config.lowdbFile, { defaultValue: defaultValue });
 const db = low(adapter);
-
-
-const check = (username, password, callback) => {
-  if (!db.has(username).value()) {
-    callback(null, false, false);
-  } else {
-    const user = db.get(username).value();
-    encrypt(username, password, (err, derivedKey) => {
-      callback(err, derivedKey === user.passwd, user.admin);
-    });
-  }
-};
 
 const update = (username, password, admin, modify, callback) => {
   if (typeof modify === 'undefined' || db.has(username).value() !== modify) {
@@ -93,4 +78,4 @@ const remove = (username, callback) => {
 };
 
 // module exports
-module.exports = { check, update, remove };
+module.exports = { encrypt, db, update, remove };
