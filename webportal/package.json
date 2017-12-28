@@ -32,6 +32,7 @@
     "cookie-parser": "1.4.3",
     "copy-webpack-plugin": "4.2.3",
     "css-loader": "0.28.7",
+    "datatables.net-plugins": "1.10.15",
     "dotenv": "4.0.0",
     "ejs-loader": "0.3.0",
     "express": "4.16.2",

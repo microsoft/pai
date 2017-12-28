@@ -20,6 +20,8 @@
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
+require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-plugins/sorting/ip-address.js');
 const url = require('url');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
@@ -36,7 +38,6 @@ const loadMachines = () => {
     url: `http://10.151.40.179:9090/api/v1/pod`,
     type: 'GET',
     dataType: 'jsonp',
-    crossDomain: true,
     success: (data) => {
       alert(data);
       loading.hideLoading();
@@ -56,9 +57,14 @@ const loadMachines = () => {
 };
 
 $(document).ready(() => {
-  loadMachines();
+  //loadMachines();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
   $('#content-wrapper').html(hardwareHtml);
-  $('#example').DataTable();
+  $('#example').DataTable({
+    columnDefs: [
+      { type: 'natural', targets: [0] },
+      { type: 'ip-address', targets: [1] }
+    ]
+  });
 });
