@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -17,11 +17,6 @@
 
 
 // module dependencies
-const servicesComponent = require('./services.component.ejs');
-
-$("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--services").addClass("active");
-
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const serviceTableComponent = require('./service-table.component.ejs');
@@ -63,7 +58,8 @@ const loadServices = () => {
 
 window.loadServices = loadServices;
 
-
+$('#sidebar-menu--cluster-view').addClass('active');
+$('#sidebar-menu--cluster-view--services').addClass('active');
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
