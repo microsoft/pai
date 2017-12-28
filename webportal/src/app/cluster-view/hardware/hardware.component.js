@@ -39,7 +39,7 @@ const loadMachines = () => {
     type: 'GET',
     dataType: 'jsonp',
     success: (data) => {
-      alert(data);
+      alert("yay!");
       loading.hideLoading();
       if (data.error) {
         alert(data.message);
@@ -56,12 +56,25 @@ const loadMachines = () => {
   });
 };
 
+function resizeContentWrapper() {
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+}
+
+window.onresize = function (envent) {
+  resizeContentWrapper();
+}
+
 $(document).ready(() => {
   //loadMachines();
+  resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
   $('#content-wrapper').html(hardwareHtml);
-  $('#example').DataTable({
+  $('#hardware-table').DataTable({
+    "scrollY": (($(window).height() - 265)) + 'px',
+    "scrollCollapse": false,
+    "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
     columnDefs: [
       { type: 'natural', targets: [0] },
       { type: 'ip-address', targets: [1] }
