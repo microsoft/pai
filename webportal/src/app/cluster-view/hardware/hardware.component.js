@@ -17,11 +17,17 @@
 
 
 // module dependencies
+require('datatables.net/js/jquery.dataTables.js');
+require('datatables.net-bs/js/dataTables.bootstrap.js');
+require('datatables.net-bs/css/dataTables.bootstrap.css');
+const url = require('url');
 const hardwareComponent = require('./hardware.component.ejs');
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const hardwareHtml = hardwareComponent({
+  breadcrumb: breadcrumbComponent,
   grafanaUri: webportalConfig.grafanaUri
 });
 
@@ -51,9 +57,8 @@ const loadMachines = () => {
 
 $(document).ready(() => {
   loadMachines();
+  $("#sidebar-menu--cluster-view").addClass("active");
+  $("#sidebar-menu--cluster-view--hardware").addClass("active");
+  $('#content-wrapper').html(hardwareHtml);
+  $('#example').DataTable();
 });
-
-$("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--hardware").addClass("active");
-
-$('#content-wrapper').html(hardwareHtml);

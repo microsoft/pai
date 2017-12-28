@@ -1,19 +1,18 @@
+<section class="content-header"><%= breadcrumb({ breadcrumbTitle: "Hardware Utilization" }) %></section>
+
 <section class="content">
 <div class="box">
-    <div class="box-header">
-        <h3 class="box-title">Hardware Utilization</h3>
-    </div>
     <!-- /.box-header -->
     <div class="box-body">
-        <table id="hardware-table" class="table table-bordered table-hover">
+        <table id="example" class="table table-bordered table-striped" style='vertical-align:middle'>
         <thead>
             <tr>
             <th style='vertical-align:middle'>Machine Name</th>
             <th style='vertical-align:middle'>IP Address</th>
             <th style='text-align:center; vertical-align:middle'>CPU</th>
+            <th style='text-align:center; vertical-align:middle'>Memory</th>
             <th style='text-align:center; vertical-align:middle'>GPU</th>
-            <th style='text-align:center; vertical-align:middle'>Memory (Main)</th>
-            <th style='text-align:center; vertical-align:middle'>Memory (GPU)</th>
+            <th style='text-align:center; vertical-align:middle'>GPU Mem</th>
             <th style='text-align:center; vertical-align:middle'>Disk</th>
             <th style='text-align:center; vertical-align:middle'>Ethernet</th>
             </tr>
@@ -23,27 +22,15 @@
             <tr>
                 <td><a href="#">Node <%= i + 1 %></a></td>
                 <td>192.168.1.<%= i + 1 %></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle text-red"></i></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle text-yellow"></i></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle text-green"></i></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle-thin text-grey"></i></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle text-yellow"></i></td>
-                <td style='width:80px; text-align:center'><i class="fa fa-circle text-green"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle text-red"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle text-yellow"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle text-green"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle-thin text-grey"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle text-yellow"></i></td>
+                <td style='width:90px; text-align:center'><i class="fa fa-circle text-green"></i></td>
             </tr>
             <% } %>
         </tbody>
         </table>
     </div>
 </section>
-<script>
-$(function () {
-  $('#hardware-table').DataTable({
-    'paging'      : true,
-    'lengthChange': false,
-    'searching'   : false,
-    'ordering'    : true,
-    'info'        : true,
-    'autoWidth'   : false
-  })
-})
-</script>
