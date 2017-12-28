@@ -17,9 +17,52 @@
 
 
 // module dependencies
-const servicesComponent = require('./services.component.ejs');
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
+const loadingComponent = require('../../job/loading/loading.component.ejs');
+const serviceTableComponent = require('./service-table.component.ejs');
+const serviceViewComponent = require('./services.component.ejs');
+const loading = require('../../job/loading/loading.component');
+//const webportalConfig = require('../../../config/webportal.config.json');
+const userAuth = require('../../user/user-auth/user-auth.component');
 
-$("#sidebar-menu--cluster-view").addClass("active");
-$("#sidebar-menu--cluster-view--services").addClass("active");
 
-$('#content-wrapper').html("<div>TODO: List services on each node here.</div>");
+const serviceViewHtml = serviceViewComponent({
+  breadcrumb: breadcrumbComponent,
+  loading: loadingComponent,
+  serviceTable: serviceTableComponent
+});
+
+
+const loadServices = () => {
+  loading.showLoading();
+  $.ajax({
+    //url: `${webportalConfig.restServerUri}/api/v1/job`,
+    //type: 'GET',
+    success: (data) => {
+      loading.hideLoading();
+      if (data.error) {
+        alert(data.message);
+      } else {
+        $('#service-table').html(serviceTableComponent({
+          services: data      
+        }));
+      }
+    },
+    error: (xhr, textStatus, error) => {
+      const res = JSON.parse(xhr.responseText);
+      alert(res.message);
+    }
+  });
+};
+
+
+window.loadServices = loadServices;
+
+$('#sidebar-menu--cluster-view').addClass('active');
+$('#sidebar-menu--cluster-view--services').addClass('active');
+$('#content-wrapper').html(serviceViewHtml);
+$(document).ready(() => {
+  loadServices();
+});
+
+module.exports = { loadservices }
