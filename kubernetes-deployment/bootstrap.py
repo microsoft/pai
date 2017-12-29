@@ -96,7 +96,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     username = host_config['username']
     password = host_config['password']
     port = 22
-    if (host_config['sshport']):
+    if 'sshport' in host_config:
         port = host_config['sshport']
 
     # First make sure the folder exist.
@@ -130,7 +130,7 @@ def ssh_shell_paramiko(host_config, commandline):
     username = host_config['username']
     password = host_config['password']
     port = 22
-    if (host_config['sshport']):
+    if 'sshport' in host_config:
         port = host_config['sshport']
 
     ssh = paramiko.SSHClient()
