@@ -67,29 +67,3 @@ $(document).ready(() => {
 
 module.exports = { loadservices }
 
-// This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
-function getServiceView(kubernetesUrl) {
-  var nodesInfo = []
-  var request = require('sync-request');
-  var resNodes = request('GET', kubernetesUrl + '/api/v1/nodes');
-  var data = JSON.parse(resNodes.body.toString('utf-8'));
-  var items = data.items;
-  for (var i in items) {
-    var node = items[i].metadata.name
-    var resSingleNode = request('GET', kubernetesUrl + '/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/api/v1/node/' + node);
-    var nodeinfo = JSON.parse(resSingleNode.body.toString('utf-8'))
-    var pods = nodeinfo.podList.pods
-    var podList = []
-    for (var i in pods) {
-      podList.push({ "pod": pods[i].objectMeta.name, "status": pods[i].podStatus.status })
-    }
-    var labelList = []
-    var labels = nodeinfo.objectMeta.labels
-    for (var i in labels) {
-      labelList.push({ "label": labels[i] })
-    }
-    var singleNodeInfo = { "node": node, "podList": podList, "labelList": labelList }
-    nodesInfo.push(singleNodeInfo)
-  }
-  return nodesInfo;
-}   
