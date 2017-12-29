@@ -22,6 +22,7 @@ require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/ip-address.js');
+require('datatables.net-plugins/sorting/title-numeric.js');
 require('jquery.ajax-cross-origin/js/jquery.ajax-cross-origin.min.js')
 const url = require('url');
 const hardwareComponent = require('./hardware.component.ejs');
@@ -34,6 +35,7 @@ const hardwareHtml = hardwareComponent({
   grafanaUri: webportalConfig.grafanaUri
 });
 
+/*
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr) {
@@ -51,7 +53,7 @@ function createCORSRequest(method, url) {
   }
   return xhr;
 }
-
+*/
 
 const loadMachines = () => {
   /*
@@ -152,18 +154,18 @@ window.onresize = function (envent) {
 }
 
 $(document).ready(() => {
-  loadMachines();
+  //loadMachines();
   resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
   $('#content-wrapper').html(hardwareHtml);
   $('#hardware-table').DataTable({
     "scrollY": (($(window).height() - 265)) + 'px',
-    "scrollCollapse": false,
     "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
     columnDefs: [
       { type: 'natural', targets: [0] },
-      { type: 'ip-address', targets: [1] }
+      { type: 'ip-address', targets: [1] },
+      { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
     ]
   });
 });
