@@ -66,4 +66,3 @@ $(document).ready(() => {
 });
 
 module.exports = { loadservices }
-
