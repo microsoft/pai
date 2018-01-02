@@ -41,12 +41,14 @@ spec:
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter
+        securityContext:
+          privileged: true
         volumeMounts:
         - mountPath: /dev
           name: device-mount
         - mountPath: /var/drivers
           name: driver-path
-        - mountPath: /tmp
+        - mountPath: {{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}
           name: collector-mount
         name: gpu-exporter
       volumes:

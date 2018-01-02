@@ -103,7 +103,7 @@ func writeFileTest() {
 }
 
 func writeMetricsToFile(index int, logDir string) {
-    fileName := logDir + "gpu_exporter.prom"
+    fileName := logDir + "/gpu_exporter.prom"
     dstFile,err := os.Create(fileName)
     if err!=nil{
         fmt.Println(err.Error())
