@@ -312,7 +312,7 @@ def hadoop_binary_prepare(custom_hadoop_path, hadoop_version):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help="path to cluster configuration file")
-    parser.add_argument('-n', '--name', default='all', help="Build and push an image to the registry")
+    parser.add_argument('-n', '--imagename', default='all', help="Build and push target image to the registry")
 
     args = parser.parse_args()
 
@@ -335,11 +335,11 @@ def main():
 
     login_docker_registry(docker_registry, docker_username, docker_password)
 
-    build_docker_images(cluster_config, service_config, args.name)
+    build_docker_images(cluster_config, service_config, args.imagename)
 
     hadoop_binary_remove(hadoop_version)
 
-    push_docker_images(cluster_config, service_config, args.name)
+    push_docker_images(cluster_config, service_config, args.imagename)
 
 
 
