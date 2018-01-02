@@ -246,12 +246,31 @@ def dependency_solve(service_config, image_name, created_image, prefix):
 
 
 
-def build_docker_images(cluster_config, service_config):
+def build_docker_images(cluster_config, service_config, target):
 
     image_list = service_config['imagelist']
     created_image = {}
 
-    for image in image_list:
+    if target == 'all':
+
+        for image in image_list:
+
+            generate_template_file_service(cluster_config, service_config, image)
+            copy_arrangement_service(service_config, image)
+
+            dependency_solve(
+                service_config, image, created_image,
+                cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
+            )
+
+            copy_cleanup_service(service_config, image)
+            delete_generated_template_file_service(service_config, image)
+
+        print "success building all docker images"
+
+    else:
+
+        image = target
 
         generate_template_file_service(cluster_config, service_config, image)
         copy_arrangement_service(service_config, image)
@@ -264,11 +283,10 @@ def build_docker_images(cluster_config, service_config):
         copy_cleanup_service(service_config, image)
         delete_generated_template_file_service(service_config, image)
 
-    print "success building all docker images"
 
 
 
-def push_docker_images(cluster_config, service_config):
+def push_docker_images(cluster_config, service_config, target):
 
     image_list = service_config['imagelist']
 
@@ -281,7 +299,35 @@ def push_docker_images(cluster_config, service_config):
     else:
         prefix = "{0}/{1}".format( docker_registry, docker_namespace )
 
-    for image in image_list:
+    if target == 'all':
+
+        for image in image_list:
+
+            try:
+                if docker_registry != 'public':
+                    subprocess.check_call(
+                        "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
+                        shell=True
+                    )
+            except subprocess.CalledProcessError as dockertagerr:
+                print "failed to tag {0}".format(image)
+                sys.exit(1)
+
+            try:
+                subprocess.check_call(
+                    "docker push {0}/{1}".format(prefix, image),
+                    shell=True
+                )
+            except subprocess.CalledProcessError as dockerpusherr:
+                print
+                "failed to push {0}".format(image)
+                sys.exit(1)
+
+        print "success push all the images"
+
+    else:
+
+        image = target
 
         try:
             if docker_registry != 'public':
@@ -303,7 +349,6 @@ def push_docker_images(cluster_config, service_config):
             "failed to push {0}".format(image)
             sys.exit(1)
 
-    print "success push all the images"
 
 
 
@@ -376,17 +421,19 @@ def main():
 
     login_docker_registry(docker_registry, docker_username, docker_password)
 
-    generate_template_file(cluster_config, service_config)
+    #generate_template_file(cluster_config, service_config)
 
-    copy_arrangement(service_config)
-    build_docker_images(cluster_config, service_config)
-    copy_cleanup(service_config)
+    #copy_arrangement(service_config)
 
-    delete_generated_template_file(service_config)
+    build_docker_images(cluster_config, service_config, args.name)
+
+    #copy_cleanup(service_config)
+
+    #delete_generated_template_file(service_config)
 
     hadoop_binary_remove(hadoop_version)
 
-    push_docker_images(cluster_config, service_config)
+    push_docker_images(cluster_config, service_config, args.name)
 
 
 
