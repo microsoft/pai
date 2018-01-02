@@ -252,10 +252,17 @@ def build_docker_images(cluster_config, service_config):
     created_image = {}
 
     for image in image_list:
+
+        generate_template_file_service(cluster_config, service_config, image)
+        copy_arrangement_service(service_config, image)
+
         dependency_solve(
             service_config, image, created_image,
             cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
         )
+
+        copy_cleanup_service(service_config, image)
+        delete_generated_template_file_service(service_config, image)
 
     print "success building all docker images"
 
