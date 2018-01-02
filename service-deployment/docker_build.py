@@ -228,7 +228,7 @@ def copy_cleanup(service_config):
 
 
 
-def dependency_solve(service_config, image_name, created_image, prefix):
+def dependency_solve(cluster_config, service_config, image_name, created_image, prefix):
 
     if image_name == 'None':
         return
@@ -237,10 +237,16 @@ def dependency_solve(service_config, image_name, created_image, prefix):
     print created_image
     dependency_solve(service_config, service_config['imagelist'][image_name]['prerequisite'], created_image, prefix)
 
+    generate_template_file_service(cluster_config, service_config, image_name)
+    copy_arrangement_service(service_config, image_name)
+
     subprocess.check_call(
         "docker build -t {0}/{1} src/{1}/".format(prefix, image_name),
         shell=True
     )
+
+    copy_cleanup_service(service_config, image_name)
+    delete_generated_template_file_service(service_config, image_name)
 
     created_image[image_name] = True
 
@@ -255,16 +261,10 @@ def build_docker_images(cluster_config, service_config, target):
 
         for image in image_list:
 
-            generate_template_file_service(cluster_config, service_config, image)
-            copy_arrangement_service(service_config, image)
-
             dependency_solve(
-                service_config, image, created_image,
+                cluster_config, service_config, image, created_image,
                 cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
             )
-
-            copy_cleanup_service(service_config, image)
-            delete_generated_template_file_service(service_config, image)
 
         print "success building all docker images"
 
@@ -272,17 +272,10 @@ def build_docker_images(cluster_config, service_config, target):
 
         image = target
 
-        generate_template_file_service(cluster_config, service_config, image)
-        copy_arrangement_service(service_config, image)
-
         dependency_solve(
-            service_config, image, created_image,
+            cluster_config, service_config, image, created_image,
             cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
         )
-
-        copy_cleanup_service(service_config, image)
-        delete_generated_template_file_service(service_config, image)
-
 
 
 
