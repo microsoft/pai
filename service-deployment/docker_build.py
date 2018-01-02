@@ -235,7 +235,7 @@ def dependency_solve(cluster_config, service_config, image_name, created_image, 
     if image_name in created_image:
         return
     print created_image
-    dependency_solve(service_config, service_config['imagelist'][image_name]['prerequisite'], created_image, prefix)
+    dependency_solve(cluster_config, service_config, service_config['imagelist'][image_name]['prerequisite'], created_image, prefix)
 
     generate_template_file_service(cluster_config, service_config, image_name)
     copy_arrangement_service(service_config, image_name)
