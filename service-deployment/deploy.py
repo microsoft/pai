@@ -173,21 +173,55 @@ def clean_up_generated_file(service_config):
 
 
 
+def generate_template_file_service(serv, cluster_config, service_config):
+
+    service_list = service_config['servicelist']
+
+    template_list = service_list[serv]['templatelist']
+    if 'None' in template_list:
+        return
+
+    for template in template_list:
+        template_data = read_template("bootstrap/{0}/{1}.template".format(serv, template))
+        generate_data = generate_from_template(template_data, cluster_config)
+        write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
+
+
+
 def generate_template_file(cluster_config, service_config):
 
     service_list = service_config['servicelist']
 
     for serv in service_list:
 
-        template_list = service_list[serv]['templatelist']
-        if 'None' in template_list:
-            continue
+        generate_template_file_service(serv, cluster_config, service_config)
 
-        for template in template_list:
 
-            template_data = read_template("bootstrap/{0}/{1}.template".format(serv, template))
-            generate_data = generate_from_template(template_data, cluster_config)
-            write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
+
+def single_service_bootstrap(serv, service_config):
+
+    if serv == 'None':
+        return
+
+    if 'stopscript' not in service_config['servicelist'][serv]:
+        return
+
+    shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed to grant permission to stopscript'
+    execute_shell(shell_cmd, error_msg)
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed stopscript the service {0}'.format(serv)
+    execute_shell(shell_cmd, error_msg)
+
+    if 'startscript' not in service_config['servicelist'][serv]:
+        return
+
+    shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
+    error_msg = 'Failed to grant permission to startscript'
+    execute_shell(shell_cmd, error_msg)
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
+    error_msg = 'Failed startscript the service {0}'.format(serv)
+    execute_shell(shell_cmd, error_msg)
 
 
 
@@ -223,27 +257,35 @@ def bootstrap_service(service_config):
 
 
 
+def copy_arrangement_service(serv, service_config):
+
+    service_list = service_config['servicelist']
+
+    if 'copy' not in service_list[serv]:
+        return
+
+    for target in service_list[serv]['copy']:
+        dst = "bootstrap/{0}/{1}".format(serv, target['dst'])
+        src = target['src']
+
+        if os.path.exists(dst) == False:
+            shell_cmd = "mkdir -p {0}".format(dst)
+            error_msg = "failed to mkdir -p {0}".format(dst)
+            execute_shell(shell_cmd, error_msg)
+
+        shell_cmd = "cp -r {0} {1}".format(src, dst)
+        error_msg = "failed to copy {0}".format(src)
+        execute_shell(shell_cmd, error_msg)
+
+
+
 def copy_arrangement(service_config):
 
     service_list = service_config['servicelist']
 
     for srv in service_list:
 
-        if 'copy' not in service_list[srv]:
-            continue
-
-        for target in service_list[srv]['copy']:
-            dst = "bootstrap/{0}/{1}".format(srv, target['dst'])
-            src = target['src']
-
-            if os.path.exists(dst) == False :
-                shell_cmd = "mkdir -p {0}".format(dst)
-                error_msg = "failed to mkdir -p {0}".format(dst)
-                execute_shell(shell_cmd, error_msg)
-
-            shell_cmd = "cp -r {0} {1}".format(src, dst)
-            error_msg = "failed to copy {0}".format(src)
-            execute_shell(shell_cmd, error_msg)
+        copy_arrangement_service(srv, service_config)
 
 
 
@@ -253,6 +295,7 @@ def main():
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
     parser.add_argument('-d', '--deploy', action="store_true", help="deploy all the service")
+    parser.add_argument('-s', '--service', default='all', help="bootStrap a target service")
 
     args = parser.parse_args()
 
@@ -271,13 +314,27 @@ def main():
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 4: generate templatefile
-    copy_arrangement(service_config)
-    generate_template_file(cluster_config, service_config)
+    if args.service == 'all':
+
+        copy_arrangement(service_config)
+        generate_template_file(cluster_config, service_config)
+
+    else:
+
+        copy_arrangement_service(args.service, service_config)
+        generate_template_file_service(args.service, cluster_config, service_config)
+
 
     # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
-        bootstrap_service(service_config)
+        if args.service == 'all':
+            # dependency_bootstrap will auto-start all service in a correctly order.
+            bootstrap_service(service_config)
+        else:
+            # Single service startup will ignore the dependency. User should ensure the operation is in a correctly order. This option is mainly designed for debug.
+            single_service_bootstrap(args.service, service_config)
+
 
     # Option : clean all the generated file.
     if args.clean:
