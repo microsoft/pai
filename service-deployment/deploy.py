@@ -194,15 +194,7 @@ def generate_template_file(cluster_config, service_config):
 
     for serv in service_list:
 
-        template_list = service_list[serv]['templatelist']
-        if 'None' in template_list:
-            continue
-
-        for template in template_list:
-
-            template_data = read_template("bootstrap/{0}/{1}.template".format(serv, template))
-            generate_data = generate_from_template(template_data, cluster_config)
-            write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
+        generate_template_file_service(serv, cluster_config, service_config)
 
 
 
@@ -293,21 +285,7 @@ def copy_arrangement(service_config):
 
     for srv in service_list:
 
-        if 'copy' not in service_list[srv]:
-            continue
-
-        for target in service_list[srv]['copy']:
-            dst = "bootstrap/{0}/{1}".format(srv, target['dst'])
-            src = target['src']
-
-            if os.path.exists(dst) == False :
-                shell_cmd = "mkdir -p {0}".format(dst)
-                error_msg = "failed to mkdir -p {0}".format(dst)
-                execute_shell(shell_cmd, error_msg)
-
-            shell_cmd = "cp -r {0} {1}".format(src, dst)
-            error_msg = "failed to copy {0}".format(src)
-            execute_shell(shell_cmd, error_msg)
+        copy_arrangement_service(srv, service_config)
 
 
 
