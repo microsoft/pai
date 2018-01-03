@@ -199,17 +199,21 @@ def single_service_bootstrap(serv, service_config):
     if 'stopscript' not in service_config['servicelist'][serv]:
         return
 
+    shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed to grant permission to stopscript'
+    execute_shell(shell_cmd, error_msg)
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
     error_msg = 'Failed stopscript the service {0}'.format(serv)
-
     execute_shell(shell_cmd, error_msg)
 
     if 'startscript' not in service_config['servicelist'][serv]:
         return
 
+    shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
+    error_msg = 'Failed to grant permission to startscript'
+    execute_shell(shell_cmd, error_msg)
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
-    error_msg = 'Failed stopscript the service {0}'.format(serv)
-
+    error_msg = 'Failed startscript the service {0}'.format(serv)
     execute_shell(shell_cmd, error_msg)
 
 
