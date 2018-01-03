@@ -329,8 +329,10 @@ def main():
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
         if args.service == 'all':
+            # dependency_bootstrap will auto-start all service in a correctly order.
             bootstrap_service(service_config)
         else:
+            # Single service startup will ignore the dependency. User should ensure the operation is in a correctly order. This option is mainly designed for debug.
             single_service_bootstrap(args.service, service_config)
 
 
