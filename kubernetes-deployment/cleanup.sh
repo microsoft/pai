@@ -48,14 +48,14 @@ if [ -d "/var/lib/kubelet/pods" ]; then
 
 fi
 
-if [ -d "~/src" ]; then
+if [ -d "src" ]; then
 
-    rm -rf ~/src
+    rm -rf src
 
 fi
 
-if [ -f "~/kubernetes.tar" ]; then
+if [ -f "kubernetes.tar" ]; then
 
-    rm -rf ~/kubernetes.tar
+    rm -rf kubernetes.tar
 
 fi
