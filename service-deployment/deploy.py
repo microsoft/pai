@@ -191,6 +191,29 @@ def generate_template_file(cluster_config, service_config):
 
 
 
+def single_service_bootstrap(serv, service_config):
+
+    if serv == 'None':
+        return
+
+    if 'stopscript' not in service_config['servicelist'][serv]:
+        return
+
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed stopscript the service {0}'.format(serv)
+
+    execute_shell(shell_cmd, error_msg)
+
+    if 'startscript' not in service_config['servicelist'][serv]:
+        return
+
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
+    error_msg = 'Failed stopscript the service {0}'.format(serv)
+
+    execute_shell(shell_cmd, error_msg)
+
+
+
 def dependency_bootstrap(serv, service_config, started_service):
 
     if serv == 'None':
@@ -253,6 +276,7 @@ def main():
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
     parser.add_argument('-d', '--deploy', action="store_true", help="deploy all the service")
+    parser.add_argument('-s', '--service', default='all', help="bootStrap a target service")
 
     args = parser.parse_args()
 
@@ -277,7 +301,11 @@ def main():
     # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
-        bootstrap_service(service_config)
+        if args.service == 'all':
+            bootstrap_service(service_config)
+        else:
+            single_service_bootstrap(args.service, service_config)
+
 
     # Option : clean all the generated file.
     if args.clean:
