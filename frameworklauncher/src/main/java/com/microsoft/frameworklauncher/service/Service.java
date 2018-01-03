@@ -251,20 +251,17 @@ public class Service extends AbstractService {
     // SetupLocalEnvironment
     Map<String, String> localEnvs = new HashMap<>();
 
-    StringBuilder classpath = new StringBuilder(ApplicationConstants.Environment.CLASSPATH.$$())
-        .append(ApplicationConstants.CLASS_PATH_SEPARATOR).append("./*");
+    // Internal class is preferred over external class
+    localEnvs.put(ApplicationConstants.Environment.CLASSPATH_PREPEND_DISTCACHE.name(), "true");
+    StringBuilder classpath = new StringBuilder("*");
     for (String c : yarnConf.getStrings(
         YarnConfiguration.YARN_APPLICATION_CLASSPATH,
         YarnConfiguration.DEFAULT_YARN_CROSS_PLATFORM_APPLICATION_CLASSPATH)) {
-      classpath.append(ApplicationConstants.CLASS_PATH_SEPARATOR);
-      classpath.append(c.trim());
+      classpath.append(ApplicationConstants.CLASS_PATH_SEPARATOR).append(c.trim());
     }
-    classpath.append(ApplicationConstants.CLASS_PATH_SEPARATOR).append(GlobalConstants.LOGGER_CONFIG_FILE);
-    if (yarnConf.getBoolean(YarnConfiguration.IS_MINI_YARN_CLUSTER, false)) {
-      classpath.append(':');
-      classpath.append(System.getProperty("java.class.path"));
-    }
+    classpath.append(ApplicationConstants.CLASS_PATH_SEPARATOR).append(ApplicationConstants.Environment.CLASSPATH.$$());
     localEnvs.put(GlobalConstants.ENV_VAR_CLASSPATH, classpath.toString());
+
     // Use the user for LauncherAM the same as LauncherService, since they are all Launcher executables.
     localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, loggedInUser.getName());
 

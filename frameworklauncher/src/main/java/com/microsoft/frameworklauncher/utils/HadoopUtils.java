@@ -127,7 +127,7 @@ public class HadoopUtils {
       LOGGER.logInfo("[hadoop fs -stat %%Y %s]", hdfsPath);
       FileStatus fileStatus = fs.getFileStatus(new Path(hdfsPath));
       return fileStatus;
-    } catch (PathNotFoundException e) {
+    } catch (PathNotFoundException | FileNotFoundException e) {
       throw new NonTransientException("Path does not exist", e);
     }
   }
