@@ -30,7 +30,7 @@ const jobSubmitHtml = jobSubmitComponent({
   loading: loadingComponent
 });
 
-const isValidJSON = (str) => {
+const isValidJson = (str) => {
   try {
     JSON.parse(str);
     return true;
@@ -75,7 +75,7 @@ $(document).ready(() => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const jobConfig = event.target.result;
-      if (isValidJSON(jobConfig)) {
+      if (isValidJson(jobConfig)) {
         submitJob(JSON.parse(jobConfig));
       } else {
         alert('Please upload a valid json file.');
