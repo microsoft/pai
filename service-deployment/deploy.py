@@ -173,6 +173,21 @@ def clean_up_generated_file(service_config):
 
 
 
+def generate_template_file_service(serv, cluster_config, service_config):
+
+    service_list = service_config['servicelist']
+
+    template_list = service_list[serv]['templatelist']
+    if 'None' in template_list:
+        return
+
+    for template in template_list:
+        template_data = read_template("bootstrap/{0}/{1}.template".format(serv, template))
+        generate_data = generate_from_template(template_data, cluster_config)
+        write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
+
+
+
 def generate_template_file(cluster_config, service_config):
 
     service_list = service_config['servicelist']
@@ -250,6 +265,28 @@ def bootstrap_service(service_config):
 
 
 
+def copy_arrangement_service(serv, service_config):
+
+    service_list = service_config['servicelist']
+
+    if 'copy' not in service_list[serv]:
+        return
+
+    for target in service_list[serv]['copy']:
+        dst = "bootstrap/{0}/{1}".format(serv, target['dst'])
+        src = target['src']
+
+        if os.path.exists(dst) == False:
+            shell_cmd = "mkdir -p {0}".format(dst)
+            error_msg = "failed to mkdir -p {0}".format(dst)
+            execute_shell(shell_cmd, error_msg)
+
+        shell_cmd = "cp -r {0} {1}".format(src, dst)
+        error_msg = "failed to copy {0}".format(src)
+        execute_shell(shell_cmd, error_msg)
+
+
+
 def copy_arrangement(service_config):
 
     service_list = service_config['servicelist']
@@ -299,8 +336,16 @@ def main():
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 4: generate templatefile
-    copy_arrangement(service_config)
-    generate_template_file(cluster_config, service_config)
+    if args.service == 'all':
+
+        copy_arrangement(service_config)
+        generate_template_file(cluster_config, service_config)
+
+    else:
+
+        copy_arrangement_service(args.service, service_config)
+        generate_template_file_service(args.service, cluster_config, service_config)
+
 
     # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
