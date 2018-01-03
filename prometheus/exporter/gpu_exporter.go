@@ -152,7 +152,7 @@ func writeMetricsToFile(index int, logDir string) {
 }
 
 func main() {
-    logDir := flag.String("gpu_log_dir", "/var/local/prom-exporters", "log written dir")   
+    logDir := flag.String("gpu_log_dir", "/datastorage/prom-exporters", "log written dir")   
     mode := flag.String("flag", "gpu", "gpu server")
     flag.Parse()
     NVIDIA_SMI_PATH = os.Getenv("NV_DRIVER") + "/bin/nvidia-smi"
