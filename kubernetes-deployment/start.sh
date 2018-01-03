@@ -73,9 +73,9 @@ fi
 
 #tar -xvf kubernetes.tar
 
-chmod u+x src/cleanup.sh
+#chmod u+x src/cleanup.sh
 
-./src/cleanup.sh
+#./src/cleanup.sh
 
 
 # check etc/ exist or not.
