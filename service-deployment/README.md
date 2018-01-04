@@ -119,11 +119,11 @@ And all the information is retrieved from clusterconfig (as in [clusterconfig-ex
 If your service need more information, please add your property to cluster config. 
 The new property should be placed in clusterinfo, machineinfo or machinelist.
 
-#### Test your service
+#### Deploy/Test a single service 
 
 - ```sudo ./prepare_hadoop_config.sh```
 
-Prepare hadoop configuration. If you don't sure whether your service depends on it or not. Please don't skip this step.
+Prepare hadoop configuration. If you are not sure whether your service depends on it or not. Please don't skip this step.
 
 
 - ```sudo ./docker_build –p clusterconfig -s your_image_name```
