@@ -18,47 +18,30 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: rest-server-ds
+  name: pylon-ds
 spec:
   template:
     metadata:
-      name: rest-server
+      name: pylon
       labels:
-        app: rest-server
+        app: pylon
     spec:
       hostNetwork: false
       hostPID: false
       nodeSelector:
-        restserver: "true"
+        pylon: "true"
       containers:
-      - name: rest-server
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server
-        imagePullPolicy: Always
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /var/pai
-          name: pai-path
-        env:
-        - name: LAUNCHER_WEBSERVICE_URI
-          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
-        - name: HDFS_URI
-          value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
-        - name: JWT_SECRET
-          value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
-        - name: LOWDB_FILE
-          value: /var/pai/{{ clusterinfo['restserverinfo']['lowdb_path'] }}
-        - name: LOWDB_ADMIN
-          value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
-        - name: LOWDB_PASSWD
-          value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
-        ports:
         - name: rest-server
-          containerPort: 8080
-          hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
+          image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/pai
+              name: pai-path
+          ports:
+            - name: pylon
+              containerPort: 80
+              hostPort: {{ clusterinfo['pyloninfo']['port'] }}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
-      volumes:
-      - name: pai-path
-        hostPath:
-          path: {{ clusterinfo['paiPath'] }}
+        - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

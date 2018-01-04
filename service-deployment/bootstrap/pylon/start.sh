@@ -23,6 +23,6 @@ chmod u+x node-label.sh
 
 ./node-label.sh
 
-kubectl create -f rest-server.yaml
+kubectl create -f pylon.yaml
 
 popd > /dev/null

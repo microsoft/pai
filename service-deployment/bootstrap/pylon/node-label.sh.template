@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist %}
-    {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver=true
+    {% if 'pylon' in machinelist[ host ] and machinelist[ host ][ 'pylon' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon=true
     {% endif %}
 {% endfor %}
