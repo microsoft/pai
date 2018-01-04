@@ -16,9 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
-const kubeURL = "http://10.151.40.222:8080"
-const namespace = "default"
-const getNodeList = () => {
+
+const getServiceView = (kubeURL, namespace, callback) => {
     $.ajax({
         type: "GET",
         url: kubeURL + "/api/v1/nodes",
@@ -30,18 +29,17 @@ const getNodeList = () => {
                 var node = items[i].metadata.name
                 nodeList.push(node);
             }
-            console.log(nodeList)
+            getNodePods(kubeURL, namespace, nodeList, callback)
         }
     });
 }
 
-const getNodePods = () => {
+const getNodePods = (kubeURL, namespace, nodeList, callback) => {
     $.ajax({
         type: "GET",
         url: kubeURL + "/api/v1/namespaces/" + namespace + "/pods/",
         dataType: "json",
         success: function (pods) {
-            console.log(pods)
             var podsItems = pods.items;
             var nodeDic = new Array();
 
@@ -49,13 +47,20 @@ const getNodePods = () => {
                 var pod = podsItems[i].metadata.name
                 var nodeName = podsItems[i].spec.nodeName
                 var status = podsItems[i].status.phase
-                console.log(nodeName)
                 if (nodeDic[nodeName] == null) {
                     nodeDic[nodeName] = []
                 }
                 nodeDic[nodeName].push({ "podName": pod, "status": status })
             }
-            console.log(nodeDic)
+            var resultDic = []
+            for(var i in nodeList) {
+                if(nodeDic[nodeList[i]] == null) {
+                    resultDic.push({"nodeName": nodeList[i], "podList": null})
+                } else {
+                    resultDic.push({"nodeName": nodeList[i], "podList": nodeDic[nodeList[i]]})
+                }
+            }
+            callback(resultDic)
         }
     });
 }
