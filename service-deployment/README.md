@@ -121,7 +121,7 @@ The new property should be placed in clusterinfo, machineinfo or machinelist.
 
 #### Test your service
 
-_ ```sudo ./prepare_hadoop_config.sh```
+- ```sudo ./prepare_hadoop_config.sh```
 
 Prepare hadoop configuration. If you don't sure whether your service depends on it or not. Please don't skip this step.
 
