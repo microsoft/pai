@@ -16,35 +16,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
-function getServiceView(kubernetesUrl, namespace) {
-  var request = require('sync-request');
-  var resNodes = request('GET', kubernetesUrl + '/api/v1/nodes');
-  var data = JSON.parse(resNodes.body.toString('utf-8'));
-  var items = data.items;
-  var nodeDic = new Array();      
-  var resPods = request('GET', kubernetesUrl + '/api/v1/namespaces/' + namespace + '/pods/');
-  var pods = JSON.parse(resPods.body.toString('utf-8'));
-  var podsItems = pods.items;
-  for (var i in items) {
-    var node = items[i].metadata.name
-    nodeDic[node] = null;
-  }
+const kubeURL = "http://10.151.40.222:8080"
+const namespace = "default"
+const getNodeList = () => {
+    $.ajax({
+        type: "GET",
+        url: kubeURL + "/api/v1/nodes",
+        dataType: "json",
+        success: function (data) {
+            var items = data.items;
+            var nodeList = []
+            for (var i in items) {
+                var node = items[i].metadata.name
+                nodeList.push(node);
+            }
+            console.log(nodeList)
+        }
+    });
+}
 
-  for (var i in podsItems) {
-    var pod = podsItems[i].metadata.name 
-    var nodeName = podsItems[i].spec.nodeName
-    var status = podsItems[i].status.phase
-    console.log(nodeName)
-    if(nodeDic[nodeName] == null) {
-      nodeDic[nodeName] = []
-    }
-    nodeDic[nodeName].push({"podName": pod, "status": status})
-  } 
-  
-  var nodesInfo = []
-  for(var i in nodeDic) {
-    nodesInfo.push({"nodeName": i, "podList": nodeDic[i]})
-  }
-  
-  return nodesInfo;
-}   
+const getNodePods = () => {
+    $.ajax({
+        type: "GET",
+        url: kubeURL + "/api/v1/namespaces/" + namespace + "/pods/",
+        dataType: "json",
+        success: function (pods) {
+            console.log(pods)
+            var podsItems = pods.items;
+            var nodeDic = new Array();
+
+            for (var i in podsItems) {
+                var pod = podsItems[i].metadata.name
+                var nodeName = podsItems[i].spec.nodeName
+                var status = podsItems[i].status.phase
+                console.log(nodeName)
+                if (nodeDic[nodeName] == null) {
+                    nodeDic[nodeName] = []
+                }
+                nodeDic[nodeName].push({ "podName": pod, "status": status })
+            }
+            console.log(nodeDic)
+        }
+    });
+}
