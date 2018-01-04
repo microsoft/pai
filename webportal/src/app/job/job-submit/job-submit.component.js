@@ -35,7 +35,7 @@ const isValidJson = (str) => {
     JSON.parse(str);
     return true;
   } catch (e) {
-    console.log(e);
+    alert('Please upload a valid json file: ' + e.message);
     return false;
   }
 };
@@ -78,8 +78,6 @@ $(document).ready(() => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
         submitJob(JSON.parse(jobConfig));
-      } else {
-        alert('Please upload a valid json file.');
       }
     };
     reader.readAsText(event.target.files[0]);
