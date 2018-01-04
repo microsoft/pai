@@ -16,28 +16,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
-function getServiceView(kubernetesUrl) {
-  var nodesInfo = []
+function getServiceView(kubernetesUrl, namespace) {
   var request = require('sync-request');
   var resNodes = request('GET', kubernetesUrl + '/api/v1/nodes');
   var data = JSON.parse(resNodes.body.toString('utf-8'));
   var items = data.items;
+  var nodeDic = new Array();      
+  var resPods = request('GET', kubernetesUrl + '/api/v1/namespaces/' + namespace + '/pods/');
+  var pods = JSON.parse(resPods.body.toString('utf-8'));
+  var podsItems = pods.items;
   for (var i in items) {
     var node = items[i].metadata.name
-    var resSingleNode = request('GET', kubernetesUrl + '/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/api/v1/node/' + node);
-    var nodeinfo = JSON.parse(resSingleNode.body.toString('utf-8'))
-    var pods = nodeinfo.podList.pods
-    var podList = []
-    for (var i in pods) {
-      podList.push({ "pod": pods[i].objectMeta.name, "status": pods[i].podStatus.status })
-    }
-    var labelList = []
-    var labels = nodeinfo.objectMeta.labels
-    for (var i in labels) {
-      labelList.push({ "label": labels[i] })
-    }
-    var singleNodeInfo = { "node": node, "podList": podList, "labelList": labelList }
-    nodesInfo.push(singleNodeInfo)
+    nodeDic[node] = null;
   }
+
+  for (var i in podsItems) {
+    var pod = podsItems[i].metadata.name 
+    var nodeName = podsItems[i].spec.nodeName
+    var status = podsItems[i].status.phase
+    console.log(nodeName)
+    if(nodeDic[nodeName] == null) {
+      nodeDic[nodeName] = []
+    }
+    nodeDic[nodeName].push({"podName": pod, "status": status})
+  } 
+  
+  var nodesInfo = []
+  for(var i in nodeDic) {
+    nodesInfo.push({"nodeName": i, "podList": nodeDic[i]})
+  }
+  
   return nodesInfo;
 }   
