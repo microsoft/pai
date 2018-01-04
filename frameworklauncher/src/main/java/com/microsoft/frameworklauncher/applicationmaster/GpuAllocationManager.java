@@ -77,7 +77,6 @@ public class GpuAllocationManager { // THREAD SAFE
       gpuTypeList = Arrays.asList(nodeGpuType.split(","));
     }
 
-    long candidateSelectGpu = 0;
     for (Map.Entry<String, Node> entry : candidateRequestNodes.entrySet()) {
       LOGGER.logDebug(
           "selectCandidateRequestNode: Try node: " + entry.getValue().toString());
