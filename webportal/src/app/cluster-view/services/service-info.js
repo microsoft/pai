@@ -25,16 +25,18 @@ const getServiceView = (kubeURL, namespace, callback) => {
         success: function (data) {
             var items = data.items;
             var nodeList = []
+            var nodeInfo = []
             for (var i in items) {
                 var node = items[i].metadata.name
                 nodeList.push(node);
+                nodeInfo.push(items[i])
             }
-            getNodePods(kubeURL, namespace, nodeList, callback)
+            getNodePods(kubeURL, namespace, nodeList, nodeInfo, callback)
         }
     });
 }
 
-const getNodePods = (kubeURL, namespace, nodeList, callback) => {
+const getNodePods = (kubeURL, namespace, nodeList, nodeInfo, callback) => {
     $.ajax({
         type: "GET",
         url: kubeURL + "/api/v1/namespaces/" + namespace + "/pods/",
@@ -46,15 +48,14 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
             for (var i in podsItems) {
                 var pod = podsItems[i].metadata.name
                 var nodeName = podsItems[i].spec.nodeName
-                var status = podsItems[i].status.phase
                 if (nodeDic[nodeName] == null) {
                     nodeDic[nodeName] = []
                 }
-                nodeDic[nodeName].push({ "podName": pod, "status": status })
+                nodeDic[nodeName].push({ "pod": podsItems[i] })
             }
             var resultDic = []
             for(var i in nodeList) {
-                resultDic.push({"nodeName": nodeList[i], "podList": nodeDic[nodeList[i]]})
+                resultDic.push({"node": nodeInfo[i], "podList": nodeDic[nodeList[i]]})
             }
             callback(resultDic)
         }
