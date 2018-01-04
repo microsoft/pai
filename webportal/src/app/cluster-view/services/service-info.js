@@ -54,11 +54,7 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
             }
             var resultDic = []
             for(var i in nodeList) {
-                if(nodeDic[nodeList[i]] == null) {
-                    resultDic.push({"nodeName": nodeList[i], "podList": null})
-                } else {
-                    resultDic.push({"nodeName": nodeList[i], "podList": nodeDic[nodeList[i]]})
-                }
+                resultDic.push({"nodeName": nodeList[i], "podList": nodeDic[nodeList[i]]})
             }
             callback(resultDic)
         }
