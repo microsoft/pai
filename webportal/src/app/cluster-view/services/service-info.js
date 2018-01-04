@@ -24,16 +24,16 @@ const getServiceView = (kubeURL, namespace, callback) => {
         dataType: "json",
         success: function (data) {
             var items = data.items;
-            var nodeInfo = []
+            var nodeList = []
             for (var item of items) {
-                nodeInfo.push(item)
+                nodeList.push(item)
             }
-            getNodePods(kubeURL, namespace, nodeInfo, callback)
+            getNodePods(kubeURL, namespace, nodeList, callback)
         }
     });
 }
 
-const getNodePods = (kubeURL, namespace, nodeInfo, callback) => {
+const getNodePods = (kubeURL, namespace, nodeList, callback) => {
     $.ajax({
         type: "GET",
         url: kubeURL + "/api/v1/namespaces/" + namespace + "/pods/",
@@ -50,7 +50,7 @@ const getNodePods = (kubeURL, namespace, nodeInfo, callback) => {
                 nodeDic[nodeName].push(pod)
             }
             var resultDic = []
-            for (var node of nodeInfo) {
+            for (var node of nodeList) {
                 resultDic.push({ "node": node, "podList": nodeDic[node.metadata.name] })
             }
             callback(resultDic)
