@@ -92,7 +92,7 @@ imagelist:
     
   pylon:
     copy:
-      - ../pylon/src
+      - ../pylon
     templatelist:
       - None
     prerequisite: None
