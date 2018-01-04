@@ -197,7 +197,8 @@ public class GpuAllocationManagerTest {
     Node node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     gpuMgr2.addCandidateRequestNode(node7);
 
-    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null);
+    //gpu type Empty equals null
+    result = gpuMgr2.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", "");
     Assert.assertEquals(result.getNodeName(), "node7");
 
     gpuMgr2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));

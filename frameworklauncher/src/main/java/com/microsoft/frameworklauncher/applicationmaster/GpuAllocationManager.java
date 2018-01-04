@@ -50,12 +50,12 @@ public class GpuAllocationManager { // THREAD SAFE
 
   public synchronized void addCandidateRequestNode(Node candidateRequestNode) {
     if (!candidateRequestNodes.containsKey(candidateRequestNode.getHostName())) {
-      LOGGER.logInfo("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
+      LOGGER.logDebug("addCandidateRequestNode: %s", candidateRequestNode.getHostName());
       candidateRequestNodes.put(candidateRequestNode.getHostName(), candidateRequestNode);
     } else {
       Node existNode = candidateRequestNodes.get(candidateRequestNode.getHostName());
       existNode.updateNode(candidateRequestNode);
-      LOGGER.logInfo("updateCandidateRequestNode: %s ", existNode);
+      LOGGER.logDebug("updateCandidateRequestNode: %s ", existNode);
     }
   }
 
@@ -63,7 +63,7 @@ public class GpuAllocationManager { // THREAD SAFE
   // To improve it, considers the Gpu topology structure, find a node which can minimize
   // the communication cost between Gpus;
   public synchronized GpuAllocation selectCandidateRequestNode(ResourceDescriptor request, String nodeLabel, String nodeGpuType) {
-    LOGGER.logInfo(
+    LOGGER.logDebug(
         "selectCandidateRequestNode: Request Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
         request, nodeLabel, nodeGpuType);
 
@@ -73,14 +73,12 @@ public class GpuAllocationManager { // THREAD SAFE
 
     GpuAllocation gpuAllocation = null;
     List gpuTypeList = null;
-    if(nodeGpuType != null && nodeGpuType.trim() != "") {
+    if(nodeGpuType != null && !nodeGpuType.trim().isEmpty()) {
       gpuTypeList = Arrays.asList(nodeGpuType.split(","));
     }
 
     long candidateSelectGpu = 0;
-    Iterator<Map.Entry<String, Node>> iter = candidateRequestNodes.entrySet().iterator();
-    while (iter.hasNext()) {
-      Map.Entry<String, Node> entry = iter.next();
+    for (Map.Entry<String, Node> entry : candidateRequestNodes.entrySet()) {
       LOGGER.logDebug(
           "selectCandidateRequestNode: Try node: " + entry.getValue().toString());
 
@@ -97,14 +95,14 @@ public class GpuAllocationManager { // THREAD SAFE
         if (nodes.size() > 0) {
           if (!nodes.containsKey(entry.getValue().getHostName())) {
             LOGGER.logWarning(
-                "selectCandidateRequestNode: Skip node %s, getGpuType not set",
+                "selectCandidateRequestNode: Skip node %s, gpuType not set",
                 entry.getValue().getHostName());
             continue;
           }
           String gpuType = (nodes.get(entry.getValue().getHostName())).getGpuType();
           if (!gpuTypeList.contains(gpuType)) {
             LOGGER.logDebug(
-                "selectCandidateRequestNode: Skip node %s (gpuType: %s), gpuType donot match: request gpuType: %s",
+                "selectCandidateRequestNode: Skip node %s (gpuType: %s), gpuType doesn't match: request gpuType: %s",
                 entry.getValue().getHostName(), gpuType, nodeGpuType);
             continue;
           }
