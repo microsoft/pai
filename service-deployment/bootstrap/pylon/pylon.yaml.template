@@ -34,11 +34,6 @@ spec:
         - name: rest-server
           image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon
           imagePullPolicy: Always
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - mountPath: /var/pai
-              name: pai-path
           ports:
             - name: pylon
               containerPort: 80
