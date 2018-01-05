@@ -28,6 +28,8 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
+      nodeSelector:
+        prom: node-exporter
       containers:
       - image: prom/node-exporter
         volumeMounts:
