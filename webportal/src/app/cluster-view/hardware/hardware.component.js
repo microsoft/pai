@@ -23,126 +23,116 @@ require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/ip-address.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
-require('jquery.ajax-cross-origin/js/jquery.ajax-cross-origin.min.js')
 const url = require('url');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
-const hardwareHtml = hardwareComponent({
-  breadcrumb: breadcrumbComponent,
-  grafanaUri: webportalConfig.grafanaUri
-});
-
-/*
-function createCORSRequest(method, url) {
-  var xhr = new XMLHttpRequest();
-  if ("withCredentials" in xhr) {
-    // Check if the XMLHttpRequest object has a "withCredentials" property.
-    // "withCredentials" only exists on XMLHTTPRequest2 objects.
-    xhr.open(method, url, true);
-  } else if (typeof XDomainRequest != "undefined") {
-    // Otherwise, check if XDomainRequest.
-    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
-  } else {
-    // Otherwise, CORS is not supported by the browser.
-    xhr = null;
+const calculateLoadLevel = (percentage) => {
+  let loadLevel = 0;
+  if (percentage < 10) {
+    loadLevel = 0;
+  } else if (percentage >= 10 && percentage < 30) {
+    loadLevel = 1;
+  } else if (percentage >= 30 && percentage < 80) {
+    loadLevel = 2;
+  } else if (percentage >= 80) {
+    loadLevel = 3;
   }
-  return xhr;
+  return loadLevel;
 }
-*/
 
-const loadMachines = () => {
-  /*
-  var xhr = createCORSRequest('GET', 'http://10.151.40.179:9090/api/v1/node');
-  if (!xhr) {
-    throw new Error('CORS not supported');
+const setIcon = (cellId, loadLevel) => {
+  let classValue = "fa fa-spinner fa-pulse fa-fw text-grey";
+  let titleValue = "0";
+  if (loadLevel == 0) {
+    classValue = "fa fa-circle-thin text-grey";
+    titleValue = "0";
+  } else if (loadLevel == 1) {
+    classValue = "fa fa-circle text-green";
+    titleValue = "1";
+  } else if (loadLevel == 2) {
+    classValue = "fa fa-circle text-yellow";
+    titleValue = "2";
+  } else if (loadLevel == 3) {
+    classValue = "fa fa-circle text-red";
+    titleValue = "3";
   }
-  xhr.onload = function() {
-    var responseText = xhr.responseText;
-    alert(responseText);
-    console.log(responseText);
-    // process the response.
-  };
-  xhr.onerror = function() {
-    alert("ah!");
-    console.log('There was an error!');
-  };
-  xhr.send();
-  */
-  /*
-  $.ajax({
+  $(cellId).attr('class', classValue);
+  $(cellId).attr('title', titleValue);
+}
 
-    // The 'type' property sets the HTTP method.
-    // A value of 'PUT' or 'DELETE' will trigger a preflight request.
-    type: 'GET',
-  
-    // The URL to make the request to.
-    //url: 'http://html5rocks-cors.s3-website-us-east-1.amazonaws.com/index.html',
-    url: "http://10.151.40.179:9090/api/v1/node",
-  
-    xhrFields: {
-      // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
-      // This can be used to set the 'withCredentials' property.
-      // Set the value to 'true' if you'd like to pass cookies to the server.
-      // If this is enabled, your server must respond with the header
-      // 'Access-Control-Allow-Credentials: true'.
-      withCredentials: true
-    },
-  
-    headers: {
-      // Set any custom headers here.
-      // If you set any non-simple headers, your server must include these
-      // headers in the 'Access-Control-Allow-Headers' response header.
-    },
-  
-    success: function(data) {
-      // Here's where you handle a successful response.
-      alert(data);
-    },
-  
-    error: function() {
-      // Here's where you handle an error response.
-      // Note that if the error was due to a CORS issue,
-      // this function will still fire, but there won't be any additional
-      // information about the error.
-    }
-  });
-  */
+const loadData = () => {
+  const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
+  const metricGranularity = "1m";
+  let table = null;
   $.ajax({
-    url: "http://10.151.40.179:9090/api/v1/node",
     type: 'GET',
-    // The name of the callback parameter, as specified by the YQL service
-    jsonp: "callback",
- 
-    // Tell jQuery we're expecting JSONP
-    dataType: "jsonp",
- 
-    // Tell YQL what we want and that we want JSON
-    data: {
-        q: "{}",
-        format: "json"
+    url: webportalConfig.prometheusUri + "/api/v1/query?" +
+        "query=node_uname_info&time=" + currentEpochTimeInSeconds,
+    success: function(data) {
+      const hardwareHtml = hardwareComponent({
+        breadcrumb: breadcrumbComponent,
+        grafanaUri: webportalConfig.grafanaUri,
+        machineMetaData: data
+      });
+      $('#content-wrapper').html(hardwareHtml);
+      table = $('#hardware-table').DataTable({
+        "scrollY": (($(window).height() - 265)) + 'px',
+        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        columnDefs: [
+          { type: 'natural', targets: [0] },
+          { type: 'ip-address', targets: [1] },
+          { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
+        ]
+      });
+      // Load CPU utilization info.
+      $.ajax({
+        type: 'GET',
+        url: webportalConfig.prometheusUri + "/api/v1/query_range?" +
+          "query=100%20-%20(avg%20by%20(instance)(irate(node_cpu%7Bmode%3D%22idle%22%7D%5B" + metricGranularity + "%5D))%20*%20100)" +
+          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+        success: function(data) {
+          const result = data.data.result;
+          for (let i = 0; i < result.length; i++) {
+            const machineCpuUtilInfo = result[i];
+            const cellId = "#" + CSS.escape("cpu:" + machineCpuUtilInfo.metric.instance);
+            const loadLevel = calculateLoadLevel(machineCpuUtilInfo.values[0][1] * 10);
+            setIcon(cellId, loadLevel);
+          }
+          //table.ajax.reload();
+        },
+        error: function() {
+          alert("Error when loading CPU utilization info.");
+        }
+      });
+      // Load memory utilization info.
+      $.ajax({
+        type: 'GET',
+        url: webportalConfig.prometheusUri + "/api/v1/query_range?" +
+          "query=node_memory_MemTotal+-+node_memory_MemFree+-+node_memory_Buffers+-+node_memory_Cached" +
+          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+        success: function(data) {
+          const result = data.data.result;
+          for (let i = 0; i < result.length; i++) {
+            const machineMemUtilInfo = result[i];
+            const cellId = "#" + CSS.escape("mem:" + machineMemUtilInfo.metric.instance);
+            const loadLevel = calculateLoadLevel(machineMemUtilInfo.values[0][1]);
+            setIcon(cellId, loadLevel);
+          }
+          //table.ajax.reload();
+        },
+        error: function() {
+          alert("Error when loading memory utilization info.");
+        }
+      });
     },
-    success: (data) => {
-      alert("yay!");
-      loading.hideLoading();
-      if (data.error) {
-        alert(data.message);
-      } else {
-        $('#hardware-table').html(hardwareComponent({
-          machines: data
-        }));
-      }
-    },
-    error: (xhr, textStatus, error) => {
-      const res = JSON.parse(xhr.responseText);
-      alert(res.message);
+    error: function() {
+      alert("Error.");
     }
   });
-};
+}
 
 function resizeContentWrapper() {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -154,18 +144,8 @@ window.onresize = function (envent) {
 }
 
 $(document).ready(() => {
-  //loadMachines();
   resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
-  $('#content-wrapper').html(hardwareHtml);
-  $('#hardware-table').DataTable({
-    "scrollY": (($(window).height() - 265)) + 'px',
-    "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
-    columnDefs: [
-      { type: 'natural', targets: [0] },
-      { type: 'ip-address', targets: [1] },
-      { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
-    ]
-  });
+  loadData();
 });
