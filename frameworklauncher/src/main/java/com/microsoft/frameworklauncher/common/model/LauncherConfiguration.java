@@ -45,7 +45,7 @@ public class LauncherConfiguration implements Serializable {
   // the corresponding FrameworkDescriptionFile deleted in the DataDeployment.
   // To avoid missing the CompletedFrameworkStatus, the polling interval seconds of Client
   // should be less than FrameworkCompletedRetainSec.
-  private Integer frameworkCompletedRetainSec = 43200;
+  private Long frameworkCompletedRetainSec = 43200L;
   // Leftover Frameworks has some external resource, such as HDFS, need to be GC when Service start.
   // FrameworkLeftoverGCMaxCount limit the max Framework count to be GC at each time, so that the
   // Service start time is also limited.
@@ -180,11 +180,11 @@ public class LauncherConfiguration implements Serializable {
     this.applicationSetupContextRetryIntervalSec = applicationSetupContextRetryIntervalSec;
   }
 
-  public Integer getFrameworkCompletedRetainSec() {
+  public Long getFrameworkCompletedRetainSec() {
     return frameworkCompletedRetainSec;
   }
 
-  public void setFrameworkCompletedRetainSec(Integer frameworkCompletedRetainSec) {
+  public void setFrameworkCompletedRetainSec(Long frameworkCompletedRetainSec) {
     this.frameworkCompletedRetainSec = frameworkCompletedRetainSec;
   }
 
