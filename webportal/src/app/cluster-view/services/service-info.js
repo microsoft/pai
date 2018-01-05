@@ -18,42 +18,44 @@
 // This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
 
 const getServiceView = (kubeURL, namespace, callback) => {
-    $.ajax({
-        type: "GET",
-        url: kubeURL + "/api/v1/nodes",
-        dataType: "json",
-        success: function (data) {
-            var items = data.items;
-            var nodeList = []
-            for (var item of items) {
-                nodeList.push(item)
-            }
-            getNodePods(kubeURL, namespace, nodeList, callback)
-        }
-    });
+  $.ajax({
+    type: 'GET',
+    url: kubeURL + '/api/v1/nodes',
+    dataType: 'json',
+    success: function (data) {
+      var items = data.items;
+      var nodeList = [];
+      for (var item of items) {
+        nodeList.push(item);
+      }
+      getNodePods(kubeURL, namespace, nodeList, callback);
+    }
+  });
 }
 
 const getNodePods = (kubeURL, namespace, nodeList, callback) => {
-    $.ajax({
-        type: "GET",
-        url: kubeURL + "/api/v1/namespaces/" + namespace + "/pods/",
-        dataType: "json",
-        success: function (pods) {
-            var podsItems = pods.items;
-            var nodeDic = new Array();
+  $.ajax({
+    type: 'GET',
+    url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
+    dataType: 'json',
+    success: function (pods) {
+      var podsItems = pods.items;
+      var nodeDic = new Array();
 
-            for (var pod of podsItems) {
-                var nodeName = pod.spec.nodeName
-                if (nodeDic[nodeName] == null) {
-                    nodeDic[nodeName] = []
-                }
-                nodeDic[nodeName].push(pod)
-            }
-            var resultDic = []
-            for (var node of nodeList) {
-                resultDic.push({ "node": node, "podList": nodeDic[node.metadata.name] })
-            }
-            callback(resultDic)
+      for (var pod of podsItems) {
+        var nodeName = pod.spec.nodeName;
+        if (nodeDic[nodeName] == null) {
+          nodeDic[nodeName] = [];
         }
-    });
+        nodeDic[nodeName].push(pod);
+      }
+      var resultDic = []
+      for (var node of nodeList) {
+        resultDic.push({ 'node': node, 'podList': nodeDic[node.metadata.name] });
+      }
+      callback(resultDic);
+    }
+  });
 }
+
+module.exports = { getServiceView };

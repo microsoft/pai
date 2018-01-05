@@ -148,7 +148,7 @@ const deleteJob = (jobName) => {
 const loadJobDetail = (jobName) => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+    url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
