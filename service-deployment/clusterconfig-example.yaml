@@ -168,7 +168,7 @@ machinelist:
     ip: 10.0.3.11
     hdfsrole: worker
     yarnrole: worker
-    node-exporter: true
+    node-exporter: "true"
   # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
@@ -176,4 +176,4 @@ machinelist:
     ip: 10.0.3.12
     hdfsrole: worker
     yarnrole: worker
-    node-exporter: true
+    node-exporter: "true"
