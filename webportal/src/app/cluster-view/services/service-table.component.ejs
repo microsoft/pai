@@ -13,7 +13,7 @@
         <td><%= data[i].node.metadata.name %></td>
         <td><%= data[i].node.metadata.name %></td>
         <td>
-          <% for(var k in data[i].node.metadata.labels) { %>
+          <% for(let k in data[i].node.metadata.labels) { %>
             <button type="button" class="btn btn-primary"> <%= k + ': ' + data[i].node.metadata.labels[k] %> </button>
           <% } %>
         </td>
