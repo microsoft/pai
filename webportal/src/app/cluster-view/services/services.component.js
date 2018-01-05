@@ -42,7 +42,6 @@ const loadServices = () => {
       data
     }));
   });
-  
 };
 
 
@@ -55,6 +54,6 @@ $(document).ready(() => {
   loadServices();
 });
 
-module.exports = { loadServices }
+module.exports = { loadServices };
 
 

@@ -2,15 +2,13 @@
   <thead>
     <tr>
       <th>Node Name</th>
-      <th>Address</th>
-      <th>PAI Role</th>
+      <th>PAI Roles</th>
       <th>Services</th>
     </tr>
   </thead>
   <tbody>
     <% for(let i = 0; i < data.length; i ++) { %>
       <tr>
-        <td><%= data[i].node.metadata.name %></td>
         <td><%= data[i].node.metadata.name %></td>
         <td>
           <% for(let k in data[i].node.metadata.labels) { %>
