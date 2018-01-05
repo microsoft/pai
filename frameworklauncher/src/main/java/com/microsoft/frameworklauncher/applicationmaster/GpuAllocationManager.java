@@ -71,10 +71,10 @@ public class GpuAllocationManager { // THREAD SAFE
     ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();
     Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
-    Long candidateGpu = request.getGpuAttribute();
-    if (candidateGpu > 0 && Long.bitCount(candidateGpu) != request.getGpuNumber()) {
+    Long requestGpu = request.getGpuAttribute();
+    if (requestGpu > 0 && Long.bitCount(requestGpu) != request.getGpuNumber()) {
       LOGGER.logError(
-          "selectCandidateRequestNode: request GPU number (%d) is not consistent with request GPU attribute(%s)", request.getGpuNumber(), Long.toBinaryString(candidateGpu));
+          "selectCandidateRequestNode: request GPU number (%d) is not consistent with request GPU attribute(%s)", request.getGpuNumber(), Long.toBinaryString(requestGpu));
       return null;
     }
     GpuAllocation gpuAllocation = null;
@@ -111,6 +111,9 @@ public class GpuAllocationManager { // THREAD SAFE
                 entry.getValue().getHostName(), gpuType, nodeGpuType);
             continue;
           }
+        } else {
+          LOGGER.logWarning(
+              "selectCandidateRequestNode: cluster gpuType not config, all jobs will ignore user's request gpuType");
         }
       }
 
@@ -120,6 +123,8 @@ public class GpuAllocationManager { // THREAD SAFE
         if (request.getGpuNumber() > 0) {
           // If user specified the candidate gpu, just check the node's available gpus.
           // If user not specified the candidate gpu, use selectCandidateGpu function to pick them.
+          Long candidateGpu = requestGpu;
+
           if (candidateGpu > 0) {
             if ((candidateGpu & entry.getValue().getNodeGpuStatus()) != candidateGpu)
               continue;
@@ -173,10 +178,9 @@ public class GpuAllocationManager { // THREAD SAFE
     ResourceDescriptor resource = ResourceDescriptor.fromResource(request.getCapability());
     List<String> nodeList = request.getNodes();
     addContainerRequest(resource, nodeList);
-    return;
   }
 
-  public void addContainerRequest(ResourceDescriptor resource, List<String> nodeList) throws Exception {
+  public void addContainerRequest(ResourceDescriptor resource, List<String> nodeList){
     for (String nodeName : nodeList) {
       if (!candidateRequestNodes.containsKey(nodeName)) {
         LOGGER.logWarning(
@@ -185,7 +189,6 @@ public class GpuAllocationManager { // THREAD SAFE
       }
       candidateRequestNodes.get(nodeName).addContainerRequest(resource);
     }
-    return;
   }
 
   public synchronized void removeContainerRequest(AMRMClient.ContainerRequest request) throws Exception {
