@@ -103,6 +103,12 @@ nvidiaPresent || exit $?
 echo === Checking the driver
 nvidia-smi || exit $?
 
+echo === Enable nvidia persistenced mode
+nvidia-persistenced --persistence-mode || exit $?
+
+echo === Recall nvidia-smi
+nvidia-smi || exit $?
+
 echo === Updating current driver
 # Remove previous soft link for current driver
 [[ -L $CURRENT_DRIVER ]] &&
