@@ -15,6 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//
 
 // module dependencies
 require('datatables.net/js/jquery.dataTables.js');
@@ -29,6 +30,8 @@ const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.e
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
+//
+
 const calculateLoadLevel = (percentage) => {
   let loadLevel = 0;
   if (percentage < 10) {
@@ -42,6 +45,8 @@ const calculateLoadLevel = (percentage) => {
   }
   return loadLevel;
 }
+
+//
 
 const setIcon = (cellId, loadLevel) => {
   let classValue = "fa fa-spinner fa-pulse fa-fw text-grey";
@@ -63,9 +68,76 @@ const setIcon = (cellId, loadLevel) => {
   $(cellId).attr('title', titleValue);
 }
 
+//
+
+const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
+  const metricGranularity = "1m";
+  $.ajax({
+    type: 'GET',
+    url: prometheusUri + "/api/v1/query_range?" +
+      "query=100%20-%20(avg%20by%20(instance)(irate(node_cpu%7Bmode%3D%22idle%22%7D%5B" + metricGranularity + "%5D))%20*%20100)" +
+      "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+    success: function(data) {
+      const result = data.data.result;
+      for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        const cellId = "#" + CSS.escape("cpu:" + item.metric.instance);
+        const percentage = item.values[0][1];
+        const loadLevel = calculateLoadLevel(percentage);
+        setIcon(cellId, loadLevel);
+      }
+    },
+    error: function() {
+      alert("Error when loading CPU utilization data.");
+    }
+  });
+}
+
+//
+
+const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
+  $.ajax({
+    type: 'GET',
+    url: prometheusUri + "/api/v1/query_range?" +
+      "query=node_memory_MemTotal+-+node_memory_MemFree+-+node_memory_Buffers+-+node_memory_Cached" +
+      "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+    success: function(usedMemData) {
+      let usedMemDict = {};
+      const result = usedMemData.data.result;
+      for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        usedMemDict[item.metric.instance] = item.values[0][1];
+      }
+      $.ajax({
+        type: 'GET',
+        url: prometheusUri + "/api/v1/query_range?" +
+          "query=node_memory_MemTotal" +
+          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+        success: function(totalMemData) {
+          const result = totalMemData.data.result;
+          for (let i = 0; i < result.length; i++) {
+            const item = result[i];
+            const cellId = "#" + CSS.escape("mem:" + item.metric.instance);
+            const percentage = usedMemDict[item.metric.instance] / item.values[0][1] * 100;
+            const loadLevel = calculateLoadLevel(percentage);
+            setIcon(cellId, loadLevel);
+          }
+        },
+        error: function() {
+          alert("Error when loading memory utilization data (step 2).");
+        }      
+      });
+    },
+    error: function() {
+      alert("Error when loading memory utilization data (step 1).");
+    }
+  });
+}
+
+//
+
 const loadData = () => {
   const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
-  const metricGranularity = "1m";
   let table = null;
   $.ajax({
     type: 'GET',
@@ -87,61 +159,29 @@ const loadData = () => {
           { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
         ]
       });
-      // Load CPU utilization info.
-      $.ajax({
-        type: 'GET',
-        url: webportalConfig.prometheusUri + "/api/v1/query_range?" +
-          "query=100%20-%20(avg%20by%20(instance)(irate(node_cpu%7Bmode%3D%22idle%22%7D%5B" + metricGranularity + "%5D))%20*%20100)" +
-          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
-        success: function(data) {
-          const result = data.data.result;
-          for (let i = 0; i < result.length; i++) {
-            const machineCpuUtilInfo = result[i];
-            const cellId = "#" + CSS.escape("cpu:" + machineCpuUtilInfo.metric.instance);
-            const loadLevel = calculateLoadLevel(machineCpuUtilInfo.values[0][1] * 10);
-            setIcon(cellId, loadLevel);
-          }
-          //table.ajax.reload();
-        },
-        error: function() {
-          alert("Error when loading CPU utilization info.");
-        }
-      });
-      // Load memory utilization info.
-      $.ajax({
-        type: 'GET',
-        url: webportalConfig.prometheusUri + "/api/v1/query_range?" +
-          "query=node_memory_MemTotal+-+node_memory_MemFree+-+node_memory_Buffers+-+node_memory_Cached" +
-          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
-        success: function(data) {
-          const result = data.data.result;
-          for (let i = 0; i < result.length; i++) {
-            const machineMemUtilInfo = result[i];
-            const cellId = "#" + CSS.escape("mem:" + machineMemUtilInfo.metric.instance);
-            const loadLevel = calculateLoadLevel(machineMemUtilInfo.values[0][1]);
-            setIcon(cellId, loadLevel);
-          }
-          //table.ajax.reload();
-        },
-        error: function() {
-          alert("Error when loading memory utilization info.");
-        }
-      });
+      loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds);
+      loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds);
     },
     error: function() {
-      alert("Error.");
+      alert("Error when loading data.");
     }
   });
 }
+
+//
 
 function resizeContentWrapper() {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
 }
 
+//
+
 window.onresize = function (envent) {
   resizeContentWrapper();
 }
+
+//
 
 $(document).ready(() => {
   resizeContentWrapper();
