@@ -36,7 +36,7 @@ const serviceViewHtml = serviceViewComponent({
 
 const loadServices = () => {
   loading.showLoading();
-  service.getServiceView("http://10.151.40.222:8080", "default", (data) => {
+  service.getServiceView('${webportalConfig.k8sApiServerUri}', 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data
