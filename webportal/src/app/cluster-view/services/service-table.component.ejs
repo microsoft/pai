@@ -2,18 +2,28 @@
   <thead>
     <tr>
       <th>Node Name</th>
-      <th>Address</th>
-      <th>PAI Role</th>
+      <th>PAI Roles</th>
       <th>Services</th>
     </tr>
   </thead>
   <tbody>
-    <% for(let i = 0; i < 10; i ++) { %>
+    <% for(let i = 0; i < data.length; i ++) { %>
       <tr>
-        <td> </td>
-        <td> </td>
-        <td> </td>
-        <td> </td>
+        <td><%= data[i].node.metadata.name %></td>
+        <td>
+          <% for(let k in data[i].node.metadata.labels) { %>
+            <button type="button" class="btn btn-primary"> <%= k + ': ' + data[i].node.metadata.labels[k] %> </button>
+          <% } %>
+        </td>
+        <td>
+          <% for(let j = 0; j < data[i].podList.length; j++) { %>         
+            <% if(data[i].podList[j].status.phase == "Running") { %>
+              <button type="button" class="btn btn-success"> <%= data[i].podList[j].metadata.name %> </button>  
+            <% } else{ %>
+              <button type="button" class="btn btn-danger"> <%= data[i].podList[j].metadata.name %> </button>
+            <% } %>      
+          <% } %>
+        </td>
       </tr>
     <% } %>
   </tbody>
