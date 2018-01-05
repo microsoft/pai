@@ -119,16 +119,22 @@ And all the information is retrieved from clusterconfig (as in [clusterconfig-ex
 If your service need more information, please add your property to cluster config. 
 The new property should be placed in clusterinfo, machineinfo or machinelist.
 
-#### Test your service
-- ```sudo ./docker_build –p clusterconfig```
+#### Deploy/Test a single service 
+
+- ```sudo ./prepare_hadoop_config.sh```
+
+Prepare hadoop configuration. If you are not sure whether your service depends on it or not. Please don't skip this step.
+
+
+- ```sudo ./docker_build –p clusterconfig -s your_image_name```
 
 To ensure your docker image could be built successfully.
-- ```sudo ./deploy –p clusterconfig```
 
-To ensure your deployment script and template could be generated successfully
-- ```sudo ./bootstrap/service/start.sh```
 
-To ensure your service could be start up correctly by script. Here the script start.sh is the startscript in the service.yaml where you configured.
+- ```sudo ./deploy -p clusterconfig -d -s your_service_name```
+
+To ensure your service could be start up correctly.
+
 - ```sudo ./bootstrap/service/clean.sh```
 
 To ensure your service could be stopped correctly with  stop script. This script is the stop script in the service.yaml where you configured.
