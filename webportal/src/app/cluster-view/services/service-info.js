@@ -57,3 +57,5 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
         }
     });
 }
+
+module.exports = { getServiceView }
