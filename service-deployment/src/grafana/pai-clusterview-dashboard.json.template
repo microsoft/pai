@@ -515,7 +515,7 @@
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
@@ -524,7 +524,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         },
@@ -591,7 +591,7 @@
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
@@ -600,7 +600,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }
@@ -650,5 +650,5 @@
   },
   "timezone": "",
   "title": "PAI_ClusterView",
-  "version": 4
+  "version": 3
 }}
