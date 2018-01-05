@@ -71,6 +71,12 @@ public class GpuAllocationManager { // THREAD SAFE
     ClusterConfiguration clusterConfiguration = am.getClusterConfiguration();
     Map<String, NodeConfiguration> nodes = clusterConfiguration.getNodes();
 
+    Long candidateGpu = request.getGpuAttribute();
+    if (candidateGpu > 0 && Long.bitCount(candidateGpu) != request.getGpuNumber()) {
+      LOGGER.logError(
+          "selectCandidateRequestNode: request GPU number (%d) is not consistent with request GPU attribute(%s)", request.getGpuNumber(), Long.toBinaryString(candidateGpu));
+      return null;
+    }
     GpuAllocation gpuAllocation = null;
     List gpuTypeList = null;
     if(nodeGpuType != null && !nodeGpuType.trim().isEmpty()) {
@@ -112,20 +118,28 @@ public class GpuAllocationManager { // THREAD SAFE
           request.getCpuNumber() <= entry.getValue().getAvailableCpu() &&
           request.getGpuNumber() <= entry.getValue().getAvailableNumGpus()) {
         if (request.getGpuNumber() > 0) {
-          Long candidateGpu = selectCandidateGpu(entry.getValue(), request.getGpuNumber());
-          if (Long.bitCount(candidateGpu) == request.getGpuNumber()) {
-            gpuAllocation = new GpuAllocation();
-            gpuAllocation.setNodeName(entry.getValue().getHostName());
-            gpuAllocation.setGpuBitmap(candidateGpu);
-            break;
+          // If user specified the candidate gpu, just check the node's available gpus.
+          // If user not specified the candidate gpu, use selectCandidateGpu function to pick them.
+          if (candidateGpu > 0) {
+            if ((candidateGpu & entry.getValue().getNodeGpuStatus()) != candidateGpu)
+              continue;
+          } else {
+            candidateGpu = selectCandidateGpu(entry.getValue(), request.getGpuNumber());
+            if (Long.bitCount(candidateGpu) != request.getGpuNumber()) {
+              continue;
+            }
           }
+          gpuAllocation = new GpuAllocation();
+          gpuAllocation.setNodeName(entry.getValue().getHostName());
+          gpuAllocation.setGpuBitmap(candidateGpu);
+          break;
         }
       }
     }
 
     if (gpuAllocation != null) {
       LOGGER.logInfo(
-          "selectCandidateRequestNode: select node: " + gpuAllocation.getNodeName());
+          "selectCandidateRequestNode: select node: " + gpuAllocation.getNodeName() +  " gpuBitmap:" + Long.toBinaryString(gpuAllocation.getGpuBitmap()));
     } else {
       // AM will request resource with any node.
       LOGGER.logInfo(

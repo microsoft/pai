@@ -233,6 +233,34 @@ public class GpuAllocationManagerTest {
     result = gpuMgr3.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40");
     Assert.assertEquals("node3", result.getNodeName());
     Assert.assertEquals(result.getGpuBitmap(), 0xF0);
+
+    GpuAllocationManager gpuMgr4 = new GpuAllocationManager(am);
+
+    node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+
+    gpuMgr4.addCandidateRequestNode(node6);
+    gpuMgr4.addCandidateRequestNode(node7);
+
+    result = gpuMgr4.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "K40");
+    Assert.assertEquals(null, result);
+
+    result = gpuMgr4.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "M40");
+    Assert.assertEquals("node6", result.getNodeName());
+    Assert.assertEquals(result.getGpuBitmap(), 0x33);
+
+
+    result = gpuMgr4.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0xFL), null, "");
+    Assert.assertEquals("node6", result.getNodeName());
+    Assert.assertEquals(result.getGpuBitmap(), 0xFL);
+    gpuMgr4.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuBitmap()),  Arrays.asList(new String[]{result.getNodeName()}));
+
+
+    result = gpuMgr4.selectCandidateRequestNode(ResourceDescriptor.newInstance(1, 1, 4, 0xF0L), null, "K40");
+    Assert.assertEquals("node7", result.getNodeName());
+    Assert.assertEquals(result.getGpuBitmap(), 0xF0);
+
+
   }
 
   private class AMForTest extends MockApplicationMaster {
@@ -260,7 +288,7 @@ public class GpuAllocationManagerTest {
       map.put("node4", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
       nodeConfig.setGpuType("M40");
       map.put("node6", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
-      nodeConfig.setGpuType("M40");
+      nodeConfig.setGpuType("K40");
       map.put("node7", YamlUtils.deepCopy(nodeConfig, NodeConfiguration.class));
       this.clusterConfiguration.setNodes(map);
     }
