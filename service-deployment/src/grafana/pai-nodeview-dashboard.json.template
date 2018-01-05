@@ -13,7 +13,7 @@
     ]
   },
   "description": "Dashboard to view multiple servers",
-  "editable": true,
+  "editable": false,
   "gnetId": 405,
   "graphTooltip": 0,
   "hideControls": false,
