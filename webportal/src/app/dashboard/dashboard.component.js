@@ -21,7 +21,7 @@ const dashboardComponent = require('./dashboard.component.ejs');
 const webportalConfig = require('../config/webportal.config.json');
 
 const dashboardHtml = dashboardComponent({
-  grafanaRootUrl: webportalConfig.grafanaRootUrl
+  grafanaUri: webportalConfig.grafanaUri
 });
 
 $('#content-wrapper').html(dashboardHtml);

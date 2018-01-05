@@ -13,7 +13,7 @@
   <tbody>
     <% for(let i = 0; i < jobs.length; i ++) { %>
       <tr>
-        <td><a href="#" onclick="loadJobDetail('<%= jobs[i].name %>')"><%= jobs[i].name %></a></td>
+        <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
         <td><%= convertTime(false, jobs[i].createdTime) %></td>
         <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>

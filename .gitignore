@@ -13,6 +13,7 @@
 .classpath
 .project
 .settings
+.vscode
 target/
 build/
 out/

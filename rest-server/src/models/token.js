@@ -15,22 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const userModel = require("./user");
 
-// module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
+const check = (username, password, callback) => {
+  if (!userModel.db.has(username).value()) {
+    callback(null, false, false);
+  } else {
+    const user = userModel.db.get(username).value();
+    userModel.encrypt(username, password, (err, derivedKey) => {
+      callback(err, derivedKey === user.passwd, user.admin);
+    });
+  }
+};
 
-const router = express.Router();
-
-router.route('/')
-    .all(controller.index);
-
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
-
-// module exports
-module.exports = router;
+module.exports = { check };

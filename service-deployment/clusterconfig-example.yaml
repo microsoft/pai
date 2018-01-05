@@ -83,11 +83,11 @@ clusterinfo:
   # The config for web portal
   webportalinfo:
     # root url of the rest server
-    rest_server_root_uri: http://10.0.3.9:9186
+    rest_server_uri: http://10.0.3.9:9186
     # root url of the grafana portal
-    grafana_root_url: http://10.0.1.9:3000
+    grafana_uri: http://10.0.1.9:3000
     # root url of the k8s dashboard
-    k8s_dashboard_root_url: http://10.0.3.9:9090
+    k8s_dashboard_uri: http://10.0.3.9:9090
     # port for webportal
     server_port: 9286
 
@@ -106,9 +106,6 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
-    # node exporter text path
-    node_exporter_textfile_dir: /var/local/prom-exporters
-
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example

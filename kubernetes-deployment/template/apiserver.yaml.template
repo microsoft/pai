@@ -39,3 +39,5 @@ spec:
     - --storage-media-type
     - application/json
     - --anonymous-auth=true
+    - --cors-allowed-origins
+    - .*

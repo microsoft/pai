@@ -15,22 +15,21 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
+const tokenConfig = require('../config/token');
+const userConfig = require('../config/user');
+const userController = require('../controllers/user');
+const param = require('../middlewares/parameter');
 
 const router = express.Router();
 
 router.route('/')
-    .all(controller.index);
+    /** PUT /api/v1/user - Create or update a user */
+    .put(tokenConfig.check, param.validate(userConfig.userPutInputSchema), userController.update)
 
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
+    /** DELETE /api/v1/user - Remove a user */
+    .delete(tokenConfig.check, param.validate(userConfig.userDeleteInputSchema), userController.remove);
 
 // module exports
 module.exports = router;

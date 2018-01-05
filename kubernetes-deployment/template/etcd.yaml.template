@@ -31,11 +31,11 @@ spec:
     - --initial-advertise-peer-urls
     - http://{{ hostcofig['hostip'] }}:2380
     - --listen-peer-urls
-    - http://{{ hostcofig['hostip'] }}:2380
+    - http://0.0.0.0:2380
     - --advertise-client-urls
     - http://{{ hostcofig['hostip'] }}:4001
     - --listen-client-urls
-    - http://{{ hostcofig['hostip'] }}:4001
+    - http://0.0.0.0:4001
     - --initial-cluster
     - {{ clusterconfig['etcd_cluster_ips_peer'] }}
     - --data-dir

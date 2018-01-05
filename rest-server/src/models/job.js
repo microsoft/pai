@@ -277,6 +277,7 @@ class Job {
   }
 
   generateFrameworkDescription(data) {
+    const gpuType = data.gpuType || null;
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
     const frameworkDescription = {
       'version': 10,
@@ -284,6 +285,7 @@ class Job {
       'taskRoles': {},
       'platformSpecificParameters': {
         'queue': "default",
+        'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
         'generateContainerIpList': true

@@ -333,7 +333,7 @@ public class ApplicationMaster extends AbstractService {
           resource, maxResource);
     }
 
-    if (resource.getGpuNumber() > 0 && resource.getGpuAttribute() == 0) {
+    if (resource.getGpuNumber() > 0) {
       updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
 
       GpuAllocation gpuAllocation = gpuAllocationManager.selectCandidateRequestNode(resource, nodeLabel, nodeGpuType);

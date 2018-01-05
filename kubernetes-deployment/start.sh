@@ -31,6 +31,9 @@ grep -q "127.0.0.1" /etc/hosts && \
 # Comment 127.0.1.1 line
 sed -i "/127.0.1.1/s/^/# /" /etc/hosts
 
+# Comment hostip line
+sed -i "/$hostip/s/^/# /" /etc/hosts
+
 # Change hostip line to "$hostip $hostname"
 # grep -q "$hostip" /etc/hosts && \
 #     sed -i "/$hostip/c\\$hostip $(hostname)" /etc/hosts || \
@@ -69,14 +72,6 @@ else
         exit 1
     fi
 fi
-
-
-#tar -xvf kubernetes.tar
-
-chmod u+x src/cleanup.sh
-
-./src/cleanup.sh
-
 
 # check etc/ exist or not.
 staticpod="src/etc"
