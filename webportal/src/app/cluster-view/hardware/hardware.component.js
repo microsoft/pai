@@ -36,12 +36,22 @@ const getCellHtml = (percentage) => {
   let h = (1.0 - percentage / 100) * 240;
   let s = 100;
   let l = 50;
+  border = false;
   if (h > 180) {
-    l = 50 + (h - 180) / 60 * 25;
+    l = 50 + (h - 180) / 60 * 50;
     h = 180;
+    border = true;
   }
-  let styleValue = "color:" + "hsl(" + h + "," + s + "%," + l + "%)";
-  const cellHtml = "<i class='" + classValue + "' title=\"" + percentage + "\" style='" + styleValue + "'></i>";
+  const colorString = "hsl(" + h + "," + s + "%," + l + "%)";
+  let cellHtml = "";
+  if (border) {
+    cellHtml += "<span class='fa-stack' title=\"" + percentage + "\" style='width:14px;height:14px;'>";
+    cellHtml += "<i class='fa fa-circle fa-stack-1x' style='top:-7px;color:" + colorString + "'></i>";
+    cellHtml += "<i class='fa fa-circle-o fa-stack-1x' style='top:-7px;color:cyan'></i>";
+    cellHtml += "</span>";
+  } else {
+    cellHtml += "<i class='fa fa-circle' title=\"" + percentage + "\" style='color:" + colorString + "'></i>";
+  }
   return cellHtml;
 }
 
