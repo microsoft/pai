@@ -28,12 +28,14 @@
         <tr>
           <td><a href="<%= href %>"><%= machineName %></a></td>
           <td><%= ipAddress %></td>
-          <td style='text-align:center'><i id='cpu<%= idSuffix %>' class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
-          <td style='text-align:center'><i id='mem<%= idSuffix %>' class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
-          <td style='text-align:center'><i id='gpu<%= idSuffix %>' class="fa fa-circle text-green" title="1"></i></td>
-          <td style='text-align:center'><i id='gpumem<%= idSuffix %>' class="fa fa-circle-thin text-grey" title="0"></i></td>
-          <td style='text-align:center'><i id='disk<%= idSuffix %>' class="fa fa-circle text-yellow" title="2"></i></td>
-          <td style='text-align:center'><i id='eth<%= idSuffix %>' class="fa fa-circle text-green" title="1"></i></td>
+          <td id='cpu<%= idSuffix %>' style='text-align:center'><i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
+          <td id='mem<%= idSuffix %>' style='text-align:center'><i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
+          <td id='gpu<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-circle" title="1" style="color:pink"></i>
+          </td>
+          <td id='gpumem<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle-thin text-grey" title="0"></i></td>
+          <td id='disk<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle text-yellow" title="2"></i></td>
+          <td id='eth<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle text-green" title="1"></i></td>
         </tr>
         <%
           }

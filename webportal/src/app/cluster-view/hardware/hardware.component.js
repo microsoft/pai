@@ -17,7 +17,6 @@
 
 //
 
-// module dependencies
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -32,45 +31,23 @@ const webportalConfig = require('../../config/webportal.config.json');
 
 //
 
-const calculateLoadLevel = (percentage) => {
-  let loadLevel = 0;
-  if (percentage < 10) {
-    loadLevel = 0;
-  } else if (percentage >= 10 && percentage < 30) {
-    loadLevel = 1;
-  } else if (percentage >= 30 && percentage < 80) {
-    loadLevel = 2;
-  } else if (percentage >= 80) {
-    loadLevel = 3;
+const getCellHtml = (percentage) => {
+  let classValue = "fa fa-circle";
+  let h = (1.0 - percentage / 100) * 240;
+  let s = 100;
+  let l = 50;
+  if (h > 180) {
+    l = 50 + (h - 180) / 60 * 25;
+    h = 180;
   }
-  return loadLevel;
+  let styleValue = "color:" + "hsl(" + h + "," + s + "%," + l + "%)";
+  const cellHtml = "<i class='" + classValue + "' title=\"" + percentage + "\" style='" + styleValue + "'></i>";
+  return cellHtml;
 }
 
 //
 
-const setIcon = (cellId, loadLevel) => {
-  let classValue = "fa fa-spinner fa-pulse fa-fw text-grey";
-  let titleValue = "0";
-  if (loadLevel == 0) {
-    classValue = "fa fa-circle-thin text-grey";
-    titleValue = "0";
-  } else if (loadLevel == 1) {
-    classValue = "fa fa-circle text-green";
-    titleValue = "1";
-  } else if (loadLevel == 2) {
-    classValue = "fa fa-circle text-yellow";
-    titleValue = "2";
-  } else if (loadLevel == 3) {
-    classValue = "fa fa-circle text-red";
-    titleValue = "3";
-  }
-  $(cellId).attr('class', classValue);
-  $(cellId).attr('title', titleValue);
-}
-
-//
-
-const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
+const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
   const metricGranularity = "1m";
   $.ajax({
     type: 'GET',
@@ -83,8 +60,8 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
         const item = result[i];
         const cellId = "#" + CSS.escape("cpu:" + item.metric.instance);
         const percentage = item.values[0][1];
-        const loadLevel = calculateLoadLevel(percentage);
-        setIcon(cellId, loadLevel);
+        const cellHtml = getCellHtml(percentage);
+        table.cell(cellId).data(cellHtml).draw();
       }
     },
     error: function() {
@@ -95,7 +72,7 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
 
 //
 
-const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
+const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
   $.ajax({
     type: 'GET',
     url: prometheusUri + "/api/v1/query_range?" +
@@ -119,8 +96,8 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds) => {
             const item = result[i];
             const cellId = "#" + CSS.escape("mem:" + item.metric.instance);
             const percentage = usedMemDict[item.metric.instance] / item.values[0][1] * 100;
-            const loadLevel = calculateLoadLevel(percentage);
-            setIcon(cellId, loadLevel);
+            const cellHtml = getCellHtml(percentage);
+            table.cell(cellId).data(cellHtml).draw();
           }
         },
         error: function() {
@@ -159,8 +136,8 @@ const loadData = () => {
           { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
         ]
       });
-      loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds);
-      loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds);
+      loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
+      loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
     },
     error: function() {
       alert("Error when loading data.");
