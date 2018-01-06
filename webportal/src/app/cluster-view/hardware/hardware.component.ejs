@@ -3,7 +3,7 @@
 <section class="content">
 <div class="box">
   <div class="box-body">
-    <table id="hardware-table" class="table table-bordered table-striped" style='vertical-align:middle'>
+    <table id="hardware-table" class="table row-border" style='vertical-align:middle'>
       <thead>
         <tr>
           <th>Machine Name</th>
@@ -28,14 +28,24 @@
         <tr>
           <td><a href="<%= href %>"><%= machineName %></a></td>
           <td><%= ipAddress %></td>
-          <td id='cpu<%= idSuffix %>' style='text-align:center'><i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
-          <td id='mem<%= idSuffix %>' style='text-align:center'><i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i></td>
+          <td id='cpu<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i>
+          </td>
+          <td id='mem<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i>
+          </td>
           <td id='gpu<%= idSuffix %>' style='text-align:center'>
             <i class="fa fa-circle" title="1" style="color:pink"></i>
           </td>
-          <td id='gpumem<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle-thin text-grey" title="0"></i></td>
-          <td id='disk<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle text-yellow" title="2"></i></td>
-          <td id='eth<%= idSuffix %>' style='text-align:center'><i class="fa fa-circle text-green" title="1"></i></td>
+          <td id='gpumem<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-circle-thin text-grey" title="0"></i>
+          </td>
+          <td id='disk<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i>
+          </td>
+          <td id='eth<%= idSuffix %>' style='text-align:center'>
+            <i class="fa fa-spinner fa-pulse fa-fw text-grey" title="0"></i>
+          </td>
         </tr>
         <%
           }

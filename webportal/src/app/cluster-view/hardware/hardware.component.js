@@ -88,24 +88,24 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
     url: prometheusUri + "/api/v1/query_range?" +
       "query=node_memory_MemTotal+-+node_memory_MemFree+-+node_memory_Buffers+-+node_memory_Cached" +
       "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
-    success: function(usedMemData) {
-      let usedMemDict = {};
-      const result = usedMemData.data.result;
+    success: function(dataOfMemUsed) {
+      let dictOfMemUsed = {};
+      const result = dataOfMemUsed.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        usedMemDict[item.metric.instance] = item.values[0][1];
+        dictOfMemUsed[item.metric.instance] = item.values[0][1];
       }
       $.ajax({
         type: 'GET',
         url: prometheusUri + "/api/v1/query_range?" +
           "query=node_memory_MemTotal" +
           "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
-        success: function(totalMemData) {
-          const result = totalMemData.data.result;
+        success: function(dataOfMemTotal) {
+          const result = dataOfMemTotal.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
             const cellId = "#" + CSS.escape("mem:" + item.metric.instance);
-            const percentage = usedMemDict[item.metric.instance] / item.values[0][1] * 100;
+            const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
             table.cell(cellId).data(cellHtml).draw();
           }
@@ -123,13 +123,105 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
 
 //
 
+const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
+  const metricGranularity = "1m";
+  $.ajax({
+    type: 'GET',
+    url: prometheusUri + "/api/v1/query_range?" +
+      "query=sum+by+(instance)(rate(node_disk_bytes_read%5B" + metricGranularity + "%5D))" +
+      "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+    success: function(dataOfDiskBytesRead) {
+      let dictOfDiskBytesRead = {};
+      const result = dataOfDiskBytesRead.data.result;
+      for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        dictOfDiskBytesRead[item.metric.instance] = item.values[0][1];
+      }
+      $.ajax({
+        type: 'GET',
+        url: prometheusUri + "/api/v1/query_range?" +
+          "query=sum+by+(instance)(rate(node_disk_bytes_written%5B" + metricGranularity + "%5D))" +
+          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+        success: function(dataOfDiskBytesWritten) {
+          const result = dataOfDiskBytesWritten.data.result;
+          for (let i = 0; i < result.length; i++) {
+            const item = result[i];
+            const cellId = "#" + CSS.escape("disk:" + item.metric.instance);
+            const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
+            const diskBytesWritten = item.values[0][1];
+            const p1 = Math.min(1, (diskBytesRead / 1024 / 1024) / 500) * 100;
+            const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
+            const percentage = Math.max(p1, p2);
+            const cellHtml = getCellHtml(percentage);
+            table.cell(cellId).data(cellHtml).draw();
+          }
+        },
+        error: function() {
+          alert("Error when loading disk utilization data (step 2).");
+        }      
+      });
+    },
+    error: function() {
+      alert("Error when loading disk utilization data (step 1).");
+    }
+  });
+}
+
+//
+
+const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
+  const metricGranularity = "1m";
+  $.ajax({
+    type: 'GET',
+    url: prometheusUri + "/api/v1/query_range?" +
+      "query=sum+by+(instance)(rate(node_network_receive_bytes%5B" + metricGranularity + "%5D))" +
+      "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+    success: function(dataOfEthBytesRecieved) {
+      let dictOfEthBytesRecieved = {};
+      const result = dataOfEthBytesRecieved.data.result;
+      for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        dictOfEthBytesRecieved[item.metric.instance] = item.values[0][1];
+      }
+      $.ajax({
+        type: 'GET',
+        url: prometheusUri + "/api/v1/query_range?" +
+          "query=sum+by+(instance)(rate(node_disk_bytes_written%5B" + metricGranularity + "%5D))" +
+          "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
+        success: function(dataOfEthBytesSent) {
+          const result = dataOfEthBytesSent.data.result;
+          for (let i = 0; i < result.length; i++) {
+            const item = result[i];
+            const cellId = "#" + CSS.escape("eth:" + item.metric.instance);
+            const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
+            const ethBytesSent = item.values[0][1];
+            const p1 = Math.min(1, (ethBytesReceived / 1024 / 1024) / 100) * 100;
+            const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
+            const percentage = Math.max(p1, p2);
+            const cellHtml = getCellHtml(percentage);
+            table.cell(cellId).data(cellHtml).draw();
+          }
+        },
+        error: function() {
+          alert("Error when loading disk utilization data (step 2).");
+        }      
+      });
+    },
+    error: function() {
+      alert("Error when loading disk utilization data (step 1).");
+    }
+  });
+}
+
+//
+
 const loadData = () => {
   const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
   let table = null;
   $.ajax({
     type: 'GET',
     url: webportalConfig.prometheusUri + "/api/v1/query?" +
-        "query=node_uname_info&time=" + currentEpochTimeInSeconds,
+      "query=node_uname_info&time=" + currentEpochTimeInSeconds,
     success: function(data) {
       const hardwareHtml = hardwareComponent({
         breadcrumb: breadcrumbComponent,
@@ -148,6 +240,8 @@ const loadData = () => {
       });
       loadCpuUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
       loadMemUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
+      loadDiskUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
+      loadEthUtilData(webportalConfig.prometheusUri, currentEpochTimeInSeconds, table);
     },
     error: function() {
       alert("Error when loading data.");
