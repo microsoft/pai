@@ -168,7 +168,7 @@ func main() {
         return   
     }
  
-    for ; ; {
+    for ;; {
         log.Print("gpu_server flag" + *mode)
         writeMetricsToFile(*logDir)
         time.Sleep(time.Duration(*sleepTime) * time.Second)  
