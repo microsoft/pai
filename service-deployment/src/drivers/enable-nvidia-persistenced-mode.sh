@@ -17,17 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
-    ./install-nvidia-drivers || exit $?
-    echo NVIDIA gpu detected, drivers installed
+echo === Enable nvidia persistenced mode
+nvidia-persistenced --persistence-mode || exit $?
 
-    ./enable-nvidia-persistenced-mode.sh || exit $?
+echo === Recall nvidia-smi
+nvidia-smi || exit $?
 
-else
-    echo NVIDIA gpu not detected, skipping driver installation
-fi
-
-mkdir -p /jobstatus
-touch /jobstatus/jobok
-
-while true; do sleep 1000; done
+echo === Persistence-mode enabled
