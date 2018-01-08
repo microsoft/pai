@@ -1207,6 +1207,10 @@ datatables.net-bs@^1.10.15:
     datatables.net "1.10.16"
     jquery ">=1.7"
 
+datatables.net-plugins@1.10.15:
+  version "1.10.15"
+  resolved "https://registry.yarnpkg.com/datatables.net-plugins/-/datatables.net-plugins-1.10.15.tgz#906deebff75010ab4c275f8058b4b60d2c8f3157"
+
 datatables.net@1.10.16, datatables.net@^1.10.15:
   version "1.10.16"
   resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.10.16.tgz#4b052d1082824261b68eed9d22741b711d3d2469"
