@@ -335,7 +335,7 @@ const loadData = () => {
 
 //
 
-function resizeContentWrapper() {
+const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
@@ -345,13 +345,10 @@ function resizeContentWrapper() {
 
 //
 
-window.onresize = function (envent) {
-  resizeContentWrapper();
-}
-
-//
-
 $(document).ready(() => {
+  window.onresize = function (envent) {
+    resizeContentWrapper();
+  }
   resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
