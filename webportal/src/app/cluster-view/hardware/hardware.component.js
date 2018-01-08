@@ -23,7 +23,7 @@ require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/ip-address.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
-const url = require('url');
+require('./hardware.component.scss');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loading = require('../../job/loading/loading.component');
@@ -34,34 +34,47 @@ let table = null;
 //
 
 const getCellHtml = (percentage) => {
-  percentage *= 20;
-  let classValue = "fa fa-circle";
-  let h = (1.0 - percentage / 100) * 240;
-  let s = 100;
-  let l = 50;
-  border = false;
-  if (h > 180) {
-    l = 50 + (h - 180) / 60 * 50;
-    h = 180;
-    border = true;
+  innerColorString = "";
+  outerColorString = "";
+  loadLevelString = "";
+  if (percentage < 10) {
+    innerColorString = "hsl(165, 100%, 50%)";
+    outerColorString = "hsl(165, 100%, 50%)";
+    loadLevelString = "Very light load";
+  } else if (percentage >= 10 && percentage < 40) {
+    innerColorString = "hsl(120, 100%, 50%)";
+    outerColorString = "hsl(120, 100%, 50%)";
+    loadLevelString = "Light load";
+  } else if (percentage >= 40 && percentage < 60) {
+    innerColorString = "hsl(45, 100%, 50%)";
+    outerColorString = "hsl(45, 100%, 50%)";
+    loadLevelString = "Medium load";
+  } else if (percentage >= 60 && percentage < 80) {
+    innerColorString = "hsl(30, 100%, 50%)";
+    outerColorString = "hsl(30, 100%, 50%)";
+    loadLevelString = "Heavy load";
+  } else if (percentage >= 80 && percentage < 95) {
+    innerColorString = "hsl(0, 100%, 50%)";
+    outerColorString = "hsl(0, 100%, 50%)";
+    loadLevelString = "Very heavy load";
+  } else if (percentage >= 95) {
+    innerColorString = "hsl(0, 100%, 25%)";
+    outerColorString = "hsl(0, 100%, 25%)";
+    loadLevelString = "Extremely heavy load";
   }
-  const colorString = "hsl(" + h + "," + s + "%," + l + "%)";
+  const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
-  if (border) {
-    cellHtml += "<span class='fa-stack' title=\"" + percentage + "\" style='width:14px;height:14px;'>";
-    cellHtml += "<i class='fa fa-circle fa-stack-1x' style='top:-7px;color:" + colorString + "'></i>";
-    cellHtml += "<i class='fa fa-circle-o fa-stack-1x' style='top:-7px;color:cyan'></i>";
-    cellHtml += "</span>";
-  } else {
-    cellHtml += "<i class='fa fa-circle' title=\"" + percentage + "\" style='color:" + colorString + "'></i>";
-  }
+  cellHtml += "<span class='fa-stack metric-span' title=\"" + title + "\">";
+  cellHtml += "<i class='fa fa-circle fa-stack-1x metric-icon' style='color:" + innerColorString + "'></i>";
+  cellHtml += "<i class='fa fa-circle-thin fa-stack-1x metric-icon' style='color:" + outerColorString + "'></i>";
+  cellHtml += "</span>";
   return cellHtml;
 }
 
 //
 
 const initCells = (idPrefix, instanceList, table) => {
-  const noDataCellHtml = "<font color='silver' title=\"-1\">N/A</font>";
+  const noDataCellHtml = "<font color='silver' title=\"0% (N/A)\">N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
     const cellId = "#" + CSS.escape(idPrefix + ":" + instanceList[i]);
     table.cell(cellId).data(noDataCellHtml).draw();
@@ -295,7 +308,6 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 
 const loadData = () => {
   const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
-  //let table = null;
   $.ajax({
     type: 'GET',
     url: webportalConfig.prometheusUri + "/api/v1/query?" +
