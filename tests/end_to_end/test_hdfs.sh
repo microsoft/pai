@@ -20,7 +20,7 @@
 
 . utils.sh
 
-eval $(parse_yaml $$cluster_config "pai_")
+eval $(parse_yaml $cluster_config "pai_")
 hdfs_uri=$pai_clusterinfo_restserverinfo_hdfs_uri
 webhdfs_uri="$(echo $hdfs_uri | sed -e "s/^hdfs/http/g" | sed -e "s/9000/50070/g")"
 

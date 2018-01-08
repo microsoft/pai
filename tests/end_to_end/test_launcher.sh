@@ -20,7 +20,7 @@
 
 . utils.sh
 
-eval $(parse_yaml $$cluster_config "pai_")
+eval $(parse_yaml $cluster_config "pai_")
 launcher_uri=$pai_clusterinfo_restserverinfo_webservice_uri
 
 
