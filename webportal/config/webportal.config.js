@@ -27,7 +27,8 @@ let config = {
   restServerUri: process.env.REST_SERVER_URI,
   prometheusUri: process.env.PROMETHEUS_URI,
   grafanaUri: process.env.GRAFANA_URI,
-  k8sDashboardUri: process.env.K8S_DASHBOARD_URI
+  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
+  k8sApiServerUri: process.env.K8S_API_SERVER_URI
 };
 
 // module exports

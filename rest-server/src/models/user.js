@@ -15,7 +15,10 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 // module dependencies
+const path = require('path');
+const fse = require('fs-extra');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const crypto = require('crypto');
@@ -39,6 +42,7 @@ defaultValue[config.lowdbAdmin] = {
   passwd: encrypt(config.lowdbAdmin, config.lowdbPasswd),
   admin: true
 };
+fse.ensureDirSync(path.dirname(config.lowdbFile));
 const adapter = new FileSync(config.lowdbFile, { defaultValue: defaultValue });
 const db = low(adapter);
 

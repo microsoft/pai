@@ -174,7 +174,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
 
       FrameworkRequest frameworkRequest = aggFrameworkRequests.get(frameworkName).getFrameworkRequest();
-      if (frameworkRequest.getFrameworkDescriptor().getVersion().equals(frameworkVersion)) {
+      if (!frameworkRequest.getFrameworkDescriptor().getVersion().equals(frameworkVersion)) {
         // Framework is already upgraded.
         // Note although FrameworkStatus maybe older than FrameworkRequest, it is still unchanged if version matched,
         // since CompletedFrameworks are in FINAL_STATES.
@@ -187,7 +187,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         continue;
       }
 
-      if (currentTimestamp - frameworkCompletedTimestamp <= conf.getFrameworkCompletedRetainSec()) {
+      if (currentTimestamp - frameworkCompletedTimestamp <= conf.getFrameworkCompletedRetainSec() * 1000) {
         // Framework should be retained in recent FrameworkCompletedRetainSec.
         continue;
       }
@@ -195,7 +195,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       // Framework is allowed to GC now.
       LOGGER.logInfo(
           "[%s]: gcCompletedFrameworks: " +
-              "Since its FrameworkCompletedTime [%s] is beyond the FrameworkCompletedRetainSec [%s] now [{%s}]",
+              "Since its FrameworkCompletedTime [%sms] is beyond the FrameworkCompletedRetainSec [%ss] now [%sms]",
           frameworkName,
           frameworkCompletedTimestamp,
           conf.getFrameworkCompletedRetainSec(),

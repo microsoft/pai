@@ -30,6 +30,16 @@ const jobSubmitHtml = jobSubmitComponent({
   loading: loadingComponent
 });
 
+const isValidJson = (str) => {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    alert('Please upload a valid json file: ' + e.message);
+    return false;
+  }
+};
+
 const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
@@ -67,8 +77,10 @@ $(document).ready(() => {
   $(document).on('change', '#file', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-      const jobConfig = JSON.parse(event.target.result);
-      submitJob(jobConfig);
+      const jobConfig = event.target.result;
+      if (isValidJson(jobConfig)) {
+        submitJob(JSON.parse(jobConfig));
+      }
     };
     reader.readAsText(event.target.files[0]);
   });

@@ -28,25 +28,29 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
+      nodeSelector:
+        prom: node-exporter
       containers:
       - image: prom/node-exporter
         volumeMounts:
-        - mountPath: {{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}
+        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/promethues
           name: collector-mount
         name: node-exporter
         args:
-          - '--collector.textfile.directory={{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}'
+          - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/promethues'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter
+        securityContext:
+          privileged: true
         volumeMounts:
         - mountPath: /dev
           name: device-mount
         - mountPath: /var/drivers
           name: driver-path
-        - mountPath: /tmp
+        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/promethues
           name: collector-mount
         name: gpu-exporter
       volumes:
@@ -58,7 +62,7 @@ spec:
             path: /var/drivers
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo['prometheusinfo']['node_exporter_textfile_dir'] }}
+            path: {{ clusterinfo[ 'dataPath' ] }}/promethues
       hostNetwork: true
       hostPID: true
 
