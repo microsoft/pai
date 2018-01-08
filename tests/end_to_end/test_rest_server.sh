@@ -20,7 +20,7 @@
 
 . utils.sh
 
-eval $(parse_yaml $$cluster_config "pai_")
+eval $(parse_yaml $cluster_config "pai_")
 rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
 
 

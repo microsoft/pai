@@ -25,5 +25,22 @@ install_bats() {
   cd -
 }
 
+install_paifs() {
+  cp -r ../../../pai-fs ./
+  cd pai-fs
+  pip install -r requirements.txt
+  cd -
+}
+
+prepare_cntk_job() {
+  git clone https://github.com/Microsoft/CNTK.git
+}
+
 apt-get install -y dos2unix
+
+mkdir -p local
+cd local
 install_bats
+install_paifs
+prepare_cntk_job
+cd -

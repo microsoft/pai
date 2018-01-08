@@ -20,12 +20,33 @@
 
 . utils.sh
 
-eval $(parse_yaml $$cluster_config "pai_")
-hdfs_uri=$pai_clusterinfo_restserverinfo_hdfs_uri
-webhdfs_uri="$(echo $hdfs_uri | sed -e "s/^hdfs/http/g" | sed -e "s/9000/50070/g")"
+eval $(parse_yaml $cluster_config "pai_")
+hdfs_host=$pai_clusterinfo_hadoopinfo_hadoop_vip
+paifs_arg="--host $hdfs_host --port 50070 --user root"
 
 
-@test "check framework launcher health check" {
-  result="$(curl $webhdfs_uri/webhdfs/v1/?op=LISTSTATUS)"
-  [[ $result == *FileStatuses* ]]
+@test "list hdfs root dir" {
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  [[ $result == *Launcher* ]]
+}
+
+@test "make hdfs test root dir" {
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test)"
+  [[ ! $result == *Error* ]]
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  [[ $result == *Test* ]]
+}
+
+@test "make hdfs test sub dir" {
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/launcher)"
+  [[ ! $result == *Error* ]]
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/cntk)"
+  [[ ! $result == *Error* ]]
+}
+
+@test "upload cntk data to hdfs" {
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -r local/CNTK/Examples/SequenceToSequence/CMUDict/Data hdfs://Test/cntk/)"
+  [[ ! $result == *Error* ]]
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -r local/CNTK/Examples/SequenceToSequence/CMUDict/BrainScript hdfs://Test/cntk/)"
+  [[ ! $result == *Error* ]]
 }

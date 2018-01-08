@@ -20,11 +20,17 @@
 
 . utils.sh
 
-eval $(parse_yaml $$cluster_config "pai_")
+eval $(parse_yaml $cluster_config "pai_")
 launcher_uri=$pai_clusterinfo_restserverinfo_webservice_uri
 
 
 @test "check framework launcher health check" {
   result="$(curl $launcher_uri)"
   [[ $result == *Active* ]]
+}
+
+@test "submit framework launcher test job" {
+  job_name="launcher-test-$RANDOM-$RANDOM"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  [[ ! $result == *Error* ]]
 }
