@@ -33,6 +33,12 @@ let table = null;
 
 //
 
+const getCellId = (instanceName) => {
+  return "#" + instanceName.replace(/(:|\.|\[|\]|,|=|@)/g, "\\$1");
+}
+
+//
+
 const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
@@ -76,7 +82,7 @@ const getCellHtml = (percentage) => {
 const initCells = (idPrefix, instanceList, table) => {
   const noDataCellHtml = "<font color='silver' title=\"0% (N/A)\">N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
-    const cellId = "#" + CSS.escape(idPrefix + ":" + instanceList[i]);
+    const cellId = getCellId(idPrefix + ":" + instanceList[i]);
     table.cell(cellId).data(noDataCellHtml).draw();
   }
 }
@@ -95,7 +101,7 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = "#" + CSS.escape("cpu:" + item.metric.instance);
+        const cellId = getCellId("cpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml).draw();
@@ -133,7 +139,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
           const result = dataOfMemTotal.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = "#" + CSS.escape("mem:" + item.metric.instance);
+            const cellId = getCellId("mem:" + item.metric.instance);
             const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
             table.cell(cellId).data(cellHtml).draw();
@@ -166,7 +172,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = "#" + CSS.escape("gpu:" + item.metric.instance);
+        const cellId = getCellId("gpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml).draw();
@@ -193,7 +199,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
       const result = data.data.result;
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const cellId = "#" + CSS.escape("gpumem:" + item.metric.instance);
+        const cellId = getCellId("gpumem:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
         table.cell(cellId).data(cellHtml).draw();
@@ -232,7 +238,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
           const result = dataOfDiskBytesWritten.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = "#" + CSS.escape("disk:" + item.metric.instance);
+            const cellId = getCellId("disk:" + item.metric.instance);
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
             const p1 = Math.min(1, (diskBytesRead / 1024 / 1024) / 500) * 100;
@@ -281,7 +287,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
           const result = dataOfEthBytesSent.data.result;
           for (let i = 0; i < result.length; i++) {
             const item = result[i];
-            const cellId = "#" + CSS.escape("eth:" + item.metric.instance);
+            const cellId = getCellId("eth:" + item.metric.instance);
             const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
             const p1 = Math.min(1, (ethBytesReceived / 1024 / 1024) / 100) * 100;
