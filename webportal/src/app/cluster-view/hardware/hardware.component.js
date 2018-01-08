@@ -28,6 +28,7 @@ const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
+let table = null;
 
 //
 
@@ -217,7 +218,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, table) => {
 
 const loadData = () => {
   const currentEpochTimeInSeconds = (new Date).getTime() / 1000;
-  let table = null;
+  //let table = null;
   $.ajax({
     type: 'GET',
     url: webportalConfig.prometheusUri + "/api/v1/query?" +
@@ -253,7 +254,10 @@ const loadData = () => {
 
 function resizeContentWrapper() {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+  if (table != null) {
+    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    table.columns.adjust().draw();
+  }
 }
 
 //
