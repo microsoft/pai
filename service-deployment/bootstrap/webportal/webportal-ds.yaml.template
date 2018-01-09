@@ -37,6 +37,8 @@ spec:
         env:
         - name: REST_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+        - name: PROMETHEUS_URI
+          value: {{ clusterinfo['webportalinfo']['prometheus_uri'] }}
         - name: GRAFANA_URI
           value: {{ clusterinfo['webportalinfo']['grafana_uri'] }}
         - name: K8S_DASHBOARD_URI
