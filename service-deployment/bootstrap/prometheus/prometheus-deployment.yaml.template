@@ -30,7 +30,7 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        prom: prom
+        prom: true
       containers:
       - name: prometheus
         image: quay.io/coreos/prometheus:v1.1.1
