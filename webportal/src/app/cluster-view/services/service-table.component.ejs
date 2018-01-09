@@ -1,3 +1,4 @@
+<div class="table-container">
 <table class="table table-hover">
   <thead>
     <tr>
@@ -8,19 +9,23 @@
   </thead>
   <tbody>
     <% for(let i = 0; i < data.length; i ++) { %>
+      <% let node = data[i].node.metadata; %>
       <tr>
-        <td><%= data[i].node.metadata.name %></td>
+        <td><a href="<%= grafanaUri + '/dashboard/db/pai_nodeview?var-node=' + node.name + ':' + exporterPort %>"> <%= node.name %></a></td>
         <td>
+         
           <% for(let k in data[i].node.metadata.labels) { %>
-            <button type="button" class="btn btn-primary"> <%= k + ': ' + data[i].node.metadata.labels[k] %> </button>
+            <span class="label label-primary" style="font-weight: 500"> <%= k + ': ' + data[i].node.metadata.labels[k] %> </span>
           <% } %>
         </td>
-        <td>
-          <% for(let j = 0; j < data[i].podList.length; j++) { %>         
+        <td class="service-td">
+          <% for(let j = 0; j < data[i].podList.length; j++) { %>
+            <% let pod = data[i].podList[j].metadata; %>                 
             <% if(data[i].podList[j].status.phase == "Running") { %>
-              <button type="button" class="btn btn-success"> <%= data[i].podList[j].metadata.name %> </button>  
+              <a class="btn btn-success" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> 
+              <%= data[i].podList[j].metadata.name %> </a>  
             <% } else{ %>
-              <button type="button" class="btn btn-danger"> <%= data[i].podList[j].metadata.name %> </button>
+              <a class="btn btn-danger" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> <%= data[i].podList[j].metadata.name %> </a>
             <% } %>      
           <% } %>
         </td>
@@ -28,3 +33,4 @@
     <% } %>
   </tbody>
 </table>
+</div>

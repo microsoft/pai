@@ -37,9 +37,15 @@ const serviceViewHtml = serviceViewComponent({
 const loadServices = () => {
   loading.showLoading();
   service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
+    console.log(data);
+  });
+  service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
-      data
+      data,
+      k8sUri: webportalConfig.k8sApiServerUri,
+      grafanaUri: webportalConfig.grafanaUri,
+      exporterPort: webportalConfig.exporterPort
     }));
   });
 };
@@ -49,10 +55,14 @@ window.loadServices = loadServices;
 
 $('#sidebar-menu--cluster-view').addClass('active');
 $('#sidebar-menu--cluster-view--services').addClass('active');
+
+
+
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
 });
+
 
 module.exports = { loadServices };
 

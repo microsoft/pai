@@ -1,5 +1,10 @@
-.btn{
-  padding: 3px 3px;
+.btn, .label{
+  padding: 3px;
   margin: 2px;
-  font-size: 12px;
+  font-size: 13px;
+}
+
+table{
+  min-width: 3500px;
+  overflow:auto;
 }
