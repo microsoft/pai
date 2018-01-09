@@ -31,9 +31,18 @@ spec:
       nodeSelector:
         pylon: "true"
       containers:
-        - name: rest-server
+        - name: pylon
           image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon
           imagePullPolicy: Always
+          env:
+            - name: REST_SERVER_URI
+              value: {{ clusterinfo['pyloninfo']['rest_server_uri'] }}
+            - name: PROMETHEUS_URI
+              value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
+            - name: K8S_API_SERVER_URI
+              value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
+            - name: WEBHDFS_URI
+              value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
           ports:
             - name: pylon
               containerPort: 80

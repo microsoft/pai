@@ -17,4 +17,6 @@
 
 FROM nginx:1.13.8
 
-COPY copied_file/pylon/src/nginx.conf /etc/nginx/nginx.conf
+COPY copied_file/pylon/src/nginx.conf.template /etc/nginx/nginx.conf.template
+
+CMD /bin/bash -c "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"

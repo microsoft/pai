@@ -38,6 +38,11 @@ http {
     server_name  localhost;
 
     # General-purpose reverse proxy.
+    location ~ ^/test$ {
+      return 200 ${PROMETHEUS_URI};
+    }
+
+    # General-purpose reverse proxy.
     location ~ ^/r/(http|https)/([^/]+)/(\d*)/(.*)$ {
       set $target_scheme $1;
       set $target_host   $2;
