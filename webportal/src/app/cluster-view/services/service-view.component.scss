@@ -4,11 +4,11 @@
   font-size: 13px;
 }
 
-th{
-	vertical-align: middle;
-}
-
-table{
+.table{
   min-width: 3000px;
   overflow:auto;
+}
+
+.table > thead > tr > th{
+  vertical-align: middle;
 }
