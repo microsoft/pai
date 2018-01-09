@@ -21,4 +21,7 @@
     {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prom=prom
     {% endif %}
+    {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prom=node-exporter
+    {% endif %}
 {% endfor %}

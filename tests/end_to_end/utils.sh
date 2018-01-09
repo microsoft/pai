@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,30 +17,26 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
 
-# Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
-
-# Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
-applicationTransientConflictMinDelaySec: 600
-
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
-
-# ApplicationMaster Setup
-amVersion: 0
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
-
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 5
+parse_yaml() {
+  local prefix=$2
+  local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+  sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+      -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" $1 |
+  awk -F$fs '{
+    indent = length($1)/2;
+    vname[indent] = $2;
+    for (i in vname) {
+      if (i > indent) {
+        delete vname[i];
+      }
+    }
+    if (length($3) > 0) {
+      vn="";
+      for (i=0; i<indent; i++) {
+        vn=(vn)(vname[i])("_");
+      }
+      printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+    }
+  }'
+}

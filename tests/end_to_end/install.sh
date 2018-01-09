@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,30 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
 
-# Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
+install_bats() {
+  git clone https://github.com/sstephenson/bats.git
+  cd bats
+  ./install.sh /usr/local
+  cd -
+}
 
-# Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
-applicationTransientConflictMinDelaySec: 600
-
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
-
-# ApplicationMaster Setup
-amVersion: 0
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
-
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 5
+apt-get install -y dos2unix
+install_bats

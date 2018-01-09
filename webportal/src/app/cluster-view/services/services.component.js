@@ -22,9 +22,10 @@ const loadingComponent = require('../../job/loading/loading.component.ejs');
 const serviceTableComponent = require('./service-table.component.ejs');
 const serviceViewComponent = require('./services.component.ejs');
 const loading = require('../../job/loading/loading.component');
-//const webportalConfig = require('../../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-
+const service = require('./service-info.js');
+require('./service-view.component.scss');
 
 const serviceViewHtml = serviceViewComponent({
   breadcrumb: breadcrumbComponent,
@@ -35,23 +36,11 @@ const serviceViewHtml = serviceViewComponent({
 
 const loadServices = () => {
   loading.showLoading();
-  $.ajax({
-    //url: `${webportalConfig.restServerUri}/api/v1/job`,
-    //type: 'GET',
-    success: (data) => {
-      loading.hideLoading();
-      if (data.error) {
-        alert(data.message);
-      } else {
-        $('#service-table').html(serviceTableComponent({
-          services: data      
-        }));
-      }
-    },
-    error: (xhr, textStatus, error) => {
-      const res = JSON.parse(xhr.responseText);
-      alert(res.message);
-    }
+  service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
+    loading.hideLoading();
+    $('#service-table').html(serviceTableComponent({
+      data
+    }));
   });
 };
 
@@ -65,4 +54,6 @@ $(document).ready(() => {
   loadServices();
 });
 
-module.exports = { loadservices }
+module.exports = { loadServices };
+
+

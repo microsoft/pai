@@ -84,10 +84,14 @@ clusterinfo:
   webportalinfo:
     # root url of the rest server
     rest_server_uri: http://10.0.3.9:9186
+    # root url of the prometheus server
+    prometheus_uri: http://10.0.1.9:9090
     # root url of the grafana portal
     grafana_uri: http://10.0.1.9:3000
     # root url of the k8s dashboard
     k8s_dashboard_uri: http://10.0.3.9:9090
+    # root url of the k8s apiserver
+    k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
 
@@ -174,7 +178,7 @@ machinelist:
     ip: 10.0.3.11
     hdfsrole: worker
     yarnrole: worker
-  
+    node-exporter: "true"
   # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
@@ -182,3 +186,4 @@ machinelist:
     ip: 10.0.3.12
     hdfsrole: worker
     yarnrole: worker
+    node-exporter: "true"
