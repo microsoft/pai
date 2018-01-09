@@ -18,39 +18,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-. utils.sh
+# Example script for CNTK job
 
-cluster_config=$1
-token_file="./etc/token.log"
-expiration="$((7*24*60*60))"
-dos2unix $cluster_config
+# hdfs address in IP:PORT format
+hdfs_addr=10.0.3.9:9000
 
-eval $(parse_yaml $cluster_config "pai_")
-rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
+# hdfs mount point
+mnt_point=/mnt/hdfs
 
-get_auth_token() {
-  printf "\nPlease login rest server first:\n"
-  read -rp "Username: " username
-  read -rp "Password: " -s password
-  printf "\n"
-  curl -H "Content-Type: application/json" -X POST -d "username=$username" -d "password=$password" -d "expiration=$expiration" $rest_server_uri/v1/token | sed -e "s/{token:\(.*\)}/\1/" > $token_file
-}
+# mount hdfs as a local file system
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
 
-printf "\nStarting end to end tests:\n"
-
-if [ ! -f $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
-  get_auth_token
-fi
-
-printf "\nTesting service ...\n"
-bats test_service.sh
-
-printf "\nTesting hdfs ...\n"
-cluster_config=$cluster_config bats test_hdfs.sh
-
-printf "\nTesting framework launcher ...\n"
-cluster_config=$cluster_config bats test_launcher.sh
-
-printf "\nTesting rest server ...\n"
-cluster_config=$cluster_config bats test_rest_server.sh
+# download CNTK G2P BrainScript example and upload to hdfs
+# https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

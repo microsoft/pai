@@ -36,6 +36,7 @@ prepare_cntk_job() {
   git clone https://github.com/Microsoft/CNTK.git
 }
 
+
 apt-get install -y dos2unix
 
 mkdir -p local

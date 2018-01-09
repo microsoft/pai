@@ -50,3 +50,8 @@ paifs_arg="--host $hdfs_host --port 50070 --user root"
   result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -r local/CNTK/Examples/SequenceToSequence/CMUDict/BrainScript hdfs://Test/cntk/)"
   [[ ! $result == *Error* ]]
 }
+
+@test "upload cntk start script to hdfs" {
+  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp etc/cntk.sh hdfs://Test/cntk/BrainScript/)"
+  [[ ! $result == *Error* ]]
+}
