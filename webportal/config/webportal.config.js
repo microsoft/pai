@@ -28,7 +28,7 @@ let config = {
   grafanaUri: process.env.GRAFANA_URI,
   k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
   k8sApiServerUri: process.env.K8S_API_SERVER_URI,
-  exportPort: process.env.EXPORT_PORT
+  exporterPort: process.env.EXPORTER_PORT
 };
 
 // module exports

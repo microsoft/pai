@@ -45,7 +45,7 @@ const loadServices = () => {
       data,
       k8sUri: webportalConfig.k8sApiServerUri,
       grafanaUri: webportalConfig.grafanaUri,
-      exportPort: webportalConfig.exportPort
+      exporterPort: webportalConfig.exporterPort
     }));
   });
 };

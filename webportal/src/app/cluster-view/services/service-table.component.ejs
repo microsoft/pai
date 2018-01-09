@@ -11,7 +11,7 @@
     <% for(let i = 0; i < data.length; i ++) { %>
       <% let node = data[i].node.metadata; %>
       <tr>
-        <td><a href="<%= grafanaUri + '/dashboard/db/pai_nodeview?var-node=' + node.name + ':' + exportPort %>"> <%= node.name %></a></td>
+        <td><a href="<%= grafanaUri + '/dashboard/db/pai_nodeview?var-node=' + node.name + ':' + exporterPort %>"> <%= node.name %></a></td>
         <td>
          
           <% for(let k in data[i].node.metadata.labels) { %>
@@ -29,7 +29,7 @@
             <% } %>      
           <% } %>
         </td>
-      </tr> 
+      </tr>
     <% } %>
   </tbody>
 </table>

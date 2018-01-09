@@ -43,7 +43,7 @@ spec:
           value: {{ clusterinfo['webportalinfo']['k8s_dashboard_uri'] }}
         - name: K8S_API_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
-        - name: EXPORT_PORT
+        - name: EXPORTER_PORT
           value: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
         ports:
         - name: webportal
