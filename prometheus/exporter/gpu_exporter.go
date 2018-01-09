@@ -113,7 +113,6 @@ func writeMetricsToFile(logDir string) {
     var cmd *exec.Cmd            
     
     cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
-
     // Execute system command
     stdout, err := cmd.Output()
     if err != nil {
