@@ -135,11 +135,16 @@ proxymachinelist:
 
 ## bootstrap
 
-```yaml
-sudo ./bootstrap.py -p yourclusterconfig.yaml
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml -d
 ```
 
 ## Destroy your cluster
-```yaml
+```bash
 sudo ./bootstrap.py -p yourclusterconfig.yaml -c
+```
+
+## Only install kubectl into your dev-box
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml
 ```
