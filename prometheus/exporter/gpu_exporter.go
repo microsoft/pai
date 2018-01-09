@@ -112,8 +112,8 @@ func writeMetricsToFile(logDir string) {
     defer dstFile.Close()
     var cmd *exec.Cmd            
     
-    cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
-
+    //cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
+    cmd = exec.Command("/var/drivers/nvidia/current/bin/nvidia-smi", "-q", "-x")
     // Execute system command
     stdout, err := cmd.Output()
     if err != nil {

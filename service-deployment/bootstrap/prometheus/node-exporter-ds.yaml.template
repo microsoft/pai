@@ -29,7 +29,7 @@ spec:
       name: node-exporter
     spec:
       nodeSelector:
-        prom: node-exporter
+        node-exporter: node-exporter
       containers:
       - image: prom/node-exporter
         volumeMounts:
