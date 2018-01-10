@@ -18,22 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Example script for CNTK job
-
-# hdfs address in IP:PORT format
-hdfs_addr=10.0.3.9:9000
-
-# hdfs mount point
 mnt_point=/mnt/hdfs
 
-# mount hdfs as a local file system
 mkdir -p $mnt_point
 hdfs-mount $hdfs_addr $mnt_point &
-export DATA_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_DATA_DIR)
-export OUTPUT_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
+export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
-
-# download CNTK G2P BrainScript example and upload to hdfs
-# https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
 sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
 cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
