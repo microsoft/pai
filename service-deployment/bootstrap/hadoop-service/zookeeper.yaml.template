@@ -31,7 +31,7 @@ spec:
         zookeeper: "true"
       containers:
       - name: zookeeper
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper:clusterinfo['dockerregistryinfo']['docker_tag']
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /var/lib/zoodata

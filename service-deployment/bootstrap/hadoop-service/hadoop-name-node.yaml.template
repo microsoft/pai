@@ -31,7 +31,7 @@ spec:
         hdfsrole: master
       containers:
       - name:  hadoop-name-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:clusterinfo['dockerregistryinfo']['docker_tag']
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /var/lib/hdfs/name

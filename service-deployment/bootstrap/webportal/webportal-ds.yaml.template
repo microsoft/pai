@@ -32,7 +32,7 @@ spec:
         webportal: "true"
       containers:
       - name: webportal
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal:clusterinfo['dockerregistryinfo']['docker_tag']
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         env:
         - name: REST_SERVER_URI

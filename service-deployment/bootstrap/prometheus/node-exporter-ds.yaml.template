@@ -42,7 +42,7 @@ spec:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:clusterinfo['dockerregistryinfo']['docker_tag']
+      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         securityContext:
           privileged: true
         volumeMounts:

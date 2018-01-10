@@ -31,7 +31,7 @@ spec:
         launcher: "true"
       containers:
       - name: frameworklauncher
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}frameworklauncher:clusterinfo['dockerregistryinfo']['docker_tag']
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /hadoop-configuration
