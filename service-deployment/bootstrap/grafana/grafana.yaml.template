@@ -16,7 +16,7 @@ spec:
         grafana: "true"
       containers:
       - name: grafana
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana:clusterinfo['dockerregistryinfo']['docker_tag']
         imagePullPolicy: Always
         ports:
         - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}

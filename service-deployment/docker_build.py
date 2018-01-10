@@ -233,8 +233,7 @@ def push_docker_images(cluster_config, service_config, target):
                     shell=True
                 )
             except subprocess.CalledProcessError as dockerpusherr:
-                print
-                "failed to push {0}".format(image)
+                print "failed to push {0}".format(image)
                 sys.exit(1)
 
         print "success push all the images"
@@ -258,8 +257,7 @@ def push_docker_images(cluster_config, service_config, target):
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
-            print
-            "failed to push {0}".format(image)
+            print "failed to push {0}".format(image)
             sys.exit(1)
 
 
