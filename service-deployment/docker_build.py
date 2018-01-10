@@ -219,11 +219,10 @@ def push_docker_images(cluster_config, service_config, target):
         for image in image_list:
 
             try:
-                if docker_registry != 'public':
-                    subprocess.check_call(
-                        "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
-                        shell=True
-                    )
+                subprocess.check_call(
+                    "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
+                    shell=True
+                )
             except subprocess.CalledProcessError as dockertagerr:
                 print "failed to tag {0}".format(image)
                 sys.exit(1)
@@ -245,11 +244,10 @@ def push_docker_images(cluster_config, service_config, target):
         image = target
 
         try:
-            if docker_registry != 'public':
-                subprocess.check_call(
-                    "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
-                    shell=True
-                )
+            subprocess.check_call(
+                "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
+                shell=True
+            )
         except subprocess.CalledProcessError as dockertagerr:
             print "failed to tag {0}".format(image)
             sys.exit(1)
