@@ -110,8 +110,13 @@ class Job {
                 appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
                 appExitType: framework.frameworkStatus.applicationExitType
               };
-              if (framework.frameworkStatus.frameworkRetryPolicyState.retriedCount) {
-                job.jobStatus.retries = framework.frameworkStatus.frameworkRetryPolicyState.retriedCount;
+              const retryInfo = framework.frameworkStatus.frameworkRetryPolicyState;
+              if (retryInfo) {
+                job.jobStatus.retries =
+                  retryInfo.transientNormalRetriedCount +
+                  retryInfo.transientConflictRetriedCount +
+                  retryInfo.nonTransientRetriedCount +
+                  retryInfo.unKnownRetriedCount;
               }
             }
             if (framework.aggregatedTaskRoleStatuses) {
