@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+account_file="./etc/account.config"
+
 install_bats() {
   git clone https://github.com/sstephenson/bats.git
   cd bats
@@ -36,6 +38,14 @@ prepare_cntk_job() {
   git clone https://github.com/Microsoft/CNTK.git
 }
 
+get_test_account() {
+  printf "\nPlease provide a test account:\n"
+  read -rp "Username: " username
+  read -rp "Password: " -s password
+  printf "\n"
+  echo "$username:$password\n" > $account_file
+}
+
 
 apt-get install -y dos2unix
 
@@ -44,4 +54,5 @@ cd local
 install_bats
 install_paifs
 prepare_cntk_job
+get_test_account
 cd -

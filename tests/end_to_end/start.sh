@@ -21,7 +21,8 @@
 . utils.sh
 
 cluster_config=$1
-token_file="./etc/token.log"
+account_file="./etc/account.config"
+token_file="./etc/token.config"
 expiration="$((7*24*60*60))"
 dos2unix $cluster_config
 
@@ -29,11 +30,9 @@ eval $(parse_yaml $cluster_config "pai_")
 rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
 
 get_auth_token() {
-  printf "\nPlease login rest server first:\n"
-  read -rp "Username: " username
-  read -rp "Password: " -s password
-  printf "\n"
-  curl -H "Content-Type: application/json" -X POST -d "username=$username" -d "password=$password" -d "expiration=$expiration" $rest_server_uri/v1/token | sed -e "s/{token:\(.*\)}/\1/" > $token_file
+  account="$(cat $account_file)"
+  account=(${$account//:/ })
+  curl -H "Content-Type: application/json" -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/v1/token | sed -e "s/{token:\(.*\)}/\1/" > $token_file
 }
 
 
