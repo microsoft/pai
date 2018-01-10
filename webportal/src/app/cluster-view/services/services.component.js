@@ -59,8 +59,13 @@ $('#sidebar-menu--cluster-view--services').addClass('active');
 
 
 $('#content-wrapper').html(serviceViewHtml);
+
+
 $(document).ready(() => {
   loadServices();
+  $('body').on('click', '#label-toggle', () => {
+    $('.label').toggle();
+  });
 });
 
 
