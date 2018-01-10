@@ -35,4 +35,5 @@ export OUTPUT_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_OUTPUT_DI
 
 # download CNTK G2P BrainScript example and upload to hdfs
 # https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
+sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
 cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
