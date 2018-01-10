@@ -83,7 +83,7 @@ const initCells = (idPrefix, instanceList, table) => {
   const noDataCellHtml = "<font color='silver' title=\"0% (N/A)\">N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
     const cellId = getCellId(idPrefix + ":" + instanceList[i]);
-    table.cell(cellId).data(noDataCellHtml).draw();
+    table.cell(cellId).data(noDataCellHtml);
   }
 }
     
@@ -104,7 +104,7 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
         const cellId = getCellId("cpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -142,7 +142,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             const cellId = getCellId("mem:" + item.metric.instance);
             const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -175,7 +175,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
         const cellId = getCellId("gpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -202,7 +202,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
         const cellId = getCellId("gpumem:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -245,7 +245,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
             const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
             const percentage = Math.max(p1, p2);
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -294,7 +294,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
             const percentage = Math.max(p1, p2);
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -370,5 +370,7 @@ $(document).ready(() => {
   resizeContentWrapper();
   $("#sidebar-menu--cluster-view").addClass("active");
   $("#sidebar-menu--cluster-view--hardware").addClass("active");
-  loadData();
+  for (let i = 0; i < 10; i++) {
+    loadData();
+  }
 });
