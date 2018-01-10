@@ -207,6 +207,7 @@ def push_docker_images(cluster_config, service_config, target):
     docker_registry_info = cluster_config['clusterinfo']['dockerregistryinfo']
     docker_registry = docker_registry_info['docker_registry_domain']
     docker_namespace = docker_registry_info['docker_namespace']
+    docker_tag = docker_registry_info['docker_tag']
 
     if docker_registry == 'public':
         prefix = docker_namespace
@@ -220,7 +221,7 @@ def push_docker_images(cluster_config, service_config, target):
             try:
                 if docker_registry != 'public':
                     subprocess.check_call(
-                        "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
+                        "docker tag {0}/{1} {3}/{1}:{4}".format(docker_namespace, image, prefix, docker_tag),
                         shell=True
                     )
             except subprocess.CalledProcessError as dockertagerr:
@@ -229,7 +230,7 @@ def push_docker_images(cluster_config, service_config, target):
 
             try:
                 subprocess.check_call(
-                    "docker push {0}/{1}".format(prefix, image),
+                    "docker push {0}/{1}:{3}".format(prefix, image, docker_tag),
                     shell=True
                 )
             except subprocess.CalledProcessError as dockerpusherr:
@@ -246,7 +247,7 @@ def push_docker_images(cluster_config, service_config, target):
         try:
             if docker_registry != 'public':
                 subprocess.check_call(
-                    "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
+                    "docker tag {0}/{1} {3}/{1}:{4}".format(docker_namespace, image, prefix, docker_tag),
                     shell=True
                 )
         except subprocess.CalledProcessError as dockertagerr:
@@ -255,7 +256,7 @@ def push_docker_images(cluster_config, service_config, target):
 
         try:
             subprocess.check_call(
-                "docker push {0}/{1}".format(prefix, image),
+                "docker push {0}/{1}:{3}".format(prefix, image, docker_tag),
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
