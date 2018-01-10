@@ -221,7 +221,7 @@ def push_docker_images(cluster_config, service_config, target):
             try:
                 if docker_registry != 'public':
                     subprocess.check_call(
-                        "docker tag {0}/{1} {3}/{1}:{4}".format(docker_namespace, image, prefix, docker_tag),
+                        "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
                         shell=True
                     )
             except subprocess.CalledProcessError as dockertagerr:
@@ -230,7 +230,7 @@ def push_docker_images(cluster_config, service_config, target):
 
             try:
                 subprocess.check_call(
-                    "docker push {0}/{1}:{3}".format(prefix, image, docker_tag),
+                    "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
                     shell=True
                 )
             except subprocess.CalledProcessError as dockerpusherr:
@@ -247,7 +247,7 @@ def push_docker_images(cluster_config, service_config, target):
         try:
             if docker_registry != 'public':
                 subprocess.check_call(
-                    "docker tag {0}/{1} {3}/{1}:{4}".format(docker_namespace, image, prefix, docker_tag),
+                    "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
                     shell=True
                 )
         except subprocess.CalledProcessError as dockertagerr:
@@ -256,7 +256,7 @@ def push_docker_images(cluster_config, service_config, target):
 
         try:
             subprocess.check_call(
-                "docker push {0}/{1}:{3}".format(prefix, image, docker_tag),
+                "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
