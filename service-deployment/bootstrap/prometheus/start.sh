@@ -21,12 +21,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-chmod u+x node-label.sh
+#chmod u+x node-label.sh
 
-./node-label.sh
-
-kubectl create -f prometheus-configmap.yaml
-kubectl create -f node-exporter-ds.yaml
-kubectl create -f prometheus-deployment.yaml
+#./node-label.sh
+kubectl create namespace monitor
+kubectl --namespace=monitor create configmap prometheus-rules --from-file=prometheus-rules -o yaml --dry-run | kubectl --namespace=monitor apply -f -
+kubectl --namespace=monitor create -f prometheus-configmap.yaml
+#kubectl create -f node-exporter-ds.yaml
+kubectl --namespace=monitor  create -f prometheus-deployment.yaml
 
 popd > /dev/null
