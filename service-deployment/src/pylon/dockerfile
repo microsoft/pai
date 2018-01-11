@@ -76,7 +76,7 @@ RUN make install
 
 WORKDIR /root/
 
-COPY ./nginx.conf.template ./render.py /root/
+COPY copied_file/pylon/src/* /root/
 
 CMD python render.py && \
     cp nginx.conf /etc/nginx/nginx.conf && \
