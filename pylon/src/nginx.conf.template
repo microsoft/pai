@@ -37,21 +37,36 @@ http {
     listen       80;
     server_name  localhost;
 
-    # General-purpose reverse proxy.
-    location ~ ^/test$ {
-      return 200 ${PROMETHEUS_URI};
+    # Redirect to REST Server.
+    location ~ ^/api/rest-server(.*)$ {
+      proxy_pass {{REST_SERVER_URI}}/api$1$is_args$args;
+    }
+
+    # Redirect to Kubernetes API server.
+    location ~ ^/api/kubernetes(.*)$ {
+      proxy_pass {{K8S_API_SERVER_URI}}/api$1$is_args$args;
+    }
+
+    # Redirect to Prometheus API server.
+    location ~ ^/api/prometheus(.*)$ {
+      proxy_pass {{PROMETHEUS_URI}}/api$1$is_args$args;
+    }
+
+    # Redirect to WebHDFS API server.
+    location ~ ^/api/webhdfs(.*)$ {
+      proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
     }
 
     # General-purpose reverse proxy.
-    location ~ ^/r/(http|https)/([^/]+)/(\d*)/(.*)$ {
+    location ~ ^/r/(http|https)/([^/]+)/(\d*)(.*)$ {
       set $target_scheme $1;
       set $target_host   $2;
       set $target_port   :$3;
       set $target_path   $4$is_args$args;
       if ($target_port = ":0") {
-          set $target_port "";
+        set $target_port "";
       }
-      proxy_pass $target_scheme://$target_host$target_port/$target_path;
+      proxy_pass $target_scheme://$target_host$target_port$target_path;
     }
 
     # Welcome page.
@@ -61,3 +76,4 @@ http {
     }
   }
 }
+
