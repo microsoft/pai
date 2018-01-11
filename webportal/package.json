@@ -50,6 +50,7 @@
     "json-loader": "0.5.7",
     "markdown-loader": "2.0.1",
     "marked": "0.3.9",
+    "moment": "2.20.1",
     "morgan": "1.9.0",
     "node-sass": "4.7.2",
     "raw-loader": "0.5.1",
