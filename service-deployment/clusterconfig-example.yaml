@@ -114,12 +114,12 @@ clusterinfo:
   pyloninfo:
     # root url of the rest server
     rest_server_uri: http://10.0.3.9:9186
-    # root url of the prometheus server
-    prometheus_uri: http://10.0.1.9:9090
     # root url of the k8s apiserver
     k8s_api_server_uri: http://10.0.3.9:8080
+    # root url of the prometheus server
+    prometheus_uri: http://10.0.1.9:9090
     # root url of the webhdfs api server
-    k8s_api_server_uri: http://10.0.3.9:50070
+    webhdfs_uri: http://10.0.3.9:50070
     # port of pylon
     port: 8086
 
