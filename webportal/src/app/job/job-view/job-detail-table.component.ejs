@@ -47,7 +47,11 @@
 
 <div class="collapse" id="appExitDiagnostics">
   <div class="well">
-    <%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %>
+    <% if (jobStatus.appExitDiagnostics) { %>
+      <%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %>
+    <% } else { %>
+      Application has not exited yet.
+    <% } %>
   </div>
 </div>
 
