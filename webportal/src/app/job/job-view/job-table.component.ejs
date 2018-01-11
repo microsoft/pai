@@ -18,7 +18,7 @@
         <td><%= convertTime(false, jobs[i].createdTime) %></td>
         <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>
         <td><%= jobs[i].retries %></td>
-        <td><%= convertState(jobs[i].state, jobs[i].appExitType) %></td>
+        <td><%= convertState(jobs[i].state) %></td>
         <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
       </tr>
     <% } %>

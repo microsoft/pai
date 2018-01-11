@@ -97,33 +97,38 @@ class Job {
             if (framework.frameworkStatus) {
               let jobState = "";
               const frameworkState = framework.frameworkStatus.frameworkState;
+              const applicationExitType = framework.frameworkStatus.applicationExitType;
               if (
-                  frameworkState == "FRAMEWORK_WAITING" ||
-                  frameworkState == "APPLICATION_CREATED" ||
-                  frameworkState == "APPLICATION_LAUNCHED" ||
-                  frameworkState == "APPLICATION_WAITING"
+                  frameworkState == 'FRAMEWORK_WAITING' ||
+                  frameworkState == 'APPLICATION_CREATED' ||
+                  frameworkState == 'APPLICATION_LAUNCHED' ||
+                  frameworkState == 'APPLICATION_WAITING'
                 ) {
-                jobState = "WAITING";
+                jobState = 'WAITING';
               } else if (
-                  frameworkState == "APPLICATION_RUNNING" ||
-                  frameworkState == "APPLICATION_RETRIEVING_DIAGNOSTICS" ||
-                  frameworkState == "APPLICATION_COMPLETED"
+                  frameworkState == 'APPLICATION_RUNNING' ||
+                  frameworkState == 'APPLICATION_RETRIEVING_DIAGNOSTICS' ||
+                  frameworkState == 'APPLICATION_COMPLETED'
                 ) {
-                jobState = "RUNNING";
+                jobState = 'RUNNING';
               } else if (
-                  frameworkState == "FRAMEWORK_COMPLETED"
+                  frameworkState == 'FRAMEWORK_COMPLETED' &&
+                  applicationExitType == 'SUCCEEDED'
                 ) {
-                jobState = "COMPLETED";
+                jobState = 'SUCCEEDED';
+              } else if (
+                  frameworkState == 'FRAMEWORK_COMPLETED' &&
+                  applicationExitType != 'SUCCEEDED'
+                ) {
+                jobState = 'FAILED';
               }
               let jobRetryCount = 0;
               const jobRetryCountInfo = framework.frameworkStatus.frameworkRetryPolicyState;
-              if (jobRetryCountInfo) {
-                jobRetryCount =
-                  jobRetryCountInfo.transientNormalRetriedCount +
-                  jobRetryCountInfo.transientConflictRetriedCount +
-                  jobRetryCountInfo.nonTransientRetriedCount +
-                  jobRetryCountInfo.unKnownRetriedCount;
-              }
+              jobRetryCount =
+                jobRetryCountInfo.transientNormalRetriedCount +
+                jobRetryCountInfo.transientConflictRetriedCount +
+                jobRetryCountInfo.nonTransientRetriedCount +
+                jobRetryCountInfo.unKnownRetriedCount;
               job.jobStatus = {
                 name,
                 username: 'unknown',

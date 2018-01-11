@@ -56,31 +56,35 @@ const convertTime = (elapsed, startTime, endTime) => {
   }
 };
 
-const convertState = (state, exitType) => {
+const convertState = (state) => {
   let cls;
+  let stateText = '';
   switch (state) {
     case 'JOB_NOT_FOUND':
-      cls = 'label-danger';
+      cls = 'label-default';
+      stateText = 'N/A';
       break;
-    case 'FRAMEWORK_WAITING':
+    case 'WAITING':
       cls = 'label-warning';
+      stateText = 'Waiting';
       break;
-    case 'APPLICATION_RUNNING':
-      cls = 'label-info';
+    case 'RUNNING':
+      cls = 'label-primary';
+      stateText = 'Running';
       break;
-    case 'FRAMEWORK_COMPLETED':
-      if (exitType === 'SUCCEEDED') {
-        cls = 'label-success';
-        state = 'SUCCEEDED';
-      } else {
-        cls = 'label-danger';
-        state = 'FAILED';
-      }
+    case 'SUCCEEDED':
+      cls = 'label-success';
+      stateText = 'Succeeded';
+      break;
+    case 'FAILED':
+      cls = 'label-danger';
+      stateText = 'Failed';
       break;
     default:
-      cls = 'label-primary';
+      cls = 'label-default';
+      stateText = 'Unknown';
   }
-  return `<span class="label ${cls}">${state}</span>`;
+  return `<span class="label ${cls}">${stateText}</span>`;
 };
 
 const convertGpu = (gpuAttribute) => {
