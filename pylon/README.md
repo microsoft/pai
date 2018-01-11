@@ -27,7 +27,7 @@ For example:
 URL pattern:
 
 ```
-http://<pylon_ip>:<pylon_port>/r/http/<api_server_ip>/<api_server_port>/...
+http://<pylon_ip>:<pylon_port>/r/http/<api_server_ip>/<api_server_port>...
 ```
 
 For example:
