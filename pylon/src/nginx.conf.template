@@ -69,10 +69,9 @@ http {
       proxy_pass $target_scheme://$target_host$target_port$target_path;
     }
 
-    # Welcome page.
-    location / {
-      root   html;
-      index  index.html index.htm;
+    # Web portal.
+    location ~ ^(.*) {
+      proxy_pass {{WEBPORTAL_URI}}$1$is_args$args;
     }
   }
 }

@@ -37,11 +37,11 @@ For example:
 - Prometheus api: http://10.0.3.9:8086/r/http/10.0.1.9/9090/api/v1/query?query=up
 - Webhdfs api: http://10.0.3.9:8086/r/http/10.0.3.9/50070/webhdfs/v1/?op=LISTSTATUS
 
-## PAI Web Portal (Future Feature)
+## PAI Web Portal
 
 PAI's webportal can aslo be redirected from Pylon:
 
-- Web portal: http://10.0.3.9:8086/webportal
+- Web portal: http://10.0.3.9:8086
 
 ## Deployment
 
@@ -53,5 +53,6 @@ The following parameter in the [clusterconfig.yaml](../service-deployment/cluste
 - `k8s_api_server_uri`: String. The root url of Kubernetes's API server.
 - `prometheus_uri`: String. The root url of Prometheus's API server.
 - `webhdfs_uri`: String. The root url of WebHDFS's API server.
+- `webportal_uri`: String. The root url of the web portal.
 - `port`: Integer. The port number to access the Pylon service. 
 

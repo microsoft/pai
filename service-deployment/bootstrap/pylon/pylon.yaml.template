@@ -43,6 +43,8 @@ spec:
               value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
             - name: WEBHDFS_URI
               value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
+            - name: WEBPORTAL_URI
+              value: {{ clusterinfo['pyloninfo']['webportal_uri'] }}
           ports:
             - name: pylon
               containerPort: 80
