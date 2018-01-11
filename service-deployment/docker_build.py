@@ -327,6 +327,9 @@ def main():
     docker_username = docker_registry_info['docker_username']
     docker_password = docker_registry_info['docker_password']
 
+    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
+        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
+
     if docker_registry == "public":
         docker_registry = ""
 
