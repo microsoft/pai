@@ -1,9 +1,8 @@
-<div class="table-container">
 <table class="table table-hover">
   <thead>
     <tr>
       <th>Node Name</th>
-      <th id="test-th">PAI Roles <button class="btn btn-default" id="label-toggle"> Toggle </button></th>
+      <th id="test-th">PAI Roles</th>
       <th>Services</th>
     </tr>
   </thead>
@@ -12,10 +11,13 @@
       <% let node = data[i].node.metadata; %>
       <tr>
         <td><a href="<%= grafanaUri + '/dashboard/db/pai_nodeview?var-node=' + node.name + ':' + exporterPort %>"> <%= node.name %></a></td>
-        <td>
-         
+        <td>   
           <% for(let k in data[i].node.metadata.labels) { %>
-            <span class="label label-primary" style="font-weight: 500"> <%= k + ': ' + data[i].node.metadata.labels[k] %> </span>
+            <% if (k.indexOf('kubernetes') == -1) { %>
+              <% let str = k; %>
+              <% if (node.labels[k] != 'true')  str += ': ' + node.labels[k]; %>
+              <span class="label label-primary" style="font-weight: 500"> <%= str %> </span>
+            <% } %>
           <% } %>
         </td>
         <td class="service-td">
@@ -23,9 +25,9 @@
             <% let pod = data[i].podList[j].metadata; %>                 
             <% if(data[i].podList[j].status.phase == "Running") { %>
               <a class="btn btn-success" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> 
-              <%= data[i].podList[j].metadata.name %> </a>  
+              <%= pod.name %> </a>  
             <% } else{ %>
-              <a class="btn btn-danger" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> <%= data[i].podList[j].metadata.name %> </a>
+              <a class="btn btn-danger" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> <%= pod.name %> </a>
             <% } %>      
           <% } %>
         </td>
@@ -33,4 +35,3 @@
     <% } %>
   </tbody>
 </table>
-</div>

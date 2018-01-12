@@ -25,6 +25,7 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const service = require('./service-info.js');
+require('floatthead/dist/jquery.floatThead.min.js');
 require('./service-view.component.scss');
 
 const serviceViewHtml = serviceViewComponent({
@@ -37,9 +38,6 @@ const serviceViewHtml = serviceViewComponent({
 const loadServices = () => {
   loading.showLoading();
   service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
-    console.log(data);
-  });
-  service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data,
@@ -50,24 +48,24 @@ const loadServices = () => {
   });
 };
 
-
 window.loadServices = loadServices;
 
 $('#sidebar-menu--cluster-view').addClass('active');
 $('#sidebar-menu--cluster-view--services').addClass('active');
 
-
-
 $('#content-wrapper').html(serviceViewHtml);
-
-
 $(document).ready(() => {
   loadServices();
-  $('body').on('click', '#label-toggle', () => {
-    $('.label').toggle();
+  $(document).on("mousemove", function(){
+    $('table').floatThead({
+      useAbsolutePositioning: false,
+      scrollContainer: function($table) {
+        return $table.closest('.body.scroll-y');
+      },
+      scrollingBottom: 10
+    });
   });
 });
-
 
 module.exports = { loadServices };
 

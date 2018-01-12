@@ -6,9 +6,10 @@
 
 .table{
   min-width: 3000px;
-  overflow:auto;
 }
 
-.table > thead > tr > th{
-  vertical-align: middle;
+.table > thead{
+  background: #fff;
+  overflow: hidden;
 }
+
