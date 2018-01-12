@@ -50,7 +50,7 @@
             {
               "dashboard": "PAI Cluster Node List",
               "type": "absolute",
-              "url": "http://10.151.40.179:3000/dashboard/db/pai_clusterview"
+              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
             }
           ],
           "mappingType": 1,

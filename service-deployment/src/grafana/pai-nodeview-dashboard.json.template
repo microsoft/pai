@@ -640,7 +640,7 @@
               "decimals": 0,
               "link": true,
               "linkTooltip": "Click to view usage  of each GPU",
-              "linkUrl": "http://10.151.40.179:3000/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
               "preserveFormat": false,
               "sanitize": false,
