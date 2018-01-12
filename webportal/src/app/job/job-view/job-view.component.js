@@ -226,8 +226,10 @@ $(document).ready(() => {
   const query = url.parse(window.location.href, true).query;
   if (query['jobName']) {
     loadJobDetail(query['jobName']);
+    $('#content-wrapper').css({'overflow': 'auto'});
   } else {
     loadJobs();
+    $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });
 
