@@ -364,11 +364,11 @@ const resizeContentWrapper = () => {
 //
 
 $(document).ready(() => {
+  $("#sidebar-menu--cluster-view").addClass("active");
+  $("#sidebar-menu--cluster-view--hardware").addClass("active");
+  loadData();
   window.onresize = function (envent) {
     resizeContentWrapper();
   }
   resizeContentWrapper();
-  $("#sidebar-menu--cluster-view").addClass("active");
-  $("#sidebar-menu--cluster-view--hardware").addClass("active");
-  loadData();
 });
