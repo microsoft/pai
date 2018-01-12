@@ -31,7 +31,7 @@ spec:
         jobhistory: "true"
       containers:
       - name:  hadoop-jobhistory-service
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         env:
         - name: RESOURCEMANAGER_ADDRESS

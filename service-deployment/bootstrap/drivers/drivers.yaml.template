@@ -31,7 +31,7 @@ spec:
         machinetype: gpu
       containers:
       - name: nvidia-drivers
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         securityContext:
           privileged: true
