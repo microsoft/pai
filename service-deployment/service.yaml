@@ -29,7 +29,7 @@ imagelist:
 
   drivers:
     templatelist:
-      - None
+      - dockerfile
     prerequisite: None
 
   hadoop-run:
