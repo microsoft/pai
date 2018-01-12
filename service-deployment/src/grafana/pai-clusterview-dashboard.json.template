@@ -18,22 +18,23 @@
   "hideControls": true,
   "id": null,
   "links": [],
+  "refresh": "30s",
   "rows": [
     {
       "collapse": false,
-      "height": 258,
+      "height": 315,
       "panels": [
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": false,
+          "colorValue": true,
           "colors": [
-            "#299c46",
+            "#d44a3a",
             "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
+            "#299c46"
           ],
           "datasource": "PM",
-          "description": "Node Number",
+          "description": "",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -42,15 +43,96 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
+          "height": "312px",
           "id": 9,
           "interval": null,
           "links": [
             {
               "dashboard": "PAI Cluster Node List",
               "type": "absolute",
-              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
+              "url": "http://10.151.40.179:3000/dashboard/db/pai_clusterview"
             }
           ],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": 3,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "sum(node_uname_info)",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "intervalFactor": 2,
+              "legendFormat": "{sum(node_uname_info)} node",
+              "refId": "A"
+            }
+          ],
+          "thresholds": "1",
+          "title": "Detected Node Number",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": true,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "312",
+          "id": 10,
+          "interval": null,
+          "links": [],
           "mappingType": 1,
           "mappingTypes": [
             {
@@ -76,7 +158,7 @@
               "to": "null"
             }
           ],
-          "span": 12,
+          "span": 6,
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
@@ -86,16 +168,16 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(node_uname_info)",
+              "expr": "100 * (sum(nvidiasmi_utilization_gpu) / sum(nvidiasmi_attached_gpus))",
               "format": "time_series",
+              "hide": false,
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "{sum(node_uname_info)} node",
               "refId": "A"
             }
           ],
-          "thresholds": "",
-          "title": "Detected Node Number",
+          "thresholds": "50, 90",
+          "title": "GPU Usage",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -105,7 +187,161 @@
               "value": "null"
             }
           ],
-          "valueName": "avg"
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "150",
+          "id": 11,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": null,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "sum(nvidiasmi_utilization_gpu)",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "50, 90",
+          "title": "Used",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "#d44a3a",
+            "rgba(237, 129, 40, 0.89)",
+            "#299c46"
+          ],
+          "datasource": null,
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "150",
+          "id": 12,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": 3,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 3,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "sum(nvidiasmi_attached_gpus)",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "1",
+          "title": "Total",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "N/A",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
         }
       ],
       "repeat": null,
@@ -620,7 +856,7 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -650,5 +886,5 @@
   },
   "timezone": "",
   "title": "PAI_ClusterView",
-  "version": 3
+  "version": 1
 }}

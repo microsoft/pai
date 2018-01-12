@@ -1,4 +1,4 @@
-{"dashboard":{
+{"dashboard": {
   "annotations": {
     "list": [
       {
@@ -19,7 +19,7 @@
   "hideControls": true,
   "id": null,
   "links": [],
-  "refresh": false,
+  "refresh": "30s",
   "rows": [
     {
       "collapse": false,
@@ -401,7 +401,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Disk Space Used",
+          "title": "Disk",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -629,22 +629,26 @@
               "type": "hidden"
             },
             {
-              "alias": "",
-              "colorMode": null,
+              "alias": "Node",
+              "colorMode": "value",
               "colors": [
-                "rgba(245, 54, 54, 0.9)",
+                "#ba43a9",
                 "rgba(237, 129, 40, 0.89)",
                 "rgba(50, 172, 45, 0.97)"
               ],
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 2,
+              "decimals": 0,
               "link": true,
-              "linkTooltip": "",
-              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkTooltip": "Click to view usage  of each GPU",
+              "linkUrl": "http://10.151.40.179:3000/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
-              "thresholds": [],
+              "preserveFormat": false,
+              "sanitize": false,
+              "thresholds": [
+                "0.0.0.0:0"
+              ],
               "type": "number",
-              "unit": "short"
+              "unit": "none"
             },
             {
               "alias": "",
@@ -700,24 +704,11 @@
                 "rgba(50, 172, 45, 0.97)"
               ],
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 2,
+              "decimals": 0,
+              "link": false,
               "pattern": "Value",
               "preserveFormat": false,
               "sanitize": false,
-              "thresholds": [],
-              "type": "number",
-              "unit": "short"
-            },
-            {
-              "alias": "",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "decimals": 2,
-              "pattern": "/.*/",
               "thresholds": [],
               "type": "number",
               "unit": "short"
@@ -736,6 +727,7 @@
           ],
           "title": "GPU Metrics",
           "transform": "table",
+          "transparent": false,
           "type": "table"
         }
       ],
@@ -756,10 +748,8 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "",
-          "value": [
-            ""
-          ]
+          "text": "10.151.40.202:9100",
+          "value": "10.151.40.202:9100"
         },
         "datasource": "PM",
         "hide": 0,
@@ -782,7 +772,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -813,5 +803,5 @@
   },
   "timezone": "browser",
   "title": "PAI_NodeView",
-  "version": 7
+  "version": 1
 }}
