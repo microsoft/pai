@@ -27,7 +27,7 @@ clusterinfo:
   paiPath: "/var/pai"
 
   # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
-  nvidia_drivers_version: "384.111"
+  nvidia_drivers_version: 384.111
 
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
