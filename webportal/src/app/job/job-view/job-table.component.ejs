@@ -1,13 +1,13 @@
 <table class="table table-hover">
   <thead>
     <tr>
-      <th>JobName</th>
-      <th>Username</th>
-      <th>JobStartTime</th>
-      <th>ElapsedTime</th>
+      <th>Job Name</th>
+      <th>User Name</th>
+      <th>Start Time</th>
+      <th>Duration</th>
       <th>Retries</th>
       <th>Status</th>
-      <th>Delete</th>
+      <!-- <th>Delete</th> -->
     </tr>
   </thead>
   <tbody>
@@ -19,7 +19,7 @@
         <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>
         <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
-        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
+        <!-- <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td> -->
       </tr>
     <% } %>
   </tbody>
