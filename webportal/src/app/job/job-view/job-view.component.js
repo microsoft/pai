@@ -56,31 +56,35 @@ const convertTime = (elapsed, startTime, endTime) => {
   }
 };
 
-const convertState = (state, exitType) => {
+const convertState = (state) => {
   let cls;
+  let stateText = '';
   switch (state) {
     case 'JOB_NOT_FOUND':
-      cls = 'label-danger';
+      cls = 'label-default';
+      stateText = 'N/A';
       break;
-    case 'FRAMEWORK_WAITING':
+    case 'WAITING':
       cls = 'label-warning';
+      stateText = 'Waiting';
       break;
-    case 'APPLICATION_RUNNING':
-      cls = 'label-info';
+    case 'RUNNING':
+      cls = 'label-primary';
+      stateText = 'Running';
       break;
-    case 'FRAMEWORK_COMPLETED':
-      if (exitType === 'SUCCEEDED') {
-        cls = 'label-success';
-        state = 'SUCCEEDED';
-      } else {
-        cls = 'label-danger';
-        state = 'FAILED';
-      }
+    case 'SUCCEEDED':
+      cls = 'label-success';
+      stateText = 'Succeeded';
+      break;
+    case 'FAILED':
+      cls = 'label-danger';
+      stateText = 'Failed';
       break;
     default:
-      cls = 'label-primary';
+      cls = 'label-default';
+      stateText = 'Unknown';
   }
-  return `<span class="label ${cls}">${state}</span>`;
+  return `<span class="label ${cls}">${stateText}</span>`;
 };
 
 const convertGpu = (gpuAttribute) => {
@@ -102,7 +106,7 @@ const convertGpu = (gpuAttribute) => {
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/job`,
+    url: `${webportalConfig.restServerUri}/api/v1/jobs`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -128,7 +132,7 @@ const deleteJob = (jobName) => {
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
         type: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -148,7 +152,7 @@ const deleteJob = (jobName) => {
 const loadJobDetail = (jobName) => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/job/${jobName}`,
+    url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -174,6 +178,8 @@ const loadJobDetail = (jobName) => {
 window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
 window.loadJobDetail = loadJobDetail;
+
+$("#sidebar-menu--job-view").addClass("active");
 
 $('#content-wrapper').html(jobViewHtml);
 $(document).ready(() => {

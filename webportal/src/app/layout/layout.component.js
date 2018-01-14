@@ -17,14 +17,13 @@
 
 
 // module dependencies
-const cookies = require('js-cookie');
 require('bootstrap');
 require('admin-lte');
 require('bootstrap/dist/css/bootstrap.min.css');
 require('admin-lte/dist/css/AdminLTE.min.css');
 require('admin-lte/dist/css/skins/_all-skins.min.css');
 require('font-awesome/css/font-awesome.min.css');
-require('../user/user-logout/user-logout.component.js');
+const cookies = require('js-cookie');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 

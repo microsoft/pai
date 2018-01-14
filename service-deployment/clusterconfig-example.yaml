@@ -26,6 +26,9 @@ clusterinfo:
   # PAI data root path
   paiPath: "/var/pai"
 
+  # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
+  nvidia_drivers_version: 384.111
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -43,6 +46,8 @@ clusterinfo:
     # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
     docker_username: your_registry_username
     docker_password: your_registry_password
+
+    docker_tag: your_image_tag
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
@@ -82,10 +87,16 @@ clusterinfo:
 
   # The config for web portal
   webportalinfo:
-    # uri for rest server
+    # root url of the rest server
     rest_server_uri: http://10.0.3.9:9186
-    # uri for cluster status dashboard
-    cluster_status_uri: http://10.0.3.9:9090
+    # root url of the prometheus server
+    prometheus_uri: http://10.0.1.9:9090
+    # root url of the grafana portal
+    grafana_uri: http://10.0.1.9:3000
+    # root url of the k8s dashboard
+    k8s_dashboard_uri: http://10.0.3.9:9090
+    # root url of the k8s apiserver
+    k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
 
@@ -104,7 +115,6 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
-
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
@@ -157,6 +167,7 @@ machinelist:
     launcher: "true"
     restserver: "true"
     webportal: "true"
+    prometheus: "true"
     grafana: "true"
   
   # Do the same work as the machine above.
@@ -166,7 +177,7 @@ machinelist:
     ip: 10.0.3.11
     hdfsrole: worker
     yarnrole: worker
-  
+    node-exporter: "true"
   # Do the same work as the machine above.
   worker-02:
     nodename: 10.0.3.12
@@ -174,3 +185,4 @@ machinelist:
     ip: 10.0.3.12
     hdfsrole: worker
     yarnrole: worker
+    node-exporter: "true"

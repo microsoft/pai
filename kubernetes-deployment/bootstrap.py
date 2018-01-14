@@ -96,6 +96,8 @@ def sftp_paramiko(src, dst, filename, host_config):
     username = host_config['username']
     password = host_config['password']
     port = 22
+    if 'sshport' in host_config:
+        port = host_config['sshport']
 
     # First make sure the folder exist.
     ssh = paramiko.SSHClient()
@@ -128,6 +130,8 @@ def ssh_shell_paramiko(host_config, commandline):
     username = host_config['username']
     password = host_config['password']
     port = 22
+    if 'sshport' in host_config:
+        port = host_config['sshport']
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -328,10 +332,15 @@ def kube_proxy_startup(cluster_config):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--deploy', action="store_true", help='Deploy kubernetes to your cluster')
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
 
     args = parser.parse_args()
+
+    if args.deploy and args.clean:
+        print "You can only specify only one option in -d and -c !"
+        return
 
     config_path = args.path
     cluster_config = load_cluster_config(config_path)
@@ -344,39 +353,40 @@ def main():
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
+    if args.deploy or args.clean:
 
-    if 'proxy' in cluster_config['remote_deployment']:
-        listname = cluster_config['remote_deployment']['proxy']['listname']
+        if 'proxy' in cluster_config['remote_deployment']:
+            listname = cluster_config['remote_deployment']['proxy']['listname']
+            machine_list = cluster_config[listname]
+
+            for hostname in machine_list:
+                if args.clean:
+                    remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+                else:
+                    bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
+                    remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+
+
+        listname = cluster_config['remote_deployment']['master']['listname']
+        machine_list = cluster_config[ listname ]
+
+        for hostname in machine_list:
+            if args.clean:
+                remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+            else:
+                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
+                remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+
+
+        listname = cluster_config['remote_deployment']['worker']['listname']
         machine_list = cluster_config[listname]
 
         for hostname in machine_list:
             if args.clean:
                 remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
             else:
-                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
+                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
                 remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
-
-
-    listname = cluster_config['remote_deployment']['master']['listname']
-    machine_list = cluster_config[ listname ]
-
-    for hostname in machine_list:
-        if args.clean:
-            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-        else:
-            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
-            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
-
-
-    listname = cluster_config['remote_deployment']['worker']['listname']
-    machine_list = cluster_config[listname]
-
-    for hostname in machine_list:
-        if args.clean:
-            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-        else:
-            bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
-            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
     if args.clean:
@@ -386,11 +396,12 @@ def main():
     #step : Install kubectl on the host.
     kubectl_install(cluster_config[ 'clusterinfo' ])
 
-    #step:  Kube-proxy
-    kube_proxy_startup(cluster_config)
+    if args.deploy:
+        #step:  Kube-proxy
+        kube_proxy_startup(cluster_config)
 
-    #step : dashboard startup
-    dashboard_startup(cluster_config[ 'clusterinfo' ])
+        #step : dashboard startup
+        dashboard_startup(cluster_config[ 'clusterinfo' ])
 
     print "Done !"
 

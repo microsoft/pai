@@ -1207,6 +1207,10 @@ datatables.net-bs@^1.10.15:
     datatables.net "1.10.16"
     jquery ">=1.7"
 
+datatables.net-plugins@1.10.15:
+  version "1.10.15"
+  resolved "https://registry.yarnpkg.com/datatables.net-plugins/-/datatables.net-plugins-1.10.15.tgz#906deebff75010ab4c275f8058b4b60d2c8f3157"
+
 datatables.net@1.10.16, datatables.net@^1.10.15:
   version "1.10.16"
   resolved "https://registry.yarnpkg.com/datatables.net/-/datatables.net-1.10.16.tgz#4b052d1082824261b68eed9d22741b711d3d2469"
@@ -2748,7 +2752,11 @@ markdown-loader@2.0.1:
     loader-utils "^1.1.0"
     marked "^0.3.6"
 
-marked@0.3.7, marked@^0.3.6:
+marked@0.3.9:
+  version "0.3.9"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-0.3.9.tgz#54ce6a57e720c3ac6098374ec625fcbcc97ff290"
+
+marked@^0.3.6:
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/marked/-/marked-0.3.7.tgz#80ef3bbf1bd00d1c9cfebe42ba1b8c85da258d0d"
 

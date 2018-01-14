@@ -4,15 +4,15 @@
 
 <table class="table table-hover">
   <tr>
-    <th class="text-right">Username</th>
+    <th class="text-right">User Name</th>
     <td class="text-left"><%= jobStatus.username %></td>
   </tr>
   <tr>
-    <th class="text-right">JobStartTime</th>
+    <th class="text-right">Start Time</th>
     <td class="text-left"><%= convertTime(false, jobStatus.createdTime) %></td>
   </tr>
   <tr>
-    <th class="text-right">ElapsedTime</th>
+    <th class="text-right">Duration</th>
     <td class="text-left"><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
   </tr>
   <tr>
@@ -21,22 +21,22 @@
   </tr>
   <tr>
     <th class="text-right">Status</th>
-    <td class="text-left"><%= convertState(jobStatus.state, jobStatus.appExitType) %></td>
+    <td class="text-left"><%= convertState(jobStatus.state) %></td>
   </tr>
   <tr>
-    <th class="text-right">TrackingUrl</th>
+    <th class="text-right">Tracking Url</th>
     <td class="text-left"><a href="<%= jobStatus.appTrackingUrl %>" target="_blank">Yarn Log</a></td>
   </tr>
   <tr>
-    <th class="text-right">AppLaunchedTime</th>
+    <th class="text-right">Application Start Time</th>
     <td class="text-left"><%= convertTime(false, jobStatus.appLaunchedTime) %></td>
   </tr>
   <tr>
-    <th class="text-right">AppCompletedTime</th>
+    <th class="text-right">Application Finish Time</th>
     <td class="text-left"><%= convertTime(false, jobStatus.appCompletedTime) %></td>
   </tr>
   <tr>
-    <th class="text-right">AppExitDiagnostics</th>
+    <th class="text-right">Application Exit Diagnostics</th>
     <td class="text-left">
       <a data-toggle="collapse" href="#appExitDiagnostics" aria-expanded="false" aria-controls="appExitDiagnostics">
         Application Exit Diagnostics
@@ -50,7 +50,7 @@
     <% if (jobStatus.appExitDiagnostics) { %>
       <%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %>
     <% } else { %>
-      Application has not exited yet.
+      Not available yet.
     <% } %>
   </div>
 </div>
@@ -60,12 +60,12 @@
 <table class="table table-hover">
   <thead>
     <tr>
-      <th>TaskRole</th>
-      <th>TaskIndex</th>
-      <th>ConatinerID</th>
-      <th>ContainerIP</th>
-      <th>ContainerGPU</th>
-      <th>ContainerLog</th>
+      <th>Task Role</th>
+      <th>Task Index</th>
+      <th>Name of Container</th>
+      <th>IP of Container</th>
+      <th>GPU ID(s) in Container</th>
+      <th>Log in Container</th>
     </tr>
   </thead>
   <tbody>

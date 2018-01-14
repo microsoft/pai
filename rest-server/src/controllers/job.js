@@ -15,26 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const Job = require('../models/job');
 const logger = require('../config/logger');
-
 
 /**
  * Load job and append to req.
  */
 const load = (req, res, next, jobName) => {
   job = new Job(jobName, () => {
-    if (job.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
+    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
-      return res.status(500).json({
-        error: job.state,
+      return res.status(404).json({
+        error: "JobNotFound",
         message: `could not find job ${jobName}`
       });
-    } else if (job.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
       logger.warn('duplicate job %s', jobName);
-      return res.status(500).json({
+      return res.status(400).json({
         error: 'DuplicateJobSubmission',
         message: 'duplicate job submission'
       });
@@ -56,14 +54,14 @@ const list = (req, res) => {
         error: 'GetJobListError',
         message: 'get job list error'
       });
-    } else if (jobList === undefined || jobList.length === 0) {
+    } else if (jobList === undefined) {
       logger.warn('list jobs error, no job found');
       return res.status(500).json({
         error: 'JobListNotFound',
         message: 'could not find job list'
       });
     } else {
-      return res.json(jobList);
+      return res.status(200).json(jobList);
     }
   });
 };
@@ -85,10 +83,10 @@ const update = (req, res) => {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({
         error: 'JobUpdateError',
-        message: 'job updated error'
+        message: 'job update error'
       });
     } else {
-      return res.json({
+      return res.status(202).json({
         message: `update job ${req.job.name} successfully`
       });
     }
@@ -104,12 +102,12 @@ const remove = (req, res) => {
   Job.prototype.deleteJob(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('delete job %s error\n%s', req.job.name, err.stack);
-      return res.status(401).json({
+      return res.status(403).json({
         error: 'JobDeleteError',
         message: 'job deleted error, cannot delete other user\'s job'
       });
     } else {
-      return res.json({
+      return res.status(204).json({
         message: `deleted job ${req.job.name} successfully`
       });
     }

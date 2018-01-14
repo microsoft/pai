@@ -28,4 +28,7 @@ const downloadHtml = downloadComponent({
   ]
 });
 
+$("#sidebar-menu--documents").addClass("active");
+$("#sidebar-menu--documents--download").addClass("active");
+
 $('#content-wrapper').html(downloadHtml);

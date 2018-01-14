@@ -21,11 +21,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-NAMESPACE=${NAMESPACE:-monitor}
-KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
-eval "kubectl create namespace \"${NAMESPACE}\""
+chmod u+x node-label.sh
 
-eval "${KUBECTL} create -f node-exporter-ds.yaml"
+./node-label.sh
+
+kubectl create -f prometheus-configmap.yaml
+kubectl create -f node-exporter-ds.yaml
+kubectl create -f prometheus-deployment.yaml
 
 popd > /dev/null
-

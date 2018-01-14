@@ -35,7 +35,7 @@ const isValidJson = (str) => {
     JSON.parse(str);
     return true;
   } catch (e) {
-    console.log(e);
+    alert('Please upload a valid json file: ' + e.message);
     return false;
   }
 };
@@ -44,7 +44,7 @@ const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/job/${jobConfig.jobName}`,
+      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
       data: jobConfig,
       headers: {
         Authorization: `Bearer ${token}`
@@ -70,6 +70,8 @@ const submitJob = (jobConfig) => {
   });
 };
 
+$("#sidebar-menu--submit-job").addClass("active");
+
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   $(document).on('change', '#file', (event) => {
@@ -78,8 +80,6 @@ $(document).ready(() => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
         submitJob(JSON.parse(jobConfig));
-      } else {
-        alert('Please upload a valid json file.');
       }
     };
     reader.readAsText(event.target.files[0]);

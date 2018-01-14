@@ -1,5 +1,3 @@
-#!/bin/sh
-
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -19,11 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-NAMESPACE=${NAMESPACE:-monitor}
-KUBECTL="kubectl  --namespace=\"${NAMESPACE}\""
+echo === Enable nvidia persistenced mode
+nvidia-persistenced --persistence-mode || exit $?
 
-INSTANCES="daemonset/node-exporter"
+echo === Recall nvidia-smi
+nvidia-smi || exit $?
 
-for instance in ${INSTANCES}; do
-  eval "${KUBECTL} delete --ignore-not-found --now \"${instance}\""
-done
+echo === Persistence-mode enabled

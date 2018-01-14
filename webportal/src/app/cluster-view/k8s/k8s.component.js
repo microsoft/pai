@@ -17,23 +17,24 @@
 
 
 // module dependencies
-const express = require('express');
-const authConfig = require('../config/auth');
-const authCtrl = require('../controllers/auth');
-const param = require('../middlewares/parameter');
+const k8sComponent = require('./k8s.component.ejs');
+const webportalConfig = require('../../config/webportal.config.json');
 
+const k8sDashboardHtml = k8sComponent({
+  k8sDashboardUri: webportalConfig.k8sDashboardUri
+});
 
-const router = express.Router();
+function resizeContentWrapper() {
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+}
 
-router.route('/')
-    /** POST /api/auth - Return token if username and password is correct */
-    .post(param.validate(authConfig.schema), authCtrl.login)
+window.onresize = function (envent) {
+  resizeContentWrapper();
+}
 
-    /** PUT /api/auth - Update user */
-    .put(authConfig.check, param.validate(authConfig.schema), authCtrl.update)
-
-    /** DELETE /api/auth - Delete user */
-    .delete(authConfig.check, authCtrl.remove);
-
-// module exports
-module.exports = router;
+$(document).ready(function () {
+  resizeContentWrapper();
+  $("#sidebar-menu--cluster-view").addClass("active");
+  $("#sidebar-menu--cluster-view--k8s").addClass("active");
+  $('#content-wrapper').html(k8sDashboardHtml);
+});

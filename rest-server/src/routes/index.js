@@ -19,17 +19,18 @@
 // module dependencies
 const express = require('express');
 const controller = require('../controllers/index');
-const authRoute = require('./auth');
-const jobRoute = require('./job');
-
+const tokenRouter = require('./token');
+const userRouter = require('./user');
+const jobRouter = require('./job');
 
 const router = express.Router();
 
 router.route('/')
     .all(controller.index);
 
-router.use('/auth', authRoute);
-router.use('/job', jobRoute);
+router.use('/token', tokenRouter);
+router.use('/user', userRouter);
+router.use('/jobs', jobRouter);
 
 // module exports
 module.exports = router;

@@ -69,7 +69,7 @@ public class ApplicationMaster extends AbstractService {
   protected StatusManager statusManager;
   protected RequestManager requestManager;
   private RMResyncHandler rmResyncHandler;
-  private GpuAllocationManager gpuAllocationManager;
+  protected GpuAllocationManager gpuAllocationManager;
 
   /**
    * REGION StateVariable
@@ -333,13 +333,13 @@ public class ApplicationMaster extends AbstractService {
           resource, maxResource);
     }
 
-    if (resource.getGpuNumber() > 0 && resource.getGpuAttribute() == 0) {
+    if (resource.getGpuNumber() > 0) {
       updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
 
-      Node node = gpuAllocationManager.allocateCandidateRequestNode(resource, nodeLabel, nodeGpuType);
-      if (node != null) {
-        resource.setGpuAttribute(node.getSelectedGpuBitmap());
-        return HadoopUtils.toContainerRequest(resource, priority, null, node.getHostName());
+      GpuAllocation gpuAllocation = gpuAllocationManager.selectCandidateRequestNode(resource, nodeLabel, nodeGpuType);
+      if (gpuAllocation != null) {
+        resource.setGpuAttribute(gpuAllocation.getGpuBitmap());
+        return HadoopUtils.toContainerRequest(resource, priority, null, gpuAllocation.getNodeName());
       } else {
         LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
@@ -680,6 +680,8 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
         taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
     rmClient.addContainerRequest(request);
+    gpuAllocationManager.addContainerRequest(request);
+
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
         new TaskEvent().setContainerRequest(request));
 
@@ -986,7 +988,6 @@ public class ApplicationMaster extends AbstractService {
     if (!statusManager.containsTask(taskLocator)) {
       return;
     }
-
     ContainerRequest request = statusManager.getContainerRequest(taskLocator);
     if (request == null) {
       return;
@@ -995,8 +996,15 @@ public class ApplicationMaster extends AbstractService {
     try {
       rmClient.removeContainerRequest(request);
     } catch (Exception e) {
-      LOGGER.logError(e, "%s: Failed to removeContainerRequest", taskLocator);
+      LOGGER.logError(e, "%s: Failed to rmClient.removeContainerRequest", taskLocator);
     }
+
+    try {
+      gpuAllocationManager.removeContainerRequest(request);
+    } catch (Exception e) {
+      LOGGER.logError(e, "%s: Failed to gpuAllocationManager.removeContainerRequest", taskLocator);
+    }
+
   }
 
   private void allocateContainer(Container container) throws Exception {

@@ -15,14 +15,33 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const clusterComponent = require('./cluster.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const Joi = require('joi');
+const jwt = require('express-jwt');
+const config = require('./index');
 
-
-const clusterHtml = clusterComponent({
-  clusterStatusUri: webportalConfig.clusterStatusUri
+const jwtCheck = jwt({
+  secret: config.jwtSecret
 });
 
-$('#content-wrapper').html(clusterHtml);
+// define input schema
+const tokenPostInputSchema = Joi.object().keys({
+  username: Joi.string()
+    .token()
+    .required(),
+  password: Joi.string()
+    .min(6)
+    .required(),
+  expiration: Joi.number()
+    .integer()
+    .min(60)
+    .max(7 * 24 * 60 * 60)
+    .default(24 * 60 * 60)
+}).required();
+
+// module exports
+module.exports = {
+  secret: config.jwtSecret,
+  check: jwtCheck,
+  tokenPostInputSchema: tokenPostInputSchema
+};

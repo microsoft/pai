@@ -7,11 +7,13 @@
 *.sdf
 *.suo
 *.vcxproj.user
+*.log
 .idea
 .svn
 .classpath
 .project
 .settings
+.vscode
 target/
 build/
 out/

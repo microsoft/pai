@@ -69,6 +69,9 @@ const launcherConfigSchema = Joi.object().keys({
   webserviceUri: Joi.string()
     .uri()
     .required(),
+  healthCheckPath: Joi.func()
+    .arity(0)
+    .required(),
   frameworksPath: Joi.func()
     .arity(0)
     .required(),
@@ -101,6 +104,13 @@ if (error) {
 }
 launcherConfig = value;
 
+childProcess.exec(
+    `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container && hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/output && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/Container && hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/output`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+    });
 
 // prepare hdfs file path
 const prepareHdfsPath = () => {
@@ -112,7 +122,9 @@ const prepareHdfsPath = () => {
           callback(err);
         });
   }, (err) => {
-    throw err;
+    if (err) {
+      throw err;
+    }
   });
 };
 
@@ -163,7 +175,6 @@ const prepareLocalPath = () => {
 
 // framework launcher health check
 unirest.get(launcherConfig.healthCheckPath())
-    .headers(launcherConfig.webserviceRequestHeaders)
     .timeout(2000)
     .end((res) => {
       if (res.status === 200) {

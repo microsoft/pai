@@ -86,154 +86,180 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 
 
-def generate_template_file(cluster_config, service_config):
+def generate_template_file_service(cluster_config, service_config, image_name):
 
-    image_list = service_config['imagelist']
+    if service_config['imagelist'][image_name]['templatelist'][0] == 'None':
+        return
 
-    for image in image_list:
-
-        if image_list[image]['templatelist'][0] == 'None':
-            continue
-
-        for template_file in image_list[image]['templatelist']:
-            template_data = read_template("src/{0}/{1}.template".format(image, template_file))
-            generate_data = generate_from_template(template_data, cluster_config)
-            write_generated_file("src/{0}/{1}".format(image, template_file), generate_data)
+    for template_file in service_config['imagelist'][image_name]['templatelist']:
+        template_data = read_template("src/{0}/{1}.template".format(image_name, template_file))
+        generate_data = generate_from_template(template_data, cluster_config)
+        write_generated_file("src/{0}/{1}".format(image_name, template_file), generate_data)
 
 
 
-def delete_generated_template_file(service_config):
+def delete_generated_template_file_service(service_config, image_name):
 
-    image_list = service_config['imagelist']
+    if service_config['imagelist'][image_name]['templatelist'][0] == 'None':
+        return
 
-    for image in image_list:
+    for template_file in service_config['imagelist'][image_name]['templatelist']:
+        file_path = "src/{0}/{1}".format(image_name, template_file)
 
-        if image_list[image]['templatelist'][0] == 'None':
-            continue
-
-        for template_file in image_list[image]['templatelist']:
-            file_path = "src/{0}/{1}".format(image, template_file)
-
-            if os.path.exists(file_path):
-                shell_cmd = "rm -rf {0}".format(file_path)
-                error_msg = "failed to rm {0}".format(file_path)
-                execute_shell(shell_cmd, error_msg)
-
-
-
-def copy_arrangement(service_config):
-
-    image_list = service_config['imagelist']
-
-    for image in image_list:
-
-        if 'copy' not in image_list[image]:
-            continue
-
-        dst = "src/{0}/copied_file".format(image)
-
-        if os.path.exists(dst) == False :
-            shell_cmd = "mkdir -p {0}".format(dst)
-            error_msg = "failed to mkdir -p {0}".format(dst)
-            execute_shell(shell_cmd, error_msg)
-
-        for copy_item_path in image_list[image]['copy']:
-            shell_cmd = "cp -r {0} {1}".format(copy_item_path, dst)
-            error_msg = "failed to copy {0}".format(copy_item_path)
+        if os.path.exists(file_path):
+            shell_cmd = "rm -rf {0}".format(file_path)
+            error_msg = "failed to rm {0}".format(file_path)
             execute_shell(shell_cmd, error_msg)
 
 
 
-def copy_cleanup(service_config):
+def copy_arrangement_service(service_config, image_name):
 
-    image_list = service_config['imagelist']
+    if 'copy' not in service_config['imagelist'][image_name]:
+        return
 
-    for image in image_list:
+    dst = "src/{0}/copied_file".format(image_name)
 
-        if 'copy' not in image_list[image]:
-            continue
+    if os.path.exists(dst) == False:
+        shell_cmd = "mkdir -p {0}".format(dst)
+        error_msg = "failed to mkdir -p {0}".format(dst)
+        execute_shell(shell_cmd, error_msg)
 
-        dst = "src/{0}/copied_file".format(image)
-
-        if os.path.exists(dst) == False:
-            continue
-
-        for copy_item_path in image_list[image]['copy']:
-            shell_cmd = "rm -rf {0}".format(dst)
-            error_msg = "failed to rm {0}".format(copy_item_path)
-            execute_shell(shell_cmd, error_msg)
+    for copy_item_path in service_config['imagelist'][image_name]['copy']:
+        shell_cmd = "cp -r {0} {1}".format(copy_item_path, dst)
+        error_msg = "failed to copy {0}".format(copy_item_path)
+        execute_shell(shell_cmd, error_msg)
 
 
 
-def dependency_solve(service_config, image_name, created_image, prefix):
+def copy_cleanup_service(service_config, image_name):
+
+    if 'copy' not in service_config['imagelist'][image_name]:
+        return
+
+    dst = "src/{0}/copied_file".format(image_name)
+
+    if os.path.exists(dst) == False:
+        return
+
+    for copy_item_path in service_config['imagelist'][image_name]['copy']:
+        shell_cmd = "rm -rf {0}".format(dst)
+        error_msg = "failed to rm {0}".format(copy_item_path)
+        execute_shell(shell_cmd, error_msg)
+
+
+
+def dependency_solve(cluster_config, service_config, image_name, created_image, prefix):
 
     if image_name == 'None':
         return
     if image_name in created_image:
         return
     print created_image
-    dependency_solve(service_config, service_config['imagelist'][image_name]['prerequisite'], created_image, prefix)
+    dependency_solve(cluster_config, service_config, service_config['imagelist'][image_name]['prerequisite'], created_image, prefix)
+
+    generate_template_file_service(cluster_config, service_config, image_name)
+    copy_arrangement_service(service_config, image_name)
 
     subprocess.check_call(
         "docker build -t {0}/{1} src/{1}/".format(prefix, image_name),
         shell=True
     )
 
+    copy_cleanup_service(service_config, image_name)
+    delete_generated_template_file_service(service_config, image_name)
+
     created_image[image_name] = True
 
 
 
-def build_docker_images(cluster_config, service_config):
+def build_docker_images(cluster_config, service_config, target):
 
     image_list = service_config['imagelist']
     created_image = {}
 
-    for image in image_list:
+    if target == 'all':
+
+        for image in image_list:
+
+            dependency_solve(
+                cluster_config, service_config, image, created_image,
+                cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
+            )
+
+        print "success building all docker images"
+
+    else:
+
+        image = target
+
         dependency_solve(
-            service_config, image, created_image,
+            cluster_config, service_config, image, created_image,
             cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
         )
 
-    print "success building all docker images"
 
 
-
-def push_docker_images(cluster_config, service_config):
+def push_docker_images(cluster_config, service_config, target):
 
     image_list = service_config['imagelist']
 
     docker_registry_info = cluster_config['clusterinfo']['dockerregistryinfo']
     docker_registry = docker_registry_info['docker_registry_domain']
     docker_namespace = docker_registry_info['docker_namespace']
+    docker_tag = docker_registry_info['docker_tag']
 
     if docker_registry == 'public':
         prefix = docker_namespace
     else:
         prefix = "{0}/{1}".format( docker_registry, docker_namespace )
 
-    for image in image_list:
+    if target == 'all':
 
-        try:
-            if docker_registry != 'public':
+        for image in image_list:
+
+            try:
                 subprocess.check_call(
-                    "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
+                    "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
                     shell=True
                 )
+            except subprocess.CalledProcessError as dockertagerr:
+                print "failed to tag {0}".format(image)
+                sys.exit(1)
+
+            try:
+                subprocess.check_call(
+                    "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
+                    shell=True
+                )
+            except subprocess.CalledProcessError as dockerpusherr:
+                print "failed to push {0}".format(image)
+                sys.exit(1)
+
+        print "success push all the images"
+
+    else:
+
+        image = target
+
+        try:
+            subprocess.check_call(
+                "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
+                shell=True
+            )
         except subprocess.CalledProcessError as dockertagerr:
             print "failed to tag {0}".format(image)
             sys.exit(1)
 
         try:
             subprocess.check_call(
-                "docker push {0}/{1}".format(prefix, image),
+                "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
-            print
-            "failed to push {0}".format(image)
+            print "failed to push {0}".format(image)
             sys.exit(1)
 
-    print "success push all the images"
 
 
 
@@ -283,6 +309,7 @@ def hadoop_binary_prepare(custom_hadoop_path, hadoop_version):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help="path to cluster configuration file")
+    parser.add_argument('-n', '--imagename', default='all', help="Build and push target image to the registry")
 
     args = parser.parse_args()
 
@@ -300,22 +327,19 @@ def main():
     docker_username = docker_registry_info['docker_username']
     docker_password = docker_registry_info['docker_password']
 
+    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
+        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
+
     if docker_registry == "public":
         docker_registry = ""
 
     login_docker_registry(docker_registry, docker_username, docker_password)
 
-    generate_template_file(cluster_config, service_config)
-
-    copy_arrangement(service_config)
-    build_docker_images(cluster_config, service_config)
-    copy_cleanup(service_config)
+    build_docker_images(cluster_config, service_config, args.imagename)
 
     hadoop_binary_remove(hadoop_version)
-    delete_generated_template_file(service_config)
 
-
-    push_docker_images(cluster_config, service_config)
+    push_docker_images(cluster_config, service_config, args.imagename)
 
 
 

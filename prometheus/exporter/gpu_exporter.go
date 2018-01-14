@@ -14,7 +14,6 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 package main
 
 import (
@@ -103,8 +102,8 @@ func writeFileTest() {
     dstFile.WriteString(s + "\n")
 }
 
-func writeMetricsToFile(index int, logDir string) {
-    fileName := logDir + "gpu_exporter.prom"
+func writeMetricsToFile(logDir string) {
+    fileName := logDir + "/gpu_exporter.prom"
     dstFile,err := os.Create(fileName)
     if err!=nil{
         fmt.Println(err.Error())
@@ -114,7 +113,6 @@ func writeMetricsToFile(index int, logDir string) {
     var cmd *exec.Cmd            
     
     cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
-
     // Execute system command
     stdout, err := cmd.Output()
     if err != nil {
@@ -153,8 +151,9 @@ func writeMetricsToFile(index int, logDir string) {
 }
 
 func main() {
-    logDir := flag.String("gpu_log_dir", "/var/local/prom-exporters", "log written dir")   
+    logDir := flag.String("gpu_log_dir", "/datastorage/promethues", "log written dir")   
     mode := flag.String("flag", "gpu", "gpu server")
+    sleepTime := flag.Int("sleepTime", 30, "cmd sleep duration")   
     flag.Parse()
     NVIDIA_SMI_PATH = os.Getenv("NV_DRIVER") + "/bin/nvidia-smi"
     _, err := os.Stat(*logDir)
@@ -167,12 +166,10 @@ func main() {
         log.Print("no gpu")   
         return   
     }
-    var index = 1
  
-    for a := 0; a < 1; {
+    for {
         log.Print("gpu_server flag" + *mode)
-        index ++
-        writeMetricsToFile(index, *logDir)
-        time.Sleep(3*time.Second)      
+        writeMetricsToFile(*logDir)
+        time.Sleep(time.Duration(*sleepTime) * time.Second)  
     }
 }
