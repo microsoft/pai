@@ -127,7 +127,6 @@ const loadJobs = () => {
     url: `${webportalConfig.restServerUri}/api/v1/jobs`,
     type: 'GET',
     success: (data) => {
-      loading.hideLoading();
       if (data.error) {
         alert(data.message);
       } else {
@@ -147,10 +146,12 @@ const loadJobs = () => {
           ]
         });
       }
+      loading.hideLoading();
     },
     error: (xhr, textStatus, error) => {
       const res = JSON.parse(xhr.responseText);
       alert(res.message);
+      loading.hideLoading();
     }
   });
 };
