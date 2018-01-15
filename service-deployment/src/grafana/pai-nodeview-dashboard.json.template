@@ -78,7 +78,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{$node} CPU utilization",
+              "legendFormat": "{$node} cpu utilization",
               "refId": "B"
             }
           ],
@@ -179,7 +179,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Usage",
+              "legendFormat": "usage",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -191,7 +191,7 @@
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Free",
+              "legendFormat": "free",
               "refId": "E",
               "step": 600
             }
@@ -474,7 +474,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "GPU AVG Utilization",
+              "legendFormat": "avg gpu utilization",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -556,7 +556,7 @@
               "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "GPU Memory Utilization",
+              "legendFormat": "gpu memory",
               "refId": "B"
             }
           ],
