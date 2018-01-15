@@ -45,7 +45,8 @@ RUN apt-get -y update && \
       git \
       inotify-tools \
       rsync \
-      realpath 
+      realpath \
+      net-tools
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 
 
