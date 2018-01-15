@@ -161,11 +161,10 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 //
 
 const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = "1m";
   $.ajax({
     type: 'GET',
     url: prometheusUri + "/api/v1/query_range?" +
-      "query=avg+by+(instance)(irate(nvidiasmi_utilization_gpu%5B" + metricGranularity + "%5D))" +
+      "query=avg+by+(instance)(nvidiasmi_utilization_gpu)" +
       "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
     success: function(data) {
       initCells("gpu", instanceList, table);
@@ -188,11 +187,10 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 //
 
 const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = "1m";
   $.ajax({
     type: 'GET',
     url: prometheusUri + "/api/v1/query_range?" +
-      "query=avg+by+(instance)(irate(nvidiasmi_utilization_memory%5B" + metricGranularity + "%5D))" +
+      "query=avg+by+(instance)(nvidiasmi_utilization_memory)" +
       "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
     success: function(data) {
       initCells("gpumem", instanceList, table);
