@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,30 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
 
-# Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
+cluster_config=$1
+dos2unix $cluster_config
 
-# Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
-applicationTransientConflictMinDelaySec: 600
 
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
+printf "\nStarting end to end tests:\n"
 
-# ApplicationMaster Setup
-amVersion: 0
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
+printf "\nTesting service ...\n"
+bats test_service.sh
 
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 5
+printf "\nTesting hdfs ...\n"
+cluster_config=$cluster_config bats test_hdfs.sh
+
+printf "\nTesting framework launcher ...\n"
+cluster_config=$cluster_config bats test_launcher.sh
+
+printf "\nTesting rest server ...\n"
+cluster_config=$cluster_config bats test_rest_server.sh

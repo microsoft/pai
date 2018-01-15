@@ -313,6 +313,9 @@ def main():
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
+    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
+        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
+
     # step 4: generate templatefile
     if args.service == 'all':
 

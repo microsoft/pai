@@ -15,26 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//
 
-// module dependencies
-const k8sComponent = require('./k8s.component.ejs');
+const hardwareDetailComponent = require('./hardware-detail.component.ejs');
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
+const url = require('url');
 
-const k8sDashboardHtml = k8sComponent({
-  k8sDashboardUri: webportalConfig.k8sDashboardUri
-});
+//
 
-function resizeContentWrapper() {
+const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-iframe').css('height', (($(window).height() - 120)) + 'px');
 }
 
-window.onresize = function (envent) {
-  resizeContentWrapper();
-}
+//
 
-$(document).ready(function () {
+$(document).ready(() => {
+  $('#sidebar-menu--cluster-view').addClass('active');
+  $('#sidebar-menu--cluster-view--hardware').addClass('active');
+  let instance = "";
+  const query = url.parse(window.location.href, true).query;
+  if (query['instance']) {
+    instance = query['instance'];
+  } else {
+    return;
+  }
+  const hardwareDetailHtml = hardwareDetailComponent({
+    breadcrumb: breadcrumbComponent,
+    grafanaUri: webportalConfig.grafanaUri,
+    instance: instance
+  });
+  $('#content-wrapper').html(hardwareDetailHtml);
+  window.onresize = function (envent) {
+    resizeContentWrapper();
+  }
   resizeContentWrapper();
-  $("#sidebar-menu--cluster-view").addClass("active");
-  $("#sidebar-menu--cluster-view--k8s").addClass("active");
-  $('#content-wrapper').html(k8sDashboardHtml);
 });

@@ -28,6 +28,8 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
+      nodeSelector:
+        node-exporter: "true"
       containers:
       - image: prom/node-exporter
         volumeMounts:
@@ -40,7 +42,7 @@ spec:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter
+      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         securityContext:
           privileged: true
         volumeMounts:

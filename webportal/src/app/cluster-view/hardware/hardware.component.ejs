@@ -1,1 +1,51 @@
-<iframe style="display:block; width:100%; height:90vh; border:none;" src="<%= grafanaUri %>/dashboard/db/pai_nodeview"></iframe>
+<%
+const metricNames = ["CPU", "Memory", "GPU", "GPU Mem", "Disk", "Ethernet"];
+const idPrefixes = ["cpu", "mem", "gpu", "gpumem", "disk", "eth"];
+%>
+
+<section class='content-header'><%= breadcrumb({ breadcrumbTitle: "Hardware Utilization" }) %></section>
+
+<section class='content'>
+<div class='box'>
+  <div class='box-body'>
+    <table id='hardware-table' class='table table-bordered table-hover' style='vertical-align:middle'>
+      <thead>
+        <tr>
+          <th>Machine Name</th>
+          <th>IP Address</th>
+<%
+for (let i = 0; i < metricNames.length; i++) {
+%>
+          <th class='metric-cell'><%= metricNames[i] %></th>
+<%
+}
+%>
+        </tr>
+      </thead>
+      <tbody>
+<%
+for (let i = 0; i < machineMetaData.data.result.length; i++) {
+  const metric = machineMetaData.data.result[i].metric;
+  const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
+  const machineName = metric.nodename;
+  const ipAddress = metric.instance.split(":")[0];
+  const idSuffix = ":" + metric.instance;
+%>
+        <tr>
+          <td><a href='<%= nodeViewUrl %>'><%= machineName %></a></td>
+          <td><%= ipAddress %></td>
+<%
+  for (let j = 0; j < idPrefixes.length; j++) {
+    const id = idPrefixes[j] + idSuffix;
+%>
+          <td id='<%= id %>' class='metric-cell'>
+            <i class='fa fa-spinner fa-pulse fa-fw metric-icon-loading' title='0% (Loading)'></i>
+          </td>
+<%
+  }
+}
+%>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/usr/bin/env bats
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,30 +17,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
 
-# Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
+. utils.sh
 
-# Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
-applicationTransientConflictMinDelaySec: 600
+eval $(parse_yaml $cluster_config "pai_")
+hdfs_uri=$pai_clusterinfo_restserverinfo_hdfs_uri
+webhdfs_uri="$(echo $hdfs_uri | sed -e "s/^hdfs/http/g" | sed -e "s/9000/50070/g")"
 
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
 
-# ApplicationMaster Setup
-amVersion: 0
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
-
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 5
+@test "check framework launcher health check" {
+  result="$(curl $webhdfs_uri/webhdfs/v1/?op=LISTSTATUS)"
+  [[ $result == *FileStatuses* ]]
+}

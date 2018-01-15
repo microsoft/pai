@@ -29,7 +29,7 @@ imagelist:
 
   drivers:
     templatelist:
-      - None
+      - dockerfile
     prerequisite: None
 
   hadoop-run:
@@ -182,6 +182,7 @@ servicelist:
       - node-exporter-ds.yaml
       - prometheus-configmap.yaml
       - prometheus-deployment.yaml
+      - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
 

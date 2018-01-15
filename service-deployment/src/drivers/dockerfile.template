@@ -57,11 +57,12 @@ RUN apt-get -y update && \
 
 WORKDIR $STAGE_DIR
 
-COPY install-* $STAGE_DIR/
+COPY install-* enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 RUN chmod u+x install-nvidia-drivers
 RUN chmod u+x install-all-drivers
+RUN chmod u+x enable-nvidia-persistenced-mode.sh
 
-ENV NVIDIA_VERSION=384.98
+ENV NVIDIA_VERSION={{ clusterconfig['clusterinfo']['nvidia_drivers_version'] }}
 
 RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
     chmod 750 ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \

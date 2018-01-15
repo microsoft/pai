@@ -54,6 +54,7 @@ class Job {
                 name: frameworkName,
                 username: jobStatus.username,
                 state: jobStatus.state,
+                subState: jobStatus.subState,
                 retries: jobStatus.retries,
                 createdTime: jobStatus.createdTime,
                 completedTime: jobStatus.completedTime,
@@ -94,11 +95,46 @@ class Job {
             next(job, new Error('job not found'));
           } else {
             if (framework.frameworkStatus) {
+              let jobState = "";
+              const frameworkState = framework.frameworkStatus.frameworkState;
+              const applicationExitType = framework.frameworkStatus.applicationExitType;
+              if (
+                  frameworkState == 'FRAMEWORK_WAITING' ||
+                  frameworkState == 'APPLICATION_CREATED' ||
+                  frameworkState == 'APPLICATION_LAUNCHED' ||
+                  frameworkState == 'APPLICATION_WAITING'
+                ) {
+                jobState = 'WAITING';
+              } else if (
+                  frameworkState == 'APPLICATION_RUNNING' ||
+                  frameworkState == 'APPLICATION_RETRIEVING_DIAGNOSTICS' ||
+                  frameworkState == 'APPLICATION_COMPLETED'
+                ) {
+                jobState = 'RUNNING';
+              } else if (
+                  frameworkState == 'FRAMEWORK_COMPLETED' &&
+                  applicationExitType == 'SUCCEEDED'
+                ) {
+                jobState = 'SUCCEEDED';
+              } else if (
+                  frameworkState == 'FRAMEWORK_COMPLETED' &&
+                  applicationExitType != 'SUCCEEDED'
+                ) {
+                jobState = 'FAILED';
+              }
+              let jobRetryCount = 0;
+              const jobRetryCountInfo = framework.frameworkStatus.frameworkRetryPolicyState;
+              jobRetryCount =
+                jobRetryCountInfo.transientNormalRetriedCount +
+                jobRetryCountInfo.transientConflictRetriedCount +
+                jobRetryCountInfo.nonTransientRetriedCount +
+                jobRetryCountInfo.unKnownRetriedCount;
               job.jobStatus = {
                 name,
                 username: 'unknown',
-                state: framework.frameworkStatus.frameworkState,
-                retries: 0,
+                state: jobState,
+                subState: framework.frameworkStatus.frameworkState,
+                retries: jobRetryCount,
                 createdTime: framework.frameworkStatus.frameworkCreatedTimestamp,
                 completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
                 appId: framework.frameworkStatus.applicationId,
@@ -110,9 +146,6 @@ class Job {
                 appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
                 appExitType: framework.frameworkStatus.applicationExitType
               };
-              if (framework.frameworkStatus.frameworkRetryPolicyState.retriedCount) {
-                job.jobStatus.retries = framework.frameworkStatus.frameworkRetryPolicyState.retriedCount;
-              }
             }
             if (framework.aggregatedTaskRoleStatuses) {
               for (let taskRole of Object.keys(framework.aggregatedTaskRoleStatuses)) {

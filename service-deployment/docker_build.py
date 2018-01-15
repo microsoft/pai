@@ -207,6 +207,7 @@ def push_docker_images(cluster_config, service_config, target):
     docker_registry_info = cluster_config['clusterinfo']['dockerregistryinfo']
     docker_registry = docker_registry_info['docker_registry_domain']
     docker_namespace = docker_registry_info['docker_namespace']
+    docker_tag = docker_registry_info['docker_tag']
 
     if docker_registry == 'public':
         prefix = docker_namespace
@@ -218,23 +219,21 @@ def push_docker_images(cluster_config, service_config, target):
         for image in image_list:
 
             try:
-                if docker_registry != 'public':
-                    subprocess.check_call(
-                        "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
-                        shell=True
-                    )
+                subprocess.check_call(
+                    "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
+                    shell=True
+                )
             except subprocess.CalledProcessError as dockertagerr:
                 print "failed to tag {0}".format(image)
                 sys.exit(1)
 
             try:
                 subprocess.check_call(
-                    "docker push {0}/{1}".format(prefix, image),
+                    "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
                     shell=True
                 )
             except subprocess.CalledProcessError as dockerpusherr:
-                print
-                "failed to push {0}".format(image)
+                print "failed to push {0}".format(image)
                 sys.exit(1)
 
         print "success push all the images"
@@ -244,23 +243,21 @@ def push_docker_images(cluster_config, service_config, target):
         image = target
 
         try:
-            if docker_registry != 'public':
-                subprocess.check_call(
-                    "docker tag {0}/{1} {2}/{0}/{1}".format(docker_namespace, image, docker_registry),
-                    shell=True
-                )
+            subprocess.check_call(
+                "docker tag {0}/{1} {2}/{1}:{3}".format(docker_namespace, image, prefix, docker_tag),
+                shell=True
+            )
         except subprocess.CalledProcessError as dockertagerr:
             print "failed to tag {0}".format(image)
             sys.exit(1)
 
         try:
             subprocess.check_call(
-                "docker push {0}/{1}".format(prefix, image),
+                "docker push {0}/{1}:{2}".format(prefix, image, docker_tag),
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
-            print
-            "failed to push {0}".format(image)
+            print "failed to push {0}".format(image)
             sys.exit(1)
 
 
@@ -329,6 +326,9 @@ def main():
     docker_registry = docker_registry_info['docker_registry_domain']
     docker_username = docker_registry_info['docker_username']
     docker_password = docker_registry_info['docker_password']
+
+    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
+        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
 
     if docker_registry == "public":
         docker_registry = ""

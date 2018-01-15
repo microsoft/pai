@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/usr/bin/env bats
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,30 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
 
-# Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
+. utils.sh
 
-# Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
-applicationTransientConflictMinDelaySec: 600
+eval $(parse_yaml $cluster_config "pai_")
+launcher_uri=$pai_clusterinfo_restserverinfo_webservice_uri
 
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
 
-# ApplicationMaster Setup
-amVersion: 0
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
-
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 5
+@test "check framework launcher health check" {
+  result="$(curl $launcher_uri)"
+  [[ $result == *Active* ]]
+}

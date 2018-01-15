@@ -32,11 +32,13 @@ spec:
         webportal: "true"
       containers:
       - name: webportal
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         env:
         - name: REST_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+        - name: PROMETHEUS_URI
+          value: {{ clusterinfo['webportalinfo']['prometheus_uri'] }}
         - name: GRAFANA_URI
           value: {{ clusterinfo['webportalinfo']['grafana_uri'] }}
         - name: K8S_DASHBOARD_URI
@@ -44,7 +46,7 @@ spec:
         - name: K8S_API_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
         - name: EXPORTER_PORT
-          value: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+          value: "{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}"
         ports:
         - name: webportal
           containerPort: 8080

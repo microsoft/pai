@@ -1,6 +1,4 @@
-#!/bin/sh
-
-#!/bin/bash
+#!/usr/bin/env bats
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -19,10 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-INSTANCES="daemonset/node-exporter
-deployment/prometheus-deployment
-configmap/prometheus-configmap"
 
-for instance in ${INSTANCES}; do
-  kubectl delete --ignore-not-found --now ${instance}
-done
+. utils.sh
+
+eval $(parse_yaml $cluster_config "pai_")
+rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
+
+
+@test "check rest server health check" {
+  result="$(curl $rest_server_uri)"
+  [[ $result == *API* ]]
+}
