@@ -26,4 +26,8 @@ const checkToken = (callback) => {
   }
 };
 
-module.exports = { checkToken };
+const checkAdmin = () => {
+  return cookies.get('admin') === 'true';
+};
+
+module.exports = { checkToken, checkAdmin };
