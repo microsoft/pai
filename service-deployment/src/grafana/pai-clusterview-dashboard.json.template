@@ -177,7 +177,7 @@
             }
           ],
           "thresholds": "50, 90",
-          "title": "GPU Usage ( % )",
+          "title": "Active GPUs ( % )",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -255,7 +255,7 @@
             }
           ],
           "thresholds": "50, 90",
-          "title": "Used",
+          "title": "Active GPUs",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -332,7 +332,7 @@
             }
           ],
           "thresholds": "1",
-          "title": "Total",
+          "title": "Total GPUs",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -467,14 +467,14 @@
               "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree) - sum(node_memory_Buffers) - sum(node_memory_Cached)",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "memory usage",
+              "legendFormat": "usage",
               "refId": "A"
             },
             {
               "expr": "sum(node_memory_MemFree)",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "memory free",
+              "legendFormat": "free",
               "refId": "D"
             }
           ],
@@ -549,14 +549,14 @@
               "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "In",
+              "legendFormat": "in",
               "refId": "A"
             },
             {
               "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Out",
+              "legendFormat": "out",
               "refId": "B"
             }
           ],
