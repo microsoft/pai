@@ -27,7 +27,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 
  1. Prepare linux enviroment
  
-       Ubuntu 16.04 is the default system. below dependencies must be installed:
+       Ubuntu 16.04 is the default system. This dependencies must be installed:
 
   	    sudo apt-get install -y git openjdk-8-jre openjdk-8-jdk maven \
 	    	cmake libtool automake autoconf findbugs libssl-dev pkg-config build-essential zlib1g-dev
@@ -56,7 +56,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 
    	Run command “mvn package -Pdist,native -DskipTests -Dtar”
    
-    Please make sure you can pass result before move to next steps, you can search the internet to find how to set up the enviroment and build the official hadoop.
+    Please make sure you can pass result before move to next steps, you can search the internet to find how to set up the environment and build the official hadoop.
    
    
 5. Apply hadoop AI enhancement patch file
@@ -82,13 +82,13 @@ https://issues.apache.org/jira/browse/YARN-7481
   
      	Run command “mvn package -Pdist,native -DskipTests -Dtar”
 
-     you will get the hadoop-2.7.2.tar.gz under hadoop-dist/target folder if everything is good. 
+     you will get the `hadoop-2.7.2.tar.gz` under `hadoop-dist/target` folder if everything is good. 
 
-     use hadoop-2.7.2.tar.gz to set your hadoop path to deploy into your cluster.  
+     use `hadoop-2.7.2.tar.gz` to set your hadoop path to deploy into your cluster.  
    
 
 ## Yarn GPU Interface ##
-1. Add GPUs and GPUAttribute into yarn_protos as interface.
+1. Add GPUs and GPUAttribute into `yarn_protos` as interface.
 
     sourcefile:
     hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/proto/yarn_protos.proto
@@ -130,7 +130,7 @@ https://issues.apache.org/jira/browse/YARN-7481
                 <value>8</value>
             </property>		
             <property>
-                <description>Percentage of GPU that can be allocated  for containers. This setting allows users to limit the amount of  GPU that YARN containers use. Currently functional only  on Linux using cgroups. The default is to use 100% of GPU.
+                <description>Percentage of GPU that can be allocated  for containers. This setting allows users to limit the amount of  GPU that YARN containers use. Currently functional only on Linux using cgroups. The default is to use 100% of GPU.
                 </description>
                 <name>yarn.nodemanager.resource.percentage-physical-gpu-limit</name>
                 <value>100</value>
@@ -204,8 +204,8 @@ https://issues.apache.org/jira/browse/YARN-7481
 
   sourcefile: org.apache.hadoop.yarn.util.LinuxResourceCalculatorPlugin
 
-   In the node manager, the node's GPU capacity is collected by running a nvidia-smi command when the Node Manger service starts. We only collect the GPU capacity during NM's initialization.  
-   Node manger heartbeat does not report resource utilization status in Hadoop 2.7.2. In Hadoop 2.8 or later, Node Manger heartbeat is reporting the local resource information, we will consider adding more GPU status in the heartbeat.
+   In the node manager, the node's GPU capacity is collected by running a nvidia-smi command when the Node Manager service starts. We only collect the GPU capacity during NM's initialization.  
+   Node manager heartbeat does not report resource utilization status in Hadoop 2.7.2. In Hadoop 2.8 or later, Node Manager heartbeat is reporting the local resource information, we will consider adding more GPU status in the heartbeat.
 
 ## Web apps   ##
 
