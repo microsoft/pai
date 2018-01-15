@@ -748,8 +748,8 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "10.151.40.202:9100",
-          "value": "10.151.40.202:9100"
+          "text": "",
+          "value": ""
         },
         "datasource": "PM",
         "hide": 0,

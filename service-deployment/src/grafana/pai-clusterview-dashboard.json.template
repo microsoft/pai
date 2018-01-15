@@ -168,7 +168,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "100 * (sum(nvidiasmi_utilization_gpu) / sum(nvidiasmi_attached_gpus))",
+              "expr": "100 * (count(nvidiasmi_utilization_gpu > 0) / sum(nvidiasmi_attached_gpus))",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -247,8 +247,9 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(nvidiasmi_utilization_gpu)",
+              "expr": "count(nvidiasmi_utilization_gpu > 0)",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 2,
               "refId": "A"
             }
