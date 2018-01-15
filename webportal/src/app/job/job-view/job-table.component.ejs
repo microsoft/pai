@@ -1,4 +1,4 @@
-<table class="table table-hover">
+<table id="job-table" class="table table-bordered table-hover">
   <thead>
     <tr>
       <th>Job Name</th>
@@ -7,7 +7,7 @@
       <th>Duration</th>
       <th>Retries</th>
       <th>Status</th>
-      <th>Delete</th>
+      <!-- <th>Delete</th> -->
     </tr>
   </thead>
   <tbody>
@@ -16,10 +16,14 @@
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
         <td><%= convertTime(false, jobs[i].createdTime) %></td>
-        <td><%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %></td>
+        <td>
+          <span title="<%= getDurationInSeconds(jobs[i].createdTime, jobs[i].completedTime) %> sec">
+            <%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %>
+          </span>
+        </td>
         <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
-        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
+        <!-- <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td> -->
       </tr>
     <% } %>
   </tbody>

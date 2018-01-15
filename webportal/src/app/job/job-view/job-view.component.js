@@ -17,7 +17,15 @@
 
 
 // module dependencies
+
+require('datatables.net/js/jquery.dataTables.js');
+require('datatables.net-bs/js/dataTables.bootstrap.js');
+require('datatables.net-bs/css/dataTables.bootstrap.css');
+require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-plugins/sorting/title-numeric.js');
+require('./job-view.component.scss');
 const url = require('url');
+const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
@@ -26,8 +34,8 @@ const jobViewComponent = require('./job-view.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-require('./job-view.component.scss');
 
+let table = null;
 
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
@@ -35,18 +43,28 @@ const jobViewHtml = jobViewComponent({
   jobTable: jobTableComponent
 });
 
+const getDurationInSeconds = (startTime, endTime) => {
+  if (startTime == null) {
+    return 0;
+  }
+  if (endTime == null) {
+    endTime = Date.now();
+  }
+  return Math.round((endTime - startTime) / 1000);
+}
+
 const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
     if (elapsed) {
-      if (!endTime) {
-        endTime = Date.now();
-      }
-      const elapsedTime = parseInt((endTime - startTime) / 1000);
+      const elapsedTime = getDurationInSeconds(startTime, endTime);
+      return moment.duration(elapsedTime, "seconds").humanize();
+      /*
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
       const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
       const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
       const elapsedSecond = parseInt(elapsedTime % 60);
       return `${elapsedDay} day ${elapsedHour} hour ${elapsedMinute} min ${elapsedSecond} sec`;
+      */
     } else {
       const startDate = new Date(startTime);
       return startDate.toLocaleString();
@@ -115,9 +133,19 @@ const loadJobs = () => {
       } else {
         $('#view-table').html(jobTableComponent({
           jobs: data,
+          getDurationInSeconds,
           convertTime,
           convertState
         }));
+        table = $('#job-table').DataTable({
+          'scrollY': (($(window).height() - 265)) + 'px',
+          'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
+          "order": [[ 2, "desc" ]],
+          columnDefs: [
+            { type: 'natural', targets: [0, 1, 2, 4, 5] },
+            { type: 'title-numeric', targets: [3] }
+          ]
+        });
       }
     },
     error: (xhr, textStatus, error) => {
@@ -179,15 +207,29 @@ window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
 window.loadJobDetail = loadJobDetail;
 
-$("#sidebar-menu--job-view").addClass("active");
+const resizeContentWrapper = () => {
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  if (table != null) {
+    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    table.columns.adjust().draw();
+  }
+}
 
 $('#content-wrapper').html(jobViewHtml);
+
 $(document).ready(() => {
+  window.onresize = function (envent) {
+    resizeContentWrapper();
+  }
+  resizeContentWrapper();
+  $('#sidebar-menu--job-view').addClass('active');
   const query = url.parse(window.location.href, true).query;
   if (query['jobName']) {
     loadJobDetail(query['jobName']);
+    $('#content-wrapper').css({'overflow': 'auto'});
   } else {
     loadJobs();
+    $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });
 
