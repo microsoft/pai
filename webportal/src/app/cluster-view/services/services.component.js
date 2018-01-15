@@ -25,7 +25,6 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const service = require('./service-info.js');
-require('floatthead/dist/jquery.floatThead.min.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -70,15 +69,6 @@ $('#sidebar-menu--cluster-view--services').addClass('active');
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
-  // $(document).on("mousemove", function(){
-  //   $('table').floatThead({
-  //     useAbsolutePositioning: false,
-  //     scrollContainer: function($table) {
-  //       return $table.closest('.body.scroll-y');
-  //     },
-  //     scrollingBottom: 10
-  //   });
-  // });
 });
 
 module.exports = { loadServices };
