@@ -177,13 +177,13 @@
             }
           ],
           "thresholds": "50, 90",
-          "title": "GPU Usage",
+          "title": "GPU Usage ( % )",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
             {
               "op": "=",
-              "text": "N/A",
+              "text": "0",
               "value": "null"
             }
           ],
@@ -261,7 +261,7 @@
           "valueMaps": [
             {
               "op": "=",
-              "text": "N/A",
+              "text": "0",
               "value": "null"
             }
           ],
