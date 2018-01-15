@@ -46,7 +46,7 @@ const loadServices = () => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data,
-      k8sUri: webportalConfig.k8sApiServerUri,
+      k8sUri: webportalConfig.k8sDashboardUri,
       grafanaUri: webportalConfig.grafanaUri,
       exporterPort: webportalConfig.exporterPort
     }));
