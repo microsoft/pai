@@ -26,6 +26,12 @@ const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const service = require('./service-info.js');
 require('floatthead/dist/jquery.floatThead.min.js');
+require('datatables.net/js/jquery.dataTables.js');
+require('datatables.net-bs/js/dataTables.bootstrap.js');
+require('datatables.net-bs/css/dataTables.bootstrap.css');
+require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-plugins/sorting/ip-address.js');
+require('datatables.net-plugins/sorting/title-numeric.js');
 require('./service-view.component.scss');
 
 const serviceViewHtml = serviceViewComponent({
@@ -45,6 +51,14 @@ const loadServices = () => {
       grafanaUri: webportalConfig.grafanaUri,
       exporterPort: webportalConfig.exporterPort
     }));
+    $('#service-datatable').DataTable({
+      "scrollY": (($(window).height() - 265)) + 'px',
+        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        columnDefs: [
+          { type: 'natural', targets: [1, 2] },
+          { type: 'ip-address', targets: [0] }
+        ]
+    });
   });
 };
 
@@ -56,15 +70,15 @@ $('#sidebar-menu--cluster-view--services').addClass('active');
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
-  $(document).on("mousemove", function(){
-    $('table').floatThead({
-      useAbsolutePositioning: false,
-      scrollContainer: function($table) {
-        return $table.closest('.body.scroll-y');
-      },
-      scrollingBottom: 10
-    });
-  });
+  // $(document).on("mousemove", function(){
+  //   $('table').floatThead({
+  //     useAbsolutePositioning: false,
+  //     scrollContainer: function($table) {
+  //       return $table.closest('.body.scroll-y');
+  //     },
+  //     scrollingBottom: 10
+  //   });
+  // });
 });
 
 module.exports = { loadServices };
