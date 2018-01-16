@@ -39,7 +39,7 @@ else
   # Usually drivers' startup process is much slower than node-manager.
   # So set the try times to 10. If after 10 time retris, the nm service still can't find gpu.
   # Please check the node status.
-  for (( i=1; i <= 10; i++ ))
+  for (( i=1; i<=10; i++ ))
   do
 
     if nvidia-smi
