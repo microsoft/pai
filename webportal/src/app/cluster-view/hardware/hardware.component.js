@@ -43,34 +43,23 @@ const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
   loadLevelString = "";
-  if (percentage < 0.1) {
-    innerColorString = "white";
-    outerColorString = "hsl(165, 100%, 50%)";
-    loadLevelString = "No load";
-  } else if (percentage >= 0.1 && percentage < 10) {
-    innerColorString = "hsl(165, 100%, 50%)";
-    outerColorString = "hsl(165, 100%, 50%)";
-    loadLevelString = "Very light load";
-  } else if (percentage >= 10 && percentage < 40) {
+  percentage = Math.random() * 100;
+  if (percentage < 25) {
     innerColorString = "hsl(120, 100%, 50%)";
     outerColorString = "hsl(120, 100%, 50%)";
     loadLevelString = "Light load";
-  } else if (percentage >= 40 && percentage < 60) {
+  } else if (percentage >= 25 && percentage < 50) {
     innerColorString = "hsl(45, 100%, 50%)";
     outerColorString = "hsl(45, 100%, 50%)";
     loadLevelString = "Medium load";
-  } else if (percentage >= 60 && percentage < 80) {
-    innerColorString = "hsl(30, 100%, 50%)";
-    outerColorString = "hsl(30, 100%, 50%)";
-    loadLevelString = "Heavy load";
-  } else if (percentage >= 80 && percentage < 95) {
+  } else if (percentage >= 50 && percentage < 75) {
     innerColorString = "hsl(0, 100%, 50%)";
     outerColorString = "hsl(0, 100%, 50%)";
-    loadLevelString = "Very heavy load";
-  } else if (percentage >= 95) {
+    loadLevelString = "Heavy load";
+  } else if (percentage >= 75) {
     innerColorString = "hsl(0, 100%, 25%)";
     outerColorString = "hsl(0, 100%, 25%)";
-    loadLevelString = "Extremely heavy load";
+    loadLevelString = "Very heavy load";
   }
   const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
