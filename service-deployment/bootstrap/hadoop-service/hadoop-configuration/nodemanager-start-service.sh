@@ -44,14 +44,15 @@ else
 
     if nvidia-smi
     then
-        break
+      echo GPUs are found.
+      break
     fi
 
     sleep 60
 
   done
 
-  nvidia-smi
+
   $HADOOP_YARN_HOME/bin/yarn nodemanager
 fi
 
