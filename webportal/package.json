@@ -38,6 +38,7 @@
     "express": "4.16.2",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "1.1.5",
+    "floatthead": "2.0.3",
     "font-awesome": "4.7.0",
     "fs-extra": "5.0.0",
     "handlebars": "4.0.11",

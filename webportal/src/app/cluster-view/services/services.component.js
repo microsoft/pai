@@ -25,6 +25,12 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const service = require('./service-info.js');
+require('datatables.net/js/jquery.dataTables.js');
+require('datatables.net-bs/js/dataTables.bootstrap.js');
+require('datatables.net-bs/css/dataTables.bootstrap.css');
+require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-plugins/sorting/ip-address.js');
+require('datatables.net-plugins/sorting/title-numeric.js');
 require('./service-view.component.scss');
 
 const serviceViewHtml = serviceViewComponent({
@@ -37,32 +43,33 @@ const serviceViewHtml = serviceViewComponent({
 const loadServices = () => {
   loading.showLoading();
   service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
-    console.log(data);
-  });
-  service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data,
-      k8sUri: webportalConfig.k8sApiServerUri,
+      k8sUri: webportalConfig.k8sDashboardUri,
       grafanaUri: webportalConfig.grafanaUri,
       exporterPort: webportalConfig.exporterPort
     }));
+    $('#service-datatable').DataTable({
+      "scrollY": (($(window).height() - 265)) + 'px',
+        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        columnDefs: [
+          { type: 'natural', targets: [1, 2] },
+          { type: 'ip-address', targets: [0] }
+        ]
+    });
   });
 };
-
 
 window.loadServices = loadServices;
 
 $('#sidebar-menu--cluster-view').addClass('active');
 $('#sidebar-menu--cluster-view--services').addClass('active');
 
-
-
 $('#content-wrapper').html(serviceViewHtml);
 $(document).ready(() => {
   loadServices();
 });
-
 
 module.exports = { loadServices };
 

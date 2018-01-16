@@ -4,7 +4,11 @@
   font-size: 13px;
 }
 
-table{
-  min-width: 3500px;
-  overflow:auto;
+.table{
+  min-width: 3000px;
+}
+
+.table > thead{
+  background: #fff;
+  overflow: hidden;
 }

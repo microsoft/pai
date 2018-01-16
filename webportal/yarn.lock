@@ -1728,6 +1728,10 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+floatthead@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/floatthead/-/floatthead-2.0.3.tgz#a0df62342bf169aa1d56c3b518348b0916231df2"
+
 flot@^0.8.0-alpha:
   version "0.8.0-alpha"
   resolved "https://registry.yarnpkg.com/flot/-/flot-0.8.0-alpha.tgz#9cbbc7147c10a47d2549db90bd2987ec1ba784ba"
