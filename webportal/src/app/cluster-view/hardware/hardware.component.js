@@ -43,7 +43,6 @@ const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
   loadLevelString = "";
-  percentage = Math.random() * 100;
   if (percentage < 35) {
     innerColorString = "hsl(120, 100%, 40%)";
     outerColorString = "hsl(120, 100%, 40%)";
