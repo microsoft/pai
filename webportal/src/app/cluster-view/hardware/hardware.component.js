@@ -44,22 +44,18 @@ const getCellHtml = (percentage) => {
   outerColorString = "";
   loadLevelString = "";
   percentage = Math.random() * 100;
-  if (percentage < 25) {
-    innerColorString = "hsl(120, 100%, 50%)";
-    outerColorString = "hsl(120, 100%, 50%)";
+  if (percentage < 35) {
+    innerColorString = "hsl(120, 100%, 40%)";
+    outerColorString = "hsl(120, 100%, 40%)";
     loadLevelString = "Light load";
-  } else if (percentage >= 25 && percentage < 50) {
-    innerColorString = "hsl(45, 100%, 50%)";
-    outerColorString = "hsl(45, 100%, 50%)";
+  } else if (percentage >= 35 && percentage < 70) {
+    innerColorString = "hsl(35, 100%, 50%)";
+    outerColorString = "hsl(35, 100%, 50%)";
     loadLevelString = "Medium load";
-  } else if (percentage >= 50 && percentage < 75) {
-    innerColorString = "hsl(0, 100%, 50%)";
-    outerColorString = "hsl(0, 100%, 50%)";
+  } else if (percentage >= 70) {
+    innerColorString = "hsl(0, 100%, 45%)";
+    outerColorString = "hsl(0, 100%, 45%)";
     loadLevelString = "Heavy load";
-  } else if (percentage >= 75) {
-    innerColorString = "hsl(0, 100%, 25%)";
-    outerColorString = "hsl(0, 100%, 25%)";
-    loadLevelString = "Very heavy load";
   }
   const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
@@ -317,13 +313,17 @@ const loadData = () => {
       });
       $('#content-wrapper').html(hardwareHtml);
       table = $('#hardware-table').DataTable({
-        "scrollY": (($(window).height() - 265)) + 'px',
-        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        //dom: 'l<"toolbar">ftip',
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
         columnDefs: [
           { type: 'natural', targets: [0] },
           { type: 'ip-address', targets: [1] },
           { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
-        ]
+        ],
+        initComplete: function () {
+          $("div.toolbar").html('<div style="background-color: grey"><button type="button" id="any_button">Click Me!</button></div>');
+        }
       });
       let instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
