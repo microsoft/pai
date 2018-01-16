@@ -312,17 +312,13 @@ const loadData = () => {
       });
       $('#content-wrapper').html(hardwareHtml);
       table = $('#hardware-table').DataTable({
-        //dom: 'l<"toolbar">ftip',
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
         columnDefs: [
           { type: 'natural', targets: [0] },
           { type: 'ip-address', targets: [1] },
           { type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7] }
-        ],
-        initComplete: function () {
-          $("div.toolbar").html('<div style="background-color: grey"><button type="button" id="any_button">Click Me!</button></div>');
-        }
+        ]
       });
       let instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
