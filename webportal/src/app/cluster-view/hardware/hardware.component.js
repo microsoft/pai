@@ -43,30 +43,18 @@ const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
   loadLevelString = "";
-  if (percentage < 10) {
-    innerColorString = "hsl(165, 100%, 50%)";
-    outerColorString = "hsl(165, 100%, 50%)";
-    loadLevelString = "Very light load";
-  } else if (percentage >= 10 && percentage < 40) {
-    innerColorString = "hsl(120, 100%, 50%)";
-    outerColorString = "hsl(120, 100%, 50%)";
+  if (percentage < 35) {
+    innerColorString = "hsl(120, 100%, 40%)";
+    outerColorString = "hsl(120, 100%, 40%)";
     loadLevelString = "Light load";
-  } else if (percentage >= 40 && percentage < 60) {
-    innerColorString = "hsl(45, 100%, 50%)";
-    outerColorString = "hsl(45, 100%, 50%)";
+  } else if (percentage >= 35 && percentage < 70) {
+    innerColorString = "hsl(35, 100%, 50%)";
+    outerColorString = "hsl(35, 100%, 50%)";
     loadLevelString = "Medium load";
-  } else if (percentage >= 60 && percentage < 80) {
-    innerColorString = "hsl(30, 100%, 50%)";
-    outerColorString = "hsl(30, 100%, 50%)";
+  } else if (percentage >= 70) {
+    innerColorString = "hsl(0, 100%, 45%)";
+    outerColorString = "hsl(0, 100%, 45%)";
     loadLevelString = "Heavy load";
-  } else if (percentage >= 80 && percentage < 95) {
-    innerColorString = "hsl(0, 100%, 50%)";
-    outerColorString = "hsl(0, 100%, 50%)";
-    loadLevelString = "Very heavy load";
-  } else if (percentage >= 95) {
-    innerColorString = "hsl(0, 100%, 25%)";
-    outerColorString = "hsl(0, 100%, 25%)";
-    loadLevelString = "Extremely heavy load";
   }
   const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
@@ -324,8 +312,8 @@ const loadData = () => {
       });
       $('#content-wrapper').html(hardwareHtml);
       table = $('#hardware-table').DataTable({
-        "scrollY": (($(window).height() - 265)) + 'px',
-        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
         columnDefs: [
           { type: 'natural', targets: [0] },
           { type: 'ip-address', targets: [1] },
