@@ -46,7 +46,7 @@ export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumb
 
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
 hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | wc -l` -lt  $PAI_TASKS_NUM ]; do
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp" | wc -l` -lt  $PAI_TASKS_NUM ]; do
   sleep 10
 done
 hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
