@@ -27,8 +27,8 @@ while /bin/true; do
 done &
 sleep 30
 
-printf "%s\n%s\n%s\n\n" "[INFO]" "ENV:" "$(printenv)"
-printf "%s\n%s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH:" "$(hadoop classpath --glob)"
+printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
+printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
 HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Container
 export CLASSPATH="$(hadoop classpath --glob)"
@@ -51,7 +51,7 @@ export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumb
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
 hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
 while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp" | wc -l` -lt  $PAI_TASKS_NUM ]; do
-  printf "%s\n%s\n\n" "[INFO]" "Waiting for other containers ..."
+  printf "%s %s\n" "[INFO]" "Waiting for other containers ..."
   sleep 10
 done
 hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
@@ -60,7 +60,7 @@ hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
   | sort -n -k 2 -t"-" \
   > ContainerList
 if [ "$(cat ContainerList | wc -l)" -ne $PAI_TASKS_NUM ]; then
-  printf "%s\n%s\n\n" "[ERROR]" "Not all containers are available, exit ..."
+  printf "%s %s\n" "[ERROR]" "Not all containers are available, exit ..."
   exit 2
 fi
 
@@ -69,7 +69,7 @@ for i in `seq 0 $((PAI_TASK_ROLES_NUM-1))`; do
   export PAI_TASK_ROLE_${i}_HOST_LIST=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
 done
 
-printf "%s\n%s\n%s\n\n" "[INFO]" "ENV:" "$(printenv)"
+printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
 cd $HOME
 hdfs dfs -get $PAI_CODE_DIR code || exit 1
