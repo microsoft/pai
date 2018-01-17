@@ -33,7 +33,26 @@ then
   $HADOOP_YARN_HOME/bin/yarn nodemanager
 else
   echo gpu machine
-  nvidia-smi
+
+  # The loop is designed for the node restart or kubelet restart.
+  # Because when kubelet crushed, all service in the node will be started at the same time.
+  # Usually drivers' startup process is much slower than node-manager.
+  # So set the try times to 10. If after 10 time retris, the nm service still can't find gpu.
+  # Please check the node status.
+  for (( i=1; i<=10; i++ ))
+  do
+
+    if nvidia-smi
+    then
+      echo GPUs are found.
+      break
+    fi
+
+    sleep 60
+
+  done
+
+
   $HADOOP_YARN_HOME/bin/yarn nodemanager
 fi
 
