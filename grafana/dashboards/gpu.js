@@ -39,13 +39,13 @@ dashboard = {
 };
 
 // Set a title
-dashboard.title = 'Scripted dash';
+dashboard.title = 'Utilization of each GPU';
 
 // Set default time
 // time can be overriden in the url using from/to parameters, but this is
 // handled automatically in grafana core during dashboard initialization
 dashboard.time = {
-  from: "now-6h",
+  from: "now-1h",
   to: "now"
 };
 
@@ -70,7 +70,7 @@ if(!_.isUndefined(ARGS.host)) {
 }
 
 for (var i = 0; i < rows; i++) {
-
+  
   dashboard.rows.push(
          {
       "collapse": false,
@@ -79,7 +79,7 @@ for (var i = 0; i < rows; i++) {
         {
           "aliasColors": {},
           "bars": false,
-          "dashLength": 10,
+          "dashLength": 12,
           "dashes": false,
           "datasource": "PM",
           "fill": 1,
@@ -111,13 +111,14 @@ for (var i = 0; i < rows; i++) {
               "expr": "nvidiasmi_utilization_gpu{instance=\"" + hostName+ "\",job=\"node_exporter\",minor_number=\""+ i + "\"}",
               "format": "time_series",
               "intervalFactor": 2,
+              "legendFormat": "gpu utilization",
               "refId": "A"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "GPU Utilization",
+          "title": "GPU Utilization " + i,
           "tooltip": {
             "shared": true,
             "sort": 0,
@@ -137,7 +138,7 @@ for (var i = 0; i < rows; i++) {
               "label": null,
               "logBase": 1,
               "max": null,
-              "min": null,
+              "min": "0",
               "show": true
             },
             {
@@ -145,7 +146,7 @@ for (var i = 0; i < rows; i++) {
               "label": null,
               "logBase": 1,
               "max": null,
-                            "min": null,
+              "min": "0",
               "show": true
             }
           ]
@@ -159,6 +160,8 @@ for (var i = 0; i < rows; i++) {
       "titleSize": "h6"
     }
   );
+  dashboard.editable=false;
+  dashboard.hideControls=true;
 }
 
 return dashboard;
