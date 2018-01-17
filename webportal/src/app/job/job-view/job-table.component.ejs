@@ -7,7 +7,8 @@
       <th>Duration</th>
       <th>Retries</th>
       <th>Status</th>
-      <!-- <th>Delete</th> -->
+      <!-- TODO: Change this caption to 'Cancel' or 'Stop' in the future. -->
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -23,7 +24,8 @@
         </td>
         <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
-        <!-- <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td> -->
+        <!-- TODO: Change this button to 'Cancel' or 'Stop' in the future. -->
+        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
       </tr>
     <% } %>
   </tbody>
