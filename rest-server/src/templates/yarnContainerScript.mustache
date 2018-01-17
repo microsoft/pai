@@ -24,9 +24,9 @@ docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
 while /bin/true; do
-  touch "/tmp/pai-root/alive/$APP_ID/$CONTAINER_ID"
+  touch "/tmp/pai-root/alive/$APP_ID/yarn_$CONTAINER_ID"
   sleep 20
-  [ ! "$(docker ps | grep $docker_name)" ] && break
+  [ -f "/tmp/pai-root/alive/$APP_ID/docker_$CONTAINER_ID" ] && [ ! "$(docker ps | grep $docker_name)" ] && break
 done &
 
 nvidia_devices=''
@@ -48,6 +48,7 @@ docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
   || { echo 'Authorized Failed' ; exit 1; }
 {{/ jobData.authFile }}
 
+docker pull {{{ jobData.image }}}
 docker run --name $docker_name \
   --rm \
   --tty \
@@ -68,4 +69,4 @@ docker run --name $docker_name \
   --env PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP \
   --env PAI_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && source bootstrap.sh'
+  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh'

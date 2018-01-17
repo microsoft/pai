@@ -20,14 +20,14 @@
 
 # Bootstrap script for docker container.
 
+touch "/alive/docker_$PAI_CONTAINER_ID"
 while /bin/true; do
-  [ $(( $(date +%s) - $(stat -c %Y /alive/$PAI_CONTAINER_ID) )) -gt 60 ] \
+  [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -gt 60 ] \
     && pkill -9 --ns 1
   sleep 20
 done &
-sleep 30
 
-printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
+
 printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
 HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Container
