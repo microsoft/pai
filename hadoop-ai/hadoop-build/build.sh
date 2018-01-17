@@ -19,7 +19,7 @@
 
 cd /
 
-wget https://issues.apache.org/jira/secure/attachment/12897424/hadoop-2.7.2-gpu.patch
+wget https://issues.apache.org/jira/secure/attachment/12906213/hadoop-2.7.2-gpu.patch
 
 git clone https://github.com/apache/hadoop.git
 
