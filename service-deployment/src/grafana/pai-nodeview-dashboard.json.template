@@ -78,7 +78,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{$node} cpu utilization",
+              "legendFormat": "cpu utilization",
               "refId": "B"
             }
           ],
