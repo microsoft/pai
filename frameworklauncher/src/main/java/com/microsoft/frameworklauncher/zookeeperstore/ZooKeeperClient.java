@@ -285,8 +285,8 @@ public class ZooKeeperClient implements Watcher {
     String readyPayloadVersionsRootPath = ZookeeperStoreStructure.getNodePath(path, READY_PAYLOAD_VERSIONS_NODE_NAME);
     String completePayloadVersion = getLatestVersion(zkClient, readyPayloadVersionsRootPath);
     if (completePayloadVersion == null) {
-      LOGGER.logError(
-          "Failed to find any vaild version under VersionPath %s when getLatestVersion.",
+      LOGGER.logWarning(
+          "Failed to find any valid version under VersionPath %s when getLatestVersion.",
           readyPayloadVersionsRootPath);
 
       throw new KeeperException.NoNodeException("No node found in Zookeeper.");
@@ -319,7 +319,7 @@ public class ZooKeeperClient implements Watcher {
 
     // Check whether the CompletePayloadVersion is changed during Get PayloadParts.
     String completePayloadVersionAfterGet = getLatestVersion(zkClient, readyPayloadVersionsRootPath);
-    if (!completePayloadVersionAfterGet.equals(completePayloadVersion)) {
+    if (!completePayloadVersion.equals(completePayloadVersionAfterGet)) {
       // Only throw TransientException and then always retry for the CompletePayloadVersion changes.
       // And the changes can not always happen, so we can always retry like CAS.
       throw new TransientException(
