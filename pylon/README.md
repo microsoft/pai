@@ -1,14 +1,24 @@
-# Pylon: Universal Entry to API Servers
+# Pylon: PAI Universal Entry Point
+
+Pylon is a service that enables users to access PAI functionalities through a single integrated entry point. This service is necessary particularly in a common situation: the cluster is shielded behind a gateway in which only a few jump machines are exposed. In this situation, none of the system services can be accessed directly because only the jump machines have public IPs. The only way to use the system is to setup Pylon on these jump machines as a proxy between the internal services and the outside world.
+
+## PAI Web Portal
+
+PAI's webportal can be accessed via Pylon:
+
+```
+http://<pylon_server>
+```
 
 ## Built-In Redirected APIs
 
-URL pattern:
+APIs of various system components can also be accessed via Pylon. Usage:
 
 ```
-http://<pylon_ip>:<pylon_port>/api/<api_server_name>...
+http://<pylon_server>/<service>/api/...
 ```
 
-Available api server names:
+Available services:
 
 - `rest-server`: PAI's REST server.
 - `kubernetes`: Kubernetes API server.
@@ -17,31 +27,26 @@ Available api server names:
 
 For example:
 
-- Rest-server api: http://10.0.3.9:8086/api/restserver/v1/jobs
-- Kubernetes api: http://10.0.3.9:8086/api/kubernetes/v1/nodes
-- Prometheus api: http://10.0.3.9:8086/api/prometheus/v1/query?query=up
-- Webhdfs api: http://10.0.3.9:8086/api/webhdfs/v1/?op=LISTSTATUS
+- Rest-server api: http://10.0.3.9/restserver/api/v1/jobs
+- Kubernetes api: http://10.0.3.9/kubernetes/api/v1/nodes
+- Prometheus api: http://10.0.3.9/prometheus/api/v1/query?query=up
+- Webhdfs api: http://10.0.3.9/webhdfs/api/v1/?op=LISTSTATUS
 
 ## General-Purpose Reverse Proxy
 
-URL pattern:
+Pylon also has a general-purpose reverse proxy:
 
 ```
-http://<pylon_ip>:<pylon_port>/r/http/<api_server_ip>/<api_server_port>...
+http://<pylon_server>/r/http/<api_server_ip>/<api_server_port>...
 ```
 
 For example:
 
-- Rest-server api: http://10.0.3.9:8086/r/http/10.0.3.9/9186/api/v1/jobs
-- Kubernetes api: http://10.0.3.9:8086/r/http/10.0.3.9/8080/api/v1/nodes
-- Prometheus api: http://10.0.3.9:8086/r/http/10.0.1.9/9090/api/v1/query?query=up
-- Webhdfs api: http://10.0.3.9:8086/r/http/10.0.3.9/50070/webhdfs/v1/?op=LISTSTATUS
+- Rest-server api: http://10.0.3.9/r/http/10.0.3.9/9186/api/v1/jobs
+- Kubernetes api: http://10.0.3.9/r/http/10.0.3.9/8080/api/v1/nodes
+- Prometheus api: http://10.0.3.9/r/http/10.0.1.9/9090/api/v1/query?query=up
+- Webhdfs api: http://10.0.3.9/r/http/10.0.3.9/50070/webhdfs/v1/?op=LISTSTATUS
 
-## PAI Web Portal
-
-PAI's webportal can aslo be redirected from Pylon:
-
-- Web portal: http://10.0.3.9:8086
 
 ## Deployment
 
