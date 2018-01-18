@@ -18,47 +18,51 @@
 
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const userLoginComponent = require('./user-login.component.ejs');
+const userRegisterComponent = require('./user-register.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
-require('./user-login.component.scss');
+const userAuth = require('../user-auth/user-auth.component');
+require('./user-register.component.scss');
 
 
-const userLoginHtml = userLoginComponent({
+const userRegisterHtml = userRegisterComponent({
   breadcrumb: breadcrumbComponent
 });
 
-
-$('#content-wrapper').html(userLoginHtml);
+$('#content-wrapper').html(userRegisterHtml);
 $(document).ready(() => {
-  $('#form-login').on('submit', (e) => {
+  $('#form-register').on('submit', (e) => {
     e.preventDefault();
-    const username = $('#form-login :input[name=username]').val();
-    const password = $('#form-login :input[name=password]').val();
-    const expiration = $('#form-login :input[name=remember]').is(':checked') ? 7 : 1;
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/token`,
-      type: 'POST',
-      data: {
-        username,
-        password,
-        expiration: expiration * 24 * 60 * 60
-      },
-      dataType: 'json',
-      success: (data) => {
-        $("#form-login").trigger('reset');
-        if (data.error) {
-          alert(data.message);
-        } else {
-          cookies.set('user', data.user, { expires: expiration });
-          cookies.set('token', data.token, { expires: expiration });
-          window.location.replace("/view.html");
+    const username = $('#form-register :input[name=username]').val();
+    const password = $('#form-register :input[name=password]').val();
+    const admin = $('#form-register :input[name=admin]').is(':checked') ? true : false;
+    userAuth.checkToken((token) => {
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v1/user`,
+        data: {
+          username,
+          password,
+          admin: admin,
+          modify: false
+        },
+        type: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        dataType: 'json',
+        success: (data) => {
+          $('#form-register').trigger('reset');
+          if (data.error) {
+            alert(data.message);
+          } else {
+            alert('Add new user successfully');
+          }
+        },
+        error: (xhr, textStatus, error) => {
+          $('#form-register').trigger('reset');
+          const res = JSON.parse(xhr.responseText);
+          alert(res.message);
         }
-      },
-      error: (xhr, textStatus, error) => {
-        $("#form-login").trigger('reset');
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-      }
+      });
     });
   });
 });

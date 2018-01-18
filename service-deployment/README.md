@@ -126,7 +126,7 @@ The new property should be placed in clusterinfo, machineinfo or machinelist.
 Prepare hadoop configuration. If you are not sure whether your service depends on it or not. Please don't skip this step.
 
 
-- ```sudo ./docker_build –p clusterconfig -s your_image_name```
+- ```sudo ./docker_build –p clusterconfig -n your_image_name```
 
 To ensure your docker image could be built successfully.
 

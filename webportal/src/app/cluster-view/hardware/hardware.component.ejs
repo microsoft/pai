@@ -11,8 +11,8 @@ const idPrefixes = ["cpu", "mem", "gpu", "gpumem", "disk", "eth"];
     <table id='hardware-table' class='table table-bordered table-hover' style='vertical-align:middle'>
       <thead>
         <tr>
-          <th>Machine Name</th>
           <th>IP Address</th>
+          <th>Machine Name</th>
 <%
 for (let i = 0; i < metricNames.length; i++) {
 %>
@@ -26,14 +26,14 @@ for (let i = 0; i < metricNames.length; i++) {
 <%
 for (let i = 0; i < machineMetaData.data.result.length; i++) {
   const metric = machineMetaData.data.result[i].metric;
-  const nodeViewUrl = grafanaUri + "/dashboard/db/pai_nodeview?var-node=" + metric.instance;
+  const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
   const machineName = metric.nodename;
   const ipAddress = metric.instance.split(":")[0];
   const idSuffix = ":" + metric.instance;
 %>
         <tr>
-          <td><a href='<%= nodeViewUrl %>' target='_blank'><%= machineName %></a></td>
-          <td><%= ipAddress %></td>
+          <td><a href='<%= nodeViewUrl %>'><%= ipAddress %></a></td>
+          <td><%= machineName %></td>
 <%
   for (let j = 0; j < idPrefixes.length; j++) {
     const id = idPrefixes[j] + idSuffix;
@@ -48,4 +48,5 @@ for (let i = 0; i < machineMetaData.data.result.length; i++) {
       </tbody>
     </table>
   </div>
+</div>
 </section>

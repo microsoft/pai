@@ -48,13 +48,13 @@ lsmod | grep -qE "^nvidia" &&
     do
         rmmod $mod ||
         {
-            echo "The driver $mod is still in use, can't unload it. Make sure there are no running jobs and that ganglia-client is down"
+            echo "The driver $mod is still in use, can't unload it."
             exit 1
         }
     done
     rmmod nvidia ||
     {
-        echo "The driver nvidia is still in use, can't unload it. Make sure there are no running jobs and that ganglia-client is down"
+        echo "The driver nvidia is still in use, can't unload it."
         exit 1
     }
 }

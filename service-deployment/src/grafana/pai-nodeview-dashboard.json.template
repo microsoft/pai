@@ -1,4 +1,4 @@
-{"dashboard":{
+{"dashboard": {
   "annotations": {
     "list": [
       {
@@ -19,100 +19,8 @@
   "hideControls": true,
   "id": null,
   "links": [],
-  "refresh": false,
+  "refresh": "30s",
   "rows": [
-    {
-      "collapse": false,
-      "height": 258,
-      "panels": [
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "#299c46",
-            "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
-          ],
-          "datasource": "PM",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "id": 21,
-          "interval": null,
-          "links": [
-            {
-              "type": "absolute",
-              "url": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
-            }
-          ],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 12,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(node_uname_info)",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "refId": "A"
-            }
-          ],
-          "thresholds": "",
-          "title": "Detected Node Number",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "avg"
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    },
     {
       "collapse": false,
       "height": 266,
@@ -170,7 +78,7 @@
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "{$node} CPU utilization",
+              "legendFormat": "cpu utilization",
               "refId": "B"
             }
           ],
@@ -185,7 +93,7 @@
           ],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node CPU",
+          "title": "CPU",
           "tooltip": {
             "msResolution": false,
             "shared": false,
@@ -271,7 +179,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Usage",
+              "legendFormat": "usage",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -283,7 +191,7 @@
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Free",
+              "legendFormat": "free",
               "refId": "E",
               "step": 600
             }
@@ -291,7 +199,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node Memory",
+          "title": "Memory",
           "tooltip": {
             "msResolution": false,
             "shared": true,
@@ -389,7 +297,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node Network Traffic",
+          "title": "Network Traffic",
           "tooltip": {
             "msResolution": false,
             "shared": true,
@@ -493,7 +401,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node Disk Space Used",
+          "title": "Disk",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -566,7 +474,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "GPU AVG Utilization",
+              "legendFormat": "avg gpu utilization",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -576,7 +484,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node GPU Utilization",
+          "title": "GPU Utilization",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -648,14 +556,14 @@
               "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "GPU Memory Utilization",
+              "legendFormat": "gpu memory",
               "refId": "B"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "$node GPU Memory",
+          "title": "GPU Memory",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -721,22 +629,26 @@
               "type": "hidden"
             },
             {
-              "alias": "",
-              "colorMode": null,
+              "alias": "Node",
+              "colorMode": "value",
               "colors": [
-                "rgba(245, 54, 54, 0.9)",
+                "#ba43a9",
                 "rgba(237, 129, 40, 0.89)",
                 "rgba(50, 172, 45, 0.97)"
               ],
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 2,
+              "decimals": 0,
               "link": true,
-              "linkTooltip": "",
+              "linkTooltip": "Click to view usage  of each GPU",
               "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
-              "thresholds": [],
+              "preserveFormat": false,
+              "sanitize": false,
+              "thresholds": [
+                "0.0.0.0:0"
+              ],
               "type": "number",
-              "unit": "short"
+              "unit": "none"
             },
             {
               "alias": "",
@@ -792,24 +704,11 @@
                 "rgba(50, 172, 45, 0.97)"
               ],
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
-              "decimals": 2,
+              "decimals": 0,
+              "link": false,
               "pattern": "Value",
               "preserveFormat": false,
               "sanitize": false,
-              "thresholds": [],
-              "type": "number",
-              "unit": "short"
-            },
-            {
-              "alias": "",
-              "colorMode": null,
-              "colors": [
-                "rgba(245, 54, 54, 0.9)",
-                "rgba(237, 129, 40, 0.89)",
-                "rgba(50, 172, 45, 0.97)"
-              ],
-              "decimals": 2,
-              "pattern": "/.*/",
               "thresholds": [],
               "type": "number",
               "unit": "short"
@@ -828,6 +727,7 @@
           ],
           "title": "GPU Metrics",
           "transform": "table",
+          "transparent": false,
           "type": "table"
         }
       ],
@@ -848,14 +748,14 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "10.0.1.5:9100",
-          "value": "10.0.1.5:9100"
+          "text": "",
+          "value": ""
         },
         "datasource": "PM",
-        "hide": 2,
+        "hide": 0,
         "includeAll": false,
         "label": "",
-        "multi": true,
+        "multi": false,
         "multiFormat": "regex values",
         "name": "node",
         "options": [],
@@ -872,7 +772,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -903,5 +803,5 @@
   },
   "timezone": "browser",
   "title": "PAI_NodeView",
-  "version": 3
+  "version": 1
 }}

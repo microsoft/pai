@@ -43,30 +43,18 @@ const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
   loadLevelString = "";
-  if (percentage < 10) {
-    innerColorString = "hsl(165, 100%, 50%)";
-    outerColorString = "hsl(165, 100%, 50%)";
-    loadLevelString = "Very light load";
-  } else if (percentage >= 10 && percentage < 40) {
-    innerColorString = "hsl(120, 100%, 50%)";
-    outerColorString = "hsl(120, 100%, 50%)";
+  if (percentage < 35) {
+    innerColorString = "hsl(120, 100%, 40%)";
+    outerColorString = "hsl(120, 100%, 40%)";
     loadLevelString = "Light load";
-  } else if (percentage >= 40 && percentage < 60) {
-    innerColorString = "hsl(45, 100%, 50%)";
-    outerColorString = "hsl(45, 100%, 50%)";
+  } else if (percentage >= 35 && percentage < 70) {
+    innerColorString = "hsl(35, 100%, 50%)";
+    outerColorString = "hsl(35, 100%, 50%)";
     loadLevelString = "Medium load";
-  } else if (percentage >= 60 && percentage < 80) {
-    innerColorString = "hsl(30, 100%, 50%)";
-    outerColorString = "hsl(30, 100%, 50%)";
+  } else if (percentage >= 70) {
+    innerColorString = "hsl(0, 100%, 45%)";
+    outerColorString = "hsl(0, 100%, 45%)";
     loadLevelString = "Heavy load";
-  } else if (percentage >= 80 && percentage < 95) {
-    innerColorString = "hsl(0, 100%, 50%)";
-    outerColorString = "hsl(0, 100%, 50%)";
-    loadLevelString = "Very heavy load";
-  } else if (percentage >= 95) {
-    innerColorString = "hsl(0, 100%, 25%)";
-    outerColorString = "hsl(0, 100%, 25%)";
-    loadLevelString = "Extremely heavy load";
   }
   const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
@@ -83,7 +71,7 @@ const initCells = (idPrefix, instanceList, table) => {
   const noDataCellHtml = "<font color='silver' title=\"0% (N/A)\">N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
     const cellId = getCellId(idPrefix + ":" + instanceList[i]);
-    table.cell(cellId).data(noDataCellHtml).draw();
+    table.cell(cellId).data(noDataCellHtml);
   }
 }
     
@@ -104,7 +92,7 @@ const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
         const cellId = getCellId("cpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -142,7 +130,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             const cellId = getCellId("mem:" + item.metric.instance);
             const percentage = dictOfMemUsed[item.metric.instance] / item.values[0][1] * 100;
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -161,11 +149,10 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 //
 
 const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = "1m";
   $.ajax({
     type: 'GET',
     url: prometheusUri + "/api/v1/query_range?" +
-      "query=avg+by+(instance)(irate(nvidiasmi_utilization_gpu%5B" + metricGranularity + "%5D))" +
+      "query=avg+by+(instance)(nvidiasmi_utilization_gpu)" +
       "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
     success: function(data) {
       initCells("gpu", instanceList, table);
@@ -175,7 +162,7 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
         const cellId = getCellId("gpu:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -188,11 +175,10 @@ const loadGpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
 //
 
 const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = "1m";
   $.ajax({
     type: 'GET',
     url: prometheusUri + "/api/v1/query_range?" +
-      "query=avg+by+(instance)(irate(nvidiasmi_utilization_memory%5B" + metricGranularity + "%5D))" +
+      "query=avg+by+(instance)(nvidiasmi_utilization_memory)" +
       "&start=" + currentEpochTimeInSeconds + "&end=" + currentEpochTimeInSeconds + "&step=1",
     success: function(data) {
       initCells("gpumem", instanceList, table);
@@ -202,7 +188,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
         const cellId = getCellId("gpumem:" + item.metric.instance);
         const percentage = item.values[0][1];
         const cellHtml = getCellHtml(percentage);
-        table.cell(cellId).data(cellHtml).draw();
+        table.cell(cellId).data(cellHtml);
       }
     },
     error: function() {
@@ -245,7 +231,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
             const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
             const percentage = Math.max(p1, p2);
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -294,7 +280,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
             const percentage = Math.max(p1, p2);
             const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml).draw();
+            table.cell(cellId).data(cellHtml);
           }
         },
         error: function() {
@@ -326,8 +312,8 @@ const loadData = () => {
       });
       $('#content-wrapper').html(hardwareHtml);
       table = $('#hardware-table').DataTable({
-        "scrollY": (($(window).height() - 265)) + 'px',
-        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+        scrollY: (($(window).height() - 265)) + 'px',
+        lengthMenu: [[20, 50, 100, -1], [20, 50, 100, "All"]],
         columnDefs: [
           { type: 'natural', targets: [0] },
           { type: 'ip-address', targets: [1] },
@@ -364,11 +350,11 @@ const resizeContentWrapper = () => {
 //
 
 $(document).ready(() => {
+  $("#sidebar-menu--cluster-view").addClass("active");
+  $("#sidebar-menu--cluster-view--hardware").addClass("active");
+  loadData();
   window.onresize = function (envent) {
     resizeContentWrapper();
   }
   resizeContentWrapper();
-  $("#sidebar-menu--cluster-view").addClass("active");
-  $("#sidebar-menu--cluster-view--hardware").addClass("active");
-  loadData();
 });

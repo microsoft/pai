@@ -42,12 +42,14 @@ const config = {
   entry: {
     index: './src/app/index.js',
     layout: './src/app/layout/layout.component.js',
+    register: './src/app/user/user-register/user-register.component.js',
     login: './src/app/user/user-login/user-login.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     view: './src/app/job/job-view/job-view.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
+    hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
     download: './src/app/job/job-utils/download.component.js'
@@ -171,6 +173,14 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
+      filename: 'register.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'register']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
       filename: 'login.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -224,6 +234,14 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'k8s']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'cluster-view/hardware/detail.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'hardwareDetail']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

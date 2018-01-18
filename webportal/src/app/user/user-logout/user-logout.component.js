@@ -16,21 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const dotenv = require('dotenv');
-
-
-dotenv.config();
-
-// get config from environment variables
-let config = {
-  restServerUri: process.env.REST_SERVER_URI,
-  prometheusUri: process.env.PROMETHEUS_URI,
-  grafanaUri: process.env.GRAFANA_URI,
-  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
-  k8sApiServerUri: process.env.K8S_API_SERVER_URI,
-  exporterPort: process.env.EXPORTER_PORT
+const userLogout = () => {
+  cookies.remove('user');
+  cookies.remove('token');
+  window.location.replace('/login.html');
 };
 
-// module exports
-module.exports = config;
+module.exports = { userLogout };

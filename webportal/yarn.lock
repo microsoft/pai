@@ -1728,6 +1728,10 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+floatthead@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/floatthead/-/floatthead-2.0.3.tgz#a0df62342bf169aa1d56c3b518348b0916231df2"
+
 flot@^0.8.0-alpha:
   version "0.8.0-alpha"
   resolved "https://registry.yarnpkg.com/flot/-/flot-0.8.0-alpha.tgz#9cbbc7147c10a47d2549db90bd2987ec1ba784ba"
@@ -2931,6 +2935,10 @@ module-deps@^4.0.8:
     subarg "^1.0.0"
     through2 "^2.0.0"
     xtend "^4.0.0"
+
+moment@2.20.1:
+  version "2.20.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.1.tgz#d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
 
 moment@^2.18.1, moment@^2.9.0:
   version "2.19.4"

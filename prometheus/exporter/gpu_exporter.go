@@ -113,7 +113,6 @@ func writeMetricsToFile(logDir string) {
     var cmd *exec.Cmd            
     
     cmd = exec.Command(NVIDIA_SMI_PATH, "-q", "-x")
-
     // Execute system command
     stdout, err := cmd.Output()
     if err != nil {
@@ -152,7 +151,7 @@ func writeMetricsToFile(logDir string) {
 }
 
 func main() {
-    logDir := flag.String("gpu_log_dir", "/datastorage/prom-exporters", "log written dir")   
+    logDir := flag.String("gpu_log_dir", "/datastorage/promethues", "log written dir")   
     mode := flag.String("flag", "gpu", "gpu server")
     sleepTime := flag.Int("sleepTime", 30, "cmd sleep duration")   
     flag.Parse()

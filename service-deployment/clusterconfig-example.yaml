@@ -26,6 +26,9 @@ clusterinfo:
   # PAI data root path
   paiPath: "/var/pai"
 
+  # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
+  nvidia_drivers_version: 384.111
+
   # static docker-version
   # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
   # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
@@ -43,6 +46,8 @@ clusterinfo:
     # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
     docker_username: your_registry_username
     docker_password: your_registry_password
+
+    docker_tag: your_image_tag
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
