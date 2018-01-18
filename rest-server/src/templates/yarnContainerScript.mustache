@@ -20,6 +20,8 @@
 
 # Entrypoint script for yarn container.
 
+trap "kill 0" EXIT
+
 docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
@@ -70,4 +72,5 @@ docker run --name $docker_name \
   --env PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP \
   --env PAI_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh'
+  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh' \
+  || exit 1
