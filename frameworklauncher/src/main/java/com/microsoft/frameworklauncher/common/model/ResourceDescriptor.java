@@ -137,10 +137,40 @@ public class ResourceDescriptor implements Serializable {
 
       rd.setGpuNumber((int) getGpuNumber.invoke(res));
       rd.setGpuAttribute((long) getGpuAtrribute.invoke(res));
+
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Fail get GPU information, YARN library doesn't support gpu as resources");
     } catch (IllegalAccessException e) {
       LOGGER.logError(e, "Ignore: Fail to get GPU information, illegal access function");
+    }
+
+    try {
+      Class<?> clazz = res.getClass();
+      Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+      Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+
+      Method getPorts = clazz.getMethod("getPorts");
+      Object hadoopValueRanges = getPorts.invoke(res);
+
+      Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
+      Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
+
+      Method getSortedRangesList = hadoopValueRangesClass.getMethod("getSortedRangesList");
+      List<Object> hadoopValueRangeList = (List<Object>) getSortedRangesList.invoke(hadoopValueRanges);
+
+      List<Range> rangeList = new ArrayList();
+      for (Object hadoopRange : hadoopValueRangeList) {
+
+        Range range = new Range();
+        range.setBegin((int) getBegin.invoke(hadoopRange, int.class));
+        range.setEnd((int) getEnd.invoke(hadoopRange, int.class));
+        rangeList.add(range);
+      }
+      rd.setPortRanges(rangeList);
+    } catch (NoSuchMethodException e) {
+      LOGGER.logDebug(e, "Ignore: Fail get Ports information, YARN library doesn't support Port");
+    } catch (IllegalAccessException e) {
+      LOGGER.logError(e, "Ignore: Fail to get Ports information, illegal access function");
     }
     return rd;
   }
@@ -156,10 +186,47 @@ public class ResourceDescriptor implements Serializable {
 
         setGpuNumber.invoke(res, gpuNumber);
         setGpuAttribute.invoke(res, gpuAttribute);
+
       } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "Ignore: Fail to set GPU information, YARN library doesn't support:");
+        LOGGER.logWarning(e, "Ignore: Fail to set GPU information, YARN library doesn't support");
       } catch (IllegalAccessException e) {
         LOGGER.logError(e, "Ignore: Fail to set GPU information, illegal access function");
+      }
+    }
+
+    if (portRanges.size() > 0) {
+      try {
+        Class<?> clazz = res.getClass();
+        Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+        Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+
+        Object obj = hadoopValueRangesClass.newInstance();
+
+        Method setBegin = hadoopValueRangeClass.getMethod("setBegin", int.class);
+        Method setEnd = hadoopValueRangeClass.getMethod("setEnd", int.class);
+
+        Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
+        Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
+
+        List<Object> hadoopValueRangeList = new ArrayList();
+
+        for (Range range : portRanges) {
+          Object valueRangeObj = hadoopValueRangeClass.newInstance();
+          setBegin.invoke(valueRangeObj, range.getBegin());
+          setEnd.invoke(valueRangeObj, range.getEnd());
+          hadoopValueRangeList.add(valueRangeObj);
+        }
+
+        Method setRangesList = hadoopValueRangesClass.getMethod("setRangesList", List.class);
+        setRangesList.invoke(obj, hadoopValueRangeList);
+
+        Method setPort = clazz.getMethod("setPorts", hadoopValueRangeClass);
+        setPort.invoke(res, obj);
+
+      } catch (NoSuchMethodException e) {
+        LOGGER.logWarning(e, "Ignore: Fail to set Ports information, YARN library doesn't support:");
+      } catch (IllegalAccessException e) {
+        LOGGER.logError(e, "Ignore: Fail to set Ports information, illegal access function");
       }
     }
     return res;
@@ -167,9 +234,15 @@ public class ResourceDescriptor implements Serializable {
 
   @Override
   public String toString() {
+    String portString = "";
+    for(Range range : portRanges) {
+      portString = portString + "[" + range.getBegin() + "-" + range.getEnd() + "],";
+    }
+
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", getGpuAttribute());
+        String.format("GpuAttribute: [%s]]", getGpuAttribute()) +
+        String.format("Port: [%s]", portString);
   }
 }
