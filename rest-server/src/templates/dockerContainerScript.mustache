@@ -49,6 +49,8 @@ export PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
+# touch a container id file in "TASK_ROLE_NO-TASK_INDEX-CONTAINER_IP-CONTAINER_PORT" format
+# on hdfs to communicate with other containers
 hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
 while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp" | wc -l` -lt  $PAI_TASKS_NUM ]; do
   printf "%s %s\n" "[INFO]" "Waiting for other containers ..."
@@ -60,7 +62,10 @@ hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
   | sort -n -k 2 -t"-" \
   > ContainerList
 if [ "$(cat ContainerList | wc -l)" -ne $PAI_TASKS_NUM ]; then
-  printf "%s %s\n" "[ERROR]" "Not all containers are available, exit ..."
+  printf "%s %s\n%s\n%s\n\n" \
+    "[ERROR]" "ContainerList" \
+    "$(cat ContainerList)" \
+    "$(cat ContainerList | wc -l) containers are available, less than $PAI_TASKS_NUM, exit ..."
   exit 2
 fi
 
@@ -74,11 +79,13 @@ printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 cd $HOME
 hdfs dfs -get $PAI_CODE_DIR code || exit 1
 cd code
+printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
+printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
 
 {{# jobData.killAllOnCompletedTaskNumber }}
 hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/$PAI_TASK_INDEX || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/ | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/ | grep "/$PAI_JOB_NAME/finished" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
   sleep 10
 done
 {{/ jobData.killAllOnCompletedTaskNumber }}
