@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
 import org.apache.hadoop.yarn.api.records.Resource;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -208,17 +207,12 @@ public class ResourceDescriptor implements Serializable {
         Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
         Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
 
-        Object obj = hadoopValueRangesClass.newInstance();
-
-        Method setBegin = hadoopValueRangeClass.getMethod("setBegin", int.class);
-        Method setEnd = hadoopValueRangeClass.getMethod("setEnd", int.class);
+        Object obj = hadoopValueRangesClass.getMethod("newInstance").invoke(null);
 
         List<Object> hadoopValueRangeList = new ArrayList();
 
         for (Range range : portRanges) {
-          Object valueRangeObj = hadoopValueRangeClass.newInstance();
-          setBegin.invoke(valueRangeObj, range.getBegin());
-          setEnd.invoke(valueRangeObj, range.getEnd());
+          Object valueRangeObj = hadoopValueRangeClass.getMethod("newInstance", int.class, int.class).invoke(null, range.getBegin(), range.getEnd());
           hadoopValueRangeList.add(valueRangeObj);
         }
 
@@ -251,7 +245,7 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", getGpuAttribute()) +
+        String.format("GpuAttribute: [%s]", getGpuAttribute()) +
         String.format("Port: [%s]", portString);
   }
 }
