@@ -163,8 +163,8 @@ public class ResourceDescriptor implements Serializable {
         List<Range> rangeList = new ArrayList();
         for (Object hadoopRange : hadoopValueRangeList) {
           Range range = new Range();
-          range.setBegin((int) getBegin.invoke(hadoopRange, int.class));
-          range.setEnd((int) getEnd.invoke(hadoopRange, int.class));
+          range.setBegin((int) getBegin.invoke(hadoopRange));
+          range.setEnd((int) getEnd.invoke(hadoopRange));
           LOGGER.logDebug("Get Range: " + range);
           rangeList.add(range);
         }
@@ -212,9 +212,6 @@ public class ResourceDescriptor implements Serializable {
 
         Method setBegin = hadoopValueRangeClass.getMethod("setBegin", int.class);
         Method setEnd = hadoopValueRangeClass.getMethod("setEnd", int.class);
-
-        Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
-        Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
 
         List<Object> hadoopValueRangeList = new ArrayList();
 
