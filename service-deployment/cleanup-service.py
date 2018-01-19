@@ -66,6 +66,11 @@ def main():
         if 'stopscript' not in service_config['servicelist'][serv]:
             continue
 
+        # Cleanup cluster-configuration will lose secret of private registry.
+        # Then the cleaning-image will be failed to pull.
+        if serv == 'cluster-configuration':
+            continue
+
         shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
         error_msg = 'Failed make the {0} stop script executable'.format(serv)
         execute_shell(shell_cmd, error_msg)
@@ -94,6 +99,15 @@ def main():
 
     shell_cmd = "kubectl delete ds cleaning-one-shot"
     error_msg = "Successfully to delete cleaning-one-shot"
+    execute_shell(shell_cmd, error_msg)
+
+    serv = 'cluster-configuration'
+    shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed make the {0} stop script executable'.format(serv)
+    execute_shell(shell_cmd, error_msg)
+
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed stop the service {0}'.format(serv)
     execute_shell(shell_cmd, error_msg)
 
     print "The cleaning job finished!"
