@@ -173,6 +173,8 @@ public class ResourceDescriptor implements Serializable {
       LOGGER.logDebug(e, "Ignore: Fail get Ports information, YARN library doesn't support Port");
     } catch (IllegalAccessException e) {
       LOGGER.logError(e, "Ignore: Fail to get Ports information, illegal access function");
+    } catch (ClassNotFoundException e) {
+      LOGGER.logDebug(e, "Ignore: failed to get the class Name");
     }
     return rd;
   }
@@ -196,7 +198,7 @@ public class ResourceDescriptor implements Serializable {
       }
     }
 
-    if (portRanges.size() > 0) {
+    if (portRanges != null && portRanges.size() > 0) {
       try {
         Class<?> clazz = res.getClass();
         Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
@@ -229,6 +231,8 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logWarning(e, "Ignore: Fail to set Ports information, YARN library doesn't support:");
       } catch (IllegalAccessException e) {
         LOGGER.logError(e, "Ignore: Fail to set Ports information, illegal access function");
+      } catch (ClassNotFoundException e) {
+        LOGGER.logDebug(e, "Ignore: failed to get the class Name");
       }
     }
     return res;
