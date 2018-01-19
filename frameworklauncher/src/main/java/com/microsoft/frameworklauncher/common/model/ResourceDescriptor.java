@@ -219,7 +219,7 @@ public class ResourceDescriptor implements Serializable {
         Method setRangesList = hadoopValueRangesClass.getMethod("setRangesList", List.class);
         setRangesList.invoke(obj, hadoopValueRangeList);
 
-        Method setPort = clazz.getMethod("setPorts", hadoopValueRangeClass);
+        Method setPort = clazz.getMethod("setPorts", hadoopValueRangesClass);
         setPort.invoke(res, obj);
 
       } catch (NoSuchMethodException e) {
