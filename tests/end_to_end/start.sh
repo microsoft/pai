@@ -31,8 +31,8 @@ rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
 
 get_auth_token() {
   account="$(cat $account_file)"
-  account=(${$account//:/ })
-  curl -H "Content-Type: application/json" -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/v1/token | sed -e "s/{token:\(.*\)}/\1/" > $token_file
+  account=(${account//:/ })
+  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/token | sed -e "s@{\"token\":\"\(.*\)\",.*}@\1@" > $token_file
 }
 
 

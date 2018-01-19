@@ -19,6 +19,7 @@
 
 
 mnt_point=/mnt/hdfs
+hdfs_addr=$(sed -e "s@hdfs://\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}\).*@\1@" <<< $PAI_DATA_DIR)
 
 mkdir -p $mnt_point
 hdfs-mount $hdfs_addr $mnt_point &

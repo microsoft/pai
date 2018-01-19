@@ -40,10 +40,10 @@ prepare_cntk_job() {
 
 get_test_account() {
   printf "\nPlease provide a test account:\n"
-  read -rp "Username: " username
-  read -rp "Password: " -s password
+  read -p "Username: " username
+  read -p "Password: " -s password
   printf "\n"
-  echo "$username:$password\n" > $account_file
+  echo "$username:$password" > $account_file
 }
 
 
@@ -54,5 +54,5 @@ cd local
 install_bats
 install_paifs
 prepare_cntk_job
+cd ..
 get_test_account
-cd -
