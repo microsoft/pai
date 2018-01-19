@@ -104,6 +104,6 @@ spec:
           name: docker-credentials
       - name: hadoop-tmp-dir
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop/nodemanager
 
 

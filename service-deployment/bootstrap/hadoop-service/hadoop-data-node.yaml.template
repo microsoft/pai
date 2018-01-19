@@ -70,4 +70,4 @@ spec:
           name: host-configuration
       - name: hadoop-tmp-dir
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop/datanode

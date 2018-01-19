@@ -65,4 +65,4 @@ spec:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
       - name: hadoop-tmp-dir
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop/namenode
