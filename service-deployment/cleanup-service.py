@@ -56,6 +56,18 @@ def execute_shell(shell_cmd, error_msg):
         sys.exit(1)
 
 
+def clean_service(service_config, serv):
+
+    shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed make the {0} stop script executable'.format(serv)
+    execute_shell(shell_cmd, error_msg)
+
+    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
+    error_msg = 'Failed stop the service {0}'.format(serv)
+    execute_shell(shell_cmd, error_msg)
+
+
+
 
 def main():
 
@@ -71,13 +83,8 @@ def main():
         if serv == 'cluster-configuration':
             continue
 
-        shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
-        error_msg = 'Failed make the {0} stop script executable'.format(serv)
-        execute_shell(shell_cmd, error_msg)
+        clean_service(service_config, serv)
 
-        shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
-        error_msg = 'Failed stop the service {0}'.format(serv)
-        execute_shell(shell_cmd, error_msg)
 
     shell_cmd = "kubectl create -f ./bootstrap/cleaning/cleaning.yaml"
     error_msg = "failed to start clean up job to every node"
@@ -101,14 +108,7 @@ def main():
     error_msg = "Successfully to delete cleaning-one-shot"
     execute_shell(shell_cmd, error_msg)
 
-    serv = 'cluster-configuration'
-    shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
-    error_msg = 'Failed make the {0} stop script executable'.format(serv)
-    execute_shell(shell_cmd, error_msg)
-
-    shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
-    error_msg = 'Failed stop the service {0}'.format(serv)
-    execute_shell(shell_cmd, error_msg)
+    clean_service(service_config, 'cluster-configuration')
 
     print "The cleaning job finished!"
 
