@@ -38,6 +38,8 @@ spec:
           name: hadoop-name-storage
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /var/lib/hadoop
+          name: hadoop-tmp-dir
         readinessProbe:
           exec:
             command:
@@ -61,3 +63,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: hadoop-tmp-dir
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop

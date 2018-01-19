@@ -18,6 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # clean all the data in the cluster.
+if [ -d "/mnt/hadoop" ]; then
+
+    rm -rf /mnt/hadoop
+
+fi
+
 if [ -d "/mnt/hdfs" ]; then
 
     rm -rf /mnt/hdfs

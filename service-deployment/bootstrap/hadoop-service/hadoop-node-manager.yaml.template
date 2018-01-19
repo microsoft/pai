@@ -52,6 +52,8 @@ spec:
           name: host-confg-volume
         - mountPath: /root/.docker
           name: docker-cred-volume
+        - mountPath: /var/lib/hadoop
+          name: hadoop-tmp-dir
         readinessProbe:
           exec:
             command:
@@ -100,5 +102,8 @@ spec:
       - name: docker-cred-volume
         configMap:
           name: docker-credentials
+      - name: hadoop-tmp-dir
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop
 
 

@@ -41,13 +41,14 @@ ENV HADOOP_PREFIX=/usr/local/hadoop \
 
 ENV PATH=$PATH:$HADOOP_BIN_DIR:$HADOOP_SBIN_DIR:/usr/share/zookeeper/bin
 
-COPY core-site.xml hadoop-env.sh yarn-env.sh mapred-site.xml capacity-scheduler.xml $HADOOP_CONF_DIR/
+COPY hadoop-env.sh yarn-env.sh mapred-site.xml capacity-scheduler.xml $HADOOP_CONF_DIR/
 
 RUN chown -R root:root /var
 RUN mkdir -p $HADOOP_YARN_HOME/logs
 
 RUN mkdir -p /var/lib/hdfs/name
 RUN mkdir -p /var/lib/hdfs/data
+RUN mkdir -p /var/lib/hadoop
 
 COPY start.sh /usr/local/start.sh
 RUN chmod a+x /usr/local/start.sh
