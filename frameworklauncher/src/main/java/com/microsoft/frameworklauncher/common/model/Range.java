@@ -46,4 +46,10 @@ public class Range implements Serializable {
   public void setEnd(Integer end) {
     this.end = end;
   }
+
+
+  @Override
+  public String toString() {
+    return String.format("[%d-%d]", begin, end);
+  }
 }
