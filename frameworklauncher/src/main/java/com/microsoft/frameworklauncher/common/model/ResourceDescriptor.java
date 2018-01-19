@@ -153,29 +153,33 @@ public class ResourceDescriptor implements Serializable {
 
       Method getPorts = clazz.getMethod("getPorts");
       Object hadoopValueRanges = getPorts.invoke(res);
+      if(hadoopValueRanges != null) {
+        Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
+        Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
 
-      Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
-      Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
+        Method getSortedRangesList = hadoopValueRangesClass.getMethod("getSortedRangesList");
+        List<Object> hadoopValueRangeList = (List<Object>) getSortedRangesList.invoke(hadoopValueRanges);
 
-      Method getSortedRangesList = hadoopValueRangesClass.getMethod("getSortedRangesList");
-      List<Object> hadoopValueRangeList = (List<Object>) getSortedRangesList.invoke(hadoopValueRanges);
-
-      List<Range> rangeList = new ArrayList();
-      for (Object hadoopRange : hadoopValueRangeList) {
-        Range range = new Range();
-        range.setBegin((int) getBegin.invoke(hadoopRange, int.class));
-        range.setEnd((int) getEnd.invoke(hadoopRange, int.class));
-        LOGGER.logDebug("Get Range: " + range);
-        rangeList.add(range);
+        List<Range> rangeList = new ArrayList();
+        for (Object hadoopRange : hadoopValueRangeList) {
+          Range range = new Range();
+          range.setBegin((int) getBegin.invoke(hadoopRange, int.class));
+          range.setEnd((int) getEnd.invoke(hadoopRange, int.class));
+          LOGGER.logDebug("Get Range: " + range);
+          rangeList.add(range);
+        }
+        rd.setPortRanges(rangeList);
       }
-      rd.setPortRanges(rangeList);
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Fail get Ports information, YARN library doesn't support Port");
     } catch (IllegalAccessException e) {
       LOGGER.logError(e, "Ignore: Fail to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
       LOGGER.logDebug(e, "Ignore: failed to get the class Name");
+    } catch(Exception e) {
+      LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
     }
+
     return rd;
   }
 
@@ -233,6 +237,8 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logError(e, "Ignore: Fail to set Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
         LOGGER.logDebug(e, "Ignore: failed to get the class Name");
+      } catch(Exception e) {
+        LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
       }
     }
     return res;
