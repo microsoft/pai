@@ -145,6 +145,8 @@ public class ResourceDescriptor implements Serializable {
     }
 
     try {
+      LOGGER.logDebug("Get Port Informaiton from hadoop resource: " + res);
+
       Class<?> clazz = res.getClass();
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
@@ -160,10 +162,10 @@ public class ResourceDescriptor implements Serializable {
 
       List<Range> rangeList = new ArrayList();
       for (Object hadoopRange : hadoopValueRangeList) {
-
         Range range = new Range();
         range.setBegin((int) getBegin.invoke(hadoopRange, int.class));
         range.setEnd((int) getEnd.invoke(hadoopRange, int.class));
+        LOGGER.logDebug("Get Range: " + range);
         rangeList.add(range);
       }
       rd.setPortRanges(rangeList);
