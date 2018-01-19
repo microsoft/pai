@@ -32,6 +32,7 @@ function nvidiaPresent {
   [[ -f /proc/driver/nvidia/version ]] || return 1
   grep -q $NVIDIA_VERSION /proc/driver/nvidia/version || return 2
   lsmod | grep -qE "^nvidia" || return 3
+  lsmod | grep -qE "^nvidia_uvm" || return 3
   [[ -e /dev/nvidia0 ]] || return 4
   [[ -e /var/drivers/nvidia/$NVIDIA_VERSION/lib64/libnvidia-ml.so ]] || return 5
   return 0

@@ -37,7 +37,7 @@ class Job {
       for (let key of Object.keys(job)) {
         this[key] = job[key];
       }
-      next();
+      next(this);
     });
   }
 
