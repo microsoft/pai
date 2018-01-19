@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Kuberentes Deployment in cluster
+# Kubernetes Deployment in cluster
 
 This document explains how to deploy Kubernetes in a cluster. We assume each node in the cluster has a statically assigned IP and runs Ubuntu 16.04 LTS.
 The following k8s components will be deployed in the designated nodes and run in host network:
