@@ -203,8 +203,10 @@ class FileSystem:
             if self.verbose and is_normal_stdout():
                 sys.stdout.write(progressString)
                 sys.stdout.flush()
-            if not dst.exists:
-                dstFs.touch_file(dst)
+            if dst.exists:
+                dstFs.delete_file_dir(dst)
+            dstFs.touch_file(dst)
+
             self.cp_chunk(src, dst, dstFs, 0, 0, True, "wb")
         else:
             chunk = 0
@@ -221,8 +223,9 @@ class FileSystem:
                 dstChunkList.append(dstChunk)
                 self.logger.info("BIG COPY: chunk={0}, dst={1}".format(chunk, dstChunk.abspath))
 
-                if not dstChunk.exists:
-                    dstFs.touch_file(dstChunk)
+                if dstChunk.exists:
+                    dstFs.delete_file_dir(dstChunk)
+                dstFs.touch_file(dstChunk)
                 if dstChunk.size == Constants.DEFAULT_BIG_FILE_THRESHOLD \
                         and src.modificationTime <= dstChunk.modificationTime:
                     if self.verbose:
