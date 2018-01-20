@@ -226,6 +226,7 @@ class FileSystem:
                 if dstChunk.exists:
                     dstFs.delete_file_dir(dstChunk)
                 dstFs.touch_file(dstChunk)
+                
                 if dstChunk.size == Constants.DEFAULT_BIG_FILE_THRESHOLD \
                         and src.modificationTime <= dstChunk.modificationTime:
                     if self.verbose:
