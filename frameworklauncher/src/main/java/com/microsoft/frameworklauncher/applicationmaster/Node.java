@@ -88,6 +88,7 @@ public class Node {
     requested.setMemoryMB(requested.getMemoryMB() + resource.getMemoryMB());
     requested.setGpuAttribute(requested.getGpuAttribute() | resource.getGpuAttribute());
     requested.setGpuNumber(requested.getGpuNumber() + resource.getGpuNumber());
+
   }
 
   public void removeContainerRequest(ResourceDescriptor resource) {

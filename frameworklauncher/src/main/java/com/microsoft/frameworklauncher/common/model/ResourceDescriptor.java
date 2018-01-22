@@ -144,7 +144,6 @@ public class ResourceDescriptor implements Serializable {
     }
 
     try {
-      LOGGER.logDebug("Get Port Informaiton from hadoop resource: " + res);
 
       Class<?> clazz = res.getClass();
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
@@ -178,7 +177,7 @@ public class ResourceDescriptor implements Serializable {
     } catch(Exception e) {
       LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
     }
-
+    LOGGER.logDebug("Get Port Informaiton from hadoop resource: " + res);
     return rd;
   }
 
@@ -232,6 +231,7 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
       }
     }
+    LOGGER.logDebug("Put Port Informaiton to hadoop resource: " + res);
     return res;
   }
 
