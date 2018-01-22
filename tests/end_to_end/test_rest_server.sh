@@ -21,10 +21,18 @@
 . utils.sh
 
 eval $(parse_yaml $cluster_config "pai_")
+hdfs_uri=$pai_clusterinfo_restserverinfo_hdfs_uri
 rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
 
 
 @test "check rest server health check" {
   result="$(curl $rest_server_uri)"
   [[ $result == *API* ]]
+}
+
+@test "submit cntk test job" {
+  job_name="cntk-test-$RANDOM-$RANDOM"
+  token="$(cat ./etc/token.config)"
+  result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X PUT -d @- $rest_server_uri/api/v1/jobs/$job_name)"
+  [[ ! $result == *Error* ]]
 }

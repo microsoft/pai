@@ -28,3 +28,9 @@ launcher_uri=$pai_clusterinfo_restserverinfo_webservice_uri
   result="$(curl $launcher_uri)"
   [[ $result == *Active* ]]
 }
+
+@test "submit framework launcher test job" {
+  job_name="launcher-test-$RANDOM-$RANDOM"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  [[ ! $result == *Error* ]]
+}

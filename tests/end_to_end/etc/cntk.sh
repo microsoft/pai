@@ -18,41 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-account_file="./etc/account.config"
+mnt_point=/mnt/hdfs
+hdfs_addr=$(sed -e "s@hdfs://\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}\).*@\1@" <<< $PAI_DATA_DIR)
 
-install_bats() {
-  git clone https://github.com/sstephenson/bats.git
-  cd bats
-  ./install.sh /usr/local
-  cd -
-}
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
-install_paifs() {
-  cp -r ../../../pai-fs ./
-  cd pai-fs
-  pip install -r requirements.txt
-  cd -
-}
-
-prepare_cntk_job() {
-  git clone https://github.com/Microsoft/CNTK.git
-}
-
-get_test_account() {
-  printf "\nPlease provide a test account:\n"
-  read -p "Username: " username
-  read -p "Password: " -s password
-  printf "\n"
-  echo "$username:$password" > $account_file
-}
-
-
-apt-get install -y dos2unix
-
-mkdir -p local
-cd local
-install_bats
-install_paifs
-prepare_cntk_job
-cd ..
-get_test_account
+sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

@@ -18,11 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+. utils.sh
+
 cluster_config=$1
+account_file="./etc/account.config"
+token_file="./etc/token.config"
+expiration="$((7*24*60*60))"
 dos2unix $cluster_config
+
+eval $(parse_yaml $cluster_config "pai_")
+rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
+
+get_auth_token() {
+  account="$(cat $account_file)"
+  account=(${account//:/ })
+  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/token | sed -e "s@{\"token\":\"\(.*\)\",.*}@\1@" > $token_file
+}
 
 
 printf "\nStarting end to end tests:\n"
+
+if [ ! -f $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
+  get_auth_token
+fi
 
 printf "\nTesting service ...\n"
 bats test_service.sh
