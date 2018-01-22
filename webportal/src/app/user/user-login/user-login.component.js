@@ -51,7 +51,8 @@ $(document).ready(() => {
         } else {
           cookies.set('user', data.user, { expires: expiration });
           cookies.set('token', data.token, { expires: expiration });
-          window.location.replace("/view.html");
+          cookies.set('admin', data.admin, { expires: expiration });
+          window.location.replace('/view.html');
         }
       },
       error: (xhr, textStatus, error) => {
