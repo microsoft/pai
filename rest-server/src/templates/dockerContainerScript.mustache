@@ -36,6 +36,7 @@ HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
+export PAI_JOB_INSTANCE_NAME={{{ jobData.jobName }}}-$APP_ID
 export PAI_USERNAME={{{ jobData.username }}}
 export PAI_DATA_DIR={{{ jobData.dataDir }}}
 export PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
@@ -53,13 +54,13 @@ export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumb
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
 # touch a container id file in "TASK_ROLE_NO-TASK_INDEX-CONTAINER_IP-CONTAINER_PORT" format
 # on hdfs to communicate with other containers
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp" | wc -l` -lt  $PAI_TASKS_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_INSTANCE_NAME/tmp/$PAI_TASK_ROLE_NO-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_INSTANCE_NAME/tmp/ | grep "/$PAI_JOB_INSTANCE_NAME/tmp" | wc -l` -lt  $PAI_TASKS_NUM ]; do
   printf "%s %s\n" "[INFO]" "Waiting for other containers ..."
   sleep 10
 done
-hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
-  | grep "/$PAI_JOB_NAME/tmp" \
+hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_INSTANCE_NAME/tmp/ \
+  | grep "/$PAI_JOB_INSTANCE_NAME/tmp" \
   | grep -oE "[^/]+$" \
   | sort -n -k 2 -t"-" \
   > ContainerList
@@ -86,8 +87,8 @@ printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
 
 {{# jobData.killAllOnCompletedTaskNumber }}
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/$PAI_TASK_INDEX || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/ | grep "/$PAI_JOB_NAME/finished" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_INSTANCE_NAME/finished/$PAI_TASK_INDEX || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_INSTANCE_NAME/finished/ | grep "/$PAI_JOB_INSTANCE_NAME/finished" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
   sleep 10
 done
 {{/ jobData.killAllOnCompletedTaskNumber }}
