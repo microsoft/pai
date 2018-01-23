@@ -1,4 +1,4 @@
-{"dashboard":{
+{"dashboard": {
   "annotations": {
     "list": [
       {
@@ -30,7 +30,7 @@
           "colorValue": true,
           "colors": [
             "#d44a3a",
-            "rgba(237, 129, 40, 0.89)",
+            "#299c46",
             "#299c46"
           ],
           "datasource": "PM",
@@ -176,7 +176,7 @@
               "refId": "A"
             }
           ],
-          "thresholds": "50, 90",
+          "thresholds": "10, 90",
           "title": "Active GPUs ( % )",
           "type": "singlestat",
           "valueFontSize": "80%",
@@ -192,7 +192,7 @@
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": true,
+          "colorValue": false,
           "colors": [
             "#299c46",
             "rgba(237, 129, 40, 0.89)",
@@ -273,7 +273,7 @@
           "colorValue": true,
           "colors": [
             "#d44a3a",
-            "rgba(237, 129, 40, 0.89)",
+            "#299c46",
             "#299c46"
           ],
           "datasource": null,
@@ -546,14 +546,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]) * 8)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]) * 8)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -579,7 +579,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "bps",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -592,7 +592,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }
@@ -640,14 +640,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_bytes_read[5m]))",
+              "expr": "sum(rate(node_disk_bytes_read[5m]) * 8)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written[5m]))",
+              "expr": "sum(rate(node_disk_bytes_written[5m]) * 8)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
@@ -673,7 +673,7 @@
           },
           "yaxes": [
             {
-              "format": "short",
+              "format": "bps",
               "label": null,
               "logBase": 1,
               "max": null,
@@ -686,7 +686,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         },

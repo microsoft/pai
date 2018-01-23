@@ -14,7 +14,7 @@
   },
   "description": "Dashboard to view multiple servers",
   "editable": false,
-  "gnetId": 405,
+  "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
   "id": null,
@@ -274,7 +274,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_network_receive_bytes{instance=~\"$node\"}[5m]) * 8)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -285,8 +285,9 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_network_transmit_bytes{instance=~\"$node\"}[5m]) * 8)",
               "format": "time_series",
+              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -314,7 +315,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "bps",
               "label": "",
               "logBase": 1,
               "max": null,
@@ -326,7 +327,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }
@@ -380,7 +381,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_bytes_read{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_disk_bytes_read{instance=~\"$node\"}[5m]) * 8)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -391,8 +392,9 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_disk_bytes_written{instance=~\"$node\"}[5m]) * 8)",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
@@ -418,7 +420,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "bps",
               "logBase": 1,
               "max": null,
               "min": 0,
@@ -429,7 +431,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         },
@@ -639,7 +641,7 @@
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
               "decimals": 0,
               "link": true,
-              "linkTooltip": "Click to view usage  of each GPU",
+              "linkTooltip": "Click to view usage of each GPU",
               "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
               "preserveFormat": false,
