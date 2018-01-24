@@ -264,7 +264,7 @@ class FileSystem:
             self.logger.info("COPY TARGET: change from {0} to {1}".format(dst.abspath, newDst.abspath))
             dst = newDst
 
-        if dst.exists and !force:
+        if dst.exists and not force:
             if self.verbose:
                 print("%s exist. Add -f to force copy".format(dst.abspath))
             return
