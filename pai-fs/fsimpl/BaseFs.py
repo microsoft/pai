@@ -266,7 +266,7 @@ class FileSystem:
 
         if dst.exists and not force:
             if self.verbose:
-                print("%s exist. Add -f to force copy".format(dst.abspath))
+                print("%s already exists. Add -f to force copy" % (dst.abspath))
             return
         else:
             if self.verbose:
