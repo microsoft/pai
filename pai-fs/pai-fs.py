@@ -168,7 +168,7 @@ def mv_command(args):
     return 0
 
 
-def cp_command(args, recursive=False):
+def cp_command(args, recursive=False, force=False):
     global fileSystemWithMetrics
     if len(args) < 2:
         print("cannot initiate copy with only one argument")
@@ -208,7 +208,7 @@ def cp_command(args, recursive=False):
     exitCode = 0
     if srcFileDescriptor.is_file or srcFileDescriptor.is_symlink:
         try:
-            srcFileSystem.cp_file(srcFileDescriptor, dstFileDescriptor, dstFileSystem)
+            srcFileSystem.cp_file(srcFileDescriptor, dstFileDescriptor, dstFileSystem, force)
         except Errors.Unauthorized:
             print("Insufficient privileges to copy the path: {0} -> {1}".format(
                 srcFileDescriptor.abspath, dstFileDescriptor.abspath))
@@ -240,7 +240,7 @@ def cp_command(args, recursive=False):
                     continue
 
             try:
-                srcFileSystem.cp_file(currentFile, dstRootFileDescriptor, dstFileSystem)
+                srcFileSystem.cp_file(currentFile, dstRootFileDescriptor, dstFileSystem, force)
             except Errors.Unauthorized:
                 print("Insufficient privileges to copy the path: {0} -> {1}".format(
                     srcFileDescriptor.abspath, dstFileDescriptor.abspath))
@@ -444,7 +444,7 @@ if __name__ == "__main__":
     elif cmdLineArgs.makeDirectory:
         exitCode=mkdir_command(cmdLineArgs.myArgs)
     elif cmdLineArgs.copy:
-        exitCode=cp_command(cmdLineArgs.myArgs, cmdLineArgs.recursive)
+        exitCode=cp_command(cmdLineArgs.myArgs, cmdLineArgs.recursive, cmdLineArgs.force)
     elif cmdLineArgs.move:
         exitCode=mv_command(cmdLineArgs.myArgs)
     elif cmdLineArgs.hash:

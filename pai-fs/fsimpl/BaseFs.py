@@ -253,7 +253,7 @@ class FileSystem:
         # Step2: concat all chunk files into final file
         self.concat_chunk_files(dstFs, dst, dstChunkList)
 
-    def cp_file(self, src, dst, dstFs):
+    def cp_file(self, src, dst, dstFs, force):
         self.logger.info("COPY: from({0})={1} to({2})={3}".format(src.fs.__class__.__name__,
                                                                   src.abspath,
                                                                   dst.fs.__class__.__name__,
@@ -264,9 +264,9 @@ class FileSystem:
             self.logger.info("COPY TARGET: change from {0} to {1}".format(dst.abspath, newDst.abspath))
             dst = newDst
 
-        if dst.exists and src.size == dst.size and src.modificationTime <= dst.modificationTime:
+        if dst.exists and !force:
             if self.verbose:
-                print("%s -> %s: skipped" % (src.abspath, dst.abspath))
+                print("%s exist. Add -f to force copy".format(dst.abspath))
             return
         else:
             if self.verbose:
