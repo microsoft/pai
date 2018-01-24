@@ -46,12 +46,13 @@ printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
   eval 'cred=($(hdfs dfs -cat {{{ jobData.authFile }}}))' \
-  || { echo 'Read authFile Failed' ; exit 1; }
+  || { echo 'Read authFile failed' ; exit 1; }
 docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
-  || { echo 'Authorized Failed' ; exit 1; }
+  || { echo 'Authorized failed' ; exit 1; }
 {{/ jobData.authFile }}
 
-docker pull {{{ jobData.image }}}
+docker pull {{{ jobData.image }}} \
+  || { echo 'Can not pull Docker image' ; exit 1; }
 docker run --name $docker_name \
   --rm \
   --tty \
