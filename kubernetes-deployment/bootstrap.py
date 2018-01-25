@@ -376,6 +376,7 @@ def destory_whole_cluster(cluster_config):
 def add_new_nodes(cluster_config, node_list_config):
     role = node_list_config['remote_deployment_role']
     machine_list = node_list_config['machinelist']
+    #Todo: add validation here
     kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
 
 
@@ -383,6 +384,7 @@ def add_new_nodes(cluster_config, node_list_config):
 def remove_nodes(cluster_config, node_list_config):
     role = node_list_config['remote_deployment_role']
     machine_list = node_list_config['machinelist']
+    # Todo: add validation here
     kubernetes_nodelist_deployment(cluster_config, machine_list, role, False)
 
 
