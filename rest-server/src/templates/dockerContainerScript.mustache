@@ -32,7 +32,8 @@ done &
 
 printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
-HDFS_LAUNCHER_PREFIX={{{ hdfsUri }}}/Container
+export PAI_DEFAULT_HDFS_URI={{{ hdfsUri }}}
+HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_HDFS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
