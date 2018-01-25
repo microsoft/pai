@@ -330,6 +330,43 @@ def kube_proxy_startup(cluster_config):
 
 
 
+def kubernetes_nodelist_deployment(cluster_config, machine_list, role, clean):
+
+    for hostname in machine_list:
+        if clean:
+            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
+        else:
+            bootstrapScriptGenerate(cluster_config, machine_list[hostname], role)
+            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+
+
+
+def initial_bootstrap_cluster(cluster_config):
+
+    if 'proxy' in cluster_config['remote_deployment']:
+        listname = cluster_config['remote_deployment']['proxy']['listname']
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+
+    listname = cluster_config['remote_deployment']['master']['listname']
+    machine_list = cluster_config[listname]
+    kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+
+    listname = cluster_config['remote_deployment']['worker']['listname']
+    machine_list = cluster_config[listname]
+    kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
+
+
+
+def destory_whole_cluster(cluster_config):
+
+    for role in cluster_config['remote_deployment']:
+        listname = cluster_config['remote_deployment'][role]['listname']
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", True)
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--deploy', action="store_true", help='Deploy kubernetes to your cluster')
@@ -353,43 +390,11 @@ def main():
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
-    if args.deploy or args.clean:
-
-        if 'proxy' in cluster_config['remote_deployment']:
-            listname = cluster_config['remote_deployment']['proxy']['listname']
-            machine_list = cluster_config[listname]
-
-            for hostname in machine_list:
-                if args.clean:
-                    remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-                else:
-                    bootstrapScriptGenerate(cluster_config, machine_list[hostname], "proxy")
-                    remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
-
-
-        listname = cluster_config['remote_deployment']['master']['listname']
-        machine_list = cluster_config[ listname ]
-
-        for hostname in machine_list:
-            if args.clean:
-                remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-            else:
-                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "master")
-                remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
-
-
-        listname = cluster_config['remote_deployment']['worker']['listname']
-        machine_list = cluster_config[listname]
-
-        for hostname in machine_list:
-            if args.clean:
-                remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-            else:
-                bootstrapScriptGenerate(cluster_config, machine_list[hostname], "worker")
-                remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
-
+    if args.deploy:
+        initial_bootstrap_cluster(cluster_config)
 
     if args.clean:
+        destory_whole_cluster(cluster_config)
         print "Clean Up Finished!"
         return
 
