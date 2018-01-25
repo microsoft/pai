@@ -96,7 +96,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://uri/output/$jobName` will be used if not specified |
+| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://host:port/output/$jobName` will be used if not specified |
 | `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
@@ -161,10 +161,10 @@ A distributed TensorFlow job is listed below as an example:
   "image": "your_docker_registry/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
-  "dataDir": "hdfs://path/tensorflow-distributed-jobguid/data",
-  "outputDir": "hdfs://path/tensorflow-distributed-jobguid/output",
+  "dataDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/data",
+  "outputDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/output",
   // this example uses code from tensorflow benchmark https://git.io/vF4wT
-  "codeDir": "hdfs://path/tensorflow-distributed-jobguid/code",
+  "codeDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/code",
   "taskRoles": [
     {
       "name": "ps_server",
@@ -209,7 +209,7 @@ A distributed TensorFlow job is listed below as an example:
 
     Use `pai-fs` to upload your code and data to HDFS on the system, for example
     ```sh
-    pai-fs -cp -r /local/data/dir hdfs://path/tensorflow-distributed-jobguid/data
+    pai-fs -cp -r /local/data/dir hdfs://host:port/path/tensorflow-distributed-jobguid/data
     ```
     please refer to [pai-fs/README.md](../pai-fs/README.md#usage) for more details.
 
