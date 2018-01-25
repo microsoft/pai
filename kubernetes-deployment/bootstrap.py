@@ -426,6 +426,7 @@ def main():
             #node_list_config = get_node_list_config()
             node_list_config = load_yaml_file(args.file)
             add_new_nodes(cluster_config, node_list_config)
+            #up_data_cluster_configuration()
 
         if args.remove:
             # Todo in the future we should finish the following two line
@@ -433,6 +434,7 @@ def main():
             # node_list_config = get_node_list()
             node_list_config = load_yaml_file(args.file)
             remove_nodes(cluster_config, node_list_config)
+            # up_data_cluster_configuration()
 
         return
 
