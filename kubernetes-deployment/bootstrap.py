@@ -363,7 +363,7 @@ def destory_whole_cluster(cluster_config):
     for role in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment'][role]['listname']
         machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", True)
+        kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
 
 
 
