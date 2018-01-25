@@ -36,6 +36,7 @@ cp hadoop/yarn-env.sh src/hadoop-run/yarn-env.sh
 
 # parepare original config of hadoop
 cp hadoop/core-site.xml bootstrap/hadoop-service/hadoop-configuration/core-site.xml
+cp hadoop/log4j.properties bootstrap/hadoop-service/hadoop-configuration/log4j.properties
 
 # prepare original config of hadoop for data-node
 cp hadoop/hdfs-site.xml bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml
@@ -65,6 +66,7 @@ patch src/hadoop-run/yarn-env.sh config-patch/yarn-env.sh.patch
 
 # patch for hadoop
 patch bootstrap/hadoop-service/hadoop-configuration/core-site.xml config-patch/core-site.xml.patch
+patch bootstrap/hadoop-service/hadoop-configuration/log4j.properties config-patch/log4j.properties.patch
 
 
 # patch for data-node

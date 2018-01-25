@@ -1,0 +1,11 @@
+--- hadoop-2.7.2/etc/hadoop/log4j.properties	2016-01-25 19:20:20.000000000 -0500
++++ log4j.properties	2018-01-24 22:18:30.983367064 -0500
+@@ -16,7 +16,7 @@
+ 
+ # Define some default values that can be overridden by system properties
+ hadoop.root.logger=INFO,console
+-hadoop.log.dir=.
++hadoop.log.dir=/var/lib/hadoop/hadooplogdir
+ hadoop.log.file=hadoop.log
+ 
+ # Define the root logger to the system property "hadoop.root.logger".
