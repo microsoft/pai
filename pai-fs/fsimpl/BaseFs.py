@@ -266,7 +266,7 @@ class FileSystem:
 
         if dst.exists and not force:
             if self.verbose:
-                print("%s already exists. Add -f to force copy" % (dst.abspath))
+                print("Destination already exists, move will not be performed. Add -f to force copy" % (dst.abspath))
             return
         else:
             if self.verbose:
