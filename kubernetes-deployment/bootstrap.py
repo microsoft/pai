@@ -68,12 +68,18 @@ def write_generated_file(generated_file, file_path):
 
 
 
+def load_yaml_file(path):
+
+    with open(path, "r") as f:
+        file_data = yaml.load(f)
+
+    return file_data
+
+
+
 def load_cluster_config(config_path):
 
-    with open(config_path, "r") as f:
-        cluster_data = yaml.load(f)
-
-    return cluster_data
+    return load_yaml_file(config_path)
 
 
 
@@ -367,17 +373,30 @@ def destory_whole_cluster(cluster_config):
 
 
 
+def add_new_nodes(cluster_config, node_list_config):
+    role = node_list_config['remote_deployment_role']
+    machine_list = node_list_config['machinelist']
+    kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
+
+
+
+def remove_nodes(cluster_config, node_list_config):
+    role = node_list_config['remote_deployment_role']
+    machine_list = node_list_config['machinelist']
+    kubernetes_nodelist_deployment(cluster_config, machine_list, role, False)
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--deploy', action="store_true", help='Deploy kubernetes to your cluster')
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
+    parser.add_argument('-f', '--file', default=None, help="An yamlfile with the nodelist to maintain")
+    parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
+    parser.add_argument('-r', '--remove', action="store_true", help="Remove the node from nodelist.yaml")
 
     args = parser.parse_args()
-
-    if args.deploy and args.clean:
-        print "You can only specify only one option in -d and -c !"
-        return
 
     config_path = args.path
     cluster_config = load_cluster_config(config_path)
@@ -389,6 +408,41 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+
+    if args.add or args.remove:
+
+        if args.file == None:
+            print "Please specify the nodelist.yaml's path"
+            return
+        if args.add and args.remove:
+            print "You could only specify one option in -a and -r"
+            return
+
+        if args.add:
+            #Todo in the future we should finish the following two line
+            #cluster_config = get_cluster_configuration()
+            #node_list_config = get_node_list_config()
+            node_list_config = load_yaml_file(args.file)
+            add_new_nodes(cluster_config, node_list_config)
+
+        if args.remove:
+            # Todo in the future we should finish the following two line
+            # cluster_config = get_cluster_configuration()
+            # node_list_config = get_node_list()
+            node_list_config = load_yaml_file(args.file)
+            remove_nodes(cluster_config, node_list_config)
+
+        return
+
+
+    if args.file != None:
+        print "Option -f (--file) should be used with option -a (--add) or -r (--remove)"
+        return
+
+    if args.deploy and args.clean:
+        print "You can only specify only one option in -d and -c !"
+        return
+
 
     if args.deploy:
         initial_bootstrap_cluster(cluster_config)
