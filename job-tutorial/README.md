@@ -97,7 +97,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://uri/output/$jobName` will be used if not specified |
-| `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
+| `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number for the task role, no less than 1 |
