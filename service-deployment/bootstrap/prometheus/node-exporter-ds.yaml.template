@@ -33,11 +33,11 @@ spec:
       containers:
       - image: prom/node-exporter
         volumeMounts:
-        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/promethues
+        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
         name: node-exporter
         args:
-          - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/promethues'
+          - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/prometheus'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
@@ -50,7 +50,7 @@ spec:
           name: device-mount
         - mountPath: /var/drivers
           name: driver-path
-        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/promethues
+        - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
         name: gpu-exporter
       volumes:
@@ -62,7 +62,7 @@ spec:
             path: /var/drivers
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}/promethues
+            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
       hostNetwork: true
       hostPID: true
 
