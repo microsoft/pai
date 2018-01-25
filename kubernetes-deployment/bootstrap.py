@@ -392,7 +392,7 @@ def remove_nodes(cluster_config, node_list_config):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--deploy', action="store_true", help='Deploy kubernetes to your cluster')
-    parser.add_argument('-p', '--path', default=None, help='path of cluster configuration file')
+    parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
     parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
     parser.add_argument('-f', '--file', default=None, help="An yamlfile with the nodelist to maintain")
     parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
@@ -441,10 +441,6 @@ def main():
 
     if args.file != None:
         print "Option -f (--file) should be used with option -a (--add) or -r (--remove)"
-        return
-
-    if args.path == None:
-        print "Please specify the cluster-configuration!"
         return
 
     if args.deploy and args.clean:
