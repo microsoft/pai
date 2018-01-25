@@ -17,7 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cp  /hadoop-configuration/log4j.properties $HADOOP_CONF_DIR/log4j.properties
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/datanode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
