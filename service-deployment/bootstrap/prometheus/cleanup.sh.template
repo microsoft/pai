@@ -27,7 +27,7 @@ configmap/prometheus-rules
 configmap/prometheus-kube-config"
 
 for instance in ${INSTANCES}; do
-  kubectl --namespace=monitor delete --ignore-not-found --now ${instance}
+  kubectl delete --ignore-not-found --now ${instance}
 done
 
 {% for host in machinelist %}
