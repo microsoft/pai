@@ -179,7 +179,7 @@ machinelist:
     webportal: "true"
     prometheus: "true"
     grafana: "true"
-    single-instance-exporter: "true"
+    promethues-single-exporter: "true"
   
   # Do the same work as the machine above.
   worker-01:
