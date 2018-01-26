@@ -148,3 +148,13 @@ sudo ./bootstrap.py -p yourclusterconfig.yaml -c
 ```bash
 sudo ./bootstrap.py -p yourclusterconfig.yaml
 ```
+
+## Add new nodes to your cluster
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a
+```
+
+## Remove nodes from your cluster
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -r
+```

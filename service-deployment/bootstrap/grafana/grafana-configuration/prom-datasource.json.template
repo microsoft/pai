@@ -1,0 +1,8 @@
+{
+  "name":"PM",
+  "type":"prometheus",
+  "url":"{{ clusterinfo['prometheusinfo']['prometheus_url'] }}:{{ clusterinfo['prometheusinfo']['prometheus_port'] }}",
+  "access":"direct",
+  "basicAuth":false,
+  "isDefault":true
+}
