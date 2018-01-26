@@ -63,6 +63,8 @@ spec:
         - name: collector-mount
           hostPath:
             path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+      imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true
       hostPID: true
 
