@@ -274,7 +274,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes{instance=~\"$node\"}[5m]) * 8)",
+              "expr": "sum(rate(node_network_receive_bytes{instance=~\"$node\"}[5m]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -285,7 +285,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes{instance=~\"$node\"}[5m]) * 8)",
+              "expr": "sum(rate(node_network_transmit_bytes{instance=~\"$node\"}[5m]))",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -381,7 +381,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_bytes_read{instance=~\"$node\"}[5m]) * 8)",
+              "expr": "sum(rate(node_disk_bytes_read{instance=~\"$node\"}[5m]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -392,7 +392,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written{instance=~\"$node\"}[5m]) * 8)",
+              "expr": "sum(rate(node_disk_bytes_written{instance=~\"$node\"}[5m]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,

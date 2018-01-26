@@ -546,14 +546,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]) * 8)",
+              "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]) * 8)",
+              "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -640,14 +640,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_bytes_read[5m]) * 8)",
+              "expr": "sum(rate(node_disk_bytes_read[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written[5m]) * 8)",
+              "expr": "sum(rate(node_disk_bytes_written[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
