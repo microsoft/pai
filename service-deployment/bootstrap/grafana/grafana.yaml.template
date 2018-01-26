@@ -14,13 +14,20 @@ spec:
       hostPID: true
       nodeSelector:
         grafana: "true"
+      volumes:
+      - name: grafana-confg-volume
+        configMap:
+          name: grafana-configuration
       containers:
       - name: grafana
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         ports:
         - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
-          protocol: TCP        
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /grafana-configuration
+          name: grafana-confg-volume
         env:
         - name : GRAFANA_URL
           value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
