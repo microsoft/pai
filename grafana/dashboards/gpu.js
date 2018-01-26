@@ -152,7 +152,7 @@ dashboard.rows.push(
     "repeat": null,
     "repeatIteration": null,
     "repeatRowId": null,
-    "showTitle": true,
+    "showTitle": false,
     "title": "Dashboard Row",
     "titleSize": "h6"
   }
