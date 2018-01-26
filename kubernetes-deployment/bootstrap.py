@@ -395,6 +395,23 @@ def remove_nodes(cluster_config, node_list_config):
 
 
 
+def job_package_wrapper(cluster_config, jobname):
+    None
+
+
+
+def maintain_nodes(cluster_config, node_list_config, job_name):
+    None
+
+
+
+def deep_maintain_nodes(cluster_config, node_list_config, job_name):
+
+    remove_nodes(cluster_config, node_list_config)
+    maintain_nodes(cluster_config, node_list_config )
+
+
+
 def option_validation(args):
 
     if args.add or args.remove:
@@ -436,6 +453,8 @@ def main():
     parser.add_argument('-f', '--file', default=None, help="An yamlfile with the nodelist to maintain")
     parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
     parser.add_argument('-r', '--remove', action="store_true", help="Remove the node from nodelist.yaml")
+    parser.add_argument('-m', '--maintain', action="store_true", help="maintain the unhealthy node")
+    parser.add_argument('-dm', '--depth_maintain', action="store_true", help="Deep maintain the unhealthy node, will delete all the k8s data in the node")
 
     args = parser.parse_args()
 
