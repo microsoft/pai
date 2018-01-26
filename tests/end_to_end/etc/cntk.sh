@@ -26,5 +26,6 @@ hdfs-mount $hdfs_addr $mnt_point &
 export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
 export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
+sed -i "/stderr/s/^/# /" G2P.cntk
 sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
 cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

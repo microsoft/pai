@@ -21,6 +21,7 @@ const Joi = require('joi');
 // define job config schema
 const jobConfigSchema = Joi.object().keys({
   jobName: Joi.string()
+    .regex(/^[a-zA-Z0-9._\-()]+$/)
     .required(),
   image: Joi.string()
     .required(),
