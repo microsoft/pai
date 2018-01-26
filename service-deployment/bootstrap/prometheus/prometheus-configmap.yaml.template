@@ -23,6 +23,11 @@ data:
   prometheus.yml: |-
     # Scrape config for cluster components.
     scrape_configs: 
+    - job_name: "kube_state_metrics_exporter"
+      scrape_interval: "15s"
+      static_configs:
+      - targets: 
+        - {{clusterinfo['prometheusinfo']['kube_exporter_host']}}:{{clusterinfo['prometheusinfo']['kube_exporter_port']}}
     - job_name: "node_exporter"
       scrape_interval: "15s"
       static_configs:

@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-state-metrics
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-state-metrics
+    spec:
+      serviceAccountName: kube-state-metrics
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        promkube: "true"
+      containers:
+      - name: kube-state-metrics
+        image: quay.io/coreos/kube-state-metrics:v1.2.0
+        args:
+        - "--host={{clusterinfo['prometheusinfo']['kube_exporter_host']}}"
+        - "--port={{clusterinfo['prometheusinfo']['kube_exporter_port']}}"
+        - "--telemetry-host={{clusterinfo['prometheusinfo']['kube_exporter_url']}}"
+        - "--telemetry-port={{clusterinfo['prometheusinfo']['kube_exporter_telemetry_port']}}"
+        - "--in-cluster=false"
+        - "--apiserver={{clusterinfo['prometheusinfo']['kube_api_server_url']}}"
+        - "--kubeconfig=/etc/.kube/config"
+        ports:
+        - name: http-metrics
+          containerPort: {{clusterinfo['prometheusinfo']['kube_exporter_port']}}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{clusterinfo['prometheusinfo']['kube_exporter_port']}}
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: kube-config-volume
+          mountPath: /etc/.kube
+      volumes:
+        - name: kube-config-volume
+          configMap:
+            name: prometheus-kube-config
