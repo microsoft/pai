@@ -32,7 +32,7 @@ done &
 
 printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
-export PAI_DEFAULT_HDFS_URI={{{ hdfsUri }}}
+export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_HDFS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
