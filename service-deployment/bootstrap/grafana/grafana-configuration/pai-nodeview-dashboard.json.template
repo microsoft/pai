@@ -315,7 +315,7 @@
           },
           "yaxes": [
             {
-              "format": "bps",
+              "format": "Bps",
               "label": "",
               "logBase": 1,
               "max": null,
@@ -420,7 +420,7 @@
           },
           "yaxes": [
             {
-              "format": "bps",
+              "format": "Bps",
               "logBase": 1,
               "max": null,
               "min": 0,
