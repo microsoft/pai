@@ -80,9 +80,7 @@ rm ContainerList
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
 if [[ -z $PAI_CODE_DIR ]]; then
-  cd $HOME
-  hdfs dfs -get $PAI_CODE_DIR code || exit 1
-  cd code
+  hdfs dfs -get $PAI_CODE_DIR || exit 1
 fi
 
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
