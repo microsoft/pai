@@ -17,8 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+mkdir -p /usr/local/grafana/datasources/
+mkdir -p /usr/local/grafana/dashboards/
+cp /grafana-configuration/*-datasource.json /usr/local/grafana/datasources/
+cp /grafana-configuration/*-dashboard.json /usr/local/grafana/dashboards/
+
 
 /usr/local/grafana_config.sh &
 /usr/local/start_server.sh
 exit 0
-
