@@ -3,9 +3,9 @@
   "image": "pai.run.tensorflow",
 
   // prepare checkpoint and log to be visualized and upload to hdfs
-  "dataDir": "hdfs://path/tensorboard-jobguid/data",
+  "dataDir": "hdfs://host:port/path/tensorboard-jobguid/data",
   // prepare visualization script tensorboard-example.sh and upload to hdfs
-  "codeDir": "hdfs://path/tensorboard-jobguid/code",
+  "codeDir": "hdfs://host:port/path/tensorboard-jobguid/code",
 
   "taskRoles": [
     {
