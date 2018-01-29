@@ -403,7 +403,7 @@ def maintain_expert(cluster_config, maintain_config, node_config, job_name):
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, job_name)
-    job_instance = job_class(node_config)
+    job_instance = job_class(cluster_config, node_config, False)
 
     job_instance.run()
 
