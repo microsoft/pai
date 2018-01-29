@@ -26,6 +26,6 @@ repair:
 
     # List of the file
     file-list:
-    - src: maintain-tool/repair-work-node.sh
-      dst: repair-work-node.sh
+    - src: maintain-tool/repair-worker-node.sh
+      dst: repair-worker-node.sh
     # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
