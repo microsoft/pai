@@ -59,10 +59,10 @@ class repair:
 
         # sftp your script to remote host with paramiko.
         srcipt_package = "repair.tar"
-        src_local = "parcel-center/{1}".format(self.node_config["nodename"])
+        src_local = "parcel-center/{0}".format(self.node_config["nodename"])
         dst_remote = "/home/{0}".format(self.node_config["username"])
 
-        common.sftp_paramiko(src_local, dst_remote, srcipt_package, host_config)
+        common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config)
         commandline = "tar -xvf repair.tar && sudo ./repair/repair-worker-node.sh"
         common.ssh_shell_paramiko(self.node_config, commandline)
 
