@@ -1,0 +1,119 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import yaml
+import os
+import sys
+import subprocess
+import jinja2
+import argparse
+import paramiko
+
+
+
+def load_yaml_file(path):
+
+    with open(path, "r") as f:
+        file_data = yaml.load(f)
+
+    return file_data
+
+
+
+def execute_shell(shell_cmd, error_msg):
+
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        print error_msg
+        sys.exit(1)
+
+
+
+def read_template(template_path):
+
+    with open(template_path, "r") as fin:
+        template_data = fin.read()
+
+    return template_data
+
+
+
+def generate_from_template(template_data, cluster_config, host_config):
+
+    generated_file = jinja2.Template(template_data).render(
+        {
+            "hostcofig": host_config,
+            "clusterconfig": cluster_config['clusterinfo'],
+            "cluster": cluster_config
+        }
+    )
+
+    return generated_file
+
+
+
+def write_generated_file(generated_file, file_path):
+
+    with open(file_path, "w+") as fout:
+        fout.write(generated_file)
+
+
+
+def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
+
+    if not os.path.exists("parcel-center/{0}/{1}".format(node_config['nodename'], jobname)):
+        execute_shell(
+            "mkdir -p parcel-center/{0}/{1}".format(node_config['nodename'], jobname),
+            "failed to create folder parcel-center/{0}/{1}".format(node_config['nodename'], jobname)
+        )
+
+    for template_info in maintain_config[jobname]["template-list"]:
+
+        src = template_info['src']
+        dst = template_info['dst']
+
+        template_data = read_template("{0}".format(src))
+        template_file = generate_from_template(template_data, cluster_config, node_config)
+        write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], jobname, dst))
+
+
+    for file_info in maintain_config[jobname]["file-list"]:
+
+        src = file_info['src']
+        dst = file_info['dst']
+        execute_shell(
+            "cp {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], jobname, dst),
+            "Failed copy {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], jobname, dst)
+        )
+
+    execute_shell("cp -r parcel-center/{0}/{1} .".format(node_config['nodename'], jobname), "Failed cp job folder")
+    execute_shell(
+        "tar -cvf parcel-center/{0}/{1}.tar {1}".format(node_config['nodename'], jobname),
+        "Failed to package the script"
+    )
+    execute_shell("rm -rf {0}".format(jobname), "Failed to remove {0}".format(jobname))
+
+
+
+def maintain_package_cleaner(node_config):
+
+    execute_shell(
+        "rm -rf parcel-center/{0}".format(node_config['nodename']),
+        "Failed to remove parcel-center/{0}".format(node_config['nodename'])
+    )

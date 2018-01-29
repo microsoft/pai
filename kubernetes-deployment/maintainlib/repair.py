@@ -22,6 +22,7 @@ import subprocess
 import jinja2
 import argparse
 import paramiko
+import common
 
 
 class repair:
@@ -30,13 +31,46 @@ class repair:
     An class to reinstall
     """
 
-    def __init__(self, node_config):
+    def __init__(self, cluster_config, node_config, clean):
 
-        None
+        self.cluster_config = cluster_config
+        self.node_config = node_config
+        self.maintain_config = common.load_yaml_file("maintain.yaml")
+        self.jobname = "repair"
+        self.clean_flag = clean
+
+
+
+    def prepare_package(self):
+
+        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, self.node_config, self.jobname)
+
+
+
+    def delete_packege(self):
+
+        common.maintain_package_cleaner(self.node_config)
+
+
+
+    def job_execute(self):
+
+        print "repair"
+
+
+
 
     def run(self):
 
-        print "pair running"
+        print "---- package wrapper is working now! ----"
+        self.prepare_package()
+        print "---- package wrapper's work finished ----"
 
+
+        if self.clean_flag == True:
+
+            print "---- package cleaner is working now! ----"
+            self.delete_packege()
+            print "---- package cleaner's work finished! ----"
 
 
