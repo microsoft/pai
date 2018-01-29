@@ -130,6 +130,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
+| PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
 | PAI_USERNAME                       | User who submit the job                  |
