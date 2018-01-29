@@ -24,6 +24,8 @@ import subprocess
 import jinja2
 import argparse
 import paramiko
+import maintainlib
+import importlib
 
 
 
@@ -395,20 +397,62 @@ def remove_nodes(cluster_config, node_list_config):
 
 
 
-def job_package_wrapper(cluster_config, jobname):
-    None
+def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
 
+    if not os.path.exists("parcel-center/{0}/{1}".format(node_config['nodename'], jobname)):
+        execute_shell(
+            "mkdir -p parcel-center/{0}/{1}".format(node_config['nodename'], jobname),
+            "failed to create folder parcel-center/{0}/{1}".format(node_config['nodename'], jobname)
+        )
+
+    for template_info in maintain_config[jobname]["template-list"]:
+
+        src = template_info['src']
+        dst = template_info['dst']
+
+        template_data = read_template("{0}".format(src))
+        template_file = generate_from_template(template_data, cluster_config, node_config)
+        write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], jobname, dst))
+
+
+    for file_info in maintain_config[jobname]["file-list"]:
+
+        src = file_info['src']
+        dst = file_info['dst']
+        execute_shell(
+            "cp {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], jobname, dst),
+            "Failed copy {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], jobname, dst)
+        )
+
+    execute_shell("cp -r parcel-center/{0}/{1} .".format(node_config['nodename'], jobname), "Failed cp job folder")
+    execute_shell(
+        "tar -cvf parcel-center/{0}/{1}.tar {1}".format(node_config['nodename'], jobname),
+        "Failed to package the script"
+    )
+    execute_shell("rm -rf {0}".format(jobname), "Failed to remove {0}".format(jobname))
+
+
+
+def maintain_expert(cluster_config, maintain_config, node_config, job_name):
+
+    module_name = "maintainlib.{0}".format(job_name)
+    module = importlib.import_module(module_name)
+
+    job_class = getattr(module, job_name)
+    job_instance = job_class(node_config)
+
+    job_instance.run()
 
 
 def maintain_nodes(cluster_config, node_list_config, job_name):
-    None
 
+    # Todo: load maintain from a DB such as etcd instead of a yaml file.
+    maintain_config = load_yaml_file("maintain.yaml")
 
+    for host in node_list_config['machinelist']:
 
-def deep_maintain_nodes(cluster_config, node_list_config, job_name):
-
-    remove_nodes(cluster_config, node_list_config)
-    maintain_nodes(cluster_config, node_list_config )
+        maintain_package_wrapper(cluster_config, maintain_config, host, job_name)
+        maintain_expert(cluster_config, maintain_config, host, job_name)
 
 
 
@@ -454,7 +498,6 @@ def main():
     parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
     parser.add_argument('-r', '--remove', action="store_true", help="Remove the node from nodelist.yaml")
     parser.add_argument('-m', '--maintain', action="store_true", help="maintain the unhealthy node")
-    parser.add_argument('-dm', '--depth_maintain', action="store_true", help="Deep maintain the unhealthy node, will delete all the k8s data in the node")
 
     args = parser.parse_args()
 
@@ -488,6 +531,14 @@ def main():
         node_list_config = load_yaml_file(args.file)
         remove_nodes(cluster_config, node_list_config)
         # up_data_cluster_configuration()
+        return
+
+    if args.maintain:
+        # Todo in the future we should finish the following two line
+        # cluster_config = get_cluster_configuration()
+        # node_list_config = get_node_list()
+        node_list_config = load_yaml_file(args.file)
+        maintain_nodes(cluster_config, node_list_config)
         return
 
 

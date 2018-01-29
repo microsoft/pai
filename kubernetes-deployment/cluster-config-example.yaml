@@ -182,12 +182,6 @@ workermachinelist:
 #    username: username
 #    password: password
 
-maintain-job:
-
-  repair-job:
-
-    file-list:
-    - file-path: maintain-job/repair/repair-work-node.sh
 
 
 
