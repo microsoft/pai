@@ -21,8 +21,8 @@ repair:
 
     # List of the template
     template-list:
-    - src: template/kubelet.yaml.template
-      dst: kubelet.yaml
+    - src: template/kubelet.sh.template
+      dst: kubelet.sh
 
     # List of the file
     file-list:
