@@ -75,6 +75,63 @@ def write_generated_file(generated_file, file_path):
 
 
 
+def sftp_paramiko(src, dst, filename, host_config):
+
+    hostip = host_config['hostip']
+    username = host_config['username']
+    password = host_config['password']
+    port = 22
+    if 'sshport' in host_config:
+        port = host_config['sshport']
+
+    # First make sure the folder exist.
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+
+    stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
+    stdin.write(password + '\n')
+    stdin.flush()
+    for response_msg in stdout:
+        print response_msg.strip('\n')
+
+    ssh.close()
+
+    # Put the file to target Path.
+    transport = paramiko.Transport((hostip, port))
+    transport.connect(username=username, password=password)
+
+    sftp = paramiko.SFTPClient.from_transport(transport)
+    sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
+    sftp.close()
+
+    transport.close()
+
+
+
+def ssh_shell_paramiko(host_config, commandline):
+
+    hostip = host_config['hostip']
+    username = host_config['username']
+    password = host_config['password']
+    port = 22
+    if 'sshport' in host_config:
+        port = host_config['sshport']
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
+    stdin.write(password + '\n')
+    stdin.flush()
+
+    for response_msg in stdout:
+        print response_msg.strip('\n')
+
+    ssh.close()
+
+
+
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
 
     if not os.path.exists("parcel-center/{0}/{1}".format(node_config['nodename'], jobname)):
