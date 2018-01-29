@@ -423,6 +423,7 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 def option_validation(args):
 
     if args.add or args.remove:
+
         if args.add and args.remove:
             print "You could only specify one option in -a and -r"
             return False
@@ -432,8 +433,26 @@ def option_validation(args):
         if args.deploy or args.clean:
             print "You could not specify the option (-a or -r) with the option (-d or -c)"
             return False
+        if args.main != None:
+            print "You could not specify the option (-a or -r) with the option -m"
         # Add or remove node-list
         return True
+
+    if args.maintain != None:
+
+        if args.file == None:
+            print "Please specify the nodelist.yaml's path"
+            return False
+        if args.deploy or args.clean:
+            print "You could not specify the option (-a or -r) with the option (-d or -c)"
+            return False
+        if args.maintain == "repair":
+            print "Repair function is Detected"
+            return True
+        print "Sorry, maybe you specify an error option!"
+        print "Now maintain option support following function:"
+        print "repair (-m repair), to repair the node (only worker node supported now!)"
+        return False
 
     if args.deploy or args.clean:
 
@@ -461,7 +480,7 @@ def main():
     parser.add_argument('-f', '--file', default=None, help="An yamlfile with the nodelist to maintain")
     parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
     parser.add_argument('-r', '--remove', action="store_true", help="Remove the node from nodelist.yaml")
-    parser.add_argument('-m', '--maintain', action="store_true", help="maintain the unhealthy node")
+    parser.add_argument('-m', '--maintain', default=None, help="maintain the cluster")
 
     args = parser.parse_args()
 
@@ -497,12 +516,12 @@ def main():
         # up_data_cluster_configuration()
         return
 
-    if args.maintain:
+    if args.maintain != None:
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
-        maintain_nodes(cluster_config, node_list_config, "repair")
+        maintain_nodes(cluster_config, node_list_config, args.maintain)
         return
 
 
