@@ -158,3 +158,8 @@ sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a
 ```bash
 sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -r
 ```
+
+## Repair the worker node with the unhealthy states
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -m repair
+```
