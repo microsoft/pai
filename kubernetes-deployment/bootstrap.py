@@ -451,8 +451,8 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
     for host in node_list_config['machinelist']:
 
-        maintain_package_wrapper(cluster_config, maintain_config, host, job_name)
-        maintain_expert(cluster_config, maintain_config, host, job_name)
+        maintain_package_wrapper(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
+        maintain_expert(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
 
 
 
