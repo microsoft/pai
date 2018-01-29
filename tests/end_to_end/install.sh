@@ -47,7 +47,7 @@ get_test_account() {
 }
 
 
-apt-get install -y dos2unix
+apt-get install -y jq dos2unix
 
 mkdir -p local
 cd local
