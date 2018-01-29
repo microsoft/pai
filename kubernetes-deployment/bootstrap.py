@@ -538,7 +538,7 @@ def main():
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
-        maintain_nodes(cluster_config, node_list_config)
+        maintain_nodes(cluster_config, node_list_config, "repair")
         return
 
 

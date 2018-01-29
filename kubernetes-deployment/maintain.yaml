@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# JOb name
+# JOb name, should be same with corresponding class in maintainlib
 repair:
 
     # List of the template
@@ -28,6 +28,4 @@ repair:
     file-list:
     - src: maintain-tool/repair-work-node.sh
       dst: repair-work-node.sh
-
-    init: repair-work-node.sh
     # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
