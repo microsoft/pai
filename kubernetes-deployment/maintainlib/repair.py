@@ -53,10 +53,20 @@ class repair:
 
 
 
-    def job_execute(self):
+    def job_executer(self):
 
-        print "repair"
+        print "repair job begins !"
 
+        # sftp your script to remote host with paramiko.
+        srcipt_package = "repair.tar"
+        src_local = "parcel-center/{1}".format(self.node_config["nodename"])
+        dst_remote = "/home/{0}".format(self.node_config["username"])
+
+        common.sftp_paramiko(src_local, dst_remote, srcipt_package, host_config)
+        commandline = "tar -xvf repair.tar && sudo ./repair/repair-worker-node.sh"
+        common.ssh_shell_paramiko(self.node_config, commandline)
+
+        print "Successfully running repair job on node {0}".format(self.node_config["nodename"])
 
 
 
@@ -66,6 +76,7 @@ class repair:
         self.prepare_package()
         print "---- package wrapper's work finished ----"
 
+        self.job_executer()
 
         if self.clean_flag == True:
 
