@@ -49,16 +49,12 @@ dashboard.time = {
   to: "now"
 };
 
-var rows = 2;
+var gpuNum = 2;
 
 if(!_.isUndefined(ARGS.rows)) {
-  rows = parseInt(ARGS.rows, 10);
+  gpuNum = parseInt(ARGS.rows, 10);
 }
 var seriesName = 'argName';
-
-if(!_.isUndefined(ARGS.rows)) {
-  rows = parseInt(ARGS.rows, 10);
-}
 
 if(!_.isUndefined(ARGS.name)) {
   seriesName = ARGS.name;
@@ -69,14 +65,9 @@ if(!_.isUndefined(ARGS.host)) {
   hostName = ARGS.host;
 }
 
-for (var i = 0; i < rows; i++) {
-  
-  dashboard.rows.push(
-         {
-      "collapse": false,
-      "height": 250,
-      "panels": [
-        {
+var arrPanels = new Array()
+for (var i = 0; i < gpuNum; i++) { 
+  arrPanels[i] = {
           "aliasColors": {},
           "bars": false,
           "dashLength": 12,
@@ -150,18 +141,25 @@ for (var i = 0; i < rows; i++) {
               "show": true
             }
           ]
-        }
-      ],
-      "repeat": null,
-      "repeatIteration": null,
-      "repeatRowId": null,
-      "showTitle": false,
-      "title": "Dashboard Row",
-      "titleSize": "h6"
-    }
-  );
-  dashboard.editable=false;
-  dashboard.hideControls=true;
+        };
+  
 }
 
+dashboard.rows.push(
+  {
+    "collapse": false,
+    "panels": arrPanels,
+    "repeat": null,
+    "repeatIteration": null,
+    "repeatRowId": null,
+    "showTitle": false,
+    "title": "Dashboard Row",
+    "titleSize": "h6"
+  }
+);
+
+dashboard.editable=false;
+dashboard.hideControls=true;
+
 return dashboard;
+
