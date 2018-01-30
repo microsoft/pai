@@ -54,6 +54,8 @@ spec:
           name: docker-cred-volume
         - mountPath: /var/lib/hadoop
           name: hadoop-tmp-dir
+        - mountPath: /tmp
+          name: webapp-tmp-dir
         readinessProbe:
           exec:
             command:
@@ -105,5 +107,8 @@ spec:
       - name: hadoop-tmp-dir
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadoop/nodemanager
+      - name: webapp-tmp-dir
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadoop/nodemanager-web
 
 
