@@ -43,6 +43,10 @@ public class ResourceDescriptor implements Serializable {
 
   @Valid
   @NotNull
+  private Integer portNumber = 0;
+
+  @Valid
+  @NotNull
   private DiskType diskType = DiskType.HDD;
 
   @Valid
@@ -81,6 +85,14 @@ public class ResourceDescriptor implements Serializable {
     this.portRanges = portRanges;
   }
 
+  public Integer getPortNumber() {
+    return portNumber;
+  }
+
+  public void setPortNumber(Integer portNumber) {
+    this.portNumber = portNumber;
+  }
+
   public DiskType getDiskType() {
     return diskType;
   }
@@ -114,11 +126,17 @@ public class ResourceDescriptor implements Serializable {
   }
 
   public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
+    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, null);
+  }
+
+  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute, Integer portNumber, List<Range> portRanges) {
     ResourceDescriptor resource = new ResourceDescriptor();
     resource.setMemoryMB(memoryMB);
     resource.setCpuNumber(cpuNumber);
     resource.setGpuNumber(gpuNumber);
     resource.setGpuAttribute(gpuAttribute);
+    resource.setPortNumber(portNumber);
+    resource.setPortRanges(portRanges);
     return resource;
   }
 
@@ -149,7 +167,11 @@ public class ResourceDescriptor implements Serializable {
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
 
+      Method getPortsCount = clazz.getMethod("getPortsCount");
+      rd.setPortNumber((int)getPortsCount.invoke(res));
+
       Method getPorts = clazz.getMethod("getPorts");
+
       Object hadoopValueRanges = getPorts.invoke(res);
       if(hadoopValueRanges != null) {
         Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
@@ -183,10 +205,10 @@ public class ResourceDescriptor implements Serializable {
 
   public Resource toResource() throws Exception {
     Resource res = Resource.newInstance(memoryMB, cpuNumber);
+    Class<?> clazz = res.getClass();
 
     if (gpuNumber > 0) {
       try {
-        Class<?> clazz = res.getClass();
         Method setGpuNumber = clazz.getMethod("setGPUs", int.class);
         Method setGpuAttribute = clazz.getMethod("setGPUAttribute", long.class);
 
@@ -200,9 +222,22 @@ public class ResourceDescriptor implements Serializable {
       }
     }
 
+    if(portNumber > 0) {
+      try {
+        Method setPortsCount = clazz.getMethod("setPortsCount", int.class);
+        setPortsCount.invoke(res, portNumber);
+
+      } catch (NoSuchMethodException e) {
+        LOGGER.logWarning(e, "Ignore: Fail to set portNumber information, YARN library doesn't support:");
+      } catch (IllegalAccessException e) {
+        LOGGER.logError(e, "Ignore: Fail to set portNumber information, illegal access function");
+      } catch(Exception e) {
+        LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
+      }
+    }
     if (portRanges != null && portRanges.size() > 0) {
       try {
-        Class<?> clazz = res.getClass();
+
         Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
         Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
 
@@ -238,14 +273,16 @@ public class ResourceDescriptor implements Serializable {
   @Override
   public String toString() {
     String portString = "";
-    for(Range range : portRanges) {
-      portString = portString + "[" + range.getBegin() + "-" + range.getEnd() + "],";
+    if(portRanges != null) {
+      for (Range range : portRanges) {
+        portString = portString + "[" + range.getBegin() + "-" + range.getEnd() + "],";
+      }
     }
-
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]", getGpuAttribute()) +
-        String.format("Port: [%s]", portString);
+        String.format("Port: [%s]", portString) + " " +
+        String.format("PortNumber: [%s]", portNumber);
   }
 }
