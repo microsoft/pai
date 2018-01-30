@@ -32,7 +32,7 @@ import java.util.Map;
 
 // Forward Http Request to ZK Request and Return ZK Status.
 public class WebServer extends AbstractService {
-  private static final DefaultLogger LOGGER = new DefaultLogger(RequestManager.class);
+  private static final DefaultLogger LOGGER = new DefaultLogger(WebServer.class);
 
   private final LauncherConfiguration conf;
 

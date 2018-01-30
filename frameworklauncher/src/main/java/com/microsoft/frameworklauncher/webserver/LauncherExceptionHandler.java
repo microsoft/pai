@@ -24,7 +24,9 @@ import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
 import com.microsoft.frameworklauncher.common.exceptions.ThrottledRequestException;
 import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import org.apache.hadoop.security.authorize.AuthorizationException;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.yarn.webapp.ForbiddenException;
 import org.apache.hadoop.yarn.webapp.RemoteExceptionData;
 import org.apache.http.HttpStatus;
 
@@ -34,11 +36,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import java.io.FileNotFoundException;
 
 @Singleton
 @Provider
 public class LauncherExceptionHandler implements ExceptionMapper<Exception> {
-  private static final DefaultLogger LOGGER = new DefaultLogger(StatusManager.class);
+  private static final DefaultLogger LOGGER = new DefaultLogger(LauncherExceptionHandler.class);
 
   private @Context
   HttpServletResponse response;
@@ -57,17 +60,27 @@ public class LauncherExceptionHandler implements ExceptionMapper<Exception> {
     // Map response status
     String logPrefix = "Http request failed due to: ";
     final int statusCode;
-    if (e instanceof NotFoundException) {
+    if (e instanceof SecurityException ||
+        e instanceof AuthorizationException) {
+      LOGGER.logInfo(e, logPrefix + "Unauthorized");
+      statusCode = HttpStatus.SC_UNAUTHORIZED;
+    } else if (e instanceof ForbiddenException) {
+      LOGGER.logInfo(e, logPrefix + "Forbidden");
+      statusCode = HttpStatus.SC_FORBIDDEN;
+    } else if (e instanceof NotFoundException ||
+        e instanceof FileNotFoundException) {
       LOGGER.logInfo(e, logPrefix + "Not Found");
       statusCode = HttpStatus.SC_NOT_FOUND;
-    } else if (e instanceof BadRequestException ||
-        e instanceof JsonProcessingException ||
-        e instanceof WebApplicationException) {
-      LOGGER.logInfo(e, logPrefix + "Bad Request");
-      statusCode = HttpStatus.SC_BAD_REQUEST;
     } else if (e instanceof ThrottledRequestException) {
       LOGGER.logInfo(e, logPrefix + "Throttled Request");
       statusCode = WebCommon.SC_TOO_MANY_REQUESTS;
+    } else if (e instanceof BadRequestException ||
+        e instanceof JsonProcessingException ||
+        e instanceof WebApplicationException ||
+        e instanceof IllegalArgumentException ||
+        e instanceof UnsupportedOperationException) {
+      LOGGER.logInfo(e, logPrefix + "Bad Request");
+      statusCode = HttpStatus.SC_BAD_REQUEST;
     } else {
       LOGGER.logWarning(e, logPrefix + "Service Unavailable");
       statusCode = HttpStatus.SC_SERVICE_UNAVAILABLE;

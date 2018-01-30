@@ -265,28 +265,26 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // The external resource will be setup by following CreateApplication
   }
 
-  private void removeFramework(String frameworkName, boolean skipRemoveHdfsResource) throws Exception {
+  private void removeFramework(String frameworkName, boolean usedToUpgrade) throws Exception {
     FrameworkStatus frameworkStatus = getFrameworkStatus(frameworkName);
     Integer frameworkVersion = frameworkStatus.getFrameworkVersion();
 
     LOGGER.logInfo("[%s][%s]: removeFramework", frameworkName, frameworkVersion);
 
     // Notify Service to Cleanup Framework level external resource [HDFS, RM]
-    service.onFrameworkToRemove(frameworkStatus, skipRemoveHdfsResource);
+    service.onFrameworkToRemove(frameworkStatus, usedToUpgrade);
 
     // Update Mem Status
     removeExtensionFrameworkStatus(frameworkName);
     frameworkStatuses.remove(frameworkName);
 
     // Update ZK Status
-    zkStore.deleteFrameworkStatus(frameworkName);
+    zkStore.deleteFrameworkStatus(frameworkName, usedToUpgrade);
   }
 
   private void upgradeFramework(FrameworkRequest frameworkRequest) throws Exception {
     String frameworkName = frameworkRequest.getFrameworkName();
 
-    // skipRemoveHdfsResource since Upgraded Framework will overwrite them anyway or it will be
-    // Cleanuped by GCLeftoverFrameworks if the Framework is Removed after LauncherService restart.
     removeFramework(frameworkName, true);
     addFramework(frameworkRequest);
   }
