@@ -874,7 +874,7 @@ public class Service extends AbstractService {
   }
 
   // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework
-  public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean skipRemoveHdfsResource) throws Exception {
+  public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean usedToUpgrade) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     String applicationId = frameworkStatus.getApplicationId();
     FrameworkState frameworkState = frameworkStatus.getFrameworkState();
@@ -886,7 +886,7 @@ public class Service extends AbstractService {
       HadoopUtils.killApplication(applicationId);
     }
 
-    if (!skipRemoveHdfsResource) {
+    if (!usedToUpgrade) {
       try {
         // Although remove Framework in HDFS is slow, it is still synchronized in queue to ensure that the
         // remove operation will not remove the Framework which is not to be removed.

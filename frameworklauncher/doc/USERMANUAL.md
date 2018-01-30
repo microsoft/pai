@@ -480,7 +480,7 @@ A Framework is Defined and Requested by FrameworkDescriptor data structure. To f
 
 ## <a name="EnvironmentVariables">EnvironmentVariables</a>
 Launcher sets up below EnvironmentVariables for each User Service to use:
-1. Used to locate itself in the Cluster irrespective of any kinds of Migration and Restart.
+1. Used to locate itself during the whole Framework life cycle. So, they will not be changed after Migration or Restart.
 
 | EnvironmentVariable | Description |
 |:---- |:---- |
@@ -492,7 +492,14 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 | SERVICE_NAME | |
 | SERVICE_VERSION | |
 
-2. Used to get the assigned Resource, only set when corresponding feature is enabled.
+2. Used to locate itself during a specific execution attempt. So, they will be changed to a different one after Migration or Restart.
+
+| EnvironmentVariable | Description |
+|:---- |:---- |
+| APP_ID | Framework's current associated Application ID. |
+| CONTAINER_ID | Task's current associated Container ID. |
+
+3. Used to get the assigned Resource, only set when corresponding feature is enabled.
 
 | EnvironmentVariable | Description |
 |:---- |:---- |
