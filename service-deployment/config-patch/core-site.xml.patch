@@ -1,9 +1,14 @@
---- hadoop/core-site.xml	2017-11-13 01:45:55.704448531 -0500
-+++ src/hadoop-run/core-site.xml	2017-11-13 02:08:08.368936322 -0500
-@@ -17,4 +17,14 @@
+--- hadoop-2.7.2/etc/hadoop/core-site.xml	2016-01-25 19:20:20.000000000 -0500
++++ core-site.xml	2018-01-19 02:20:58.449850434 -0500
+@@ -17,4 +17,19 @@
  <!-- Put site-specific property overrides in this file. -->
  
  <configuration>
++
++<property>
++  <name>hadoop.tmp.dir</name>
++  <value>/var/lib/hadoop</value>
++</property>
 +
 +<property>
 +  <name>fs.defaultFS</name>
