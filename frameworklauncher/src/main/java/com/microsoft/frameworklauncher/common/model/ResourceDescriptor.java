@@ -266,7 +266,7 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
       }
     }
-    LOGGER.logDebug("Put ResourceDescriptor " + toString + " to hadoop resource: " + res);
+    LOGGER.logDebug("Put ResourceDescriptor " + this.toString() + " to hadoop resource: " + res);
     return res;
   }
 
