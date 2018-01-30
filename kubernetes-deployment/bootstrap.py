@@ -433,7 +433,7 @@ def option_validation(args):
         if args.deploy or args.clean:
             print "You could not specify the option (-a or -r) with the option (-d or -c)"
             return False
-        if args.main != None:
+        if args.maintain != None:
             print "You could not specify the option (-a or -r) with the option -m"
         # Add or remove node-list
         return True
