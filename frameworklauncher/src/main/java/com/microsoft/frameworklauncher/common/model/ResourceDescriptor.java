@@ -199,7 +199,7 @@ public class ResourceDescriptor implements Serializable {
     } catch(Exception e) {
       LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
     }
-    LOGGER.logDebug("Get Port Informaiton from hadoop resource: " + res);
+    LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
     return rd;
   }
 
@@ -266,7 +266,7 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
       }
     }
-    LOGGER.logDebug("Put Port Informaiton to hadoop resource: " + res);
+    LOGGER.logDebug("Put ResourceDescriptor " + toString + " to hadoop resource: " + res);
     return res;
   }
 
