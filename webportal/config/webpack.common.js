@@ -163,6 +163,10 @@ const config = {
       jQuery: 'jquery',
       'window.jQuery': 'jquery'
     }),
+    new webpack.ProvidePlugin({
+      cookies: 'js-cookie',
+      'window.cookies': 'js-cookie'
+    }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
       filename: 'index.html',

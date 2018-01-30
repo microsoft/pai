@@ -23,14 +23,16 @@ require('bootstrap/dist/css/bootstrap.min.css');
 require('admin-lte/dist/css/AdminLTE.min.css');
 require('admin-lte/dist/css/skins/_all-skins.min.css');
 require('font-awesome/css/font-awesome.min.css');
-const cookies = require('js-cookie');
+const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 
 
 const userLoginNavHtml = userLoginNavComponent({ cookies });
 
-window.cookies = cookies;
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
+if (!userAuthComponent.checkAdmin()) {
+  $('#sidebar-menu--user-management').hide();
+}

@@ -1,0 +1,17 @@
+{
+  "jobName": "CNTK_TEST",
+  "image": "aiplatform/pai.run.cntk",
+  "dataDir": "HDFS_URI/Test/cntk/Data",
+  "outputDir": "HDFS_URI/Test/cntk/CNTK_TEST",
+  "codeDir": "HDFS_URI/Test/cntk/BrainScript",
+  "taskRoles": [
+    {
+      "name": "g2p-train",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8196,
+      "gpuNumber": 1,
+      "command": "/bin/bash cntk.sh"
+    }
+  ]
+}

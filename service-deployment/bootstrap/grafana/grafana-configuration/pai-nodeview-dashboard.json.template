@@ -14,7 +14,7 @@
   },
   "description": "Dashboard to view multiple servers",
   "editable": false,
-  "gnetId": 405,
+  "gnetId": null,
   "graphTooltip": 0,
   "hideControls": true,
   "id": null,
@@ -287,6 +287,7 @@
             {
               "expr": "sum(rate(node_network_transmit_bytes{instance=~\"$node\"}[5m]))",
               "format": "time_series",
+              "hide": true,
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -314,7 +315,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "Bps",
               "label": "",
               "logBase": 1,
               "max": null,
@@ -326,7 +327,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }
@@ -393,6 +394,7 @@
             {
               "expr": "sum(rate(node_disk_bytes_written{instance=~\"$node\"}[5m]))",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 2,
               "legendFormat": "write",
               "refId": "B"
@@ -418,7 +420,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "Bps",
               "logBase": 1,
               "max": null,
               "min": 0,
@@ -429,7 +431,7 @@
               "logBase": 1,
               "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         },
@@ -639,8 +641,8 @@
               "dateFormat": "YYYY-MM-DD HH:mm:ss",
               "decimals": 0,
               "link": true,
-              "linkTooltip": "Click to view usage  of each GPU",
-              "linkUrl": "{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_url'] }}:{{ clusterconfig['clusterinfo']['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkTooltip": "Click to view usage of each GPU",
+              "linkUrl": "{{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
               "preserveFormat": false,
               "sanitize": false,

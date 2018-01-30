@@ -19,6 +19,7 @@
 const userLogout = () => {
   cookies.remove('user');
   cookies.remove('token');
+  cookies.remove('admin');
   window.location.replace('/login.html');
 };
 

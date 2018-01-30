@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,32 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-FROM debian:jessie
+mnt_point=/mnt/hdfs
+hdfs_addr=$(sed -e "s@hdfs://\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}\).*@\1@" <<< $PAI_DATA_DIR)
 
-ENV \
-  GRAFANA_VERSION=4.6.3 \
-  GF_PLUGIN_DIR=/grafana-plugins \
-  GF_PATHS_LOGS=/var/log/grafana \
-  GF_PATHS_DATA=/var/lib/grafana \
-  UPGRADEALL=true
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
-
-COPY ./run.sh ./grafana_config.sh ./start_server.sh /usr/local/
-COPY copied_file/* /usr/local/grafana/dashboards/
-
-RUN \
-  apt-get update && \
-  apt-get -y --force-yes --no-install-recommends install libfontconfig curl ca-certificates git jq && \
-  curl https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_${GRAFANA_VERSION}_amd64.deb > /tmp/grafana.deb && \
-  dpkg -i /tmp/grafana.deb && \
-  rm -f /tmp/grafana.deb && \
-  for plugin in $(curl -s https://grafana.net/api/plugins?orderBy=name | jq '.items[] | select(.internal=='false') | .slug' | tr -d '"'); do grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins install $plugin; done && \
-  ### branding && \
-  chmod 777 /usr/local/run.sh /usr/local/grafana_config.sh /usr/local/start_server.sh && \
-  apt-get remove -y --force-yes git jq && \
-  apt-get autoremove -y --force-yes && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
-
-
-ENTRYPOINT ["/usr/local/run.sh"]
+sed -i "/stderr/s/^/# /" G2P.cntk
+sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

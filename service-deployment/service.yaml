@@ -85,9 +85,7 @@ imagelist:
     copy:
       - ../grafana/dashboards
     templatelist:
-      - pai-clusterview-dashboard.json
-      - pai-nodeview-dashboard.json
-      - prom-datasource.json
+      - None
     prerequisite: None
     
 # Before starting your service, ensure the kubectl has been installed on your host.
@@ -194,5 +192,8 @@ servicelist:
       - node-label.sh
       - grafana.yaml
       - cleanup.sh
+      - grafana-configuration/pai-clusterview-dashboard.json
+      - grafana-configuration/pai-nodeview-dashboard.json
+      - grafana-configuration/prom-datasource.json
     startscript: start.sh
     stopscript: cleanup.sh

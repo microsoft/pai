@@ -1,0 +1,25 @@
+{
+  "version": 10,
+  "user": {
+    "name": "test"
+  },
+  "taskRoles": {
+    "Master": {
+      "taskNumber": 10,
+      "taskService": {
+        "version": 23,
+        "entryPoint": "echo 'TEST'",
+        "sourceLocations": [
+          "/Test/launcher"
+        ],
+        "resource": {
+          "cpuNumber": 1,
+          "memoryMB": 512,
+          "portRanges": [],
+          "diskType": 0,
+          "diskMB": 0
+        }
+      }
+    }
+  }
+}

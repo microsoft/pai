@@ -203,8 +203,10 @@ class FileSystem:
             if self.verbose and is_normal_stdout():
                 sys.stdout.write(progressString)
                 sys.stdout.flush()
-            if not dst.exists:
-                dstFs.touch_file(dst)
+            if dst.exists:
+                dstFs.delete_file_dir(dst)
+            dstFs.touch_file(dst)
+
             self.cp_chunk(src, dst, dstFs, 0, 0, True, "wb")
         else:
             chunk = 0
@@ -221,8 +223,10 @@ class FileSystem:
                 dstChunkList.append(dstChunk)
                 self.logger.info("BIG COPY: chunk={0}, dst={1}".format(chunk, dstChunk.abspath))
 
-                if not dstChunk.exists:
-                    dstFs.touch_file(dstChunk)
+                if dstChunk.exists:
+                    dstFs.delete_file_dir(dstChunk)
+                dstFs.touch_file(dstChunk)
+                
                 if dstChunk.size == Constants.DEFAULT_BIG_FILE_THRESHOLD \
                         and src.modificationTime <= dstChunk.modificationTime:
                     if self.verbose:
@@ -249,7 +253,7 @@ class FileSystem:
         # Step2: concat all chunk files into final file
         self.concat_chunk_files(dstFs, dst, dstChunkList)
 
-    def cp_file(self, src, dst, dstFs):
+    def cp_file(self, src, dst, dstFs, force):
         self.logger.info("COPY: from({0})={1} to({2})={3}".format(src.fs.__class__.__name__,
                                                                   src.abspath,
                                                                   dst.fs.__class__.__name__,
@@ -260,9 +264,9 @@ class FileSystem:
             self.logger.info("COPY TARGET: change from {0} to {1}".format(dst.abspath, newDst.abspath))
             dst = newDst
 
-        if dst.exists and src.size == dst.size and src.modificationTime <= dst.modificationTime:
+        if dst.exists and not force:
             if self.verbose:
-                print("%s -> %s: skipped" % (src.abspath, dst.abspath))
+                print("Destination already exists, move will not be performed. Add -f to force copy" % (dst.abspath))
             return
         else:
             if self.verbose:
