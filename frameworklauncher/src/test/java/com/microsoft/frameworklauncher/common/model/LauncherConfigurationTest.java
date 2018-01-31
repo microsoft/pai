@@ -17,14 +17,14 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.utils.YamlTestUtils;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
+import com.microsoft.frameworklauncher.testutils.YamlTestUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.microsoft.frameworklauncher.utils.YamlTestUtils.INPUTS_DIR;
+import static com.microsoft.frameworklauncher.testutils.YamlTestUtils.INPUTS_DIR;
 
 public class LauncherConfigurationTest {
 

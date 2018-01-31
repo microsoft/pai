@@ -17,12 +17,12 @@
 
 package com.microsoft.frameworklauncher.service;
 
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.FrameworkRequest;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
-import com.microsoft.frameworklauncher.utils.AbstractService;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.zookeeper.KeeperException;
 
@@ -128,7 +128,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     Map<String, FrameworkRequest> oldFrameworkRequests = frameworkRequests;
 
     // Update
-    frameworkRequests = CommonExtensions.asReadOnly(newFrameworkRequests);
+    frameworkRequests = CommonExts.asReadOnly(newFrameworkRequests);
 
     if (oldFrameworkRequests == null) {
       // For the first time, send all Request to AM

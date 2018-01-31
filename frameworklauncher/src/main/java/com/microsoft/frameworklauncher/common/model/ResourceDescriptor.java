@@ -17,7 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import org.apache.hadoop.yarn.api.records.Resource;
 
 import javax.validation.Valid;
@@ -170,7 +171,7 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", Long.toBinaryString(getGpuAttribute()));
+        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()));
   }
 
   // Maybe underestimate if any GpuAttribute == 0

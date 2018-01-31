@@ -18,9 +18,9 @@
 package com.microsoft.frameworklauncher.hdfsstore;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.GlobalConstants;
-import com.microsoft.frameworklauncher.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 
 import java.util.Set;
 

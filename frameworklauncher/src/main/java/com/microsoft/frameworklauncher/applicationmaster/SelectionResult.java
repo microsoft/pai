@@ -17,6 +17,8 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+
 public class SelectionResult {
   private String nodeHost;
   private Long gpuAttribute;
@@ -40,6 +42,6 @@ public class SelectionResult {
   @Override
   public String toString() {
     return String.format("[NodeHost: [%s]", getNodeHost()) + " " +
-        String.format("GpuAttribute: [%s]]", Long.toBinaryString(getGpuAttribute()));
+        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()));
   }
 }

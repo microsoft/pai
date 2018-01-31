@@ -19,8 +19,14 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.*;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
+import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.Priority;
@@ -290,7 +296,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerId(containerId);
     taskStatus.setContainerHost(container.getNodeId().getHost());
     taskStatus.setContainerIp(
-        DnsClient.resolveExternalIPv4Address(taskStatus.getContainerHost()));
+        DnsUtils.resolveExternalIPv4Address(taskStatus.getContainerHost()));
     taskStatus.setContainerLogHttpAddress(
         HadoopUtils.getContainerLogHttpAddress(container.getNodeHttpAddress(), containerId, conf.getAmUser()));
     taskStatus.setContainerConnectionLostCount(0);
@@ -687,7 +693,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
       taskStatus.setContainerExitCode(event.getContainerExitCode());
       taskStatus.setContainerExitDiagnostics(event.getContainerExitDiagnostics());
-      taskStatus.setContainerExitType(DiagnosticsUtils.lookupExitType(
+      taskStatus.setContainerExitType(ExitDiagnostics.lookupExitType(
           event.getContainerExitCode(), event.getContainerExitDiagnostics()));
     }
 

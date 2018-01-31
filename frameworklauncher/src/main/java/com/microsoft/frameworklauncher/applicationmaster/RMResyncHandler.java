@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.HashSet;

@@ -17,7 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.GpuConsistentValidation;
+import com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;

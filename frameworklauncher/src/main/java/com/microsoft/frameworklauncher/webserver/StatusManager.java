@@ -19,16 +19,16 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.AbstractService;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.microsoft.frameworklauncher.utils.CommonUtils.checkExist;
+import static com.microsoft.frameworklauncher.common.utils.CommonUtils.checkExist;
 
 // Manage the CURD to ZK Status
 public class StatusManager extends AbstractService { // THREAD SAFE
@@ -112,7 +112,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
 
     AggregatedLauncherStatus aggLauncherStatus = zkStore.getAggregatedLauncherStatus();
     launcherStatus = aggLauncherStatus.getLauncherStatus();
-    aggFrameworkStatuses = CommonExtensions.asReadOnly(aggLauncherStatus.getAggregatedFrameworkStatuses());
+    aggFrameworkStatuses = CommonExts.asReadOnly(aggLauncherStatus.getAggregatedFrameworkStatuses());
 
     LOGGER.logDebug("Pulled AggregatedLauncherStatus");
 

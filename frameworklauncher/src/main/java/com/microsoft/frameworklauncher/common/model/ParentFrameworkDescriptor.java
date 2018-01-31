@@ -17,7 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -28,7 +28,7 @@ import java.io.Serializable;
 public class ParentFrameworkDescriptor implements Serializable {
   @Valid
   @NotEmpty
-  @Pattern(regexp = ModelValidation.NAMING_CONVENTION_REGEX_STR)
+  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
   private String parentFrameworkName;
 
   @Valid
