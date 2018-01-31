@@ -63,47 +63,47 @@ public class Node {
     return labels;
   }
 
-  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport.
   public ResourceDescriptor getTotalResource() {
     return totalResource;
   }
 
-  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport.
   public ResourceDescriptor getUsedResource() {
     return usedResource;
   }
 
-  // It is the outstanding Requested Resource, i.e. it does not include the satisfied or canceled request
-  // It does not include the Requested Resource for ANY node, i.e. without a node specified
-  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since we do not add a node request without GpuAttribute
+  // It is the outstanding Requested Resource, i.e. it does not include the satisfied or canceled request.
+  // It does not include the Requested Resource for ANY node, i.e. without a node specified.
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since we do not add a node request without GpuAttribute.
   public ResourceDescriptor getRequestedResource() {
     return requestedResource;
   }
 
-  // AvailableResource = TotalResource - UsedResource - RequestedResource
-  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it comes from sources with same characteristic.
+  // AvailableResource = TotalResource - UsedResource - RequestedResource.
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it comes from sources with the same characteristic.
   public ResourceDescriptor getAvailableResource() {
     return ResourceDescriptor.subtract(
         ResourceDescriptor.subtract(totalResource, usedResource), requestedResource);
   }
 
-  // Add outstanding requested container request
+  // Add outstanding requested container request.
   public void addContainerRequest(ResourceDescriptor resource) {
     requestedResource = ResourceDescriptor.add(requestedResource, resource);
   }
 
-  // Remove outstanding requested container request
+  // Remove outstanding requested container request.
   public void removeContainerRequest(ResourceDescriptor resource) {
     requestedResource = ResourceDescriptor.subtract(requestedResource, resource);
   }
 
   @Override
   public String toString() {
-    return "{Host: " + this.host +
-        ", Labels: " + CommonExtensions.toString(this.labels) +
-        ", TotalResource: " + this.totalResource +
-        ", UsedResource: " + this.usedResource +
-        ", RequestedResource: " + this.requestedResource + "}";
+    return "{Host: " + host +
+        ", Labels: " + CommonExtensions.toString(labels) +
+        ", TotalResource: " + totalResource +
+        ", UsedResource: " + usedResource +
+        ", RequestedResource: " + requestedResource + "}";
   }
 
   @Override

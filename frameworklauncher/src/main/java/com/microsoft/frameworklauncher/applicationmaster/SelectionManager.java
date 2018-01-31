@@ -78,7 +78,7 @@ public class SelectionManager { // THREAD SAFE
   @VisibleForTesting
   public synchronized void removeCandidateNode(Node reportedNode) {
     if (candidateNodes.containsKey(reportedNode.getHost())) {
-      LOGGER.logInfo("removeCandidateNode: %s", reportedNode);
+      LOGGER.logDebug("removeCandidateNode: %s", reportedNode);
       candidateNodes.remove(reportedNode.getHost());
     }
   }
@@ -133,7 +133,7 @@ public class SelectionManager { // THREAD SAFE
     SelectionResult selectionResult = null;
     for (Node node : candidateNodes.values()) {
       String nodeHost = node.getHost();
-      String logPrefix = String.format("[%s]: Test Node: ", nodeHost);
+      String logPrefix = String.format("select: [%s]: Test Node: ", nodeHost);
       String rejectedLogPrefix = logPrefix + "Rejected: Reason: ";
 
       LOGGER.logDebug(logPrefix + "Start: %s", node);
@@ -207,7 +207,7 @@ public class SelectionManager { // THREAD SAFE
           "select: Cannot found a SelectionResult satisfies the Request");
     } else {
       LOGGER.logInfo(
-          "select: Found a SelectionResult satisfies the Request: [%s]",
+          "select: Found a SelectionResult satisfies the Request: SelectionResult: [%s]",
           selectionResult);
     }
     return selectionResult;
