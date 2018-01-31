@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 // Computation Platform Specific Parameters for specific TaskRole
@@ -28,6 +29,7 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
   private String taskNodeLabel;
 
   @Valid
+  @Pattern(regexp = "^[^\\s]+$")
   private String taskNodeGpuType;
 
   public String getTaskNodeLabel() {

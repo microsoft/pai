@@ -37,7 +37,7 @@ public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<
   private AtomicInteger containerId = new AtomicInteger(0);
 
   public MockAMRMClient(ApplicationAttemptId attemptId, MockResourceManager mockResourceManager,
-                        int intervalMs, CallbackHandler callbackHandler) {
+      int intervalMs, CallbackHandler callbackHandler) {
     super(null, intervalMs, callbackHandler);
     this.mockResourceManager = mockResourceManager;
     this.attemptId = attemptId;

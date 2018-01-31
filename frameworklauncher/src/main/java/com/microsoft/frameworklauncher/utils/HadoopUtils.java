@@ -31,6 +31,7 @@ import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException;
+import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 import java.io.FileNotFoundException;
@@ -311,6 +312,43 @@ public class HadoopUtils {
       return String.format("\\\\%s\\%s", nodeHostName, sharedLocalDirs);
     } else {
       return String.format("%s:%s", nodeHostName, amLocalDirs);
+    }
+  }
+
+  /**
+   * Aligned with YARN NodeLabel and Partition
+   */
+  public static boolean matchNodeLabel(String requestNodeLabel, Set<String> availableNodeLabels) {
+    return getPartition(requestNodeLabel).equals(getPartition(availableNodeLabels));
+  }
+
+  /**
+   * Aligned with YARN NodeLabel and Partition
+   * See org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerNode.getPartition():
+   * Get partition of which the node belongs to, if node-labels of this node is
+   * empty or null, it belongs to NO_LABEL partition. And since we only support
+   * one partition for each node (YARN-2694), first label will be its partition.
+   */
+  private static String getPartition(String nodeLabel) {
+    if (nodeLabel == null) {
+      return CommonNodeLabelsManager.NO_LABEL;
+    } else {
+      return nodeLabel.trim();
+    }
+  }
+
+  /**
+   * Aligned with YARN NodeLabel and Partition
+   * See org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerNode.getPartition():
+   * Get partition of which the node belongs to, if node-labels of this node is
+   * empty or null, it belongs to NO_LABEL partition. And since we only support
+   * one partition for each node (YARN-2694), first label will be its partition.
+   */
+  private static String getPartition(Set<String> nodeLabels) {
+    if (nodeLabels == null || nodeLabels.isEmpty()) {
+      return CommonNodeLabelsManager.NO_LABEL;
+    } else {
+      return getPartition(nodeLabels.iterator().next());
     }
   }
 }

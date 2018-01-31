@@ -52,11 +52,11 @@ public class ResourceDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  private Long gpuAttribute = 0L;
+  private Integer gpuNumber = 0;
 
   @Valid
   @NotNull
-  private Integer gpuNumber = 0;
+  private Long gpuAttribute = 0L;
 
   public Integer getCpuNumber() {
     return cpuNumber;
@@ -170,6 +170,41 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", getGpuAttribute());
+        String.format("GpuAttribute: [%s]]", Long.toBinaryString(getGpuAttribute()));
+  }
+
+  // Maybe underestimate if any GpuAttribute == 0
+  public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = new ResourceDescriptor();
+    ret.setMemoryMB(lhs.getMemoryMB() - rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() - rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() & (~(rhs.getGpuAttribute())));
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
+    }
+    return ret;
+  }
+
+  // Maybe overestimate if any GpuAttribute == 0
+  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = new ResourceDescriptor();
+    ret.setMemoryMB(lhs.getMemoryMB() + rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() + rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() | rhs.getGpuAttribute());
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
+    }
+    return ret;
+  }
+
+  public static boolean fitsIn(ResourceDescriptor smaller, ResourceDescriptor bigger) {
+    return smaller.getMemoryMB() <= bigger.getMemoryMB()
+        && smaller.getCpuNumber() <= bigger.getCpuNumber()
+        && smaller.getGpuNumber() <= bigger.getGpuNumber()
+        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute());
   }
 }

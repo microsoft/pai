@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common;
 
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -33,7 +34,7 @@ public class ModelValidation {
   // Only accept unreserved characters defined in URI:
   // ALPHA / DIGIT / "-" / "." / "_" / "~"
   // See https://tools.ietf.org/html/rfc3986#section-2.3
-  
+
   // Accept all uppercase and lowercase letters, decimal digits, hyphen, period, underscore, and tilde
   public static final String NAMING_CONVENTION_REGEX_STR = "^[A-Za-z0-9\\-._~]+$";
   public static final Pattern NAMING_CONVENTION_REGEX = Pattern.compile(NAMING_CONVENTION_REGEX_STR);
@@ -43,6 +44,7 @@ public class ModelValidation {
     if (o == null) {
       throw new BadRequestException("Object is null");
     }
+
     Set<ConstraintViolation<T>> violations = VALIDATOR.validate(o);
     if (!violations.isEmpty()) {
       throw new BadRequestException(new ConstraintViolationException(violations));
@@ -52,7 +54,9 @@ public class ModelValidation {
   public static void validate(String s) throws BadRequestException {
     if (s == null) {
       throw new BadRequestException("Object is null");
-    } else if (!NAMING_CONVENTION_REGEX.matcher(s).matches()) {
+    }
+
+    if (!NAMING_CONVENTION_REGEX.matcher(s).matches()) {
       throw new BadRequestException(String.format(
           "Name [%s] is not matched with naming convention regex [%s]",
           s, NAMING_CONVENTION_REGEX));

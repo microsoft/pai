@@ -87,7 +87,7 @@ public class LauncherConfiguration implements Serializable {
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
-  @Pattern(regexp = "https?://[^:^/]+:\\d+")
+  @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
 
