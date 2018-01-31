@@ -124,7 +124,7 @@ def ssh_shell_paramiko(host_config, commandline):
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     stdin.write(password + '\n')
     stdin.flush()
-
+    print "Executing the command on host [{0}]: {1}".format(hostip, commandline)
     for response_msg in stdout:
         print response_msg.strip('\n')
 
