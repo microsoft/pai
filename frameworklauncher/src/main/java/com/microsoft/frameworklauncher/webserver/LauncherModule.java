@@ -18,14 +18,14 @@
 package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import com.microsoft.frameworklauncher.common.WebCommon;
-import com.microsoft.frameworklauncher.common.WebStructure;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.GlobalConstants;
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
+import com.microsoft.frameworklauncher.common.web.WebStructure;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Level;
 
@@ -107,7 +107,7 @@ public class LauncherModule {
         "putDataDeploymentVersion: \n%s",
         WebCommon.toJson(updateDataDeploymentVersionRequest));
 
-    ModelValidation.validate(updateDataDeploymentVersionRequest);
+    CommonValidation.validate(updateDataDeploymentVersionRequest);
 
     requestManager.updateDataDeploymentVersion(updateDataDeploymentVersionRequest);
     return Response
@@ -126,7 +126,7 @@ public class LauncherModule {
         "putClusterConfiguration: \n%s",
         WebCommon.toJson(clusterConfiguration));
 
-    ModelValidation.validate(clusterConfiguration);
+    CommonValidation.validate(clusterConfiguration);
 
     requestManager.updateClusterConfiguration(clusterConfiguration);
     return Response
@@ -162,8 +162,8 @@ public class LauncherModule {
 
     LOGGER.logSplittedLines(Level.INFO, logPrefix + "\n%s", WebCommon.toJson(frameworkDescriptor));
 
-    ModelValidation.validate(frameworkName);
-    ModelValidation.validate(frameworkDescriptor);
+    CommonValidation.validate(frameworkName);
+    CommonValidation.validate(frameworkDescriptor);
 
     // Get LaunchClientType
     LaunchClientType clientType = getLaunchClientType(() -> hsr.getHeader(WebCommon.LAUNCH_CLIENT_TYPE_REQUEST_HEADER));
@@ -219,9 +219,9 @@ public class LauncherModule {
         "[%s][%s]: putTaskNumber: \n%s",
         frameworkName, taskRoleName, WebCommon.toJson(updateTaskNumberRequest));
 
-    ModelValidation.validate(frameworkName);
-    ModelValidation.validate(taskRoleName);
-    ModelValidation.validate(updateTaskNumberRequest);
+    CommonValidation.validate(frameworkName);
+    CommonValidation.validate(taskRoleName);
+    CommonValidation.validate(updateTaskNumberRequest);
 
     requestManager.updateTaskNumber(frameworkName, taskRoleName, updateTaskNumberRequest);
     return Response
@@ -242,8 +242,8 @@ public class LauncherModule {
         "[%s][%s]: putMigrateTask: \n%s",
         frameworkName, containerId, WebCommon.toJson(migrateTaskRequest));
 
-    ModelValidation.validate(frameworkName);
-    ModelValidation.validate(migrateTaskRequest);
+    CommonValidation.validate(frameworkName);
+    CommonValidation.validate(migrateTaskRequest);
 
     requestManager.updateMigrateTask(frameworkName, containerId, migrateTaskRequest);
     return Response
@@ -263,8 +263,8 @@ public class LauncherModule {
         "[%s]: putApplicationProgress: \n%s",
         frameworkName, WebCommon.toJson(overrideApplicationProgressRequest));
 
-    ModelValidation.validate(frameworkName);
-    ModelValidation.validate(overrideApplicationProgressRequest);
+    CommonValidation.validate(frameworkName);
+    CommonValidation.validate(overrideApplicationProgressRequest);
 
     requestManager.updateApplicationProgress(frameworkName, overrideApplicationProgressRequest);
     return Response

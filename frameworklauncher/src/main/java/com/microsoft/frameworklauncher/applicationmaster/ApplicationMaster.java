@@ -17,14 +17,25 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.common.LauncherClientInternal;
-import com.microsoft.frameworklauncher.common.WebCommon;
+import com.microsoft.frameworklauncher.client.LauncherClient;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusValue;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.exts.HadoopExts;
+import com.microsoft.frameworklauncher.common.log.ChangeAwareLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
+import com.microsoft.frameworklauncher.common.utils.*;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
-import com.microsoft.frameworklauncher.utils.*;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -61,7 +72,7 @@ public class ApplicationMaster extends AbstractService {
   protected ZookeeperStore zkStore;
   protected HdfsStore hdfsStore;
   protected YarnClient yarnClient;
-  protected LauncherClientInternal launcherClient;
+  protected LauncherClient launcherClient;
   protected AMRMClientAsync<ContainerRequest> rmClient;
   // Note we should only use nmClient to start container, and leave other Container
   // managements to rmClient to ensure AM RM timely synced.
@@ -154,7 +165,7 @@ public class ApplicationMaster extends AbstractService {
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
 
     // Initialize other components
-    launcherClient = new LauncherClientInternal(
+    launcherClient = new LauncherClient(
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
         LaunchClientType.APPLICATION_MASTER);
 
@@ -267,8 +278,8 @@ public class ApplicationMaster extends AbstractService {
   private void stopForContainer(int exitCode, String diagnostics, String customizedDiagnostics) {
     ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
 
-    String fullDiagnostics = DiagnosticsUtils.generateDiagnostics(partialValue, customizedDiagnostics);
-    ExitStatusKey exitStatusKey = DiagnosticsUtils.extractExitStatusKey(fullDiagnostics);
+    String fullDiagnostics = ExitDiagnostics.generateDiagnostics(partialValue, customizedDiagnostics);
+    ExitStatusKey exitStatusKey = ExitDiagnostics.extractExitStatusKey(fullDiagnostics);
 
     stop(new StopStatus(exitStatusKey.toInt(), true, fullDiagnostics));
   }
@@ -278,7 +289,7 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private void stopForInternalTransientError(String customizedDiagnostics) {
-    String diagnostics = DiagnosticsUtils.generateDiagnostics(
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
         ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR, customizedDiagnostics);
 
     // Do not unregister, so that RM will start new attempt if AMAttemptMaxCount and
@@ -291,7 +302,7 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private void stopForInternalNonTransientError(String customizedDiagnostics) {
-    String diagnostics = DiagnosticsUtils.generateDiagnostics(
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
         ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR, customizedDiagnostics);
 
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR.toInt(), true, diagnostics));
@@ -302,7 +313,7 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private void stopForInternalUnKnownError(String customizedDiagnostics) {
-    String diagnostics = DiagnosticsUtils.generateDiagnostics(
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
         ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR, customizedDiagnostics);
 
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), true, diagnostics));
@@ -571,7 +582,7 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
 
-    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, Long.toBinaryString(taskStatus.getContainerGpus()));
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
 
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to
@@ -618,7 +629,7 @@ public class ApplicationMaster extends AbstractService {
   private void reviseCorruptedTaskStates() throws Exception {
     LOGGER.logInfo(
         "reviseCorruptedTaskStates: %s",
-        CommonExtensions.toString(TaskStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES));
+        CommonExts.toString(TaskStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES));
 
     List<TaskStatus> corruptedTaskStatuses = statusManager.getTaskStatus(
         TaskStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES);
@@ -650,7 +661,7 @@ public class ApplicationMaster extends AbstractService {
     // 3. TASK_COMPLETED, since it is FinalState
     LOGGER.logInfo(
         "recoverTransitionTaskStateQueue for TaskState: %s",
-        CommonExtensions.toString(TaskStateDefinition.QUEUE_CORRUPTED_AFTER_RESTART_STATES));
+        CommonExts.toString(TaskStateDefinition.QUEUE_CORRUPTED_AFTER_RESTART_STATES));
 
     // There may be a lot of corrupted SystemTasks, so we queue them as one SystemTask per State
     transitionTaskStateQueue.queueSystemTask(() -> {
@@ -673,7 +684,7 @@ public class ApplicationMaster extends AbstractService {
 
     ContainerRequest request = setupContainerRequest(taskStatus);
     LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
-        taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
+        taskLocator, containerRequestTimeoutSec, HadoopExts.toString(request));
     rmClient.addContainerRequest(request);
     selectionManager.addContainerRequest(request);
 
@@ -684,7 +695,7 @@ public class ApplicationMaster extends AbstractService {
       if (statusManager.containsTask(request.getPriority())) {
         LOGGER.logWarning(
             "%s: ContainerRequest cannot be satisfied within timeout %ss, Cancel it and Request again. ContainerRequest: [%s]",
-            taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
+            taskLocator, containerRequestTimeoutSec, HadoopExts.toString(request));
         removeContainerRequest(taskStatus);
         statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
         addContainerRequest(taskStatus);
@@ -836,7 +847,7 @@ public class ApplicationMaster extends AbstractService {
     }
 
     String logSuffix = String.format(
-        "[%s]: completeContainer: ExitCode: %s, Diagnostics: %s, NeedToRelease: %s",
+        "[%s]: completeContainer: ExitCode: %s, ExitDiagnostics: %s, NeedToRelease: %s",
         containerId, exitCode, diagnostics, needToRelease);
 
     if (!statusManager.isContainerIdLiveAssociated(containerId)) {
@@ -1007,7 +1018,7 @@ public class ApplicationMaster extends AbstractService {
 
     LOGGER.logInfo(
         "[%s]: allocateContainer: Try to Allocate Container to Task: Container: %s",
-        containerId, HadoopExtensions.toString(container));
+        containerId, HadoopExts.toString(container));
 
     // 0. findTask
     TaskStatus taskStatus = findTask(container);
@@ -1200,7 +1211,7 @@ public class ApplicationMaster extends AbstractService {
   // TaskRoleName -> ServiceVersion
   // AM may need to double check whether ServiceVersions is changed or not according to StatusManager
   public void onServiceVersionsUpdated(Map<String, Integer> serviceVersions) {
-    LOGGER.logInfo("onServiceVersionsUpdated: ServiceVersions: %s", CommonExtensions.toString(serviceVersions));
+    LOGGER.logInfo("onServiceVersionsUpdated: ServiceVersions: %s", CommonExts.toString(serviceVersions));
 
     // TODO: Implement Service Rolling Upgrade
     // Just invalidate old Service cache
@@ -1210,7 +1221,7 @@ public class ApplicationMaster extends AbstractService {
   // TaskRoleName -> TaskNumber
   // AM may need to double check whether TaskNumbers is changed or not according to StatusManager
   public void onTaskNumbersUpdated(Map<String, Integer> taskNumbers) {
-    LOGGER.logInfo("onTaskNumbersUpdated: TaskNumbers: %s", CommonExtensions.toString(taskNumbers));
+    LOGGER.logInfo("onTaskNumbersUpdated: TaskNumbers: %s", CommonExts.toString(taskNumbers));
 
     // In case TaskNumbers Increased
     transitionTaskStateQueue.queueSystemTask(() -> {

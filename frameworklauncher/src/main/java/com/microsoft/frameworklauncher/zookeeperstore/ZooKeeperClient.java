@@ -19,9 +19,9 @@ package com.microsoft.frameworklauncher.zookeeperstore;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.TransientException;
-import com.microsoft.frameworklauncher.utils.CommonUtils;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.ZooDefs.Ids;
 

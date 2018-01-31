@@ -17,11 +17,11 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.FeatureTestUtils;
-import com.microsoft.frameworklauncher.utils.SystemTaskQueue;
+import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 
 import java.util.Map;
@@ -57,7 +57,7 @@ public class MockApplicationMaster extends ApplicationMaster {
   }
 
   public void onServiceVersionsUpdated(Map<String, Integer> serviceVersions) {
-    LOGGER.logInfo("onServiceVersionsUpdated: ServiceVersions: %s", CommonExtensions.toString(serviceVersions));
+    LOGGER.logInfo("onServiceVersionsUpdated: ServiceVersions: %s", CommonExts.toString(serviceVersions));
   }
 
   @Override

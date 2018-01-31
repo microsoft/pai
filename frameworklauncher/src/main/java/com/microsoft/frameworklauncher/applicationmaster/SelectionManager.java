@@ -19,21 +19,17 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.HadoopUtils;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * Based on:
@@ -143,7 +139,7 @@ public class SelectionManager { // THREAD SAFE
       if (!HadoopUtils.matchNodeLabel(requestNodeLabel, availableNodeLabels)) {
         LOGGER.logDebug(rejectedLogPrefix +
                 "NodeLabel does not match: Request NodeLabel: [%s], Available NodeLabel: [%s]",
-            requestNodeLabel, CommonExtensions.toString(availableNodeLabels));
+            requestNodeLabel, CommonExts.toString(availableNodeLabels));
         continue;
       }
 

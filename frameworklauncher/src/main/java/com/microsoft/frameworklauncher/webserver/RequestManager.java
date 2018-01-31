@@ -19,10 +19,10 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exceptions.ThrottledRequestException;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.AbstractService;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.zookeeper.KeeperException;
 
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.microsoft.frameworklauncher.utils.CommonUtils.checkExist;
+import static com.microsoft.frameworklauncher.common.utils.CommonUtils.checkExist;
 
 // Manage the CURD to ZK Request
 public class RequestManager extends AbstractService {  // THREAD SAFE

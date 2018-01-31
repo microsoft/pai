@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -98,11 +98,7 @@ public class FrameworkDescriptor implements Serializable {
     return taskRoles;
   }
 
-  public void setTaskRoles(Map<String, TaskRoleDescriptor> taskRoles) throws BadRequestException {
-    for (String taskRoleName : taskRoles.keySet()) {
-      ModelValidation.validate(taskRoleName);
-    }
-
+  public void setTaskRoles(Map<String, TaskRoleDescriptor> taskRoles) {
     this.taskRoles = taskRoles;
   }
 

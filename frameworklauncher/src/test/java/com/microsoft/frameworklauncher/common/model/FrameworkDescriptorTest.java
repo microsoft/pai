@@ -17,18 +17,18 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
-import com.microsoft.frameworklauncher.utils.CommonUtils;
-import com.microsoft.frameworklauncher.utils.YamlTestUtils;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
+import com.microsoft.frameworklauncher.testutils.YamlTestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.microsoft.frameworklauncher.utils.YamlTestUtils.INPUTS_DIR;
+import static com.microsoft.frameworklauncher.testutils.YamlTestUtils.INPUTS_DIR;
 
 public class FrameworkDescriptorTest {
 
@@ -57,7 +57,7 @@ public class FrameworkDescriptorTest {
       try {
         String descriptionContent = CommonUtils.readFile(inputJsonFilePath);
         FrameworkDescriptor frameworkDescriptor = WebCommon.toObject(descriptionContent, FrameworkDescriptor.class);
-        ModelValidation.validate(frameworkDescriptor);
+        CommonValidation.validate(frameworkDescriptor);
         Assert.fail("Wrong json file validate success");
       } catch (BadRequestException ignored) {
       }

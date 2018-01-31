@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.zookeeperstore;
 
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.HashMap;

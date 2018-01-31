@@ -19,7 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 
 import java.util.Set;
@@ -100,7 +100,7 @@ public class Node {
   @Override
   public String toString() {
     return "{Host: " + host +
-        ", Labels: " + CommonExtensions.toString(labels) +
+        ", Labels: " + CommonExts.toString(labels) +
         ", TotalResource: " + totalResource +
         ", UsedResource: " + usedResource +
         ", RequestedResource: " + requestedResource + "}";

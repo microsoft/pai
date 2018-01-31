@@ -17,10 +17,9 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.utils.CommonUtils;
-import com.microsoft.frameworklauncher.utils.GlobalConstants;
-import org.apache.hadoop.yarn.api.records.Resource;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 
 public class MockConfiguration extends Configuration {
   private String frameworkName;

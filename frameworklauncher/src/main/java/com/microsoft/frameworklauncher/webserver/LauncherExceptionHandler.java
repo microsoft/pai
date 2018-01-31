@@ -19,11 +19,11 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
-import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
 import com.microsoft.frameworklauncher.common.exceptions.ThrottledRequestException;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import org.apache.hadoop.security.authorize.AuthorizationException;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.webapp.ForbiddenException;
