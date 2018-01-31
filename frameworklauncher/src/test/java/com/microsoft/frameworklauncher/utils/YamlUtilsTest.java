@@ -151,7 +151,7 @@ public class YamlUtilsTest {
     private String nullField;
 
     public static YamlUtilsTestHelper newInstance(int intField, float floatField,
-                                                  double doubleField, boolean booleanField, String stringField) {
+        double doubleField, boolean booleanField, String stringField) {
       YamlUtilsTestHelper object = new YamlUtilsTestHelper();
       object.setIntField(intField);
       object.setIntegerField(intField);

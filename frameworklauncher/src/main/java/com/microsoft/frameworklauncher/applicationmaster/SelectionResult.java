@@ -17,23 +17,29 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-public class GpuAllocation {
-  private String nodeName;
-  private long gpuBitmap;
+public class SelectionResult {
+  private String nodeHost;
+  private Long gpuAttribute;
 
-  public String getNodeName() {
-    return nodeName;
+  public String getNodeHost() {
+    return nodeHost;
   }
 
-  public void setNodeName(String nodeName) {
-    this.nodeName = nodeName;
+  public void setNodeHost(String nodeHost) {
+    this.nodeHost = nodeHost;
   }
 
-  public long getGpuBitmap() {
-    return gpuBitmap;
+  public Long getGpuAttribute() {
+    return gpuAttribute;
   }
 
-  public void setGpuBitmap(Long gpuBitmap) {
-    this.gpuBitmap = gpuBitmap;
+  public void setGpuAttribute(Long gpuAttribute) {
+    this.gpuAttribute = gpuAttribute;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("[NodeHost: [%s]", getNodeHost()) + " " +
+        String.format("GpuAttribute: [%s]]", Long.toBinaryString(getGpuAttribute()));
   }
 }

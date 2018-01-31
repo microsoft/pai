@@ -69,7 +69,7 @@ public class ApplicationMaster extends AbstractService {
   protected StatusManager statusManager;
   protected RequestManager requestManager;
   private RMResyncHandler rmResyncHandler;
-  protected GpuAllocationManager gpuAllocationManager;
+  protected SelectionManager selectionManager;
 
   /**
    * REGION StateVariable
@@ -158,7 +158,7 @@ public class ApplicationMaster extends AbstractService {
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
         LaunchClientType.APPLICATION_MASTER);
 
-    gpuAllocationManager = new GpuAllocationManager(this);
+    selectionManager = new SelectionManager(this);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -317,35 +317,36 @@ public class ApplicationMaster extends AbstractService {
   //    -> Timeout Request and Re-Request, i.e. containerRequestTimeoutSec != -1
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
-    Priority priority = statusManager.getNextContainerRequestPriority();
-    String nodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String nodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
-    ResourceDescriptor resource = YamlUtils.deepCopy(requestManager.getTaskResources().get(taskRoleName), ResourceDescriptor.class);
+    Priority requestPriority = statusManager.getNextContainerRequestPriority();
+    String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
+    String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+    ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
-    if (resource.getMemoryMB() > maxResource.getMemoryMB() ||
-        resource.getCpuNumber() > maxResource.getCpuNumber() ||
-        resource.getGpuNumber() > maxResource.getGpuNumber()) {
+    if (requestResource.getMemoryMB() > maxResource.getMemoryMB() ||
+        requestResource.getCpuNumber() > maxResource.getCpuNumber() ||
+        requestResource.getGpuNumber() > maxResource.getGpuNumber()) {
       LOGGER.logWarning(
           "Detected the Resource to be Requested is larger than the max Resource configured in current cluster. " +
               "Request may be fail or never got satisfied. " +
               "RequestedResource %s, MaxResource %s",
-          resource, maxResource);
+          requestResource, maxResource);
     }
 
-    if (resource.getGpuNumber() > 0) {
-      updateNodeReport(yarnClient.getNodeReports(NodeState.RUNNING));
+    if (requestResource.getGpuNumber() > 0) {
+      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
 
-      GpuAllocation gpuAllocation = gpuAllocationManager.selectCandidateRequestNode(resource, nodeLabel, nodeGpuType);
-      if (gpuAllocation != null) {
-        resource.setGpuAttribute(gpuAllocation.getGpuBitmap());
-        return HadoopUtils.toContainerRequest(resource, priority, null, gpuAllocation.getNodeName());
+      SelectionResult selectionResult = selectionManager.select(requestResource, requestNodeLabel, requestNodeGpuType);
+      if (selectionResult != null) {
+        ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
+        optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute());
+        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHost());
       } else {
         LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
     }
 
-    return HadoopUtils.toContainerRequest(resource, priority, nodeLabel, null);
+    return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
   }
 
   private String generateContainerDiagnostics(TaskStatus taskStatus) {
@@ -594,22 +595,16 @@ public class ApplicationMaster extends AbstractService {
     return launchContext;
   }
 
-  private void updateNodeReport(List<NodeReport> nodeReports) throws Exception {
+  private void updateNodeReports(List<NodeReport> nodeReports) throws Exception {
     for (NodeReport nodeReport : nodeReports) {
-      String hostName = nodeReport.getNodeId().getHost();
       NodeState state = nodeReport.getNodeState();
-      Set<String> labelSet = nodeReport.getNodeLabels();
-
-      Node node = new Node(hostName, labelSet,
-          ResourceDescriptor.fromResource(nodeReport.getCapability()),
-          ResourceDescriptor.fromResource(nodeReport.getUsed()));
+      if (state.isUnusable()) {
+        selectionManager.removeCandidateNode(nodeReport);
+      } else {
+        selectionManager.addCandidateNode(nodeReport);
+      }
 
       // TODO: Update TaskStatus.ContainerIsDecommissioning
-      if (state == NodeState.RUNNING) {
-        gpuAllocationManager.addCandidateRequestNode(node);
-      } else {
-        gpuAllocationManager.removeCandidateRequestNode(node);
-      }
     }
   }
 
@@ -680,7 +675,7 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
         taskLocator, containerRequestTimeoutSec, HadoopExtensions.toString(request));
     rmClient.addContainerRequest(request);
-    gpuAllocationManager.addContainerRequest(request);
+    selectionManager.addContainerRequest(request);
 
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_REQUESTED,
         new TaskEvent().setContainerRequest(request));
@@ -1000,11 +995,10 @@ public class ApplicationMaster extends AbstractService {
     }
 
     try {
-      gpuAllocationManager.removeContainerRequest(request);
+      selectionManager.removeContainerRequest(request);
     } catch (Exception e) {
-      LOGGER.logError(e, "%s: Failed to gpuAllocationManager.removeContainerRequest", taskLocator);
+      LOGGER.logError(e, "%s: Failed to selectionManager.removeContainerRequest", taskLocator);
     }
-
   }
 
   private void allocateContainer(Container container) throws Exception {
@@ -1323,7 +1317,7 @@ public class ApplicationMaster extends AbstractService {
     LOGGER.logDebug("onNodesUpdated: nodeReports: %s", nodeReports.size());
 
     transitionTaskStateQueue.queueSystemTask(() -> {
-      updateNodeReport(nodeReports);
+      updateNodeReports(nodeReports);
     });
   }
 

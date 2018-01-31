@@ -25,9 +25,8 @@ import java.util.Map;
 
 public class ClusterConfiguration implements Serializable {
   @Valid
-  @NotNull
   // NodeHostName -> NodeConfiguration
-  private Map<String, NodeConfiguration> nodes = new HashMap<>();
+  private Map<String, NodeConfiguration> nodes;
 
   public Map<String, NodeConfiguration> getNodes() {
     return nodes;
