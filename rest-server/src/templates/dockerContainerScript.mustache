@@ -34,7 +34,7 @@ printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
 export PAI_WORK_DIR="$(pwd)"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
-HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_HDFS_URI/Container
+HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
@@ -82,7 +82,7 @@ rm ContainerList
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-if [[ -z $PAI_CODE_DIR ]]; then
+if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -get $PAI_CODE_DIR || exit 1
 fi
 
