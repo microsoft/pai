@@ -14,7 +14,7 @@
       "cpuNumber": 2,
       "memoryMB": 4096,
       "gpuNumber": 0,
-      "command": "/bin/bash tensorboard-example.sh"
+      "command": "/bin/bash code/tensorboard-example.sh"
     }
   ]
 }

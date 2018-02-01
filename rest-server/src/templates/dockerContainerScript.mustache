@@ -32,8 +32,9 @@ done &
 
 printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
 
+export PAI_WORK_DIR="$(pwd)"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
-HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_HDFS_URI/Container
+HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
@@ -69,7 +70,7 @@ if [ "$(cat ContainerList | wc -l)" -ne $PAI_TASKS_NUM ]; then
   printf "%s %s\n%s\n%s\n\n" \
     "[ERROR]" "ContainerList" \
     "$(cat ContainerList)" \
-    "$(cat ContainerList | wc -l) containers are available, less than $PAI_TASKS_NUM, exit ..."
+    "$(cat ContainerList | wc -l) containers are available, not equal to $PAI_TASKS_NUM, exit ..."
   exit 2
 fi
 
@@ -77,12 +78,14 @@ export PAI_TASK_ROLE_INDEX=$((`cat ContainerList | grep "^$PAI_TASK_ROLE_NO-" | 
 for i in `seq 0 $((PAI_TASK_ROLES_NUM-1))`; do
   export PAI_TASK_ROLE_${i}_HOST_LIST=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
 done
+rm ContainerList
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-cd $HOME
-hdfs dfs -get $PAI_CODE_DIR code || exit 1
-cd code
+if [[ -n $PAI_CODE_DIR ]]; then
+  hdfs dfs -get $PAI_CODE_DIR || exit 1
+fi
+
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"

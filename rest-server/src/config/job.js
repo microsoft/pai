@@ -35,7 +35,8 @@ const jobConfigSchema = Joi.object().keys({
     .allow('')
     .default(''),
   codeDir: Joi.string()
-    .required(),
+    .allow('')
+    .default(''),
   taskRoles: Joi.array()
     .items(Joi.object().keys({
         name: Joi.string()
