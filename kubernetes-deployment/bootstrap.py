@@ -397,7 +397,7 @@ def remove_nodes(cluster_config, node_list_config):
 
 
 
-def maintain_expert(cluster_config, maintain_config, node_config, job_name):
+def maintain_one_node(cluster_config, maintain_config, node_config, job_name):
 
     module_name = "maintainlib.{0}".format(job_name)
     module = importlib.import_module(module_name)
@@ -416,7 +416,7 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
     for host in node_list_config['machinelist']:
 
-        maintain_expert(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
+        maintain_one_node(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
 
 
 
