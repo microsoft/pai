@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 
+import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
@@ -53,7 +54,6 @@ public class SelectionManagerTest {
 
   @Test
   public void testSelectionManager() throws Exception {
-
     Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(2, 2, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node3 = new Node("node3", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -211,9 +211,11 @@ public class SelectionManagerTest {
 
     sm3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute()), Collections.singletonList(result.getNodeHost()));
 
-    //Lable doesn't exist, failed scheduling
-    result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
-    Assert.assertEquals(result, null);
+    try {
+      sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40");
+      Assert.fail("NodeGpuType should not be relaxed to RM");
+    } catch (NotAvailableException ignored) {
+    }
 
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40");
     Assert.assertEquals("node3", result.getNodeHost());
@@ -227,8 +229,11 @@ public class SelectionManagerTest {
     sm4.addCandidateNode(node6);
     sm4.addCandidateNode(node7);
 
-    result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "K40");
-    Assert.assertEquals(null, result);
+    try {
+      sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "K40");
+      Assert.fail("NodeGpuType should not be relaxed to RM");
+    } catch (NotAvailableException ignored) {
+    }
 
     result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "M40");
     Assert.assertEquals("node6", result.getNodeHost());

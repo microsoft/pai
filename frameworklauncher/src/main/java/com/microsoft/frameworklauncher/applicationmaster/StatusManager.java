@@ -27,12 +27,16 @@ import com.microsoft.frameworklauncher.common.service.AbstractService;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
+import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException;
 
+import java.io.IOException;
 import java.util.*;
 
 // Manage the CURD to ZK Status
@@ -569,6 +573,26 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   public synchronized Boolean containsTask(Priority priority) {
     return priorityLocators.containsKey(priority);
+  }
+
+  public synchronized Boolean containsTask(TaskStatus taskStatus) throws IOException {
+    String taskRoleName = taskStatus.getTaskRoleName();
+    TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
+
+    if (!containsTask(taskLocator)) {
+      LOGGER.logDebug("TaskStatusLocator not found in Status. TaskStatusLocator: %s", taskLocator);
+      return false;
+    }
+
+    TaskStatus thisTaskStatus = getTaskStatus(taskLocator);
+    if (!YamlUtils.deepEquals(thisTaskStatus, taskStatus)) {
+      LOGGER.logSplittedLines(Level.DEBUG,
+          "TaskStatus not found in Status. TaskStatus:\n%s\nCurrent TaskStatus in Status:\n%s",
+          WebCommon.toJson(taskStatus), WebCommon.toJson(thisTaskStatus));
+      return false;
+    }
+
+    return true;
   }
 
   public synchronized int getTaskCount(String taskRoleName) {

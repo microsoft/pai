@@ -48,10 +48,7 @@ public class SystemTaskQueue {
     lock.lock();
     LOGGER.logInfo("Waiting to start SystemTaskQueue");
     try {
-      condition.await();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
+      condition.awaitUninterruptibly();
     } finally {
       lock.unlock();
     }

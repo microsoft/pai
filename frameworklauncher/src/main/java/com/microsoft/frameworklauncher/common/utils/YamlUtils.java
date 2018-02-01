@@ -54,7 +54,7 @@ public class YamlUtils {
     yaml.dump(yamlObject, new FileWriter(fileName));
   }
 
-  public static <T> T deepCopy(T yamlObject, Class<T> classRef) throws Exception {
+  public static <T> T deepCopy(T yamlObject, Class<T> classRef) {
     return toObject(toBytes(yamlObject), classRef);
   }
 

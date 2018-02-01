@@ -33,7 +33,9 @@ import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
-import com.microsoft.frameworklauncher.common.utils.*;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -334,13 +336,11 @@ public class ApplicationMaster extends AbstractService {
     ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
-    if (requestResource.getMemoryMB() > maxResource.getMemoryMB() ||
-        requestResource.getCpuNumber() > maxResource.getCpuNumber() ||
-        requestResource.getGpuNumber() > maxResource.getGpuNumber()) {
+    if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
       LOGGER.logWarning(
-          "Detected the Resource to be Requested is larger than the max Resource configured in current cluster. " +
-              "Request may be fail or never got satisfied. " +
-              "RequestedResource %s, MaxResource %s",
+          "Request Resource does not fit in the Max Resource configured in current cluster, " +
+              "request may be fail or never got satisfied: " +
+              "Request Resource: [%s], Max Resource: [%s]",
           requestResource, maxResource);
     }
 
@@ -352,8 +352,6 @@ public class ApplicationMaster extends AbstractService {
         ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
         optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute());
         return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHost());
-      } else {
-        LOGGER.logWarning("No candidate request nodes. Will request without node hostname and gpu attribute");
       }
     }
 
@@ -678,13 +676,43 @@ public class ApplicationMaster extends AbstractService {
   private void addContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
+    String logPrefix = String.format("%s: addContainerRequest: ", taskLocator);
+    LOGGER.logInfo(logPrefix + "Start");
+
+    // 1. setupContainerRequest, retry later if request is not available.
+    Integer setupContainerRequestRetryIntervalSec = CommonUtils.getRandomNumber(
+        conf.getLauncherConfig().getAmSetupContainerRequestMinRetryIntervalSec(),
+        conf.getLauncherConfig().getAmSetupContainerRequestMaxRetryIntervalSec());
+
+    ContainerRequest request;
+    try {
+      request = setupContainerRequest(taskStatus);
+    } catch (NotAvailableException e) {
+      LOGGER.logWarning(e, logPrefix +
+              "Failed to setupContainerRequest: " +
+              "ContainerRequest may be temporarily not available. " +
+              "Will retry after %ss.",
+          setupContainerRequestRetryIntervalSec);
+
+      TaskStatus taskStatusSnapshot = YamlUtils.deepCopy(taskStatus, TaskStatus.class);
+      transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
+        if (statusManager.containsTask(taskStatusSnapshot)) {
+          addContainerRequest(taskStatusSnapshot);
+        } else {
+          LOGGER.logWarning(logPrefix + "Task not found in Status. Ignore it.");
+        }
+      }, setupContainerRequestRetryIntervalSec * 1000);
+      return;
+    }
+
+    // 2. addContainerRequest, retry later if request is timeout.
     Integer containerRequestTimeoutSec = CommonUtils.getRandomNumber(
         conf.getLauncherConfig().getAmContainerRequestMinTimeoutSec(),
         conf.getLauncherConfig().getAmContainerRequestMaxTimeoutSec());
 
-    ContainerRequest request = setupContainerRequest(taskStatus);
-    LOGGER.logInfo("%s: addContainerRequest with timeout %ss. ContainerRequest: [%s]",
-        taskLocator, containerRequestTimeoutSec, HadoopExts.toString(request));
+    LOGGER.logInfo(logPrefix +
+            "Send ContainerRequest to RM with timeout %ss. ContainerRequest: [%s]",
+        containerRequestTimeoutSec, HadoopExts.toString(request));
     rmClient.addContainerRequest(request);
     selectionManager.addContainerRequest(request);
 
@@ -693,9 +721,11 @@ public class ApplicationMaster extends AbstractService {
 
     transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
       if (statusManager.containsTask(request.getPriority())) {
-        LOGGER.logWarning(
-            "%s: ContainerRequest cannot be satisfied within timeout %ss, Cancel it and Request again. ContainerRequest: [%s]",
-            taskLocator, containerRequestTimeoutSec, HadoopExts.toString(request));
+        LOGGER.logWarning(logPrefix +
+                "ContainerRequest cannot be satisfied within timeout %ss. " +
+                "Cancel it and Request again. ContainerRequest: [%s]",
+            containerRequestTimeoutSec, HadoopExts.toString(request));
+
         removeContainerRequest(taskStatus);
         statusManager.transitionTaskState(taskLocator, TaskState.TASK_WAITING);
         addContainerRequest(taskStatus);

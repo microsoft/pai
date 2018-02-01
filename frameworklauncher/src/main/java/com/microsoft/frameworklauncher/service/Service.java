@@ -340,7 +340,7 @@ public class Service extends AbstractService {
         frameworkName, frameworkVersion, applicationId);
 
     // Ensure FrameworkStatus is unchanged.
-    if (!statusManager.containsFrameworkStatus(frameworkStatus)) {
+    if (!statusManager.containsFramework(frameworkStatus)) {
       LOGGER.logWarning(logPrefix + "Framework not found in Status. Ignore it.");
       return;
     }
@@ -536,7 +536,7 @@ public class Service extends AbstractService {
         frameworkName, frameworkVersion, applicationId);
 
     // Ensure FrameworkStatus is unchanged.
-    if (!statusManager.containsFrameworkStatus(frameworkStatus)) {
+    if (!statusManager.containsFramework(frameworkStatus)) {
       LOGGER.logWarning(logPrefix + "Framework not found in Status. Ignore it.");
       return;
     }
@@ -638,7 +638,7 @@ public class Service extends AbstractService {
         "[%s][%s]: retryFramework: ", frameworkName, frameworkVersion);
 
     // Ensure FrameworkStatus is unchanged.
-    if (!statusManager.containsFrameworkStatus(frameworkStatus)) {
+    if (!statusManager.containsFramework(frameworkStatus)) {
       LOGGER.logWarning(logPrefix + "Framework not found in Status. Ignore it.");
       return;
     }
