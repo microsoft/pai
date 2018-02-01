@@ -269,13 +269,13 @@ public class HadoopUtils {
   }
 
   /**
-   * YARN does not allow specify NodeLabel with Racks or Nodes.
+   * Currently, YARN only allows to specify node label without locality.
    * See org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils.validateResourceRequest()
-   * So here, the hostName will override the nodeLabel since it is more specific.
+   * So here, the hostName will override the nodeLabel since it is generally more specific.
    */
   public static ContainerRequest toContainerRequest(
       ResourceDescriptor resource, Priority priority, String nodeLabel, String hostName) throws Exception {
-    if (hostName != null) {
+    if (hostName != null && !ResourceRequest.isAnyLocation(hostName)) {
       return new ContainerRequest(
           resource.toResource(), new String[]{hostName}, new String[]{}, priority, false, null);
     } else {
