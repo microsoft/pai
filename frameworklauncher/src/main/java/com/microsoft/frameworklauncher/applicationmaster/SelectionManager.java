@@ -19,11 +19,12 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
@@ -116,7 +117,8 @@ public class SelectionManager { // THREAD SAFE
   }
 
   public synchronized SelectionResult select(
-      ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType) throws Exception {
+      ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType)
+      throws NotAvailableException {
     LOGGER.logInfo(
         "select: Given Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
         requestResource, requestNodeLabel, requestNodeGpuType);
@@ -198,14 +200,28 @@ public class SelectionManager { // THREAD SAFE
       break;
     }
 
-    if (selectionResult == null) {
-      LOGGER.logInfo(
-          "select: Cannot found a SelectionResult satisfies the Request");
-    } else {
+    if (selectionResult != null) {
       LOGGER.logInfo(
           "select: Found a SelectionResult satisfies the Request: SelectionResult: [%s]",
           selectionResult);
+    } else {
+      LOGGER.logWarning(
+          "select: Cannot found a SelectionResult satisfies the Request: " +
+              "Check whether the Request can be relaxed to RM");
+      String notRelaxLogPrefix = "select: The Request cannot be relaxed to RM: Reason: ";
+
+      // Test NodeGpuType
+      if (requestNodeGpuType != null) {
+        throw new NotAvailableException(
+            String.format(notRelaxLogPrefix +
+                    "NodeGpuType is specified: Request NodeGpuType: [%s]",
+                requestNodeGpuType));
+      }
+
+      LOGGER.logWarning(
+          "select: The Request will be relaxed to RM");
     }
+    
     return selectionResult;
   }
 

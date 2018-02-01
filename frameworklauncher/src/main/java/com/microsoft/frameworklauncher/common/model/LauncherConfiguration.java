@@ -31,7 +31,7 @@ public class LauncherConfiguration implements Serializable {
   private Integer serviceRequestPullIntervalSec = 30;
 
   // Application Setup
-  private Integer applicationRetrieveDiagnosticsIntervalSec = 60;
+  private Integer applicationRetrieveDiagnosticsRetryIntervalSec = 60;
   private Integer applicationRetrieveDiagnosticsMaxRetryCount = 15;
   private Integer applicationTransientConflictMinDelaySec = 600;
   private Integer applicationTransientConflictMaxDelaySec = 3600;
@@ -85,6 +85,12 @@ public class LauncherConfiguration implements Serializable {
   private Integer amContainerRequestMinTimeoutSec = 10;
   private Integer amContainerRequestMaxTimeoutSec = 60;
 
+  // If a Task's ContainerRequest is NotAvailable when SetupContainerRequest,
+  // AM will SetupContainerRequest for the Task again after 
+  // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
+  private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
+  private Integer amSetupContainerRequestMaxRetryIntervalSec = 90;
+
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
   @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
@@ -132,12 +138,12 @@ public class LauncherConfiguration implements Serializable {
     this.serviceRequestPullIntervalSec = serviceRequestPullIntervalSec;
   }
 
-  public Integer getApplicationRetrieveDiagnosticsIntervalSec() {
-    return applicationRetrieveDiagnosticsIntervalSec;
+  public Integer getApplicationRetrieveDiagnosticsRetryIntervalSec() {
+    return applicationRetrieveDiagnosticsRetryIntervalSec;
   }
 
-  public void setApplicationRetrieveDiagnosticsIntervalSec(Integer applicationRetrieveDiagnosticsIntervalSec) {
-    this.applicationRetrieveDiagnosticsIntervalSec = applicationRetrieveDiagnosticsIntervalSec;
+  public void setApplicationRetrieveDiagnosticsRetryIntervalSec(Integer applicationRetrieveDiagnosticsRetryIntervalSec) {
+    this.applicationRetrieveDiagnosticsRetryIntervalSec = applicationRetrieveDiagnosticsRetryIntervalSec;
   }
 
   public Integer getApplicationRetrieveDiagnosticsMaxRetryCount() {
@@ -292,6 +298,22 @@ public class LauncherConfiguration implements Serializable {
     this.amContainerRequestMaxTimeoutSec = amContainerRequestMaxTimeoutSec;
   }
 
+  public Integer getAmSetupContainerRequestMinRetryIntervalSec() {
+    return amSetupContainerRequestMinRetryIntervalSec;
+  }
+
+  public void setAmSetupContainerRequestMinRetryIntervalSec(Integer amSetupContainerRequestMinRetryIntervalSec) {
+    this.amSetupContainerRequestMinRetryIntervalSec = amSetupContainerRequestMinRetryIntervalSec;
+  }
+
+  public Integer getAmSetupContainerRequestMaxRetryIntervalSec() {
+    return amSetupContainerRequestMaxRetryIntervalSec;
+  }
+
+  public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
+    this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
+  }
+  
   public String getWebServerBindHost() {
     return webServerBindHost;
   }

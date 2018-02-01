@@ -47,7 +47,7 @@ public class DiagnosticsRetrieveHandler { // THREAD SAFE
           diagnostics = RetryUtils.executeWithRetry(
               () -> ExitDiagnostics.retrieveDiagnostics(yarnClient, applicationId),
               conf.getApplicationRetrieveDiagnosticsMaxRetryCount(),
-              conf.getApplicationRetrieveDiagnosticsIntervalSec(), null);
+              conf.getApplicationRetrieveDiagnosticsRetryIntervalSec(), null);
         }
 
         LOGGER.logInfo("%s: Succeeded to retrieveDiagnostics", applicationId);
