@@ -16,7 +16,7 @@
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 1,
-      "command": "/bin/bash code/cntk-example.sh"
+      "command": "cd code && /bin/bash cntk-example.sh"
     }
   ]
 }
