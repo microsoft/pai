@@ -111,9 +111,10 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-2. `PUT user` (administrator only)
+2. `PUT user`
 
     Update a user in the system.
+    Administrator can add user or change other user's password; user can change his own password.
 
     *Request*
     ```
