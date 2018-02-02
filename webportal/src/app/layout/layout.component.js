@@ -33,6 +33,6 @@ const userLoginNavHtml = userLoginNavComponent({ cookies });
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
-if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--user-management').hide();
-}
+//if (!userAuthComponent.checkAdmin()) {
+//  $('#sidebar-menu--user-management').hide();
+//}
