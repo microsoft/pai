@@ -1,0 +1,74 @@
+.form-change {
+  max-width: 360px;
+  padding: 30px;
+  margin: 0 auto;
+}
+
+.form-change .form-change-heading,
+
+.form-change .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-change .form-control:focus {
+  z-index: 2;
+}
+
+.form-change input[type="origin-password"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-change input[type="new-password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-add-user {
+  max-width: 360px;
+  padding: 40px;
+  margin: 0 auto;
+}
+
+.form-add-user .form-add-user-heading,
+.form-add-user .checkbox {
+  margin-bottom: 10px;
+}
+
+.form-add-user .checkbox {
+  font-weight: normal;
+}
+
+.form-add-user .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-add-user .form-control:focus {
+  z-index: 2;
+}
+
+.form-add-user input[type="username"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-add-user input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
