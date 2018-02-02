@@ -18,31 +18,31 @@
 
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const userRegisterComponent = require('./change-password.component.ejs');
+const resetPasswordComponent = require('./reset-password.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
-require('./change-password.component.scss');
+require('./reset-password.component.scss');
 
 
-const userRegisterHtml = userRegisterComponent({
+const resetPasswordHtml = resetPasswordComponent({
   breadcrumb: breadcrumbComponent
 });
 
-$('#content-wrapper').html(userRegisterHtml);
+$('#content-wrapper').html(resetPasswordHtml);
 $(document).ready(() => {
-  $('#form-change-password').on('submit', (e) => {
+  $('#form-reset-password').on('submit', (e) => {
     e.preventDefault();
-    const username = $('#form-change-password :input[name=username]').val();
-    const password = $('#form-change-password :input[name=password]').val();
-    //const admin = $('#form-change-password :input[name=admin]').is(':checked') ? true : false;
+    const username = $('#form-reset-password :input[name=username]').val();
+    const password = $('#form-reset-password :input[name=password]').val();
+    const admin = cookies.get('admin');
     userAuth.checkToken((token) => {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/user`,
         data: {
           username,
           password,
-          //admin: admin,
-          modify: false
+          admin: admin,
+          modify: true
         },
         type: 'PUT',
         headers: {
@@ -50,7 +50,7 @@ $(document).ready(() => {
         },
         dataType: 'json',
         success: (data) => {
-          $('#form-change-password').trigger('reset');
+          $('#form-reset-password').trigger('reset');
           if (data.error) {
             alert(data.message);
           } else {
@@ -58,7 +58,7 @@ $(document).ready(() => {
           }
         },
         error: (xhr, textStatus, error) => {
-          $('#form-change-password').trigger('reset');
+          $('#form-reset-password').trigger('reset');
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
         }

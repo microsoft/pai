@@ -5,13 +5,6 @@
 }
 
 .form-change-password .form-change-password-heading,
-.form-change-password .checkbox {
-  margin-bottom: 10px;
-}
-
-.form-change-password .checkbox {
-  font-weight: normal;
-}
 
 .form-change-password .form-control {
   position: relative;
@@ -25,12 +18,6 @@
 
 .form-change-password .form-control:focus {
   z-index: 2;
-}
-
-.form-change-password input[type="username"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
 }
 
 .form-change-password input[type="password"] {

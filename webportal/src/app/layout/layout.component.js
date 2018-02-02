@@ -27,12 +27,12 @@ const userAuthComponent = require('../user/user-auth/user-auth.component.js');
 const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 
-
 const userLoginNavHtml = userLoginNavComponent({ cookies });
 
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
-//if (!userAuthComponent.checkAdmin()) {
-//  $('#sidebar-menu--user-management').hide();
-//}
+if (!userAuthComponent.checkAdmin()) {
+  $('#sidebar-menu--user-management').hide();
+  $('sidebar-menu--cluster-view').hide();
+}

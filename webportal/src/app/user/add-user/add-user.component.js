@@ -18,17 +18,17 @@
 
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const userRegisterComponent = require('./add-user.component.ejs');
+const addUserComponent = require('./add-user.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
 require('./add-user.component.scss');
 
 
-const userRegisterHtml = userRegisterComponent({
+const addUserHtml = addUserComponent({
   breadcrumb: breadcrumbComponent
 });
 
-$('#content-wrapper').html(userRegisterHtml);
+$('#content-wrapper').html(addUserHtml);
 $(document).ready(() => {
   $('#form-add-user').on('submit', (e) => {
     e.preventDefault();

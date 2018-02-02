@@ -15,50 +15,49 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const deleteUserComponent = require('./delete-user.component.ejs');
+const userAccountComponent = require('./user-account.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
-require('./delete-user.component.scss');
+require('./user-account.component.scss');
 
 
-const deleteUserHtml = deleteUserComponent({
+const userAccountHtml = userAccountComponent({
   breadcrumb: breadcrumbComponent
 });
 
-$('#content-wrapper').html(deleteUserHtml);
+$('#content-wrapper').html(userAccountHtml);
 $(document).ready(() => {
-  $('#form-delete-user').on('submit', (e) => {
+  $('#form-change-password').on('submit', (e) => {
     e.preventDefault();
-    const username = $('#form-delete-user :input[name=username]').val();
-    //const password = $('#form-delete-user :input[name=password]').val();
-    //const admin = $('#form-delete-user :input[name=admin]').is(':checked') ? true : false;
+    const username = cookies.get('user');
+    const password = $('#form-change-password :input[name=password]').val();
+    const admin = cookies.get('admin');
     userAuth.checkToken((token) => {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/user`,
         data: {
           username,
-          //password,
-          //admin: admin,
-          //modify: false
+          password,
+          admin: admin,
+          modify: true
         },
-        type: 'DELETE',
+        type: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`
         },
         dataType: 'json',
         success: (data) => {
-          $('#form-delete-user').trigger('reset');
+          $('#form-change-password').trigger('reset');
           if (data.error) {
             alert(data.message);
           } else {
-            alert('Delete user successfully');
+            alert('Change password successfully');
           }
         },
         error: (xhr, textStatus, error) => {
-          $('#form-delete-user').trigger('reset');
+          $('#form-change-password').trigger('reset');
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
         }
@@ -66,3 +65,12 @@ $(document).ready(() => {
     });
   });
 });
+
+const userAccount = () => {
+  cookies.remove('user');
+  cookies.remove('token');
+  cookies.remove('admin');
+  window.location.replace('/login.html');
+};
+
+module.exports = { userAccount };
