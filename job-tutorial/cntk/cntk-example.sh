@@ -21,7 +21,7 @@
 # Example script for CNTK job
 
 # hdfs address in IP:PORT format
-hdfs_addr=10.0.3.9:9000
+hdfs_addr=$(sed -e "s@hdfs://@@g" <<< $PAI_DEFAULT_FS_URI)
 
 # hdfs mount point
 mnt_point=/mnt/hdfs
@@ -29,8 +29,8 @@ mnt_point=/mnt/hdfs
 # mount hdfs as a local file system
 mkdir -p $mnt_point
 hdfs-mount $hdfs_addr $mnt_point &
-export DATA_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_DATA_DIR)
-export OUTPUT_DIR=$(sed -e "s@hdfs://$hdfs_addr@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
+export DATA_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
 
 # download CNTK G2P BrainScript example and upload to hdfs

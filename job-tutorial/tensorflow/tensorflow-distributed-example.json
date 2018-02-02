@@ -3,11 +3,11 @@
   "image": "pai.run.tensorflow",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
-  "dataDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/data",
   // make a new dir for output on hdfs
-  "outputDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
-  "codeDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/code",
 
   "taskRoles": [
     {

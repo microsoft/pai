@@ -3,11 +3,11 @@
   "image": "pai.run.cntk",
 
   // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
-  "dataDir": "hdfs://host:port/path/cntk-jobguid/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-jobguid/data",
   // make a new dir for output on hdfs
-  "outputDir": "hdfs://host:port/path/cntk-jobguid/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/cntk-jobguid/output",
   // prepare g2p training script cntk-example.sh and upload to hdfs
-  "codeDir": "hdfs://host:port/path/cntk-jobguid/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/cntk-jobguid/code",
 
   "taskRoles": [
     {

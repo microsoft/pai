@@ -3,11 +3,11 @@
   "image": "pai.run.tensorflow",
 
   // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
-  "dataDir": "hdfs://host:port/path/tensorflow-jobguid/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/data",
   // make a new dir for output on hdfs
-  "outputDir": "hdfs://host:port/path/tensorflow-jobguid/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/output",
   // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
-  "codeDir": "hdfs://host:port/path/tensorflow-jobguid/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/code",
 
   "taskRoles": [
     {
