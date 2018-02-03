@@ -23,6 +23,7 @@
 trap "kill 0" EXIT
 
 docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
 while /bin/true; do
