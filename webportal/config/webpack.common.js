@@ -221,11 +221,11 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
-      filename: 'changepassword.html',
+      filename: 'resetpassword.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'changepassword']
+      chunks: ['layout', 'resetpassword']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
