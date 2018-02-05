@@ -53,7 +53,7 @@ RUN apt-get -y update && \
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-COPY * /kuberentes-deployment
+COPY * /kuberentes-deployment/
 
 # Only node manager need this.#
 #COPY docker-17.06.2-ce.tgz /usr/local
