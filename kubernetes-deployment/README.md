@@ -149,7 +149,7 @@ sudo docker run -itd \
         --name=deployment \
         kubernetes-deployment
 sudo docker exec -it deployment /bin/bash
-cd /kubernetes-deployment
+cd /pai/kubernetes-deployment
         
 ```
 

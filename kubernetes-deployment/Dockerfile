@@ -48,12 +48,10 @@ RUN apt-get -y update && \
       rsync \
       realpath \
       net-tools && \
-    mkdir -p /kubernetes-deployment && \
-    mkdir -p /cluster-configuration
+    mkdir -p /cluster-configuration &&\
+    git clone https://github.com/Microsoft/pai.git
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
-COPY * /kubernetes-deployment/
 
 # Only node manager need this.#
 #COPY docker-17.06.2-ce.tgz /usr/local
