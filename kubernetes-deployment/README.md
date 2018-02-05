@@ -137,6 +137,7 @@ Note: kubectl will be installed on this dev-box. So it can access to your kubern
 #### In a docker container
 - Make sure your dev box has full network access to the cluster.
 - Make sure your dev box has been installed docker.
+- /var/lib/docker: the path of docker storage on you host
 ```bash
 sudo docker build -t kubernetes-deployment .
 sudo docker run -itd \
@@ -149,6 +150,7 @@ sudo docker run -itd \
         --name=deployment \
         kubernetes-deployment
 sudo docker exec -it deployment /bin/bash
+cd /kubernetes-deployment
         
 ```
 
@@ -156,8 +158,13 @@ sudo docker exec -it deployment /bin/bash
 
 ## bootstrap
 
+#### host
 ```bash
 sudo ./bootstrap.py -p yourclusterconfig.yaml -a deploy
+```
+#### container
+```bash
+./bootstrap.py -p yourclusterconfig.yaml -a deploy
 ```
 
 ## Destroy your cluster
