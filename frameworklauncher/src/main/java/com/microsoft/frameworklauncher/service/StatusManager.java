@@ -303,14 +303,14 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return frameworkStatuses.keySet();
   }
 
-  public synchronized boolean containsFrameworkStatus(String frameworkName) {
+  public synchronized boolean containsFramework(String frameworkName) {
     return frameworkStatuses.containsKey(frameworkName);
   }
 
-  public synchronized boolean containsFrameworkStatus(FrameworkStatus frameworkStatus) throws IOException {
+  public synchronized boolean containsFramework(FrameworkStatus frameworkStatus) throws IOException {
     String frameworkName = frameworkStatus.getFrameworkName();
 
-    if (!containsFrameworkStatus(frameworkName)) {
+    if (!containsFramework(frameworkName)) {
       LOGGER.logDebug("FrameworkName not found in Status. FrameworkName: %s", frameworkName);
       return false;
     }
@@ -328,7 +328,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   // Returned FrameworkStatus is readonly, caller should not modify it
   public synchronized FrameworkStatus getFrameworkStatus(String frameworkName) {
-    assert containsFrameworkStatus(frameworkName);
+    assert containsFramework(frameworkName);
     return frameworkStatuses.get(frameworkName);
   }
 

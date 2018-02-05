@@ -27,7 +27,9 @@ const update = (req, res) => {
   const password = req.body.password;
   const admin = req.body.admin;
   const modify = req.body.modify;
-  if (req.user.admin) {
+  if (req.user.admin ||
+      username === req.user.username &&
+      (typeof admin === 'undefined' || !admin) && modify) {
     userModel.update(username, password, admin, modify, (err, state) => {
       if (err || !state) {
         logger.warn('update user %s failed', username);

@@ -17,10 +17,12 @@ launcherConfiguration:
   amRequestPullIntervalSec: 0
   amRmHeartbeatIntervalSec: 0
   amRmResyncFrequency: 0
+  amSetupContainerRequestMaxRetryIntervalSec: 0
+  amSetupContainerRequestMinRetryIntervalSec: 0
   amStatusPushIntervalSec: 0
   amVersion: 0
-  applicationRetrieveDiagnosticsIntervalSec: 0
   applicationRetrieveDiagnosticsMaxRetryCount: 0
+  applicationRetrieveDiagnosticsRetryIntervalSec: 0
   applicationSetupContextMaxRetryCount: 0
   applicationSetupContextRetryIntervalSec: 0
   applicationTransientConflictMaxDelaySec: 0

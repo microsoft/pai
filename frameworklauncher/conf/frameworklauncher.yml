@@ -9,7 +9,7 @@ serviceRMResyncIntervalSec: 60
 serviceRequestPullIntervalSec: 5
 
 # Application Setup
-applicationRetrieveDiagnosticsIntervalSec: 60
+applicationRetrieveDiagnosticsRetryIntervalSec: 60
 applicationRetrieveDiagnosticsMaxRetryCount: 15
 applicationTransientConflictMaxDelaySec: 3600
 applicationTransientConflictMinDelaySec: 600

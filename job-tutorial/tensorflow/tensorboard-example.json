@@ -3,9 +3,9 @@
   "image": "pai.run.tensorflow",
 
   // prepare checkpoint and log to be visualized and upload to hdfs
-  "dataDir": "hdfs://host:port/path/tensorboard-jobguid/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorboard-jobguid/data",
   // prepare visualization script tensorboard-example.sh and upload to hdfs
-  "codeDir": "hdfs://host:port/path/tensorboard-jobguid/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorboard-jobguid/code",
 
   "taskRoles": [
     {
@@ -14,7 +14,7 @@
       "cpuNumber": 2,
       "memoryMB": 4096,
       "gpuNumber": 0,
-      "command": "/bin/bash tensorboard-example.sh"
+      "command": "/bin/bash code/tensorboard-example.sh"
     }
   ]
 }

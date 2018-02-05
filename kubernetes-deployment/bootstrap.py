@@ -98,12 +98,12 @@ def execute_shell_with_output(shell_cmd, error_msg):
 
 def sftp_paramiko(src, dst, filename, host_config):
 
-    hostip = host_config['hostip']
-    username = host_config['username']
-    password = host_config['password']
+    hostip = str(host_config['hostip'])
+    username = str(host_config['username'])
+    password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
-        port = host_config['sshport']
+        port = int(host_config['sshport'])
 
     # First make sure the folder exist.
     ssh = paramiko.SSHClient()
@@ -132,12 +132,12 @@ def sftp_paramiko(src, dst, filename, host_config):
 
 def ssh_shell_paramiko(host_config, commandline):
 
-    hostip = host_config['hostip']
-    username = host_config['username']
-    password = host_config['password']
+    hostip = str(host_config['hostip'])
+    username = str(host_config['username'])
+    password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
-        port = host_config['sshport']
+        port = int(host_config['sshport'])
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

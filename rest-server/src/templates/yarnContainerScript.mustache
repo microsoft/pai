@@ -23,6 +23,7 @@
 trap "kill 0" EXIT
 
 docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
 while /bin/true; do
@@ -34,8 +35,9 @@ done &
 nvidia_devices=''
 {{# taskData.gpuNumber }}
 nvidia_devices+='--device=/dev/nvidiactl --device=/dev/nvidia-uvm'
-for (( i=0,j=$((${#CONTAINER_GPUS}-1)); i<${#CONTAINER_GPUS}; i++,j-- )); do
-  if [ ${CONTAINER_GPUS:$i:1} -gt 0 ]; then
+gpu_bitmap=$(perl -e 'printf "%b",'$CONTAINER_GPUS)
+for (( i=0,j=$((${#gpu_bitmap}-1)); i<${#gpu_bitmap}; i++,j-- )); do
+  if [ ${gpu_bitmap:$i:1} -gt 0 ]; then
     nvidia_devices+=" --device=/dev/nvidia$j"
   fi
 done

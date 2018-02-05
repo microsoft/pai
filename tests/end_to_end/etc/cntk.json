@@ -11,7 +11,7 @@
       "cpuNumber": 4,
       "memoryMB": 8196,
       "gpuNumber": 1,
-      "command": "/bin/bash cntk.sh"
+      "command": "cd BrainScript && /bin/bash cntk.sh"
     }
   ]
 }

@@ -100,8 +100,8 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 def genenrate_docker_credential(docker_info):
 
-    username = docker_info[ "docker_username" ]
-    passwd = docker_info[ "docker_password" ]
+    username = str(docker_info[ "docker_username" ])
+    passwd = str(docker_info[ "docker_password" ])
 
     if username and passwd:
         credential = execute_shell_with_output(
@@ -116,9 +116,9 @@ def genenrate_docker_credential(docker_info):
 
 def generate_secret_base64code(docker_info):
 
-    domain = docker_info[ "docker_registry_domain" ]
-    username = docker_info[ "docker_username" ]
-    passwd = docker_info[ "docker_password" ]
+    domain = str(docker_info[ "docker_registry_domain" ])
+    username = str(docker_info[ "docker_username" ])
+    passwd = str(docker_info[ "docker_password" ])
 
     if domain == "public":
         domain = ""
@@ -141,8 +141,8 @@ def generate_secret_base64code(docker_info):
 
 def generate_image_url_prefix(docker_info):
 
-    domain = docker_info["docker_registry_domain"]
-    namespace = docker_info["docker_namespace"]
+    domain = str(docker_info["docker_registry_domain"])
+    namespace = str(docker_info["docker_namespace"])
 
     if domain != "public":
         prefix = "{0}/{1}/".format(domain, namespace)

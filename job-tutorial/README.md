@@ -96,8 +96,8 @@ Below please find the detailed explanation for each of the parameters in the con
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `hdfs://host:port/output/$jobName` will be used if not specified |
-| `codeDir`                      | String, required, HDFS URI | Code directory existing on HDFS          |
+| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
+| `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number for the task role, no less than 1 |
@@ -125,11 +125,13 @@ For a multi-task job, one task might communicate with others.
 So a task need to be aware of other tasks' runtime information such as IP, port, etc. 
 The system exposes such runtime information as environment variables to each task's Docker container. 
 For mutual communication, user can write code in the container to access those runtime environment variables.
+Those environment variables can also be used in the job config file.
 
 Below we show a complete list of environment variables accessible in a Docker container:
 
 | Environment Variable Name          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
+| PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
 | PAI_USERNAME                       | User who submit the job                  |
@@ -162,10 +164,10 @@ A distributed TensorFlow job is listed below as an example:
   "image": "your_docker_registry/pai.run.tensorflow",
   // this example uses cifar10 dataset, which is available from
   // http://www.cs.toronto.edu/~kriz/cifar.html
-  "dataDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/data",
-  "outputDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/output",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/output",
   // this example uses code from tensorflow benchmark https://git.io/vF4wT
-  "codeDir": "hdfs://host:port/path/tensorflow-distributed-jobguid/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/code",
   "taskRoles": [
     {
       "name": "ps_server",
@@ -177,7 +179,7 @@ A distributed TensorFlow job is listed below as an example:
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=ps --task_index=$PAI_TASK_ROLE_INDEX"
     },
     {
       "name": "worker",
@@ -186,7 +188,7 @@ A distributed TensorFlow job is listed below as an example:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip --quiet install scipy && python tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_0_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_1_HOST_LIST --job_name=worker --task_index=$PAI_TASK_ROLE_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed
