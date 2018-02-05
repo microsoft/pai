@@ -23,15 +23,15 @@ docker rm kubelet
 for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
 
 # check etc/ exist or not.
-staticpod="src/etc"
+staticpod="repair/etc"
 if [ -d "$staticpod" ]; then
 
-    cp -r src/etc /
+    cp -r repair/etc /
 
 fi
 
-chmod u+x src/kubelet.sh
-./src/kubelet.sh
+chmod u+x repair/kubelet.sh
+./repair/kubelet.sh
 
 
 
