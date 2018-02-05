@@ -47,8 +47,8 @@ RUN apt-get -y update && \
       inotify-tools \
       rsync \
       realpath \
-      net-tools &&\
-    mkdir -p /kubernetes-deployment
+      net-tools && \
+    mkdir -p /kubernetes-deployment && \
     mkdir -p /cluster-configuration
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
