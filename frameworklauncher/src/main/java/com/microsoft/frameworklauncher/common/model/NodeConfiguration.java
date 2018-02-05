@@ -18,10 +18,12 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 public class NodeConfiguration implements Serializable {
   @Valid
+  @Pattern(regexp = "^[^,\\s]+$")
   private String gpuType;
 
   public String getGpuType() {

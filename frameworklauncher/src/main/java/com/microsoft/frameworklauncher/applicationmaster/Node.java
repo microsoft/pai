@@ -17,95 +17,97 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import org.apache.hadoop.yarn.api.records.NodeReport;
 
 import java.util.Set;
 
 public class Node {
-  private ResourceDescriptor capacity;
-  private final String hostName;
-  private ResourceDescriptor used;
-
-  private ResourceDescriptor requested;
+  private final String host;
   private Set<String> labels;
+  private ResourceDescriptor totalResource;
+  private ResourceDescriptor usedResource;
+  private ResourceDescriptor requestedResource;
 
-  public Node(String hostName, Set<String> labels, ResourceDescriptor capacity, ResourceDescriptor used) {
-    this.hostName = hostName;
-    this.capacity = capacity;
-    this.used = used;
+  @VisibleForTesting
+  public Node(String host, Set<String> labels, ResourceDescriptor totalResource, ResourceDescriptor usedResource) {
+    this.host = host;
     this.labels = labels;
-    this.requested = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+    this.totalResource = totalResource;
+    this.usedResource = usedResource;
+    this.requestedResource = ResourceDescriptor.newInstance(0, 0, 0, 0L);
   }
 
-  public void updateNode(Node updateNode) {
-    this.capacity = updateNode.getCapacityResource();
-    this.used = updateNode.getUsedResource();
+  public static Node fromNodeReport(NodeReport nodeReport) throws Exception {
+    return new Node(
+        nodeReport.getNodeId().getHost(),
+        nodeReport.getNodeLabels(),
+        ResourceDescriptor.fromResource(nodeReport.getCapability()),
+        ResourceDescriptor.fromResource(nodeReport.getUsed()));
   }
 
-  public ResourceDescriptor getCapacityResource() {
-    return capacity;
+  public void updateFromReportedNode(Node reportedNode) {
+    assert (host.equals(reportedNode.getHost()));
+    labels = reportedNode.getLabels();
+    totalResource = reportedNode.getTotalResource();
+    usedResource = reportedNode.getUsedResource();
   }
 
-  public ResourceDescriptor getUsedResource() {
-    return used;
+  public String getHost() {
+    return host;
   }
 
-  public String getHostName() {
-    return hostName;
-  }
-
-  public Set<String> getNodeLabels() {
+  public Set<String> getLabels() {
     return labels;
   }
 
-  public int getTotalNumGpus() {
-    return capacity.getGpuNumber();
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport.
+  public ResourceDescriptor getTotalResource() {
+    return totalResource;
   }
 
-  public int getUsedNumGpus() {
-    return Long.bitCount(used.getGpuAttribute() | requested.getGpuAttribute());
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it is from RM NodeReport.
+  public ResourceDescriptor getUsedResource() {
+    return usedResource;
   }
 
-  public long getNodeGpuStatus() {
-    return capacity.getGpuAttribute() & (~(used.getGpuAttribute() | requested.getGpuAttribute()));
+  // It is the outstanding Requested Resource, i.e. it does not include the satisfied or canceled request.
+  // It does not include the Requested Resource for ANY node, i.e. without a node specified.
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since we do not add a node request without GpuAttribute.
+  public ResourceDescriptor getRequestedResource() {
+    return requestedResource;
   }
 
-  public int getAvailableNumGpus() {
-    return capacity.getGpuNumber() - getUsedNumGpus();
+  // AvailableResource = TotalResource - UsedResource - RequestedResource.
+  // Guarantees getGpuNumber() == bitCount(getGpuAttribute()), since it comes from sources with the same characteristic.
+  public ResourceDescriptor getAvailableResource() {
+    return ResourceDescriptor.subtract(
+        ResourceDescriptor.subtract(totalResource, usedResource), requestedResource);
   }
 
-  public int getAvailableMemory() {
-    return capacity.getMemoryMB() - used.getMemoryMB() - requested.getMemoryMB();
-  }
-
-  public int getAvailableCpu() {
-    return capacity.getCpuNumber() - used.getCpuNumber() - requested.getCpuNumber();
-  }
-
-
+  // Add outstanding requested container request.
   public void addContainerRequest(ResourceDescriptor resource) {
-    requested.setCpuNumber(requested.getCpuNumber() + resource.getCpuNumber());
-    requested.setMemoryMB(requested.getMemoryMB() + resource.getMemoryMB());
-    requested.setGpuAttribute(requested.getGpuAttribute() | resource.getGpuAttribute());
-    requested.setGpuNumber(requested.getGpuNumber() + resource.getGpuNumber());
-
+    requestedResource = ResourceDescriptor.add(requestedResource, resource);
   }
 
+  // Remove outstanding requested container request.
   public void removeContainerRequest(ResourceDescriptor resource) {
-    requested.setCpuNumber(requested.getCpuNumber() - resource.getCpuNumber());
-    requested.setMemoryMB(requested.getMemoryMB() - resource.getMemoryMB());
-    requested.setGpuAttribute(requested.getGpuAttribute() & (~resource.getGpuAttribute()));
-    requested.setGpuNumber(requested.getGpuNumber() - resource.getGpuNumber());
+    requestedResource = ResourceDescriptor.subtract(requestedResource, resource);
   }
-
 
   @Override
   public String toString() {
-    return this.hostName + "(capacity: " + this.capacity + ", used: " + this.used + ", requested:" + this.requested + ")";
+    return "{Host: " + host +
+        ", Labels: " + CommonExts.toString(labels) +
+        ", TotalResource: " + totalResource +
+        ", UsedResource: " + usedResource +
+        ", RequestedResource: " + requestedResource + "}";
   }
 
   @Override
   public int hashCode() {
-    return hostName.hashCode();
+    return host.hashCode();
   }
 }

@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.zookeeperstore;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException;
 

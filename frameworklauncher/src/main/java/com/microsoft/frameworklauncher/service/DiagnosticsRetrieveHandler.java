@@ -17,10 +17,10 @@
 
 package com.microsoft.frameworklauncher.service;
 
+import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.DiagnosticsUtils;
-import com.microsoft.frameworklauncher.utils.RetryPolicy;
+import com.microsoft.frameworklauncher.common.utils.RetryUtils;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
 public class DiagnosticsRetrieveHandler { // THREAD SAFE
@@ -43,9 +43,9 @@ public class DiagnosticsRetrieveHandler { // THREAD SAFE
       try {
         LOGGER.logInfo("%s: Start to retrieveDiagnostics", applicationId);
 
-        if (DiagnosticsUtils.isDiagnosticsEmpty(diagnostics)) {
-          diagnostics = RetryPolicy.executeWithRetry(
-              () -> DiagnosticsUtils.retrieveDiagnostics(yarnClient, applicationId),
+        if (ExitDiagnostics.isDiagnosticsEmpty(diagnostics)) {
+          diagnostics = RetryUtils.executeWithRetry(
+              () -> ExitDiagnostics.retrieveDiagnostics(yarnClient, applicationId),
               conf.getApplicationRetrieveDiagnosticsMaxRetryCount(),
               conf.getApplicationRetrieveDiagnosticsIntervalSec(), null);
         }

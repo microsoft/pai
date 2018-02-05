@@ -26,8 +26,10 @@ public enum TaskState implements Serializable {
   TASK_WAITING,
 
   // Task's Container Requested
-  //    onContainersAllocated     -> CONTAINER_ALLOCATED
-  //    recover                   -> TASK_WAITING
+  //    onContainersAllocated:Accepted  -> CONTAINER_ALLOCATED
+  //    onContainersAllocated:Rejected  -> TASK_WAITING
+  //    containerRequestTimeout         -> TASK_WAITING
+  //    recover                         -> TASK_WAITING
   CONTAINER_REQUESTED,
 
   // Task's current associated Container Allocated

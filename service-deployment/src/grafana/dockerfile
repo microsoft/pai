@@ -27,8 +27,6 @@ ENV \
 
 
 COPY ./run.sh ./grafana_config.sh ./start_server.sh /usr/local/
-COPY ./*-datasource.json /usr/local/grafana/datasources/
-COPY ./*-dashboard.json /usr/local/grafana/dashboards/
 COPY copied_file/* /usr/local/grafana/dashboards/
 
 RUN \

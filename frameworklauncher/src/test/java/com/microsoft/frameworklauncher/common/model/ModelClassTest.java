@@ -17,13 +17,13 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlTestUtils;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.testutils.YamlTestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
-import static com.microsoft.frameworklauncher.utils.YamlTestUtils.EXPECTS_DIR;
+import static com.microsoft.frameworklauncher.testutils.YamlTestUtils.EXPECTS_DIR;
 
 public class ModelClassTest {
   private static final DefaultLogger LOGGER = new DefaultLogger(ModelClassTest.class);

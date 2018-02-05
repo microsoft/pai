@@ -17,12 +17,22 @@
 
 package com.microsoft.frameworklauncher.service;
 
-import com.microsoft.frameworklauncher.common.ModelValidation;
-import com.microsoft.frameworklauncher.common.WebCommon;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
+import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.exts.HadoopExts;
+import com.microsoft.frameworklauncher.common.log.ChangeAwareLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
+import com.microsoft.frameworklauncher.common.utils.*;
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
-import com.microsoft.frameworklauncher.utils.*;
 import com.microsoft.frameworklauncher.webserver.WebServer;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.fs.FileSystem;
@@ -112,7 +122,7 @@ public class Service extends AbstractService {
 
     // Initialize LauncherConfiguration
     conf = YamlUtils.toObject(GlobalConstants.LAUNCHER_CONFIG_FILE, LauncherConfiguration.class);
-    ModelValidation.validate(conf);
+    CommonValidation.validate(conf);
 
     // Initialize SubServices
     yarnClient = YarnClient.createYarnClient();
@@ -398,7 +408,7 @@ public class Service extends AbstractService {
   private void reviseCorruptedFrameworkStates() throws Exception {
     LOGGER.logInfo(
         "reviseCorruptedFrameworkStates: %s",
-        CommonExtensions.toString(FrameworkStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES));
+        CommonExts.toString(FrameworkStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES));
 
     List<FrameworkStatus> corruptedFrameworkStatuses = statusManager.getFrameworkStatus(FrameworkStateDefinition.STATE_CORRUPTED_AFTER_RESTART_STATES);
     for (FrameworkStatus frameworkStatus : corruptedFrameworkStatuses) {
@@ -422,7 +432,7 @@ public class Service extends AbstractService {
     // 3. FRAMEWORK_COMPLETED, since it is FinalState
     LOGGER.logInfo(
         "recoverTransitionFrameworkStateQueue for FrameworkStates: %s",
-        CommonExtensions.toString(FrameworkStateDefinition.QUEUE_CORRUPTED_AFTER_RESTART_STATES));
+        CommonExts.toString(FrameworkStateDefinition.QUEUE_CORRUPTED_AFTER_RESTART_STATES));
 
     // There may be a lot of corrupted System.Frameworks, so we queue them as one System.Framework per State
     transitionFrameworkStateQueue.queueSystemTask(() -> {
@@ -446,7 +456,7 @@ public class Service extends AbstractService {
     String applicationId = frameworkStatus.getApplicationId();
 
     LOGGER.logSplittedLines(Level.INFO,
-        "[%s][%s]: completeApplication: ExitCode: %s, Diagnostics: %s",
+        "[%s][%s]: completeApplication: ExitCode: %s, ExitDiagnostics: %s",
         frameworkName, applicationId, exitCode, diagnostics);
 
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_COMPLETED,
@@ -461,7 +471,7 @@ public class Service extends AbstractService {
     }
 
     String logSuffix = String.format(
-        "[%s]: retrieveApplicationDiagnostics: ExitCode: %s, Diagnostics: %s, NeedToKill: %s",
+        "[%s]: retrieveApplicationDiagnostics: ExitCode: %s, ExitDiagnostics: %s, NeedToKill: %s",
         applicationId, exitCode, diagnostics, needToKill);
 
     if (!statusManager.isApplicationIdAssociated(applicationId)) {
@@ -495,7 +505,7 @@ public class Service extends AbstractService {
   // retrieveApplicationExitCode to prepare completeApplication
   private void retrieveApplicationExitCode(String applicationId, String diagnostics) throws Exception {
     String logSuffix = String.format(
-        "[%s]: retrieveApplicationExitCode: Diagnostics: %s",
+        "[%s]: retrieveApplicationExitCode: ExitDiagnostics: %s",
         applicationId, diagnostics);
 
     if (!statusManager.isApplicationIdAssociated(applicationId)) {
@@ -510,8 +520,8 @@ public class Service extends AbstractService {
     // RetrieveExitCode
     LOGGER.logDebug("[%s]%s", frameworkName, logSuffix);
     if (exitCode == null) {
-      ExitStatusKey exitStatusKey = DiagnosticsUtils.extractExitStatusKey(diagnostics);
-      exitCode = DiagnosticsUtils.lookupExitCode(exitStatusKey);
+      ExitStatusKey exitStatusKey = ExitDiagnostics.extractExitStatusKey(diagnostics);
+      exitCode = ExitDiagnostics.lookupExitCode(exitStatusKey);
     }
 
     completeApplication(frameworkStatus, exitCode, diagnostics);
@@ -541,7 +551,7 @@ public class Service extends AbstractService {
     logPrefix += "SubmitApplication: ";
     try {
       LOGGER.logInfo(logPrefix + "ApplicationName: %s", applicationContext.getApplicationName());
-      LOGGER.logInfo(logPrefix + "ResourceRequest: %s", HadoopExtensions.toString(applicationContext.getAMContainerResourceRequest()));
+      LOGGER.logInfo(logPrefix + "ResourceRequest: %s", HadoopExts.toString(applicationContext.getAMContainerResourceRequest()));
       LOGGER.logInfo(logPrefix + "Queue: %s", applicationContext.getQueue());
 
       HadoopUtils.submitApplication(applicationContext, user);
@@ -593,7 +603,7 @@ public class Service extends AbstractService {
         // Always Setup a brand new ApplicationContext to tolerate ApplicationContext corruption,
         // such as HDFS data lost.
         // Retry to setupApplicationContext due to the race condition with onFrameworkToRemove.
-        RetryPolicy.executeWithRetry(() -> {
+        RetryUtils.executeWithRetry(() -> {
               setupApplicationContext(frameworkStatusSnapshot, applicationContext);
             },
             conf.getApplicationSetupContextMaxRetryCount(),
@@ -697,7 +707,7 @@ public class Service extends AbstractService {
     } else if (exitType == ExitType.TRANSIENT_CONFLICT) {
       newRetryPolicyState.setTransientConflictRetriedCount(newRetryPolicyState.getTransientConflictRetriedCount() + 1);
       if (retryPolicy.getFancyRetryPolicy()) {
-        int delaySec = RetryPolicy.calcRandomBackoffDelay(
+        int delaySec = RetryUtils.calcRandomBackoffDelay(
             transientConflictRetriedCount,
             conf.getApplicationTransientConflictMinDelaySec(),
             conf.getApplicationTransientConflictMaxDelaySec());
@@ -874,7 +884,7 @@ public class Service extends AbstractService {
   }
 
   // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework
-  public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean skipRemoveHdfsResource) throws Exception {
+  public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean usedToUpgrade) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     String applicationId = frameworkStatus.getApplicationId();
     FrameworkState frameworkState = frameworkStatus.getFrameworkState();
@@ -886,7 +896,7 @@ public class Service extends AbstractService {
       HadoopUtils.killApplication(applicationId);
     }
 
-    if (!skipRemoveHdfsResource) {
+    if (!usedToUpgrade) {
       try {
         // Although remove Framework in HDFS is slow, it is still synchronized in queue to ensure that the
         // remove operation will not remove the Framework which is not to be removed.
@@ -939,9 +949,9 @@ public class Service extends AbstractService {
 
   // Callbacks from DiagnosticsRetrieveHandler
   public void onDiagnosticsRetrieved(String applicationId, String diagnostics) {
-    if (DiagnosticsUtils.isDiagnosticsEmpty(diagnostics)) {
+    if (ExitDiagnostics.isDiagnosticsEmpty(diagnostics)) {
       // Can ensure diagnostics is not Empty
-      diagnostics = DiagnosticsUtils.generateDiagnostics(
+      diagnostics = ExitDiagnostics.generateDiagnostics(
           ExitStatusKey.LAUNCHER_DIAGNOSTICS_UNRETRIEVABLE);
     }
 

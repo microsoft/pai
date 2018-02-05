@@ -17,7 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import org.apache.hadoop.yarn.api.records.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -55,11 +56,11 @@ public class ResourceDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  private Long gpuAttribute = 0L;
+  private Integer gpuNumber = 0;
 
   @Valid
   @NotNull
-  private Integer gpuNumber = 0;
+  private Long gpuAttribute = 0L;
 
   public Integer getCpuNumber() {
     return cpuNumber;
@@ -166,10 +167,6 @@ public class ResourceDescriptor implements Serializable {
       Class<?> clazz = res.getClass();
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
-
-      Method getPortsCount = clazz.getMethod("getPortsCount");
-      rd.setPortNumber((int)getPortsCount.invoke(res));
-
       Method getPorts = clazz.getMethod("getPorts");
 
       Object hadoopValueRanges = getPorts.invoke(res);
@@ -222,19 +219,6 @@ public class ResourceDescriptor implements Serializable {
       }
     }
 
-    if(portNumber > 0) {
-      try {
-        Method setPortsCount = clazz.getMethod("setPortsCount", int.class);
-        setPortsCount.invoke(res, portNumber);
-
-      } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "Ignore: Fail to set portNumber information, YARN library doesn't support:");
-      } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Fail to set portNumber information, illegal access function");
-      } catch(Exception e) {
-        LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
-      }
-    }
     if (portRanges != null && portRanges.size() > 0) {
       try {
 
@@ -281,8 +265,43 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]", getGpuAttribute()) +
+        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()) +
         String.format("Port: [%s]", portString) + " " +
         String.format("PortNumber: [%s]", portNumber);
+  }
+
+  // Maybe underestimate if any GpuAttribute == 0
+  public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = new ResourceDescriptor();
+    ret.setMemoryMB(lhs.getMemoryMB() - rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() - rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() & (~(rhs.getGpuAttribute())));
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
+    }
+    return ret;
+  }
+
+  // Maybe overestimate if any GpuAttribute == 0
+  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = new ResourceDescriptor();
+    ret.setMemoryMB(lhs.getMemoryMB() + rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() + rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() | rhs.getGpuAttribute());
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
+    }
+    return ret;
+  }
+
+  public static boolean fitsIn(ResourceDescriptor smaller, ResourceDescriptor bigger) {
+    return smaller.getMemoryMB() <= bigger.getMemoryMB()
+        && smaller.getCpuNumber() <= bigger.getCpuNumber()
+        && smaller.getGpuNumber() <= bigger.getGpuNumber()
+        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute());
   }
 }

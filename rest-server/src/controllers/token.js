@@ -48,8 +48,9 @@ const get = (req, res) => {
           });
         }
         return res.status(200).json({
-          token,
-          user: username
+          user: username,
+          token: token,
+          admin: admin
         });
       });
     }

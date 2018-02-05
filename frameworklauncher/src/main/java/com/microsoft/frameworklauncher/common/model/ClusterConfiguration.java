@@ -18,16 +18,13 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ClusterConfiguration implements Serializable {
   @Valid
-  @NotNull
   // NodeHostName -> NodeConfiguration
-  private Map<String, NodeConfiguration> nodes = new HashMap<>();
+  private Map<String, NodeConfiguration> nodes;
 
   public Map<String, NodeConfiguration> getNodes() {
     return nodes;

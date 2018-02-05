@@ -17,14 +17,14 @@
 
 package com.microsoft.frameworklauncher.webserver;
 
-import com.microsoft.frameworklauncher.common.WebCommon;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
-import com.microsoft.frameworklauncher.utils.AbstractService;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.ExitStatusKey;
-import com.microsoft.frameworklauncher.utils.StopStatus;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.webapp.WebApps;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 
 // Forward Http Request to ZK Request and Return ZK Status.
 public class WebServer extends AbstractService {
-  private static final DefaultLogger LOGGER = new DefaultLogger(RequestManager.class);
+  private static final DefaultLogger LOGGER = new DefaultLogger(WebServer.class);
 
   private final LauncherConfiguration conf;
 

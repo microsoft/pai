@@ -17,9 +17,12 @@
 
 package com.microsoft.frameworklauncher.service;
 
-import com.microsoft.frameworklauncher.common.WebCommon;
+import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.*;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -265,28 +268,26 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // The external resource will be setup by following CreateApplication
   }
 
-  private void removeFramework(String frameworkName, boolean skipRemoveHdfsResource) throws Exception {
+  private void removeFramework(String frameworkName, boolean usedToUpgrade) throws Exception {
     FrameworkStatus frameworkStatus = getFrameworkStatus(frameworkName);
     Integer frameworkVersion = frameworkStatus.getFrameworkVersion();
 
     LOGGER.logInfo("[%s][%s]: removeFramework", frameworkName, frameworkVersion);
 
     // Notify Service to Cleanup Framework level external resource [HDFS, RM]
-    service.onFrameworkToRemove(frameworkStatus, skipRemoveHdfsResource);
+    service.onFrameworkToRemove(frameworkStatus, usedToUpgrade);
 
     // Update Mem Status
     removeExtensionFrameworkStatus(frameworkName);
     frameworkStatuses.remove(frameworkName);
 
     // Update ZK Status
-    zkStore.deleteFrameworkStatus(frameworkName);
+    zkStore.deleteFrameworkStatus(frameworkName, usedToUpgrade);
   }
 
   private void upgradeFramework(FrameworkRequest frameworkRequest) throws Exception {
     String frameworkName = frameworkRequest.getFrameworkName();
 
-    // skipRemoveHdfsResource since Upgraded Framework will overwrite them anyway or it will be
-    // Cleanuped by GCLeftoverFrameworks if the Framework is Removed after LauncherService restart.
     removeFramework(frameworkName, true);
     addFramework(frameworkRequest);
   }
@@ -455,7 +456,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       // No need to Cleanup RM here, since it already Cleanuped before here
       if (dstState == FrameworkState.APPLICATION_COMPLETED) {
         assert (event.getApplicationExitCode() != null);
-        frameworkStatus.setApplicationExitType(DiagnosticsUtils.lookupExitType(
+        frameworkStatus.setApplicationExitType(ExitDiagnostics.lookupExitType(
             event.getApplicationExitCode(), event.getApplicationExitDiagnostics()));
       }
     }

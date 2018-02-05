@@ -17,17 +17,16 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.common.LauncherClientInternal;
-import com.microsoft.frameworklauncher.common.WebCommon;
+import com.microsoft.frameworklauncher.client.LauncherClient;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.utils.AbstractService;
-import com.microsoft.frameworklauncher.utils.CommonExtensions;
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
-import com.microsoft.frameworklauncher.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
@@ -46,7 +45,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   private final ApplicationMaster am;
   private final Configuration conf;
   private final ZookeeperStore zkStore;
-  private final LauncherClientInternal launcherClient;
+  private final LauncherClient launcherClient;
 
 
   /**
@@ -88,7 +87,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION AbstractService
    */
-  public RequestManager(ApplicationMaster am, Configuration conf, ZookeeperStore zkStore, LauncherClientInternal launcherClient) {
+  public RequestManager(ApplicationMaster am, Configuration conf, ZookeeperStore zkStore, LauncherClient launcherClient) {
     super(RequestManager.class.getName());
     this.am = am;
     this.conf = conf;
@@ -318,10 +317,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
     } else {
       // For the other times, only send changed Request to AM
-      if (!CommonExtensions.equals(getServiceVersions(oldTaskServices), serviceVersions)) {
+      if (!CommonExts.equals(getServiceVersions(oldTaskServices), serviceVersions)) {
         am.onServiceVersionsUpdated(serviceVersions);
       }
-      if (!CommonExtensions.equals(getTaskNumbers(oldTaskRoles), taskNumbers)) {
+      if (!CommonExts.equals(getTaskNumbers(oldTaskRoles), taskNumbers)) {
         am.onTaskNumbersUpdated(taskNumbers);
       }
     }
@@ -356,7 +355,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
     }
 
-    migrateTaskRequests = CommonExtensions.asReadOnly(newMigrateTaskRequests);
+    migrateTaskRequests = CommonExts.asReadOnly(newMigrateTaskRequests);
   }
 
   private Map<String, Integer> getTaskNumbers(Map<String, TaskRoleDescriptor> taskRoles) {

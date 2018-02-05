@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.hdfsstore;
 
-import com.microsoft.frameworklauncher.utils.CommonUtils;
-import com.microsoft.frameworklauncher.utils.GlobalConstants;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 
 import java.io.File;
 import java.io.IOException;

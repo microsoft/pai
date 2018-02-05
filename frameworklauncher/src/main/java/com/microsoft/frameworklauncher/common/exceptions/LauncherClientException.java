@@ -17,7 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.exceptions;
 
-import com.microsoft.frameworklauncher.common.WebClientOutput;
+import com.microsoft.frameworklauncher.common.web.WebClientOutput;
 
 /**
  * All possible Exceptions that may be thrown by LauncherClient

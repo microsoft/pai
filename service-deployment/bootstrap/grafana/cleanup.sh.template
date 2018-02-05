@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl delete configmap grafana-configuration
 kubectl delete deployment grafana
 
 {% for host in machinelist %}

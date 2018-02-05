@@ -17,7 +17,7 @@
 
 package com.microsoft.frameworklauncher.zookeeperstore;
 
-import com.microsoft.frameworklauncher.utils.DefaultLogger;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 
 import java.io.File;
 

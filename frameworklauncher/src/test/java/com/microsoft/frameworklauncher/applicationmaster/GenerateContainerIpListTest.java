@@ -17,11 +17,16 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
-import com.microsoft.frameworklauncher.utils.*;
+import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.records.ContainerId;
