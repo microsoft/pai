@@ -44,6 +44,10 @@ const config = {
     layout: './src/app/layout/layout.component.js',
     register: './src/app/user/user-register/user-register.component.js',
     login: './src/app/user/user-login/user-login.component.js',
+    useraccount: './src/app/user/user-account/user-account.component.js',
+    adduser: './src/app/user/add-user/add-user.component.js',
+    deleteuser: './src/app/user/delete-user/delete-user.component.js',
+    resetpassword: './src/app/user/reset-password/reset-password.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     view: './src/app/job/job-view/job-view.component.js',
@@ -190,6 +194,38 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'login']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'useraccount.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'useraccount']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'adduser.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'adduser']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'deleteuser.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'deleteuser']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'resetpassword.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'resetpassword']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
