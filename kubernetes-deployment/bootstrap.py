@@ -300,7 +300,11 @@ def kubectl_install(cluster_info):
     kube_config_path = os.path.expanduser("~/.kube")
     write_generated_file(generated_file, "{0}/config".format(kube_config_path))
 
-    execute_shell( "kubectl get node", "Error in kubectl installing" )
+    while True:
+        res = execute_shell_return( "kubectl get node", "Error in kubectl installing" )
+
+        if res == True:
+            break
 
 
 
@@ -327,15 +331,10 @@ def dashboard_startup(cluster_info):
                     "Failed to create dashboard-service"
                  )
 
-    while True:
-
-        res = execute_shell_return(
-                        "kubectl create -f template/generated/dashboard-deployment.yaml",
-                        "Failed to create dashboard-deployment"
-                     )
-
-        if res == True:
-            break
+    execute_shell(
+                    "kubectl create -f template/generated/dashboard-deployment.yaml",
+                    "Failed to create dashboard-deployment"
+                 )
 
 
 
