@@ -40,6 +40,19 @@ def execute_shell(shell_cmd, error_msg):
 
 
 
+def execute_shell_return(shell_cmd, error_msg):
+
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        print error_msg
+        return False
+
+    return True
+
+
+
 def read_template(template_path):
 
     with open(template_path, "r") as fin:
@@ -314,10 +327,15 @@ def dashboard_startup(cluster_info):
                     "Failed to create dashboard-service"
                  )
 
-    execute_shell(
-                    "kubectl create -f template/generated/dashboard-deployment.yaml",
-                    "Failed to create dashboard-deployment"
-                 )
+    while True:
+
+        res = execute_shell_return(
+                        "kubectl create -f template/generated/dashboard-deployment.yaml",
+                        "Failed to create dashboard-deployment"
+                     )
+
+        if res == True:
+            break
 
 
 
