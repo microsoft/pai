@@ -140,7 +140,7 @@ Note: kubectl will be installed on this dev-box. So it can access to your kubern
 ```bash
 sudo docker build -t kubernetes-deployment .
 sudo docker run -itd \
-        -v /path/to/your/clusterconiguration:/cluster-configuration  \
+        -v /path/to/your/cluster-configuration:/cluster-configuration  \
         -v /var/lib/docker:/varl/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         --pid=host \
