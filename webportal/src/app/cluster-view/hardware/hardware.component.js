@@ -43,15 +43,15 @@ const getCellHtml = (percentage) => {
   innerColorString = "";
   outerColorString = "";
   loadLevelString = "";
-  if (percentage < 35) {
+  if (percentage < 10) {
     innerColorString = "hsl(120, 100%, 40%)";
     outerColorString = "hsl(120, 100%, 40%)";
     loadLevelString = "Light load";
-  } else if (percentage >= 35 && percentage < 70) {
+  } else if (percentage >= 10 && percentage < 90) {
     innerColorString = "hsl(35, 100%, 50%)";
     outerColorString = "hsl(35, 100%, 50%)";
     loadLevelString = "Medium load";
-  } else if (percentage >= 70) {
+  } else if (percentage >= 90) {
     innerColorString = "hsl(0, 100%, 45%)";
     outerColorString = "hsl(0, 100%, 45%)";
     loadLevelString = "Heavy load";
