@@ -184,13 +184,15 @@ class Job {
     } else {
       data.outputDir = data.outputDir.replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
-    childProcess.exec(
-        `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
-        (err, stdout, stderr) => {
-          if (err) {
-            logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
-          }
-        });
+    if (data.outputDir.match(/^hdfs:\/\//)) {
+      childProcess.exec(
+          `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
+          (err, stdout, stderr) => {
+            if (err) {
+              logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
+            }
+          });
+    }
     const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
     fse.ensureDir(jobDir, (err) => {
       if (err) {
