@@ -136,30 +136,30 @@ proxymachinelist:
 ## bootstrap
 
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -d
+sudo ./bootstrap.py -p yourclusterconfig.yaml -a deploy
 ```
 
 ## Destroy your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -c
+sudo ./bootstrap.py -p yourclusterconfig.yaml -a clean
 ```
 
 ## Only install kubectl into your dev-box
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml
+sudo ./bootstrap.py -p yourclusterconfig.yaml -a install_kubectl
 ```
 
 ## Add new nodes to your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a add
 ```
 
 ## Remove nodes from your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -r
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a remove
 ```
 
 ## Repair the worker node with the unhealthy states
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -m repair
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a repair
 ```
