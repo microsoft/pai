@@ -422,65 +422,29 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
 def option_validation(args):
 
-    if args.add or args.remove:
+    ret = False
 
-        if args.add and args.remove:
-            print "You could only specify one option in -a and -r"
-            return False
-        if args.file == None:
-            print "Please specify the nodelist.yaml's path"
-            return False
-        if args.deploy or args.clean:
-            print "You could not specify the option (-a or -r) with the option (-d or -c)"
-            return False
-        if args.maintain != None:
-            print "You could not specify the option (-a or -r) with the option -m"
-        # Add or remove node-list
-        return True
-
-    if args.maintain != None:
-
-        if args.file == None:
-            print "Please specify the nodelist.yaml's path"
-            return False
-        if args.deploy or args.clean:
-            print "You could not specify the option (-a or -r) with the option (-d or -c)"
-            return False
-        if args.maintain == "repair":
-            print "Repair function is Detected"
-            return True
-        print "Sorry, maybe you specify an error option!"
-        print "Now maintain option support following function:"
-        print "repair (-m repair), to repair the node (only worker node supported now!)"
-        return False
-
-    if args.deploy or args.clean:
-
-        if args.deploy and args.clean:
-            print "You can only specify only one option in -d and -c !"
-            return False
-
+    option_list_without_file = ['deploy', 'clean', 'install_kubectl']
+    if args.action in option_list_without_file:
         if args.file != None:
-            print "Don't specify -f with option (-d or -c)"
             return False
-        # -d bootstrap
-        # -c destroy cluster
-        return True
+        ret = True
 
-    # only install kubectl
-    return True
+    option_list_with_file = ['add', 'remove', 'repair']
+    if args.action in option_list_with_file:
+        if args.file == None:
+            return False
+        ret = True
+
+    return ret
 
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--deploy', action="store_true", help='Deploy kubernetes to your cluster')
     parser.add_argument('-p', '--path', required=True, help='path of cluster configuration file')
-    parser.add_argument('-c', '--clean', action="store_true", help="clean the generated script")
+    parser.add_argument('-a', '--action', required=True, default=None, help="action to maintain the cluster")
     parser.add_argument('-f', '--file', default=None, help="An yamlfile with the nodelist to maintain")
-    parser.add_argument('-a', '--add', action="store_true", help="Add the node from nodelist.yaml")
-    parser.add_argument('-r', '--remove', action="store_true", help="Remove the node from nodelist.yaml")
-    parser.add_argument('-m', '--maintain', default=None, help="maintain the cluster")
 
     args = parser.parse_args()
 
@@ -498,7 +462,7 @@ def main():
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
-    if args.add:
+    if args.action == 'add':
         #Todo in the future we should finish the following two line
         #cluster_config = get_cluster_configuration()
         #node_list_config = get_node_list_config()
@@ -507,7 +471,7 @@ def main():
         #up_data_cluster_configuration()
         return
 
-    if args.remove:
+    if args.action == 'remove':
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
@@ -516,7 +480,7 @@ def main():
         # up_data_cluster_configuration()
         return
 
-    if args.maintain != None:
+    if args.action == 'repair':
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
@@ -524,19 +488,18 @@ def main():
         maintain_nodes(cluster_config, node_list_config, args.maintain)
         return
 
-
-    if args.deploy:
-        initial_bootstrap_cluster(cluster_config)
-
-    if args.clean:
+    if args.action == 'clean':
         destory_whole_cluster(cluster_config)
         print "Clean Up Finished!"
         return
 
-    #step : Install kubectl on the host.
-    kubectl_install(cluster_config[ 'clusterinfo' ])
+    if args.action == 'deploy':
+        initial_bootstrap_cluster(cluster_config)
 
-    if args.deploy:
+    if args.action == 'deploy' or args.action == 'install_kubectl':
+        kubectl_install(cluster_config[ 'clusterinfo' ])
+
+    if args.action == 'deploy':
         #step:  Kube-proxy
         kube_proxy_startup(cluster_config)
 
