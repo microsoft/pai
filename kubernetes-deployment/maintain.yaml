@@ -36,8 +36,3 @@ repair:
       dst: repair
     # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
 
-add-worker:
-
-  template-list:
-  - name
-
