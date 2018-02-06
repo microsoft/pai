@@ -313,7 +313,7 @@ public class LauncherConfiguration implements Serializable {
   public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
     this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
   }
-  
+
   public String getWebServerBindHost() {
     return webServerBindHost;
   }

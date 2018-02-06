@@ -20,7 +20,7 @@ package com.microsoft.frameworklauncher.webserver;
 import com.google.inject.Inject;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
-import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
@@ -34,7 +34,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Path("/")
 public class LauncherModule {
@@ -48,15 +49,10 @@ public class LauncherModule {
     this.requestManager = requestManager;
   }
 
-  private static LaunchClientType getLaunchClientType(Callable<String> ResolveLaunchClientTypeStr) throws BadRequestException {
-    String launchClientTypeStr;
-    try {
-      launchClientTypeStr = ResolveLaunchClientTypeStr.call();
-      if (launchClientTypeStr == null) {
-        return null;
-      }
-    } catch (Exception e) {
-      LOGGER.logDebug(e, "Failed to ResolveLaunchClientTypeStr");
+  private static LaunchClientType getLaunchClientType(
+      CommonExts.NoExceptionCallable<String> ResolveLaunchClientTypeStr) throws BadRequestException {
+    String launchClientTypeStr = ResolveLaunchClientTypeStr.call();
+    if (launchClientTypeStr == null) {
       return null;
     }
 
@@ -67,6 +63,17 @@ public class LauncherModule {
           "Failed to ParseLaunchClientTypeStr: [%s]",
           launchClientTypeStr), e);
     }
+  }
+
+  private static String getUserName(
+      CommonExts.NoExceptionCallable<String> ResolveUserName) throws BadRequestException {
+    String userName = ResolveUserName.call();
+    if (userName == null) {
+      return null;
+    }
+
+    CommonValidation.validate(userName);
+    return userName;
   }
 
   @GET
@@ -146,9 +153,24 @@ public class LauncherModule {
   @GET
   @Path(WebStructure.FRAMEWORK_ROOT_PATH)
   @Produces({MediaType.APPLICATION_JSON})
-  public RequestedFrameworkNames getFrameworks(@Context HttpServletRequest hsr) throws Exception {
-    LaunchClientType clientType = getLaunchClientType(() -> hsr.getParameter(WebCommon.LAUNCH_CLIENT_TYPE_REQUEST_HEADER));
-    return requestManager.getFrameworkNames(clientType);
+  public SummarizedFrameworkInfos getFrameworks(@Context HttpServletRequest hsr) throws Exception {
+    LaunchClientType clientType = getLaunchClientType(() ->
+        hsr.getParameter(WebStructure.REQUEST_PARAM_LAUNCH_CLIENT_TYPE));
+    String userName = getUserName(() ->
+        hsr.getParameter(WebStructure.REQUEST_PARAM_USER_NAME));
+
+    List<FrameworkRequest> frameworkRequests =
+        requestManager.getFrameworkRequests(clientType, userName);
+
+    List<SummarizedFrameworkInfo> sFrameworkInfoList = new ArrayList<>();
+    for (FrameworkRequest frameworkRequest : frameworkRequests) {
+      FrameworkStatus frameworkStatus = statusManager.getFrameworkStatus(frameworkRequest);
+      sFrameworkInfoList.add(SummarizedFrameworkInfo.newInstance(frameworkRequest, frameworkStatus));
+    }
+
+    SummarizedFrameworkInfos sFrameworkInfos = new SummarizedFrameworkInfos();
+    sFrameworkInfos.setSummarizedFrameworkInfos(sFrameworkInfoList);
+    return sFrameworkInfos;
   }
 
   @PUT
@@ -166,7 +188,8 @@ public class LauncherModule {
     CommonValidation.validate(frameworkDescriptor);
 
     // Get LaunchClientType
-    LaunchClientType clientType = getLaunchClientType(() -> hsr.getHeader(WebCommon.LAUNCH_CLIENT_TYPE_REQUEST_HEADER));
+    LaunchClientType clientType = getLaunchClientType(() ->
+        hsr.getHeader(WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE));
     if (clientType == null) {
       clientType = LaunchClientType.UNKNOWN;
       LOGGER.logDebug(logPrefix +
@@ -301,10 +324,19 @@ public class LauncherModule {
   @GET
   @Path(WebStructure.FRAMEWORK_PATH)
   @Produces({MediaType.APPLICATION_JSON})
-  public AggregatedFrameworkStatus getFramework(
+  public FrameworkInfo getFramework(
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName)
-      throws NotFoundException {
-    return getAggregatedFrameworkStatus(frameworkName);
+      throws Exception {
+    AggregatedFrameworkRequest aggFrameworkRequest =
+        requestManager.getAggregatedFrameworkRequest(frameworkName);
+    FrameworkRequest frameworkRequest = aggFrameworkRequest.getFrameworkRequest();
+
+    FrameworkInfo frameworkInfo = new FrameworkInfo();
+    frameworkInfo.setAggregatedFrameworkRequest(aggFrameworkRequest);
+    frameworkInfo.setAggregatedFrameworkStatus(
+        statusManager.getAggregatedFrameworkStatus(frameworkRequest));
+
+    return frameworkInfo;
   }
 
   @GET
@@ -312,8 +344,10 @@ public class LauncherModule {
   @Produces({MediaType.APPLICATION_JSON})
   public AggregatedFrameworkStatus getAggregatedFrameworkStatus(
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName)
-      throws NotFoundException {
-    return statusManager.getAggregatedFrameworkStatus(frameworkName);
+      throws Exception {
+    FrameworkRequest frameworkRequest =
+        requestManager.getFrameworkRequest(frameworkName);
+    return statusManager.getAggregatedFrameworkStatus(frameworkRequest);
   }
 
   @GET
@@ -321,28 +355,10 @@ public class LauncherModule {
   @Produces({MediaType.APPLICATION_JSON})
   public FrameworkStatus getFrameworkStatus(
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName)
-      throws NotFoundException {
-    return statusManager.getFrameworkStatus(frameworkName);
-  }
-
-  @GET
-  @Path(WebStructure.TASK_ROLE_STATUS_PATH)
-  @Produces({MediaType.APPLICATION_JSON})
-  public TaskRoleStatus getTaskRoleStatus(
-      @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
-      @PathParam(WebStructure.TASK_ROLE_NAME_PATH_PARAM) String taskRoleName)
-      throws NotFoundException {
-    return statusManager.getTaskRoleStatus(frameworkName, taskRoleName);
-  }
-
-  @GET
-  @Path(WebStructure.TASK_STATUSES_PATH)
-  @Produces({MediaType.APPLICATION_JSON})
-  public TaskStatuses getTaskStatuses(
-      @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
-      @PathParam(WebStructure.TASK_ROLE_NAME_PATH_PARAM) String taskRoleName)
-      throws NotFoundException {
-    return statusManager.getTaskStatuses(frameworkName, taskRoleName);
+      throws Exception {
+    FrameworkRequest frameworkRequest =
+        requestManager.getFrameworkRequest(frameworkName);
+    return statusManager.getFrameworkStatus(frameworkRequest);
   }
 
   @GET

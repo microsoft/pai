@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import org.apache.hadoop.yarn.api.records.Resource;
 
 import javax.validation.Valid;

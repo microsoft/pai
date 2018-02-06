@@ -17,11 +17,11 @@
 
 package com.microsoft.frameworklauncher.service;
 
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.FrameworkRequest;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.zookeeper.KeeperException;

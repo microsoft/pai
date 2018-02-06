@@ -18,17 +18,14 @@
 package com.microsoft.frameworklauncher.webserver;
 
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.microsoft.frameworklauncher.common.utils.CommonUtils.checkExist;
 
 // Manage the CURD to ZK Status
 public class StatusManager extends AbstractService { // THREAD SAFE
@@ -155,22 +152,26 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     return launcherStatus;
   }
 
-  public AggregatedFrameworkStatus getAggregatedFrameworkStatus(String frameworkName) throws NotFoundException {
-    return checkExist(aggFrameworkStatuses.get(frameworkName));
+  public AggregatedFrameworkStatus getAggregatedFrameworkStatus(FrameworkRequest frameworkRequest) {
+    String frameworkName = frameworkRequest.getFrameworkName();
+    Integer frameworkVersion = frameworkRequest.getFrameworkDescriptor().getVersion();
+
+    AggregatedFrameworkStatus aggFrameworkStatus = aggFrameworkStatuses.get(frameworkName);
+    if (aggFrameworkStatus != null &&
+        aggFrameworkStatus.getFrameworkStatus().getFrameworkVersion().equals(frameworkVersion)) {
+      return aggFrameworkStatus;
+    } else {
+      // If the real Status has not yet appeared, return the inferred Status according to the Request.
+      // So, from the Launcher APIs' view, the Status's life cycle is consistent with the Request.
+      // This makes the Launcher APIs more convenient for Client to use.
+      // However, we only infer the FrameworkStatus if it does not exist, for other Status, such as the TaskStatuses, 
+      // Client still needs to poll the API to check whether the Status has been updated according to the Request.
+      return AggregatedFrameworkStatus.newInstance(frameworkRequest);
+    }
   }
 
-  public FrameworkStatus getFrameworkStatus(String frameworkName) throws NotFoundException {
-    return checkExist(aggFrameworkStatuses.get(frameworkName))
-        .getFrameworkStatus();
-  }
-
-  public TaskRoleStatus getTaskRoleStatus(String frameworkName, String taskRoleName) throws NotFoundException {
-    return checkExist(checkExist(aggFrameworkStatuses.get(frameworkName))
-        .getAggregatedTaskRoleStatuses().get(taskRoleName)).getTaskRoleStatus();
-  }
-
-  public TaskStatuses getTaskStatuses(String frameworkName, String taskRoleName) throws NotFoundException {
-    return checkExist(checkExist(aggFrameworkStatuses.get(frameworkName))
-        .getAggregatedTaskRoleStatuses().get(taskRoleName)).getTaskStatuses();
+  public FrameworkStatus getFrameworkStatus(FrameworkRequest frameworkRequest) {
+    AggregatedFrameworkStatus aggFrameworkStatus = getAggregatedFrameworkStatus(frameworkRequest);
+    return aggFrameworkStatus.getFrameworkStatus();
   }
 }

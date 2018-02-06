@@ -17,8 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
-import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -48,6 +47,7 @@ public class FrameworkDescriptor implements Serializable {
 
   @Valid
   @NotEmpty
+  @MapKeyNamingValidation
   private Map<String, TaskRoleDescriptor> taskRoles;
 
   @Valid

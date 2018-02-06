@@ -22,13 +22,18 @@ import com.microsoft.frameworklauncher.common.exceptions.ThrottledRequestExcepti
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import static com.microsoft.frameworklauncher.common.utils.CommonUtils.checkExist;
 
@@ -39,6 +44,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   private final WebServer webServer;
   private final LauncherConfiguration conf;
   private final ZookeeperStore zkStore;
+  private final ReadLock readLock;
+  private final WriteLock writeLock;
 
 
   /**
@@ -65,6 +72,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     this.webServer = webServer;
     this.conf = conf;
     this.zkStore = zkStore;
+
+    // Using FairSync to avoid potential reader starvation for a long time.
+    ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+    this.readLock = lock.readLock();
+    this.writeLock = lock.writeLock();
   }
 
   @Override
@@ -225,164 +237,198 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
-  public synchronized LauncherRequest getLauncherRequest() throws Exception {
-    return YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
+  public LauncherRequest getLauncherRequest() throws Exception {
+    return CommonUtils.executeWithLock(readLock, () ->
+        YamlUtils.deepCopy(launcherRequest, LauncherRequest.class));
   }
 
-  public synchronized RequestedFrameworkNames getFrameworkNames(LaunchClientType clientType) {
-    ArrayList<String> frameworkNames = new ArrayList<>();
+  public List<FrameworkRequest> getFrameworkRequests(LaunchClientType clientType, String userName) throws Exception {
+    return CommonUtils.executeWithLock(readLock, () -> {
+      List<FrameworkRequest> frameworkRequests = new ArrayList<>();
 
-    for (AggregatedFrameworkRequest aggFrameworkRequest : aggFrameworkRequests.values()) {
-      if (clientType == null ||
-          clientType == aggFrameworkRequest.getFrameworkRequest().getLaunchClientType()) {
-        frameworkNames.add(aggFrameworkRequest.getFrameworkRequest().getFrameworkName());
+      for (AggregatedFrameworkRequest aggFrameworkRequest : aggFrameworkRequests.values()) {
+        FrameworkRequest frameworkRequest = aggFrameworkRequest.getFrameworkRequest();
+
+        if (clientType != null &&
+            !clientType.equals(frameworkRequest.getLaunchClientType())) {
+          continue;
+        }
+        if (userName != null &&
+            !userName.equals(frameworkRequest.getFrameworkDescriptor().getUser().getName())) {
+          continue;
+        }
+
+        frameworkRequests.add(YamlUtils.deepCopy(frameworkRequest, FrameworkRequest.class));
       }
-    }
 
-    RequestedFrameworkNames requestedFrameworkNames = new RequestedFrameworkNames();
-    requestedFrameworkNames.setFrameworkNames(frameworkNames);
-    return requestedFrameworkNames;
+      return frameworkRequests;
+    });
   }
 
-  public synchronized AggregatedFrameworkRequest getAggregatedFrameworkRequest(String frameworkName) throws Exception {
-    return YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)), AggregatedFrameworkRequest.class);
+  public AggregatedFrameworkRequest getAggregatedFrameworkRequest(String frameworkName) throws Exception {
+    return CommonUtils.executeWithLock(readLock, () ->
+        YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)), AggregatedFrameworkRequest.class));
   }
 
-  public synchronized FrameworkRequest getFrameworkRequest(String frameworkName) throws Exception {
-    return YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class);
+  public FrameworkRequest getFrameworkRequest(String frameworkName) throws Exception {
+    return CommonUtils.executeWithLock(readLock, () ->
+        YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class));
   }
 
-  public synchronized ClusterConfiguration getClusterConfiguration() throws Exception {
-    return YamlUtils.deepCopy(launcherRequest, LauncherRequest.class).getClusterConfiguration();
+  public ClusterConfiguration getClusterConfiguration() throws Exception {
+    return CommonUtils.executeWithLock(readLock, () ->
+        YamlUtils.deepCopy(launcherRequest, LauncherRequest.class).getClusterConfiguration());
   }
 
   /**
    * REGION ModifyInterface
    */
   // Note to avoid update partially modified Request on ZK
-  public synchronized void setFrameworkRequest(
+  public void setFrameworkRequest(
       String frameworkName, FrameworkRequest frameworkRequest)
       throws Exception {
-    ParentFrameworkDescriptor parentFramework = frameworkRequest.getFrameworkDescriptor().getParentFramework();
-    if (parentFramework != null) {
-      String parentFrameworkName = parentFramework.getParentFrameworkName();
-      boolean deleteOnParentDeleted = parentFramework.isDeleteOnParentDeleted();
-      if (deleteOnParentDeleted && !aggFrameworkRequests.containsKey(parentFrameworkName) &&
-          !frameworkName.equals(parentFrameworkName)) {
-        // Reject future child Frameworks
-        throw new BadRequestException(String.format(
-            "[%s]: setFrameworkRequest Rejected: " +
-                "Since its DeleteOnParentDeleted enabled and its ParentFramework [%s] Deleted",
-            frameworkName, parentFrameworkName));
+    CommonUtils.executeWithLock(writeLock, () -> {
+      ParentFrameworkDescriptor parentFramework = frameworkRequest.getFrameworkDescriptor().getParentFramework();
+      if (parentFramework != null) {
+        String parentFrameworkName = parentFramework.getParentFrameworkName();
+        boolean deleteOnParentDeleted = parentFramework.isDeleteOnParentDeleted();
+        if (deleteOnParentDeleted && !aggFrameworkRequests.containsKey(parentFrameworkName) &&
+            !frameworkName.equals(parentFrameworkName)) {
+          // Reject future child Frameworks
+          throw new BadRequestException(String.format(
+              "[%s]: setFrameworkRequest Rejected: " +
+                  "Since its DeleteOnParentDeleted enabled and its ParentFramework [%s] Deleted",
+              frameworkName, parentFrameworkName));
+        }
       }
-    }
 
-    int frameworkTaskNumber = getFrameworkTaskNumber(frameworkRequest);
-    int newTotalTaskNumber = totalTaskNumber + frameworkTaskNumber;
-    if (aggFrameworkRequests.containsKey(frameworkName)) {
-      FrameworkRequest oldFrameworkRequest = aggFrameworkRequests.get(frameworkName).getFrameworkRequest();
-      newTotalTaskNumber -= getFrameworkTaskNumber(oldFrameworkRequest);
-    }
+      Long currentTimestamp = System.currentTimeMillis();
+      int frameworkTaskNumber = getFrameworkTaskNumber(frameworkRequest);
+      int newTotalTaskNumber = totalTaskNumber + frameworkTaskNumber;
+      if (aggFrameworkRequests.containsKey(frameworkName)) {
+        FrameworkRequest oldFrameworkRequest = aggFrameworkRequests.get(frameworkName).getFrameworkRequest();
+        newTotalTaskNumber -= getFrameworkTaskNumber(oldFrameworkRequest);
+        frameworkRequest.setFirstRequestTimestamp(oldFrameworkRequest.getFirstRequestTimestamp());
+      } else {
+        frameworkRequest.setFirstRequestTimestamp(currentTimestamp);
+      }
+      frameworkRequest.setLastRequestTimestamp(currentTimestamp);
 
-    if (newTotalTaskNumber > conf.getMaxTotalTaskNumber()) {
-      throw new ThrottledRequestException(String.format(
-          "[%s]: setFrameworkRequest Rejected: " +
-              "Since the New Total TaskNumber %s will exceed the Max Total TaskNumber %s",
-          frameworkName, newTotalTaskNumber, conf.getMaxTotalTaskNumber()));
-    } else {
-      zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
+      if (newTotalTaskNumber > conf.getMaxTotalTaskNumber()) {
+        throw new ThrottledRequestException(String.format(
+            "[%s]: setFrameworkRequest Rejected: " +
+                "Since the New Total TaskNumber %s will exceed the Max Total TaskNumber %s",
+            frameworkName, newTotalTaskNumber, conf.getMaxTotalTaskNumber()));
+      } else {
+        zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
 
-      LOGGER.logDebug("[%s]: setFrameworkRequest: " +
-              "New Total TaskNumber: %s, Old Total TaskNumber: %s, Framework TaskNumber: %s",
-          frameworkName, newTotalTaskNumber, totalTaskNumber, frameworkTaskNumber);
-      totalTaskNumber = newTotalTaskNumber;
-    }
+        LOGGER.logDebug("[%s]: setFrameworkRequest: " +
+                "New Total TaskNumber: %s, Old Total TaskNumber: %s, Framework TaskNumber: %s",
+            frameworkName, newTotalTaskNumber, totalTaskNumber, frameworkTaskNumber);
+        totalTaskNumber = newTotalTaskNumber;
+      }
 
-    if (!aggFrameworkRequests.containsKey(frameworkName)) {
-      aggFrameworkRequests.put(frameworkName, new AggregatedFrameworkRequest());
-    }
-    aggFrameworkRequests.get(frameworkName).setFrameworkRequest(frameworkRequest);
+      if (!aggFrameworkRequests.containsKey(frameworkName)) {
+        aggFrameworkRequests.put(frameworkName, new AggregatedFrameworkRequest());
+      }
+      aggFrameworkRequests.get(frameworkName).setFrameworkRequest(frameworkRequest);
+    });
   }
 
-  public synchronized void deleteFrameworkRequest(
+  public void deleteFrameworkRequest(
       String frameworkName)
       throws Exception {
-    // Should success even if frameworkName does not exist
-    if (deleteFrameworkRequestInternal(frameworkName)) {
-      // Delete existing child Frameworks
-      deleteOrphanFrameworks();
-    }
+    CommonUtils.executeWithLock(writeLock, () -> {
+      // Should success even if frameworkName does not exist
+      if (deleteFrameworkRequestInternal(frameworkName)) {
+        // Delete existing child Frameworks
+        deleteOrphanFrameworks();
+      }
+    });
   }
 
-  public synchronized void deleteMigrateTaskRequest(
+  public void deleteMigrateTaskRequest(
       String frameworkName, String containerId)
       throws Exception {
-    // Should success even if frameworkName and containerId does not exist
-    zkStore.deleteMigrateTaskRequest(frameworkName, containerId);
-    try {
-      aggFrameworkRequests.get(frameworkName).getMigrateTaskRequests().remove(containerId);
-    } catch (Exception ignored) {
-    }
+    CommonUtils.executeWithLock(writeLock, () -> {
+      // Should success even if frameworkName and containerId does not exist
+      zkStore.deleteMigrateTaskRequest(frameworkName, containerId);
+      try {
+        aggFrameworkRequests.get(frameworkName).getMigrateTaskRequests().remove(containerId);
+      } catch (Exception ignored) {
+      }
+    });
   }
 
-  public synchronized void updateTaskNumber(
+  public void updateTaskNumber(
       String frameworkName, String taskRoleName, UpdateTaskNumberRequest updateTaskNumberRequest)
       throws Exception {
-    FrameworkRequest frameworkRequest = YamlUtils.deepCopy(
-        checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class);
-    Map<String, TaskRoleDescriptor> taskRoles = frameworkRequest.getFrameworkDescriptor().getTaskRoles();
-    TaskRoleDescriptor taskRole = checkExist(taskRoles.get(taskRoleName));
-    taskRole.setTaskNumber(updateTaskNumberRequest.getTaskNumber());
-    setFrameworkRequest(frameworkName, frameworkRequest);
+    CommonUtils.executeWithLock(writeLock, () -> {
+      FrameworkRequest frameworkRequest = YamlUtils.deepCopy(
+          checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class);
+      Map<String, TaskRoleDescriptor> taskRoles = frameworkRequest.getFrameworkDescriptor().getTaskRoles();
+      TaskRoleDescriptor taskRole = checkExist(taskRoles.get(taskRoleName));
+      taskRole.setTaskNumber(updateTaskNumberRequest.getTaskNumber());
+      setFrameworkRequest(frameworkName, frameworkRequest);
+    });
   }
 
-  public synchronized void updateMigrateTask(
+  public void updateMigrateTask(
       String frameworkName, String containerId, MigrateTaskRequest migrateTaskRequest)
       throws Exception {
-    // Check whether frameworkName exists first
-    AggregatedFrameworkRequest aggFrameworkRequest = checkExist(aggFrameworkRequests.get(frameworkName));
-    zkStore.setMigrateTaskRequest(frameworkName, containerId, migrateTaskRequest);
-    if (aggFrameworkRequest.getMigrateTaskRequests() == null) {
-      aggFrameworkRequest.setMigrateTaskRequests(new HashMap<>());
-    }
-    aggFrameworkRequest.getMigrateTaskRequests().put(containerId, migrateTaskRequest);
+    CommonUtils.executeWithLock(writeLock, () -> {
+      // Check whether frameworkName exists first
+      AggregatedFrameworkRequest aggFrameworkRequest = checkExist(aggFrameworkRequests.get(frameworkName));
+      zkStore.setMigrateTaskRequest(frameworkName, containerId, migrateTaskRequest);
+      if (aggFrameworkRequest.getMigrateTaskRequests() == null) {
+        aggFrameworkRequest.setMigrateTaskRequests(new HashMap<>());
+      }
+      aggFrameworkRequest.getMigrateTaskRequests().put(containerId, migrateTaskRequest);
+    });
   }
 
-  public synchronized void updateApplicationProgress(
+  public void updateApplicationProgress(
       String frameworkName, OverrideApplicationProgressRequest overrideApplicationProgressRequest)
       throws Exception {
-    // Check whether frameworkName exists first
-    AggregatedFrameworkRequest aggFrameworkRequest = checkExist(aggFrameworkRequests.get(frameworkName));
-    zkStore.setOverrideApplicationProgressRequest(frameworkName, overrideApplicationProgressRequest);
-    aggFrameworkRequest.setOverrideApplicationProgressRequest(overrideApplicationProgressRequest);
+    CommonUtils.executeWithLock(writeLock, () -> {
+      // Check whether frameworkName exists first
+      AggregatedFrameworkRequest aggFrameworkRequest = checkExist(aggFrameworkRequests.get(frameworkName));
+      zkStore.setOverrideApplicationProgressRequest(frameworkName, overrideApplicationProgressRequest);
+      aggFrameworkRequest.setOverrideApplicationProgressRequest(overrideApplicationProgressRequest);
+    });
   }
 
-  public synchronized void updateDataDeploymentVersion(UpdateDataDeploymentVersionRequest updateDataDeploymentVersionRequest) throws Exception {
-    LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
-    if (updateDataDeploymentVersionRequest.getDataDeploymentVersionType() == DataDeploymentVersionType.LAUNCHING) {
-      newLauncherRequest.setLaunchingDataDeploymentVersion(updateDataDeploymentVersionRequest.getDataDeploymentVersion());
-    } else if (updateDataDeploymentVersionRequest.getDataDeploymentVersionType() == DataDeploymentVersionType.LAUNCHED) {
-      newLauncherRequest.setLaunchedDataDeploymentVersion(updateDataDeploymentVersionRequest.getDataDeploymentVersion());
-    }
-    zkStore.setLauncherRequest(newLauncherRequest);
-    launcherRequest = newLauncherRequest;
+  public void updateDataDeploymentVersion(UpdateDataDeploymentVersionRequest updateDataDeploymentVersionRequest) throws Exception {
+    CommonUtils.executeWithLock(writeLock, () -> {
+      LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
+      if (updateDataDeploymentVersionRequest.getDataDeploymentVersionType() == DataDeploymentVersionType.LAUNCHING) {
+        newLauncherRequest.setLaunchingDataDeploymentVersion(updateDataDeploymentVersionRequest.getDataDeploymentVersion());
+      } else if (updateDataDeploymentVersionRequest.getDataDeploymentVersionType() == DataDeploymentVersionType.LAUNCHED) {
+        newLauncherRequest.setLaunchedDataDeploymentVersion(updateDataDeploymentVersionRequest.getDataDeploymentVersion());
+      }
+      zkStore.setLauncherRequest(newLauncherRequest);
+      launcherRequest = newLauncherRequest;
+    });
   }
 
-  public synchronized void updateClusterConfiguration(ClusterConfiguration clusterConfiguration) throws Exception {
-    LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
-    newLauncherRequest.setClusterConfiguration(clusterConfiguration);
-    zkStore.setLauncherRequest(newLauncherRequest);
-    launcherRequest = newLauncherRequest;
+  public void updateClusterConfiguration(ClusterConfiguration clusterConfiguration) throws Exception {
+    CommonUtils.executeWithLock(writeLock, () -> {
+      LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
+      newLauncherRequest.setClusterConfiguration(clusterConfiguration);
+      zkStore.setLauncherRequest(newLauncherRequest);
+      launcherRequest = newLauncherRequest;
+    });
   }
 
   /**
    * REGION Callbacks
    */
-  public synchronized void onCompletedFrameworkStatusesUpdated(
+  public void onCompletedFrameworkStatusesUpdated(
       Map<String, FrameworkStatus> completedFrameworkStatuses)
       throws Exception {
     if (completedFrameworkStatuses.size() > 0) {
-      gcCompletedFrameworks(completedFrameworkStatuses);
+      CommonUtils.executeWithLock(writeLock, () ->
+          gcCompletedFrameworks(completedFrameworkStatuses));
     }
   }
 }

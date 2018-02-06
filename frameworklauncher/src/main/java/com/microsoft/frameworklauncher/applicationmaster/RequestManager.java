@@ -20,10 +20,10 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.microsoft.frameworklauncher.client.LauncherClient;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -227,7 +227,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
   }
 
-  private void checkUnsupportedOnTheFlyChanges(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
+  private void checkUnsupportedOnTheFlyChanges(FrameworkDescriptor newFrameworkDescriptor) {
     if (frameworkDescriptor == null) {
       return;
     }

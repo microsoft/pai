@@ -18,34 +18,16 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public class AggregatedFrameworkStatus implements Serializable {
-  private FrameworkStatus frameworkStatus;
-  // TaskRoleName -> AggregatedTaskRoleStatus
-  private Map<String, AggregatedTaskRoleStatus> aggregatedTaskRoleStatuses;
+public class SummarizedFrameworkInfos implements Serializable {
+  private List<SummarizedFrameworkInfo> summarizedFrameworkInfos;
 
-  public static AggregatedFrameworkStatus newInstance(FrameworkRequest frameworkRequest) {
-    AggregatedFrameworkStatus aggFrameworkStatus = new AggregatedFrameworkStatus();
-    aggFrameworkStatus.setFrameworkStatus(FrameworkStatus.newInstance(frameworkRequest));
-    aggFrameworkStatus.setAggregatedTaskRoleStatuses(new HashMap<>());
-    return aggFrameworkStatus;
+  public List<SummarizedFrameworkInfo> getSummarizedFrameworkInfos() {
+    return summarizedFrameworkInfos;
   }
 
-  public FrameworkStatus getFrameworkStatus() {
-    return frameworkStatus;
-  }
-
-  public void setFrameworkStatus(FrameworkStatus frameworkStatus) {
-    this.frameworkStatus = frameworkStatus;
-  }
-
-  public Map<String, AggregatedTaskRoleStatus> getAggregatedTaskRoleStatuses() {
-    return aggregatedTaskRoleStatuses;
-  }
-
-  public void setAggregatedTaskRoleStatuses(Map<String, AggregatedTaskRoleStatus> aggregatedTaskRoleStatuses) {
-    this.aggregatedTaskRoleStatuses = aggregatedTaskRoleStatuses;
+  public void setSummarizedFrameworkInfos(List<SummarizedFrameworkInfo> summarizedFrameworkInfos) {
+    this.summarizedFrameworkInfos = summarizedFrameworkInfos;
   }
 }

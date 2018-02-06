@@ -1,0 +1,122 @@
+!!com.microsoft.frameworklauncher.common.model.FrameworkInfo
+aggregatedFrameworkRequest:
+  frameworkRequest:
+    firstRequestTimestamp: 0
+    frameworkDescriptor:
+      description: testString
+      parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString}
+      platformSpecificParameters:
+        agentExpiryIntervalSec: 0
+        agentHeartbeatIntervalSec: 0
+        agentUseHealthCheck: false
+        agentUseHeartbeat: false
+        amNodeLabel: testString
+        amResource:
+          cpuNumber: 0
+          diskMB: 0
+          diskType: HDD
+          gpuAttribute: 0
+          gpuNumber: 0
+          memoryMB: 0
+          portRanges:
+          - {begin: 0, end: 0}
+        amType: DEFAULT
+        antiaffinityAllocation: false
+        containerConnectionMaxExceedCount: 0
+        containerConnectionMaxLostCount: 0
+        generateContainerIpList: false
+        killAllOnAnyCompleted: false
+        killAllOnAnyServiceCompleted: false
+        queue: testString
+        taskNodeGpuType: testString
+        taskNodeLabel: testString
+        taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,
+          gracePeriodSeconds: 0, healthCheckFailureType: TRANSIENT_ERROR, healthCheckType: COMMAND,
+          intervalSeconds: 0, timeoutSeconds: 0, webUrl: testString}
+      retryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
+      taskRoles:
+        testString:
+          platformSpecificParameters: {taskNodeGpuType: testString, taskNodeLabel: testString}
+          scaleUnitNumber: 0
+          scaleUnitTimeoutSec: 0
+          taskNumber: 0
+          taskRetryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
+          taskService:
+            entryPoint: testString
+            resource:
+              cpuNumber: 0
+              diskMB: 0
+              diskType: HDD
+              gpuAttribute: 0
+              gpuNumber: 0
+              memoryMB: 0
+              portRanges:
+              - {begin: 0, end: 0}
+            sourceLocations: [testString]
+            version: 0
+      user: {name: testString}
+      version: 0
+    frameworkName: testString
+    lastRequestTimestamp: 0
+    launchClientHostName: testString
+    launchClientType: UNKNOWN
+    launchClientUserName: testString
+  migrateTaskRequests:
+    testString: {antiAffinityLevel: ANY}
+  overrideApplicationProgressRequest: {applicationProgress: null}
+aggregatedFrameworkStatus:
+  aggregatedTaskRoleStatuses:
+    testString:
+      taskRoleStatus:
+        frameworkVersion: 0
+        taskRoleName: testString
+        taskRoleRolloutStatus:
+          currentRolloutEndTimestamp: 0
+          currentRolloutScaleUnit: 0
+          currentRolloutStartTimestamp: 0
+          currentRolloutStatus: UNKNOWN
+          currentRolloutTaskIndexes: [0]
+          overallRolloutEndTimestamp: 0
+          overallRolloutServiceVersion: 0
+          overallRolloutStartTimestamp: 0
+          overallRolloutStatus: UNKNOWN
+      taskStatuses:
+        frameworkVersion: 0
+        taskRoleName: testString
+        taskStatusArray:
+        - containerCompletedTimestamp: 0
+          containerConnectionLostCount: 0
+          containerExitCode: 0
+          containerExitDiagnostics: testString
+          containerExitType: null
+          containerGpus: 0
+          containerHost: testString
+          containerId: testString
+          containerIp: testString
+          containerIsDecommissioning: false
+          containerLaunchedTimestamp: 0
+          containerLogHttpAddress: testString
+          taskCompletedTimestamp: 0
+          taskCreatedTimestamp: 0
+          taskIndex: 0
+          taskRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+            transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+          taskRoleName: testString
+          taskServiceStatus: {serviceVersion: 0}
+          taskState: TASK_WAITING
+  frameworkStatus:
+    applicationCompletedTimestamp: 0
+    applicationExitCode: 0
+    applicationExitDiagnostics: testString
+    applicationExitType: null
+    applicationId: testString
+    applicationLaunchedTimestamp: 0
+    applicationProgress: 0.0
+    applicationTrackingUrl: testString
+    frameworkCompletedTimestamp: 0
+    frameworkCreatedTimestamp: 0
+    frameworkName: testString
+    frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+      transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+    frameworkState: null
+    frameworkVersion: 0
