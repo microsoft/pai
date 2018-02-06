@@ -236,10 +236,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   /**
    * REGION ReadInterface
+   * For some data which will not be partially updated, such as launcherRequest and frameworkRequest,
+   * we can just return a reference instead of a cloned snapshot in case of later changes.
    */
   public LauncherRequest getLauncherRequest() throws Exception {
-    return CommonUtils.executeWithLock(readLock, () ->
-        YamlUtils.deepCopy(launcherRequest, LauncherRequest.class));
+    return CommonUtils.executeWithLock(readLock, () -> launcherRequest);
   }
 
   public List<FrameworkRequest> getFrameworkRequests(LaunchClientType clientType, String userName) throws Exception {
@@ -258,7 +259,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           continue;
         }
 
-        frameworkRequests.add(YamlUtils.deepCopy(frameworkRequest, FrameworkRequest.class));
+        frameworkRequests.add(frameworkRequest);
       }
 
       return frameworkRequests;
@@ -272,12 +273,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   public FrameworkRequest getFrameworkRequest(String frameworkName) throws Exception {
     return CommonUtils.executeWithLock(readLock, () ->
-        YamlUtils.deepCopy(checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class));
+        checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest());
   }
 
   public ClusterConfiguration getClusterConfiguration() throws Exception {
-    return CommonUtils.executeWithLock(readLock, () ->
-        YamlUtils.deepCopy(launcherRequest, LauncherRequest.class).getClusterConfiguration());
+    return CommonUtils.executeWithLock(readLock, () -> launcherRequest.getClusterConfiguration());
   }
 
   /**
