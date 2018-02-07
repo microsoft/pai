@@ -36,3 +36,12 @@ rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
   result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X PUT -d @- $rest_server_uri/api/v1/jobs/$job_name)"
   [[ ! $result == *Error* ]]
 }
+
+@test "clean up jobs" {
+  account="$(cat ./etc/account.config)"
+  account=(${account//:/ })
+  token="$(cat ./etc/token.config)"
+  job_list="$(curl -H "Content-Type: application/json" -X GET $rest_server_uri/api/v1/jobs | jq -r --arg username ${account[0]} --argjson timestamp $(( $(date +%s) * 1000 - 24 * 60 * 60 * 1000 )) '.[] | select((.username | match($username)) and (.state | match("SUCCEEDED")) and (.createdTime < $timestamp)) | .name')"
+  result="$(for job in $job_list; do curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X DELETE $rest_server_uri/api/v1/jobs/$job; done)"
+  [[ ! $result == *Error* ]]
+}
