@@ -47,34 +47,20 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          const jobList = [];
-          async.each(resJson.frameworkNames, (frameworkName, callback) => {
-            this.getJobStatus(frameworkName, (jobStatus) => {
-              const jobOverview = {
-                name: frameworkName,
-                username: jobStatus.username,
-                state: jobStatus.state,
-                subState: jobStatus.subState,
-                retries: jobStatus.retries,
-                createdTime: jobStatus.createdTime,
-                completedTime: jobStatus.completedTime,
-                appTrackingUrl: jobStatus.appTrackingUrl,
-                appExitType: jobStatus.appExitType
-              };
-              jobList.push(jobOverview);
-              callback();
-            });
-          }, (err) => {
-            jobList.sort((a, b) => b.createdTime - a.createdTime);
-            next(jobList, err);
+          const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+            return {
+              name: frameworkInfo.frameworkName,
+              username: frameworkInfo.userName,
+              state: frameworkInfo.frameworkState,
+              retries: frameworkInfo.frameworkRetryPolicyState.retriedCount,
+              createdTime: frameworkInfo.firstRequestTimestamp,
+              completedTime: frameworkInfo.frameworkCompletedTimestamp,
+              appExitCode: frameworkInfo.applicationExitCode
+            };
           });
+          jobList.sort((a, b) => b.createdTime - a.createdTime);
+          next(jobList, err);
         });
-  }
-
-  getJobStatus(name, next) {
-    this.getJob(name, (job, err) => {
-      next(job.jobStatus, err);
-    });
   }
 
   getJob(name, next) {
