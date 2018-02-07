@@ -36,7 +36,7 @@ REST Server exposes a set of interface that allows you to manage jobs.
     ```
     For example, with [curl](https://curl.haxx.se/), you can execute below command line:
     ```sh
-    curl -H "Content-Type: application/json" \
+    curl -H "Content-Type: application/x-www-form-urlencoded" \
          -X POST http://restserver/api/v1/token \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
