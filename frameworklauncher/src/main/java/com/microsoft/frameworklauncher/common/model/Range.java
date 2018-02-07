@@ -17,12 +17,14 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
+import org.apache.hadoop.yarn.util.Records;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // Represent Integer values in Closed Range [begin, end]
-public class Range implements Serializable {
+public class Range implements Serializable,  Comparable<Range>{
   @Valid
   @NotNull
   private Integer begin;
@@ -47,6 +49,49 @@ public class Range implements Serializable {
     this.end = end;
   }
 
+  public int compareTo(Range other) {
+    if (other == null) {
+      return -1;
+    }
+    if (getBegin() == other.getBegin() && getEnd() == other.getEnd()) {
+      return 0;
+    } else if (getBegin() - other.getBegin() < 0) {
+      return -1;
+    } else if (getBegin() - other.getBegin() == 0
+        && getEnd() - other.getEnd() < 0) {
+      return -1;
+    } else {
+      return 1;
+    }
+  }
+
+  public static Range newInstance(int begin, int end) {
+    Range valueRange = new Range();
+    valueRange.setBegin(begin);
+    valueRange.setEnd(end);
+    return valueRange;
+  }
+
+  public Range clone() {
+    return Range.newInstance(getBegin(), getEnd());
+  }
+
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (!(obj instanceof Range))
+      return false;
+    Range other = (Range) obj;
+    if (getBegin() == other.getBegin() && getEnd() == other.getEnd()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   @Override
   public String toString() {

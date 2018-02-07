@@ -35,6 +35,7 @@ import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
@@ -335,6 +336,8 @@ public class ApplicationMaster extends AbstractService {
     String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
     ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
+    Integer taskNubmer = requestManager.getTaskRoles().get(taskRoleName).getTaskNumber();
+    List<Range> preSelectedPorts = statusManager.getTaskRolePortRanges(taskRoleName);
 
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
       LOGGER.logWarning(
@@ -344,18 +347,31 @@ public class ApplicationMaster extends AbstractService {
           requestResource, maxResource);
     }
 
-    if (requestResource.getGpuNumber() > 0) {
-      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+    ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
 
-      SelectionResult selectionResult = selectionManager.select(requestResource, requestNodeLabel, requestNodeGpuType);
-      if (selectionResult != null) {
-        ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-        optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute());
-        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHost());
+    SelectionResult selectionResult = null;
+    int newRequestNumber = optimizedRequestResource.getPortNumber() - PortRangeUtils.getPortsNumber(optimizedRequestResource.getPortRanges());
+    if(newRequestNumber > 0) {
+      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, taskNubmer + 2);
+      if(selectionResult.getSelectedNodeHosts().size() >= taskNubmer) {
+        List<Range> candidatePorts = PortRangeUtils.subtractRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortRanges());
+        List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber);
+        optimizedRequestResource.setPortRanges(PortRangeUtils.addRange(newCandidatePorts, optimizedRequestResource.getPortRanges()));
       }
     }
+    if (requestResource.getGpuNumber() > 0 && selectionResult == null) {
+      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, 1);
+    }
 
-    return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
+    if (selectionResult != null && selectionResult.getSelectedNodeHosts() != null && selectionResult.getSelectedNodeHosts().size() > 0) {
+      String firstSelectedHost = selectionResult.getSelectedNodeHosts().get(0);
+      optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(firstSelectedHost));
+      return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, firstSelectedHost);
+    }
+
+    return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
   }
 
   private String generateContainerDiagnostics(TaskStatus taskStatus) {

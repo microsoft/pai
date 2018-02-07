@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -281,6 +282,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
     }
+    ret.setPortRanges(PortRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
 
@@ -295,6 +297,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
     }
+    ret.setPortRanges(PortRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
 
@@ -302,6 +305,7 @@ public class ResourceDescriptor implements Serializable {
     return smaller.getMemoryMB() <= bigger.getMemoryMB()
         && smaller.getCpuNumber() <= bigger.getCpuNumber()
         && smaller.getGpuNumber() <= bigger.getGpuNumber()
-        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute());
+        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute())
+        && PortRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
   }
 }

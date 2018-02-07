@@ -26,6 +26,7 @@ import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
@@ -119,6 +120,11 @@ public class SelectionManager { // THREAD SAFE
   public synchronized SelectionResult select(
       ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType)
       throws NotAvailableException {
+      return select(requestResource,requestNodeLabel, requestNodeGpuType, 1);
+  }
+  public synchronized SelectionResult select(
+      ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType, int requestNodeNumber)
+      throws NotAvailableException {
     LOGGER.logInfo(
         "select: Given Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s]",
         requestResource, requestNodeLabel, requestNodeGpuType);
@@ -128,7 +134,8 @@ public class SelectionManager { // THREAD SAFE
     Map<String, NodeConfiguration> configuredNodes = clusterConfiguration.getNodes();
 
     // Start to select from candidateNodes
-    SelectionResult selectionResult = null;
+    SelectionResult selectionResult = new SelectionResult();
+    int selectedNodeNumber = 0;
     for (Node node : candidateNodes.values()) {
       String nodeHost = node.getHost();
       String logPrefix = String.format("select: [%s]: Test Node: ", nodeHost);
@@ -181,7 +188,7 @@ public class SelectionManager { // THREAD SAFE
 
       // Test Optimized Resource
       ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-      if (requestResource.getGpuAttribute() == 0) {
+      if (requestResource.getGpuAttribute() == 0 && requestResource.getGpuNumber() > 0) {
         // If GpuAttribute is not explicitly specified, we select an optimal GpuAttribute according to 
         // the current status of the node instead of let RM to select a random GpuAttribute.
         optimizedRequestResource.setGpuAttribute(selectCandidateGpuAttribute(node, requestResource.getGpuNumber()));
@@ -192,15 +199,14 @@ public class SelectionManager { // THREAD SAFE
           continue;
         }
       }
-
-      // Found a selectionResult passed all the Tests above
-      selectionResult = new SelectionResult();
-      selectionResult.setNodeHost(nodeHost);
-      selectionResult.setGpuAttribute(optimizedRequestResource.getGpuAttribute());
-      break;
+      selectionResult.addSelection(nodeHost, optimizedRequestResource.getGpuAttribute(), availableResource.getPortRanges());
+      selectedNodeNumber ++;
+      if(selectedNodeNumber >= requestNodeNumber) {
+        break;
+      }
     }
 
-    if (selectionResult != null) {
+    if (selectionResult.getSelectedNodeHosts().size() > 0) {
       LOGGER.logInfo(
           "select: Found a SelectionResult satisfies the Request: SelectionResult: [%s]",
           selectionResult);
@@ -221,9 +227,9 @@ public class SelectionManager { // THREAD SAFE
       LOGGER.logWarning(
           "select: The Request will be relaxed to RM");
     }
-    
     return selectionResult;
   }
+
 
   @VisibleForTesting
   public synchronized Long selectCandidateGpuAttribute(Node node, Integer requestGpuNumber) {

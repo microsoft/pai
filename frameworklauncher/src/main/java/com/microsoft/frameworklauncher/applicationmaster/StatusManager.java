@@ -493,6 +493,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+
+  public synchronized List<Range> getTaskRolePortRanges(String taskRoleName) {
+    return taskRoleStatuses.get(taskRoleName).getPortRanges();
+  }
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatus(TaskStatusLocator locator) {
     assertTaskStatusLocator(locator);
@@ -503,7 +507,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet) {
     return getTaskStatus(taskStateSet, true);
   }
-
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, Boolean contains) {
     HashSet<TaskState> acceptableTaskStateSet = new HashSet<>();
@@ -646,6 +649,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    * REGION ModifyInterface
    * Note to avoid update partially modified Status on ZK
    */
+
+  public synchronized void setTaskRolePortRanges(String taskRoleName, List<Range> ranges) {
+    taskRoleStatuses.get(taskRoleName).setPortRanges(ranges);
+  }
+
   // transitionTaskState is the only interface to modify TaskState for both internal and external
   public synchronized void transitionTaskState(
       TaskStatusLocator locator,
