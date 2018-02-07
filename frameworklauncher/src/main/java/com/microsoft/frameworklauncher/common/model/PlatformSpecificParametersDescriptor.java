@@ -38,7 +38,7 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   private String taskNodeLabel;
 
   @Valid
-  @Pattern(regexp = "^[^\\s]+$")
+  @Pattern(regexp = "^[^\\s]{1,256}$")
   private String taskNodeGpuType;
 
   @Valid

@@ -44,7 +44,7 @@ public class CommonExts {
   }
 
   public static <K, V> String toString(Map<K, V> kvMap) {
-    StringBuilder str = new StringBuilder("");
+    StringBuilder str = new StringBuilder();
     if (kvMap != null) {
       for (Map.Entry<K, V> e : kvMap.entrySet()) {
         if (str.length() != 0) {
@@ -57,7 +57,7 @@ public class CommonExts {
   }
 
   public static <T> String toString(Collection<T> collection) {
-    StringBuilder str = new StringBuilder("");
+    StringBuilder str = new StringBuilder();
     if (collection != null) {
       for (T e : collection) {
         if (str.length() != 0) {
