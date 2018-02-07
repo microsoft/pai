@@ -359,7 +359,7 @@ public class ApplicationMaster extends AbstractService {
         List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber);
         optimizedRequestResource.setPortRanges(PortRangeUtils.addRange(newCandidatePorts, optimizedRequestResource.getPortRanges()));
       }
-      LOGGER.logDebug("[%s]: First task allocation: optimizedRequestResource: [%s]", optimizedRequestResource);
+      LOGGER.logDebug("First task allocation: optimizedRequestResource: [%s]", optimizedRequestResource);
     }
     if (requestResource.getGpuNumber() > 0 && selectionResult == null) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
