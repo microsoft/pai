@@ -47,7 +47,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    */
   // Service only need to retrieve AllFrameworkRequests
   // FrameworkName -> FrameworkRequest
-  private Map<String, FrameworkRequest> frameworkRequests = null;
+  private volatile Map<String, FrameworkRequest> frameworkRequests = null;
 
 
   /**

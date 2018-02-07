@@ -52,30 +52,30 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    * REGION BaseRequest
    */
   // AM only need to retrieve LauncherRequest and AggregatedFrameworkRequest
-  private LauncherRequest launcherRequest = null;
-  private FrameworkDescriptor frameworkDescriptor = null;
-  private OverrideApplicationProgressRequest overrideApplicationProgressRequest = null;
+  private volatile LauncherRequest launcherRequest = null;
+  private volatile FrameworkDescriptor frameworkDescriptor = null;
+  private volatile OverrideApplicationProgressRequest overrideApplicationProgressRequest = null;
   // ContainerId -> MigrateTaskRequest
-  private Map<String, MigrateTaskRequest> migrateTaskRequests = null;
+  private volatile Map<String, MigrateTaskRequest> migrateTaskRequests = null;
 
 
   /**
    * REGION ExtensionRequest
    * ExtensionRequest should be always CONSISTENT with BaseRequest
    */
-  private ClusterConfiguration clusterConfiguration;
-  private UserDescriptor user;
-  private PlatformSpecificParametersDescriptor platParams;
+  private volatile ClusterConfiguration clusterConfiguration;
+  private volatile UserDescriptor user;
+  private volatile PlatformSpecificParametersDescriptor platParams;
   // TaskRoleName -> TaskRoleDescriptor
-  private Map<String, TaskRoleDescriptor> taskRoles;
+  private volatile Map<String, TaskRoleDescriptor> taskRoles;
   // TaskRoleName -> RetryPolicyDescriptor
-  private Map<String, RetryPolicyDescriptor> taskRetryPolicies;
+  private volatile Map<String, RetryPolicyDescriptor> taskRetryPolicies;
   // TaskRoleName -> ServiceDescriptor
-  private Map<String, ServiceDescriptor> taskServices;
+  private volatile Map<String, ServiceDescriptor> taskServices;
   // TaskRoleName -> ResourceDescriptor
-  private Map<String, ResourceDescriptor> taskResources;
+  private volatile Map<String, ResourceDescriptor> taskResources;
   // TaskRoleName -> TaskRolePlatformSpecificParametersDescriptor
-  private Map<String, TaskRolePlatformSpecificParametersDescriptor> taskPlatParams;
+  private volatile Map<String, TaskRolePlatformSpecificParametersDescriptor> taskPlatParams;
 
   /**
    * REGION StateVariable

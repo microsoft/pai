@@ -39,9 +39,9 @@ public class StatusManager extends AbstractService { // THREAD SAFE
    * REGION BaseStatus
    */
   // WebServer only need to retrieve AggregatedLauncherStatus
-  private LauncherStatus launcherStatus;
+  private volatile LauncherStatus launcherStatus;
   // FrameworkName -> AggregatedFrameworkStatus
-  private Map<String, AggregatedFrameworkStatus> aggFrameworkStatuses;
+  private volatile Map<String, AggregatedFrameworkStatus> aggFrameworkStatuses;
 
 
   /**
