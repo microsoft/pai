@@ -37,7 +37,13 @@ $(document).ready(() => {
     const newPasswordConfirm = $('#form-change-password :input[name=new-password-confirm]').val();
     const username = cookies.get('user');
     const admin = cookies.get('admin');
-    if (newPassword === newPasswordConfirm) {
+    if (newPassword !== newPasswordConfirm) {
+      $('#form-change-password').trigger('reset');
+      alert('Please enter the same new password!');
+    } else if (newPassword === oldPassword) {
+      $('#form-change-password').trigger('reset');
+      alert('Please enter a password different from the old one!');
+    } else {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/token`,
         type: 'POST',
@@ -88,9 +94,6 @@ $(document).ready(() => {
           alert('Wrong old password!\n' + res.message);
         }
       });
-    } else {
-      $('#form-change-password').trigger('reset');
-      alert('Please enter the same new password!');
     }
   });
 });
