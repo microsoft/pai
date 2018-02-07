@@ -21,6 +21,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
+import com.microsoft.frameworklauncher.common.model.Range;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -249,6 +250,50 @@ public class SelectionManagerTest {
     result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0xF0L), null, "K40");
     Assert.assertEquals("node7", result.getSelectedNodeHosts().get(0));
     Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF0);
+  }
+
+  @Test
+  public void testSelectionManagerWithPorts() throws Exception {
+    List<Range> ports = new ArrayList<Range>();
+    ports.add(Range.newInstance(5, 10));
+
+    List<Range> ports1 = new ArrayList<Range>();
+    ports1.add(Range.newInstance(3, 5));
+    ports1.add(Range.newInstance(7, 10));
+
+    List<Range> ports2 = new ArrayList<Range>();
+    ports2.add(Range.newInstance(3, 5));
+
+    List<Range> ports3 = new ArrayList<Range>();
+    ports3.add(Range.newInstance(10, 10));
+
+    List<Range> ports4 = new ArrayList<Range>();
+    ports4.add(Range.newInstance(5, 6));
+
+    Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(2, 2, 2, 3L, 6, ports), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(2, 2, 4, 0xFL,7, ports1), ResourceDescriptor.newInstance(0, 0, 0, 0L, 3, ports2));
+
+    AMForTest am = new AMForTest();
+    am.setClusterConfiguration(new ClusterConfiguration());
+    SelectionManager sm = new SelectionManager(am);
+    sm.addCandidateNode(node1);
+    sm.addCandidateNode(node2);
+
+    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, null), null, null, 2);
+    Assert.assertEquals(2, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(7, result.getOverlapPorts().get(0).getBegin().intValue());
+    Assert.assertEquals(10, result.getOverlapPorts().get(0).getEnd().intValue());
+
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 2);
+    Assert.assertEquals(2, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(7, result.getOverlapPorts().get(0).getBegin().intValue());
+    Assert.assertEquals(10, result.getOverlapPorts().get(0).getEnd().intValue());
+
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports4), null, null, 2);
+    Assert.assertEquals(1, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(5, result.getOverlapPorts().get(0).getBegin().intValue());
+    Assert.assertEquals(10, result.getOverlapPorts().get(0).getEnd().intValue());
+
   }
 
   private class AMForTest extends MockApplicationMaster {

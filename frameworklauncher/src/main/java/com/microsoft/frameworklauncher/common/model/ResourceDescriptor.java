@@ -282,6 +282,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
     }
+    ret.setPortNumber(lhs.getPortNumber() - rhs.getPortNumber());
     ret.setPortRanges(PortRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
@@ -297,6 +298,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
     }
+    ret.setPortNumber(lhs.getPortNumber() + rhs.getPortNumber());
     ret.setPortRanges(PortRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
@@ -306,6 +308,7 @@ public class ResourceDescriptor implements Serializable {
         && smaller.getCpuNumber() <= bigger.getCpuNumber()
         && smaller.getGpuNumber() <= bigger.getGpuNumber()
         && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute())
+        && smaller.getPortNumber() <= bigger.getPortNumber()
         && PortRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
   }
 }

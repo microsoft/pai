@@ -32,6 +32,11 @@ public class SelectionResult {
   private List<Range> overlapPorts = new ArrayList<>();
 
   public void addSelection(String hostName, Long gpuAttribute, List<Range> portList) {
+    if(selectedNodes.isEmpty()) {
+      selectedNodes.put(hostName, gpuAttribute);
+      overlapPorts = PortRangeUtils.coalesceRangeList(portList);
+      return;
+    }
     if(selectedNodes.containsKey(hostName)) {
       selectedNodes.remove(hostName);
     }
