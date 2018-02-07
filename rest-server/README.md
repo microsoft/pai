@@ -51,7 +51,7 @@ REST Server exposes a set of interface that allows you to manage jobs.
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X PUT http://restserver/api/job/exampleJob \
+         -X PUT http://restserver/api/v1/jobs/exampleJob \
          -d @exampleJob.json
     ```
 
