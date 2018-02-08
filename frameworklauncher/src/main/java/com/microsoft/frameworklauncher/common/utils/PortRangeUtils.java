@@ -32,13 +32,13 @@ public class PortRangeUtils {
   }
 
   public static int getPortsNumber(List<Range> rangeList) {
-    if(rangeList == null || rangeList.size() == 0) {
+    if (rangeList == null || rangeList.size() == 0) {
       return 0;
     }
 
     List<Range> newRangeList = coalesceRangeList(rangeList);
     int portCount = 0;
-    for(Range range : newRangeList) {
+    for (Range range : newRangeList) {
       portCount += (range.getEnd() - range.getBegin() + 1);
     }
     return portCount;
@@ -87,7 +87,7 @@ public class PortRangeUtils {
 
   public static List<Range> intersectRangeList(List<Range> leftRange, List<Range> rightRange) {
 
-    if(leftRange == null || leftRange == null) {
+    if (leftRange == null || leftRange == null) {
       return null;
     }
 
@@ -109,7 +109,7 @@ public class PortRangeUtils {
         // 3. has overlap, get the overlap
       } else {
         result.add(Range.newInstance(Math.max(left.getBegin(), right.getBegin()), Math.min(left.getEnd(), right.getEnd())));
-        if(left.getEnd() < right.getEnd()) {
+        if (left.getEnd() < right.getEnd()) {
           i++;
         } else {
           j++;
@@ -121,7 +121,7 @@ public class PortRangeUtils {
 
   public static List<Range> subtractRange(List<Range> leftRange, List<Range> rightRange) {
 
-    if(leftRange == null || rightRange == null) {
+    if (leftRange == null || rightRange == null) {
       return leftRange;
     }
 
@@ -141,13 +141,13 @@ public class PortRangeUtils {
         j++;
         // 3. has overlap, left is less than right
       } else {
-        if(left.getBegin() < right.getBegin()) {
+        if (left.getBegin() < right.getBegin()) {
           //3.1 Left start early than right, cut at the right begin;
-          if(left.getEnd() <= right.getEnd()) {
+          if (left.getEnd() <= right.getEnd()) {
             //3.1.1 Left end early than right, do nothing try next left;
             left.setEnd(right.getBegin() - 1);
             i++;
-          }else {
+          } else {
             //3.1.2 Left end later than right, create a new range in left;
             Range newRange = Range.newInstance(right.getEnd() + 1, left.getEnd());
             result.add(i + 1, newRange);
@@ -155,7 +155,7 @@ public class PortRangeUtils {
           }
         } else {
           // 3.2 left start later than right
-          if(left.getEnd() <= right.getEnd()) {
+          if (left.getEnd() <= right.getEnd()) {
             //3.2.1 left end early than right, just remove left
             result.remove(i);
           } else {
@@ -171,7 +171,7 @@ public class PortRangeUtils {
 
   public static List<Range> addRange(List<Range> leftRange, List<Range> rightRange) {
 
-    if(leftRange == null || rightRange == null)
+    if (leftRange == null || rightRange == null)
       return leftRange;
 
     List<Range> result = coalesceRangeList(leftRange);
@@ -180,11 +180,11 @@ public class PortRangeUtils {
   }
 
   public static boolean fitInRange(List<Range> smallRange, List<Range> bigRange) {
-    if(smallRange == null) {
+    if (smallRange == null) {
       return true;
     }
 
-    if(bigRange == null) {
+    if (bigRange == null) {
       return false;
     }
 
@@ -200,40 +200,43 @@ public class PortRangeUtils {
         return false;
       }
 
-      if(small.getBegin() <= big.getEnd()) {
-        if(small.getEnd() > big.getEnd()) {
+      if (small.getBegin() <= big.getEnd()) {
+        if (small.getEnd() > big.getEnd()) {
           return false;
-        }
-        else {
-          big.setBegin(small.getEnd() +1);
+        } else {
+          big.setBegin(small.getEnd() + 1);
           j++;
         }
-      }else {
-        i ++;
+      } else {
+        i++;
       }
     }
-    if(j >= smallRangeList.size()) {
+    if (j >= smallRangeList.size()) {
       return true;
     }
     return false;
   }
 
-  public static List<Range> getCandidatePorts(List<Range> availablePorts, int portsCount) {
+  public static List<Range> getCandidatePorts(List<Range> availablePorts, int portsCount, int basePort) {
 
     List<Range> resultList = new ArrayList<Range>();
     int needAllocatePort = portsCount;
-    for(int i  = 0; i < availablePorts.size(); i++) {
+    for (int i = 0; i < availablePorts.size(); i++) {
       Range range = availablePorts.get(i);
-      if( (range.getEnd() - range.getBegin()+1) >= needAllocatePort) {
-        resultList.add(Range.newInstance(range.getBegin(), range.getBegin() + needAllocatePort -1));
+      if(range.getBegin() < basePort) {
+        continue;
+      }
+      if ((range.getEnd() - range.getBegin() + 1) >= needAllocatePort) {
+        resultList.add(Range.newInstance(range.getBegin(), range.getBegin() + needAllocatePort - 1));
         return resultList;
       } else {
         resultList.add(Range.newInstance(range.getBegin(), range.getEnd()));
-        needAllocatePort -= (range.getEnd() - range.getBegin() +1);
+        needAllocatePort -= (range.getEnd() - range.getBegin() + 1);
       }
     }
     return null;
   }
+
   public synchronized static List<Range> cloneList(List<Range> list) {
     List<Range> newList = new ArrayList<Range>();
     for (Range range : list) {

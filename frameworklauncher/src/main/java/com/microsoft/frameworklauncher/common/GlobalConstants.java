@@ -49,6 +49,7 @@ public class GlobalConstants {
   public static final String ENV_VAR_CONTAINER_ID = "CONTAINER_ID";
   public static final String ENV_VAR_CONTAINER_IP = "CONTAINER_IP";
   public static final String ENV_VAR_CONTAINER_GPUS = "CONTAINER_GPUS";
+  public static final String ENV_VAR_CONTAINER_BASE_PORT = "CONTAINER_BASE_PORT";
   public static final String ENV_VAR_AGENT_HEARTBEAT_INTERVAL_SEC = "AGENT_HEARTBEAT_INTERVAL_SEC";
   public static final String ENV_VAR_AGENT_EXPIRY_INTERVAL_SEC = "AGENT_EXPIRY_INTERVAL_SEC";
   public static final String ENV_VAR_AM_HOST_NAME = "AM_HOST_NAME";

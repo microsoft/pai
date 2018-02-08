@@ -94,17 +94,22 @@ public class PortRangeUtilsTest {
     testRangeList6.add(Range.newInstance(9,9));
     Assert.assertTrue(!PortRangeUtils.fitInRange(testRangeList6, testRangeList3));
 
-    result = PortRangeUtils.getCandidatePorts(testRangeList3, 1);
+    result = PortRangeUtils.getCandidatePorts(testRangeList3, 1, 0);
     Assert.assertEquals(1, result.size());
     Assert.assertTrue(result.get(0).getBegin().longValue() == result.get(0).getEnd().longValue());
 
 
-    result = PortRangeUtils.getCandidatePorts(testRangeList3, 3);
+    result = PortRangeUtils.getCandidatePorts(testRangeList3, 3, 0);
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(2, result.get(0).getBegin().intValue());
     Assert.assertEquals(3, result.get(0).getEnd().intValue());
     Assert.assertEquals(7, result.get(1).getBegin().intValue());
     Assert.assertEquals(7, result.get(1).getEnd().intValue());
+
+    result = PortRangeUtils.getCandidatePorts(testRangeList3, 3, 10);
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(10, result.get(0).getBegin().intValue());
+    Assert.assertEquals(12, result.get(0).getEnd().intValue());
 
   }
 

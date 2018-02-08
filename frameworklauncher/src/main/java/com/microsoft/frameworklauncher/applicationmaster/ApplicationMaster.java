@@ -356,7 +356,8 @@ public class ApplicationMaster extends AbstractService {
       selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, taskNubmer + 2);
       if(selectionResult.getSelectedNodeHosts().size() >= taskNubmer) {
         List<Range> candidatePorts = PortRangeUtils.subtractRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortRanges());
-        List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber);
+        List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber,
+                                                                          conf.getLauncherConfig().getAmDefaultContainerBasePort());
         optimizedRequestResource.setPortRanges(PortRangeUtils.addRange(newCandidatePorts, optimizedRequestResource.getPortRanges()));
       }
       LOGGER.logDebug("First task allocation: optimizedRequestResource: [%s]", optimizedRequestResource);
