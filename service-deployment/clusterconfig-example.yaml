@@ -115,6 +115,16 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
+    # kube state exporter url
+    kube_exporter_host: 10.0.3.9
+    # kube state exporter port
+    kube_exporter_port: 8081
+    # kube state exporter port
+    kube_exporter_telemetry_port: 8082
+    # kube api server url
+    kube_api_server_url: http://10.0.3.9:8080
+    # kube config path
+    kube_config_path: /home/core/.kube/config
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
@@ -169,6 +179,7 @@ machinelist:
     webportal: "true"
     prometheus: "true"
     grafana: "true"
+    promethues-single-exporter: "true"
   
   # Do the same work as the machine above.
   worker-01:

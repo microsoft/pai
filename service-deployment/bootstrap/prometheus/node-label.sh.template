@@ -24,4 +24,7 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prom=true
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true
     {% endif %}
+    {% if 'single-instance-exporter' in machinelist[ host ] and machinelist[ host ][ 'single-instance-exporter' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true
+    {% endif %}
 {% endfor %}

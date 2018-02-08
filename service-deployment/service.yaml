@@ -180,6 +180,8 @@ servicelist:
       - node-exporter-ds.yaml
       - prometheus-configmap.yaml
       - prometheus-deployment.yaml
+      - kube-state-metrics-deployment.yaml
+      - start.sh
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh

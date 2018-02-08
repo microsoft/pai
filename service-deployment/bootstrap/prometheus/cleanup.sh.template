@@ -21,7 +21,10 @@
 
 INSTANCES="daemonset/node-exporter
 deployment/prometheus-deployment
-configmap/prometheus-configmap"
+deployment/kube-state-metrics
+configmap/prometheus-configmap
+configmap/prometheus-rules
+configmap/prometheus-kube-config"
 
 for instance in ${INSTANCES}; do
   kubectl delete --ignore-not-found --now ${instance}
@@ -33,5 +36,8 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prom-
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
+    {% endif %}
+    {% if 'promethues-single-exporter' in machinelist[ host ] and machinelist[ host ][ 'promethues-single-exporter' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} promkube-
     {% endif %}
 {% endfor %}
