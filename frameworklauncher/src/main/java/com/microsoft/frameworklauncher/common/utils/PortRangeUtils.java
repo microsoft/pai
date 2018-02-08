@@ -171,7 +171,9 @@ public class PortRangeUtils {
 
   public static List<Range> addRange(List<Range> leftRange, List<Range> rightRange) {
 
-    if (leftRange == null || rightRange == null)
+    if (leftRange == null)
+      return rightRange;
+    if (rightRange == null)
       return leftRange;
 
     List<Range> result = coalesceRangeList(leftRange);
@@ -221,17 +223,19 @@ public class PortRangeUtils {
 
     List<Range> resultList = new ArrayList<Range>();
     int needAllocatePort = portsCount;
+    int start = basePort;
     for (int i = 0; i < availablePorts.size(); i++) {
       Range range = availablePorts.get(i);
-      if(range.getBegin() < basePort) {
+      if(range.getEnd() < basePort) {
         continue;
       }
-      if ((range.getEnd() - range.getBegin() + 1) >= needAllocatePort) {
-        resultList.add(Range.newInstance(range.getBegin(), range.getBegin() + needAllocatePort - 1));
+      start = Math.max(range.getBegin(), basePort);
+      if ((range.getEnd() - start + 1) >= needAllocatePort) {
+        resultList.add(Range.newInstance(start, start + needAllocatePort - 1));
         return resultList;
       } else {
-        resultList.add(Range.newInstance(range.getBegin(), range.getEnd()));
-        needAllocatePort -= (range.getEnd() - range.getBegin() + 1);
+        resultList.add(Range.newInstance(start, range.getEnd()));
+        needAllocatePort -= (range.getEnd() - start + 1);
       }
     }
     return null;
