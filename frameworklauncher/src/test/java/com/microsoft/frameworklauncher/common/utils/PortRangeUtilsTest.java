@@ -74,6 +74,16 @@ public class PortRangeUtilsTest {
     Assert.assertEquals(102, result.get(1).getEnd().intValue());
 
 
+   List<Range> testRangeList7 = new ArrayList<Range>();
+   testRangeList7.add(Range.newInstance(10,10));
+   result = PortRangeUtils.subtractRange(coalesceResult, testRangeList7);
+   Assert.assertEquals(2, result.size());
+   Assert.assertEquals(3, result.get(0).getBegin().intValue());
+   Assert.assertEquals(7, result.get(0).getEnd().intValue());
+   Assert.assertEquals(11, result.get(1).getBegin().intValue());
+   Assert.assertEquals(102, result.get(1).getEnd().intValue());
+
+
     result = PortRangeUtils.addRange(sortedResult, testRangeList2);
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(2, result.get(0).getBegin().intValue());
