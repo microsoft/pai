@@ -38,6 +38,8 @@ spec:
         name: node-exporter
         args:
           - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/prometheus'
+          - '--net=\"host\"'
+          - '--pid=\"host\"'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
