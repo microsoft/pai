@@ -18,30 +18,56 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.model.Range;
+import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 public class SelectionResult {
-  private String nodeHost;
-  private Long gpuAttribute;
 
-  public String getNodeHost() {
-    return nodeHost;
+  private Map<String, Long> selectedNodes = new HashMap<String, Long>();
+  private List<Range> overlapPorts = new ArrayList<>();
+
+  public void addSelection(String hostName, Long gpuAttribute, List<Range> portList) {
+    if (selectedNodes.isEmpty()) {
+      selectedNodes.put(hostName, gpuAttribute);
+      overlapPorts = PortRangeUtils.coalesceRangeList(portList);
+      return;
+    }
+    if (selectedNodes.containsKey(hostName)) {
+      selectedNodes.remove(hostName);
+    }
+    selectedNodes.put(hostName, gpuAttribute);
+    overlapPorts = PortRangeUtils.intersectRangeList(overlapPorts, portList);
   }
 
-  public void setNodeHost(String nodeHost) {
-    this.nodeHost = nodeHost;
+  public List<Range> getOverlapPorts() {
+    return overlapPorts;
   }
 
-  public Long getGpuAttribute() {
-    return gpuAttribute;
+  public List<String> getSelectedNodeHosts() {
+    List<String> hostList = new ArrayList<String>();
+    for (String hostName : selectedNodes.keySet()) {
+      hostList.add(hostName);
+
+    }
+    return hostList;
   }
 
-  public void setGpuAttribute(Long gpuAttribute) {
-    this.gpuAttribute = gpuAttribute;
+  public Long getGpuAttribute(String hostName) {
+    return selectedNodes.get(hostName);
   }
+
 
   @Override
   public String toString() {
-    return String.format("[NodeHost: [%s]", getNodeHost()) + " " +
-        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()));
+    String output = "SelectionResult:";
+    for (Map.Entry<String, Long> entry : selectedNodes.entrySet()) {
+      output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
+    }
+    return output;
   }
 }

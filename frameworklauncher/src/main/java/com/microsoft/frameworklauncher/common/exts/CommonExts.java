@@ -34,7 +34,7 @@ public class CommonExts {
     if (l == null) {
       bStr = dStr;
     } else {
-      bStr = String.format("%64s", Long.toBinaryString(l)).replace(' ', '0');
+      bStr = Long.toBinaryString(l);
     }
     return String.format("%s(%s)", dStr, bStr);
   }

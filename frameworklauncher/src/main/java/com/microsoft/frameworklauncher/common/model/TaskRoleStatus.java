@@ -18,11 +18,15 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class TaskRoleStatus implements Serializable {
   private String taskRoleName;
   private TaskRoleRolloutStatus taskRoleRolloutStatus;
   private Integer frameworkVersion;
+  private List<Range> portRanges = new ArrayList<>();
 
   // Add TaskRoleState to support TaskRoleDescriptor.dependOnTaskRoles
   // private TaskRoleState TaskRoleState = TaskRoleState.TaskRoleWaiting;
@@ -49,5 +53,13 @@ public class TaskRoleStatus implements Serializable {
 
   public void setFrameworkVersion(Integer frameworkVersion) {
     this.frameworkVersion = frameworkVersion;
+  }
+
+  public List<Range> getPortRanges() {
+    return portRanges;
+  }
+
+  public void setPortRanges(List<Range> portRanges) {
+    this.portRanges = portRanges;
   }
 }

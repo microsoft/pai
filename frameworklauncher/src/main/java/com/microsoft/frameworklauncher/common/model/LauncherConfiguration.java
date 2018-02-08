@@ -55,6 +55,7 @@ public class LauncherConfiguration implements Serializable {
   // is also limited to 100MB = 500K * 200 bytes/task.
   private Integer maxTotalTaskNumber = 500000;
 
+  private Integer amDefaultContainerBasePort = 2000;
   // ApplicationMaster Setup
   private Integer amVersion = 0;
   //AM Default Resource which can support max to 10000 total Tasks in one Framework
@@ -209,6 +210,10 @@ public class LauncherConfiguration implements Serializable {
   public void setMaxTotalTaskNumber(Integer maxTotalTaskNumber) {
     this.maxTotalTaskNumber = maxTotalTaskNumber;
   }
+
+  public Integer getAmDefaultContainerBasePort() { return amDefaultContainerBasePort;}
+
+  public void setAmDefaultContainerBasePort(Integer amDefaultContainerBasePort) {this.amDefaultContainerBasePort = amDefaultContainerBasePort;}
 
   public Integer getAmVersion() {
     return amVersion;
