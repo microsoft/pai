@@ -179,14 +179,10 @@ public class SelectionManager { // THREAD SAFE
 
       // Test Resource
       ResourceDescriptor availableResource = node.getAvailableResource();
-
-      LOGGER.logDebug("Request Resource: [%s], Available Resource: [%s]",
-          requestResource, availableResource);
-
-      LOGGER.logDebug(rejectedLogPrefix +
-              "Resource does not fit in: Request Resource: [%s], Available Resource: [%s]",
-          requestResource, availableResource);
       if (!ResourceDescriptor.fitsIn(requestResource, availableResource)) {
+        LOGGER.logDebug(rejectedLogPrefix +
+                "Resource does not fit in: Request Resource: [%s], Available Resource: [%s]",
+            requestResource, availableResource);
         continue;
       }
 

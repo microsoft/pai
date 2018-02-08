@@ -75,13 +75,15 @@ public class PortRangeUtilsTest {
 
 
    List<Range> testRangeList7 = new ArrayList<Range>();
-   testRangeList7.add(Range.newInstance(10,10));
+   testRangeList7.add(Range.newInstance(80,80));
    result = PortRangeUtils.subtractRange(coalesceResult, testRangeList7);
-   Assert.assertEquals(2, result.size());
+   Assert.assertEquals(3, result.size());
    Assert.assertEquals(3, result.get(0).getBegin().intValue());
    Assert.assertEquals(7, result.get(0).getEnd().intValue());
-   Assert.assertEquals(11, result.get(1).getBegin().intValue());
-   Assert.assertEquals(102, result.get(1).getEnd().intValue());
+   Assert.assertEquals(10, result.get(1).getBegin().intValue());
+   Assert.assertEquals(79, result.get(1).getEnd().intValue());
+   Assert.assertEquals(81, result.get(2).getBegin().intValue());
+   Assert.assertEquals(102, result.get(2).getEnd().intValue());
 
 
     result = PortRangeUtils.addRange(sortedResult, testRangeList2);

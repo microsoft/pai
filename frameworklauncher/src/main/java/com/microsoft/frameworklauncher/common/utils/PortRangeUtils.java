@@ -151,6 +151,7 @@ public class PortRangeUtils {
             //3.1.2 Left end later than right, create a new range in left;
             Range newRange = Range.newInstance(right.getEnd() + 1, left.getEnd());
             result.add(i + 1, newRange);
+            left.setEnd(right.getBegin() - 1);
             j++;
           }
         } else {
