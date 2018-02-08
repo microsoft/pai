@@ -493,10 +493,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
-
   public synchronized List<Range> getTaskRolePortRanges(String taskRoleName) {
     return taskRoleStatuses.get(taskRoleName).getPortRanges();
   }
+
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatus(TaskStatusLocator locator) {
     assertTaskStatusLocator(locator);
@@ -507,6 +507,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet) {
     return getTaskStatus(taskStateSet, true);
   }
+
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, Boolean contains) {
     HashSet<TaskState> acceptableTaskStateSet = new HashSet<>();

@@ -53,7 +53,7 @@ public class Range implements Serializable,  Comparable<Range>{
     if (other == null) {
       return -1;
     }
-    if (getBegin() == other.getBegin() && getEnd() == other.getEnd()) {
+    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
       return 0;
     } else if (getBegin() - other.getBegin() < 0) {
       return -1;
@@ -86,7 +86,7 @@ public class Range implements Serializable,  Comparable<Range>{
     if (!(obj instanceof Range))
       return false;
     Range other = (Range) obj;
-    if (getBegin() == other.getBegin() && getEnd() == other.getEnd()) {
+    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
       return true;
     } else {
       return false;

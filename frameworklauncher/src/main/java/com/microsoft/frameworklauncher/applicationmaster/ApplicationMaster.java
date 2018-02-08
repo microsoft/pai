@@ -350,11 +350,17 @@ public class ApplicationMaster extends AbstractService {
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
 
     SelectionResult selectionResult = null;
+
+    //user request port number is bigger than user specific port count, dynamic allocate the vacancy number of port.
     int newRequestNumber = optimizedRequestResource.getPortNumber() - PortRangeUtils.getPortsNumber(optimizedRequestResource.getPortRanges());
     if(newRequestNumber > 0) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
-      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, taskNubmer + 2);
+      //Select the possible candiadte nodes, the selected nodes is a little more than task number, this is to avoid resource conflict.
+      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, taskNubmer + 5);
       if(selectionResult.getSelectedNodeHosts().size() >= taskNubmer) {
+
+        //To avoid dynamic allocate ports conflict with user specific ports, 1. remove user specific ports; 2. allocate the vacancy
+        // number port; 3. add back the user specific ports.
         List<Range> candidatePorts = PortRangeUtils.subtractRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortRanges());
         List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber,
                                                                           conf.getLauncherConfig().getAmDefaultContainerBasePort());
@@ -362,13 +368,16 @@ public class ApplicationMaster extends AbstractService {
       }
       LOGGER.logDebug("First task allocation: optimizedRequestResource: [%s]", optimizedRequestResource);
     }
-    if (requestResource.getGpuNumber() > 0 && selectionResult == null) {
+    if (requestResource.getGpuNumber() > 0 && (selectionResult == null || selectionResult.getSelectedNodeHosts().size() <= 0) ) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
-      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, 1);
+      //Select 4 candidate results at most; and will random pick one int next operation;
+      selectionResult = selectionManager.select(optimizedRequestResource, requestNodeLabel, requestNodeGpuType, 4);
     }
 
     if (selectionResult != null && selectionResult.getSelectedNodeHosts() != null && selectionResult.getSelectedNodeHosts().size() > 0) {
-      String firstSelectedHost = selectionResult.getSelectedNodeHosts().get(0);
+      Random random = new Random();
+      int randomPos = random.nextInt(selectionResult.getSelectedNodeHosts().size());
+      String firstSelectedHost = selectionResult.getSelectedNodeHosts().get(randomPos);
       optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(firstSelectedHost));
       return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, firstSelectedHost);
     }
@@ -630,6 +639,7 @@ public class ApplicationMaster extends AbstractService {
       } else {
         selectionManager.addCandidateNode(nodeReport);
       }
+
 
       // TODO: Update TaskStatus.ContainerIsDecommissioning
     }

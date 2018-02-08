@@ -137,6 +137,7 @@ public class SelectionManager { // THREAD SAFE
     // Start to select from candidateNodes
     SelectionResult selectionResult = new SelectionResult();
     int selectedNodeNumber = 0;
+
     for (Node node : candidateNodes.values()) {
       String nodeHost = node.getHost();
       String logPrefix = String.format("select: [%s]: Test Node: ", nodeHost);
@@ -230,7 +231,6 @@ public class SelectionManager { // THREAD SAFE
     }
     return selectionResult;
   }
-
 
   @VisibleForTesting
   public synchronized Long selectCandidateGpuAttribute(Node node, Integer requestGpuNumber) {

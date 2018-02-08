@@ -129,7 +129,7 @@ public class ResourceDescriptor implements Serializable {
   }
 
   public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
-    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, null);
+    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, new ArrayList<>());
   }
 
   public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute, Integer portNumber, List<Range> portRanges) {
@@ -157,7 +157,6 @@ public class ResourceDescriptor implements Serializable {
 
       rd.setGpuNumber((int) getGpuNumber.invoke(res));
       rd.setGpuAttribute((long) getGpuAtrribute.invoke(res));
-
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Fail get GPU information, YARN library doesn't support gpu as resources");
     } catch (IllegalAccessException e) {
@@ -229,7 +228,7 @@ public class ResourceDescriptor implements Serializable {
 
         Object obj = hadoopValueRangesClass.getMethod("newInstance").invoke(null);
 
-        List<Object> hadoopValueRangeList = new ArrayList();
+        List<Object> hadoopValueRangeList = new ArrayList<Object>();
 
         for (Range range : portRanges) {
           Object valueRangeObj = hadoopValueRangeClass.getMethod("newInstance", int.class, int.class).invoke(null, range.getBegin(), range.getEnd());
@@ -267,7 +266,7 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()) + " " +
+        String.format("GpuAttribute: [%s]", CommonExts.toStringWithBits(getGpuAttribute()) + " " +
             String.format("Port: [%s]", portString) + " " +
             String.format("PortNumber: [%s]", getPortNumber()));
   }

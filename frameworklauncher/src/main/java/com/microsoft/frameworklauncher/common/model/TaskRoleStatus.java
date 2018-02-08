@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-
 public class TaskRoleStatus implements Serializable {
   private String taskRoleName;
   private TaskRoleRolloutStatus taskRoleRolloutStatus;
