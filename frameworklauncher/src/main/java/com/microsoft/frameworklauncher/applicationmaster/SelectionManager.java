@@ -120,8 +120,9 @@ public class SelectionManager { // THREAD SAFE
   public synchronized SelectionResult select(
       ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType)
       throws NotAvailableException {
-      return select(requestResource,requestNodeLabel, requestNodeGpuType, 1);
+    return select(requestResource, requestNodeLabel, requestNodeGpuType, 1);
   }
+
   public synchronized SelectionResult select(
       ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType, int requestNodeNumber)
       throws NotAvailableException {
@@ -200,8 +201,8 @@ public class SelectionManager { // THREAD SAFE
         }
       }
       selectionResult.addSelection(nodeHost, optimizedRequestResource.getGpuAttribute(), availableResource.getPortRanges());
-      selectedNodeNumber ++;
-      if(selectedNodeNumber >= requestNodeNumber) {
+      selectedNodeNumber++;
+      if (selectedNodeNumber >= requestNodeNumber) {
         break;
       }
     }

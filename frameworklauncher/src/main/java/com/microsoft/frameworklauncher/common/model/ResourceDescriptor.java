@@ -21,6 +21,7 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -171,7 +172,7 @@ public class ResourceDescriptor implements Serializable {
       Method getPorts = clazz.getMethod("getPorts");
 
       Object hadoopValueRanges = getPorts.invoke(res);
-      if(hadoopValueRanges != null) {
+      if (hadoopValueRanges != null) {
         Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
         Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
 
@@ -194,7 +195,7 @@ public class ResourceDescriptor implements Serializable {
       LOGGER.logError(e, "Ignore: Fail to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
       LOGGER.logDebug(e, "Ignore: failed to get the class Name");
-    } catch(Exception e) {
+    } catch (Exception e) {
       LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
     }
     LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
@@ -247,7 +248,7 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logError(e, "Ignore: Fail to set Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
         LOGGER.logDebug(e, "Ignore: failed to get the class Name");
-      } catch(Exception e) {
+      } catch (Exception e) {
         LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
       }
     }
@@ -258,7 +259,7 @@ public class ResourceDescriptor implements Serializable {
   @Override
   public String toString() {
     String portString = "";
-    if(portRanges != null) {
+    if (portRanges != null) {
       for (Range range : portRanges) {
         portString = portString + "[" + range.getBegin() + "-" + range.getEnd() + "],";
       }
@@ -267,8 +268,8 @@ public class ResourceDescriptor implements Serializable {
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()) + " " +
-        String.format("Port: [%s]", portString) + " " +
-        String.format("PortNumber: [%s]", getPortNumber()));
+            String.format("Port: [%s]", portString) + " " +
+            String.format("PortNumber: [%s]", getPortNumber()));
   }
 
   // Maybe underestimate if any GpuAttribute == 0

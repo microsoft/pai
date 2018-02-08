@@ -28,21 +28,22 @@ import java.util.List;
 
 public class SelectionResult {
 
-  private Map<String, Long>  selectedNodes = new HashMap<String, Long>();
+  private Map<String, Long> selectedNodes = new HashMap<String, Long>();
   private List<Range> overlapPorts = new ArrayList<>();
 
   public void addSelection(String hostName, Long gpuAttribute, List<Range> portList) {
-    if(selectedNodes.isEmpty()) {
+    if (selectedNodes.isEmpty()) {
       selectedNodes.put(hostName, gpuAttribute);
       overlapPorts = PortRangeUtils.coalesceRangeList(portList);
       return;
     }
-    if(selectedNodes.containsKey(hostName)) {
+    if (selectedNodes.containsKey(hostName)) {
       selectedNodes.remove(hostName);
     }
     selectedNodes.put(hostName, gpuAttribute);
     overlapPorts = PortRangeUtils.intersectRangeList(overlapPorts, portList);
   }
+
   public List<Range> getOverlapPorts() {
     return overlapPorts;
   }
@@ -64,7 +65,7 @@ public class SelectionResult {
   @Override
   public String toString() {
     String output = "SelectionResult:";
-    for(Map.Entry<String, Long> entry: selectedNodes.entrySet()) {
+    for (Map.Entry<String, Long> entry : selectedNodes.entrySet()) {
       output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
     }
     return output;

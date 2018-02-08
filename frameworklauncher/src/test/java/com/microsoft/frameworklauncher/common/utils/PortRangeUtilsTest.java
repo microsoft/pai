@@ -124,8 +124,6 @@ public class PortRangeUtilsTest {
     Assert.assertEquals(12, result.get(0).getEnd().intValue());
 
   }
-
-
 }
 
 

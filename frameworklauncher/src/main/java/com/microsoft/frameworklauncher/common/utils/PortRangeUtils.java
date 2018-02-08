@@ -25,12 +25,19 @@ import java.util.List;
 import java.util.Collections;
 
 public class PortRangeUtils {
+
+  /*
+    sort the list range from small to big.
+   */
   public static List<Range> SortRangeList(List<Range> ranges) {
     List<Range> newList = cloneList(ranges);
     Collections.sort(newList);
     return newList;
   }
 
+  /*
+    count the ports number in a port range list.
+   */
   public static int getPortsNumber(List<Range> rangeList) {
     if (rangeList == null || rangeList.size() == 0) {
       return 0;
@@ -44,6 +51,9 @@ public class PortRangeUtils {
     return portCount;
   }
 
+  /*
+    coalesce the duplicate or overlap range in the rangelist.
+   */
   public static List<Range> coalesceRangeList(List<Range> rangeList) {
     if (rangeList == null || rangeList.isEmpty()) {
       return rangeList;
@@ -55,19 +65,14 @@ public class PortRangeUtils {
     Range current = sortedList.get(0).clone();
     resultList.add(current);
 
-    // In a single pass, we compute the size of the end result, as well as
-    // modify
-    // in place the intermediate data structure to build up result as we
-    // solve it.
-
     for (Range range : sortedList) {
       // Skip if this range is equivalent to the current range.
-      if (range.getBegin() == current.getBegin()
-          && range.getEnd() == current.getEnd()) {
+      if (range.getBegin().intValue() == current.getBegin().intValue()
+          && range.getEnd().intValue() == current.getEnd().intValue()) {
         continue;
       }
       // If the current range just needs to be extended on the right.
-      if (range.getBegin() == current.getBegin()
+      if (range.getBegin().intValue() == current.getBegin().intValue()
           && range.getEnd() > current.getEnd()) {
         current.setEnd(range.getEnd());
       } else if (range.getBegin() > current.getBegin()) {
@@ -85,9 +90,12 @@ public class PortRangeUtils {
     return resultList;
   }
 
+  /*
+    get the overlap part of tow range list
+   */
   public static List<Range> intersectRangeList(List<Range> leftRange, List<Range> rightRange) {
 
-    if (leftRange == null || leftRange == null) {
+    if (leftRange == null || rightRange == null) {
       return null;
     }
 
@@ -214,10 +222,7 @@ public class PortRangeUtils {
         i++;
       }
     }
-    if (j >= smallRangeList.size()) {
-      return true;
-    }
-    return false;
+    return (j >= smallRangeList.size());
   }
 
   public static List<Range> getCandidatePorts(List<Range> availablePorts, int portsCount, int basePort) {
@@ -225,9 +230,9 @@ public class PortRangeUtils {
     List<Range> resultList = new ArrayList<Range>();
     int needAllocatePort = portsCount;
     int start = basePort;
-    for (int i = 0; i < availablePorts.size(); i++) {
-      Range range = availablePorts.get(i);
-      if(range.getEnd() < basePort) {
+    for (Range range : availablePorts) {
+
+      if (range.getEnd() < basePort) {
         continue;
       }
       start = Math.max(range.getBegin(), basePort);
@@ -242,7 +247,7 @@ public class PortRangeUtils {
     return null;
   }
 
-  public synchronized static List<Range> cloneList(List<Range> list) {
+  public static List<Range> cloneList(List<Range> list) {
     List<Range> newList = new ArrayList<Range>();
     for (Range range : list) {
       newList.add(range.clone());
