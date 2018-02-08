@@ -31,16 +31,9 @@ The following k8s components will be deployed in the designated nodes and run in
 
 Each k8s component runs in a Docker container. If Docker is missing in the OS, the script will install the latest Docker version.
 
-## Prepare your dev-box environment
+## Prepare your cluster configuration
 
-Make sure your dev box has full network access to the cluster.
-
-Python(2.x) and lib install:
-```yaml
-sudo apt-get install python python-paramiko python-yaml python-jinja2
-```
-
-Note: kubectl will be installed on this dev-box. So it can access to your kubernetes cluster.
+Please specify the cluster configuration in a yaml file. The [cluster-config-example.yaml](./cluster-config-example.yaml) is an example, where some detailed explanation is included.
 
 ## Kubernetes high-availability 
 
