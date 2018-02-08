@@ -266,7 +266,7 @@ public class ResourceDescriptor implements Serializable {
     return String.format("[MemoryMB: [%s]", getMemoryMB()) + " " +
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
-        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()) +
+        String.format("GpuAttribute: [%s]]", CommonExts.toStringWithBits(getGpuAttribute()) + " " +
         String.format("Port: [%s]", portString) + " " +
         String.format("PortNumber: [%s]", getPortNumber()));
   }
