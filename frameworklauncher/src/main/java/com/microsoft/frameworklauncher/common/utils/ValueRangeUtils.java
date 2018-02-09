@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
-public class PortRangeUtils {
+public class ValueRangeUtils {
 
   /*
     sort the list range from small to big.
@@ -36,9 +36,9 @@ public class PortRangeUtils {
   }
 
   /*
-    count the ports number in a port range list.
+    count the value number in a  range list.
    */
-  public static int getPortsNumber(List<Range> rangeList) {
+  public static int getValueNumber(List<Range> rangeList) {
     if (rangeList == null || rangeList.size() == 0) {
       return 0;
     }
@@ -59,7 +59,7 @@ public class PortRangeUtils {
       return rangeList;
     }
 
-    List<Range> sortedList = PortRangeUtils.SortRangeList(rangeList);
+    List<Range> sortedList = SortRangeList(rangeList);
     List<Range> resultList = new ArrayList<Range>();
 
     Range current = sortedList.get(0).clone();
@@ -91,7 +91,7 @@ public class PortRangeUtils {
   }
 
   /*
-    get the overlap part of tow range list
+    get the overlap part of tow range lists
    */
   public static List<Range> intersectRangeList(List<Range> leftRange, List<Range> rightRange) {
 
@@ -127,14 +127,17 @@ public class PortRangeUtils {
     return result;
   }
 
+  /*
+    delete the overlap part from leftRange.
+   */
   public static List<Range> subtractRange(List<Range> leftRange, List<Range> rightRange) {
 
     if (leftRange == null || rightRange == null) {
       return leftRange;
     }
 
-    List<Range> result = PortRangeUtils.coalesceRangeList(leftRange);
-    List<Range> rightList = PortRangeUtils.coalesceRangeList(rightRange);
+    List<Range> result = coalesceRangeList(leftRange);
+    List<Range> rightList = coalesceRangeList(rightRange);
 
     int i = 0;
     int j = 0;
@@ -178,6 +181,9 @@ public class PortRangeUtils {
     return result;
   }
 
+  /*
+    add rightRange to leftRange, will ingore the overlap range.
+   */
   public static List<Range> addRange(List<Range> leftRange, List<Range> rightRange) {
 
     if (leftRange == null)
@@ -190,6 +196,9 @@ public class PortRangeUtils {
     return coalesceRangeList(result);
   }
 
+  /*
+    verify if the bigRange include the small range
+   */
   public static boolean fitInRange(List<Range> smallRange, List<Range> bigRange) {
     if (smallRange == null) {
       return true;
@@ -225,23 +234,26 @@ public class PortRangeUtils {
     return (j >= smallRangeList.size());
   }
 
-  public static List<Range> getCandidatePorts(List<Range> availablePorts, int portsCount, int basePort) {
+  /*
+
+   */
+  public static List<Range> getSubRange(List<Range> availableRange, int requestNumber, int baseValue) {
 
     List<Range> resultList = new ArrayList<Range>();
-    int needAllocatePort = portsCount;
-    int start = basePort;
-    for (Range range : availablePorts) {
+    int needNumber = requestNumber;
+    int start = baseValue;
+    for (Range range : availableRange) {
 
-      if (range.getEnd() < basePort) {
+      if (range.getEnd() < baseValue) {
         continue;
       }
-      start = Math.max(range.getBegin(), basePort);
-      if ((range.getEnd() - start + 1) >= needAllocatePort) {
-        resultList.add(Range.newInstance(start, start + needAllocatePort - 1));
+      start = Math.max(range.getBegin(), baseValue);
+      if ((range.getEnd() - start + 1) >= needNumber) {
+        resultList.add(Range.newInstance(start, start + needNumber - 1));
         return resultList;
       } else {
         resultList.add(Range.newInstance(start, range.getEnd()));
-        needAllocatePort -= (range.getEnd() - start + 1);
+        needNumber -= (range.getEnd() - start + 1);
       }
     }
     return null;
@@ -253,5 +265,25 @@ public class PortRangeUtils {
       newList.add(range.clone());
     }
     return newList;
+  }
+
+  /*
+    Convert the range list to a ";" joint string. example: [7-10] -> 7;8;9;10
+   */
+  public static String convertRangeToString(List<Range> list) {
+    if(list == null) {
+      return "";
+    }
+    List<Range> ranges = coalesceRangeList(list);
+    StringBuilder sb = new StringBuilder();
+    for (Range range : ranges) {
+      for(Integer i = range.getBegin(); i <= range.getEnd(); i++) {
+        if(sb.length() > 0) {
+          sb.append(";");
+        }
+        sb.append(i.toString());
+      }
+    }
+    return sb.toString();
   }
 }

@@ -19,7 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.model.Range;
-import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +34,14 @@ public class SelectionResult {
   public void addSelection(String hostName, Long gpuAttribute, List<Range> portList) {
     if (selectedNodes.isEmpty()) {
       selectedNodes.put(hostName, gpuAttribute);
-      overlapPorts = PortRangeUtils.coalesceRangeList(portList);
+      overlapPorts = ValueRangeUtils.coalesceRangeList(portList);
       return;
     }
     if (selectedNodes.containsKey(hostName)) {
       selectedNodes.remove(hostName);
     }
     selectedNodes.put(hostName, gpuAttribute);
-    overlapPorts = PortRangeUtils.intersectRangeList(overlapPorts, portList);
+    overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, portList);
   }
 
   public List<Range> getOverlapPorts() {

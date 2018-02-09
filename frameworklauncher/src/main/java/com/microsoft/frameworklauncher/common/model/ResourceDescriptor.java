@@ -19,8 +19,9 @@ package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
-import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
+import sun.awt.SunHints;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -189,13 +190,13 @@ public class ResourceDescriptor implements Serializable {
         rd.setPortRanges(rangeList);
       }
     } catch (NoSuchMethodException e) {
-      LOGGER.logDebug(e, "Ignore: Fail get Ports information, YARN library doesn't support Port");
+      LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support Port");
     } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Fail to get Ports information, illegal access function");
+      LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
-      LOGGER.logDebug(e, "Ignore: failed to get the class Name");
+      LOGGER.logDebug(e, "Ignore: Failed to get the class Name");
     } catch (Exception e) {
-      LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
+      LOGGER.logDebug(e, "Ignore: Unknown exception");
     }
     LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
     return rd;
@@ -214,9 +215,9 @@ public class ResourceDescriptor implements Serializable {
         setGpuAttribute.invoke(res, gpuAttribute);
 
       } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "Ignore: Fail to set GPU information, YARN library doesn't support");
+        LOGGER.logWarning(e, "Ignore: Failed to set GPU information, YARN library doesn't support");
       } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Fail to set GPU information, illegal access function");
+        LOGGER.logError(e, "Ignore: Failed to set GPU information, illegal access function");
       }
     }
 
@@ -242,13 +243,13 @@ public class ResourceDescriptor implements Serializable {
         setPort.invoke(res, obj);
 
       } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "Ignore: Fail to set Ports information, YARN library doesn't support:");
+        LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support Port");
       } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Fail to set Ports information, illegal access function");
+        LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
-        LOGGER.logDebug(e, "Ignore: failed to get the class Name");
+        LOGGER.logDebug(e, "Ignore: Failed to get the class Name");
       } catch (Exception e) {
-        LOGGER.logDebug(e, "Ignore: Unknow excpeiton happend");
+        LOGGER.logDebug(e, "Ignore: Unknown exception");
       }
     }
     LOGGER.logDebug("Put ResourceDescriptor " + this.toString() + " to hadoop resource: " + res);
@@ -282,7 +283,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
     }
-    ret.setPortRanges(PortRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortRanges(ValueRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
 
@@ -297,7 +298,7 @@ public class ResourceDescriptor implements Serializable {
     } else {
       ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
     }
-    ret.setPortRanges(PortRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortRanges(ValueRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
     return ret;
   }
 
@@ -306,6 +307,6 @@ public class ResourceDescriptor implements Serializable {
         && smaller.getCpuNumber() <= bigger.getCpuNumber()
         && smaller.getGpuNumber() <= bigger.getGpuNumber()
         && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute())
-        && PortRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
+        && ValueRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
   }
 }

@@ -18,6 +18,7 @@
 
 package com.microsoft.frameworklauncher.common.utils;
 
+import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,10 +27,10 @@ import java.util.List;
 
 import com.microsoft.frameworklauncher.common.model.*;
 
-public class PortRangeUtilsTest {
+public class ValueRangeUtilsTest {
 
   @Test
-   public void TestPortRangeUtils() {
+   public void TestValueRangeUtils() {
     List<Range> testRangeList = new ArrayList<Range>();
     testRangeList.add(Range.newInstance(6,7));
     testRangeList.add(Range.newInstance(10,100));
@@ -41,23 +42,23 @@ public class PortRangeUtilsTest {
     testRangeList2.add(Range.newInstance(7,8));
     testRangeList2.add(Range.newInstance(10,20));
 
-    List<Range> testRangeList3 = PortRangeUtils.cloneList(testRangeList2);
+    List<Range> testRangeList3 = ValueRangeUtils.cloneList(testRangeList2);
 
-    List<Range> sortedResult = PortRangeUtils.SortRangeList(testRangeList);
+    List<Range> sortedResult = ValueRangeUtils.SortRangeList(testRangeList);
     Assert.assertEquals(3, sortedResult.get(0).getBegin().intValue());
     Assert.assertEquals(6, sortedResult.get(1).getBegin().intValue());
     Assert.assertEquals(10, sortedResult.get(2).getBegin().intValue());
     Assert.assertEquals(90, sortedResult.get(3).getBegin().intValue());
 
 
-    List<Range> coalesceResult = PortRangeUtils.coalesceRangeList(testRangeList);
+    List<Range> coalesceResult = ValueRangeUtils.coalesceRangeList(testRangeList);
     Assert.assertEquals(2, coalesceResult.size());
     Assert.assertEquals(3, coalesceResult.get(0).getBegin().intValue());
     Assert.assertEquals(7, coalesceResult.get(0).getEnd().intValue());
     Assert.assertEquals(10, coalesceResult.get(1).getBegin().intValue());
     Assert.assertEquals(102, coalesceResult.get(1).getEnd().intValue());
 
-    List<Range> result = PortRangeUtils.intersectRangeList(coalesceResult, testRangeList2);
+    List<Range> result = ValueRangeUtils.intersectRangeList(coalesceResult, testRangeList2);
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(3, result.get(0).getBegin().intValue());
     Assert.assertEquals(3, result.get(0).getEnd().intValue());
@@ -66,7 +67,7 @@ public class PortRangeUtilsTest {
     Assert.assertEquals(10, result.get(2).getBegin().intValue());
     Assert.assertEquals(20, result.get(2).getEnd().intValue());
 
-    result = PortRangeUtils.subtractRange(coalesceResult, testRangeList2);
+    result = ValueRangeUtils.subtractRange(coalesceResult, testRangeList2);
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(4, result.get(0).getBegin().intValue());
     Assert.assertEquals(6, result.get(0).getEnd().intValue());
@@ -76,7 +77,7 @@ public class PortRangeUtilsTest {
 
    List<Range> testRangeList7 = new ArrayList<Range>();
    testRangeList7.add(Range.newInstance(80,80));
-   result = PortRangeUtils.subtractRange(coalesceResult, testRangeList7);
+   result = ValueRangeUtils.subtractRange(coalesceResult, testRangeList7);
    Assert.assertEquals(3, result.size());
    Assert.assertEquals(3, result.get(0).getBegin().intValue());
    Assert.assertEquals(7, result.get(0).getEnd().intValue());
@@ -86,7 +87,7 @@ public class PortRangeUtilsTest {
    Assert.assertEquals(102, result.get(2).getEnd().intValue());
 
 
-    result = PortRangeUtils.addRange(sortedResult, testRangeList2);
+    result = ValueRangeUtils.addRange(sortedResult, testRangeList2);
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(2, result.get(0).getBegin().intValue());
     Assert.assertEquals(8, result.get(0).getEnd().intValue());
@@ -96,33 +97,49 @@ public class PortRangeUtilsTest {
 
     List<Range> testRangeList4 = new ArrayList<Range>();
     testRangeList4.add(Range.newInstance(2,3));
-    Assert.assertTrue(PortRangeUtils.fitInRange(testRangeList4, testRangeList3));
+    Assert.assertTrue(ValueRangeUtils.fitInRange(testRangeList4, testRangeList3));
 
     List<Range> testRangeList5 = new ArrayList<Range>();
     testRangeList5.add(Range.newInstance(1,3));
-    Assert.assertTrue(!PortRangeUtils.fitInRange(testRangeList5, testRangeList3));
+    Assert.assertTrue(!ValueRangeUtils.fitInRange(testRangeList5, testRangeList3));
 
     List<Range> testRangeList6 = new ArrayList<Range>();
     testRangeList6.add(Range.newInstance(9,9));
-    Assert.assertTrue(!PortRangeUtils.fitInRange(testRangeList6, testRangeList3));
+    Assert.assertTrue(!ValueRangeUtils.fitInRange(testRangeList6, testRangeList3));
 
-    result = PortRangeUtils.getCandidatePorts(testRangeList3, 1, 0);
+    result = ValueRangeUtils.getSubRange(testRangeList3, 1, 0);
     Assert.assertEquals(1, result.size());
     Assert.assertTrue(result.get(0).getBegin().longValue() == result.get(0).getEnd().longValue());
 
 
-    result = PortRangeUtils.getCandidatePorts(testRangeList3, 3, 0);
+    result = ValueRangeUtils.getSubRange(testRangeList3, 3, 0);
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(2, result.get(0).getBegin().intValue());
     Assert.assertEquals(3, result.get(0).getEnd().intValue());
     Assert.assertEquals(7, result.get(1).getBegin().intValue());
     Assert.assertEquals(7, result.get(1).getEnd().intValue());
 
-    result = PortRangeUtils.getCandidatePorts(testRangeList3, 3, 10);
+    result = ValueRangeUtils.getSubRange(testRangeList3, 3, 10);
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(10, result.get(0).getBegin().intValue());
     Assert.assertEquals(12, result.get(0).getEnd().intValue());
 
+    List<Range> testRangeList10 = null;
+
+    String portString = ValueRangeUtils.convertRangeToString(testRangeList10);
+    Assert.assertTrue(portString.equals(""));
+    testRangeList10 = new ArrayList<Range>();
+    portString = ValueRangeUtils.convertRangeToString(testRangeList10);
+    Assert.assertTrue(portString.equals(""));
+    testRangeList10.add(Range.newInstance(80,80));
+    portString = ValueRangeUtils.convertRangeToString(testRangeList10);
+    Assert.assertTrue(portString.equals("80"));
+    testRangeList10.add(Range.newInstance(80,81));
+    portString = ValueRangeUtils.convertRangeToString(testRangeList10);
+    Assert.assertTrue(portString.equals("80;81"));
+    testRangeList10.add(Range.newInstance(100,103));
+    portString = ValueRangeUtils.convertRangeToString(testRangeList10);
+    Assert.assertTrue(portString.equals("80;81;100;101;102;103"));
   }
 }
 

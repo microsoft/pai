@@ -35,7 +35,7 @@ import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
-import com.microsoft.frameworklauncher.common.utils.PortRangeUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
@@ -352,7 +352,7 @@ public class ApplicationMaster extends AbstractService {
     SelectionResult selectionResult = null;
 
     //user request port number is bigger than user specific port count, dynamic allocate the vacancy number of port.
-    int newRequestNumber = optimizedRequestResource.getPortNumber() - PortRangeUtils.getPortsNumber(optimizedRequestResource.getPortRanges());
+    int newRequestNumber = optimizedRequestResource.getPortNumber() - ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges());
     if(newRequestNumber > 0) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
       //Select the possible candiadte nodes, the selected nodes is a little more than task number, this is to avoid resource conflict.
@@ -361,10 +361,10 @@ public class ApplicationMaster extends AbstractService {
 
         //To avoid dynamic allocate ports conflict with user specific ports, 1. remove user specific ports; 2. allocate the vacancy
         // number port; 3. add back the user specific ports.
-        List<Range> candidatePorts = PortRangeUtils.subtractRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortRanges());
-        List<Range> newCandidatePorts = PortRangeUtils.getCandidatePorts(candidatePorts, newRequestNumber,
+        List<Range> candidatePorts = ValueRangeUtils.subtractRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortRanges());
+        List<Range> newCandidatePorts = ValueRangeUtils.getSubRange(candidatePorts, newRequestNumber,
                                                                           conf.getLauncherConfig().getAmDefaultContainerBasePort());
-        optimizedRequestResource.setPortRanges(PortRangeUtils.addRange(newCandidatePorts, optimizedRequestResource.getPortRanges()));
+        optimizedRequestResource.setPortRanges(ValueRangeUtils.addRange(newCandidatePorts, optimizedRequestResource.getPortRanges()));
       }
       LOGGER.logDebug("First task allocation: optimizedRequestResource: [%s]", optimizedRequestResource);
     }
@@ -606,7 +606,7 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
-
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, taskStatus.getContainerPorts());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
 
     if (generateContainerIpList) {
