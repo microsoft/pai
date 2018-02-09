@@ -48,12 +48,17 @@ class Job {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
           const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+            let retries = 0;
+            ['transientNormalRetriedCount', 'transientConflictRetriedCount',
+                'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
+              retries += frameworkInfo.frameworkRetryPolicyState[retry];
+            });
             return {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
               state: frameworkInfo.frameworkState,
-              retries: frameworkInfo.frameworkRetryPolicyState.retriedCount,
-              createdTime: frameworkInfo.firstRequestTimestamp,
+              retries: retries,
+              createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode
             };
@@ -121,7 +126,7 @@ class Job {
                 state: jobState,
                 subState: framework.frameworkStatus.frameworkState,
                 retries: jobRetryCount,
-                createdTime: framework.frameworkStatus.frameworkCreatedTimestamp,
+                createdTime: framework.frameworkStatus.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
                 completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
                 appId: framework.frameworkStatus.applicationId,
                 appProgress: framework.frameworkStatus.applicationProgress,
