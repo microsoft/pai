@@ -20,8 +20,17 @@ package com.microsoft.frameworklauncher.common.model;
 import java.io.Serializable;
 
 public class FrameworkInfo implements Serializable {
+  private SummarizedFrameworkInfo summarizedFrameworkInfo;
   private AggregatedFrameworkRequest aggregatedFrameworkRequest;
   private AggregatedFrameworkStatus aggregatedFrameworkStatus;
+
+  public SummarizedFrameworkInfo getSummarizedFrameworkInfo() {
+    return summarizedFrameworkInfo;
+  }
+
+  public void setSummarizedFrameworkInfo(SummarizedFrameworkInfo summarizedFrameworkInfo) {
+    this.summarizedFrameworkInfo = summarizedFrameworkInfo;
+  }
 
   public AggregatedFrameworkRequest getAggregatedFrameworkRequest() {
     return aggregatedFrameworkRequest;

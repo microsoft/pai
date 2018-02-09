@@ -330,11 +330,15 @@ public class LauncherModule {
     AggregatedFrameworkRequest aggFrameworkRequest =
         requestManager.getAggregatedFrameworkRequest(frameworkName);
     FrameworkRequest frameworkRequest = aggFrameworkRequest.getFrameworkRequest();
+    AggregatedFrameworkStatus aggFrameworkStatus =
+        statusManager.getAggregatedFrameworkStatus(frameworkRequest);
+    FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();
 
     FrameworkInfo frameworkInfo = new FrameworkInfo();
+    frameworkInfo.setSummarizedFrameworkInfo(
+        SummarizedFrameworkInfo.newInstance(frameworkRequest, frameworkStatus));
     frameworkInfo.setAggregatedFrameworkRequest(aggFrameworkRequest);
-    frameworkInfo.setAggregatedFrameworkStatus(
-        statusManager.getAggregatedFrameworkStatus(frameworkRequest));
+    frameworkInfo.setAggregatedFrameworkStatus(aggFrameworkStatus);
 
     return frameworkInfo;
   }

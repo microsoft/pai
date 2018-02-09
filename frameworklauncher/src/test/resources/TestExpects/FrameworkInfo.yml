@@ -120,3 +120,15 @@ aggregatedFrameworkStatus:
       transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
     frameworkState: null
     frameworkVersion: 0
+summarizedFrameworkInfo:
+  applicationExitCode: 0
+  firstRequestTimestamp: 0
+  frameworkCompletedTimestamp: 0
+  frameworkDescription: testString
+  frameworkName: testString
+  frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
+    transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+  frameworkState: null
+  frameworkVersion: 0
+  lastRequestTimestamp: 0
+  userName: testString
