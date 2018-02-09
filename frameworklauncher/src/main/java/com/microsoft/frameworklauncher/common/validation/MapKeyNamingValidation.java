@@ -17,8 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.validation;
 
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
-import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
@@ -26,16 +25,17 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {GpuConsistentValidation.Validator.class})
-public @interface GpuConsistentValidation {
+@Constraint(validatedBy = {MapKeyNamingValidation.Validator.class})
+public @interface MapKeyNamingValidation {
 
-  String message() default "{com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation.message}";
+  String message() default "{com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation.message}";
 
   Class<?>[] groups() default {};
 
@@ -44,31 +44,32 @@ public @interface GpuConsistentValidation {
   @Target({FIELD})
   @Retention(RUNTIME)
   @interface List {
-    GpuConsistentValidation[] value();
+    MapKeyNamingValidation[] value();
   }
 
-  public static class Validator implements ConstraintValidator<GpuConsistentValidation, ResourceDescriptor> {
+  public static class Validator implements ConstraintValidator<MapKeyNamingValidation, Map<String, ?>> {
     @Override
-    public void initialize(GpuConsistentValidation constraintAnnotation) {
+    public void initialize(MapKeyNamingValidation constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(ResourceDescriptor r, ConstraintValidatorContext context) {
+    public boolean isValid(Map<String, ?> m, ConstraintValidatorContext context) {
       // Not null is already handled by NotNull validator
-      if (r == null || r.getGpuNumber() == null || r.getGpuAttribute() == null) {
+      if (m == null) {
         return true;
       }
 
-      if (r.getGpuAttribute() != 0 && Long.bitCount(r.getGpuAttribute()) != r.getGpuNumber()) {
-        context.disableDefaultConstraintViolation();
-        String notValidMessage = String.format(
-            "GpuNumber [%s] is not consistent with GpuAttribute [%s]",
-            r.getGpuNumber(), CommonExts.toStringWithBits(r.getGpuAttribute()));
-        context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
-        return false;
-      } else {
-        return true;
+      for (String k : m.keySet()) {
+        try {
+          CommonValidation.validate(k);
+        } catch (BadRequestException e) {
+          context.disableDefaultConstraintViolation();
+          context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
+          return false;
+        }
       }
+
+      return true;
     }
   }
 }

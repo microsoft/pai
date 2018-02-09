@@ -122,13 +122,7 @@ public class FeatureTestUtils {
   }
 
   public static FrameworkStatus getFrameworkStatusFromRequest(FrameworkRequest frameworkRequest) {
-    FrameworkStatus frameworkStatus = new FrameworkStatus();
-    frameworkStatus.setFrameworkName(frameworkRequest.getFrameworkName());
-    frameworkStatus.setFrameworkVersion(frameworkRequest.getFrameworkDescriptor().getVersion());
-    frameworkStatus.setFrameworkRetryPolicyState(new RetryPolicyState());
-    frameworkStatus.setFrameworkCreatedTimestamp(System.currentTimeMillis());
-
-    return frameworkStatus;
+    return FrameworkStatus.newInstance(frameworkRequest);
   }
 
   public static FrameworkRequest getFrameworkRequestFromJson(

@@ -17,14 +17,17 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
+import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 public class UserDescriptor implements Serializable {
   @Valid
   @NotEmpty
+  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
   private String name = "default";
 
   public String getName() {

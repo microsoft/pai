@@ -17,9 +17,9 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;

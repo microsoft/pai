@@ -6,7 +6,7 @@ hdfsRootDir: /Launcher
 
 # Service Setup
 serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 5
+serviceRequestPullIntervalSec: 60
 
 # Application Setup
 applicationRetrieveDiagnosticsRetryIntervalSec: 60
@@ -25,4 +25,4 @@ amStatusPushIntervalSec: 60
 
 # WebServer Setup
 webServerAddress: http://localhost:9086
-webServerStatusPullIntervalSec: 5
+webServerStatusPullIntervalSec: 60

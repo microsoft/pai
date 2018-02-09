@@ -18,8 +18,8 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 
 import java.util.Set;

@@ -28,13 +28,13 @@
 ## <a name="QuickStart">Quick Start</a>
 1. **Prepare Framework**
     1. **Upload Framework Executable to HDFS**
-    
+
        Upload the [Example Framework Executable](./example/ExampleFramework.sh) to HDFS:
-       
+
             hadoop fs -mkdir -p /ExampleFramework/
             hadoop fs -put -f ExampleFramework.sh /ExampleFramework/
     2. **Write Framework Description File**
-    
+
         Just use the [Example Framework Description File](./example/ExampleFramework.json).
 
             Example Framework Description Explanation:
@@ -46,7 +46,9 @@
 
 2. **Launch Framework**
 
-    *Launcher Service need to be started before Launch Framework. See [README](../README.md) to Start Launcher Service.*
+    *Launcher Service need to be started before Launch Framework.*
+
+    *See [README](../README.md) to Start Launcher Service*
 
     *See [Root URI](#RootURI) to get {LauncherAddress}*
 
@@ -54,23 +56,17 @@
 
         http://{LauncherAddress}/v1/Frameworks/ExampleFramework
 
-    For example, with [curl](https://curl.haxx.se/), you can execute below cmd line :
+    For example, with [curl](https://curl.haxx.se/), you can execute below cmd line:
 
         curl -X PUT http://{LauncherAddress}/v1/Frameworks/ExampleFramework -d @ExampleFramework.json --header "Content-Type: application/json"
 
 3. **Monitor Framework**
 
-    *Below information may not be updated immediately, since all Launcher operations are asynchronous.*
-
-    Check the Requested FrameworkNames by:
+    Check all the Requested Frameworks by:
 
         http://{LauncherAddress}/v1/Frameworks
 
-    Check ExampleFramework Request by:
-
-        http://{LauncherAddress}/v1/Frameworks/ExampleFramework/FrameworkRequest
-
-    Check ExampleFramework Status by:
+    Check ExampleFramework by:
 
         http://{LauncherAddress}/v1/Frameworks/ExampleFramework
 
@@ -137,14 +133,14 @@ Add a NOT Requested Framework or Update a Requested Framework.
         2. NonRolling Upgrade can be used to change parameters in FrameworkDescription which is not supported by PartialUpdate (such as Framework Queue).
         3. NonRolling Upgrade should be triggered by change FrameworkVersion, instead of DELETE then PUT with the same FrameworkVersion.
 3. User is responsible to specify FrameworkName explicitly.
-4. After Accepted Response, FrameworkStatus may not be Initialized or Updated immediately. And only after FrameworkStatus is Initialized, the Framework is guaranteed to be scheduled.
+4. After Accepted Response, its corresponding Status (such as FrameworkStatus and AggregatedFrameworkStatus) exists immediately, too. However, the Status may not be updated according to the Request (FrameworkDescriptor) immediately. So, to check whether it has been updated, Client still needs to poll the GET Status APIs.
 
 **Response**
 
 | HttpStatusCode | Body | Description |
 |:---- |:---- |:---- |
 | Accepted(202) | NULL | The Request has been recorded for backend to process, not that the processing of the Request has been completed. |
-| BadRequest(400) | ExceptionMessage | The Request validation failed. So, Client is expected to not retry for this nontransient failure and then correct the Request. |
+| BadRequest(400) | ExceptionMessage | The Request validation failed. So, Client is expected to not retry for this non-transient failure and then correct the Request. |
 | TooManyRequests(429) | ExceptionMessage | The Request is rejected due to the New Total TaskNumber will exceed the Max Total TaskNumber if backend accepted it. So, the Client is expected to retry for this transient failure or migrate the whole Framework to another Cluster. |
 | ServiceUnavailable(503) | ExceptionMessage | The Request cannot be recorded for backend to process. In our system, this only happens when target Cluster's Zookeeper is down for a long time. So, the Client is expected to retry for this transient failure or migrate the whole Framework to another Cluster. |
 
@@ -160,7 +156,7 @@ Delete a Framework, no matter it is Requested or not.
 
 Notes:
 1. Framework will be Stopped and Deleted (Now it is NOT Requested).
-2. After Accepted Response, FrameworkStatus may not be Deleted immediately. And only after [FrameworkStatus](#GET_FrameworkStatus) is Deleted, the Framework is guaranteed to be Stopped completely.
+2. After Accepted Response, its corresponding Status does not exist immediately, too.
 3. Only recently completed Frameworks will be kept, if Client miss to DELETE the Framework after FrameworkCompleted. One exclusion is the Framework Launched by DataDeployment, it will be kept until the corresponding FrameworkDescriptionFile deleted in the DataDeployment.
 
 **Response**
@@ -179,8 +175,9 @@ Notes:
 **Description**
 
 Get the FrameworkStatus of a Requested Framework
+
 Recipes:
-1. User Level RetryPolicy (Based on FrameworkState, ApplicationExitCode, ApplicationDiagnostic, applicationExitType)
+1. User Level RetryPolicy (Based on FrameworkState, ApplicationExitCode, ApplicationDiagnostic, ApplicationExitType)
 2. Directly Monitor Underlay YARN Application by YARN CLI or RestAPI (Based on ApplicationId or ApplicationTrackingUrl)
 
 **Response**
@@ -188,48 +185,7 @@ Recipes:
 | HttpStatusCode | Body | Description |
 |:---- |:---- |:---- |
 | OK(200) | [FrameworkStatus](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkStatus.java) | |
-| NotFound(404) | ExceptionMessage | Specified Framework's Status does not exist. This may due to specified Framework is not Requested or the Framework Requested but the Status has not been initialized by backend (See [PUT Framework](#PUT_Framework)). So, the Client is expected to retry for the latter case. |
-| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
-
-
-#### <a name="GET_TaskRoleStatus">GET TaskRoleStatus</a>
-**Request**
-
-    GET /v1/Frameworks/{FrameworkName}/TaskRoles/{TaskRoleName}/TaskRoleStatus
-
-**Description**
-
-Get the TaskRoleStatus of a Requested Framework
-
-**Response**
-
-| HttpStatusCode | Body | Description |
-|:---- |:---- |:---- |
-| OK(200) | [TaskRoleStatus](../src/main/java/com/microsoft/frameworklauncher/common/model/TaskRoleStatus.java) | |
-| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
-| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
-
-
-#### <a name="GET_TaskStatuses">GET TaskStatuses</a>
-**Request**
-
-    GET /v1/Frameworks/{FrameworkName}/TaskRoles/{TaskRoleName}/TaskStatuses
-
-**Description**
-
-Get the TaskStatuses of a Requested Framework
-Recipes:
-1. ServiceDecovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
-2. TaskLogForwarding (Based on ContainerLogHttpAddress)
-3. MasterSlave and MigrateTask (Based on ContainerId)
-4. DataPartition (Based on TaskIndex) (Note TaskIndex will not change after Task Restart, Migrated or Upgraded)
-
-**Response**
-
-| HttpStatusCode | Body | Description |
-|:---- |:---- |:---- |
-| OK(200) | [TaskStatuses](../src/main/java/com/microsoft/frameworklauncher/common/model/TaskStatuses.java) |  |
-| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| NotFound(404) | ExceptionMessage | Specified Framework has not been Requested yet. So, Client is expected to not retry for this non-transient failure and then PUT the corresponding Framework first. |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
@@ -252,7 +208,7 @@ Update TaskNumber for a Requested Framework
 |:---- |:---- |:---- |
 | Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
 | BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
-| NotFound(404) | ExceptionMessage | Specified Framework does not exist. So, Client is expected to not retry for this non-transient failure and then PUT the corresponding Framework first. |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
 | TooManyRequests(429) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
@@ -281,7 +237,7 @@ Notes:
 |:---- |:---- |:---- |
 | Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
 | BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
-| NotFound(404) | ExceptionMessage | Same as [PUT TaskNumber](#PUT_TaskNumber) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
@@ -308,7 +264,27 @@ Notes:
 |:---- |:---- |:---- |
 | Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
 | BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
-| NotFound(404) | ExceptionMessage | Same as [PUT TaskNumber](#PUT_TaskNumber) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+
+
+#### <a name="GET_Framework">GET Framework</a>
+**Request**
+
+    GET /v1/Frameworks/{FrameworkName}
+
+**Description**
+
+Get the FrameworkInfo of a Requested Framework
+
+FrameworkInfo = AggregatedFrameworkRequest + AggregatedFrameworkStatus
+
+**Response**
+
+| HttpStatusCode | Body | Description |
+|:---- |:---- |:---- |
+| OK(200) | [FrameworkInfo](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkInfo.java) | |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
@@ -317,22 +293,29 @@ Notes:
 
     GET /v1/Frameworks
 
+| QueryParameter | Description |
+|:---- |:---- |
+| LaunchClientType | Filter the result to only return Frameworks whose LaunchClientType equals the given value |
+| UserName | Filter the result to only return Frameworks whose UserName equals the given value |
+
 **Description**
 
-List all FrameworkNames of current Requested Frameworks.
+Get the SummarizedFrameworkInfos of all Requested Frameworks
+
+A Framework's SummarizedFrameworkInfo consists selected fields from its Status and Request
 
 **Response**
 
 | HttpStatusCode | Body | Description |
 |:---- |:---- |:---- |
-| OK(200) | [RequestedFrameworkNames](../src/main/java/com/microsoft/frameworklauncher/common/model/RequestedFrameworkNames.java) | |
+| OK(200) | [SummarizedFrameworkInfos](../src/main/java/com/microsoft/frameworklauncher/common/model/SummarizedFrameworkInfos.java) | |
+| BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
 #### <a name="GET_AggregatedFrameworkStatus">GET AggregatedFrameworkStatus</a>
 **Request**
 
-    GET /v1/Frameworks/{FrameworkName}
     GET /v1/Frameworks/{FrameworkName}/AggregatedFrameworkStatus
 
 **Description**
@@ -340,6 +323,12 @@ List all FrameworkNames of current Requested Frameworks.
 Get the AggregatedFrameworkStatus of a Requested Framework
 
 AggregatedFrameworkStatus = FrameworkStatus + all TaskRoles' (TaskRoleStatus + TaskStatuses)
+
+TaskStatuses Recipes:
+1. ServiceDecovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
+2. TaskLogForwarding (Based on ContainerLogHttpAddress)
+3. MasterSlave and MigrateTask (Based on ContainerId)
+4. DataPartition (Based on TaskIndex) (Note TaskIndex will not change after Task Restart, Migrated or Upgraded)
 
 **Response**
 
@@ -366,7 +355,7 @@ Current [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/c
 | HttpStatusCode | Body | Description |
 |:---- |:---- |:---- |
 | OK(200) | [FrameworkRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkRequest.java) | |
-| NotFound(404) | ExceptionMessage | Same as [PUT TaskNumber](#PUT_TaskNumber) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
@@ -386,7 +375,7 @@ AggregatedFrameworkRequest = FrameworkRequest + all other feedback Request
 | HttpStatusCode | Body | Description |
 |:---- |:---- |:---- |
 | OK(200) | [AggregatedFrameworkRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/AggregatedFrameworkRequest.java) | |
-| NotFound(404) | ExceptionMessage | Same as [PUT TaskNumber](#PUT_TaskNumber) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
@@ -508,7 +497,7 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>
-You can check the all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java), [DiagnosticsUtils](../src/main/java/com/microsoft/frameworklauncher/utils/DiagnosticsUtils.java).
+You can check the all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
 
 Recipes:
 1. Your LauncherClient can depend on the ExitStatus Convention

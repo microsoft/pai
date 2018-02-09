@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class WebCommon {
-  public final static String LAUNCH_CLIENT_TYPE_REQUEST_HEADER = "LaunchClientType";
+  public final static String REQUEST_HEADER_LAUNCH_CLIENT_TYPE = "LaunchClientType";
   public final static int SC_TOO_MANY_REQUESTS = 429;
 
   public static String getURI(String baseURI, String relativeURI) {

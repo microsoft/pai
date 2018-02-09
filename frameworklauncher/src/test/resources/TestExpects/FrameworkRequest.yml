@@ -1,4 +1,5 @@
 !!com.microsoft.frameworklauncher.common.model.FrameworkRequest
+firstRequestTimestamp: 0
 frameworkDescriptor:
   description: testString
   parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString}
@@ -54,6 +55,7 @@ frameworkDescriptor:
   user: {name: testString}
   version: 0
 frameworkName: testString
+lastRequestTimestamp: 0
 launchClientHostName: testString
 launchClientType: UNKNOWN
 launchClientUserName: testString

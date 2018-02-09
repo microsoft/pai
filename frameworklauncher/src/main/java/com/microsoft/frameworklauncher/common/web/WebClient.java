@@ -43,7 +43,7 @@ public class WebClient {
 
   public WebClient(String baseURI, String launchClientType) {
     this.baseURI = baseURI;
-    Header header = new BasicHeader(WebCommon.LAUNCH_CLIENT_TYPE_REQUEST_HEADER, launchClientType);
+    Header header = new BasicHeader(WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE, launchClientType);
     this.httpClient = HttpClients.custom().setDefaultHeaders(Arrays.asList(header)).build();
   }
 

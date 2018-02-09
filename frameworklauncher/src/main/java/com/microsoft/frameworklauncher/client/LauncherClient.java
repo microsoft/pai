@@ -43,19 +43,30 @@ public class LauncherClient {
     this.retryIntervalSec = retryIntervalSec;
   }
 
-  public RequestedFrameworkNames getFrameworks() throws Exception {
-    return getFrameworks(null);
+  public SummarizedFrameworkInfos getFrameworks() throws Exception {
+    return getFrameworks(null, null);
   }
 
-  public RequestedFrameworkNames getFrameworks(LaunchClientType launchClientType) throws Exception {
+  public SummarizedFrameworkInfos getFrameworks(LaunchClientType launchClientType) throws Exception {
+    return getFrameworks(launchClientType, null);
+  }
+
+  public SummarizedFrameworkInfos getFrameworks(String userName) throws Exception {
+    return getFrameworks(null, userName);
+  }
+
+  public SummarizedFrameworkInfos getFrameworks(LaunchClientType launchClientType, String userName) throws Exception {
     return executeWithRetry(() -> {
-      Map<String, String> parameters = null;
+      Map<String, String> parameters = new HashMap<>();
       if (launchClientType != null) {
-        parameters = new HashMap<>();
-        parameters.put(WebCommon.LAUNCH_CLIENT_TYPE_REQUEST_HEADER, launchClientType.toString());
+        parameters.put(WebStructure.REQUEST_PARAM_LAUNCH_CLIENT_TYPE, launchClientType.toString());
+      }
+      if (userName != null) {
+        CommonValidation.validate(userName);
+        parameters.put(WebStructure.REQUEST_PARAM_USER_NAME, userName);
       }
       return webClient.get(WebStructure.FRAMEWORK_ROOT_PATH, parameters);
-    }, RequestedFrameworkNames.class);
+    }, SummarizedFrameworkInfos.class);
   }
 
   public void putFramework(String frameworkName, String frameworkDescriptor) throws Exception {
@@ -120,33 +131,13 @@ public class LauncherClient {
   public AggregatedFrameworkStatus getAggregatedFrameworkStatus(String frameworkName) throws Exception {
     return executeWithRetry(() -> {
       return webClient.get(WebStructure.getAggregatedFrameworkStatusPath(frameworkName));
-    }, AggregatedFrameworkStatus.class, (output) -> {
-      return shouldRetryGetStatus(output, frameworkName);
-    });
+    }, AggregatedFrameworkStatus.class);
   }
 
   public FrameworkStatus getFrameworkStatus(String frameworkName) throws Exception {
     return executeWithRetry(() -> {
       return webClient.get(WebStructure.getFrameworkStatusPath(frameworkName));
-    }, FrameworkStatus.class, (output) -> {
-      return shouldRetryGetStatus(output, frameworkName);
-    });
-  }
-
-  public TaskRoleStatus getTaskRoleStatus(String frameworkName, String taskRoleName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getTaskRoleStatusPath(frameworkName, taskRoleName));
-    }, TaskRoleStatus.class, (output) -> {
-      return shouldRetryGetStatus(output, frameworkName);
-    });
-  }
-
-  public TaskStatuses getTaskStatuses(String frameworkName, String taskRoleName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getTaskStatusesPath(frameworkName, taskRoleName));
-    }, TaskStatuses.class, (output) -> {
-      return shouldRetryGetStatus(output, frameworkName);
-    });
+    }, FrameworkStatus.class);
   }
 
   public AggregatedFrameworkRequest getAggregatedFrameworkRequest(String frameworkName) throws Exception {
@@ -199,30 +190,13 @@ public class LauncherClient {
         output.getStatusCode() == WebCommon.SC_TOO_MANY_REQUESTS) {
       // Must be Transient Failure
       return true;
-    } else if (output.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+    } else if (output.getStatusCode() == HttpStatus.SC_BAD_REQUEST ||
+        output.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
       // Must be NON_TRANSIENT Failure
       return false;
     } else {
       // UNKNOWN Failure
       return null;
-    }
-  }
-
-  private boolean shouldRetryGetStatus(WebClientOutput output, String frameworkName) {
-    if (output.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-      // Specified Framework's Status does not exist.
-      // This may due to specified Framework is not Requested or
-      // the Framework Requested but the Status has not been initialized by backend.
-      // So, the Client is expected to retry for the latter case.
-      try {
-        getFrameworkRequest(frameworkName);
-        return true;
-      } catch (Exception e) {
-        return false;
-      }
-    } else {
-      // At last, consider all UNKNOWN Failure as NON_TRANSIENT
-      return false;
     }
   }
 

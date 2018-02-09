@@ -25,6 +25,8 @@ public class FrameworkRequest implements Serializable {
   private LaunchClientType launchClientType = LaunchClientType.UNKNOWN;
   private String launchClientHostName;
   private String launchClientUserName;
+  private Long firstRequestTimestamp;
+  private Long lastRequestTimestamp;
 
   public String getFrameworkName() {
     return frameworkName;
@@ -64,5 +66,21 @@ public class FrameworkRequest implements Serializable {
 
   public void setLaunchClientUserName(String launchClientUserName) {
     this.launchClientUserName = launchClientUserName;
+  }
+
+  public Long getFirstRequestTimestamp() {
+    return firstRequestTimestamp;
+  }
+
+  public void setFirstRequestTimestamp(Long firstRequestTimestamp) {
+    this.firstRequestTimestamp = firstRequestTimestamp;
+  }
+
+  public Long getLastRequestTimestamp() {
+    return lastRequestTimestamp;
+  }
+
+  public void setLastRequestTimestamp(Long lastRequestTimestamp) {
+    this.lastRequestTimestamp = lastRequestTimestamp;
   }
 }

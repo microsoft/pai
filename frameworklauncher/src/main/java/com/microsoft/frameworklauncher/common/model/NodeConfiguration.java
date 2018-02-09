@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 public class NodeConfiguration implements Serializable {
   @Valid
-  @Pattern(regexp = "^[^,\\s]+$")
+  @Pattern(regexp = "^[^,\\s]{1,256}$")
   private String gpuType;
 
   public String getGpuType() {
