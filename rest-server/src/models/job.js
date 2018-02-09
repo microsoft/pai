@@ -113,12 +113,13 @@ class Job {
           if (framework.exception !== undefined) {
             next(job, new Error('job not found'));
           } else {
-            if (framework.frameworkStatus) {
+            const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
+            if (frameworkStatus) {
               const jobState = this.convertJobState(
-                  framework.frameworkStatus.frameworkState,
-                  framework.frameworkStatus.applicationExitCode);
+                  frameworkStatus.frameworkState,
+                  frameworkStatus.applicationExitCode);
               let jobRetryCount = 0;
-              const jobRetryCountInfo = framework.frameworkStatus.frameworkRetryPolicyState;
+              const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
               jobRetryCount =
                 jobRetryCountInfo.transientNormalRetriedCount +
                 jobRetryCountInfo.transientConflictRetriedCount +
@@ -128,27 +129,32 @@ class Job {
                 name,
                 username: 'unknown',
                 state: jobState,
-                subState: framework.frameworkStatus.frameworkState,
+                subState: frameworkStatus.frameworkState,
                 retries: jobRetryCount,
-                createdTime: framework.frameworkStatus.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
-                completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
-                appId: framework.frameworkStatus.applicationId,
-                appProgress: framework.frameworkStatus.applicationProgress,
-                appTrackingUrl: framework.frameworkStatus.applicationTrackingUrl,
-                appLaunchedTime: framework.frameworkStatus.applicationLaunchedTimestamp,
-                appCompletedTime: framework.frameworkStatus.applicationCompletedTimestamp,
-                appExitCode: framework.frameworkStatus.applicationExitCode,
-                appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
-                appExitType: framework.frameworkStatus.applicationExitType
+                createdTime: frameworkStatus.frameworkCreatedTimestamp,
+                completedTime: frameworkStatus.frameworkCompletedTimestamp,
+                appId: frameworkStatus.applicationId,
+                appProgress: frameworkStatus.applicationProgress,
+                appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+                appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
+                appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
+                appExitCode: frameworkStatus.applicationExitCode,
+                appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+                appExitType: frameworkStatus.applicationExitType
               };
             }
-            if (framework.aggregatedTaskRoleStatuses) {
-              for (let taskRole of Object.keys(framework.aggregatedTaskRoleStatuses)) {
+            const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
+            if (frameworkRequest.frameworkDescriptor) {
+              job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+            }
+            const taskRoleStatuses = framework.aggregatedTaskRoleStatuses;
+            if (taskRoleStatuses) {
+              for (let taskRole of Object.keys(taskRoleStatuses)) {
                 job.taskRoles[taskRole] = {
                   taskRoleStatus: { name: taskRole },
                   taskStatuses: []
                 };
-                for (let task of framework.aggregatedTaskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+                for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
                   job.taskRoles[taskRole].taskStatuses.push({
                     taskIndex: task.taskIndex,
                     containerId: task.containerId,
@@ -159,16 +165,7 @@ class Job {
                 }
               }
             }
-            unirest.get(launcherConfig.frameworkRequestPath(name))
-                .headers(launcherConfig.webserviceRequestHeaders)
-                .end((frameworkRequestRes) => {
-                  const frameworkRequest = typeof frameworkRequestRes.body === 'object' ?
-                      frameworkRequestRes.body : JSON.parse(frameworkRequestRes.body);
-                  if (frameworkRequest.frameworkDescriptor) {
-                    job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-                  }
-                  next(job);
-                });
+            next(job);
           }
         });
   }
