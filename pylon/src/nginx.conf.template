@@ -1,0 +1,85 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+worker_processes  1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include            mime.types;
+  default_type       application/octet-stream;
+  sendfile           on;
+  keepalive_timeout  65;
+
+  # Use the DNS of the host machine as nginx's resolver.
+  # TODO: Find a better way to avoid setting this manually.
+  #       For example, install a dnsmasq so that the resolver here
+  #       can be simply set to 127.0.0.1.
+  resolver 127.0.0.1;
+
+  server {
+    listen      80;
+    server_name localhost;
+
+    # General-purpose reverse proxy.
+    location ~ ^/r/(http|https)/([^/]+)/(\d*)(.*)$ {
+      set $target_scheme $1;
+      set $target_host   $2;
+      set $target_port   :$3;
+      set $target_path   $4$is_args$args;
+      if ($target_port = ":0") {
+        set $target_port "";
+      }
+      proxy_pass $target_scheme://$target_host$target_port$target_path;
+    }
+
+    #
+    # API servers
+    #
+
+    # PAI REST server
+    location ~ ^/rest-server/api(.*)$ {
+      proxy_pass {{REST_SERVER_URI}}/api$1$is_args$args;
+    }
+
+    # Kubernetes API server.
+    location ~ ^/kubernetes/api(.*)$ {
+      proxy_pass {{K8S_API_SERVER_URI}}/api$1$is_args$args;
+    }
+
+    # WebHDFS API server.
+    location ~ ^/webhdfs/api(.*)$ {
+      proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
+    }
+
+    # Prometheus API server.
+    location ~ ^/prometheus/api(.*)$ {
+      proxy_pass {{PROMETHEUS_URI}}/api$1$is_args$args;
+    }
+
+    #
+    # PAI web portal
+    #
+
+    location ~ ^(.*) {
+      proxy_pass {{WEBPORTAL_URI}}$1$is_args$args;
+    }
+  }
+}
+

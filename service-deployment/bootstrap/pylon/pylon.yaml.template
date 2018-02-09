@@ -16,39 +16,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: extensions/v1beta1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: grafana
+  name: pylon-ds
 spec:
-  replicas: 1
   template:
     metadata:
+      name: pylon
       labels:
-        task: monitor
-        k8s-app: grafana
+        app: pylon
     spec:
-      hostNetwork: true
-      hostPID: true
+      hostNetwork: false
+      hostPID: false
       nodeSelector:
-        grafana: "true"
-      volumes:
-      - name: grafana-confg-volume
-        configMap:
-          name: grafana-configuration
+        pylon: "true"
       containers:
-      - name: grafana
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /grafana-configuration
-          name: grafana-confg-volume
-        env:
-        - name : GRAFANA_URL
-          value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
-        - name: GF_AUTH_ANONYMOUS_ENABLED
-          value: "true"
+        - name: pylon
+          image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon
+          imagePullPolicy: Always
+          env:
+            - name: REST_SERVER_URI
+              value: {{ clusterinfo['pyloninfo']['rest_server_uri'] }}
+            - name: PROMETHEUS_URI
+              value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
+            - name: K8S_API_SERVER_URI
+              value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
+            - name: WEBHDFS_URI
+              value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
+            - name: WEBPORTAL_URI
+              value: {{ clusterinfo['pyloninfo']['webportal_uri'] }}
+          ports:
+            - name: pylon
+              containerPort: 80
+              hostPort: {{ clusterinfo['pyloninfo']['port'] }}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+        - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

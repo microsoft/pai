@@ -15,40 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: grafana
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        task: monitor
-        k8s-app: grafana
-    spec:
-      hostNetwork: true
-      hostPID: true
-      nodeSelector:
-        grafana: "true"
-      volumes:
-      - name: grafana-confg-volume
-        configMap:
-          name: grafana-configuration
-      containers:
-      - name: grafana
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}grafana:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: {{ clusterinfo['grafanainfo']['grafana_port'] }}
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /grafana-configuration
-          name: grafana-confg-volume
-        env:
-        - name : GRAFANA_URL
-          value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
-        - name: GF_AUTH_ANONYMOUS_ENABLED
-          value: "true"
-      imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+import os
+from jinja2 import Template
+
+templateString = open('nginx.conf.template', 'r').read()
+renderedString = Template(templateString).render({
+    "REST_SERVER_URI": os.environ['REST_SERVER_URI'],
+    "K8S_API_SERVER_URI": os.environ['K8S_API_SERVER_URI'],
+    "WEBHDFS_URI": os.environ['WEBHDFS_URI'],
+    "PROMETHEUS_URI": os.environ['PROMETHEUS_URI'],
+    "WEBPORTAL_URI": os.environ['WEBPORTAL_URI']
+})
+open('nginx.conf', 'w').write(renderedString)
+

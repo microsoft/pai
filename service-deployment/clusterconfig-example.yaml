@@ -115,6 +115,20 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
+  
+  pyloninfo:
+    # root url of the rest server
+    rest_server_uri: http://10.0.3.9:9186
+    # root url of the k8s apiserver
+    k8s_api_server_uri: http://10.0.3.9:8080
+    # root url of the prometheus server
+    prometheus_uri: http://10.0.1.9:9090
+    # root url of the webhdfs api server
+    webhdfs_uri: http://10.0.3.9:50070
+    # root url of the web portal
+    webportal_uri: http://10.0.3.9:9286
+    # port of pylon
+    port: 80
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
@@ -160,6 +174,7 @@ machinelist:
     # Note: if zookeeper is set, you should set zkid in this machine.
     # jobhistory: "true"   or not set this value
     # grafana: "true"   or not set this value
+    # pylon: "true"   or not set this value
     hdfsrole: master
     yarnrole: master
     zookeeper: "true"
@@ -169,6 +184,7 @@ machinelist:
     webportal: "true"
     prometheus: "true"
     grafana: "true"
+    pylon: "true"
   
   # Do the same work as the machine above.
   worker-01:
