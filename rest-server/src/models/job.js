@@ -41,6 +41,33 @@ class Job {
     });
   }
 
+  convertJobState(frameworkState, exitCode) {
+    let jobState = '';
+    switch(frameworkState) {
+      case 'FRAMEWORK_WAITING':
+      case 'APPLICATION_CREATED':
+      case 'APPLICATION_LAUNCHED':
+      case 'APPLICATION_WAITING':
+        jobState = 'WAITING';
+        break;
+      case 'APPLICATION_RUNNING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
+        jobState = 'RUNNING';
+        break;
+      case 'FRAMEWORK_COMPLETED':
+        if (exitCode && parseInt(exitCode) === 0) {
+          jobState = 'SUCCEEDED';
+        } else {
+          jobState = 'FAILED';
+        }
+        break;
+      default:
+        jobState = 'UNKNOWN';
+    }
+    return jobState;
+  }
+
   getJobList(next) {
     unirest.get(launcherConfig.frameworksPath())
         .headers(launcherConfig.webserviceRequestHeaders)
@@ -56,7 +83,8 @@ class Job {
             return {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
-              state: frameworkInfo.frameworkState,
+              state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
+              subState: frameworkInfo.frameworkState,
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
@@ -86,33 +114,9 @@ class Job {
             next(job, new Error('job not found'));
           } else {
             if (framework.frameworkStatus) {
-              let jobState = "";
-              const frameworkState = framework.frameworkStatus.frameworkState;
-              const applicationExitType = framework.frameworkStatus.applicationExitType;
-              if (
-                  frameworkState == 'FRAMEWORK_WAITING' ||
-                  frameworkState == 'APPLICATION_CREATED' ||
-                  frameworkState == 'APPLICATION_LAUNCHED' ||
-                  frameworkState == 'APPLICATION_WAITING'
-                ) {
-                jobState = 'WAITING';
-              } else if (
-                  frameworkState == 'APPLICATION_RUNNING' ||
-                  frameworkState == 'APPLICATION_RETRIEVING_DIAGNOSTICS' ||
-                  frameworkState == 'APPLICATION_COMPLETED'
-                ) {
-                jobState = 'RUNNING';
-              } else if (
-                  frameworkState == 'FRAMEWORK_COMPLETED' &&
-                  applicationExitType == 'SUCCEEDED'
-                ) {
-                jobState = 'SUCCEEDED';
-              } else if (
-                  frameworkState == 'FRAMEWORK_COMPLETED' &&
-                  applicationExitType != 'SUCCEEDED'
-                ) {
-                jobState = 'FAILED';
-              }
+              const jobState = this.convertJobState(
+                  framework.frameworkStatus.frameworkState,
+                  framework.frameworkStatus.applicationExitCode);
               let jobRetryCount = 0;
               const jobRetryCountInfo = framework.frameworkStatus.frameworkRetryPolicyState;
               jobRetryCount =
