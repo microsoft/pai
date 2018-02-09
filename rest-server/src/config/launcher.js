@@ -171,8 +171,10 @@ unirest.get(launcherConfig.healthCheckPath())
     .end((res) => {
       if (res.status === 200) {
         logger.info('connected to framework launcher successfully');
-        prepareHdfsPath();
-        prepareLocalPath();
+        if (config.env !== 'test') {
+          prepareHdfsPath();
+          prepareLocalPath();
+        }
       } else {
         throw new Error('cannot connect to framework launcher');
       }

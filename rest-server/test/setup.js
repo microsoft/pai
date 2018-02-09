@@ -16,24 +16,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-/**
- * Implementation of RESTful API server.
- * Init and start server instance.
- */
+process.env.NODE_ENV = 'test';
 
 // module dependencies
-const config = require('./config/index');
-const launcherConfig = require('./config/launcher');
-const logger = require('./config/logger');
-const app = require('./config/express');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../src/index');
+
+chai.use(chaiHttp);
 
 
-logger.info('config: %j', config);
-logger.info('launcher config: %j', launcherConfig);
-
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('RESTful API server starts on port %d', config.serverPort);
-});
-
-module.exports = app;
+global.chai = chai;
+global.assert = chai.assert;
+global.expect = chai.expect;
+global.should = chai.should;
+global.server = server;
