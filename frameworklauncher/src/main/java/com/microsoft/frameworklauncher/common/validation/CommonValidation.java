@@ -24,6 +24,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CommonValidation {
@@ -34,6 +35,8 @@ public class CommonValidation {
   // Accept all uppercase and lowercase letters, decimal digits, hyphen, period, underscore, and tilde
   public static final String NAMING_CONVENTION_REGEX_STR = "^[A-Za-z0-9\\-._~]{1,256}$";
   public static final Pattern NAMING_CONVENTION_REGEX = Pattern.compile(NAMING_CONVENTION_REGEX_STR);
+  public static final String NAMESPACE_NAMING_CONVENTION_REGEX_STR = "^([^~]+)~([^~]+)$";
+  public static final Pattern NAMESPACE_NAMING_CONVENTION_REGEX = Pattern.compile(NAMESPACE_NAMING_CONVENTION_REGEX_STR);
   private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
   public static <T> void validate(T o) throws BadRequestException {
@@ -57,5 +60,20 @@ public class CommonValidation {
           "Name [%s] is not matched with naming convention regex [%s]",
           s, NAMING_CONVENTION_REGEX));
     }
+  }
+
+  public static String validateAndGetNamespace(String frameworkName) throws BadRequestException {
+    if (frameworkName == null) {
+      throw new BadRequestException("Object is null");
+    }
+
+    Matcher matcher = NAMESPACE_NAMING_CONVENTION_REGEX.matcher(frameworkName);
+    if (!matcher.matches()) {
+      throw new BadRequestException(String.format(
+          "Name [%s] is not matched with naming convention regex [%s]",
+          frameworkName, NAMESPACE_NAMING_CONVENTION_REGEX));
+    }
+
+    return matcher.group(1);
   }
 }

@@ -37,8 +37,9 @@ public class LauncherClient {
   private final int maxRetryCount;
   private final int retryIntervalSec;
 
-  public LauncherClient(String launcherAddress, int maxRetryCount, int retryIntervalSec, LaunchClientType launchClientType) {
-    this.webClient = new WebClient(launcherAddress, launchClientType.toString());
+  public LauncherClient(String launcherAddress, int maxRetryCount, int retryIntervalSec,
+      LaunchClientType launchClientType, String userName, Boolean isAdmin) {
+    this.webClient = new WebClient(launcherAddress, launchClientType, userName, isAdmin);
     this.maxRetryCount = maxRetryCount;
     this.retryIntervalSec = retryIntervalSec;
   }
@@ -181,6 +182,16 @@ public class LauncherClient {
           WebStructure.CLUSTER_CONFIGURATION_PATH,
           ContentType.APPLICATION_JSON,
           WebCommon.toJson(clusterConfiguration));
+    });
+  }
+
+  public void putAclConfiguration(AclConfiguration aclConfiguration) throws Exception {
+    executeWithRetry(() -> {
+      CommonValidation.validate(aclConfiguration);
+      return webClient.put(
+          WebStructure.ACL_CONFIGURATION_PATH,
+          ContentType.APPLICATION_JSON,
+          WebCommon.toJson(aclConfiguration));
     });
   }
 

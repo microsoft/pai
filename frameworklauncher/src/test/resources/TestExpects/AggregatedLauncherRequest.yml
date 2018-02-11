@@ -66,6 +66,12 @@ aggregatedFrameworkRequests:
       testString: {antiAffinityLevel: ANY}
     overrideApplicationProgressRequest: {applicationProgress: null}
 launcherRequest:
+  aclConfiguration:
+    namespaceAcls:
+      testString:
+        users: !!set
+          ? {name: testString}
+          : null
   clusterConfiguration:
     nodes:
       testString: {gpuType: testString}

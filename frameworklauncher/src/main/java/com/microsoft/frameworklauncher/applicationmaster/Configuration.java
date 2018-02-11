@@ -29,7 +29,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 // Const parameters for the current AM instead of state variable
-class Configuration {
+public class Configuration {
   private YarnConfiguration yarnConfig;
   private String frameworkName;
   private Integer frameworkVersion;

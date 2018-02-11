@@ -32,7 +32,7 @@ public class YamlTestUtils {
       "java.lang.Boolean", "java.lang.String");
 
   private static List<String> parameterizedTypeClass = Arrays.asList(
-      "java.util.Map", "java.util.List");
+      "java.util.Map", "java.util.List", "java.util.Set");
 
   private static final Integer INIT_INT = 0;
   private static final Long INIT_Long = 0L;
@@ -157,6 +157,8 @@ public class YamlTestUtils {
         return (T) mapTypeInit(parameterizedType);
       case 1:
         return (T) listTypeInit(parameterizedType);
+      case 2:
+        return (T) setTypeInit(parameterizedType);
     }
     return null;
   }
@@ -180,10 +182,18 @@ public class YamlTestUtils {
     return map;
   }
 
+  public static Set setTypeInit(ParameterizedType parameterizedType)
+      throws Exception {
+    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+    Set set = new HashSet();
+    set.add(newInstance((Class) actualTypeArguments[0]));
+
+    return set;
+  }
+
   public static String methodName(String prefix, String fieldName) {
     char c = fieldName.charAt(0);
     char upperChar = Character.isUpperCase(c) ? c : (char) (c + 'A' - 'a');
     return prefix + upperChar + fieldName.substring(1);
   }
-
 }

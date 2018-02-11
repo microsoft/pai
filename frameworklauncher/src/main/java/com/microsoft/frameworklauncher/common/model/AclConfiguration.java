@@ -17,58 +17,31 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class UserDescriptor implements Serializable {
+public class AclConfiguration implements Serializable {
   @Valid
   @NotNull
-  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
-  private String name = "default";
+  @MapKeyNamingValidation
+  // Namespace -> AccessControlList
+  // Namespace can be UserName, GroupName, etc.
+  private Map<String, AccessControlList> namespaceAcls = new HashMap<>();
 
-  public static UserDescriptor newInstance() {
-    return newInstance(null);
+  public Map<String, AccessControlList> getNamespaceAcls() {
+    return namespaceAcls;
   }
 
-  public static UserDescriptor newInstance(String name) {
-    UserDescriptor userDescriptor = new UserDescriptor();
-    if (name != null) {
-      userDescriptor.setName(name);
-    }
-    return userDescriptor;
+  public void setNamespaceAcls(Map<String, AccessControlList> namespaceAcls) {
+    this.namespaceAcls = namespaceAcls;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (!(obj instanceof UserDescriptor))
-      return false;
-    UserDescriptor other = (UserDescriptor) obj;
-    return name.equals(other.name);
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return name;
+  public AccessControlList getNamespaceAcl(String namespace) {
+    return namespaceAcls.getOrDefault(namespace, new AccessControlList());
   }
 }

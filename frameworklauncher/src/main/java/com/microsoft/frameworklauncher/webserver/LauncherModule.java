@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -40,11 +41,13 @@ import java.util.List;
 @Path("/")
 public class LauncherModule {
   private static final DefaultLogger LOGGER = new DefaultLogger(LauncherModule.class);
+  private final LauncherConfiguration conf;
   private final StatusManager statusManager;
   private final RequestManager requestManager;
 
   @Inject
   public LauncherModule(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager) {
+    this.conf = conf;
     this.statusManager = statusManager;
     this.requestManager = requestManager;
   }
@@ -65,15 +68,89 @@ public class LauncherModule {
     }
   }
 
-  private static String getUserName(
-      CommonExts.NoExceptionCallable<String> ResolveUserName) throws BadRequestException {
-    String userName = ResolveUserName.call();
-    if (userName == null) {
+  private static String getName(
+      CommonExts.NoExceptionCallable<String> ResolveName) throws BadRequestException {
+    String name = ResolveName.call();
+    if (name == null) {
       return null;
     }
 
-    CommonValidation.validate(userName);
-    return userName;
+    CommonValidation.validate(name);
+    return name;
+  }
+
+  private static Boolean getBoolean(
+      CommonExts.NoExceptionCallable<String> ResolveBoolean) throws BadRequestException {
+    String booleanStr = ResolveBoolean.call();
+    if (booleanStr == null) {
+      return null;
+    }
+
+    if (!booleanStr.equalsIgnoreCase("true") && !booleanStr.equalsIgnoreCase("false")) {
+      throw new BadRequestException(String.format(
+          "Failed to ParseBooleanStr: [%s]", booleanStr));
+    }
+
+    return Boolean.valueOf(booleanStr);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr) throws Exception {
+    checkWritableAccess(hsr, null, null);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr,
+      String frameworkName) throws Exception {
+    checkWritableAccess(hsr, frameworkName, null);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr,
+      String frameworkName,
+      UserDescriptor frameworkUser) throws Exception {
+    if (!conf.getWebServerAclEnable()) {
+      return;
+    }
+
+    // Check Admin
+    Boolean isAdmin = getBoolean(() -> hsr.getHeader(WebCommon.REQUEST_HEADER_IS_ADMIN));
+    if (isAdmin != null && isAdmin) {
+      // Admin Users can always access anything
+      return;
+    } else if (frameworkName == null) {
+      // Non Admin can only write Framework Request
+      throw new AuthorizationException(
+          "This operation needs administrator privilege.");
+    }
+
+    UserDescriptor user = UserDescriptor.newInstance(
+        getName(() -> hsr.getHeader(WebCommon.REQUEST_HEADER_USER_NAME)));
+
+    // Check UserName consistency
+    if (frameworkUser != null && !frameworkUser.equals(user)) {
+      throw new AuthorizationException(String.format(
+          "User [%s] cannot submit a Framework which belongs to another User [%s].",
+          user, frameworkUser));
+    }
+
+    // Check Namespace Acl
+    String namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+    AccessControlList namespaceAcl = new AccessControlList();
+
+    // 1. Add Predefined Acl
+    // 1.1 User can always write the Namespace whose name is the same as User
+    namespaceAcl.addUser(UserDescriptor.newInstance(namespace));
+    // 2. Add Configured Acl
+    namespaceAcl.addUsers(requestManager.getLauncherRequest().
+        getAclConfiguration().getNamespaceAcl(namespace).getUsers());
+
+    if (!namespaceAcl.containsUser(user)) {
+      throw new AuthorizationException(String.format(
+          "User [%s] does not have the Writable Access to the Namespace [%s] " +
+              "of FrameworkName [%s]. Current Writable Users of the Namespace: %s.",
+          user, namespace, frameworkName, namespaceAcl));
+    }
   }
 
   @GET
@@ -115,6 +192,7 @@ public class LauncherModule {
         WebCommon.toJson(updateDataDeploymentVersionRequest));
 
     CommonValidation.validate(updateDataDeploymentVersionRequest);
+    checkWritableAccess(hsr);
 
     requestManager.updateDataDeploymentVersion(updateDataDeploymentVersionRequest);
     return Response
@@ -134,6 +212,7 @@ public class LauncherModule {
         WebCommon.toJson(clusterConfiguration));
 
     CommonValidation.validate(clusterConfiguration);
+    checkWritableAccess(hsr);
 
     requestManager.updateClusterConfiguration(clusterConfiguration);
     return Response
@@ -150,13 +229,41 @@ public class LauncherModule {
     return requestManager.getClusterConfiguration();
   }
 
+  @PUT
+  @Path(WebStructure.ACL_CONFIGURATION_PATH)
+  @Consumes({MediaType.APPLICATION_JSON})
+  public Response putAclConfiguration(
+      @Context HttpServletRequest hsr,
+      AclConfiguration aclConfiguration) throws Exception {
+    LOGGER.logSplittedLines(Level.INFO,
+        "putAclConfiguration: \n%s",
+        WebCommon.toJson(aclConfiguration));
+
+    CommonValidation.validate(aclConfiguration);
+    checkWritableAccess(hsr);
+
+    requestManager.updateAclConfiguration(aclConfiguration);
+    return Response
+        .status(HttpStatus.SC_OK)
+        .header("Location", hsr.getRequestURL())
+        .build();
+  }
+
+  @GET
+  @Path(WebStructure.ACL_CONFIGURATION_PATH)
+  @Produces({MediaType.APPLICATION_JSON})
+  public AclConfiguration getAclConfiguration(
+      @Context HttpServletRequest hsr) throws Exception {
+    return requestManager.getAclConfiguration();
+  }
+
   @GET
   @Path(WebStructure.FRAMEWORK_ROOT_PATH)
   @Produces({MediaType.APPLICATION_JSON})
   public SummarizedFrameworkInfos getFrameworks(@Context HttpServletRequest hsr) throws Exception {
     LaunchClientType clientType = getLaunchClientType(() ->
         hsr.getParameter(WebStructure.REQUEST_PARAM_LAUNCH_CLIENT_TYPE));
-    String userName = getUserName(() ->
+    String userName = getName(() ->
         hsr.getParameter(WebStructure.REQUEST_PARAM_USER_NAME));
 
     List<FrameworkRequest> frameworkRequests =
@@ -180,12 +287,13 @@ public class LauncherModule {
       @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
       FrameworkDescriptor frameworkDescriptor) throws Exception {
-    String logPrefix = String.format("[%s]: PutFrameworkFromJson: ", frameworkName);
+    String logPrefix = String.format("[%s]: putFramework: ", frameworkName);
 
     LOGGER.logSplittedLines(Level.INFO, logPrefix + "\n%s", WebCommon.toJson(frameworkDescriptor));
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(frameworkDescriptor);
+    checkWritableAccess(hsr, frameworkName, frameworkDescriptor.getUser());
 
     // Get LaunchClientType
     LaunchClientType clientType = getLaunchClientType(() ->
@@ -245,6 +353,7 @@ public class LauncherModule {
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(taskRoleName);
     CommonValidation.validate(updateTaskNumberRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateTaskNumber(frameworkName, taskRoleName, updateTaskNumberRequest);
     return Response
@@ -267,6 +376,7 @@ public class LauncherModule {
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(migrateTaskRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateMigrateTask(frameworkName, containerId, migrateTaskRequest);
     return Response
@@ -288,6 +398,7 @@ public class LauncherModule {
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(overrideApplicationProgressRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateApplicationProgress(frameworkName, overrideApplicationProgressRequest);
     return Response
@@ -299,8 +410,12 @@ public class LauncherModule {
   @DELETE
   @Path(WebStructure.FRAMEWORK_PATH)
   public Response deleteFramework(
+      @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName) throws Exception {
     LOGGER.logInfo("[%s]: deleteFramework: Started", frameworkName);
+
+    CommonValidation.validate(frameworkName);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.deleteFrameworkRequest(frameworkName);
     return Response
@@ -311,9 +426,13 @@ public class LauncherModule {
   @DELETE
   @Path(WebStructure.MIGRATE_TASK_PATH)
   public Response deleteMigrateTask(
+      @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
       @PathParam(WebStructure.CONTAINER_ID_PATH_PARAM) String containerId) throws Exception {
     LOGGER.logInfo("[%s][%s]: deleteMigrateTask: Started", frameworkName, containerId);
+
+    CommonValidation.validate(frameworkName);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.deleteMigrateTaskRequest(frameworkName, containerId);
     return Response

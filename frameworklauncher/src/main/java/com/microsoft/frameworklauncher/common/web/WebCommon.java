@@ -28,6 +28,8 @@ import java.util.Map;
 
 public class WebCommon {
   public final static String REQUEST_HEADER_LAUNCH_CLIENT_TYPE = "LaunchClientType";
+  public final static String REQUEST_HEADER_USER_NAME = "UserName";
+  public final static String REQUEST_HEADER_IS_ADMIN = "IsAdmin";
   public final static int SC_TOO_MANY_REQUESTS = 429;
 
   public static String getURI(String baseURI, String relativeURI) {

@@ -96,7 +96,7 @@ public class LauncherConfiguration implements Serializable {
   @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
-
+  private Boolean webServerAclEnable = false;
 
   public String getZkConnectString() {
     return zkConnectString;
@@ -336,5 +336,13 @@ public class LauncherConfiguration implements Serializable {
 
   public void setWebServerStatusPullIntervalSec(Integer webServerStatusPullIntervalSec) {
     this.webServerStatusPullIntervalSec = webServerStatusPullIntervalSec;
+  }
+
+  public Boolean getWebServerAclEnable() {
+    return webServerAclEnable;
+  }
+
+  public void setWebServerAclEnable(Boolean webServerAclEnable) {
+    this.webServerAclEnable = webServerAclEnable;
   }
 }

@@ -17,58 +17,44 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-public class UserDescriptor implements Serializable {
+public class AccessControlList implements Serializable {
   @Valid
   @NotNull
-  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
-  private String name = "default";
+  // Simple Acl:
+  // All users can Read, however, only users in the Acl can Write.
+  private Set<UserDescriptor> users = new HashSet<>();
 
-  public static UserDescriptor newInstance() {
-    return newInstance(null);
+  public Set<UserDescriptor> getUsers() {
+    return users;
   }
 
-  public static UserDescriptor newInstance(String name) {
-    UserDescriptor userDescriptor = new UserDescriptor();
-    if (name != null) {
-      userDescriptor.setName(name);
-    }
-    return userDescriptor;
+  public void setUsers(Set<UserDescriptor> users) {
+    this.users = users;
   }
 
-  public String getName() {
-    return name;
+  public void addUsers(Collection<UserDescriptor> users) {
+    this.users.addAll(users);
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void addUser(UserDescriptor user) {
+    users.add(user);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (!(obj instanceof UserDescriptor))
-      return false;
-    UserDescriptor other = (UserDescriptor) obj;
-    return name.equals(other.name);
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
+  public boolean containsUser(UserDescriptor user) {
+    return users.contains(user);
   }
 
   @Override
   public String toString() {
-    return name;
+    return CommonExts.toString(users);
   }
 }

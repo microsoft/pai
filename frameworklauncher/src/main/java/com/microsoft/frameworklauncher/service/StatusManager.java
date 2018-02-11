@@ -100,8 +100,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   protected void recover() throws Exception {
     super.recover();
 
-    UserDescriptor loggedInUser = new UserDescriptor();
-    loggedInUser.setName(UserGroupInformation.getCurrentUser().getUserName());
+    UserDescriptor loggedInUser = UserDescriptor.newInstance(
+        UserGroupInformation.getCurrentUser().getUserName());
 
     // Recover LauncherStatus to ZK
     LauncherStatus launcherStatus = new LauncherStatus();

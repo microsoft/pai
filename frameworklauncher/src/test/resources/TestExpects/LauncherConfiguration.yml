@@ -32,6 +32,7 @@ hdfsRootDir: testString
 maxTotalTaskNumber: 0
 serviceRMResyncIntervalSec: 0
 serviceRequestPullIntervalSec: 0
+webServerAclEnable: false
 webServerAddress: testString
 webServerBindHost: testString
 webServerStatusPullIntervalSec: 0
