@@ -140,7 +140,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CODE_DIR                       | `codeDir` in config file                 |
 | PAI_TASK_ROLE_LIST                 | Comma separated all task role names in config file |
 | PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
-| PAI_TASK_ROLE_NUM                  | `taskRole.number` of current task role   |
+| PAI_TASK_ROLE_NUM                  | `taskRole.taskNumber` of current task role |
 | PAI_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
 | PAI_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
 | PAI_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
