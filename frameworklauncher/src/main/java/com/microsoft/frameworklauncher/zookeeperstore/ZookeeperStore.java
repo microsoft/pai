@@ -29,12 +29,12 @@ public class ZookeeperStore {
   protected final ZooKeeperClient zkClient;
   protected final ZookeeperStoreStructure zkStruct;
 
-  public ZookeeperStore(String connectString, String launcherRootPath) throws Exception {
+  public ZookeeperStore(String connectString, String launcherRootPath, Boolean compressionEnable) throws Exception {
     LOGGER.logInfo(
-        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s]",
-        connectString, launcherRootPath);
+        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s], [CompressionEnable] = [%s]",
+        connectString, launcherRootPath, compressionEnable);
 
-    zkClient = new ZooKeeperClient(connectString);
+    zkClient = new ZooKeeperClient(connectString, compressionEnable);
     zkStruct = new ZookeeperStoreStructure(launcherRootPath);
 
     setupZKStructure();

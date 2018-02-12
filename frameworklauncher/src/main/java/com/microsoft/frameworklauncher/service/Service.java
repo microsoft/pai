@@ -133,7 +133,7 @@ public class Service extends AbstractService {
     yarnClient.start();
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
     hdfsStore = new HdfsStore(conf.getHdfsRootDir());
 
     // Initialize other components
@@ -283,6 +283,7 @@ public class Service extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
+    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, conf.getAmRmHeartbeatIntervalSec().toString());
 

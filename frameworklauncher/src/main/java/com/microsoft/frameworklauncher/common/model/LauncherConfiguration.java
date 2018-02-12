@@ -26,6 +26,7 @@ public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
+  private Boolean zkCompressionEnable = true;
   private String hdfsRootDir = "/Launcher";
   private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
@@ -86,13 +87,13 @@ public class LauncherConfiguration implements Serializable {
   // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
   // ContainerRequest randomly.
   private Integer amContainerRequestMinTimeoutSec = 10;
-  private Integer amContainerRequestMaxTimeoutSec = 60;
+  private Integer amContainerRequestMaxTimeoutSec = 200;
 
   // If a Task's ContainerRequest is NotAvailable when SetupContainerRequest,
   // AM will SetupContainerRequest for the Task again after 
   // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
-  private Integer amSetupContainerRequestMaxRetryIntervalSec = 90;
+  private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
@@ -115,6 +116,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setZkRootDir(String zkRootDir) {
     this.zkRootDir = zkRootDir;
+  }
+
+  public Boolean getZkCompressionEnable() {
+    return zkCompressionEnable;
+  }
+
+  public void setZkCompressionEnable(Boolean zkCompressionEnable) {
+    this.zkCompressionEnable = zkCompressionEnable;
   }
 
   public String getHdfsRootDir() {

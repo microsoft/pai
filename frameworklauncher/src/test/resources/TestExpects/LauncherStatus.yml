@@ -40,6 +40,7 @@ launcherConfiguration:
   webServerAddress: testString
   webServerBindHost: testString
   webServerStatusPullIntervalSec: 0
+  zkCompressionEnable: false
   zkConnectString: testString
   zkRootDir: testString
 loggedInUser: {name: testString}
