@@ -92,14 +92,14 @@ Below please find the detailed explanation for each of the parameters in the con
 
 | Field Name                     | Schema                     | Description                              |
 | :----------------------------- | :------------------------- | :--------------------------------------- |
-| `jobName`                      | String in `^[a-zA-Z0-9._\-()]+$` format, required | Name for the job, need to be unique |
+| `jobName`                      | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique |
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
 | `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
-| `taskRole.name`                | String, required           | Name for the task role, need to be unique with other roles |
+| `taskRole.name`                | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |

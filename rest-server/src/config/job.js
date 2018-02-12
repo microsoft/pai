@@ -40,6 +40,7 @@ const jobConfigSchema = Joi.object().keys({
   taskRoles: Joi.array()
     .items(Joi.object().keys({
         name: Joi.string()
+          .regex(/^[A-Za-z0-9\-._~]+$/)
           .required(),
         taskNumber: Joi.number()
           .integer()
