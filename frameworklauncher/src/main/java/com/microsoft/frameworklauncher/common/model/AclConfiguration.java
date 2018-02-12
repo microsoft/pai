@@ -40,8 +40,4 @@ public class AclConfiguration implements Serializable {
   public void setNamespaceAcls(Map<String, AccessControlList> namespaceAcls) {
     this.namespaceAcls = namespaceAcls;
   }
-
-  public AccessControlList getNamespaceAcl(String namespace) {
-    return namespaceAcls.getOrDefault(namespace, new AccessControlList());
-  }
 }

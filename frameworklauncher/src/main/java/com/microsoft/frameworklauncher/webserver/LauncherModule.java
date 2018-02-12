@@ -142,8 +142,8 @@ public class LauncherModule {
     // 1.1 User can always write the Namespace whose name is the same as User
     namespaceAcl.addUser(UserDescriptor.newInstance(namespace));
     // 2. Add Configured Acl
-    namespaceAcl.addUsers(requestManager.getLauncherRequest().
-        getAclConfiguration().getNamespaceAcl(namespace).getUsers());
+    namespaceAcl.addUsers(requestManager.getLauncherRequest().getAclConfiguration().
+        getNamespaceAcls().getOrDefault(namespace, new AccessControlList()).getUsers());
 
     if (!namespaceAcl.containsUser(user)) {
       throw new AuthorizationException(String.format(
