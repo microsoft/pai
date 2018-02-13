@@ -41,11 +41,12 @@
     "mocha": "5.0.0",
     "morgan": "1.9.0",
     "mustache": "2.3.0",
+    "nock": "9.1.6",
     "unirest": "0.5.1",
     "winston": "2.4.0"
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000"
+    "test": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit"
   }
 }

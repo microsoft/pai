@@ -16,30 +16,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// environment variables
-process.env.NODE_ENV = 'test';
-process.env.SERVER_PORT = 8080;
-process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
-process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
-process.env.JWT_SECRET = 'jwt_test_secret';
-process.env.LOWDB_FILE = './user.db.json';
-process.env.LOWDB_ADMIN = 'iamadmin';
-process.env.LOWDB_PASSWD = 'adminisi';
+// test
+describe('Jobs API /api/v1/jobs', () => {
+  // Mock launcher webservice
+  beforeEach(() => {
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks')
+      .reply(200, ['job0', 'job1', 'job2']);
+  });
 
-
-// module dependencies
-const nock = require('nock');
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const server = require('../src/index');
-
-chai.use(chaiHttp);
-
-
-global.nock = nock;
-global.chai = chai;
-global.assert = chai.assert;
-global.expect = chai.expect;
-global.should = chai.should;
-global.server = server;
-global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
+  // GET /api/v1/jobs
+  it('should return jobs list', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
+});
