@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.model.LauncherStatus;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
@@ -85,8 +86,9 @@ public class Configuration {
     this.attemptId = attemptId.toString();
     applicationId = attemptId.getApplicationId().toString();
 
-    launcherConfig = zkStore.getLauncherStatus().getLauncherConfiguration();
-    loggedInUser = zkStore.getLauncherStatus().getLoggedInUser();
+    LauncherStatus launcherStatus = zkStore.getLauncherStatus();
+    launcherConfig = launcherStatus.getLauncherConfiguration();
+    loggedInUser = launcherStatus.getLoggedInUser();
   }
 
   public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) throws Exception {
