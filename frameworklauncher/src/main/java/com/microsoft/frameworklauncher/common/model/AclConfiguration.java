@@ -23,7 +23,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class AclConfiguration implements Serializable {
   @Valid
@@ -33,11 +35,23 @@ public class AclConfiguration implements Serializable {
   // Namespace can be UserName, GroupName, etc.
   private Map<String, AccessControlList> namespaceAcls = new HashMap<>();
 
+  @Valid
+  @NotNull
+  private Set<UserDescriptor> normalAdminUsers = new HashSet<>();
+
   public Map<String, AccessControlList> getNamespaceAcls() {
     return namespaceAcls;
   }
 
   public void setNamespaceAcls(Map<String, AccessControlList> namespaceAcls) {
     this.namespaceAcls = namespaceAcls;
+  }
+
+  public Set<UserDescriptor> getNormalAdminUsers() {
+    return normalAdminUsers;
+  }
+
+  public void setNormalAdminUsers(Set<UserDescriptor> normalAdminUsers) {
+    this.normalAdminUsers = normalAdminUsers;
   }
 }

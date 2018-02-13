@@ -169,7 +169,7 @@ public class ApplicationMaster extends AbstractService {
     // Initialize other components
     launcherClient = new LauncherClient(
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
-        LaunchClientType.APPLICATION_MASTER, conf.getAmUser(), true);
+        LaunchClientType.APPLICATION_MASTER, conf.getLoggedInUser().getName());
 
     selectionManager = new SelectionManager(this);
     rmResyncHandler = new RMResyncHandler(this, conf);

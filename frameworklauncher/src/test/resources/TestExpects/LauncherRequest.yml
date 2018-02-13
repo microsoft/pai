@@ -5,6 +5,9 @@ aclConfiguration:
       users: !!set
         ? {name: testString}
         : null
+  normalAdminUsers: !!set
+    ? {name: testString}
+    : null
 clusterConfiguration:
   nodes:
     testString: {gpuType: testString}

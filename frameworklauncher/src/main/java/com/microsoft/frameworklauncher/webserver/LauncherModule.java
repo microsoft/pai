@@ -36,7 +36,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Path("/")
 public class LauncherModule {
@@ -100,57 +102,80 @@ public class LauncherModule {
   }
 
   private void checkWritableAccess(
-      HttpServletRequest hsr,
-      String frameworkName) throws Exception {
+      HttpServletRequest hsr, String frameworkName) throws Exception {
     checkWritableAccess(hsr, frameworkName, null);
   }
 
   private void checkWritableAccess(
-      HttpServletRequest hsr,
-      String frameworkName,
-      UserDescriptor frameworkUser) throws Exception {
+      HttpServletRequest hsr, String frameworkName, UserDescriptor frameworkUser) throws Exception {
     if (!conf.getWebServerAclEnable()) {
       return;
     }
 
-    // Check Admin
-    Boolean isAdmin = getBoolean(() -> hsr.getHeader(WebCommon.REQUEST_HEADER_IS_ADMIN));
-    if (isAdmin != null && isAdmin) {
-      // Admin Users can always access anything
-      return;
-    } else if (frameworkName == null) {
-      // Non Admin can only write Framework Request
-      throw new AuthorizationException(
-          "This operation needs administrator privilege.");
-    }
-
+    AclConfiguration aclConf = requestManager.getLauncherRequest().getAclConfiguration();
     UserDescriptor user = UserDescriptor.newInstance(
         getName(() -> hsr.getHeader(WebCommon.REQUEST_HEADER_USER_NAME)));
 
-    // Check UserName consistency
-    if (frameworkUser != null && !frameworkUser.equals(user)) {
-      throw new AuthorizationException(String.format(
-          "User [%s] cannot submit a Framework which belongs to another User [%s].",
-          user, frameworkUser));
+    if (frameworkName == null) {
+      checkNonFrameworkWritableAccess(user, aclConf);
+    } else {
+      validateFrameworkUserConsistency(user, frameworkUser);
+      String namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+      checkFrameworkWritableAccess(user, namespace, aclConf);
     }
+  }
 
-    // Check Namespace Acl
-    String namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+  private void checkNonFrameworkWritableAccess(
+      UserDescriptor user, AclConfiguration aclConf) throws Exception {
+    if (!getAdminUsers(aclConf).contains(user)) {
+      throw new AuthorizationException(
+          "This operation needs administrator privilege.");
+    }
+  }
+
+  private void validateFrameworkUserConsistency(
+      UserDescriptor user, UserDescriptor frameworkUser) throws Exception {
+    if (frameworkUser != null && !frameworkUser.equals(user)) {
+      throw new BadRequestException(String.format(
+          "The UserName specified in the FrameworkDescriptor [%s] is " +
+              "not the same as the one specified in the HttpRequestHeader [%s].",
+          frameworkUser, user));
+    }
+  }
+
+  private void checkFrameworkWritableAccess(
+      UserDescriptor user, String namespace, AclConfiguration aclConf) throws Exception {
+    if (!getEffectiveNamespaceAcl(namespace, aclConf).containsUser(user)) {
+      throw new AuthorizationException(String.format(
+          "User [%s] does not have the Writable Access to the Namespace [%s].",
+          user, namespace));
+    }
+  }
+
+  private AccessControlList getEffectiveNamespaceAcl(
+      String namespace, AclConfiguration aclConf) throws Exception {
     AccessControlList namespaceAcl = new AccessControlList();
 
     // 1. Add Predefined Acl
-    // 1.1 User can always write the Namespace whose name is the same as User
+    // 1.1 Admin Users can always write the Namespace
+    namespaceAcl.addUsers(getAdminUsers(aclConf));
+    // 1.2 User can always write the Namespace whose name is the same as User
     namespaceAcl.addUser(UserDescriptor.newInstance(namespace));
-    // 2. Add Configured Acl
-    namespaceAcl.addUsers(requestManager.getLauncherRequest().getAclConfiguration().
-        getNamespaceAcls().getOrDefault(namespace, new AccessControlList()).getUsers());
 
-    if (!namespaceAcl.containsUser(user)) {
-      throw new AuthorizationException(String.format(
-          "User [%s] does not have the Writable Access to the Namespace [%s] " +
-              "of FrameworkName [%s]. Current Writable Users of the Namespace: %s.",
-          user, namespace, frameworkName, namespaceAcl));
-    }
+    // 2. Add Configured Acl
+    namespaceAcl.addUsers(aclConf.getNamespaceAcls().
+        getOrDefault(namespace, new AccessControlList()).getUsers());
+
+    return namespaceAcl;
+  }
+
+  private Set<UserDescriptor> getAdminUsers(
+      AclConfiguration aclConf) throws Exception {
+    Set<UserDescriptor> adminUsers = new HashSet<>();
+    adminUsers.add(statusManager.getLauncherStatus().getLoggedInUser());
+    adminUsers.addAll(conf.getRootAdminUsers());
+    adminUsers.addAll(aclConf.getNormalAdminUsers());
+    return adminUsers;
   }
 
   @GET

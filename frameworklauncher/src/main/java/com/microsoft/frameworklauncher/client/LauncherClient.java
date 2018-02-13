@@ -38,8 +38,8 @@ public class LauncherClient {
   private final int retryIntervalSec;
 
   public LauncherClient(String launcherAddress, int maxRetryCount, int retryIntervalSec,
-      LaunchClientType launchClientType, String userName, Boolean isAdmin) {
-    this.webClient = new WebClient(launcherAddress, launchClientType, userName, isAdmin);
+      LaunchClientType launchClientType, String userName) {
+    this.webClient = new WebClient(launcherAddress, launchClientType, userName);
     this.maxRetryCount = maxRetryCount;
     this.retryIntervalSec = retryIntervalSec;
   }

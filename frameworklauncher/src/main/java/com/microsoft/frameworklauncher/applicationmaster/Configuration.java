@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -47,6 +48,7 @@ public class Configuration {
   private String attemptId;
   private String applicationId;
   private LauncherConfiguration launcherConfig;
+  private UserDescriptor loggedInUser;
 
   // Below properties defined for RM when AM Registered, it may be changed after RM configuration changed.
   private ResourceDescriptor maxResource;
@@ -84,6 +86,7 @@ public class Configuration {
     applicationId = attemptId.getApplicationId().toString();
 
     launcherConfig = zkStore.getLauncherStatus().getLauncherConfiguration();
+    loggedInUser = zkStore.getLauncherStatus().getLoggedInUser();
   }
 
   public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) throws Exception {
@@ -161,6 +164,10 @@ public class Configuration {
 
   protected LauncherConfiguration getLauncherConfig() {
     return launcherConfig;
+  }
+
+  public UserDescriptor getLoggedInUser() {
+    return loggedInUser;
   }
 
   protected ResourceDescriptor getMaxResource() {

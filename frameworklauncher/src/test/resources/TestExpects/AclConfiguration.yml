@@ -4,3 +4,6 @@ namespaceAcls:
     users: !!set
       ? {name: testString}
       : null
+normalAdminUsers: !!set
+  ? {name: testString}
+  : null

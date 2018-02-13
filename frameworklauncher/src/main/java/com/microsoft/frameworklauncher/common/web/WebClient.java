@@ -43,13 +43,12 @@ public class WebClient {
   private CloseableHttpClient httpClient;
   private String baseURI;
 
-  public WebClient(String baseURI, LaunchClientType launchClientType, String userName, Boolean isAdmin) {
+  public WebClient(String baseURI, LaunchClientType launchClientType, String userName) {
     this.baseURI = baseURI;
 
     List<Header> headers = new ArrayList<>();
     headers.add(new BasicHeader(WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE, launchClientType.toString()));
     headers.add(new BasicHeader(WebCommon.REQUEST_HEADER_USER_NAME, userName));
-    headers.add(new BasicHeader(WebCommon.REQUEST_HEADER_IS_ADMIN, isAdmin.toString()));
 
     this.httpClient = HttpClients.custom().setDefaultHeaders(headers).build();
   }

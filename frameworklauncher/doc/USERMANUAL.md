@@ -114,7 +114,6 @@ Configure it as webServerAddress inside [LauncherConfiguration File](../conf/fra
 | Headers | Description |
 |:---- |:---- |
 | UserName | Specifies which User send the Request. It is effective iff webServerAclEnable is true, see [Framework ACL](#Framework_ACL). |
-| IsAdmin | Specifies whether the User send the Request is an Administrator. It is effective iff webServerAclEnable is true, see [Framework ACL](#Framework_ACL). |
 
 ### <a name="APIDetails">API Details</a>
 #### <a name="PUT_Framework">PUT Framework</a>
