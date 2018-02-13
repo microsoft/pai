@@ -35,6 +35,18 @@ spec:
         volumeMounts:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
+        - name: rootfs
+          mountPath: /rootfs
+          readOnly: true
+        - name: var-run
+          mountPath: /var/run
+          readOnly: false
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+        - name: docker
+          mountPath: /var/lib/docker
+          readOnly: true
         name: node-exporter
         args:
           - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/prometheus'
@@ -54,18 +66,6 @@ spec:
           name: driver-path
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
-        - name: rootfs
-          mountPath: /rootfs
-          readOnly: true
-        - name: var-run
-          mountPath: /var/run
-          readOnly: false
-        - name: sys
-          mountPath: /sys
-          readOnly: true
-        - name: docker
-          mountPath: /var/lib/docker
-          readOnly: true
         name: gpu-exporter
       - image: google/cadvisor:latest 
         securityContext:
