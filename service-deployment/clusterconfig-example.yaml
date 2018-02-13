@@ -99,7 +99,9 @@ clusterinfo:
     k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
-
+    # cadvisor port
+    cadvisor_port: 8089
+    
   # The config for Grafana
   grafanainfo:  
     # The address of the grafana to connect to
