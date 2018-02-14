@@ -23,7 +23,6 @@ const Joi = require('joi');
 const async = require('async');
 const unirest = require('unirest');
 const childProcess = require('child_process');
-const config = require('./index');
 const logger = require('./logger');
 
 
@@ -33,12 +32,12 @@ let launcherConfig = {
   webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
   webserviceRequestHeaders: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   jobRootDir: './frameworklauncher',
   jobDirCleanUpIntervalSecond: 7200,
   jobConfigFileName: 'JobConfig.json',
-  frameworkDescriptionFilename: 'FrameworkDescription.json'
+  frameworkDescriptionFilename: 'FrameworkDescription.json',
 };
 
 launcherConfig.healthCheckPath = () => {
@@ -95,10 +94,10 @@ const launcherConfigSchema = Joi.object().keys({
   jobConfigFileName: Joi.string()
     .default('JobConfig.json'),
   frameworkDescriptionFilename: Joi.string()
-    .default('FrameworkDescription.json')
+    .default('FrameworkDescription.json'),
 }).required();
 
-const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema)
+const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema);
 if (error) {
   throw new Error(`launcher config error\n${error}`);
 }
@@ -126,7 +125,7 @@ const prepareLocalPath = () => {
     if (err) {
       throw new Error(`make launcher job dir error\n${err}`);
     }
-    const jobDirCleanUpInterval = setInterval(() => {
+    setInterval(() => {
       fse.readdir(launcherConfig.jobRootDir, (readRootDirError, userDirs) => {
         if (readRootDirError) {
           logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readRootDirError.stack);

@@ -23,7 +23,6 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const childProcess = require('child_process');
-const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -59,7 +58,7 @@ class Job {
                 createdTime: jobStatus.createdTime,
                 completedTime: jobStatus.completedTime,
                 appTrackingUrl: jobStatus.appTrackingUrl,
-                appExitType: jobStatus.appExitType
+                appExitType: jobStatus.appExitType,
               };
               jobList.push(jobOverview);
               callback();
@@ -87,15 +86,15 @@ class Job {
             jobStatus: {
               name,
               username: 'unknown',
-              state: 'JOB_NOT_FOUND'
+              state: 'JOB_NOT_FOUND',
             },
-            taskRoles: {}
+            taskRoles: {},
           };
           if (framework.exception !== undefined) {
             next(job, new Error('job not found'));
           } else {
             if (framework.frameworkStatus) {
-              let jobState = "";
+              let jobState = '';
               const frameworkState = framework.frameworkStatus.frameworkState;
               const applicationExitType = framework.frameworkStatus.applicationExitType;
               if (
@@ -144,14 +143,14 @@ class Job {
                 appCompletedTime: framework.frameworkStatus.applicationCompletedTimestamp,
                 appExitCode: framework.frameworkStatus.applicationExitCode,
                 appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
-                appExitType: framework.frameworkStatus.applicationExitType
+                appExitType: framework.frameworkStatus.applicationExitType,
               };
             }
             if (framework.aggregatedTaskRoleStatuses) {
               for (let taskRole of Object.keys(framework.aggregatedTaskRoleStatuses)) {
                 job.taskRoles[taskRole] = {
-                  taskRoleStatus: { name: taskRole },
-                  taskStatuses: []
+                  taskRoleStatus: {name: taskRole},
+                  taskStatuses: [],
                 };
                 for (let task of framework.aggregatedTaskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
                   job.taskRoles[taskRole].taskStatuses.push({
@@ -159,7 +158,7 @@ class Job {
                     containerId: task.containerId,
                     containerIp: task.containerIp,
                     containerGpus: task.containerGpus,
-                    containerLog: task.containerLogHttpAddress
+                    containerLog: task.containerLogHttpAddress,
                   });
                 }
               }
@@ -208,7 +207,7 @@ class Job {
             });
           },
           (parallelCallback) => {
-            async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
+            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
               fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
@@ -218,7 +217,7 @@ class Job {
             });
           },
           (parallelCallback) => {
-            async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
+            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
               fse.outputFile(
                   path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
                   this.generateDockerContainerScript(data, idx),
@@ -231,7 +230,7 @@ class Job {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.jobConfigFileName),
                 data,
-                { 'spaces': 2 },
+                {'spaces': 2},
                 (err) => parallelCallback(err));
           },
           (parallelCallback) => {
@@ -239,9 +238,9 @@ class Job {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
                 frameworkDescription,
-                { 'spaces': 2 },
+                {'spaces': 2},
                 (err) => parallelCallback(err));
-          }
+          },
         ], (parallelError) => {
           if (parallelError) {
             return next(parallelError);
@@ -291,7 +290,7 @@ class Job {
           'idx': idx,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
-          'jobData': data
+          'jobData': data,
         });
     return yarnContainerScript;
   }
@@ -308,7 +307,7 @@ class Job {
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
-          'jobData': data
+          'jobData': data,
         });
     return dockerContainerScript;
   }
@@ -318,15 +317,15 @@ class Job {
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
     const frameworkDescription = {
       'version': 10,
-      'user': { 'name': data.username },
+      'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': "default",
+        'queue': 'default',
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
-        'generateContainerIpList': true
-      }
+        'generateContainerIpList': true,
+      },
     };
     for (let i = 0; i < data.taskRoles.length; i ++) {
       const taskRole = {
@@ -341,9 +340,9 @@ class Job {
             'gpuNumber': data.taskRoles[i].gpuNumber,
             'portRanges': [],
             'diskType': 0,
-            'diskMB': 0
-          }
-        }
+            'diskMB': 0,
+          },
+        },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
     }

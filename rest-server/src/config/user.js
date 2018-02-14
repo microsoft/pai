@@ -27,18 +27,18 @@ const userPutInputSchema = Joi.object().keys({
     .min(6)
     .required(),
   admin: Joi.boolean(),
-  modify: Joi.boolean()
+  modify: Joi.boolean(),
 }).required();
 
 // define the input schema for the 'remove user' api
 const userDeleteInputSchema = Joi.object().keys({
   username: Joi.string()
     .token()
-    .required()
+    .required(),
 }).required();
 
 // module exports
 module.exports = {
   userPutInputSchema: userPutInputSchema,
-  userDeleteInputSchema: userDeleteInputSchema
+  userDeleteInputSchema: userDeleteInputSchema,
 };

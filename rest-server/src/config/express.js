@@ -32,12 +32,12 @@ const app = express();
 
 app.use(cors());
 app.use(compress());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
 // setup the logger for requests
-app.use(morgan('dev', { 'stream': logger.stream }));
+app.use(morgan('dev', {'stream': logger.stream}));
 
 // mount all v1 APIs to /api/v1
 app.use('/api/v1', router);
@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
   logger.warn('%s', err.stack);
   res.status(err.status || 500).json({
     message: err.message,
-    error: config.env === 'development' ? err.stack : {}
+    error: config.env === 'development' ? err.stack : {},
   });
 });
 
