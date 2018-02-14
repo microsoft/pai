@@ -305,6 +305,7 @@ class Job {
         dockerContainerScriptTemplate, {
           'idx': idx,
           'tasksNumber': tasksNumber,
+          'taskRoleList': data.map((x) => x.name).join(','),
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
