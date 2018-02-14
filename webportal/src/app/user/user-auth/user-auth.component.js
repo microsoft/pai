@@ -30,4 +30,4 @@ const checkAdmin = () => {
   return cookies.get('admin') === 'true';
 };
 
-module.exports = { checkToken, checkAdmin };
+module.exports = {checkToken, checkAdmin};

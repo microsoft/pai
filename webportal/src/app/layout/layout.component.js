@@ -28,7 +28,7 @@ const userLogoutComponent = require('../user/user-logout/user-logout.component.j
 const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
 
 
-const userLoginNavHtml = userLoginNavComponent({ cookies });
+const userLoginNavHtml = userLoginNavComponent({cookies});
 
 window.userLogout = userLogoutComponent.userLogout;
 

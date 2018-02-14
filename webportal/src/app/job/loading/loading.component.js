@@ -28,4 +28,4 @@ const hideLoading = () => {
   $('#mask').hide();
 };
 
-module.exports = { showLoading, hideLoading };
+module.exports = {showLoading, hideLoading};

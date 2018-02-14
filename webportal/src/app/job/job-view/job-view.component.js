@@ -40,7 +40,7 @@ let table = null;
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  jobTable: jobTableComponent
+  jobTable: jobTableComponent,
 });
 
 const getDurationInSeconds = (startTime, endTime) => {
@@ -51,13 +51,13 @@ const getDurationInSeconds = (startTime, endTime) => {
     endTime = Date.now();
   }
   return Math.round((endTime - startTime) / 1000);
-}
+};
 
 const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
     if (elapsed) {
       const elapsedTime = getDurationInSeconds(startTime, endTime);
-      return moment.duration(elapsedTime, "seconds").humanize();
+      return moment.duration(elapsedTime, 'seconds').humanize();
       /*
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
       const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
@@ -134,16 +134,16 @@ const loadJobs = () => {
           jobs: data,
           getDurationInSeconds,
           convertTime,
-          convertState
+          convertState,
         }));
         table = $('#job-table').DataTable({
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          "order": [[ 2, "desc" ]],
-          columnDefs: [
-            { type: 'natural', targets: [0, 1, 2, 4, 5] },
-            { type: 'title-numeric', targets: [3] }
-          ]
+          'order': [[2, 'desc']],
+          'columnDefs': [
+            {type: 'natural', targets: [0, 1, 2, 4, 5]},
+            {type: 'title-numeric', targets: [3]},
+          ],
         });
       }
       loading.hideLoading();
@@ -152,7 +152,7 @@ const loadJobs = () => {
       const res = JSON.parse(xhr.responseText);
       alert(res.message);
       loading.hideLoading();
-    }
+    },
   });
 };
 
@@ -164,7 +164,7 @@ const deleteJob = (jobName) => {
         url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
         type: 'DELETE',
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         success: (data) => {
           loadJobs();
@@ -172,7 +172,7 @@ const deleteJob = (jobName) => {
         error: (xhr, textStatus, error) => {
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
-        }
+        },
       });
     });
   }
@@ -193,14 +193,14 @@ const loadJobDetail = (jobName) => {
           taskRoles: data.taskRoles,
           convertTime,
           convertState,
-          convertGpu
+          convertGpu,
         }));
       }
     },
     error: (xhr, textStatus, error) => {
       const res = JSON.parse(xhr.responseText);
       alert(res.message);
-    }
+    },
   });
 };
 
@@ -214,14 +214,14 @@ const resizeContentWrapper = () => {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
   }
-}
+};
 
 $('#content-wrapper').html(jobViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function (envent) {
+  window.onresize = function(envent) {
     resizeContentWrapper();
-  }
+  };
   resizeContentWrapper();
   $('#sidebar-menu--job-view').addClass('active');
   const query = url.parse(window.location.href, true).query;
@@ -234,4 +234,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = { loadJobs, deleteJob, loadJobDetail }
+module.exports = {loadJobs, deleteJob, loadJobDetail};

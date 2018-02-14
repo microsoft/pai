@@ -21,18 +21,18 @@ const dashboardComponent = require('./dashboard.component.ejs');
 const webportalConfig = require('../config/webportal.config.json');
 
 const dashboardHtml = dashboardComponent({
-  grafanaUri: webportalConfig.grafanaUri
+  grafanaUri: webportalConfig.grafanaUri,
 });
 
 function resizeContentWrapper() {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
 }
 
-window.onresize = function (envent) {
+window.onresize = function(envent) {
   resizeContentWrapper();
-}
+};
 
-$(document).ready(function () {
+$(document).ready(function() {
   resizeContentWrapper();
   $('#content-wrapper').html(dashboardHtml);
 });

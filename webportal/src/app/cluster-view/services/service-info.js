@@ -22,25 +22,25 @@ const getServiceView = (kubeURL, namespace, callback) => {
     type: 'GET',
     url: kubeURL + '/api/v1/nodes',
     dataType: 'json',
-    success: function (data) {
+    success: function(data) {
       var items = data.items;
       var nodeList = [];
       for (var item of items) {
         nodeList.push(item);
       }
       getNodePods(kubeURL, namespace, nodeList, callback);
-    }
+    },
   });
-}
+};
 
 const getNodePods = (kubeURL, namespace, nodeList, callback) => {
   $.ajax({
     type: 'GET',
     url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
     dataType: 'json',
-    success: function (pods) {
+    success: function(pods) {
       var podsItems = pods.items;
-      var nodeDic = new Array();
+      var nodeDic = [];
 
       for (var pod of podsItems) {
         var nodeName = pod.spec.nodeName;
@@ -49,13 +49,13 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
         }
         nodeDic[nodeName].push(pod);
       }
-      var resultDic = []
+      var resultDic = [];
       for (var node of nodeList) {
-        resultDic.push({ 'node': node, 'podList': nodeDic[node.metadata.name] });
+        resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
       }
       callback(resultDic);
-    }
+    },
   });
-}
+};
 
-module.exports = { getServiceView };
+module.exports = {getServiceView};
