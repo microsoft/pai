@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,48 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
-import os
-import unittest
-
-from maintainlib import repair
-
-
-class TestMaintainlibRepair(unittest.TestCase):
-
-    """
-    Test the class repair's api
-    """
-
-    def setUp(self):
-
-        try:
-
-            os.chdir(os.path.abspath("test"))
-
-        except:
-
-            pass
-
-
-
-    def tearDown(self):
-
-        try:
-
-            os.chdir(os.path.abspath(".."))
-
-        except:
-
-            pass
-
-
-
-    def test_repair(self):
-        pass
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
+python -m unittest discover test/

@@ -23,8 +23,7 @@ import tarfile
 import shutil
 import sys
 
-from ..maintainlib import common
-
+from maintainlib import common
 
 
 class TestMaintainlibCommon(unittest.TestCase):
@@ -34,12 +33,27 @@ class TestMaintainlibCommon(unittest.TestCase):
     """
 
     def setUp(self):
-        pass
+
+        try:
+
+            os.chdir(os.path.abspath("test"))
+
+        except:
+
+            pass
+
 
 
 
     def tearDown(self):
-        pass
+
+        try:
+
+            os.chdir(os.path.abspath(".."))
+
+        except:
+
+            pass
 
 
 
@@ -106,4 +120,6 @@ class TestMaintainlibCommon(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
+
     unittest.main()
