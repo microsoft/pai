@@ -67,7 +67,7 @@ spec:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
         name: gpu-exporter
-      - image: google/cadvisor:latest 
+      - image: google/cadvisor:v0.29.0 
         securityContext:
           privileged: true
         volumeMounts:
