@@ -17,7 +17,10 @@
 
 import unittest
 import filecmp
+import os
 import yaml
+import tarfile
+import shutil
 import sys
 
 from ..maintainlib import common
@@ -31,8 +34,7 @@ class TestMaintainlibCommon(unittest.TestCase):
     """
 
     def setUp(self):
-
-        sys.path.append("data")
+        pass
 
 
 
@@ -59,17 +61,47 @@ class TestMaintainlibCommon(unittest.TestCase):
             'testkey1': 'testkey1'
         }
 
-        template_data = common.read_template("data_maintainlib_common/test.yaml")
+        template_data = common.read_template("data/data_maintainlib_common/test.yaml")
         generated_data = common.generate_from_template(template_data, cluster_data, host_data)
-        common.write_generated_file(generated_data, "data_maintainlib_common/output.yaml")
+        common.write_generated_file(generated_data, "data/data_maintainlib_common/output.yaml")
 
-        self.assertTrue(filecmp.cmp("data_maintainlib_common/test.yaml", "data_maintainlib_common/output.yaml"))
+        self.assertTrue(
+            filecmp.cmp(
+                "data/data_maintainlib_common/test.yaml",
+                "data/data_maintainlib_common/output.yaml"
+            )
+        )
+
+        os.remove("data/data_maintainlib_common/output.yaml")
 
 
 
+    def test_package(self):
+
+        maintain_config = common.load_yaml_file("test-maintain.yaml")
+        cluster_config = common.load_yaml_file("test-cluster-config.yaml")
+        node_config = cluster_config['workermachinelist']['worker-01']
 
 
+        common.maintain_package_wrapper(cluster_config, maintain_config, node_config, "unittest-common")
+        self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common.tar"))
 
+
+        package = tarfile.open("parcel-center/1.2.3.2/unittest-common.tar", "r:")
+        package.extractall()
+        self.assertTrue(os.path.exists("unittest-common/"))
+
+
+        target_file_list = ["kubelet.sh", "repair-worker-node.sh"]
+        package_file_list = os.listdir("unittest-common/")
+        self.assertListEqual(sorted(target_file_list), sorted(package_file_list))
+        shutil.rmtree("unittest-common/")
+
+        common.maintain_package_cleaner(node_config)
+        self.assertFalse(os.path.exists("parcel-center/1.2.3.2"))
+        self.assertTrue(os.path.exists("parcel-center"))
+
+        shutil.rmtree("parcel-center/")
 
 
 
