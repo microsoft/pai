@@ -17,6 +17,7 @@
 
 import yaml
 import os
+import errno
 import sys
 import subprocess
 import jinja2
@@ -135,9 +136,14 @@ def ssh_shell_paramiko(host_config, commandline):
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
-
-        os.makedirs(path, exist_ok=True)
-
+        
+        try:
+            os.makedirs(path)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                pass
+            else:
+                raise
 
 
 
