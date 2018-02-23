@@ -115,6 +115,8 @@ clusterinfo:
     prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
+    # cadvisor port
+    cadvisor_port: 8089
   
   pyloninfo:
     # root url of the rest server
@@ -129,7 +131,7 @@ clusterinfo:
     webportal_uri: http://10.0.3.9:9286
     # port of pylon
     port: 80
-
+    
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
 machineinfo:
