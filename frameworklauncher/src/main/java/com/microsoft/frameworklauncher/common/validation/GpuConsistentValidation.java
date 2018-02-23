@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.validation;
 
-import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;

@@ -29,7 +29,7 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
   private String taskNodeLabel;
 
   @Valid
-  @Pattern(regexp = "^[^\\s]+$")
+  @Pattern(regexp = "^[^\\s]{1,256}$")
   private String taskNodeGpuType;
 
   public String getTaskNodeLabel() {

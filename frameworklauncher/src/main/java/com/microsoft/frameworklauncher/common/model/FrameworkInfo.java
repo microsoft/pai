@@ -18,16 +18,33 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import java.io.Serializable;
-import java.util.List;
 
-public class RequestedFrameworkNames implements Serializable {
-  private List<String> frameworkNames;
+public class FrameworkInfo implements Serializable {
+  private SummarizedFrameworkInfo summarizedFrameworkInfo;
+  private AggregatedFrameworkRequest aggregatedFrameworkRequest;
+  private AggregatedFrameworkStatus aggregatedFrameworkStatus;
 
-  public List<String> getFrameworkNames() {
-    return frameworkNames;
+  public SummarizedFrameworkInfo getSummarizedFrameworkInfo() {
+    return summarizedFrameworkInfo;
   }
 
-  public void setFrameworkNames(List<String> frameworkNames) {
-    this.frameworkNames = frameworkNames;
+  public void setSummarizedFrameworkInfo(SummarizedFrameworkInfo summarizedFrameworkInfo) {
+    this.summarizedFrameworkInfo = summarizedFrameworkInfo;
+  }
+
+  public AggregatedFrameworkRequest getAggregatedFrameworkRequest() {
+    return aggregatedFrameworkRequest;
+  }
+
+  public void setAggregatedFrameworkRequest(AggregatedFrameworkRequest aggregatedFrameworkRequest) {
+    this.aggregatedFrameworkRequest = aggregatedFrameworkRequest;
+  }
+
+  public AggregatedFrameworkStatus getAggregatedFrameworkStatus() {
+    return aggregatedFrameworkStatus;
+  }
+
+  public void setAggregatedFrameworkStatus(AggregatedFrameworkStatus aggregatedFrameworkStatus) {
+    this.aggregatedFrameworkStatus = aggregatedFrameworkStatus;
   }
 }

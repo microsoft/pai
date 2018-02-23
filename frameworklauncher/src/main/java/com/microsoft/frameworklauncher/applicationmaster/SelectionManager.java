@@ -221,7 +221,7 @@ public class SelectionManager { // THREAD SAFE
       LOGGER.logWarning(
           "select: The Request will be relaxed to RM");
     }
-    
+
     return selectionResult;
   }
 

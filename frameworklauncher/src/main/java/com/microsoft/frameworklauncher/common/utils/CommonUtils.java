@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.utils;
 
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.util.Shell;
@@ -26,6 +27,8 @@ import org.apache.hadoop.util.StringUtils;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
 
 public class CommonUtils {
   private static final DefaultLogger LOGGER = new DefaultLogger(CommonUtils.class);
@@ -44,6 +47,22 @@ public class CommonUtils {
       throw new NotFoundException();
     }
     return o;
+  }
+
+  public static void executeWithLock(Lock lock, CommonExts.VoidCallable action) throws Exception {
+    executeWithLock(lock, () -> {
+      action.call();
+      return null;
+    });
+  }
+
+  public static <T> T executeWithLock(Lock lock, Callable<T> action) throws Exception {
+    lock.lock();
+    try {
+      return action.call();
+    } finally {
+      lock.unlock();
+    }
   }
 
   // Return stdout if succeeded, throw Exception with exitcode and stderr if failed

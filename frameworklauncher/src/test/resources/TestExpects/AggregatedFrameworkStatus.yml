@@ -52,5 +52,5 @@ frameworkStatus:
   frameworkName: testString
   frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
     transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
-  frameworkState: FRAMEWORK_WAITING
+  frameworkState: null
   frameworkVersion: 0

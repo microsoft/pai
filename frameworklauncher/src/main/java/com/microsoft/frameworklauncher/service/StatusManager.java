@@ -251,12 +251,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     LOGGER.logInfo("[%s][%s]: addFramework", frameworkName, frameworkVersion);
     assert !frameworkStatuses.containsKey(frameworkName);
 
-    FrameworkStatus frameworkStatus = new FrameworkStatus();
-    frameworkStatus.setFrameworkName(frameworkName);
-    frameworkStatus.setFrameworkVersion(frameworkVersion);
-    frameworkStatus.setFrameworkState(FrameworkState.FRAMEWORK_WAITING);
-    frameworkStatus.setFrameworkRetryPolicyState(new RetryPolicyState());
-    frameworkStatus.setFrameworkCreatedTimestamp(System.currentTimeMillis());
+    FrameworkStatus frameworkStatus = FrameworkStatus.newInstance(frameworkRequest);
 
     // Update Mem Status
     frameworkStatuses.put(frameworkName, frameworkStatus);

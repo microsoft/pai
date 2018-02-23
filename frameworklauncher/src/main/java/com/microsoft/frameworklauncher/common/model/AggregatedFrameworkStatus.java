@@ -18,12 +18,20 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AggregatedFrameworkStatus implements Serializable {
   private FrameworkStatus frameworkStatus;
   // TaskRoleName -> AggregatedTaskRoleStatus
   private Map<String, AggregatedTaskRoleStatus> aggregatedTaskRoleStatuses;
+
+  public static AggregatedFrameworkStatus newInstance(FrameworkRequest frameworkRequest) {
+    AggregatedFrameworkStatus aggFrameworkStatus = new AggregatedFrameworkStatus();
+    aggFrameworkStatus.setFrameworkStatus(FrameworkStatus.newInstance(frameworkRequest));
+    aggFrameworkStatus.setAggregatedTaskRoleStatuses(new HashMap<>());
+    return aggFrameworkStatus;
+  }
 
   public FrameworkStatus getFrameworkStatus() {
     return frameworkStatus;

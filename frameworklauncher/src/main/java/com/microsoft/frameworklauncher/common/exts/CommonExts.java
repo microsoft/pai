@@ -23,7 +23,11 @@ public class CommonExts {
   public interface VoidCallable {
     void call() throws Exception;
   }
-  
+
+  public interface NoExceptionCallable<V> {
+    V call();
+  }
+
   public static <TKey, TValue> Map<TKey, TValue> asReadOnly(Map<TKey, TValue> dict) {
     return Collections.unmodifiableMap(dict);
   }
@@ -34,13 +38,13 @@ public class CommonExts {
     if (l == null) {
       bStr = dStr;
     } else {
-      bStr = String.format("%64s", Long.toBinaryString(l)).replace(' ', '0');
+      bStr = Long.toBinaryString(l);
     }
     return String.format("%s(%s)", dStr, bStr);
   }
 
   public static <K, V> String toString(Map<K, V> kvMap) {
-    StringBuilder str = new StringBuilder("");
+    StringBuilder str = new StringBuilder();
     if (kvMap != null) {
       for (Map.Entry<K, V> e : kvMap.entrySet()) {
         if (str.length() != 0) {
@@ -53,7 +57,7 @@ public class CommonExts {
   }
 
   public static <T> String toString(Collection<T> collection) {
-    StringBuilder str = new StringBuilder("");
+    StringBuilder str = new StringBuilder();
     if (collection != null) {
       for (T e : collection) {
         if (str.length() != 0) {

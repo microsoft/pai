@@ -27,7 +27,7 @@ FrameworkLauncher (or Launcher for short) is built to enable running Large-Scale
   * All Launcher and Hadoop components are Recoverable and Work Preserving. So, User Services is by designed No Down Time, i.e. always uninterrupted when our components shutdown, crash, upgrade, or even any kinds of outage for a long time.
   * Launcher can tolerate many unexpected errors and has well defined Failure Model, such as dependent components shutdown, machine error, network error, configuration error, environment error, corrupted internal data, etc.
   * User Services can be ensured to Retry on Transient Failures, Migrate to another Machine per User’s Request, etc.
-  
+
 * **High Usability**
   * No User code changes needed to run the existing executable inside Container. User only need to setup the FrameworkDescription in Json format.
   * RestAPI is supported.
@@ -77,6 +77,6 @@ Windows cmd line:
 GNU/Linux cmd line:
 
     ./dist/start.sh
-    
+
 ## User Manual
 See [User Manual](doc/USERMANUAL.md) to learn how to use Launcher Service to Launch Framework.

@@ -32,7 +32,7 @@ public class CommonValidation {
   // See https://tools.ietf.org/html/rfc3986#section-2.3
 
   // Accept all uppercase and lowercase letters, decimal digits, hyphen, period, underscore, and tilde
-  public static final String NAMING_CONVENTION_REGEX_STR = "^[A-Za-z0-9\\-._~]+$";
+  public static final String NAMING_CONVENTION_REGEX_STR = "^[A-Za-z0-9\\-._~]{1,256}$";
   public static final Pattern NAMING_CONVENTION_REGEX = Pattern.compile(NAMING_CONVENTION_REGEX_STR);
   private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 

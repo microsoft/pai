@@ -26,7 +26,7 @@ public class FrameworkStatus implements Serializable {
   private Integer frameworkVersion;
 
   // Framework dynamic status
-  private FrameworkState frameworkState = FrameworkState.FRAMEWORK_WAITING;
+  private FrameworkState frameworkState;
   private RetryPolicyState frameworkRetryPolicyState;
   private Long frameworkCreatedTimestamp;
   private Long frameworkCompletedTimestamp;
@@ -41,6 +41,16 @@ public class FrameworkStatus implements Serializable {
   private Integer applicationExitCode;
   private String applicationExitDiagnostics;
   private ExitType applicationExitType;
+
+  public static FrameworkStatus newInstance(FrameworkRequest frameworkRequest) {
+    FrameworkStatus frameworkStatus = new FrameworkStatus();
+    frameworkStatus.setFrameworkName(frameworkRequest.getFrameworkName());
+    frameworkStatus.setFrameworkVersion(frameworkRequest.getFrameworkDescriptor().getVersion());
+    frameworkStatus.setFrameworkState(FrameworkState.FRAMEWORK_WAITING);
+    frameworkStatus.setFrameworkRetryPolicyState(new RetryPolicyState());
+    frameworkStatus.setFrameworkCreatedTimestamp(frameworkRequest.getFirstRequestTimestamp());
+    return frameworkStatus;
+  }
 
   public String getFrameworkName() {
     return frameworkName;
