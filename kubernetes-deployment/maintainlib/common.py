@@ -150,7 +150,7 @@ def create_path(path):
 
 def archive_tar(target, path):
 
-    tar = tarfile.open("target", "w")
+    tar = tarfile.open(target, "w")
 
     for root,dir,files in os.walk(path):
         for file in files:
