@@ -154,7 +154,7 @@ def archive_tar(target, path):
 
     for root,dir,files in os.walk(path):
         for file in files:
-            fullpath = os.path.join(root, path)
+            fullpath = os.path.join(root, file)
             tar.add(fullpath)
 
     tar.close()
