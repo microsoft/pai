@@ -19,12 +19,12 @@
 unittest-common:
 
     template-list:
-    - name: kubelet.sh
-      src: data/data_maintainlib_common/kubelet.sh.template
+    - name: testfile1.sh
+      src: data/data_maintainlib_common/testfile1.sh.template
       dst: unittest-common
 
     file-list:
-    - name: repair-worker-node.sh
-      src: data/data_maintainlib_common/repair-worker-node.sh
+    - name: testfile2.sh
+      src: data/data_maintainlib_common/testfile2.sh
       dst: unittest-common
 

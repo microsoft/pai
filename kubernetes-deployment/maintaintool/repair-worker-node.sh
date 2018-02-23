@@ -22,6 +22,13 @@ docker rm kubelet
 
 for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
 
+etcdyaml="/etc/kubernetes/manifests/etcd.yaml"
+if [ -f "$etcdyaml" ]; then
+
+    echo  Error: This is a infra node. The repair tool will exit.
+    exit 1
+fi
+
 # check etc/ exist or not.
 staticpod="repair/etc"
 if [ -d "$staticpod" ]; then

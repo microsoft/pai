@@ -106,7 +106,7 @@ class TestMaintainlibCommon(unittest.TestCase):
         self.assertTrue(os.path.exists("unittest-common/"))
 
 
-        target_file_list = ["kubelet.sh", "repair-worker-node.sh"]
+        target_file_list = ["testfile1.sh", "testfile2.sh"]
         package_file_list = os.listdir("unittest-common/")
         self.assertListEqual(sorted(target_file_list), sorted(package_file_list))
         shutil.rmtree("unittest-common/")
