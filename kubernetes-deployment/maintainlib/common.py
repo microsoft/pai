@@ -23,6 +23,7 @@ import subprocess
 import jinja2
 import argparse
 import paramiko
+import tarfile
 
 
 
@@ -147,6 +148,19 @@ def create_path(path):
 
 
 
+def archive_tar(target, path):
+
+    tar = tarfile.open("target")
+
+    for root,dir,files in os.walk(path):
+        for file in files:
+            fullpath = os.path.join(root, path)
+            tar.add(fullpath)
+
+    tar.close()
+
+
+
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
     
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
@@ -175,10 +189,7 @@ def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobna
         )
 
     execute_shell("cp -r parcel-center/{0}/{1} .".format(node_config['nodename'], jobname), "Failed cp job folder")
-    execute_shell(
-        "tar -cvf parcel-center/{0}/{1}.tar {1}".format(node_config['nodename'], jobname),
-        "Failed to package the script"
-    )
+    archive_tar("parcel-center/{0}/{1}.tar".format(node_config['nodename'], jobname), jobname)
     execute_shell("rm -rf {0}".format(jobname), "Failed to remove {0}".format(jobname))
 
 
