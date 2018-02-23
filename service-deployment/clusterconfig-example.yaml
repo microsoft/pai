@@ -116,7 +116,7 @@ clusterinfo:
     # port for node exporter
     node_exporter_port: 9100
     # cadvisor port
-    cadvisor_port: 4194
+    cadvisor_port: 8089
 
 # The detail machine type information in your cluster, each machine type has an entry here
 # An Azure VM example
