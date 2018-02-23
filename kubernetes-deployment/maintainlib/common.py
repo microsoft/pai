@@ -135,10 +135,9 @@ def ssh_shell_paramiko(host_config, commandline):
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
-        execute_shell(
-            "mkdir -p {0}".format(path),
-            "failed to create path {0}".format(path)
-        )
+
+        os.makedirs(path, exist_ok=True)
+
 
 
 
