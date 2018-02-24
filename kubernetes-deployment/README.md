@@ -121,6 +121,10 @@ proxymachinelist:
 
 ```
 
+## Cluster maintenance
+
+Please refer to this [wiki](https://github.com/Microsoft/pai/wiki/Cluster-Maintenance)
+
 ## Prepare your dev-box environment
 
 
