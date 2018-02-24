@@ -20,28 +20,77 @@
             <% } %>
           <% } %>
         </td>
+        
+        <!--
+        Show pods and status in the 'Services' column.
+        
+        Design principles:
+          - Green means that the service is running without warning.
+          - Yellow means that the service is running with warnings.
+          - Red means that the pod cannot provide the desired service.
+          - Blue means that the pod has successfully finished its job and terminated.
+          - Rotating icon means the pod is trying to recover from an abnormal state.
+
+        Design:
+          - Green box: Pod is in 'Running' phase and is ready.
+          - Yellow box (not implemented yet): Pod is in 'Running' phase and is ready, but has some warnings in the log.
+          - Blue box: Pod is in 'Succeeded' phase.
+          - Red box with rotating icon: Pod is either in 'Running' phase but is not ready, or in 'Pending' phase.
+          - Red box: Pod is in some other phase (Failed or Unknown).
+        
+        Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+        -->
         <td class="service-td">
           <%
           for (let j = 0; j < data[i].podList.length; j++) {
             let pod = data[i].podList[j].metadata;
-            let btnClassString = "btn btn-danger";
+            //
+            let btnClassString = "btn btn-default";
+            let loading = false;
+            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace;
+            // 
             let status = data[i].podList[j].status;
-            if (status.phase == "Running") {
+            if (status.phase == "Pending") {
+              btnClassString = "btn bg-red";
+              loading = true;
+            } else if (status.phase == "Running") {
+              btnClassString = "btn bg-red";
+              loading = true;
               for (let jj = 0; jj < status.conditions.length; jj++) {
                 let cond = status.conditions[jj];
                 if (cond.type == "Ready") {
                   if (cond.status == "True") {
-                    btnClassString = "btn btn-success";
-                  } else {
-                    btnClassString = "btn btn-warning";
+                    let warning = false;
+                    // TODO: Insert code to detect warnings.
+                    if (warning == true) {
+                      btnClassString = "btn bg-yellow";
+                    } else {
+                      btnClassString = "btn bg-green";
+                    }
+                    loading = false;
                   }
                   break;
                 }
               }
+            } else if (status.phase == "Succeeded") {
+              btnClassString = "btn bg-blue";
+              loading = false;
+            } else {
+              btnClassString = "btn bg-red";
+              loading = false;
             }
-            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace;
+            //
             %>
-            <a class="<%= btnClassString %>" href="<%= urlString %>"> <%= pod.name %> </a>  
+            <a class="<%= btnClassString %>" href="<%= urlString %>">
+              <%
+              if (loading == true) {
+              %>
+                <i class='fa fa-spinner fa-pulse fa-fw metric-icon-loading'></i>
+              <%
+              }
+              %>
+              <%= pod.name %>
+            </a>  
           <%
           }
           %>
