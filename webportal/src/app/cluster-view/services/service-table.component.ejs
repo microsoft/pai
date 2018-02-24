@@ -21,15 +21,30 @@
           <% } %>
         </td>
         <td class="service-td">
-          <% for(let j = 0; j < data[i].podList.length; j++) { %>
-            <% let pod = data[i].podList[j].metadata; %>                 
-            <% if(data[i].podList[j].status.phase == "Running") { %>
-              <a class="btn btn-success" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> 
-              <%= pod.name %> </a>  
-            <% } else{ %>
-              <a class="btn btn-danger" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> <%= pod.name %> </a>
-            <% } %>      
-          <% } %>
+          <%
+          for (let j = 0; j < data[i].podList.length; j++) {
+            let pod = data[i].podList[j].metadata;
+            let btnClassString = "btn btn-danger";
+            let status = data[i].podList[j].status;
+            if (status.phase == "Running") {
+              for (let jj = 0; jj < status.conditions.length; jj++) {
+                let cond = status.conditions[jj];
+                if (cond.type == "Ready") {
+                  if (cond.status == "True") {
+                    btnClassString = "btn btn-success";
+                  } else {
+                    btnClassString = "btn btn-warning";
+                  }
+                  break;
+                }
+              }
+            }
+            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace;
+            %>
+            <a class="<%= btnClassString %>" href="<%= urlString %>"> <%= pod.name %> </a>  
+          <%
+          }
+          %>
         </td>
       </tr>
     <% } %>
