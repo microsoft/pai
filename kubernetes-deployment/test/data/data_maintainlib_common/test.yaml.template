@@ -1,0 +1,3 @@
+testkey1: {{hostcofig['testkey1']}}
+testkey2: {{clusterconfig['testkey2']}}
+testkey3: {{cluster['testkey3']}}
