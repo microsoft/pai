@@ -119,6 +119,40 @@ class TestMaintainlibCommon(unittest.TestCase):
 
 
 
+    def test_ipv4_address_validation_correct(self):
+
+        addr = "128.0.0.1"
+        self.assertTrue(common.ipv4_address_validation(addr))
+
+
+
+    def test_ipv4_address_validation_wrong(self):
+
+        addr1 = "128.0.0.x"
+        self.assertFalse(common.ipv4_address_validation(addr1))
+
+        addr2 = "256.0.0.0"
+        self.assertFalse(common.ipv4_address_validation(addr2))
+
+
+
+    def test_port_validation_correct(self):
+
+        port1 = 22
+        self.assertTrue(common.port_validation(port1))
+
+        port2 = "232"
+        self.assertTrue(common.port_validation(port2))
+
+
+
+    def test_port_validation_wrong(self):
+
+        port = "12xxx"
+        self.assertFalse(common.port_validation(port))
+
+
+
 if __name__ == '__main__':
 
 

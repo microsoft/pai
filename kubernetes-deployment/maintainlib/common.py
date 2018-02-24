@@ -24,6 +24,10 @@ import jinja2
 import argparse
 import paramiko
 import tarfile
+import socket
+import logging
+import time
+
 
 
 
@@ -77,13 +81,46 @@ def write_generated_file(generated_file, file_path):
 
 
 
+def ipv4_address_validation(ipv4_addr):
+
+    try:
+        socket.inet_aton(ipv4_addr)
+        ret = True
+    except socket.error:
+        ret = False
+        print "[{0}] Error: {1} is not a correct ipv4 address!".format(time.asctime(), ipv4_addr)
+
+    return ret
+
+
+
+def port_validation(port):
+
+    if str(port).isdigit() == True:
+
+        ret = True
+
+    else:
+
+        ret = False
+        print "[{0}] Error: {1} is not a correct port. A port can only contain digits!".format(time.asctime(), str(port))
+
+    return ret
+
+
+
 def sftp_paramiko(src, dst, filename, host_config):
 
     hostip = str(host_config['hostip'])
+    if ipv4_address_validation(hostip) == False:
+        return False
+
     username = str(host_config['username'])
     password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
+        if port_validation(host_config['sshport']) == False:
+            return False
         port = int(host_config['sshport'])
 
     # First make sure the folder exist.
@@ -109,15 +146,22 @@ def sftp_paramiko(src, dst, filename, host_config):
 
     transport.close()
 
+    return True
+
 
 
 def ssh_shell_paramiko(host_config, commandline):
 
     hostip = str(host_config['hostip'])
+    if ipv4_address_validation(hostip) == False:
+        return False
+
     username = str(host_config['username'])
     password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
+        if port_validation(host_config['sshport']) == False:
+            return False
         port = int(host_config['sshport'])
 
     ssh = paramiko.SSHClient()
@@ -131,6 +175,7 @@ def ssh_shell_paramiko(host_config, commandline):
         print response_msg.strip('\n')
 
     ssh.close()
+    return True
 
 
 

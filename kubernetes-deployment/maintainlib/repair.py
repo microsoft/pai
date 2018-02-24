@@ -62,9 +62,13 @@ class repair:
         src_local = "parcel-center/{0}".format(self.node_config["nodename"])
         dst_remote = "/home/{0}".format(self.node_config["username"])
 
-        common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config)
+        if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
+            return
+
         commandline = "tar -xvf repair.tar && sudo ./repair/repair-worker-node.sh"
-        common.ssh_shell_paramiko(self.node_config, commandline)
+
+        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+            return
 
         print "Successfully running repair job on node {0}".format(self.node_config["nodename"])
 
