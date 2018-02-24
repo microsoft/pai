@@ -26,6 +26,7 @@ import argparse
 import paramiko
 import maintainlib
 import importlib
+import time
 
 
 
@@ -444,14 +445,19 @@ def option_validation(args):
     option_list_without_file = ['deploy', 'clean', 'install_kubectl']
     if args.action in option_list_without_file:
         if args.file != None:
+            print "[{0}] Error: Option -a [deploy, clean, install_kubectl] shouldn't combine with option -f".format(time.asctime())
             return False
         ret = True
 
     option_list_with_file = ['add', 'remove', 'repair']
     if args.action in option_list_with_file:
         if args.file == None:
+            print "[{0}] Error: Option -a [add, remove, repair] should combine with option -f".format(time.asctime())
             return False
         ret = True
+
+    if ret == False:
+        print "[{0}] Error: {1} is non_existent".format(time.asctime(), args.action)
 
     return ret
 
