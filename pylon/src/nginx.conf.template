@@ -74,12 +74,90 @@ http {
     }
 
     #
-    # PAI web portal
+    # Web portals
     #
 
-    location ~ ^(.*) {
+    # Kubernetes dashbaord
+    location ~ ^/kubernetes/dashboard$ {
+      return 307 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/kubernetes/dashboard(.*)$ {
+      proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
+    }
+
+    # WebHDFS dashboard
+    location ~ ^/webhdfs/dashboard$ {
+      return 307 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/webhdfs/dashboard(.*)$ {
+      proxy_pass {{WEBHDFS_URI}}$1$is_args$args;
+      set $base $scheme://$http_host/webhdfs/dashboard/;
+      sub_filter_types *;
+      sub_filter_once off;
+      sub_filter
+        "href=\"/"
+        "href=\"$base";
+      sub_filter
+        "src=\"/static"
+        "src=\"${base}static";
+      sub_filter
+        "/jmx?qry="
+        "${base}jmx?qry=";
+      sub_filter
+        "/webhdfs/v1"
+        "/webhdfs/api/v1";
+      sub_filter
+        "'url': '/conf'"
+        "'url': '${base}conf'";
+      sub_filter
+        "get('/startupProgress'"
+        "get('${base}startupProgress'";
+    }
+
+    # Grafana
+    location ~ ^/grafana$ {
+      return 307 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/grafana(.*)$$ {
+      proxy_pass {{GRAFANA_URI}}$1$is_args$args;
+      sub_filter_once off;
+      sub_filter
+        '<base href="/" />'
+        '<base href="$scheme://$http_host/grafana/" />';
+      sub_filter
+        '{{PROMETHEUS_URI}}'
+        '$scheme://$http_host/prometheus';
+    }
+
+    # PAI web portal
+    location ~ ^(.*)$ {
       proxy_pass {{WEBPORTAL_URI}}$1$is_args$args;
+      #
+      # Disable compression. Without this line sub_filter won't work.
+      # Ref: https://serverfault.com/a/892447
+      proxy_set_header Accept-Encoding "";
+      #
+      # Enable all types of contents. Without this line javascript files
+      # won't be processed by sub_filter.
+      # Ref: http://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter_types
+      sub_filter_types *;
+      #
+      sub_filter_once off;
+      sub_filter
+        '{{REST_SERVER_URI}}'
+        '/rest-server';
+      sub_filter
+        '{{K8S_API_SERVER_URI}}'
+        '/kubernetes';
+      sub_filter
+        '{{PROMETHEUS_URI}}'
+        '/prometheus';
+      sub_filter
+        '{{K8S_DASHBOARD_URI}}'
+        '/kubernetes/dashboard';
+      sub_filter
+        '{{GRAFANA_URI}}'
+        '/grafana';
     }
   }
 }
-
