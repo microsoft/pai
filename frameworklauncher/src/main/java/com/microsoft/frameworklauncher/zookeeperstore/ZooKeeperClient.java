@@ -144,55 +144,55 @@ public class ZooKeeperClient implements Watcher {
     }
   }
 
-  // Set/Get small size (<= ZK_MAX_NODE_BYTES) yaml object to the node of the given path, no matter the given path exist or not.
+  // Set/Get small size (<= ZK_MAX_NODE_BYTES) object to the node of the given path, no matter the given path exist or not.
   // DISTRIBUTED THREAD SAFE
-  public <T> void setSmallYamlObject(String path, T yamlObject) throws Exception {
-    byte[] serializedObject = YamlUtils.toBytes(yamlObject);
+  public <T> void setSmallObject(String path, T obj) throws Exception {
+    byte[] serializedObj = YamlUtils.toBytes(obj);
 
     long start = System.currentTimeMillis();
 
     byte[] payload;
     if (zkCompressionEnable) {
-      payload = CompressionUtils.compress(serializedObject);
+      payload = CompressionUtils.compress(serializedObj);
     } else {
-      payload = serializedObject;
+      payload = serializedObj;
     }
     createNode(path, payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setSmallYamlObject with %s bytes on path %s in %sms.",
-        serializedObject.length, path, end - start);
+    LOGGER.logDebug("setSmallObject with %s bytes on path %s in %sms.",
+        serializedObj.length, path, end - start);
   }
 
   // DISTRIBUTED THREAD SAFE
-  public <T> T getSmallYamlObject(String path, Class<T> classRef) throws Exception {
+  public <T> T getSmallObject(String path, Class<T> classRef) throws Exception {
     long start = System.currentTimeMillis();
 
-    byte[] serializedObject = CompressionUtils.decompress(getData(path));
+    byte[] serializedObj = CompressionUtils.decompress(getData(path));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getSmallYamlObject with %s bytes on path %s in %sms.",
-        serializedObject.length, path, end - start);
+    LOGGER.logDebug("getSmallObject with %s bytes on path %s in %sms.",
+        serializedObj.length, path, end - start);
 
-    return YamlUtils.toObject(serializedObject, classRef);
+    return YamlUtils.toObject(serializedObj, classRef);
   }
 
-  // Set/Get large size (> ZK_MAX_NODE_BYTES) yaml object to the node of the given path, no matter the given path exist or not.
+  // Set/Get large size (> ZK_MAX_NODE_BYTES) object to the node of the given path, no matter the given path exist or not.
   // Note the node of the given path can only be leaf node.
-  // DISTRIBUTED THREAD SAFE and Atomic like getSmallYamlObject
-  public <T> void setLargeYamlObject(String path, T yamlObject) throws Exception {
-    byte[] serializedObject = YamlUtils.toBytes(yamlObject);
+  // DISTRIBUTED THREAD SAFE and Atomic like getSmallObject
+  public <T> void setLargeObject(String path, T obj) throws Exception {
+    byte[] serializedObj = YamlUtils.toBytes(obj);
 
     long start = System.currentTimeMillis();
 
     byte[] payload;
     if (zkCompressionEnable) {
-      payload = CompressionUtils.compress(serializedObject);
+      payload = CompressionUtils.compress(serializedObj);
     } else {
-      payload = serializedObject;
+      payload = serializedObj;
     }
 
-    // Prepare internal ZookeeperStoreStructure for LargeYamlObject
+    // Prepare internal ZookeeperStoreStructure for LargeObject
     if (!exists(path)) {
       createPath(path);
     }
@@ -245,8 +245,8 @@ public class ZooKeeperClient implements Watcher {
     gcOldVersions(path, payloadVersion, new HashSet<>(Collections.singletonList(READY_PAYLOAD_VERSIONS_NODE_NAME)));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setLargeYamlObject with %s bytes on path %s in %sms.",
-        serializedObject.length, path, end - start);
+    LOGGER.logDebug("setLargeObject with %s bytes on path %s in %sms.",
+        serializedObj.length, path, end - start);
   }
 
   private void addNewVersion(String versionsRootPath, String newVersion) throws Exception {
@@ -307,19 +307,19 @@ public class ZooKeeperClient implements Watcher {
   }
 
 
-  // DISTRIBUTED THREAD SAFE and Atomic like getSmallYamlObject
-  public <T> T getLargeYamlObject(String path, Class<T> classRef) throws Exception {
+  // DISTRIBUTED THREAD SAFE and Atomic like getSmallObject
+  public <T> T getLargeObject(String path, Class<T> classRef) throws Exception {
     // Get the Payload of the latest ReadyPayloadVersion which is complete.
     while (true) {
       try {
-        return getLargeYamlObjectInternal(this, path, classRef);
+        return getLargeObjectInternal(this, path, classRef);
       } catch (TransientException e) {
-        LOGGER.logWarning(e, "TransientException occurred during getLargeYamlObject, will retry again.");
+        LOGGER.logWarning(e, "TransientException occurred during getLargeObject, will retry again.");
       }
     }
   }
 
-  private static <T> T getLargeYamlObjectInternal(ZooKeeperClient zkClient, String path, Class<T> classRef) throws Exception {
+  private static <T> T getLargeObjectInternal(ZooKeeperClient zkClient, String path, Class<T> classRef) throws Exception {
     long start = System.currentTimeMillis();
 
     // Get the latest ReadyPayloadVersion as CompletePayloadVersion
@@ -378,12 +378,12 @@ public class ZooKeeperClient implements Watcher {
               payloadRootPath));
     }
 
-    byte[] serializedObject = CompressionUtils.decompress(payload);
+    byte[] serializedObj = CompressionUtils.decompress(payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getLargeYamlObject with %s bytes on path %s in %sms.",
-        serializedObject.length, path, end - start);
+    LOGGER.logDebug("getLargeObject with %s bytes on path %s in %sms.",
+        serializedObj.length, path, end - start);
 
-    return YamlUtils.toObject(serializedObject, classRef);
+    return YamlUtils.toObject(serializedObj, classRef);
   }
 }

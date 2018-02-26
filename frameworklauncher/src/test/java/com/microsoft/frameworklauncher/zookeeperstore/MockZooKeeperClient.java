@@ -33,15 +33,15 @@ public class MockZooKeeperClient extends ZooKeeperClient {
   private static final DefaultLogger LOGGER = new DefaultLogger(MockZooKeeperClient.class);
 
   @Override
-  public <T> void setSmallYamlObject(String path, T yamlObject)
+  public <T> void setSmallObject(String path, T obj)
       throws IOException {
     String yamlPath = path + ".yml";
     createFile(yamlPath);
-    YamlUtils.toFile(yamlObject, yamlPath);
+    YamlUtils.toFile(obj, yamlPath);
   }
 
   @Override
-  public <T> T getSmallYamlObject(String path, Class<T> classRef) throws Exception {
+  public <T> T getSmallObject(String path, Class<T> classRef) throws Exception {
     try {
       return YamlUtils.toObject(path + ".yml", classRef);
     } catch (FileNotFoundException e) {
@@ -50,13 +50,13 @@ public class MockZooKeeperClient extends ZooKeeperClient {
   }
 
   @Override
-  public <T> void setLargeYamlObject(String path, T yamlObject) throws Exception {
-    setSmallYamlObject(path, yamlObject);
+  public <T> void setLargeObject(String path, T obj) throws Exception {
+    setSmallObject(path, obj);
   }
 
   @Override
-  public <T> T getLargeYamlObject(String path, Class<T> classRef) throws Exception {
-    return getSmallYamlObject(path, classRef);
+  public <T> T getLargeObject(String path, Class<T> classRef) throws Exception {
+    return getSmallObject(path, classRef);
   }
 
   @Override
