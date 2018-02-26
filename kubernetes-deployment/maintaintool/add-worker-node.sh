@@ -74,12 +74,12 @@ else
 fi
 
 # check etc/ exist or not.
-staticpod="add-worker/etc"
+staticpod="add-worker-node/etc"
 if [ -d "$staticpod" ]; then
 
-    cp -r add-worker/etc /
+    cp -r add-worker-node/etc /
 
 fi
 
-chmod u+x add-worker/kubelet.sh
-./add-worker/kubelet.sh
+chmod u+x add-worker-node/kubelet.sh
+./add-worker-node/kubelet.sh
