@@ -120,6 +120,7 @@ http {
     }
     location ~ ^/grafana(.*)$$ {
       proxy_pass {{GRAFANA_URI}}$1$is_args$args;
+      sub_filter_types *;
       sub_filter_once off;
       sub_filter
         '<base href="/" />'
@@ -127,6 +128,9 @@ http {
       sub_filter
         '{{PROMETHEUS_URI}}'
         '$scheme://$http_host/prometheus';
+      sub_filter
+        '{{GRAFANA_URI}}'
+        '$scheme://$http_host/grafana';
     }
 
     # PAI web portal
