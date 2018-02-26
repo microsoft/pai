@@ -35,7 +35,7 @@ class repair:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        self.maintain_config = common.load_yaml_file("maintain.yaml")
+        self.maintain_config = common.load_yaml_file("maintainconf/repair.yaml")
         self.jobname = "repair"
         self.clean_flag = clean
 
