@@ -142,8 +142,8 @@ public class CommonUtils {
   }
 
   public static int bytesToShort(byte[] bytes) {
-    int low = (bytes[0] & 0xFF);
-    int high = (bytes[1] & 0xFF);
+    int low = bytes[0] & 0xFF;
+    int high = bytes[1] & 0xFF;
     return (high << 8) | low;
   }
 }
