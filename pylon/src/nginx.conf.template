@@ -79,7 +79,8 @@ http {
 
     # Kubernetes dashbaord
     location ~ ^/kubernetes/dashboard$ {
-      return 307 $scheme://$http_host$request_uri/;
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
     }
     location ~ ^/kubernetes/dashboard(.*)$ {
       proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
@@ -87,7 +88,8 @@ http {
 
     # WebHDFS dashboard
     location ~ ^/webhdfs/dashboard$ {
-      return 307 $scheme://$http_host$request_uri/;
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
     }
     location ~ ^/webhdfs/dashboard(.*)$ {
       proxy_pass {{WEBHDFS_URI}}$1$is_args$args;
@@ -116,7 +118,8 @@ http {
 
     # Grafana
     location ~ ^/grafana$ {
-      return 307 $scheme://$http_host$request_uri/;
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
     }
     location ~ ^/grafana(.*)$$ {
       proxy_pass {{GRAFANA_URI}}$1$is_args$args;
