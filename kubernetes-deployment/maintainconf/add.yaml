@@ -16,23 +16,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Now only support worker!
-remote_deployment_role: worker
+add-worker-node:
 
-machinelist:
+    # List of the template
+    template-list:
+    # Generate kubelet.sh from template/kubelet.sh.template
+    # And save it to the path nodename/add-worker-node/kubelet.sh
+    - name: kubelet.sh
+      src: template/kubelet.sh.template
+      dst: add-worker-node
 
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+    # List of the file
+    file-list:
+    # Copy repair-worker-node.sh from maintain-tool/add-worker-node.sh
+    # And save it to the path nodename/add-worker-node/add-worker-node.sh
+    - name: add-worker-node.sh
+      src: maintaintool/add-worker-nodes.sh
+      dst: add-worker-node
+    # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
 
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
