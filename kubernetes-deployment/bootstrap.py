@@ -28,6 +28,7 @@ import maintainlib
 import importlib
 import time
 
+from maintainlib import common as pai_common
 
 
 def execute_shell(shell_cmd, error_msg):
@@ -112,63 +113,6 @@ def execute_shell_with_output(shell_cmd, error_msg):
 
 
 
-def sftp_paramiko(src, dst, filename, host_config):
-
-    hostip = str(host_config['hostip'])
-    username = str(host_config['username'])
-    password = str(host_config['password'])
-    port = 22
-    if 'sshport' in host_config:
-        port = int(host_config['sshport'])
-
-    # First make sure the folder exist.
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
-
-    stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
-    stdin.write(password + '\n')
-    stdin.flush()
-    for response_msg in stdout:
-        print response_msg.strip('\n')
-
-    ssh.close()
-
-    # Put the file to target Path.
-    transport = paramiko.Transport((hostip, port))
-    transport.connect(username=username, password=password)
-
-    sftp = paramiko.SFTPClient.from_transport(transport)
-    sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
-    sftp.close()
-
-    transport.close()
-
-
-
-def ssh_shell_paramiko(host_config, commandline):
-
-    hostip = str(host_config['hostip'])
-    username = str(host_config['username'])
-    password = str(host_config['password'])
-    port = 22
-    if 'sshport' in host_config:
-        port = int(host_config['sshport'])
-
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
-    stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    stdin.write(password + '\n')
-    stdin.flush()
-
-    for response_msg in stdout:
-        print response_msg.strip('\n')
-
-    ssh.close()
-
-
-
 def bootstrapScriptGenerate(cluster_config, host_config, role):
 
     src = "template"
@@ -224,9 +168,13 @@ def remoteBootstrap(cluster_info, host_config):
     src_local = "template/generated/{0}".format(host_config["hostip"])
     dst_remote = "/home/{0}".format(host_config["username"])
 
-    sftp_paramiko(src_local, dst_remote, srcipt_package, host_config)
+    if pai_common.sftp_paramiko(src_local, dst_remote, srcipt_package, host_config) == False:
+        return
+
     commandline = "tar -xvf kubernetes.tar && sudo ./src/start.sh {0}:8080 {1} {2}".format(cluster_info['api-servers-ip'], host_config['username'], host_config['hostip'])
-    ssh_shell_paramiko(host_config, commandline)
+
+    if pai_common.ssh_shell_paramiko(host_config, commandline) == False:
+        return
 
 
 
@@ -236,9 +184,13 @@ def remoteCleanUp(cluster_info, host_config):
     src_local = "./"
     dst_remote = "/home/{0}".format(host_config["username"])
 
-    sftp_paramiko(src_local, dst_remote, srcipt, host_config)
+    if pai_common.sftp_paramiko(src_local, dst_remote, srcipt, host_config) == False:
+        return
+
     commandline = "sudo sh cleanup.sh"
-    ssh_shell_paramiko(host_config, commandline)
+
+    if pai_common.ssh_shell_paramiko(host_config, commandline) == False:
+        return
 
 
 
