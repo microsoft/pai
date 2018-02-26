@@ -84,7 +84,7 @@ class add:
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh {1}:8080 {2} {3}".format(self.jobname, self.cluster_config['clusterinfo']['api-servers-ip'], self.node_config['username'], self.node_config['hostip'])
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh {1}".format(self.jobname, self.node_config['hostip'])
 
         if common.ssh_shell_paramiko(self.node_config, commandline) == False:
             return

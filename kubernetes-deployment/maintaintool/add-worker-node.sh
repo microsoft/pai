@@ -21,7 +21,7 @@
 # Edit /etc/hosts file for remote host
 
 # set host ip
-hostip=$3
+hostip=$1
 
 # Change 127.0.0.1 line to "127.0.0.1 localhost $hostname"
 grep -q "127.0.0.1" /etc/hosts && \
