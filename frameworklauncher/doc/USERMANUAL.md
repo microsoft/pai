@@ -92,6 +92,11 @@
   <img src="img/Pipeline.png" title="Pipeline" alt="Pipeline" />
 </p>
 
+## <a name="Configuration">Configuration</a>
+Launcher Service can be configured by [LauncherConfiguration](../src/main/java/com/microsoft/frameworklauncher/common/model/LauncherConfiguration.java). You can check the Type, Specification and FeatureUsage inside it.
+
+And we also provide a default configuration for you to refer: [Default LauncherConfiguration File](../conf/frameworklauncher.yml).
+
 ## <a name="RestAPI">RestAPI</a>
 ### <a name="Guarantees">Guarantees</a>
 * All APIs are IDEMPOTENT and STATELESS, to allowed trivial Work Preserving Client Restart.

@@ -3,6 +3,9 @@
 zkConnectString: 127.0.0.1:2181
 zkRootDir: /Launcher
 hdfsRootDir: /Launcher
+rootAdminUsers: !!set
+  ? {name: ra1}
+  ? {name: ra2}
 
 # Service Setup
 serviceRMResyncIntervalSec: 60
