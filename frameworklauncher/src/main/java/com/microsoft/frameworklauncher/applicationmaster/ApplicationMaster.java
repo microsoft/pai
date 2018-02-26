@@ -160,7 +160,7 @@ public class ApplicationMaster extends AbstractService {
     conf.initializeDependOnYarnClientConfig(yarnClient);
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
     conf.initializeDependOnZKStoreConfig(zkStore);
     hdfsStore = new HdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
@@ -576,6 +576,7 @@ public class ApplicationMaster extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
+    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
