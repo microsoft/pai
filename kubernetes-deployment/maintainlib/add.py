@@ -49,14 +49,12 @@ class add:
 
             print "[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['role'], node_config['nodename'])
 
-            return False
-
-
-        return True
-
 
 
     def prepare_package(self):
+
+        if self.jobname == 'error':
+            return
 
         common.maintain_package_wrapper(self.cluster_config, self.maintain_config, self.node_config, self.jobname)
 
@@ -64,11 +62,17 @@ class add:
 
     def delete_packege(self):
 
+        if self.jobname == 'error':
+            return
+
         common.maintain_package_cleaner(self.node_config)
 
 
 
     def job_executer(self):
+
+        if self.jobname == 'error':
+            return
 
         print "{0} job begins !".format(self.jobname)
 
@@ -90,6 +94,9 @@ class add:
 
 
     def run(self):
+
+        if self.jobname == 'error':
+            return
 
         print "---- package wrapper is working now! ----"
         self.prepare_package()
