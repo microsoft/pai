@@ -19,7 +19,9 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.model.LauncherStatus;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -29,7 +31,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 // Const parameters for the current AM instead of state variable
-class Configuration {
+public class Configuration {
   private YarnConfiguration yarnConfig;
   private String frameworkName;
   private Integer frameworkVersion;
@@ -47,6 +49,7 @@ class Configuration {
   private String attemptId;
   private String applicationId;
   private LauncherConfiguration launcherConfig;
+  private UserDescriptor loggedInUser;
 
   // Below properties defined for RM when AM Registered, it may be changed after RM configuration changed.
   private ResourceDescriptor maxResource;
@@ -83,7 +86,9 @@ class Configuration {
     this.attemptId = attemptId.toString();
     applicationId = attemptId.getApplicationId().toString();
 
-    launcherConfig = zkStore.getLauncherStatus().getLauncherConfiguration();
+    LauncherStatus launcherStatus = zkStore.getLauncherStatus();
+    launcherConfig = launcherStatus.getLauncherConfiguration();
+    loggedInUser = launcherStatus.getLoggedInUser();
   }
 
   public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) throws Exception {
@@ -161,6 +166,10 @@ class Configuration {
 
   protected LauncherConfiguration getLauncherConfig() {
     return launcherConfig;
+  }
+
+  public UserDescriptor getLoggedInUser() {
+    return loggedInUser;
   }
 
   protected ResourceDescriptor getMaxResource() {

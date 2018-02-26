@@ -19,12 +19,15 @@ package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
   private String hdfsRootDir = "/Launcher";
+  private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
   // Service Setup
   private Integer serviceRMResyncIntervalSec = 60;
@@ -96,7 +99,7 @@ public class LauncherConfiguration implements Serializable {
   @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
-
+  private Boolean webServerAclEnable = false;
 
   public String getZkConnectString() {
     return zkConnectString;
@@ -120,6 +123,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setHdfsRootDir(String hdfsRootDir) {
     this.hdfsRootDir = hdfsRootDir;
+  }
+
+  public Set<UserDescriptor> getRootAdminUsers() {
+    return rootAdminUsers;
+  }
+
+  public void setRootAdminUsers(Set<UserDescriptor> rootAdminUsers) {
+    this.rootAdminUsers = rootAdminUsers;
   }
 
   public Integer getServiceRMResyncIntervalSec() {
@@ -336,5 +347,13 @@ public class LauncherConfiguration implements Serializable {
 
   public void setWebServerStatusPullIntervalSec(Integer webServerStatusPullIntervalSec) {
     this.webServerStatusPullIntervalSec = webServerStatusPullIntervalSec;
+  }
+
+  public Boolean getWebServerAclEnable() {
+    return webServerAclEnable;
+  }
+
+  public void setWebServerAclEnable(Boolean webServerAclEnable) {
+    this.webServerAclEnable = webServerAclEnable;
   }
 }

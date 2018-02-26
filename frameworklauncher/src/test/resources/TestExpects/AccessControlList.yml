@@ -1,0 +1,4 @@
+!!com.microsoft.frameworklauncher.common.model.AccessControlList
+users: !!set
+  ? {name: testString}
+  : null

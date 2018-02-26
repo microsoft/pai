@@ -19,14 +19,13 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Singleton;
+import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exceptions.NotFoundException;
 import com.microsoft.frameworklauncher.common.exceptions.ThrottledRequestException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
-import org.apache.hadoop.security.authorize.AuthorizationException;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.yarn.webapp.ForbiddenException;
 import org.apache.hadoop.yarn.webapp.RemoteExceptionData;
 import org.apache.http.HttpStatus;
 
@@ -60,11 +59,10 @@ public class LauncherExceptionHandler implements ExceptionMapper<Exception> {
     // Map response status
     String logPrefix = "Http request failed due to: ";
     final int statusCode;
-    if (e instanceof SecurityException ||
-        e instanceof AuthorizationException) {
+    if (e instanceof SecurityException) {
       LOGGER.logInfo(e, logPrefix + "Unauthorized");
       statusCode = HttpStatus.SC_UNAUTHORIZED;
-    } else if (e instanceof ForbiddenException) {
+    } else if (e instanceof AuthorizationException) {
       LOGGER.logInfo(e, logPrefix + "Forbidden");
       statusCode = HttpStatus.SC_FORBIDDEN;
     } else if (e instanceof NotFoundException ||

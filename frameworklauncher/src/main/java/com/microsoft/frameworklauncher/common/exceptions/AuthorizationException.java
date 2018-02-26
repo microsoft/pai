@@ -15,38 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-package com.microsoft.frameworklauncher.common.model;
+package com.microsoft.frameworklauncher.common.exceptions;
 
-import com.microsoft.frameworklauncher.common.validation.CommonValidation;
+public class AuthorizationException extends NonTransientException {
+  private static final long serialVersionUID = 1L;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.io.Serializable;
-
-public class ParentFrameworkDescriptor implements Serializable {
-  @Valid
-  @NotNull
-  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
-  private String parentFrameworkName;
-
-  @Valid
-  @NotNull
-  private boolean deleteOnParentDeleted = false;
-
-  public String getParentFrameworkName() {
-    return parentFrameworkName;
+  public AuthorizationException() {
+    super();
   }
 
-  public void setParentFrameworkName(String parentFrameworkName) {
-    this.parentFrameworkName = parentFrameworkName;
+  public AuthorizationException(String message) {
+    super(message);
   }
 
-  public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
-    this.deleteOnParentDeleted = deleteOnParentDeleted;
+  public AuthorizationException(Throwable cause) {
+    super(cause);
   }
 
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
+  public AuthorizationException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

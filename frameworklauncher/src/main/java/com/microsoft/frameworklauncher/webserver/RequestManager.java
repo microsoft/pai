@@ -280,6 +280,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return CommonUtils.executeWithLock(readLock, () -> launcherRequest.getClusterConfiguration());
   }
 
+  public AclConfiguration getAclConfiguration() throws Exception {
+    return CommonUtils.executeWithLock(readLock, () -> launcherRequest.getAclConfiguration());
+  }
+
   /**
    * REGION ModifyInterface
    */
@@ -415,6 +419,15 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     CommonUtils.executeWithLock(writeLock, () -> {
       LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
       newLauncherRequest.setClusterConfiguration(clusterConfiguration);
+      zkStore.setLauncherRequest(newLauncherRequest);
+      launcherRequest = newLauncherRequest;
+    });
+  }
+
+  public void updateAclConfiguration(AclConfiguration aclConfiguration) throws Exception {
+    CommonUtils.executeWithLock(writeLock, () -> {
+      LauncherRequest newLauncherRequest = YamlUtils.deepCopy(launcherRequest, LauncherRequest.class);
+      newLauncherRequest.setAclConfiguration(aclConfiguration);
       zkStore.setLauncherRequest(newLauncherRequest);
       launcherRequest = newLauncherRequest;
     });

@@ -31,8 +31,12 @@ launcherConfiguration:
   frameworkLeftoverGCMaxCount: 0
   hdfsRootDir: testString
   maxTotalTaskNumber: 0
+  rootAdminUsers: !!set
+    ? {name: testString}
+    : null
   serviceRMResyncIntervalSec: 0
   serviceRequestPullIntervalSec: 0
+  webServerAclEnable: false
   webServerAddress: testString
   webServerBindHost: testString
   webServerStatusPullIntervalSec: 0

@@ -37,6 +37,7 @@ public class WebStructure {
   public static final String LAUNCHER_REQUEST_PATH = VERSION_PATH + PATH_SEPARATOR + "LauncherRequest";
   public static final String DATA_DEPLOYMENT_VERSION_PATH = LAUNCHER_REQUEST_PATH + PATH_SEPARATOR + "DataDeploymentVersion";
   public static final String CLUSTER_CONFIGURATION_PATH = LAUNCHER_REQUEST_PATH + PATH_SEPARATOR + "ClusterConfiguration";
+  public static final String ACL_CONFIGURATION_PATH = LAUNCHER_REQUEST_PATH + PATH_SEPARATOR + "AclConfiguration";
   public static final String FRAMEWORK_ROOT_PATH = VERSION_PATH + PATH_SEPARATOR + "Frameworks";
   public static final String FRAMEWORK_PATH = FRAMEWORK_ROOT_PATH + PATH_SEPARATOR + FRAMEWORK_NAME_PATH_PARAM_PLACEMENT;
   public static final String AGGREGATED_FRAMEWORK_STATUS_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "AggregatedFrameworkStatus";
@@ -49,7 +50,7 @@ public class WebStructure {
   public static final String FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "FrameworkRequest";
 
   public final static String REQUEST_PARAM_LAUNCH_CLIENT_TYPE = WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE;
-  public final static String REQUEST_PARAM_USER_NAME = "UserName";
+  public final static String REQUEST_PARAM_USER_NAME = WebCommon.REQUEST_HEADER_USER_NAME;
 
   public static String getNodePath(String parentNodePath, String nodeName) {
     return (StringUtils.stripEnd(parentNodePath, PATH_SEPARATOR) +
