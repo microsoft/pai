@@ -96,7 +96,7 @@ def ipv4_address_validation(ipv4_addr):
 
 def port_validation(port):
 
-    if str(port).isdigit() == True:
+    if str(port).isdigit() == True and int(port) >= 0 and int(port) <= 65535 :
 
         ret = True
 
