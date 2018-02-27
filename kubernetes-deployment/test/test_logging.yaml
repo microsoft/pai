@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 version: 1
-
+disable_existing_loggers: False
 formatters:
     pai_k8sdp:
         format: "%(asctime)s [%(levelname)s] - %(name)s : %(message)s"
