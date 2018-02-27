@@ -32,7 +32,7 @@ loggers:
     unittest_module:
         level: INFO
         handler: [console]
-        propagate: yes
+        propagate: no
 
 
 root:
