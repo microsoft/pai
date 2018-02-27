@@ -34,7 +34,15 @@ class TestBootstrap(unittest.TestCase):
     Test the bootstrap's api
     """
 
-    def __init__(self):
+    def setUp(self):
+
+        try:
+
+            os.chdir(os.path.abspath("test"))
+
+        except:
+
+            pass
 
         configuration_path = "test_logging.yaml"
 
@@ -45,18 +53,6 @@ class TestBootstrap(unittest.TestCase):
             logging.config.dictConfig(logging_configuration)
 
             logging.getLogger(__name__)
-
-
-
-    def setUp(self):
-
-        try:
-
-            os.chdir(os.path.abspath("test"))
-
-        except:
-
-            pass
 
 
 
