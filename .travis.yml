@@ -1,0 +1,47 @@
+sudo: required
+dist: trusty
+matrix:
+  include:
+    - language: java
+      jdk: oraclejdk8
+      before_install:
+        - cd frameworklauncher
+      install:
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script:
+        - mvn test -B
+    - language: java
+      jdk: openjdk8
+      before_install:
+        - cd frameworklauncher
+      install:
+        - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      script:
+        - mvn test -B
+    - language: node_js
+      node_js: 6
+      env: NODE_ENV=test
+      before_install:
+        - cd rest-server
+      install:
+        - npm install
+      script:
+        - npm test
+    - language: node_js
+      node_js: 7
+      env: NODE_ENV=test
+      before_install:
+        - cd rest-server
+      install:
+        - npm install
+      script:
+        - npm test
+    - language: node_js
+      node_js: 8
+      env: NODE_ENV=test
+      before_install:
+        - cd rest-server
+      install:
+        - npm install
+      script:
+        - npm test
