@@ -22,6 +22,7 @@ import yaml
 import tarfile
 import shutil
 import sys
+import logging
 
 from maintainlib import common
 

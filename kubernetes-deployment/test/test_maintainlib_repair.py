@@ -18,6 +18,8 @@
 import sys
 import os
 import unittest
+import logging
+import yaml
 
 from maintainlib import repair
 
