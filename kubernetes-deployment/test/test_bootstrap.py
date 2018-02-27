@@ -22,8 +22,12 @@ import yaml
 import tarfile
 import shutil
 import sys
+import logging
+import logging.config
 
 import bootstrap
+from maintainlib import common
+
 
 
 class TestBootstrap(unittest.TestCase):
@@ -41,6 +45,18 @@ class TestBootstrap(unittest.TestCase):
         except:
 
             pass
+
+        configuration_path = "sysconf/logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+
+            logging_configuration = common.load_yaml_file(configuration_path)
+
+            logging.config.dictConfig(logging_configuration)
+
+            logging.getLogger("unittest_module")
 
 
 

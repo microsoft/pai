@@ -52,6 +52,12 @@ loggers:
         handlers: [console]
         propagate: no
 
+    unittest_module:
+        level: INFO
+        handler: [console]
+        propagate: no
+
+
 root:
     level: INFO
     handlers: [console, info_handler, error_handler]
