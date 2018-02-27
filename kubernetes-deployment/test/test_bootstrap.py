@@ -46,13 +46,11 @@ class TestBootstrap(unittest.TestCase):
 
             pass
 
-        configuration_path = "sysconf/logging.yaml"
+        configuration_path = "test/test_logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:
                 logging_configuration = yaml.safe_load(f.read())
-
-            logging_configuration = common.load_yaml_file(configuration_path)
 
             logging.config.dictConfig(logging_configuration)
 
