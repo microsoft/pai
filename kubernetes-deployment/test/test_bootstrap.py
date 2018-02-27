@@ -52,7 +52,7 @@ class TestBootstrap(unittest.TestCase):
 
             logging.config.dictConfig(logging_configuration)
 
-            logging.getLogger(__name__)
+            logging.getLogger()
 
 
 
