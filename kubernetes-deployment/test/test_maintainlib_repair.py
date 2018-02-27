@@ -19,6 +19,7 @@ import sys
 import os
 import unittest
 import logging
+import logging.config
 import yaml
 
 from maintainlib import repair

@@ -23,6 +23,7 @@ import tarfile
 import shutil
 import sys
 import logging
+import logging.config
 
 from maintainlib import common
 
