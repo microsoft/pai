@@ -46,7 +46,7 @@ class TestBootstrap(unittest.TestCase):
 
             pass
 
-        configuration_path = "test/test_logging.yaml"
+        configuration_path = "test_logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:
