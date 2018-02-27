@@ -37,7 +37,7 @@ if os.path.exists(configuration_path):
 
     logging.config.dictConfig(logging_configuration)
 
-    logging.getLogger("unittest_module")
+    logging.getLogger(__name__)
 
 
 class TestBootstrap(unittest.TestCase):
