@@ -446,8 +446,10 @@ def main():
 
     args = parser.parse_args()
 
+    logger.info("Begin option validation! ")
     if option_validation(args) == False:
         return
+    logger.info("Pass option validation! ")
 
     config_path = args.path
     cluster_config = load_cluster_config(config_path)
@@ -461,41 +463,69 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
 
     if args.action == 'add':
+
+        logger.info("Begin to add new nodes to PAI cluster.")
+
         #Todo in the future we should finish the following two line
         #cluster_config = get_cluster_configuration()
         #node_list_config = get_node_list_config()
         node_list_config = load_yaml_file(args.file)
         add_new_nodes(cluster_config, node_list_config)
         #up_data_cluster_configuration()
+
+        logger.info("New nodes have been added.")
         return
 
     if args.action == 'remove':
+
+        logger.info("Begin to remove nodes from PAI cluster.")
+
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
         remove_nodes(cluster_config, node_list_config)
         # up_data_cluster_configuration()
+
+        logger.info("Nodes have been removed.")
         return
 
     if args.action == 'repair':
+
+        logger.info("Begin to repair the target nodes.")
+
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
         maintain_nodes(cluster_config, node_list_config, args.action)
+
+        logger.info("The nodes have been repaired.")
         return
 
     if args.action == 'clean':
+
+        logger.info("Begin to clean up whole cluster.")
+
         destory_whole_cluster(cluster_config)
+
         logger.info("Clean up job finished")
         return
 
     if args.action == 'deploy':
+
+        logger.info("Begin to initialize PAI.")
+
         initial_bootstrap_cluster(cluster_config)
 
+
     if args.action == 'deploy' or args.action == 'install_kubectl':
+
+        logger.info("Begin to install kubectl.")
+
         kubectl_install(cluster_config[ 'clusterinfo' ])
+
+        logger.info("Kubectl has been installed.")
 
     if args.action == 'deploy':
         #step:  Kube-proxy
@@ -503,6 +533,9 @@ def main():
 
         #step : dashboard startup
         dashboard_startup(cluster_config[ 'clusterinfo' ])
+
+        logger.info("Finish initializing PAI.")
+
 
     logger.info("Maintenance Finished!")
 
