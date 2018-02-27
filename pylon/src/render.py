@@ -24,7 +24,8 @@ renderedString = Template(templateString).render({
     "K8S_API_SERVER_URI": os.environ['K8S_API_SERVER_URI'],
     "WEBHDFS_URI": os.environ['WEBHDFS_URI'],
     "PROMETHEUS_URI": os.environ['PROMETHEUS_URI'],
+    "K8S_DASHBOARD_URI": os.environ['K8S_DASHBOARD_URI'],
+    "GRAFANA_URI": os.environ['GRAFANA_URI'],
     "WEBPORTAL_URI": os.environ['WEBPORTAL_URI']
 })
 open('nginx.conf', 'w').write(renderedString)
-
