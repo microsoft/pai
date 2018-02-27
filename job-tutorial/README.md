@@ -100,7 +100,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the task role, need to be unique with other roles |
-| `taskRole.taskNumber`          | Integer, required          | Number for the task role, no less than 1 |
+| `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
@@ -134,22 +134,22 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
-| PAI_USERNAME                       | User who submit the job                  |
+| PAI_USER_NAME                      | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
 | PAI_CODE_DIR                       | `codeDir` in config file                 |
-| PAI_TASK_ROLE_LIST                 | Comma separated all task role names in config file |
 | PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
-| PAI_TASK_ROLE_NUM                  | `taskRole.taskNumber` of current task role |
-| PAI_TASK_CPU_NUM                   | `taskRole.cpuNumber` of current task     |
-| PAI_TASK_MEM_MB                    | `taskRole.memoryMB` of current task      |
-| PAI_TASK_GPU_NUM                   | `taskRole.gpuNumber` of current task     |
-| PAI_TASK_ROLE_INDEX                | Index of current task in the task role, starting from 0 |
+| PAI_TASK_ROLE_TASK_NUM             | `taskRole.taskNumber` of current task role |
+| PAI_TASK_ROLE_CPU_NUM              | `taskRole.cpuNumber` of current task role  |
+| PAI_TASK_ROLE_MEM_MB               | `taskRole.memoryMB` of current task role   |
+| PAI_TASK_ROLE_GPU_NUM              | `taskRole.gpuNumber` of current task role  |
+| PAI_TASK_ROLE_TASK_INDEX           | Index of current task in the task role, starting from 0 |
 | PAI_TASKS_NUM                      | Total tasks' number in config file       |
 | PAI_TASK_ROLES_NUM                 | Total task roles' number in config file  |
+| PAI_TASK_ROLES_LIST                | Comma separated all task role names in config file |
 | PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
-| PAI_CURRENT_CONTAINER_IP           | Allocated ip for current docker container |
-| PAI_CURRENT_CONTAINER_PORT         | Allocated port for current docker container |
+| PAI_CONTAINER_IP                   | Allocated ip for current docker container |
+| PAI_CONTAINER_PORT                 | Allocated port for current docker container |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string |
 
 
