@@ -26,18 +26,6 @@ import logging
 import logging.config
 
 import bootstrap
-from maintainlib import common
-
-configuration_path = "test_logging.yaml"
-
-
-if os.path.exists(configuration_path):
-    with open(configuration_path, 'rt') as f:
-        logging_configuration = yaml.safe_load(f.read())
-
-    logging.config.dictConfig(logging_configuration)
-
-    logging.getLogger(__name__)
 
 
 class TestBootstrap(unittest.TestCase):
@@ -45,6 +33,20 @@ class TestBootstrap(unittest.TestCase):
     """
     Test the bootstrap's api
     """
+
+    def __init__(self):
+
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+
+            logging.config.dictConfig(logging_configuration)
+
+            logging.getLogger(__name__)
+
+
 
     def setUp(self):
 
