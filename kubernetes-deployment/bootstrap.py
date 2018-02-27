@@ -23,12 +23,19 @@ import sys
 import subprocess
 import jinja2
 import argparse
-import paramiko
 import maintainlib
 import importlib
 import time
+import logging
+import logging.config
+
 
 from maintainlib import common as pai_common
+
+
+
+logger = logging.getLogger(__name__)
+
 
 
 def execute_shell(shell_cmd, error_msg):
@@ -37,7 +44,8 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -48,7 +56,8 @@ def execute_shell_return(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         return False
 
     return True
@@ -106,7 +115,8 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -397,21 +407,34 @@ def option_validation(args):
     option_list_without_file = ['deploy', 'clean', 'install_kubectl']
     if args.action in option_list_without_file:
         if args.file != None:
-            print "[{0}] Error: Option -a [deploy, clean, install_kubectl] shouldn't combine with option -f".format(time.asctime())
+            logger.error("Option -a [deploy, clean, install_kubectl] shouldn't combine with option -f")
             return False
         ret = True
 
     option_list_with_file = ['add', 'remove', 'repair']
     if args.action in option_list_with_file:
         if args.file == None:
-            print "[{0}] Error: Option -a [add, remove, repair] should combine with option -f".format(time.asctime())
+            logger.error("Option -a [add, remove, repair] should combine with option -f")
             return False
         ret = True
 
     if ret == False:
-        print "[{0}] Error: {1} is non_existent".format(time.asctime(), args.action)
+        logger.error("{0} is non_existent".format(args.action))
+
 
     return ret
+
+
+
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = pai_common.load_yaml_file(configuration_path)
+    
+    logging.config.dictConfig(logging_configuration)
 
 
 
@@ -465,7 +488,7 @@ def main():
 
     if args.action == 'clean':
         destory_whole_cluster(cluster_config)
-        print "Clean Up Finished!"
+        logger.info("Clean up job finished")
         return
 
     if args.action == 'deploy':
@@ -481,9 +504,12 @@ def main():
         #step : dashboard startup
         dashboard_startup(cluster_config[ 'clusterinfo' ])
 
-    print "Done !"
+    logger.info("Maintenance Finished!")
 
 
 
 if __name__ == "__main__":
+
+    setup_logging()
+
     main()
