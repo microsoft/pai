@@ -22,6 +22,8 @@ import yaml
 import tarfile
 import shutil
 import sys
+import logging
+import logging.config
 
 from maintainlib import common
 
@@ -42,6 +44,15 @@ class TestMaintainlibCommon(unittest.TestCase):
 
             pass
 
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+
+            logging.config.dictConfig(logging_configuration)
+
+            logging.getLogger()
 
 
 
