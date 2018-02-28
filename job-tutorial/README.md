@@ -138,18 +138,18 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
 | PAI_CODE_DIR                       | `codeDir` in config file                 |
-| PAI_TASK_ROLE_NAME                 | `taskRole.name` of current task role     |
-| PAI_TASK_ROLE_TASK_NUM             | `taskRole.taskNumber` of current task role |
-| PAI_TASK_ROLE_CPU_NUM              | `taskRole.cpuNumber` of current task role  |
-| PAI_TASK_ROLE_MEM_MB               | `taskRole.memoryMB` of current task role   |
-| PAI_TASK_ROLE_GPU_NUM              | `taskRole.gpuNumber` of current task role  |
-| PAI_TASK_ROLE_TASK_INDEX           | Index of current task in the task role, starting from 0 |
-| PAI_TASKS_NUM                      | Total tasks' number in config file       |
-| PAI_TASK_ROLES_NUM                 | Total task roles' number in config file  |
-| PAI_TASK_ROLES_LIST                | Comma separated all task role names in config file |
+| PAI_CURRENT_TASK_ROLE_NAME         | `taskRole.name` of current task role     |
+| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `taskRole.taskNumber` of current task role |
+| PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `taskRole.cpuNumber` of current task role  |
+| PAI_CURRENT_TASK_ROLE_MEM_MB       | `taskRole.memoryMB` of current task role   |
+| PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `taskRole.gpuNumber` of current task role  |
+| PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | Index of current task in current task role, starting from 0 |
+| PAI_JOB_TASK_COUNT                 | Total tasks' number in config file       |
+| PAI_JOB_TASK_ROLE_COUNT            | Total task roles' number in config file  |
+| PAI_JOB_TASK_ROLE_LIST             | Comma separated all task role names in config file |
 | PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
-| PAI_CONTAINER_IP                   | Allocated ip for current docker container |
-| PAI_CONTAINER_PORT                 | Allocated port for current docker container |
+| PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
+| PAI_CONTAINER_HOST_PORT            | Allocated port for current docker container |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string |
 
 
