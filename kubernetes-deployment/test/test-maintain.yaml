@@ -16,15 +16,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-unittest-common:
+unittest-common-1:
 
     template-list:
     - name: testfile1.sh
       src: data/data_maintainlib_common/testfile1.sh.template
-      dst: unittest-common
+      dst: unittest-common-1
 
     file-list:
     - name: testfile2.sh
       src: data/data_maintainlib_common/testfile2.sh
-      dst: unittest-common
+      dst: unittest-common-1
 
+
+
+unittest-common-2:
+
+    file-list:
+    - name: testfile2.sh
+      src: data/data_maintainlib_common/testfile2.sh
+      dst: unittest-common-2
+
+
+
+unittest-common-3:
+
+    template-list:
+    - name: testfile1.sh
+      src: data/data_maintainlib_common/testfile1.sh.template
+      dst: unittest-common-3
