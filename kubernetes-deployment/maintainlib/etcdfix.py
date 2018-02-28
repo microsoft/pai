@@ -107,7 +107,31 @@ class etcdFix:
 
     def restart_etcd_server(self, bad_node_config):
 
-        None
+        self.prepare_package(bad_node_config, "restart_etcd_server")
+
+        new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list()
+
+        self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
+        self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
+
+        print "Restart etcd server on host [{0}]".format(bad_node_config['nodename'])
+
+        script_package = "etcd-reconfiguration-restart.tar"
+        src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
+        dst_remote = "/home/{0}".format(bad_node_config["username"])
+
+        if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
+            return
+
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh".format("etcd-reconfiguration-restart")
+
+        if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
+            return
+
+        print "Successfully restarting bad etcd server on node {0}".format(bad_node_config["nodename"])
+
+        if self.clean_flag:
+            self.delete_packege(bad_node_config)
 
 
 
@@ -131,7 +155,10 @@ class etcdFix:
 
 
 
-    def get_etcd_member_list(self):
+    def get_etcd_peer_ip_list(self):
+
+        etcd_cluster_ips_peer = ""
+        separated = ""
 
         host_list = list()
 
@@ -141,11 +168,29 @@ class etcdFix:
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         member_dict = client.members
-        #for member_hash in memberlist_dict:
+        for member_hash in member_dict:
 
+            etcd_id = member_dict[member_hash]['name']
+            peer_url = member_dict[member_hash]['peerURLs'][0]
+
+            ip_peer = "{0}={1}".format(etcd_id, peer_url)
+
+            etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+
+            separated = ","
+
+
+        return etcd_cluster_ips_peer
 
 
 
     def run(self):
 
-        None
+        bad_node_config = self.bad_node_config
+        good_node_config = self.get_etcd_leader_node()
+
+        self.restart_etcd_server(bad_node_config)
+
+        self.update_etcd_cluster(good_node_config)
+
+        self.restart_etcd_server(bad_node_config)

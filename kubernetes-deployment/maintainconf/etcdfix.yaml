@@ -20,7 +20,7 @@ etcd-reconfiguration-stop:
 
     file-list:
     - name: stop-etcd-server.sh
-      src: maintaintool/etcd-reconfiguration/stop-etcd-server.sh
+      src: maintaintool/etcdfix/stop-etcd-server.sh
       dst: etcd-reconfiguration-stop
 
 
@@ -28,13 +28,18 @@ etcd-reconfiguration-update:
 
     file-list:
     - name: update-etcd-cluster.sh
-      src: maintaintool/etcd-reconfiguration/update-etcd-cluster.sh
+      src: maintaintool/etcdfix/update-etcd-cluster.sh
       dst: etcd-reconfiguration-update
 
 
 etcd-reconfiguration-restart:
 
+    template-list:
+    - name: etcd.yaml
+      src: template/etcd.yaml.template
+      dst: etcd-reconfiguration-restart
+
     file-list:
     - name: restart-etcd-server.sh
-      src: maintaintool/etcd-reconfiguration/restart-etcd-server.sh
+      src: maintaintool/etcdfix/restart-etcd-server.sh
       dst: etcd-reconfiguration-restart
