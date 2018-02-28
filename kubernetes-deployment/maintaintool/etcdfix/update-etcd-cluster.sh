@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 bad_member_ip=$1
+bad_member_etcd_id=$2
 
 target_id=`docker ps --filter "name=container_etcd-server" -q`
 
@@ -28,7 +29,7 @@ docker exec -it $target_id etcdctl member remove $bad_member_hash
 echo etcd bad member $bad_member_hash is removed from cluster
 
 
-docker exec -it $target_id etcdctl member add $bad_member_ip http://$bad_member_ip:2380
+docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380
 
 
 
