@@ -57,14 +57,24 @@ const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
     if (elapsed) {
       const elapsedTime = getDurationInSeconds(startTime, endTime);
-      return moment.duration(elapsedTime, "seconds").humanize();
-      /*
+      // TODO: find a better way to humanize elapsedTime.
+      // return moment.duration(elapsedTime, "seconds").humanize();
+      let result = "";
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
+      if (elapsedDay > 0) {
+        result += elapsedDay + "d ";
+      }
       const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
+      if (result != "" || (result == "" && elapsedHour > 0)) {
+        result += elapsedHour + "h ";
+      }
       const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
+      if (result != "" || (result == "" && elapsedMinute > 0)) {
+        result += elapsedMinute + "m ";
+      }
       const elapsedSecond = parseInt(elapsedTime % 60);
-      return `${elapsedDay} day ${elapsedHour} hour ${elapsedMinute} min ${elapsedSecond} sec`;
-      */
+      result += elapsedSecond + "s";
+      return result;
     } else {
       const startDate = new Date(startTime);
       return startDate.toLocaleString();
@@ -141,8 +151,8 @@ const loadJobs = () => {
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
           "order": [[ 2, "desc" ]],
           columnDefs: [
-            { type: 'natural', targets: [0, 1, 2, 4, 5] },
-            { type: 'title-numeric', targets: [3] }
+            { type: 'natural', targets: [0, 1, 4, 5] },
+            { type: 'title-numeric', targets: [2, 3] }
           ]
         });
       }
