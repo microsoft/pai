@@ -141,7 +141,7 @@ class etcdFix:
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         member_dict = client.members
-        for member_hash in memberlist_dict:
+        #for member_hash in memberlist_dict:
 
 
 
