@@ -1,2 +1,2 @@
 !!com.microsoft.frameworklauncher.common.model.ParentFrameworkDescriptor {deleteOnParentDeleted: false,
-  parentFrameworkName: testString}
+  parentFrameworkName: testString, stopOnParentStopped: false}

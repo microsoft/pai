@@ -25,6 +25,7 @@ public class FrameworkEvent {
   private Integer applicationExitCode;
   private String applicationExitDiagnostics;
   private RetryPolicyState newRetryPolicyState;
+  private boolean skipToPersist = false;
 
   public ApplicationSubmissionContext getApplicationContext() {
     return applicationContext;
@@ -59,6 +60,15 @@ public class FrameworkEvent {
 
   public FrameworkEvent setNewRetryPolicyState(RetryPolicyState newRetryPolicyState) {
     this.newRetryPolicyState = newRetryPolicyState;
+    return this;
+  }
+
+  public boolean getSkipToPersist() {
+    return skipToPersist;
+  }
+
+  public FrameworkEvent setSkipToPersist(boolean skipToPersist) {
+    this.skipToPersist = skipToPersist;
     return this;
   }
 }

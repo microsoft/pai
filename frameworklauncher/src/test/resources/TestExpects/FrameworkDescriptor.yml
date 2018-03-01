@@ -1,6 +1,7 @@
 !!com.microsoft.frameworklauncher.common.model.FrameworkDescriptor
 description: testString
-parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString}
+executionType: START
+parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString, stopOnParentStopped: false}
 platformSpecificParameters:
   agentExpiryIntervalSec: 0
   agentHeartbeatIntervalSec: 0
