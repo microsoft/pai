@@ -166,17 +166,19 @@ const prepareLocalPath = () => {
 };
 
 // framework launcher health check
-unirest.get(launcherConfig.healthCheckPath())
-    .timeout(2000)
-    .end((res) => {
-      if (res.status === 200) {
-        logger.info('connected to framework launcher successfully');
-        prepareHdfsPath();
-        prepareLocalPath();
-      } else {
-        throw new Error('cannot connect to framework launcher');
-      }
-    });
+if (config.env !== 'test') {
+  unirest.get(launcherConfig.healthCheckPath())
+      .timeout(2000)
+      .end((res) => {
+        if (res.status === 200) {
+          logger.info('connected to framework launcher successfully');
+          prepareHdfsPath();
+          prepareLocalPath();
+        } else {
+          throw new Error('cannot connect to framework launcher');
+        }
+      });
+}
 
 // module exports
 module.exports = launcherConfig;

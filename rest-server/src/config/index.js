@@ -42,7 +42,7 @@ let config = {
 // define config schema
 const configSchema = Joi.object().keys({
   env: Joi.string()
-    .allow(['development', 'production'])
+    .allow(['test', 'development', 'production'])
     .default('development'),
   logLevel: Joi.string()
     .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])

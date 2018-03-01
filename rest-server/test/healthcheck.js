@@ -16,24 +16,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-/**
- * Implementation of RESTful API server.
- * Init and start server instance.
- */
+// test
+describe('API endpoint /api/v1', () => {
 
-// module dependencies
-const config = require('./config/index');
-const launcherConfig = require('./config/launcher');
-const logger = require('./config/logger');
-const app = require('./config/express');
+  // GET /
+  it('should return not found', (done) => {
+    chai.request(server)
+      .get('/')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(404);
+        done();
+      });
+  });
 
+  // GET /api
+  it('should return not found', (done) => {
+    chai.request(server)
+      .get('/api')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(404);
+        done();
+      });
+  });
 
-logger.info('config: %j', config);
-logger.info('launcher config: %j', launcherConfig);
-
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('RESTful API server starts on port %d', config.serverPort);
+  // GET /api/v1
+  it('should return health check', (done) => {
+    chai.request(server)
+      .get('/api/v1')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res.text, 'response text').to.be.a('string');
+        expect(res.text, 'response text').equal('<pre>PAI RESTful API</pre>');
+        done();
+      });
+  });
 });
-
-module.exports = app;

@@ -16,24 +16,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-/**
- * Implementation of RESTful API server.
- * Init and start server instance.
- */
+// test
+describe('Jobs API /api/v1/jobs', () => {
+  // Mock launcher webservice
+  beforeEach(() => {
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks')
+      .reply(200, ['job0', 'job1', 'job2']);
+  });
 
-// module dependencies
-const config = require('./config/index');
-const launcherConfig = require('./config/launcher');
-const logger = require('./config/logger');
-const app = require('./config/express');
-
-
-logger.info('config: %j', config);
-logger.info('launcher config: %j', launcherConfig);
-
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('RESTful API server starts on port %d', config.serverPort);
+  // GET /api/v1/jobs
+  it('should return jobs list', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
 });
-
-module.exports = app;

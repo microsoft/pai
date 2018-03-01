@@ -16,24 +16,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-/**
- * Implementation of RESTful API server.
- * Init and start server instance.
- */
+// environment variables
+process.env.NODE_ENV = 'test';
+process.env.SERVER_PORT = 8080;
+process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
+process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
+process.env.JWT_SECRET = 'jwt_test_secret';
+process.env.LOWDB_FILE = './user.db.json';
+process.env.LOWDB_ADMIN = 'iamadmin';
+process.env.LOWDB_PASSWD = 'adminisi';
+
 
 // module dependencies
-const config = require('./config/index');
-const launcherConfig = require('./config/launcher');
-const logger = require('./config/logger');
-const app = require('./config/express');
+const nock = require('nock');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../src/index');
+
+chai.use(chaiHttp);
 
 
-logger.info('config: %j', config);
-logger.info('launcher config: %j', launcherConfig);
-
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('RESTful API server starts on port %d', config.serverPort);
-});
-
-module.exports = app;
+global.nock = nock;
+global.chai = chai;
+global.assert = chai.assert;
+global.expect = chai.expect;
+global.should = chai.should;
+global.server = server;
+global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
