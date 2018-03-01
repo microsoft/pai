@@ -30,6 +30,8 @@ spec:
     - {{ hostcofig['etcdid'] }}
     - --initial-advertise-peer-urls
     - http://{{ hostcofig['hostip'] }}:2380
+    - --initial-cluster-state
+    - {{ clusterconfig['etcd-initial-cluster-state'] }}
     - --listen-peer-urls
     - http://0.0.0.0:2380
     - --advertise-client-urls
