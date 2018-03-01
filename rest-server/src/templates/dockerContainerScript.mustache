@@ -53,7 +53,9 @@ export PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
 export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
-
+export PAI_CURRENT_SSH_PORT=$(( (RANDOM % 55535) + 10001 ))
+printf "%s %s\n" \
+  "[INFO]" "PAI_CURRENT_SSH_PORT is ${PAI_CURRENT_SSH_PORT}"
 task_role_no={{{ idx }}}
 # touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_IP-CONTAINER_PORT" format on hdfs
 # to communicate with other containers, add APP_ID as prefix to differentiate attempts with same job name
@@ -75,6 +77,93 @@ if [ "$(cat ContainerList | wc -l)" -ne $PAI_TASKS_NUM ]; then
     "$(cat ContainerList | wc -l) containers are available, not equal to $PAI_TASKS_NUM, exit ..."
   exit 2
 fi
+
+
+function Prepare_SSH()
+{
+   printf "%s %s\n" "[INFO]" "in Prepare_SSH"
+   mkdir /var/run/sshd
+   mkdir /root/.ssh
+   echo 'root:screencast' | chpasswd
+   sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+   sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+   echo "export VISIBLE=now" >> /etc/profile
+   export NOTVISIBLE="in users profile"
+}
+Prepare_SSH
+printf "%s %s\n" "[INFO]" "NOTVISIBLE is ${NOTVISIBLE}"
+
+
+function Start_SSH_Service()
+{
+  printf "%s %s\n" "[INFO]" "in Start_SSH"
+  cat /root/.ssh/$APP_ID.pub >> /root/.ssh/authorized_keys
+  sed -i 's/Port.*/Port '$PAI_CURRENT_SSH_PORT'/' /etc/ssh/sshd_config
+  echo "sshd:ALL" >> /etc/hosts.allow
+  service ssh restart
+}
+
+function Hdfs_Upload_Atomically()
+{
+   printf "%s %s\n" "[INFO]" "in Hdfs_Upload_Atomically"
+   printf "%s %s\n" "[INFO]" "destination path is ${2}"
+   printf "%s %s\n" "[INFO]" "source path is ${1}"
+   tempFolder=${2}"_temp"
+   if [ Hdfs_Test_Path $tempFolder "directory" == 0 ]; then
+    hdfs dfs -rm -r $tempFolder || exit 1
+   fi
+   hdfs dfs -copyFromLocal ${1} "$tempFolder" || exit 1
+   hdfs dfs -mv "$tempFolder" ${2} || exit 1
+}
+
+function Hdfs_Test_Path()
+{
+   printf "%s %s\n" "[INFO]" "in Hdfs_Test_Path"
+   printf "%s %s\n" "[INFO]" "test path is ${1}"
+   printf "%s %s\n" "[INFO]" "test type is ${2}"
+   if [ ${2} -eq "directory" ]; then
+     hdfs dfs -test -f ${1} || exit 1
+   else
+     hdfs dfs -test -d ${1} || exit 1
+   fi
+}
+
+# let taskRoleNumber=0 and taskindex=0 execute upload ssh files
+hdfsSSHFoler=${HDFS_LAUNCHER_PREFIX}/${PAI_USERNAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
+printf "%s %s\n" \
+  "[INFO]" "hdfsSSHFoler is ${hdfsSSHFoler}"
+printf "%s %s\n" \
+  "[INFO]" "task_role_no is ${task_role_no}"
+printf "%s %s\n" \
+  "[INFO]" "PAI_TASK_INDEX is ${PAI_TASK_INDEX}"
+if [ $task_role_no == 0 ] && [ $PAI_TASK_INDEX == 0 ]; then
+  printf "%s %s %s\n%s\n" \
+    "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}"\
+    "Execute upload key pair ..."
+  ssh-keygen -N '' -t rsa -f ~/.ssh/$APP_ID
+
+  echo "[KIT] hdfs dfs -mkdir $hdfsSSHFoler || exit 1"
+  hdfs dfs -mkdir -p '/kit/11' || exit 1
+  echo "[KIT] passed 0"
+  hdfs dfs -mkdir -p 'hdfs://10.240.0.10:9000/Container/admin/openmind-jobsubmit-test-ptb-02/kit/12' || exit 1
+  echo "[KIT] Passed 1"
+  hdfs dfs -mkdir -p "$hdfsSSHFoler" || exit 1
+  echo "[KIT] Passed 2"
+  Hdfs_Upload_Atomically "/root/.ssh/" "$hdfsSSHFoler/.ssh"
+else
+  # waiting for ssh key-pair ready
+  while [ Hdfs_Test_Path "${hdfsSSHFoler}/.ssh" "directory" != 0 ]; do
+    sleep 10
+  done
+  printf "%s %s\n%s %s\n" \
+      "[INFO]" "Ssh key pair ready ..." \
+      "[INFO]" "Begin to download ssh key pair from hdfs ..."
+  hdfs dfs -copyToLocal "${hdfsSSHFoler}/.ssh/" "/root/.ssh/" || exit 1
+fi
+# Start ssh service
+Start_SSH_Service
+# Generate ssh connect info file in "APP_ID-PAI_CURRENT_CONTAINER_IP-PAI_CURRENT_SSH_PORT" format on hdfs
+hdfs dfs -touchz ${hdfsSSHFoler}/$APP_ID-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_SSH_PORT || exit 1
 
 export PAI_TASK_ROLE_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT" | cut -d ":" -f 1`-1))
 task_role_list=(${PAI_TASK_ROLE_LIST//,/ })
