@@ -50,7 +50,7 @@ const getDurationInSeconds = (startTime, endTime) => {
   if (endTime == null) {
     endTime = Date.now();
   }
-  return Math.round((endTime - startTime) / 1000);
+  return Math.round(Math.max(0, endTime - startTime) / 1000);
 }
 
 const convertTime = (elapsed, startTime, endTime) => {
