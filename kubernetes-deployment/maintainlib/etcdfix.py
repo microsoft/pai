@@ -28,7 +28,7 @@ import common
 
 
 
-class etcdFix:
+class etcdfix:
 
     """
     A class to reconfiguration etcd. Fix the issue when etcd's data is corrupted
