@@ -58,7 +58,8 @@ const getCellHtml = (percentage) => {
   }
   const title = (Math.round(percentage * 100) / 100) + "% (" + loadLevelString + ")";
   let cellHtml = "";
-  cellHtml += "<span class='fa-stack metric-span' title=\"" + title + "\">";
+  cellHtml += "<span title=\"" + percentage + "\">";
+  cellHtml += "<span class='fa-stack metric-span' title='" + title + "'>";
   cellHtml += "<i class='fa fa-circle fa-stack-1x metric-icon' style='color:" + innerColorString + "'></i>";
   cellHtml += "<i class='fa fa-circle-thin fa-stack-1x metric-icon' style='color:" + outerColorString + "'></i>";
   cellHtml += "</span>";
@@ -68,7 +69,7 @@ const getCellHtml = (percentage) => {
 //
 
 const initCells = (idPrefix, instanceList, table) => {
-  const noDataCellHtml = "<font color='silver' title=\"0% (N/A)\">N/A</font>";
+  const noDataCellHtml = "<span title=\"-1\"/><font color='silver' title=''>N/A</font>";
   for (let i = 0; i < instanceList.length; i++) {
     const cellId = getCellId(idPrefix + ":" + instanceList[i]);
     table.cell(cellId).data(noDataCellHtml);
