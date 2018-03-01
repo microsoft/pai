@@ -57,18 +57,18 @@ class etcdfix:
 
     def stop_bad_etcd_server(self, bad_node_config):
 
-        self.prepare_package(bad_node_config, "stop-etcd-server")
+        self.prepare_package(bad_node_config, "etcd-reconfiguration-stop")
 
         print "Stop the bad etcd server on host [{0}]".format(bad_node_config['nodename'])
 
-        script_package = "stop-etcd-server.tar"
+        script_package = "etcd-reconfiguration-stop.tar"
         src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
         dst_remote = "/home/{0}".format(bad_node_config["username"])
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             return
 
-        commandline = "tar -xvf stop-etcd-server.tar && sudo ./stop-etcd-server/stop-etcd-server.sh"
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/stop-etcd-server.sh".format("etcd-reconfiguration-stop")
 
         if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
             return
@@ -82,18 +82,18 @@ class etcdfix:
 
     def update_etcd_cluster(self, good_node_config):
 
-        self.prepare_package(good_node_config, "update-etcd-cluster")
+        self.prepare_package(good_node_config, "etcd-reconfiguration-update")
 
         print "Update etcd cluster on host [{0}]".format(good_node_config['nodename'])
 
-        script_package = "update-etcd-cluster.tar"
+        script_package = "etcd-reconfiguration-update.tar"
         src_local = "parcel-center/{0}".format(good_node_config["nodename"])
         dst_remote = "/home/{0}".format(good_node_config["username"])
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh {1} {2}".format("update-etcd-cluster", good_node_config['hostip'], good_node_config['etcdid'] )
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update", "update-etcd-cluster", good_node_config['hostip'], good_node_config['etcdid'] )
 
         if common.ssh_shell_paramiko(good_node_config, commandline) == False:
             return
@@ -107,7 +107,7 @@ class etcdfix:
 
     def restart_etcd_server(self, bad_node_config):
 
-        self.prepare_package(bad_node_config, "restart_etcd_server")
+        self.prepare_package(bad_node_config, "etcd-reconfiguration-restart")
 
         new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list()
 
@@ -123,7 +123,7 @@ class etcdfix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh".format("etcd-reconfiguration-restart")
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh".format("etcd-reconfiguration-restart", "restart-etcd-server")
 
         if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
             return
@@ -189,7 +189,7 @@ class etcdfix:
         bad_node_config = self.bad_node_config
         good_node_config = self.get_etcd_leader_node()
 
-        self.restart_etcd_server(bad_node_config)
+        self.stop_bad_etcd_server(bad_node_config)
 
         self.update_etcd_cluster(good_node_config)
 
