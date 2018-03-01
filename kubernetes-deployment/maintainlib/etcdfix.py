@@ -93,7 +93,7 @@ class etcdFix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
             return
 
-        commandline = "tar -xvf update-etcd-cluster.tar && sudo ./update-etcd-cluster/update-etcd-cluster.sh"
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh {1} {2}".format("update-etcd-cluster", good_node_config['hostip'], good_node_config['etcdid'] )
 
         if common.ssh_shell_paramiko(good_node_config, commandline) == False:
             return
