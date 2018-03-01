@@ -56,7 +56,7 @@ class Job {
         jobState = 'RUNNING';
         break;
       case 'FRAMEWORK_COMPLETED':
-        if (exitCode && parseInt(exitCode) === 0) {
+        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
           jobState = 'SUCCEEDED';
         } else {
           jobState = 'FAILED';
@@ -74,7 +74,7 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['transientNormalRetriedCount', 'transientConflictRetriedCount',
                 'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
@@ -92,7 +92,7 @@ class Job {
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
-          next(jobList, err);
+          next(jobList);
         });
   }
 
@@ -147,7 +147,7 @@ class Job {
             if (frameworkRequest.frameworkDescriptor) {
               job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
             }
-            const taskRoleStatuses = framework.aggregatedTaskRoleStatuses;
+            const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
             if (taskRoleStatuses) {
               for (let taskRole of Object.keys(taskRoleStatuses)) {
                 job.taskRoles[taskRole] = {
@@ -297,7 +297,7 @@ class Job {
         dockerContainerScriptTemplate, {
           'idx': idx,
           'tasksNumber': tasksNumber,
-          'taskRoleList': data.map((x) => x.name).join(','),
+          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
