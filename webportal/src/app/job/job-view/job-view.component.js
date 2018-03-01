@@ -25,7 +25,7 @@ require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
 require('./job-view.component.scss');
 const url = require('url');
-const moment = require('moment/moment.js');
+// const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
@@ -62,18 +62,18 @@ const convertTime = (elapsed, startTime, endTime) => {
       let result = '';
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
       if (elapsedDay > 0) {
-        result += elapsedDay + "d ";
+        result += elapsedDay + 'd ';
       }
       const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
-      if (result != "" || (result == "" && elapsedHour > 0)) {
-        result += elapsedHour + "h ";
+      if (result != '' || (result == '' && elapsedHour > 0)) {
+        result += elapsedHour + 'h ';
       }
       const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
-      if (result != "" || (result == "" && elapsedMinute > 0)) {
-        result += elapsedMinute + "m ";
+      if (result != '' || (result == '' && elapsedMinute > 0)) {
+        result += elapsedMinute + 'm ';
       }
       const elapsedSecond = parseInt(elapsedTime % 60);
-      result += elapsedSecond + "s";
+      result += elapsedSecond + 's';
       return result;
     } else {
       const startDate = new Date(startTime);

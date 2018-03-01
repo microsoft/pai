@@ -42,7 +42,7 @@ class Job {
 
   convertJobState(frameworkState, exitCode) {
     let jobState = '';
-    switch(frameworkState) {
+    switch (frameworkState) {
       case 'FRAMEWORK_WAITING':
       case 'APPLICATION_CREATED':
       case 'APPLICATION_LAUNCHED':
@@ -73,7 +73,7 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['transientNormalRetriedCount', 'transientConflictRetriedCount',
                 'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
@@ -87,11 +87,11 @@ class Job {
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
-              appExitCode: frameworkInfo.applicationExitCode
+              appExitCode: frameworkInfo.applicationExitCode,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
-          next(jobList, err);
+          next(jobList);
         });
   }
 
@@ -139,7 +139,7 @@ class Job {
                 appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
                 appExitCode: frameworkStatus.applicationExitCode,
                 appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
-                appExitType: frameworkStatus.applicationExitType
+                appExitType: frameworkStatus.applicationExitType,
               };
             }
             const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
