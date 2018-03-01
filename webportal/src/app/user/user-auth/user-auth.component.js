@@ -17,7 +17,7 @@
 
 
 const checkToken = (callback) => {
-  authToken = cookies.get('token');
+  const authToken = cookies.get('token');
   if (authToken) {
     callback(authToken);
   } else {

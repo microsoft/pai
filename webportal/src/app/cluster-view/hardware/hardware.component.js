@@ -39,9 +39,9 @@ const getCellId = (instanceName) => {
 //
 
 const getCellHtml = (percentage) => {
-  innerColorString = '';
-  outerColorString = '';
-  loadLevelString = '';
+  let innerColorString = '';
+  let outerColorString = '';
+  let loadLevelString = '';
   if (percentage < 10) {
     innerColorString = 'hsl(120, 100%, 40%)';
     outerColorString = 'hsl(120, 100%, 40%)';
