@@ -61,6 +61,7 @@ public class FeatureTestUtils {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, config.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, config.getZkRootDir());
+    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, config.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, config.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, config.getAmRmHeartbeatIntervalSec().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_ID, "container_" + System.currentTimeMillis() + "_0001_000001_1");

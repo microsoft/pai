@@ -35,3 +35,5 @@ logger.info('launcher config: %j', launcherConfig);
 app.listen(config.serverPort, () => {
   logger.info('RESTful API server starts on port %d', config.serverPort);
 });
+
+module.exports = app;

@@ -50,17 +50,22 @@ RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz && \
 
 WORKDIR /root/nginx-1.13.8
 
-RUN ./configure --prefix=/usr/share/nginx \
-                --sbin-path=/usr/sbin/nginx \
-                --modules-path=/usr/lib/nginx/modules \
-                --conf-path=/etc/nginx/nginx.conf \
-                --error-log-path=/var/log/nginx/error.log \
-                --http-log-path=/var/log/nginx/access.log \
-                --user=www-data \
-                --group=www-data \
-                --with-openssl=../openssl-1.1.0f \
-                --with-pcre=../pcre-8.40 \
-                --with-zlib=../zlib-1.2.11
+RUN ./configure \
+  # Basic configurations
+  --prefix=/usr/share/nginx \
+  --sbin-path=/usr/sbin/nginx \
+  --modules-path=/usr/lib/nginx/modules \
+  --conf-path=/etc/nginx/nginx.conf \
+  --error-log-path=/var/log/nginx/error.log \
+  --http-log-path=/var/log/nginx/access.log \
+  --user=www-data \
+  --group=www-data \
+  # Built-in modules
+  --with-http_sub_module \
+  # External modules
+  --with-openssl=../openssl-1.1.0f \
+  --with-pcre=../pcre-8.40 \
+  --with-zlib=../zlib-1.2.11
 
 #
 # Make and install nginx

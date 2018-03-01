@@ -19,7 +19,9 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
+import com.microsoft.frameworklauncher.common.model.LauncherStatus;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -29,12 +31,13 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 
 // Const parameters for the current AM instead of state variable
-class Configuration {
+public class Configuration {
   private YarnConfiguration yarnConfig;
   private String frameworkName;
   private Integer frameworkVersion;
   private String zkConnectString;
   private String zkRootDir;
+  private Boolean zkCompressionEnable;
   private Integer amVersion;
   private Integer amRmHeartbeatIntervalSec;
   private String amHostName;
@@ -47,6 +50,7 @@ class Configuration {
   private String attemptId;
   private String applicationId;
   private LauncherConfiguration launcherConfig;
+  private UserDescriptor loggedInUser;
 
   // Below properties defined for RM when AM Registered, it may be changed after RM configuration changed.
   private ResourceDescriptor maxResource;
@@ -64,6 +68,7 @@ class Configuration {
     frameworkVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION));
     zkConnectString = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING);
     zkRootDir = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_ROOT_DIR);
+    zkCompressionEnable = Boolean.parseBoolean(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE));
     amVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_VERSION));
     amRmHeartbeatIntervalSec = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC));
     amHostName = GlobalConstants.LOCAL_HOST_NAME;
@@ -83,7 +88,9 @@ class Configuration {
     this.attemptId = attemptId.toString();
     applicationId = attemptId.getApplicationId().toString();
 
-    launcherConfig = zkStore.getLauncherStatus().getLauncherConfiguration();
+    LauncherStatus launcherStatus = zkStore.getLauncherStatus();
+    launcherConfig = launcherStatus.getLauncherConfiguration();
+    loggedInUser = launcherStatus.getLoggedInUser();
   }
 
   public void initializeDependOnRMResponseConfig(RegisterApplicationMasterResponse rmResp) throws Exception {
@@ -113,6 +120,10 @@ class Configuration {
 
   protected String getZkRootDir() {
     return zkRootDir;
+  }
+
+  public Boolean getZkCompressionEnable() {
+    return zkCompressionEnable;
   }
 
   protected Integer getAmVersion() {
@@ -161,6 +172,10 @@ class Configuration {
 
   protected LauncherConfiguration getLauncherConfig() {
     return launcherConfig;
+  }
+
+  public UserDescriptor getLoggedInUser() {
+    return loggedInUser;
   }
 
   protected ResourceDescriptor getMaxResource() {

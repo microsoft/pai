@@ -51,6 +51,9 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
       }
       var resultDic = [];
       for (var node of nodeList) {
+        if (nodeDic[node.metadata.name] == undefined) {
+          nodeDic[node.metadata.name] = []
+        }
         resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
       }
       callback(resultDic);

@@ -19,12 +19,16 @@ package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
+  private Boolean zkCompressionEnable = true;
   private String hdfsRootDir = "/Launcher";
+  private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
   // Service Setup
   private Integer serviceRMResyncIntervalSec = 60;
@@ -83,20 +87,20 @@ public class LauncherConfiguration implements Serializable {
   // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
   // ContainerRequest randomly.
   private Integer amContainerRequestMinTimeoutSec = 10;
-  private Integer amContainerRequestMaxTimeoutSec = 60;
+  private Integer amContainerRequestMaxTimeoutSec = 200;
 
   // If a Task's ContainerRequest is NotAvailable when SetupContainerRequest,
   // AM will SetupContainerRequest for the Task again after 
   // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
-  private Integer amSetupContainerRequestMaxRetryIntervalSec = 90;
+  private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
   @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
-
+  private Boolean webServerAclEnable = false;
 
   public String getZkConnectString() {
     return zkConnectString;
@@ -114,12 +118,28 @@ public class LauncherConfiguration implements Serializable {
     this.zkRootDir = zkRootDir;
   }
 
+  public Boolean getZkCompressionEnable() {
+    return zkCompressionEnable;
+  }
+
+  public void setZkCompressionEnable(Boolean zkCompressionEnable) {
+    this.zkCompressionEnable = zkCompressionEnable;
+  }
+
   public String getHdfsRootDir() {
     return hdfsRootDir;
   }
 
   public void setHdfsRootDir(String hdfsRootDir) {
     this.hdfsRootDir = hdfsRootDir;
+  }
+
+  public Set<UserDescriptor> getRootAdminUsers() {
+    return rootAdminUsers;
+  }
+
+  public void setRootAdminUsers(Set<UserDescriptor> rootAdminUsers) {
+    this.rootAdminUsers = rootAdminUsers;
   }
 
   public Integer getServiceRMResyncIntervalSec() {
@@ -336,5 +356,13 @@ public class LauncherConfiguration implements Serializable {
 
   public void setWebServerStatusPullIntervalSec(Integer webServerStatusPullIntervalSec) {
     this.webServerStatusPullIntervalSec = webServerStatusPullIntervalSec;
+  }
+
+  public Boolean getWebServerAclEnable() {
+    return webServerAclEnable;
+  }
+
+  public void setWebServerAclEnable(Boolean webServerAclEnable) {
+    this.webServerAclEnable = webServerAclEnable;
   }
 }

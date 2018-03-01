@@ -140,4 +140,10 @@ public class CommonUtils {
     System.arraycopy(arrayTail, 0, result, arrayHead.length, arrayTail.length);
     return result;
   }
+
+  public static int bytesToShort(byte[] bytes) {
+    int low = bytes[0] & 0xFF;
+    int high = bytes[1] & 0xFF;
+    return (high << 8) | low;
+  }
 }

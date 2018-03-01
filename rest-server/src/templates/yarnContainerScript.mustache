@@ -69,11 +69,15 @@ docker run --name $docker_name \
   --security-opt apparmor:unconfined \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
+  --label PAI_HOSTNAME="$(hostname)" \
+  --label PAI_JOB_NAME={{{ jobData.jobName }}} \
+  --label PAI_USER_NAME={{{ jobData.username }}} \
+  --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env APP_ID=$APP_ID \
   --env FRAMEWORK_NAME=$FRAMEWORK_NAME \
   --env HADOOP_USER_NAME=$HADOOP_USER_NAME \
   --env PAI_TASK_INDEX=$TASK_INDEX \
-  --env PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP \
+  --env PAI_CONTAINER_HOST_IP=$CONTAINER_IP \
   --env PAI_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
   '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh' \

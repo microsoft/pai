@@ -1,0 +1,9 @@
+!!com.microsoft.frameworklauncher.common.model.AclConfiguration
+namespaceAcls:
+  testString:
+    users: !!set
+      ? {name: testString}
+      : null
+normalAdminUsers: !!set
+  ? {name: testString}
+  : null

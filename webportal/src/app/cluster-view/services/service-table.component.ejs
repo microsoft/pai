@@ -7,31 +7,83 @@
     </tr>
   </thead>
   <tbody>
-    <% for(let i = 0; i < data.length; i ++) { %>
-      <% let node = data[i].node.metadata; %>
+<%
+    for (let i = 0; i < data.length; i++) {
+      let node = data[i].node.metadata;
+%>
       <tr>
         <td><a href="hardware/detail.html?instance=<%= node.name + ':' + exporterPort %>"> <%= node.name %></a></td>
         <td>   
-          <% for(let k in data[i].node.metadata.labels) { %>
-            <% if (k.indexOf('kubernetes') == -1) { %>
-              <% let str = k; %>
-              <% if (node.labels[k] != 'true')  str += ': ' + node.labels[k]; %>
+<%
+          for (let x in data[i].node.metadata.labels) {
+            if (x.indexOf('kubernetes') == -1) {
+              let str = x;
+              if (node.labels[x] != 'true') {
+                str += ': ' + node.labels[x];
+              }
+%>
               <span class="label label-primary" style="font-weight: 500"> <%= str %> </span>
-            <% } %>
-          <% } %>
+<%          }
+          }
+%>
         </td>
+        
+        <!--
+        Show pods and status in the 'Services' column.
+        
+        Design principles:
+          - Green means that the service is running without warning.
+          - Yellow means that the service is running with warnings.
+          - Red means that the pod cannot provide the desired service.
+
+        Design:
+          - Green box: Pod is in 'Running' phase and is ready, or it is in 'Succeeded' phase.
+          - Yellow box (not implemented yet): Pod is in 'Running' phase and is ready, but has some warnings in the log.
+          - Red box: Pod is in any of other phases (Failed, Unknown), or it is in 'Running' phase but is not ready.
+        
+        Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+        -->
         <td class="service-td">
-          <% for(let j = 0; j < data[i].podList.length; j++) { %>
-            <% let pod = data[i].podList[j].metadata; %>                 
-            <% if(data[i].podList[j].status.phase == "Running") { %>
-              <a class="btn btn-success" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> 
-              <%= pod.name %> </a>  
-            <% } else{ %>
-              <a class="btn btn-danger" href="<%= k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace  %>"> <%= pod.name %> </a>
-            <% } %>      
-          <% } %>
+<%
+          for (let j = 0; j < data[i].podList.length; j++) {
+            let pod = data[i].podList[j].metadata;
+            //
+            let colorString = "white";
+            let status = data[i].podList[j].status;
+            if (status.phase == "Pending") {
+              colorString = "red";
+            } else if (status.phase == "Running") {
+              colorString = "red";
+              for (let k = 0; k < status.conditions.length; k++) {
+                let cond = status.conditions[k];
+                if (cond.type == "Ready" && cond.status == "True") {
+                  let warning = false;
+                  // TODO: Insert code to detect warnings.
+                  if (warning == true) {
+                    colorString = "yellow";
+                  } else {
+                    colorString = "green";
+                  }
+                  break;
+                }
+              }
+            } else if (status.phase == "Succeeded") {
+              colorString = "green";
+            } else {
+              colorString = "red";
+            }
+            //
+            let btnClassString = "btn bg-" + colorString;
+            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace;
+%>
+            <a class="<%= btnClassString %>" href="<%= urlString %>"><%= pod.name %></a>
+<%
+          }
+%>
         </td>
       </tr>
-    <% } %>
+<%
+    }
+%>
   </tbody>
 </table>

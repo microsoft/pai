@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.common.web;
 
+import com.microsoft.frameworklauncher.common.model.LaunchClientType;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -31,7 +32,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 
 import java.net.SocketException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -41,10 +43,14 @@ public class WebClient {
   private CloseableHttpClient httpClient;
   private String baseURI;
 
-  public WebClient(String baseURI, String launchClientType) {
+  public WebClient(String baseURI, LaunchClientType launchClientType, String userName) {
     this.baseURI = baseURI;
-    Header header = new BasicHeader(WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE, launchClientType);
-    this.httpClient = HttpClients.custom().setDefaultHeaders(Arrays.asList(header)).build();
+
+    List<Header> headers = new ArrayList<>();
+    headers.add(new BasicHeader(WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE, launchClientType.toString()));
+    headers.add(new BasicHeader(WebCommon.REQUEST_HEADER_USER_NAME, userName));
+
+    this.httpClient = HttpClients.custom().setDefaultHeaders(headers).build();
   }
 
   public WebClientOutput put(String relativeURI, ContentType contentType, String body) {

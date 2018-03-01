@@ -29,12 +29,12 @@ public class ZookeeperStore {
   protected final ZooKeeperClient zkClient;
   protected final ZookeeperStoreStructure zkStruct;
 
-  public ZookeeperStore(String connectString, String launcherRootPath) throws Exception {
+  public ZookeeperStore(String connectString, String launcherRootPath, Boolean compressionEnable) throws Exception {
     LOGGER.logInfo(
-        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s]",
-        connectString, launcherRootPath);
+        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s], [CompressionEnable] = [%s]",
+        connectString, launcherRootPath, compressionEnable);
 
-    zkClient = new ZooKeeperClient(connectString);
+    zkClient = new ZooKeeperClient(connectString, compressionEnable);
     zkStruct = new ZookeeperStoreStructure(launcherRootPath);
 
     setupZKStructure();
@@ -55,23 +55,23 @@ public class ZookeeperStore {
 
   // Requests
   public LauncherRequest getLauncherRequest() throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getLauncherRequestPath(), LauncherRequest.class);
   }
 
-  public void setLauncherRequest(LauncherRequest yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getLauncherRequestPath(), yamlObject);
+  public void setLauncherRequest(LauncherRequest launcherRequest) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getLauncherRequestPath(), launcherRequest);
   }
 
   public FrameworkRequest getFrameworkRequest(String frameworkName) throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getFrameworkRequestPath(frameworkName), FrameworkRequest.class);
   }
 
-  public void setFrameworkRequest(String frameworkName, FrameworkRequest yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getFrameworkRequestPath(frameworkName), yamlObject);
+  public void setFrameworkRequest(String frameworkName, FrameworkRequest frameworkRequest) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getFrameworkRequestPath(frameworkName), frameworkRequest);
 
     // Also prepare the dummy request node for its future child nodes
     zkClient.createPath(
@@ -88,23 +88,23 @@ public class ZookeeperStore {
   }
 
   public OverrideApplicationProgressRequest getOverrideApplicationProgressRequest(String frameworkName) throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getOverrideApplicationProgressRequestPath(frameworkName), OverrideApplicationProgressRequest.class);
   }
 
-  public void setOverrideApplicationProgressRequest(String frameworkName, OverrideApplicationProgressRequest yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getOverrideApplicationProgressRequestPath(frameworkName), yamlObject);
+  public void setOverrideApplicationProgressRequest(String frameworkName, OverrideApplicationProgressRequest overrideApplicationProgressRequest) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getOverrideApplicationProgressRequestPath(frameworkName), overrideApplicationProgressRequest);
   }
 
   public MigrateTaskRequest getMigrateTaskRequest(String frameworkName, String containerId) throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getMigrateTaskRequestPath(frameworkName, containerId), MigrateTaskRequest.class);
   }
 
-  public void setMigrateTaskRequest(String frameworkName, String containerId, MigrateTaskRequest yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getMigrateTaskRequestPath(frameworkName, containerId), yamlObject);
+  public void setMigrateTaskRequest(String frameworkName, String containerId, MigrateTaskRequest migrateTaskRequest) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getMigrateTaskRequestPath(frameworkName, containerId), migrateTaskRequest);
   }
 
   public void deleteMigrateTaskRequest(String frameworkName, String containerId) throws Exception {
@@ -114,23 +114,23 @@ public class ZookeeperStore {
 
   // Statuses
   public LauncherStatus getLauncherStatus() throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getLauncherStatusPath(), LauncherStatus.class);
   }
 
-  public void setLauncherStatus(LauncherStatus yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getLauncherStatusPath(), yamlObject);
+  public void setLauncherStatus(LauncherStatus launcherStatus) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getLauncherStatusPath(), launcherStatus);
   }
 
   public FrameworkStatus getFrameworkStatus(String frameworkName) throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getFrameworkStatusPath(frameworkName), FrameworkStatus.class);
   }
 
-  public void setFrameworkStatus(String frameworkName, FrameworkStatus yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getFrameworkStatusPath(frameworkName), yamlObject);
+  public void setFrameworkStatus(String frameworkName, FrameworkStatus frameworkStatus) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getFrameworkStatusPath(frameworkName), frameworkStatus);
   }
 
   public void deleteFrameworkStatus(String frameworkName) throws Exception {
@@ -143,23 +143,23 @@ public class ZookeeperStore {
   }
 
   public TaskRoleStatus getTaskRoleStatus(String frameworkName, String taskRoleName) throws Exception {
-    return zkClient.getSmallYamlObject(
+    return zkClient.getSmallObject(
         zkStruct.getTaskRoleStatusPath(frameworkName, taskRoleName), TaskRoleStatus.class);
   }
 
-  public void setTaskRoleStatus(String frameworkName, String taskRoleName, TaskRoleStatus yamlObject) throws Exception {
-    zkClient.setSmallYamlObject(
-        zkStruct.getTaskRoleStatusPath(frameworkName, taskRoleName), yamlObject);
+  public void setTaskRoleStatus(String frameworkName, String taskRoleName, TaskRoleStatus taskRoleStatus) throws Exception {
+    zkClient.setSmallObject(
+        zkStruct.getTaskRoleStatusPath(frameworkName, taskRoleName), taskRoleStatus);
   }
 
   public TaskStatuses getTaskStatuses(String frameworkName, String taskRoleName) throws Exception {
-    return zkClient.getLargeYamlObject(
+    return zkClient.getLargeObject(
         zkStruct.getTaskStatusesPath(frameworkName, taskRoleName), TaskStatuses.class);
   }
 
-  public void setTaskStatuses(String frameworkName, String taskRoleName, TaskStatuses yamlObject) throws Exception {
-    zkClient.setLargeYamlObject(
-        zkStruct.getTaskStatusesPath(frameworkName, taskRoleName), yamlObject);
+  public void setTaskStatuses(String frameworkName, String taskRoleName, TaskStatuses taskStatuses) throws Exception {
+    zkClient.setLargeObject(
+        zkStruct.getTaskStatusesPath(frameworkName, taskRoleName), taskStatuses);
   }
 
 

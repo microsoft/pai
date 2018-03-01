@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -35,16 +36,20 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Path("/")
 public class LauncherModule {
   private static final DefaultLogger LOGGER = new DefaultLogger(LauncherModule.class);
+  private final LauncherConfiguration conf;
   private final StatusManager statusManager;
   private final RequestManager requestManager;
 
   @Inject
   public LauncherModule(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager) {
+    this.conf = conf;
     this.statusManager = statusManager;
     this.requestManager = requestManager;
   }
@@ -65,15 +70,112 @@ public class LauncherModule {
     }
   }
 
-  private static String getUserName(
-      CommonExts.NoExceptionCallable<String> ResolveUserName) throws BadRequestException {
-    String userName = ResolveUserName.call();
-    if (userName == null) {
+  private static String getName(
+      CommonExts.NoExceptionCallable<String> ResolveName) throws BadRequestException {
+    String name = ResolveName.call();
+    if (name == null) {
       return null;
     }
 
-    CommonValidation.validate(userName);
-    return userName;
+    CommonValidation.validate(name);
+    return name;
+  }
+
+  private static Boolean getBoolean(
+      CommonExts.NoExceptionCallable<String> ResolveBoolean) throws BadRequestException {
+    String booleanStr = ResolveBoolean.call();
+    if (booleanStr == null) {
+      return null;
+    }
+
+    if (!booleanStr.equalsIgnoreCase("true") && !booleanStr.equalsIgnoreCase("false")) {
+      throw new BadRequestException(String.format(
+          "Failed to ParseBooleanStr: [%s]", booleanStr));
+    }
+
+    return Boolean.valueOf(booleanStr);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr) throws Exception {
+    checkWritableAccess(hsr, null, null);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr, String frameworkName) throws Exception {
+    checkWritableAccess(hsr, frameworkName, null);
+  }
+
+  private void checkWritableAccess(
+      HttpServletRequest hsr, String frameworkName, UserDescriptor frameworkUser) throws Exception {
+    if (!conf.getWebServerAclEnable()) {
+      return;
+    }
+
+    AclConfiguration aclConf = requestManager.getLauncherRequest().getAclConfiguration();
+    UserDescriptor user = UserDescriptor.newInstance(
+        getName(() -> hsr.getHeader(WebCommon.REQUEST_HEADER_USER_NAME)));
+
+    if (frameworkName == null) {
+      checkNonFrameworkWritableAccess(user, aclConf);
+    } else {
+      validateFrameworkUserConsistency(user, frameworkUser);
+      String namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+      checkFrameworkWritableAccess(user, namespace, aclConf);
+    }
+  }
+
+  private void checkNonFrameworkWritableAccess(
+      UserDescriptor user, AclConfiguration aclConf) throws Exception {
+    if (!getAdminUsers(aclConf).contains(user)) {
+      throw new AuthorizationException(
+          "This operation needs administrator privilege.");
+    }
+  }
+
+  private void validateFrameworkUserConsistency(
+      UserDescriptor user, UserDescriptor frameworkUser) throws Exception {
+    if (frameworkUser != null && !frameworkUser.equals(user)) {
+      throw new BadRequestException(String.format(
+          "The UserName specified in the FrameworkDescriptor [%s] is " +
+              "not the same as the one specified in the HttpRequestHeader [%s].",
+          frameworkUser, user));
+    }
+  }
+
+  private void checkFrameworkWritableAccess(
+      UserDescriptor user, String namespace, AclConfiguration aclConf) throws Exception {
+    if (!getEffectiveNamespaceAcl(namespace, aclConf).containsUser(user)) {
+      throw new AuthorizationException(String.format(
+          "User [%s] does not have the Writable Access to the Namespace [%s].",
+          user, namespace));
+    }
+  }
+
+  private AccessControlList getEffectiveNamespaceAcl(
+      String namespace, AclConfiguration aclConf) throws Exception {
+    AccessControlList namespaceAcl = new AccessControlList();
+
+    // 1. Add Predefined Acl
+    // 1.1 Admin Users can always write the Namespace
+    namespaceAcl.addUsers(getAdminUsers(aclConf));
+    // 1.2 User can always write the Namespace whose name is the same as User
+    namespaceAcl.addUser(UserDescriptor.newInstance(namespace));
+
+    // 2. Add Configured Acl
+    namespaceAcl.addUsers(aclConf.getNamespaceAcls().
+        getOrDefault(namespace, new AccessControlList()).getUsers());
+
+    return namespaceAcl;
+  }
+
+  private Set<UserDescriptor> getAdminUsers(
+      AclConfiguration aclConf) throws Exception {
+    Set<UserDescriptor> adminUsers = new HashSet<>();
+    adminUsers.add(statusManager.getLauncherStatus().getLoggedInUser());
+    adminUsers.addAll(conf.getRootAdminUsers());
+    adminUsers.addAll(aclConf.getNormalAdminUsers());
+    return adminUsers;
   }
 
   @GET
@@ -115,6 +217,7 @@ public class LauncherModule {
         WebCommon.toJson(updateDataDeploymentVersionRequest));
 
     CommonValidation.validate(updateDataDeploymentVersionRequest);
+    checkWritableAccess(hsr);
 
     requestManager.updateDataDeploymentVersion(updateDataDeploymentVersionRequest);
     return Response
@@ -134,6 +237,7 @@ public class LauncherModule {
         WebCommon.toJson(clusterConfiguration));
 
     CommonValidation.validate(clusterConfiguration);
+    checkWritableAccess(hsr);
 
     requestManager.updateClusterConfiguration(clusterConfiguration);
     return Response
@@ -150,13 +254,41 @@ public class LauncherModule {
     return requestManager.getClusterConfiguration();
   }
 
+  @PUT
+  @Path(WebStructure.ACL_CONFIGURATION_PATH)
+  @Consumes({MediaType.APPLICATION_JSON})
+  public Response putAclConfiguration(
+      @Context HttpServletRequest hsr,
+      AclConfiguration aclConfiguration) throws Exception {
+    LOGGER.logSplittedLines(Level.INFO,
+        "putAclConfiguration: \n%s",
+        WebCommon.toJson(aclConfiguration));
+
+    CommonValidation.validate(aclConfiguration);
+    checkWritableAccess(hsr);
+
+    requestManager.updateAclConfiguration(aclConfiguration);
+    return Response
+        .status(HttpStatus.SC_OK)
+        .header("Location", hsr.getRequestURL())
+        .build();
+  }
+
+  @GET
+  @Path(WebStructure.ACL_CONFIGURATION_PATH)
+  @Produces({MediaType.APPLICATION_JSON})
+  public AclConfiguration getAclConfiguration(
+      @Context HttpServletRequest hsr) throws Exception {
+    return requestManager.getAclConfiguration();
+  }
+
   @GET
   @Path(WebStructure.FRAMEWORK_ROOT_PATH)
   @Produces({MediaType.APPLICATION_JSON})
   public SummarizedFrameworkInfos getFrameworks(@Context HttpServletRequest hsr) throws Exception {
     LaunchClientType clientType = getLaunchClientType(() ->
         hsr.getParameter(WebStructure.REQUEST_PARAM_LAUNCH_CLIENT_TYPE));
-    String userName = getUserName(() ->
+    String userName = getName(() ->
         hsr.getParameter(WebStructure.REQUEST_PARAM_USER_NAME));
 
     List<FrameworkRequest> frameworkRequests =
@@ -180,12 +312,13 @@ public class LauncherModule {
       @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
       FrameworkDescriptor frameworkDescriptor) throws Exception {
-    String logPrefix = String.format("[%s]: PutFrameworkFromJson: ", frameworkName);
+    String logPrefix = String.format("[%s]: putFramework: ", frameworkName);
 
     LOGGER.logSplittedLines(Level.INFO, logPrefix + "\n%s", WebCommon.toJson(frameworkDescriptor));
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(frameworkDescriptor);
+    checkWritableAccess(hsr, frameworkName, frameworkDescriptor.getUser());
 
     // Get LaunchClientType
     LaunchClientType clientType = getLaunchClientType(() ->
@@ -245,6 +378,7 @@ public class LauncherModule {
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(taskRoleName);
     CommonValidation.validate(updateTaskNumberRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateTaskNumber(frameworkName, taskRoleName, updateTaskNumberRequest);
     return Response
@@ -267,6 +401,7 @@ public class LauncherModule {
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(migrateTaskRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateMigrateTask(frameworkName, containerId, migrateTaskRequest);
     return Response
@@ -288,6 +423,7 @@ public class LauncherModule {
 
     CommonValidation.validate(frameworkName);
     CommonValidation.validate(overrideApplicationProgressRequest);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.updateApplicationProgress(frameworkName, overrideApplicationProgressRequest);
     return Response
@@ -299,8 +435,12 @@ public class LauncherModule {
   @DELETE
   @Path(WebStructure.FRAMEWORK_PATH)
   public Response deleteFramework(
+      @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName) throws Exception {
     LOGGER.logInfo("[%s]: deleteFramework: Started", frameworkName);
+
+    CommonValidation.validate(frameworkName);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.deleteFrameworkRequest(frameworkName);
     return Response
@@ -311,9 +451,13 @@ public class LauncherModule {
   @DELETE
   @Path(WebStructure.MIGRATE_TASK_PATH)
   public Response deleteMigrateTask(
+      @Context HttpServletRequest hsr,
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
       @PathParam(WebStructure.CONTAINER_ID_PATH_PARAM) String containerId) throws Exception {
     LOGGER.logInfo("[%s][%s]: deleteMigrateTask: Started", frameworkName, containerId);
+
+    CommonValidation.validate(frameworkName);
+    checkWritableAccess(hsr, frameworkName);
 
     requestManager.deleteMigrateTaskRequest(frameworkName, containerId);
     return Response

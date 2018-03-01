@@ -18,17 +18,29 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 public class UserDescriptor implements Serializable {
   @Valid
-  @NotEmpty
+  @NotNull
   @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
   private String name = "default";
+
+  public static UserDescriptor newInstance() {
+    return newInstance(null);
+  }
+
+  public static UserDescriptor newInstance(String name) {
+    UserDescriptor userDescriptor = new UserDescriptor();
+    if (name != null) {
+      userDescriptor.setName(name);
+    }
+    return userDescriptor;
+  }
 
   public String getName() {
     return name;
@@ -36,5 +48,27 @@ public class UserDescriptor implements Serializable {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (!(obj instanceof UserDescriptor))
+      return false;
+    UserDescriptor other = (UserDescriptor) obj;
+    return name.equals(other.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 }

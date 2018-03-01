@@ -37,12 +37,16 @@ spec:
           env:
             - name: REST_SERVER_URI
               value: {{ clusterinfo['pyloninfo']['rest_server_uri'] }}
-            - name: PROMETHEUS_URI
-              value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
             - name: K8S_API_SERVER_URI
               value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
             - name: WEBHDFS_URI
               value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
+            - name: PROMETHEUS_URI
+              value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
+            - name: K8S_DASHBOARD_URI
+              value: {{ clusterinfo['pyloninfo']['k8s_dashboard_uri'] }}
+            - name: GRAFANA_URI
+              value: {{ clusterinfo['pyloninfo']['grafana_uri'] }}
             - name: WEBPORTAL_URI
               value: {{ clusterinfo['pyloninfo']['webportal_uri'] }}
           ports:

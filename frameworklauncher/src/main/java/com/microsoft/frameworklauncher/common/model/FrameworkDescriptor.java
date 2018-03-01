@@ -45,7 +45,7 @@ public class FrameworkDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  private UserDescriptor user = new UserDescriptor();
+  private UserDescriptor user = UserDescriptor.newInstance();
 
   @Valid
   @NotEmpty

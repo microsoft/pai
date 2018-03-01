@@ -32,6 +32,10 @@ public class LauncherRequest implements Serializable {
   @NotNull
   private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
 
+  @Valid
+  @NotNull
+  private AclConfiguration aclConfiguration = new AclConfiguration();
+
   public String getLaunchingDataDeploymentVersion() {
     return launchingDataDeploymentVersion;
   }
@@ -54,5 +58,13 @@ public class LauncherRequest implements Serializable {
 
   public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
     this.clusterConfiguration = clusterConfiguration;
+  }
+
+  public AclConfiguration getAclConfiguration() {
+    return aclConfiguration;
+  }
+
+  public void setAclConfiguration(AclConfiguration aclConfiguration) {
+    this.aclConfiguration = aclConfiguration;
   }
 }

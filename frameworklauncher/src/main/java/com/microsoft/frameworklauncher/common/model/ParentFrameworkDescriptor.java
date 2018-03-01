@@ -18,7 +18,6 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -27,7 +26,7 @@ import java.io.Serializable;
 
 public class ParentFrameworkDescriptor implements Serializable {
   @Valid
-  @NotEmpty
+  @NotNull
   @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
   private String parentFrameworkName;
 

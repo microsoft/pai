@@ -40,40 +40,59 @@ class Job {
     });
   }
 
+  convertJobState(frameworkState, exitCode) {
+    let jobState = '';
+    switch(frameworkState) {
+      case 'FRAMEWORK_WAITING':
+      case 'APPLICATION_CREATED':
+      case 'APPLICATION_LAUNCHED':
+      case 'APPLICATION_WAITING':
+        jobState = 'WAITING';
+        break;
+      case 'APPLICATION_RUNNING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
+        jobState = 'RUNNING';
+        break;
+      case 'FRAMEWORK_COMPLETED':
+        if (exitCode && parseInt(exitCode) === 0) {
+          jobState = 'SUCCEEDED';
+        } else {
+          jobState = 'FAILED';
+        }
+        break;
+      default:
+        jobState = 'UNKNOWN';
+    }
+    return jobState;
+  }
+
   getJobList(next) {
     unirest.get(launcherConfig.frameworksPath())
         .headers(launcherConfig.webserviceRequestHeaders)
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          const jobList = [];
-          async.each(resJson.frameworkNames, (frameworkName, callback) => {
-            this.getJobStatus(frameworkName, (jobStatus) => {
-              const jobOverview = {
-                name: frameworkName,
-                username: jobStatus.username,
-                state: jobStatus.state,
-                subState: jobStatus.subState,
-                retries: jobStatus.retries,
-                createdTime: jobStatus.createdTime,
-                completedTime: jobStatus.completedTime,
-                appTrackingUrl: jobStatus.appTrackingUrl,
-                appExitType: jobStatus.appExitType,
-              };
-              jobList.push(jobOverview);
-              callback();
+          const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+            let retries = 0;
+            ['transientNormalRetriedCount', 'transientConflictRetriedCount',
+                'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
+              retries += frameworkInfo.frameworkRetryPolicyState[retry];
             });
-          }, (err) => {
-            jobList.sort((a, b) => b.createdTime - a.createdTime);
-            next(jobList, err);
+            return {
+              name: frameworkInfo.frameworkName,
+              username: frameworkInfo.userName,
+              state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
+              subState: frameworkInfo.frameworkState,
+              retries: retries,
+              createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
+              completedTime: frameworkInfo.frameworkCompletedTimestamp,
+              appExitCode: frameworkInfo.applicationExitCode
+            };
           });
+          jobList.sort((a, b) => b.createdTime - a.createdTime);
+          next(jobList, err);
         });
-  }
-
-  getJobStatus(name, next) {
-    this.getJob(name, (job, err) => {
-      next(job.jobStatus, err);
-    });
   }
 
   getJob(name, next) {
@@ -93,36 +112,13 @@ class Job {
           if (framework.exception !== undefined) {
             next(job, new Error('job not found'));
           } else {
-            if (framework.frameworkStatus) {
-              let jobState = '';
-              const frameworkState = framework.frameworkStatus.frameworkState;
-              const applicationExitType = framework.frameworkStatus.applicationExitType;
-              if (
-                  frameworkState == 'FRAMEWORK_WAITING' ||
-                  frameworkState == 'APPLICATION_CREATED' ||
-                  frameworkState == 'APPLICATION_LAUNCHED' ||
-                  frameworkState == 'APPLICATION_WAITING'
-                ) {
-                jobState = 'WAITING';
-              } else if (
-                  frameworkState == 'APPLICATION_RUNNING' ||
-                  frameworkState == 'APPLICATION_RETRIEVING_DIAGNOSTICS' ||
-                  frameworkState == 'APPLICATION_COMPLETED'
-                ) {
-                jobState = 'RUNNING';
-              } else if (
-                  frameworkState == 'FRAMEWORK_COMPLETED' &&
-                  applicationExitType == 'SUCCEEDED'
-                ) {
-                jobState = 'SUCCEEDED';
-              } else if (
-                  frameworkState == 'FRAMEWORK_COMPLETED' &&
-                  applicationExitType != 'SUCCEEDED'
-                ) {
-                jobState = 'FAILED';
-              }
+            const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
+            if (frameworkStatus) {
+              const jobState = this.convertJobState(
+                  frameworkStatus.frameworkState,
+                  frameworkStatus.applicationExitCode);
               let jobRetryCount = 0;
-              const jobRetryCountInfo = framework.frameworkStatus.frameworkRetryPolicyState;
+              const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
               jobRetryCount =
                 jobRetryCountInfo.transientNormalRetriedCount +
                 jobRetryCountInfo.transientConflictRetriedCount +
@@ -132,27 +128,32 @@ class Job {
                 name,
                 username: 'unknown',
                 state: jobState,
-                subState: framework.frameworkStatus.frameworkState,
+                subState: frameworkStatus.frameworkState,
                 retries: jobRetryCount,
-                createdTime: framework.frameworkStatus.frameworkCreatedTimestamp,
-                completedTime: framework.frameworkStatus.frameworkCompletedTimestamp,
-                appId: framework.frameworkStatus.applicationId,
-                appProgress: framework.frameworkStatus.applicationProgress,
-                appTrackingUrl: framework.frameworkStatus.applicationTrackingUrl,
-                appLaunchedTime: framework.frameworkStatus.applicationLaunchedTimestamp,
-                appCompletedTime: framework.frameworkStatus.applicationCompletedTimestamp,
-                appExitCode: framework.frameworkStatus.applicationExitCode,
-                appExitDiagnostics: framework.frameworkStatus.applicationExitDiagnostics,
-                appExitType: framework.frameworkStatus.applicationExitType,
+                createdTime: frameworkStatus.frameworkCreatedTimestamp,
+                completedTime: frameworkStatus.frameworkCompletedTimestamp,
+                appId: frameworkStatus.applicationId,
+                appProgress: frameworkStatus.applicationProgress,
+                appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+                appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
+                appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
+                appExitCode: frameworkStatus.applicationExitCode,
+                appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+                appExitType: frameworkStatus.applicationExitType
               };
             }
-            if (framework.aggregatedTaskRoleStatuses) {
-              for (let taskRole of Object.keys(framework.aggregatedTaskRoleStatuses)) {
+            const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
+            if (frameworkRequest.frameworkDescriptor) {
+              job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+            }
+            const taskRoleStatuses = framework.aggregatedTaskRoleStatuses;
+            if (taskRoleStatuses) {
+              for (let taskRole of Object.keys(taskRoleStatuses)) {
                 job.taskRoles[taskRole] = {
                   taskRoleStatus: {name: taskRole},
                   taskStatuses: [],
                 };
-                for (let task of framework.aggregatedTaskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+                for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
                   job.taskRoles[taskRole].taskStatuses.push({
                     taskIndex: task.taskIndex,
                     containerId: task.containerId,
@@ -163,16 +164,7 @@ class Job {
                 }
               }
             }
-            unirest.get(launcherConfig.frameworkRequestPath(name))
-                .headers(launcherConfig.webserviceRequestHeaders)
-                .end((frameworkRequestRes) => {
-                  const frameworkRequest = typeof frameworkRequestRes.body === 'object' ?
-                      frameworkRequestRes.body : JSON.parse(frameworkRequestRes.body);
-                  if (frameworkRequest.frameworkDescriptor) {
-                    job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-                  }
-                  next(job);
-                });
+            next(job);
           }
         });
   }
@@ -304,6 +296,7 @@ class Job {
         dockerContainerScriptTemplate, {
           'idx': idx,
           'tasksNumber': tasksNumber,
+          'taskRoleList': data.map((x) => x.name).join(','),
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
