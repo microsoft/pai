@@ -188,10 +188,11 @@ machinelist:
     launcher: "true"
     restserver: "true"
     webportal: "true"
-    prometheus: "true"
+    prom: "true"
     grafana: "true"
     pylon: "true"
-  
+    node-exporter: "true"
+    
   # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11
