@@ -25,6 +25,8 @@ import paramiko
 import kubernetes
 import etcd
 import common
+import logging
+import logging.config
 
 
 
@@ -36,6 +38,11 @@ class etcdfix:
 
     def __init__(self, cluster_config, node_config, clean):
 
+        self.logger = logging.getLogger(__name__)
+
+        self.logger.info("Initialize class etcdfix to fix the broken etcd member on {0}".format(node_config["nodename"]))
+        self.logger.debug("Node-configuration: {0}", str(node_config))
+
         self.cluster_config = cluster_config
         self.bad_node_config = node_config
         self.maintain_config = common.load_yaml_file("maintainconf/etcdfix.yaml")
@@ -45,11 +52,16 @@ class etcdfix:
 
     def prepare_package(self, node_config, jobname):
 
+        self.logger.debug("Prepare package for {0} on {1}".format(jobname, node_config['nodename']))
+        self.logger.debug("The job configuration: {0}".format(self.maintain_config[jobname]))
+
         common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, jobname)
 
 
 
     def delete_packege(self, node_config):
+
+        self.logger.debug("Cleanup all package of {0} on the package on directory ".format(node_config['nodename']))
 
         common.maintain_package_cleaner(node_config)
 
@@ -59,7 +71,8 @@ class etcdfix:
 
         self.prepare_package(bad_node_config, "etcd-reconfiguration-stop")
 
-        print "Stop the bad etcd server on host [{0}]".format(bad_node_config['nodename'])
+        self.logger.info("Begin to execute the job : etcd-reconfiguration-stop.")
+        self.logger.info("Stop the bad etcd server on host [{0}]".format(bad_node_config['nodename']))
 
         script_package = "etcd-reconfiguration-stop.tar"
         src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
@@ -73,7 +86,7 @@ class etcdfix:
         if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
             return
 
-        print "Successfully stoping bad etcd server on node {0}".format(bad_node_config["nodename"])
+        self.logger.info("Successfully stoping bad etcd server on node {0}".format(bad_node_config["nodename"]))
 
         if self.clean_flag:
             self.delete_packege(bad_node_config)
@@ -84,7 +97,8 @@ class etcdfix:
 
         self.prepare_package(good_node_config, "etcd-reconfiguration-update")
 
-        print "Update etcd cluster on host [{0}]".format(good_node_config['nodename'])
+        self.logger.info("Begin to execute the job : etcd-reconfiguration-update.")
+        self.logger.info("Update etcd cluster on host [{0}].".format(good_node_config['nodename']))
 
         script_package = "etcd-reconfiguration-update.tar"
         src_local = "parcel-center/{0}".format(good_node_config["nodename"])
@@ -98,7 +112,7 @@ class etcdfix:
         if common.ssh_shell_paramiko(good_node_config, commandline) == False:
             return
 
-        print "Successfully stoping bad etcd server on node {0}".format(good_node_config["nodename"])
+        self.logger.info("Successfully stoping bad etcd server on node {0}".format(good_node_config["nodename"]))
 
         if self.clean_flag:
             self.delete_packege(good_node_config)
@@ -107,14 +121,15 @@ class etcdfix:
 
     def restart_etcd_server(self, bad_node_config):
 
+        self.logger.info("Begin to execute the job : etcd-reconfiguration-restart.")
+        self.logger.info("Restart etcd server on host [{0}].".format(bad_node_config['nodename']))
+
         new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list()
 
         self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
         self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
 
         self.prepare_package(bad_node_config, "etcd-reconfiguration-restart")
-
-        print "Restart etcd server on host [{0}]".format(bad_node_config['nodename'])
 
         script_package = "etcd-reconfiguration-restart.tar"
         src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
@@ -128,7 +143,7 @@ class etcdfix:
         if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
             return
 
-        print "Successfully restarting bad etcd server on node {0}".format(bad_node_config["nodename"])
+        self.logger.info("Successfully restarting bad etcd server on node {0}".format(bad_node_config["nodename"]))
 
         if self.clean_flag:
             self.delete_packege(bad_node_config)
@@ -188,9 +203,13 @@ class etcdfix:
 
         bad_node_config = self.bad_node_config
 
+        self.logger.debug("Bad node information: {0}".format(str(bad_node_config)))
+
         self.stop_bad_etcd_server(bad_node_config)
 
         good_node_config = self.get_etcd_leader_node()
+
+        self.logger.debug("Good node information: {0}".format(str(good_node_config)))
 
         self.update_etcd_cluster(good_node_config, bad_node_config)
 
