@@ -24,11 +24,11 @@ const downloadComponent = require('./download.component.ejs');
 const downloadHtml = downloadComponent({
   breadcrumb: breadcrumbComponent,
   files: [
-    { name: 'pai-fs.zip' }
-  ]
+    {name: 'pai-fs.zip'},
+  ],
 });
 
-$("#sidebar-menu--documents").addClass("active");
-$("#sidebar-menu--documents--download").addClass("active");
+$('#sidebar-menu--documents').addClass('active');
+$('#sidebar-menu--documents--download').addClass('active');
 
 $('#content-wrapper').html(downloadHtml);

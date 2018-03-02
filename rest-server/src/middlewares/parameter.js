@@ -31,7 +31,7 @@ const validate = (schema) => {
         logger.warn('parameters validation error\n%s', err.stack);
         return res.status(500).json({
           error: 'ParameterValidationError',
-          message: 'could not validate request data'
+          message: 'could not validate request data',
         });
       } else {
         req.body = value;
@@ -39,7 +39,7 @@ const validate = (schema) => {
       }
     });
   };
-}
+};
 
 // module exports
-module.exports = { validate };
+module.exports = {validate};

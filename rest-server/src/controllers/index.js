@@ -21,4 +21,4 @@ const index = (req, res) => {
 };
 
 // module exports
-module.exports = { index };
+module.exports = {index};

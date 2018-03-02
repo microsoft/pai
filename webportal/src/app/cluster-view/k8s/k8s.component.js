@@ -21,20 +21,20 @@ const k8sComponent = require('./k8s.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 
 const k8sDashboardHtml = k8sComponent({
-  k8sDashboardUri: webportalConfig.k8sDashboardUri
+  k8sDashboardUri: webportalConfig.k8sDashboardUri,
 });
 
 function resizeContentWrapper() {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
 }
 
-window.onresize = function (envent) {
+window.onresize = function(envent) {
   resizeContentWrapper();
-}
+};
 
-$(document).ready(function () {
+$(document).ready(function() {
   resizeContentWrapper();
-  $("#sidebar-menu--cluster-view").addClass("active");
-  $("#sidebar-menu--cluster-view--k8s").addClass("active");
+  $('#sidebar-menu--cluster-view').addClass('active');
+  $('#sidebar-menu--cluster-view--k8s').addClass('active');
   $('#content-wrapper').html(k8sDashboardHtml);
 });

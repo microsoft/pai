@@ -40,10 +40,10 @@ const encrypt = (username, password, callback) => {
 const defaultValue = {};
 defaultValue[config.lowdbAdmin] = {
   passwd: encrypt(config.lowdbAdmin, config.lowdbPasswd),
-  admin: true
+  admin: true,
 };
 fse.ensureDirSync(path.dirname(config.lowdbFile));
-const adapter = new FileSync(config.lowdbFile, { defaultValue: defaultValue });
+const adapter = new FileSync(config.lowdbFile, {defaultValue: defaultValue});
 const db = low(adapter);
 
 const update = (username, password, admin, modify, callback) => {
@@ -57,7 +57,7 @@ const update = (username, password, admin, modify, callback) => {
         if (modify) {
           db.set(`${username}.passwd`, derivedKey).write();
         } else {
-          db.set(username, { passwd: derivedKey, admin: false }).write();
+          db.set(username, {passwd: derivedKey, admin: false}).write();
         }
         if (typeof admin !== 'undefined') {
           db.set(`${username}.admin`, admin).write();
@@ -82,4 +82,4 @@ const remove = (username, callback) => {
 };
 
 // module exports
-module.exports = { encrypt, db, update, remove };
+module.exports = {encrypt, db, update, remove};

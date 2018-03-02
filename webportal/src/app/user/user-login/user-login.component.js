@@ -24,7 +24,7 @@ require('./user-login.component.scss');
 
 
 const userLoginHtml = userLoginComponent({
-  breadcrumb: breadcrumbComponent
+  breadcrumb: breadcrumbComponent,
 });
 
 
@@ -41,25 +41,25 @@ $(document).ready(() => {
       data: {
         username,
         password,
-        expiration: expiration * 24 * 60 * 60
+        expiration: expiration * 24 * 60 * 60,
       },
       dataType: 'json',
       success: (data) => {
-        $("#form-login").trigger('reset');
+        $('#form-login').trigger('reset');
         if (data.error) {
           alert(data.message);
         } else {
-          cookies.set('user', data.user, { expires: expiration });
-          cookies.set('token', data.token, { expires: expiration });
-          cookies.set('admin', data.admin, { expires: expiration });
+          cookies.set('user', data.user, {expires: expiration});
+          cookies.set('token', data.token, {expires: expiration});
+          cookies.set('admin', data.admin, {expires: expiration});
           window.location.replace('/view.html');
         }
       },
       error: (xhr, textStatus, error) => {
-        $("#form-login").trigger('reset');
+        $('#form-login').trigger('reset');
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
-      }
+      },
     });
   });
 });
