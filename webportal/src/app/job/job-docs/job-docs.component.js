@@ -22,10 +22,10 @@ const jobDocsComponent = require('./job-docs.component.ejs');
 
 
 const jobDocsHtml = jobDocsComponent({
-  breadcrumb: breadcrumbComponent
+  breadcrumb: breadcrumbComponent,
 });
 
-$("#sidebar-menu--documents").addClass("active");
-$("#sidebar-menu--documents--getting-started").addClass("active");
+$('#sidebar-menu--documents').addClass('active');
+$('#sidebar-menu--documents--getting-started').addClass('active');
 
 $('#content-wrapper').html(jobDocsHtml);

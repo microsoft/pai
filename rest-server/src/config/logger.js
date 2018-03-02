@@ -37,14 +37,14 @@ const logTransports = {
       const meta = options.meta && Object.keys(options.meta).length ?
           '\nmeta = ' + JSON.stringify(options.meta, null, 2) : '';
       return util.format(timestamp, '[' + level + ']', message, meta);
-    }
+    },
   }),
   file: new winston.transports.File({
     json: true,
     colorize: false,
     timestamp: () => Date.now(),
-    filename: 'server.log'
-  })
+    filename: 'server.log',
+  }),
 };
 
 // create logger
@@ -52,15 +52,15 @@ const logger = new winston.Logger({
   level: config.logLevel,
   transports: [
     logTransports.console,
-    logTransports.file
+    logTransports.file,
   ],
-  exitOnError: false
+  exitOnError: false,
 });
 
 logger.stream = {
   write: (message, encoding) => {
     logger.info(message.trim());
-  }
+  },
 };
 
 // module exports

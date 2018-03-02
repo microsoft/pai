@@ -24,7 +24,7 @@ const jobController = require('../controllers/job');
 const param = require('../middlewares/parameter');
 
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */

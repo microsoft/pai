@@ -23,7 +23,7 @@ const tokenRouter = require('./token');
 const userRouter = require('./user');
 const jobRouter = require('./job');
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     .all(controller.index);
