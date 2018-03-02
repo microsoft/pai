@@ -107,12 +107,12 @@ class etcdfix:
 
     def restart_etcd_server(self, bad_node_config):
 
-        self.prepare_package(bad_node_config, "etcd-reconfiguration-restart")
-
         new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list()
 
         self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
         self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
+
+        self.prepare_package(bad_node_config, "etcd-reconfiguration-restart")
 
         print "Restart etcd server on host [{0}]".format(bad_node_config['nodename'])
 
