@@ -23,7 +23,6 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const childProcess = require('child_process');
-const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -43,7 +42,7 @@ class Job {
 
   convertJobState(frameworkState, exitCode) {
     let jobState = '';
-    switch(frameworkState) {
+    switch (frameworkState) {
       case 'FRAMEWORK_WAITING':
       case 'APPLICATION_CREATED':
       case 'APPLICATION_LAUNCHED':
@@ -56,7 +55,7 @@ class Job {
         jobState = 'RUNNING';
         break;
       case 'FRAMEWORK_COMPLETED':
-        if (exitCode && parseInt(exitCode) === 0) {
+        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
           jobState = 'SUCCEEDED';
         } else {
           jobState = 'FAILED';
@@ -74,7 +73,7 @@ class Job {
         .end((res) => {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
-          const jobList = res.summarizedFrameworkInfos.map((frameworkInfo) => {
+          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['transientNormalRetriedCount', 'transientConflictRetriedCount',
                 'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
@@ -88,11 +87,11 @@ class Job {
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
-              appExitCode: frameworkInfo.applicationExitCode
+              appExitCode: frameworkInfo.applicationExitCode,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
-          next(jobList, err);
+          next(jobList);
         });
   }
 
@@ -106,9 +105,9 @@ class Job {
             jobStatus: {
               name,
               username: 'unknown',
-              state: 'JOB_NOT_FOUND'
+              state: 'JOB_NOT_FOUND',
             },
-            taskRoles: {}
+            taskRoles: {},
           };
           if (framework.exception !== undefined) {
             next(job, new Error('job not found'));
@@ -140,19 +139,19 @@ class Job {
                 appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
                 appExitCode: frameworkStatus.applicationExitCode,
                 appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
-                appExitType: frameworkStatus.applicationExitType
+                appExitType: frameworkStatus.applicationExitType,
               };
             }
             const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
             if (frameworkRequest.frameworkDescriptor) {
               job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
             }
-            const taskRoleStatuses = framework.aggregatedTaskRoleStatuses;
+            const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
             if (taskRoleStatuses) {
               for (let taskRole of Object.keys(taskRoleStatuses)) {
                 job.taskRoles[taskRole] = {
-                  taskRoleStatus: { name: taskRole },
-                  taskStatuses: []
+                  taskRoleStatus: {name: taskRole},
+                  taskStatuses: [],
                 };
                 for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
                   job.taskRoles[taskRole].taskStatuses.push({
@@ -160,7 +159,7 @@ class Job {
                     containerId: task.containerId,
                     containerIp: task.containerIp,
                     containerGpus: task.containerGpus,
-                    containerLog: task.containerLogHttpAddress
+                    containerLog: task.containerLogHttpAddress,
                   });
                 }
               }
@@ -200,7 +199,7 @@ class Job {
             });
           },
           (parallelCallback) => {
-            async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
+            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
               fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
@@ -210,7 +209,7 @@ class Job {
             });
           },
           (parallelCallback) => {
-            async.each([ ... Array(data.taskRoles.length).keys() ], (idx, eachCallback) => {
+            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
               fse.outputFile(
                   path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
                   this.generateDockerContainerScript(data, idx),
@@ -223,7 +222,7 @@ class Job {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.jobConfigFileName),
                 data,
-                { 'spaces': 2 },
+                {'spaces': 2},
                 (err) => parallelCallback(err));
           },
           (parallelCallback) => {
@@ -231,9 +230,9 @@ class Job {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
                 frameworkDescription,
-                { 'spaces': 2 },
+                {'spaces': 2},
                 (err) => parallelCallback(err));
-          }
+          },
         ], (parallelError) => {
           if (parallelError) {
             return next(parallelError);
@@ -283,7 +282,7 @@ class Job {
           'idx': idx,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
-          'jobData': data
+          'jobData': data,
         });
     return yarnContainerScript;
   }
@@ -297,11 +296,11 @@ class Job {
         dockerContainerScriptTemplate, {
           'idx': idx,
           'tasksNumber': tasksNumber,
-          'taskRoleList': data.map((x) => x.name).join(','),
+          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
-          'jobData': data
+          'jobData': data,
         });
     return dockerContainerScript;
   }
@@ -311,15 +310,15 @@ class Job {
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
     const frameworkDescription = {
       'version': 10,
-      'user': { 'name': data.username },
+      'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': "default",
+        'queue': 'default',
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
-        'generateContainerIpList': true
-      }
+        'generateContainerIpList': true,
+      },
     };
     for (let i = 0; i < data.taskRoles.length; i ++) {
       const taskRole = {
@@ -334,9 +333,9 @@ class Job {
             'gpuNumber': data.taskRoles[i].gpuNumber,
             'portRanges': [],
             'diskType': 0,
-            'diskMB': 0
-          }
-        }
+            'diskMB': 0,
+          },
+        },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
     }

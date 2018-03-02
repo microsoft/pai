@@ -22,7 +22,7 @@ const userConfig = require('../config/user');
 const userController = require('../controllers/user');
 const param = require('../middlewares/parameter');
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     /** PUT /api/v1/user - Create or update a user */

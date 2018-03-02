@@ -210,28 +210,29 @@ def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobna
     
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
-    for template_info in maintain_config[jobname]["template-list"]:
+    if "template-list" in maintain_config[jobname]:
+        for template_info in maintain_config[jobname]["template-list"]:
 
-        name = template_info['name']
-        src = template_info['src']
-        dst = template_info['dst']
+            name = template_info['name']
+            src = template_info['src']
+            dst = template_info['dst']
 
-        template_data = read_template("{0}".format(src))
-        template_file = generate_from_template(template_data, cluster_config, node_config)
-        create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
-        write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], dst, name))
+            template_data = read_template("{0}".format(src))
+            template_file = generate_from_template(template_data, cluster_config, node_config)
+            create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
+            write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], dst, name))
 
+    if "file-list" in maintain_config[jobname]:
+        for file_info in maintain_config[jobname]["file-list"]:
 
-    for file_info in maintain_config[jobname]["file-list"]:
-
-        name = file_info['name']
-        src = file_info['src']
-        dst = file_info['dst']
-        create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
-        execute_shell(
-            "cp {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], dst, name),
-            "Failed copy {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], dst, name)
-        )
+            name = file_info['name']
+            src = file_info['src']
+            dst = file_info['dst']
+            create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
+            execute_shell(
+                "cp {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], dst, name),
+                "Failed copy {0} parcel-center/{1}/{2}/{3}".format(src, node_config['nodename'], dst, name)
+            )
 
     execute_shell("cp -r parcel-center/{0}/{1} .".format(node_config['nodename'], jobname), "Failed cp job folder")
     archive_tar("parcel-center/{0}/{1}.tar".format(node_config['nodename'], jobname), jobname)

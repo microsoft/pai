@@ -35,18 +35,18 @@ const update = (req, res) => {
         logger.warn('update user %s failed', username);
         return res.status(500).json({
           error: 'UpdateFailed',
-          message: 'update failed'
+          message: 'update failed',
         });
       } else {
         return res.status(201).json({
-          message: 'update successfully'
+          message: 'update successfully',
         });
       }
     });
   } else {
     return res.status(401).json({
       error: 'NotAuthorized',
-      message: 'not authorized'
+      message: 'not authorized',
     });
   }
 };
@@ -62,21 +62,21 @@ const remove = (req, res) => {
         logger.warn('remove user %s failed', username);
         return res.status(500).json({
           error: 'RemoveFailed',
-          message: 'remove failed'
+          message: 'remove failed',
         });
       } else {
         return res.status(204).json({
-          message: 'remove successfully'
+          message: 'remove successfully',
         });
       }
     });
   } else {
     return res.status(401).json({
       error: 'NotAuthorized',
-      message: 'not authorized'
+      message: 'not authorized',
     });
   }
 };
 
 // module exports
-module.exports = { update, remove };
+module.exports = {update, remove};

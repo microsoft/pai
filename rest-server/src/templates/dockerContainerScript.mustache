@@ -38,47 +38,47 @@ HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 export PAI_JOB_NAME={{{ jobData.jobName }}}
-export PAI_USERNAME={{{ jobData.username }}}
+export PAI_USER_NAME={{{ jobData.username }}}
 export PAI_DATA_DIR={{{ jobData.dataDir }}}
 export PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
 export PAI_CODE_DIR={{{ jobData.codeDir }}}
-export PAI_TASK_ROLE_LIST={{{ taskRoleList }}}
-export PAI_TASK_ROLE_NAME={{{ taskData.name }}}
-export PAI_TASK_ROLE_NUM={{{ taskData.taskNumber }}}
-export PAI_TASK_CPU_NUM={{{ taskData.cpuNumber }}}
-export PAI_TASK_MEM_MB={{{ taskData.memoryMB }}}
-export PAI_TASK_GPU_NUM={{{ taskData.gpuNumber }}}
-export PAI_TASKS_NUM={{{ tasksNumber }}}
-export PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
+export PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}}
+export PAI_CURRENT_TASK_ROLE_TASK_COUNT={{{ taskData.taskNumber }}}
+export PAI_CURRENT_TASK_ROLE_CPU_COUNT={{{ taskData.cpuNumber }}}
+export PAI_CURRENT_TASK_ROLE_MEM_MB={{{ taskData.memoryMB }}}
+export PAI_CURRENT_TASK_ROLE_GPU_COUNT={{{ taskData.gpuNumber }}}
+export PAI_JOB_TASK_COUNT={{{ tasksNumber }}}
+export PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
+export PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
-export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
+export PAI_CONTAINER_HOST_PORT=$(( (RANDOM % 55535) + 10001 ))
 
 task_role_no={{{ idx }}}
-# touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_IP-CONTAINER_PORT" format on hdfs
+# touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_HOST_IP-CONTAINER_HOST_PORT" format on hdfs
 # to communicate with other containers, add APP_ID as prefix to differentiate attempts with same job name
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/$APP_ID-$task_role_no-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp/$APP_ID-" | wc -l` -lt  $PAI_TASKS_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/$APP_ID-$task_role_no-$PAI_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_HOST_PORT || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp/$APP_ID-" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
   printf "%s %s\n" "[INFO]" "Waiting for other containers ..."
   sleep 10
 done
-hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/tmp/ \
+hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/ \
   | grep "/$PAI_JOB_NAME/tmp/$APP_ID-" \
   | grep -oE "[^/]+$" \
   | sed -e "s/^$APP_ID-//g" \
   | sort -n -k 2 -t"-" \
   > ContainerList
-if [ "$(cat ContainerList | wc -l)" -ne $PAI_TASKS_NUM ]; then
+if [ "$(cat ContainerList | wc -l)" -ne $PAI_JOB_TASK_COUNT ]; then
   printf "%s %s\n%s\n%s\n\n" \
     "[ERROR]" "ContainerList" \
     "$(cat ContainerList)" \
-    "$(cat ContainerList | wc -l) containers are available, not equal to $PAI_TASKS_NUM, exit ..."
+    "$(cat ContainerList | wc -l) containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
   exit 2
 fi
 
-export PAI_TASK_ROLE_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT" | cut -d ":" -f 1`-1))
-task_role_list=(${PAI_TASK_ROLE_LIST//,/ })
-for i in `seq 0 $((PAI_TASK_ROLES_NUM-1))`; do
+export PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_HOST_PORT" | cut -d ":" -f 1`-1))
+task_role_list=(${PAI_JOB_TASK_ROLE_LIST//,/ })
+for i in `seq 0 $((PAI_JOB_TASK_ROLE_COUNT-1))`; do
   host_list=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
   export PAI_TASK_ROLE_${i}_HOST_LIST=$host_list
   export PAI_TASK_ROLE_${task_role_list[$i]}_HOST_LIST=$host_list
@@ -91,13 +91,27 @@ if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -get $PAI_CODE_DIR || exit 1
 fi
 
+# backward compatibility
+export PAI_USERNAME=$PAI_USER_NAME
+export PAI_TASK_ROLE_NAME=$PAI_CURRENT_TASK_ROLE_NAME
+export PAI_TASK_ROLE_NUM=$PAI_CURRENT_TASK_ROLE_TASK_COUNT
+export PAI_TASK_CPU_NUM=$PAI_CURRENT_TASK_ROLE_CPU_COUNT
+export PAI_TASK_MEM_MB=$PAI_CURRENT_TASK_ROLE_MEM_MB
+export PAI_TASK_GPU_NUM=$PAI_CURRENT_TASK_ROLE_GPU_COUNT
+export PAI_TASK_ROLE_INDEX=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
+export PAI_TASKS_NUM=$PAI_JOB_TASK_COUNT
+export PAI_TASK_ROLES_NUM=$PAI_JOB_TASK_ROLE_COUNT
+export PAI_TASK_ROLE_LIST=$PAI_JOB_TASK_ROLE_LIST
+export PAI_CURRENT_CONTAINER_IP=$PAI_CONTAINER_HOST_IP
+export PAI_CURRENT_CONTAINER_PORT=$PAI_CONTAINER_HOST_PORT
+
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
 
 {{# jobData.killAllOnCompletedTaskNumber }}
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/$APP_ID-$PAI_TASK_INDEX || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USERNAME/$PAI_JOB_NAME/finished/ | grep "/$PAI_JOB_NAME/finished/$APP_ID-" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
+hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/finished/$APP_ID-$PAI_TASK_INDEX || exit 1
+while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/finished/ | grep "/$PAI_JOB_NAME/finished/$APP_ID-" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
   sleep 10
 done
 {{/ jobData.killAllOnCompletedTaskNumber }}

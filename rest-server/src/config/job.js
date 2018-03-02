@@ -55,7 +55,7 @@ const jobConfigSchema = Joi.object().keys({
           .integer()
           .default(0),
         command: Joi.string()
-          .required()
+          .required(),
       }))
     .min(1)
     .required(),
@@ -67,8 +67,8 @@ const jobConfigSchema = Joi.object().keys({
     .default(0),
   retryCount: Joi.number()
     .integer()
-    .default(0)
+    .default(0),
 }).required();
 
 // module exports
-module.exports = { schema: jobConfigSchema };
+module.exports = {schema: jobConfigSchema};

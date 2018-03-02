@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,8 +15,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+version: 1
+disable_existing_loggers: False
+formatters:
+    pai_k8sdp:
+        format: "%(asctime)s [%(levelname)s] - %(name)s : %(message)s"
 
-# Example script for TensorBoard job
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: pai_k8sdp
+        stream: ext://sys.stdout
 
-echo "TensorBoard starts at http://$PAI_CONTAINER_HOST_IP:$PAI_CONTAINER_HOST_PORT ..."
-tensorboard --logdir=$PAI_DATA_DIR --port=$PAI_CONTAINER_HOST_PORT
+loggers:
+    unittest_module:
+        level: INFO
+        handler: [console]
+        propagate: no
+
+
+root:
+    level: INFO
+    handlers: [console]
+
