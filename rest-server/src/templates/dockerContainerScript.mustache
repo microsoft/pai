@@ -52,15 +52,12 @@ export PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
 export PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
-<<<<<<< HEAD
-export PAI_CURRENT_CONTAINER_PORT=$(( (RANDOM % 55535) + 10001 ))
-export PAI_CURRENT_SSH_PORT=$(( (RANDOM % 55535) + 10001 ))
-printf "%s %s\n" \
-  "[INFO]" "PAI_CURRENT_SSH_PORT is ${PAI_CURRENT_SSH_PORT}"
-=======
-export PAI_CONTAINER_HOST_PORT=$(( (RANDOM % 55535) + 10001 ))
 
->>>>>>> origin/master
+export PAI_CONTAINER_HOST_PORT=$(( (RANDOM % 55535) + 10001 ))
+export PAI_CONTAINER_SSH_PORT=$(( (RANDOM % 55535) + 10001 ))
+printf "%s %s\n" \
+  "[INFO]" "PAI_CONTAINER_SSH_PORT is ${PAI_CONTAINER_SSH_PORT}"
+
 task_role_no={{{ idx }}}
 # touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_HOST_IP-CONTAINER_HOST_PORT" format on hdfs
 # to communicate with other containers, add APP_ID as prefix to differentiate attempts with same job name
@@ -83,8 +80,6 @@ if [ "$(cat ContainerList | wc -l)" -ne $PAI_JOB_TASK_COUNT ]; then
   exit 2
 fi
 
-<<<<<<< HEAD
-
 function Prepare_SSH()
 {
    printf "%s %s\n" "[INFO]" "in Prepare_SSH"
@@ -104,7 +99,7 @@ function Start_SSH_Service()
 {
   printf "%s %s\n" "[INFO]" "in Start_SSH"
   cat /root/.ssh/$APP_ID.pub >> /root/.ssh/authorized_keys
-  sed -i 's/Port.*/Port '$PAI_CURRENT_SSH_PORT'/' /etc/ssh/sshd_config
+  sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
   service ssh restart
 }
@@ -135,9 +130,9 @@ function Hdfs_Test_Path()
 }
 
 # let taskRoleNumber=0 and taskindex=0 execute upload ssh files
-hdfsSSHFoler=${HDFS_LAUNCHER_PREFIX}/${PAI_USERNAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
+hdfs_ssh_foler=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
 printf "%s %s\n" \
-  "[INFO]" "hdfsSSHFoler is ${hdfsSSHFoler}"
+  "[INFO]" "hdfsSSHFoler is ${hdfs_ssh_foler}"
 printf "%s %s\n" \
   "[INFO]" "task_role_no is ${task_role_no}"
 printf "%s %s\n" \
@@ -147,38 +142,26 @@ if [ $task_role_no == 0 ] && [ $PAI_TASK_INDEX == 0 ]; then
     "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}"\
     "Execute upload key pair ..."
   ssh-keygen -N '' -t rsa -f ~/.ssh/$APP_ID
-
-  echo "[KIT] hdfs dfs -mkdir $hdfsSSHFoler || exit 1"
-  hdfs dfs -mkdir -p '/kit/11' || exit 1
-  echo "[KIT] passed 0"
-  hdfs dfs -mkdir -p 'hdfs://10.240.0.10:9000/Container/admin/openmind-jobsubmit-test-ptb-02/kit/12' || exit 1
-  echo "[KIT] Passed 1"
-  hdfs dfs -mkdir -p "$hdfsSSHFoler" || exit 1
-  echo "[KIT] Passed 2"
-  Hdfs_Upload_Atomically "/root/.ssh/" "$hdfsSSHFoler/.ssh"
+  hdfs dfs -mkdir "$hdfs_ssh_foler" || exit 1
+  Hdfs_Upload_Atomically "/root/.ssh/" "$hdfs_ssh_foler/.ssh"
 else
   # waiting for ssh key-pair ready
-  while [ Hdfs_Test_Path "${hdfsSSHFoler}/.ssh" "directory" != 0 ]; do
+  while [ Hdfs_Test_Path "${hdfs_ssh_foler}/.ssh" "directory" != 0 ]; do
     sleep 10
   done
   printf "%s %s\n%s %s\n" \
       "[INFO]" "Ssh key pair ready ..." \
       "[INFO]" "Begin to download ssh key pair from hdfs ..."
-  hdfs dfs -copyToLocal "${hdfsSSHFoler}/.ssh/" "/root/.ssh/" || exit 1
+  hdfs dfs -copyToLocal "${hdfs_ssh_foler}/.ssh/" "/root/.ssh/" || exit 1
 fi
 # Start ssh service
 Start_SSH_Service
-# Generate ssh connect info file in "APP_ID-PAI_CURRENT_CONTAINER_IP-PAI_CURRENT_SSH_PORT" format on hdfs
-hdfs dfs -touchz ${hdfsSSHFoler}/$APP_ID-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_SSH_PORT || exit 1
+# Generate ssh connect info file in "APP_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
+hdfs dfs -touchz ${hdfsSSHFoler}/$APP_ID-$PAI_CURRENT_CONTAINER_IP-$PAI_CONTAINER_SSH_PORT || exit 1
 
-export PAI_TASK_ROLE_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CURRENT_CONTAINER_IP-$PAI_CURRENT_CONTAINER_PORT" | cut -d ":" -f 1`-1))
-task_role_list=(${PAI_TASK_ROLE_LIST//,/ })
-for i in `seq 0 $((PAI_TASK_ROLES_NUM-1))`; do
-=======
 export PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_HOST_PORT" | cut -d ":" -f 1`-1))
 task_role_list=(${PAI_JOB_TASK_ROLE_LIST//,/ })
 for i in `seq 0 $((PAI_JOB_TASK_ROLE_COUNT-1))`; do
->>>>>>> origin/master
   host_list=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
   export PAI_TASK_ROLE_${i}_HOST_LIST=$host_list
   export PAI_TASK_ROLE_${task_role_list[$i]}_HOST_LIST=$host_list
