@@ -80,7 +80,7 @@ class etcdfix:
 
 
 
-    def update_etcd_cluster(self, good_node_config):
+    def update_etcd_cluster(self, good_node_config, bad_node_config):
 
         self.prepare_package(good_node_config, "etcd-reconfiguration-update")
 
@@ -93,7 +93,7 @@ class etcdfix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update", "update-etcd-cluster", good_node_config['hostip'], good_node_config['etcdid'] )
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update", "update-etcd-cluster", bad_node_config['hostip'], bad_node_config['etcdid'] )
 
         if common.ssh_shell_paramiko(good_node_config, commandline) == False:
             return
@@ -187,10 +187,11 @@ class etcdfix:
     def run(self):
 
         bad_node_config = self.bad_node_config
-        good_node_config = self.get_etcd_leader_node()
 
         self.stop_bad_etcd_server(bad_node_config)
 
-        self.update_etcd_cluster(good_node_config)
+        good_node_config = self.get_etcd_leader_node()
+
+        self.update_etcd_cluster(good_node_config, bad_node_config)
 
         self.restart_etcd_server(bad_node_config)
