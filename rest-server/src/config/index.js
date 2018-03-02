@@ -36,7 +36,7 @@ let config = {
   jwtSecret: process.env.JWT_SECRET,
   lowdbFile: process.env.LOWDB_FILE,
   lowdbAdmin: process.env.LOWDB_ADMIN,
-  lowdbPasswd: process.env.LOWDB_PASSWD
+  lowdbPasswd: process.env.LOWDB_PASSWD,
 };
 
 // define config schema
@@ -62,7 +62,7 @@ const configSchema = Joi.object().keys({
     .required(),
   lowdbPasswd: Joi.string()
     .min(6)
-    .required()
+    .required(),
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);

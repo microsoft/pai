@@ -40,7 +40,7 @@ const validate = (schema) => {
       }
     });
   };
-}
+};
 
 // module exports
-module.exports = { validate };
+module.exports = {validate};

@@ -21,7 +21,7 @@ const tokenConfig = require('../config/token');
 const tokenController = require('../controllers/token');
 const param = require('../middlewares/parameter');
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     /** POST /api/v1/token - Return a token if username and password is correct */

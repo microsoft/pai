@@ -12,21 +12,27 @@
     </tr>
   </thead>
   <tbody>
-    <% for(let i = 0; i < jobs.length; i ++) { %>
+  <%
+    for (let i = 0; i < jobs.length; i ++) {
+  %>
       <tr>
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
-        <td><%= convertTime(false, jobs[i].createdTime) %></td>
         <td>
-          <span title="<%= getDurationInSeconds(jobs[i].createdTime, jobs[i].completedTime) %> sec">
-            <%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %>
-          </span>
+          <span title="<%= Math.round(jobs[i].createdTime / 1000) %>"/>
+          <%= convertTime(false, jobs[i].createdTime) %>
         </td>
-        <td><%= jobs[i].retries %></td>
+        <td style='text-align:right'>
+          <span title="<%= getDurationInSeconds(jobs[i].createdTime, jobs[i].completedTime) %>"/>
+          <%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %>
+        </td>
+        <td style='text-align:right'><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
         <!-- TODO: Change this button to 'Cancel' or 'Stop' in the future. -->
         <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
       </tr>
-    <% } %>
+<%
+    }
+%>
   </tbody>
 </table>

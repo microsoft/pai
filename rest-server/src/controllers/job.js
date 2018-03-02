@@ -27,14 +27,14 @@ const load = (req, res, next, jobName) => {
     if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
-        error: "JobNotFound",
-        message: `could not find job ${jobName}`
+        error: 'JobNotFound',
+        message: `could not find job ${jobName}`,
       });
     } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
       logger.warn('duplicate job %s', jobName);
       return res.status(400).json({
         error: 'DuplicateJobSubmission',
-        message: 'duplicate job submission'
+        message: 'duplicate job submission',
       });
     } else {
       req.job = job;
@@ -52,13 +52,13 @@ const list = (req, res) => {
       logger.warn('list jobs error\n%s', err.stack);
       return res.status(500).json({
         error: 'GetJobListError',
-        message: 'get job list error'
+        message: 'get job list error',
       });
     } else if (jobList === undefined) {
       logger.warn('list jobs error, no job found');
       return res.status(500).json({
         error: 'JobListNotFound',
-        message: 'could not find job list'
+        message: 'could not find job list',
       });
     } else {
       return res.status(200).json(jobList);
@@ -83,11 +83,11 @@ const update = (req, res) => {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({
         error: 'JobUpdateError',
-        message: 'job update error'
+        message: 'job update error',
       });
     } else {
       return res.status(202).json({
-        message: `update job ${req.job.name} successfully`
+        message: `update job ${req.job.name} successfully`,
       });
     }
   });
@@ -104,15 +104,15 @@ const remove = (req, res) => {
       logger.warn('delete job %s error\n%s', req.job.name, err.stack);
       return res.status(403).json({
         error: 'JobDeleteError',
-        message: 'job deleted error, cannot delete other user\'s job'
+        message: 'job deleted error, cannot delete other user\'s job',
       });
     } else {
       return res.status(204).json({
-        message: `deleted job ${req.job.name} successfully`
+        message: `deleted job ${req.job.name} successfully`,
       });
     }
   });
 };
 
 // module exports
-module.exports = { load, list, get, update, remove };
+module.exports = {load, list, get, update, remove};
