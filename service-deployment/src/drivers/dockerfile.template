@@ -48,6 +48,7 @@ RUN apt-get -y update && \
         python-pip \
         git \
         realpath \
+        dos2unix \
         module-init-tools && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -61,6 +62,7 @@ COPY install-* enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 RUN chmod u+x install-nvidia-drivers
 RUN chmod u+x install-all-drivers
 RUN chmod u+x enable-nvidia-persistenced-mode.sh
+RUN dos2unix *
 
 ENV NVIDIA_VERSION={{ clusterconfig['clusterinfo']['nvidia_drivers_version'] }}
 
