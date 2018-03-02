@@ -23,4 +23,4 @@ const userLogout = () => {
   window.location.replace('/login.html');
 };
 
-module.exports = { userLogout };
+module.exports = {userLogout};

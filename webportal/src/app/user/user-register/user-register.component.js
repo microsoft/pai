@@ -25,7 +25,7 @@ require('./user-register.component.scss');
 
 
 const userRegisterHtml = userRegisterComponent({
-  breadcrumb: breadcrumbComponent
+  breadcrumb: breadcrumbComponent,
 });
 
 $('#content-wrapper').html(userRegisterHtml);
@@ -42,11 +42,11 @@ $(document).ready(() => {
           username,
           password,
           admin: admin,
-          modify: false
+          modify: false,
         },
         type: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         dataType: 'json',
         success: (data) => {
@@ -61,7 +61,7 @@ $(document).ready(() => {
           $('#form-register').trigger('reset');
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
-        }
+        },
       });
     });
   });
