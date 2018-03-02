@@ -32,7 +32,7 @@ spec:
         pylon: "true"
       containers:
         - name: pylon
-          image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon
+          image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
           imagePullPolicy: Always
           env:
             - name: REST_SERVER_URI
