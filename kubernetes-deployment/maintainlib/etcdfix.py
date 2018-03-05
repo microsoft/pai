@@ -112,7 +112,7 @@ class etcdfix:
         if common.ssh_shell_paramiko(good_node_config, commandline) == False:
             return
 
-        self.logger.info("Successfully stoping bad etcd server on node {0}".format(good_node_config["nodename"]))
+        self.logger.info("Successfully update etcd cluster configuration on node {0}".format(bad_node_config["nodename"]))
 
         if self.clean_flag:
             self.delete_packege(good_node_config)
@@ -164,8 +164,10 @@ class etcdfix:
 
         for host in self.cluster_config['mastermachinelist']:
             if etcdid == self.cluster_config['mastermachinelist'][host]['etcdid']:
+                self.logger.debug("Current leader of etcd-cluster: {0}".format(self.cluster_config['mastermachinelist'][host]))
                 return self.cluster_config['mastermachinelist'][host]
 
+        self.logger.error("Can't find the leader of etcd.")
         return None
 
 
@@ -194,12 +196,15 @@ class etcdfix:
 
             separated = ","
 
+        self.logger.debug("New etcd-initial-cluster: {0}".format(etcd_cluster_ips_peer))
 
         return etcd_cluster_ips_peer
 
 
 
     def run(self):
+
+        self.logger.info("Begin to fix etcd-cluster's bad member!")
 
         bad_node_config = self.bad_node_config
 
