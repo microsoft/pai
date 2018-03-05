@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,44 +17,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: etcd-server
-spec:
-  hostNetwork: true
-  containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/etcd:{{ clusterconfig['etcdversion'] }}
-    name: etcd-container
-    command:
-    - /usr/local/bin/etcd
-    - --name
-    - {{ hostcofig['etcdid'] }}
-    - --initial-advertise-peer-urls
-    - http://{{ hostcofig['hostip'] }}:2380
-    - --initial-cluster-state
-    - {{ clusterconfig['etcd-initial-cluster-state'] }}
-    - --listen-peer-urls
-    - http://0.0.0.0:2380
-    - --advertise-client-urls
-    - http://{{ hostcofig['hostip'] }}:4001
-    - --listen-client-urls
-    - http://0.0.0.0:4001
-    - --initial-cluster
-    - {{ clusterconfig['etcd_cluster_ips_peer'] }}
-    - --data-dir
-    - /var/etcd/data
-    ports:
-    - containerPort: 2380
-      hostPort: 2380
-      name: serverport
-    - containerPort: 4001
-      hostPort: 4001
-      name: clientport
-    volumeMounts:
-    - mountPath: /var/etcd
-      name: varetcd
-  volumes:
-  - hostPath:
-      path: /var/etcd/data
-    name: varetcd
+bad_member_ip=$1
+bad_member_etcd_id=$2
+
+target_id=`docker ps --filter "name=container_etcd-server" -q`
+
+bad_member_hash=`docker exec -it $target_id etcdctl member list | grep $bad_member_ip | cut -d: -f1`
+echo etcd bad member hash code: $bad_member_hash
+
+docker exec -it $target_id etcdctl member remove $bad_member_hash
+echo etcd bad member $bad_member_hash is removed from cluster
+
+
+docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380
+
+
+
+
