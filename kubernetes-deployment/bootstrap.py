@@ -461,6 +461,7 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
 
     if args.action == 'add':
 
