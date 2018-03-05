@@ -191,13 +191,19 @@ class etcdfix:
             peer_url = member_dict[member_hash]['peerURLs'][0]
 
             if etcd_id == "":
-                etcd_id = bad_node_config['etcdid']
+                # new member before announcing, etcdid will be empty.
+                continue
 
             ip_peer = "{0}={1}".format(etcd_id, peer_url)
 
             etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
 
             separated = ","
+
+        new_etcd_id = bad_node_config['etcdid']
+        peer_url = bad_node_config['hostip']
+        ip_peer = "{0}={1}".format(etcd_id, peer_url)
+        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
 
         self.logger.debug("New etcd-initial-cluster: {0}".format(etcd_cluster_ips_peer))
 
