@@ -41,7 +41,7 @@ class etcdfix:
         self.logger = logging.getLogger(__name__)
 
         self.logger.info("Initialize class etcdfix to fix the broken etcd member on {0}".format(node_config["nodename"]))
-        self.logger.debug("Node-configuration: {0}", str(node_config))
+        self.logger.debug("Node-configuration: {0}".format(str(node_config)))
 
         self.cluster_config = cluster_config
         self.bad_node_config = node_config
@@ -212,7 +212,13 @@ class etcdfix:
 
         self.stop_bad_etcd_server(bad_node_config)
 
-        good_node_config = self.get_etcd_leader_node()
+        while True:
+
+            good_node_config = self.get_etcd_leader_node()
+
+            if good_node_config['nodename'] != self.bad_node_config['nodename']:
+
+                break
 
         self.logger.debug("Good node information: {0}".format(str(good_node_config)))
 
