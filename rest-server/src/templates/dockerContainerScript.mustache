@@ -136,12 +136,12 @@ function Start_SSH_Service()
 function Hdfs_Upload_Atomically()
 {
    printf "%s %s\n%s %s\n%s %s\n" \
-    "[INFO]" "upload ssh key to hdfs"
-    "[INFO]" "destination path is ${2}"
+    "[INFO]" "upload ssh key to hdfs" \
+    "[INFO]" "destination path is ${2}" \
     "[INFO]" "source path is ${1}"
    tempFolder=${2}"_temp"
    if hdfs dfs -test -d $tempFolder ; then
-    hdfs dfs -rm -r $tempFolder || exit 1
+     hdfs dfs -rm -r $tempFolder || exit 1
    fi
    hdfs dfs -copyFromLocal ${1} "$tempFolder" || exit 1
    hdfs dfs -mv "$tempFolder" ${2} || exit 1
@@ -151,13 +151,13 @@ function Hdfs_Upload_Atomically()
 Prepare_SSH
 hdfs_ssh_foler=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
 printf "%s %s\n%s %s\n%s %s\n" \
-  "[INFO]" "hdfs_ssh_foler is ${hdfs_ssh_foler}"
-  "[INFO]" "task_role_no is ${task_role_no}"
+  "[INFO]" "hdfs_ssh_foler is ${hdfs_ssh_foler}" \
+  "[INFO]" "task_role_no is ${task_role_no}" \
   "[INFO]" "PAI_TASK_INDEX is ${PAI_TASK_INDEX}"
 # let taskRoleNumber=0 and taskindex=0 execute upload ssh files
 if [ ${task_role_no} -eq 0 ] && [ ${PAI_TASK_INDEX} -eq 0 ]; then
   printf "%s %s %s\n%s\n" \
-    "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}"\
+    "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}" \
     "Execute upload key pair ..."
   ssh-keygen -N '' -t rsa -f ~/.ssh/$APP_ID
   hdfs dfs -mkdir -p "${hdfs_ssh_foler}" || exit 1
