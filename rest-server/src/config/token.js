@@ -21,7 +21,7 @@ const jwt = require('express-jwt');
 const config = require('./index');
 
 const jwtCheck = jwt({
-  secret: config.jwtSecret
+  secret: config.jwtSecret,
 });
 
 // define input schema
@@ -36,12 +36,12 @@ const tokenPostInputSchema = Joi.object().keys({
     .integer()
     .min(60)
     .max(7 * 24 * 60 * 60)
-    .default(24 * 60 * 60)
+    .default(24 * 60 * 60),
 }).required();
 
 // module exports
 module.exports = {
   secret: config.jwtSecret,
   check: jwtCheck,
-  tokenPostInputSchema: tokenPostInputSchema
+  tokenPostInputSchema: tokenPostInputSchema,
 };

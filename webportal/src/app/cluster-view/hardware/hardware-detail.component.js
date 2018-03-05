@@ -27,14 +27,14 @@ const url = require('url');
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   $('#content-iframe').css('height', (($(window).height() - 120)) + 'px');
-}
+};
 
 //
 
 $(document).ready(() => {
   $('#sidebar-menu--cluster-view').addClass('active');
   $('#sidebar-menu--cluster-view--hardware').addClass('active');
-  let instance = "";
+  let instance = '';
   const query = url.parse(window.location.href, true).query;
   if (query['instance']) {
     instance = query['instance'];
@@ -44,11 +44,11 @@ $(document).ready(() => {
   const hardwareDetailHtml = hardwareDetailComponent({
     breadcrumb: breadcrumbComponent,
     grafanaUri: webportalConfig.grafanaUri,
-    instance: instance
+    instance: instance,
   });
   $('#content-wrapper').html(hardwareDetailHtml);
-  window.onresize = function (envent) {
+  window.onresize = function(envent) {
     resizeContentWrapper();
-  }
+  };
   resizeContentWrapper();
 });
