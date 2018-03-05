@@ -17,28 +17,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-docker stop kubelet
-docker rm kubelet
+bad_member_ip=$1
+bad_member_etcd_id=$2
 
-for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
+target_id=`docker ps --filter "name=container_etcd-server" -q`
 
-etcdyaml="/etc/kubernetes/manifests/etcd.yaml"
-if [ -f "$etcdyaml" ]; then
+bad_member_hash=`docker exec -it $target_id etcdctl member list | grep $bad_member_ip | cut -d: -f1`
+echo etcd bad member hash code: $bad_member_hash
 
-    echo  Error: This is a infra node. The repair tool will exit.
-    exit 1
-fi
+docker exec -it $target_id etcdctl member remove $bad_member_hash
+echo etcd bad member $bad_member_hash is removed from cluster
 
-# check etc/ exist or not.
-staticpod="repair/etc"
-if [ -d "$staticpod" ]; then
 
-    cp -r repair/etc /
+docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380
 
-fi
-
-chmod u+x repair/kubelet.sh
-./repair/kubelet.sh
 
 
 
