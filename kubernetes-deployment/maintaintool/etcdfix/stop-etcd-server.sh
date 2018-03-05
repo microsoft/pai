@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,44 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: etcd-server
-spec:
-  hostNetwork: true
-  containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/etcd:{{ clusterconfig['etcdversion'] }}
-    name: etcd-container
-    command:
-    - /usr/local/bin/etcd
-    - --name
-    - {{ hostcofig['etcdid'] }}
-    - --initial-advertise-peer-urls
-    - http://{{ hostcofig['hostip'] }}:2380
-    - --initial-cluster-state
-    - {{ clusterconfig['etcd-initial-cluster-state'] }}
-    - --listen-peer-urls
-    - http://0.0.0.0:2380
-    - --advertise-client-urls
-    - http://{{ hostcofig['hostip'] }}:4001
-    - --listen-client-urls
-    - http://0.0.0.0:4001
-    - --initial-cluster
-    - {{ clusterconfig['etcd_cluster_ips_peer'] }}
-    - --data-dir
-    - /var/etcd/data
-    ports:
-    - containerPort: 2380
-      hostPort: 2380
-      name: serverport
-    - containerPort: 4001
-      hostPort: 4001
-      name: clientport
-    volumeMounts:
-    - mountPath: /var/etcd
-      name: varetcd
-  volumes:
-  - hostPath:
-      path: /var/etcd/data
-    name: varetcd
+
+# step1 : remove etcd.yaml
+rm /etc/kubernetes/manifests/etcd.yaml
+
+
+# step2: stop container
+target_id=`docker ps --filter "name=POD_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+target_id=`docker ps --filter "name=container_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+
+# step3: delete etcd server data
+if [ -d "/var/etcd/data" ]; then
+
+    rm -rf /var/etcd/data
+
+fi
+

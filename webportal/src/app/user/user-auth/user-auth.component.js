@@ -17,7 +17,7 @@
 
 
 const checkToken = (callback) => {
-  authToken = cookies.get('token');
+  const authToken = cookies.get('token');
   if (authToken) {
     callback(authToken);
   } else {
@@ -30,4 +30,4 @@ const checkAdmin = () => {
   return cookies.get('admin') === 'true';
 };
 
-module.exports = { checkToken, checkAdmin };
+module.exports = {checkToken, checkAdmin};

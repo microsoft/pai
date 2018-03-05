@@ -12,12 +12,14 @@
     </tr>
   </thead>
   <tbody>
-    <% for(let i = 0; i < jobs.length; i ++) { %>
+  <%
+    for (let i = 0; i < jobs.length; i ++) {
+  %>
       <tr>
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
         <td>
-          <span title="<%= Math.round(jobs[i].createdTime / 1000) %> sec"/>
+          <span title="<%= Math.round(jobs[i].createdTime / 1000) %>"/>
           <%= convertTime(false, jobs[i].createdTime) %>
         </td>
         <td style='text-align:right'>
@@ -29,6 +31,8 @@
         <!-- TODO: Change this button to 'Cancel' or 'Stop' in the future. -->
         <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
       </tr>
-    <% } %>
+<%
+    }
+%>
   </tbody>
 </table>

@@ -27,7 +27,7 @@ const userAuth = require('../../user/user-auth/user-auth.component');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
-  loading: loadingComponent
+  loading: loadingComponent,
 });
 
 const isValidJson = (str) => {
@@ -47,7 +47,7 @@ const submitJob = (jobConfig) => {
       url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
       data: jobConfig,
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
       type: 'PUT',
       dataType: 'json',
@@ -60,17 +60,17 @@ const submitJob = (jobConfig) => {
           alert('submit success');
           $('#submitHint').text('submitted successfully!');
         }
-        window.location.replace("/view.html");
+        window.location.replace('/view.html');
       },
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
-      }
+      },
     });
   });
 };
 
-$("#sidebar-menu--submit-job").addClass("active");
+$('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
@@ -86,4 +86,4 @@ $(document).ready(() => {
   });
 });
 
-module.exports = { submitJob };
+module.exports = {submitJob};

@@ -25,7 +25,7 @@ require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
 require('./job-view.component.scss');
 const url = require('url');
-const moment = require('moment/moment.js');
+// const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
@@ -40,7 +40,7 @@ let table = null;
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  jobTable: jobTableComponent
+  jobTable: jobTableComponent,
 });
 
 const getDurationInSeconds = (startTime, endTime) => {
@@ -50,8 +50,8 @@ const getDurationInSeconds = (startTime, endTime) => {
   if (endTime == null) {
     endTime = Date.now();
   }
-  return Math.round((endTime - startTime) / 1000);
-}
+  return Math.round(Math.max(0, endTime - startTime) / 1000);
+};
 
 const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
@@ -59,21 +59,21 @@ const convertTime = (elapsed, startTime, endTime) => {
       const elapsedTime = getDurationInSeconds(startTime, endTime);
       // TODO: find a better way to humanize elapsedTime.
       // return moment.duration(elapsedTime, "seconds").humanize();
-      let result = "";
+      let result = '';
       const elapsedDay = parseInt(elapsedTime / (24 * 60 * 60));
       if (elapsedDay > 0) {
-        result += elapsedDay + "d ";
+        result += elapsedDay + 'd ';
       }
       const elapsedHour = parseInt((elapsedTime % (24 * 60 * 60)) / (60 * 60));
-      if (result != "" || (result == "" && elapsedHour > 0)) {
-        result += elapsedHour + "h ";
+      if (result != '' || (result == '' && elapsedHour > 0)) {
+        result += elapsedHour + 'h ';
       }
       const elapsedMinute = parseInt(elapsedTime % (60 * 60) / 60);
-      if (result != "" || (result == "" && elapsedMinute > 0)) {
-        result += elapsedMinute + "m ";
+      if (result != '' || (result == '' && elapsedMinute > 0)) {
+        result += elapsedMinute + 'm ';
       }
       const elapsedSecond = parseInt(elapsedTime % 60);
-      result += elapsedSecond + "s";
+      result += elapsedSecond + 's';
       return result;
     } else {
       const startDate = new Date(startTime);
@@ -144,16 +144,16 @@ const loadJobs = () => {
           jobs: data,
           getDurationInSeconds,
           convertTime,
-          convertState
+          convertState,
         }));
         table = $('#job-table').DataTable({
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          "order": [[ 2, "desc" ]],
-          columnDefs: [
-            { type: 'natural', targets: [0, 1, 4, 5] },
-            { type: 'title-numeric', targets: [2, 3] }
-          ]
+          'order': [[2, 'desc']],
+          'columnDefs': [
+            {type: 'natural', targets: [0, 1, 4, 5]},
+            {type: 'title-numeric', targets: [2, 3]},
+          ],
         });
       }
       loading.hideLoading();
@@ -162,7 +162,7 @@ const loadJobs = () => {
       const res = JSON.parse(xhr.responseText);
       alert(res.message);
       loading.hideLoading();
-    }
+    },
   });
 };
 
@@ -174,7 +174,7 @@ const deleteJob = (jobName) => {
         url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
         type: 'DELETE',
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         success: (data) => {
           loadJobs();
@@ -182,7 +182,7 @@ const deleteJob = (jobName) => {
         error: (xhr, textStatus, error) => {
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
-        }
+        },
       });
     });
   }
@@ -203,14 +203,14 @@ const loadJobDetail = (jobName) => {
           taskRoles: data.taskRoles,
           convertTime,
           convertState,
-          convertGpu
+          convertGpu,
         }));
       }
     },
     error: (xhr, textStatus, error) => {
       const res = JSON.parse(xhr.responseText);
       alert(res.message);
-    }
+    },
   });
 };
 
@@ -224,14 +224,14 @@ const resizeContentWrapper = () => {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
   }
-}
+};
 
 $('#content-wrapper').html(jobViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function (envent) {
+  window.onresize = function(envent) {
     resizeContentWrapper();
-  }
+  };
   resizeContentWrapper();
   $('#sidebar-menu--job-view').addClass('active');
   const query = url.parse(window.location.href, true).query;
@@ -244,4 +244,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = { loadJobs, deleteJob, loadJobDetail }
+module.exports = {loadJobs, deleteJob, loadJobDetail};
