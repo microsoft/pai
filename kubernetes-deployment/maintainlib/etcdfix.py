@@ -124,7 +124,7 @@ class etcdfix:
         self.logger.info("Begin to execute the job : etcd-reconfiguration-restart.")
         self.logger.info("Restart etcd server on host [{0}].".format(bad_node_config['nodename']))
 
-        new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list()
+        new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list(bad_node_config)
 
         self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
         self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
@@ -172,7 +172,7 @@ class etcdfix:
 
 
 
-    def get_etcd_peer_ip_list(self):
+    def get_etcd_peer_ip_list(self, bad_node_config):
 
         etcd_cluster_ips_peer = ""
         separated = ""
@@ -189,6 +189,9 @@ class etcdfix:
 
             etcd_id = member_dict[member_hash]['name']
             peer_url = member_dict[member_hash]['peerURLs'][0]
+
+            if etcd_id == "":
+                etcd_id = bad_node_config['etcdid']
 
             ip_peer = "{0}={1}".format(etcd_id, peer_url)
 
