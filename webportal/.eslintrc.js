@@ -11,7 +11,6 @@ module.exports = {
     "userLogout": false,
   },
   "rules": {
-    "linebreak-style": 0,
     "max-len": [0, 80],
     "new-cap": 0,
     "require-jsdoc": 0,
