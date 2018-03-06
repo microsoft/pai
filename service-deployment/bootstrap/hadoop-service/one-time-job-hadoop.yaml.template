@@ -50,6 +50,8 @@ spec:
         - name: START_SERVICE
           value: one-time-job-execute.sh
       imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      volumes:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
