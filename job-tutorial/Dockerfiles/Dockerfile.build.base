@@ -55,6 +55,7 @@ RUN DEBIAN_FRONTEND=noninteractive && \
         openjdk-8-jdk \
         openssh-server \
         openssh-client \
+        lsof \
         libcupti-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

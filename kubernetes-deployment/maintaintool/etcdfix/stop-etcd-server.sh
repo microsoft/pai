@@ -17,28 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-docker stop kubelet
-docker rm kubelet
 
-for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
+# step1 : remove etcd.yaml
+rm /etc/kubernetes/manifests/etcd.yaml
 
-etcdyaml="/etc/kubernetes/manifests/etcd.yaml"
-if [ -f "$etcdyaml" ]; then
 
-    echo  Error: This is a infra node. The repair tool will exit.
-    exit 1
+# step2: stop container
+target_id=`docker ps --filter "name=POD_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+target_id=`docker ps --filter "name=container_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+
+# step3: delete etcd server data
+if [ -d "/var/etcd/data" ]; then
+
+    rm -rf /var/etcd/data
+
 fi
-
-# check etc/ exist or not.
-staticpod="repair/etc"
-if [ -d "$staticpod" ]; then
-
-    cp -r repair/etc /
-
-fi
-
-chmod u+x repair/kubelet.sh
-./repair/kubelet.sh
-
-
 

@@ -22,7 +22,38 @@ describe('Jobs API /api/v1/jobs', () => {
   beforeEach(() => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks')
-      .reply(200, ['job0', 'job1', 'job2']);
+      .reply(200, {
+        'summarizedFrameworkInfos': [
+          {
+            'name': 'job1',
+            'username': 'test',
+            'frameworkState': 'FRAMEWORK_COMPLETED',
+            'frameworkRetryPolicyState': {
+              'transientNormalRetriedCount': 0,
+              'transientConflictRetriedCount': 0,
+              'nonTransientRetriedCount': 0,
+              'unKnownRetriedCount': 0,
+            },
+            'firstRequestTimestamp': new Date().getTime(),
+            'frameworkCompletedTimestamp': new Date().getTime(),
+            'applicationExitCode': 0,
+          },
+          {
+            'name': 'job2',
+            'username': 'test',
+            'frameworkState': 'FRAMEWORK_COMPLETED',
+            'frameworkRetryPolicyState': {
+              'transientNormalRetriedCount': 1,
+              'transientConflictRetriedCount': 2,
+              'nonTransientRetriedCount': 3,
+              'unKnownRetriedCount': 4,
+            },
+            'firstRequestTimestamp': new Date().getTime(),
+            'frameworkCompletedTimestamp': new Date().getTime(),
+            'applicationExitCode': 1,
+          },
+        ],
+      });
   });
 
   // GET /api/v1/jobs

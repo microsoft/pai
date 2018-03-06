@@ -44,7 +44,7 @@ FrameworkLauncher (or Launcher for short) is built to enable running Large-Scale
   * GPU as a Resource
   * GangAllocation: Start Services together
   * KillAllOnAnyCompleted and KillAllOnAnyServiceCompleted
-  * Framework Tree Management: DeleteOnParentDeleted
+  * Framework Tree Management: DeleteOnParentDeleted, StopOnParentStopped
   * DataPartition
 
 ## Build and Start

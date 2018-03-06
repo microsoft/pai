@@ -115,6 +115,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
     // Continue previous deleteOrphanFrameworks to provide Atomic deleteFrameworkRequest
     deleteOrphanFrameworks();
+    // Continue previous stopOrphanFrameworks to provide Atomic updateExecutionType, i.e. stopFrameworkRequest
+    stopOrphanFrameworks();
 
     LOGGER.logInfo("Succeeded to recover %s.", serviceName);
   }
@@ -144,8 +146,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // deleteOrphanFrameworks need to be handled in WebServer side instead of AM side,
   // since AM is not always running, such as when the FrameworkState is not APPLICATION_RUNNING.
   private void deleteOrphanFrameworks() throws Exception {
-    // A Framework is Orphan, if and only if its ParentFramework is not null and Deleted.
-    // Orphan Framework will be Deleted here, if its DeleteOnParentDeleted enabled.
+    // A Framework is DeleteOrphan, if and only if its ParentFramework is not null and Deleted.
+    // DeleteOrphan Framework will be Deleted here, if its DeleteOnParentDeleted enabled.
     boolean frameworkDeletedInThisPass;
     do {
       frameworkDeletedInThisPass = false;
@@ -171,6 +173,53 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         }
       }
     } while (frameworkDeletedInThisPass);
+  }
+
+  private void updateExecutionTypeInternal(String frameworkName, ExecutionType executionType) throws Exception {
+    FrameworkRequest frameworkRequest = YamlUtils.deepCopy(
+        checkExist(aggFrameworkRequests.get(frameworkName)).getFrameworkRequest(), FrameworkRequest.class);
+    frameworkRequest.getFrameworkDescriptor().setExecutionType(executionType);
+    setFrameworkRequest(frameworkName, frameworkRequest);
+  }
+
+  private void stopFrameworkRequestInternal(String frameworkName) throws Exception {
+    updateExecutionTypeInternal(frameworkName, ExecutionType.STOP);
+  }
+
+  // stopOrphanFrameworks need to be handled in WebServer side instead of AM side,
+  // since AM is not always running, such as when the FrameworkState is not APPLICATION_RUNNING.
+  private void stopOrphanFrameworks() throws Exception {
+    // A Framework is StopOrphan, if and only if its ParentFramework is not null and Stopped.
+    // StopOrphan Framework will be Stopped here, if its StopOnParentStopped enabled.
+    boolean frameworkStoppedInThisPass;
+    do {
+      frameworkStoppedInThisPass = false;
+
+      for (AggregatedFrameworkRequest aggFrameworkRequest : new ArrayList<>(aggFrameworkRequests.values())) {
+        FrameworkRequest frameworkRequest = aggFrameworkRequest.getFrameworkRequest();
+        String frameworkName = frameworkRequest.getFrameworkName();
+        FrameworkDescriptor frameworkDescriptor = frameworkRequest.getFrameworkDescriptor();
+        ExecutionType executionType = frameworkDescriptor.getExecutionType();
+        ParentFrameworkDescriptor parentFramework = frameworkDescriptor.getParentFramework();
+
+        if (parentFramework != null) {
+          String parentFrameworkName = parentFramework.getParentFrameworkName();
+          boolean stopOnParentStopped = parentFramework.isStopOnParentStopped();
+          if (stopOnParentStopped && executionType != ExecutionType.STOP &&
+              aggFrameworkRequests.containsKey(parentFrameworkName) &&
+              aggFrameworkRequests.get(parentFrameworkName).getFrameworkRequest().
+                  getFrameworkDescriptor().getExecutionType() == ExecutionType.STOP) {
+            LOGGER.logInfo(
+                "[%s]: stopOrphanFrameworks: " +
+                    "Since its StopOnParentStopped enabled and its ParentFramework [%s] Stopped",
+                frameworkName, parentFrameworkName);
+
+            stopFrameworkRequestInternal(frameworkName);
+            frameworkStoppedInThisPass = true;
+          }
+        }
+      }
+    } while (frameworkStoppedInThisPass);
   }
 
   private void gcCompletedFrameworks(Map<String, FrameworkStatus> completedFrameworkStatuses) throws Exception {
@@ -292,7 +341,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       String frameworkName, FrameworkRequest frameworkRequest)
       throws Exception {
     CommonUtils.executeWithLock(writeLock, () -> {
-      ParentFrameworkDescriptor parentFramework = frameworkRequest.getFrameworkDescriptor().getParentFramework();
+      FrameworkDescriptor frameworkDescriptor = frameworkRequest.getFrameworkDescriptor();
+      ExecutionType executionType = frameworkDescriptor.getExecutionType();
+      ParentFrameworkDescriptor parentFramework = frameworkDescriptor.getParentFramework();
+
       if (parentFramework != null) {
         String parentFrameworkName = parentFramework.getParentFrameworkName();
         boolean deleteOnParentDeleted = parentFramework.isDeleteOnParentDeleted();
@@ -303,6 +355,16 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
               "[%s]: setFrameworkRequest Rejected: " +
                   "Since its DeleteOnParentDeleted enabled and its ParentFramework [%s] Deleted",
               frameworkName, parentFrameworkName));
+        }
+
+        boolean stopOnParentStopped = parentFramework.isStopOnParentStopped();
+        if (stopOnParentStopped && executionType != ExecutionType.STOP &&
+            aggFrameworkRequests.containsKey(parentFrameworkName) &&
+            aggFrameworkRequests.get(parentFrameworkName).getFrameworkRequest().
+                getFrameworkDescriptor().getExecutionType() == ExecutionType.STOP) {
+          // Stop future child Frameworks
+          executionType = ExecutionType.STOP;
+          frameworkDescriptor.setExecutionType(executionType);
         }
       }
 
@@ -336,6 +398,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         aggFrameworkRequests.put(frameworkName, new AggregatedFrameworkRequest());
       }
       aggFrameworkRequests.get(frameworkName).setFrameworkRequest(frameworkRequest);
+
+      if (executionType == ExecutionType.STOP) {
+        // Stop existing child Frameworks
+        stopOrphanFrameworks();
+      }
     });
   }
 
@@ -374,6 +441,14 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       TaskRoleDescriptor taskRole = checkExist(taskRoles.get(taskRoleName));
       taskRole.setTaskNumber(updateTaskNumberRequest.getTaskNumber());
       setFrameworkRequest(frameworkName, frameworkRequest);
+    });
+  }
+
+  public void updateExecutionType(
+      String frameworkName, UpdateExecutionTypeRequest updateExecutionTypeRequest)
+      throws Exception {
+    CommonUtils.executeWithLock(writeLock, () -> {
+      updateExecutionTypeInternal(frameworkName, updateExecutionTypeRequest.getExecutionType());
     });
   }
 
