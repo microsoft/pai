@@ -20,7 +20,6 @@ kind: Job
 metadata:
   name: batch-job-hadoop
 spec:
-  backoffLimit: 6
   template:
     metadata:
       name: one-time-job-hadoop
