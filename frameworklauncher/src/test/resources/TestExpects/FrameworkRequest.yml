@@ -2,7 +2,9 @@
 firstRequestTimestamp: 0
 frameworkDescriptor:
   description: testString
-  parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString}
+  executionType: START
+  parentFramework: {deleteOnParentDeleted: false, parentFrameworkName: testString,
+    stopOnParentStopped: false}
   platformSpecificParameters:
     agentExpiryIntervalSec: 0
     agentHeartbeatIntervalSec: 0

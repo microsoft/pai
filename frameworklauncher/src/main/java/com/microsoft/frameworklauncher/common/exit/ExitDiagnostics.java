@@ -75,7 +75,7 @@ public class ExitDiagnostics {
         "ReportUnretrievable, maybe RM ZKStore cleaned", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.LAUNCHER_DIAGNOSTICS_UNRETRIEVABLE, new ExitStatusValue(
         ExitStatusKey.LAUNCHER_DIAGNOSTICS_UNRETRIEVABLE.toInt(),
-        "DiagnosticsUnretrievable, maybe RM switched", ExitType.TRANSIENT_NORMAL));
+        "DiagnosticsUnretrievable, maybe RM ZKStore cleaned", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.LAUNCHER_DIAGNOSTICS_PARSE_ERROR, new ExitStatusValue(
         ExitStatusKey.LAUNCHER_DIAGNOSTICS_PARSE_ERROR.toInt(),
         "DiagnosticsParseError, maybe network issues", ExitType.TRANSIENT_NORMAL));
@@ -96,7 +96,9 @@ public class ExitDiagnostics {
     DEF.put(ExitStatusKey.LAUNCHER_SUBMIT_APP_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.LAUNCHER_SUBMIT_APP_NON_TRANSIENT_ERROR.toInt(),
         "Failed to submit UserApplication due to non-transient error, maybe application is non-compliant.", ExitType.NON_TRANSIENT));
-
+    DEF.put(ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED, new ExitStatusValue(
+        ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED.toInt(),
+        "UserApplication killed due to StopFrameworkRequest", ExitType.NON_TRANSIENT));
 
     /// <summary>
     /// AM ExitStatus

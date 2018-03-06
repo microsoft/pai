@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
+import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
@@ -287,6 +288,56 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     addFramework(frameworkRequest);
   }
 
+  private void updateFramework(FrameworkRequest frameworkRequest) throws Exception {
+    String frameworkName = frameworkRequest.getFrameworkName();
+    FrameworkStatus frameworkStatus = frameworkStatuses.get(frameworkName);
+    FrameworkState frameworkState = frameworkStatus.getFrameworkState();
+
+    if (FrameworkStateDefinition.FINAL_STATES.contains(frameworkState)) {
+      // Ignore to updateFramework since the Framework of current Version is already in FINAL_STATES,
+      // such as the Framework completed by itself or completed by previous ExecutionType.STOP.
+      // And Framework Status in FINAL_STATES should be immutable.
+      return;
+    }
+
+    updateExecutionType(frameworkRequest);
+  }
+
+  private void updateExecutionType(FrameworkRequest frameworkRequest) throws Exception {
+    String frameworkName = frameworkRequest.getFrameworkName();
+    ExecutionType executionType = frameworkRequest.getFrameworkDescriptor().getExecutionType();
+
+    if (executionType == ExecutionType.STOP) {
+      stopFramework(frameworkName);
+    }
+  }
+
+  // To ensure stopFramework is Atomicity, i.e. all or nothing,
+  // it should not persist until the last transitionFrameworkState.
+  private void stopFramework(String frameworkName) throws Exception {
+    FrameworkStatus frameworkStatus = getFrameworkStatus(frameworkName);
+    Integer frameworkVersion = frameworkStatus.getFrameworkVersion();
+
+    LOGGER.logInfo("[%s][%s]: stopFramework", frameworkName, frameworkVersion);
+
+    // Notify Service to prepare and kill the associated Application of the Framework
+    service.onFrameworkToStop(frameworkStatus);
+
+    // Ensure the frameworkEvent is updated to the associated Application
+    FrameworkEvent frameworkEvent = new FrameworkEvent().
+        setApplicationExitCode(ExitStatusKey.LAUNCHER_STOP_FRAMEWORK_REQUESTED.toInt()).
+        setApplicationExitDiagnostics("UserApplication killed due to StopFrameworkRequest").
+        setSkipToPersist(true);
+
+    // Update the frameworkEvent even if current FrameworkState is APPLICATION_RETRIEVING_DIAGNOSTICS
+    // or APPLICATION_COMPLETED
+    // Override the frameworkEvent set in previous APPLICATION_COMPLETED
+    transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS, frameworkEvent);
+    // Override the frameworkEvent set in previous APPLICATION_RETRIEVING_DIAGNOSTICS
+    transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_COMPLETED, frameworkEvent);
+    transitionFrameworkState(frameworkName, FrameworkState.FRAMEWORK_COMPLETED);
+  }
+
   /**
    * REGION ReadInterface
    */
@@ -461,7 +512,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       // Cleanup previous Application level external resource [ZK]
       zkStore.deleteFrameworkStatus(frameworkName, true);
 
-      // Ensure transitionFrameworkState and RetryPolicyState is Transactional
+      // Ensure transitionFrameworkState and RetryPolicyState is consistent in case of crash.
       assert (event.getNewRetryPolicyState() != null);
       frameworkStatus.setFrameworkRetryPolicyState(event.getNewRetryPolicyState());
     }
@@ -482,12 +533,15 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     frameworkStatus.setFrameworkState(dstState);
 
     // Update ZK Status
-    zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
-    LOGGER.logInfo("Transitioned Framework [%s] from [%s] to [%s]", frameworkName, srcState, dstState);
+    if (!event.getSkipToPersist()) {
+      zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
+    }
+    LOGGER.logInfo("Transitioned Framework [%s] from [%s] to [%s] with SkipToPersist = [%s]",
+        frameworkName, srcState, dstState, event.getSkipToPersist());
   }
 
   public synchronized void updateFrameworkRequests(Map<String, FrameworkRequest> frameworkRequests) throws Exception {
-    // Add/Update Framework
+    // Add or Update Framework
     for (FrameworkRequest frameworkRequest : frameworkRequests.values()) {
       String frameworkName = frameworkRequest.getFrameworkName();
       Integer frameworkVersion = frameworkRequest.getFrameworkDescriptor().getVersion();
@@ -496,6 +550,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
           "[%s][%s]: updateFrameworkRequests: ",
           frameworkName, frameworkVersion);
 
+      // Initialize new Framework: Add or NonRolling Upgrade Framework
       if (!frameworkStatuses.containsKey(frameworkName)) {
         LOGGER.logDebug(logPrefix + "Add new Framework");
         addFramework(frameworkRequest);
@@ -506,6 +561,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
           upgradeFramework(frameworkRequest);
         }
       }
+
+      // Update Framework according to specific FrameworkRequest requirements
+      updateFramework(frameworkRequest);
     }
 
     // Remove Framework
