@@ -155,6 +155,7 @@ sudo docker run -itd \
         kubernetes-deployment
 sudo docker exec -it deployment /bin/bash
 cd /pai/kubernetes-deployment
+./container-setup.sh
         
 ```
 
