@@ -601,13 +601,13 @@ public class Service extends AbstractService {
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_LAUNCHED);
   }
 
-  private void createApplication(FrameworkStatus frameworkStatus, boolean usedToStop) throws Exception {
+  private void createApplication(FrameworkStatus frameworkStatus, boolean isPlaceholderApplication) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     ApplicationSubmissionContext applicationContext = yarnClient.createApplication().getApplicationSubmissionContext();
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_CREATED,
-        new FrameworkEvent().setApplicationContext(applicationContext).setSkipToPersist(usedToStop));
+        new FrameworkEvent().setApplicationContext(applicationContext).setSkipToPersist(isPlaceholderApplication));
 
-    if (!usedToStop) {
+    if (!isPlaceholderApplication) {
       // Concurrently setupApplicationContext
       FrameworkStatus frameworkStatusSnapshot = YamlUtils.deepCopy(frameworkStatus, FrameworkStatus.class);
       new Thread(() -> {
@@ -896,9 +896,9 @@ public class Service extends AbstractService {
     });
   }
 
-  // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework
+  // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework.
   // onFrameworkToRemove is already in queue, so queue it again will disorder
-  // the result of onFrameworkRequestsUpdated and other SystemTasks
+  // the result of onFrameworkRequestsUpdated and other SystemTasks.
   public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean usedToUpgrade) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     String applicationId = frameworkStatus.getApplicationId();
@@ -928,9 +928,9 @@ public class Service extends AbstractService {
     }
   }
 
-  // Prepare and kill the associated Application of the Framework before StopFramework
+  // Prepare and kill the associated Application of the Framework before StopFramework.
   // onFrameworkToStop is already in queue, so queue it again will disorder
-  // the result of onFrameworkRequestsUpdated and other SystemTasks
+  // the result of onFrameworkRequestsUpdated and other SystemTasks.
   public void onFrameworkToStop(FrameworkStatus frameworkStatus) throws Exception {
     String applicationId = frameworkStatus.getApplicationId();
     FrameworkState frameworkState = frameworkStatus.getFrameworkState();
