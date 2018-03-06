@@ -55,7 +55,7 @@ export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumb
 
 export PAI_CONTAINER_HOST_PORT=$(( (RANDOM % 55535) + 10001 ))
 
-# random ssh port
+# generate ssh port
 PAI_CONTAINER_SSH_PORT=$(( (RANDOM % 55535) + 10001 ))
 while lsof -i:${PAI_CONTAINER_SSH_PORT}; do
   sleep 10
@@ -118,7 +118,6 @@ export PAI_CURRENT_CONTAINER_PORT=$PAI_CONTAINER_HOST_PORT
 
 function Prepare_SSH()
 {
-   mkdir /var/run/sshd
    mkdir /root/.ssh
    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
@@ -126,7 +125,8 @@ function Prepare_SSH()
 
 function Start_SSH_Service()
 {
-  printf "%s %s\n" "[INFO]" "in Start_SSH"
+  printf "%s %s\n" \
+   "[INFO]" "Start SSH Service"
   cat /root/.ssh/$APP_ID.pub >> /root/.ssh/authorized_keys
   sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
@@ -141,10 +141,12 @@ function Hdfs_Upload_Atomically()
     "[INFO]" "source path is ${1}"
    tempFolder=${2}"_temp"
    if hdfs dfs -test -d $tempFolder ; then
+     printf "%s %s\n" \
+    "[WARNING]" "$tempFolder already exists, overwriting..."
      hdfs dfs -rm -r $tempFolder || exit 1
    fi
-   hdfs dfs -copyFromLocal ${1} "$tempFolder" || exit 1
-   hdfs dfs -mv "$tempFolder" ${2} || exit 1
+   hdfs dfs -put ${1} $tempFolder || exit 1
+   hdfs dfs -mv $tempFolder ${2} || exit 1
 }
 
 # Start sshd in docker container
@@ -175,8 +177,8 @@ else
 fi
 # Start ssh service
 Start_SSH_Service
-# Generate ssh connect info file in "APP_ID-PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
-hdfs dfs -touchz ${hdfs_ssh_foler}/$APP_ID-$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
+# Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
+hdfs dfs -touchz ${hdfs_ssh_foler}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
 
 # Write env to bashrc
 env | sed "s/^/export /" >> ~/.bashrc
