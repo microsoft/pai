@@ -146,7 +146,7 @@ const loadJobs = () => {
           convertTime,
           convertState,
         }));
-        table = $('#job-table').DataTable({
+        table = $('#job-table').dataTable({
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
           'order': [[2, 'desc']],
@@ -154,7 +154,7 @@ const loadJobs = () => {
             {type: 'natural', targets: [0, 1, 4, 5]},
             {type: 'title-numeric', targets: [2, 3]},
           ],
-        });
+        }).api();
       }
       loading.hideLoading();
     },
