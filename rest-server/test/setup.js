@@ -20,6 +20,7 @@
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
+process.env.WEBHDFS_URI = 'http://hdfs.test.pai:50070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.LOWDB_FILE = './user.db.json';
@@ -42,4 +43,5 @@ global.assert = chai.assert;
 global.expect = chai.expect;
 global.should = chai.should;
 global.server = server;
+global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;

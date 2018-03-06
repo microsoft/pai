@@ -15,50 +15,54 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// test
-describe('Jobs API /api/v1/jobs', () => {
-  // Mock launcher webservice
+describe('Get job config JSON string: /api/v1/jobs/:jobName/config', () => {
+  // Mock WebHDFS: Read the content of the JobConfig.json file
   beforeEach(() => {
+    nock(webhdfsUri)
+      .get('/webhdfs/v1/Container/test/job1/JobConfig.json?op=OPEN')
+      .reply(
+        200,
+        {
+          'jobName': 'job1'
+        });
+
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks')
-      .reply(200, {
-        'summarizedFrameworkInfos': [
-          {
-            'name': 'job1',
-            'username': 'test',
-            'frameworkState': 'FRAMEWORK_COMPLETED',
-            'frameworkRetryPolicyState': {
-              'transientNormalRetriedCount': 0,
-              'transientConflictRetriedCount': 0,
-              'nonTransientRetriedCount': 0,
-              'unKnownRetriedCount': 0,
-            },
-            'firstRequestTimestamp': new Date().getTime(),
-            'frameworkCompletedTimestamp': new Date().getTime(),
-            'applicationExitCode': 0,
+      .get('/v1/Frameworks/job1')
+      .reply(
+        200,
+        {
+          'summarizedFrameworkInfo': {
+            'frameworkName': 'job1',
           },
-          {
-            'name': 'job2',
-            'username': 'test',
-            'frameworkState': 'FRAMEWORK_COMPLETED',
-            'frameworkRetryPolicyState': {
-              'transientNormalRetriedCount': 1,
-              'transientConflictRetriedCount': 2,
-              'nonTransientRetriedCount': 3,
-              'unKnownRetriedCount': 4,
-            },
-            'firstRequestTimestamp': new Date().getTime(),
-            'frameworkCompletedTimestamp': new Date().getTime(),
-            'applicationExitCode': 1,
+          'aggregatedFrameworkRequest': {
+            'frameworkRequest': {
+              'frameworkDescriptor': {
+                'user': {
+                  'name': 'test'
+                }
+              }
+            }
           },
-        ],
-      });
+          'aggregatedFrameworkStatus': {
+            'frameworkStatus': {
+              'frameworkRetryPolicyState': {
+                'retriedCount': 0,
+                'transientNormalRetriedCount': 0,
+                'transientConflictRetriedCount': 0,
+                'nonTransientRetriedCount': 0,
+                'unKnownRetriedCount': 0
+              },
+              'frameworkState': 'APPLICATION_RUNNING',
+              'applicationId': 'application_1519960554030_0043',
+            }
+          },
+        });
   });
 
-  // GET /api/v1/jobs
-  it('should return jobs list', (done) => {
+  // GET /api/v1/jobs/:jobName/ssh
+  it('should return job config JSON string', (done) => {
     chai.request(server)
-      .get('/api/v1/jobs')
+      .get('/api/v1/jobs/job1/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -66,3 +70,4 @@ describe('Jobs API /api/v1/jobs', () => {
       });
   });
 });
+ 
