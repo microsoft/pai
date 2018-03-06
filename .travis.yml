@@ -2,6 +2,14 @@ sudo: required
 dist: trusty
 matrix:
   include:
+    - language: python
+      python: 2.7
+      before_install:
+        - cd kubernetes-deployment
+      install:
+        - pip install paramiko pyyaml jinja2
+      script:
+        - python -m unittest discover test/
     - language: java
       jdk: oraclejdk8
       before_install:
@@ -43,5 +51,23 @@ matrix:
         - cd rest-server
       install:
         - npm install
+      script:
+        - npm test
+    - language: node_js
+      node_js: 6
+      before_install:
+        - cd webportal
+      install:
+        - npm run yarn install
+        - npm run build
+      script:
+        - npm test
+    - language: node_js
+      node_js: 7
+      before_install:
+        - cd webportal
+      install:
+        - npm run yarn install
+        - npm run build
       script:
         - npm test
