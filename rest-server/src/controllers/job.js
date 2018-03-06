@@ -24,7 +24,15 @@ const logger = require('../config/logger');
  */
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job) => {
-    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
+    if (Object.keys(job).length === 1) {
+      // If the job object only contains 'name' field, then the call
+      // to the framework launcher must have been failed.
+      logger.warn('could not connect to framework launcher');
+      return res.status(500).json({
+        error: 'CouldNotConnectToFrameworkLauncher',
+        message: `could not connect to framework launcher`,
+      });
+    } else if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: 'JobNotFound',
@@ -114,5 +122,55 @@ const remove = (req, res) => {
   });
 };
 
+
+/**
+ * Get job config json string.
+ */
+const getConfig = (req, res) => {
+  Job.prototype.getJobConfig(
+    req.job.jobStatus.username,
+    req.job.name,
+    (configJsonString, error) => {
+      if (error === null) {
+        return res.status(200).json(configJsonString);
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
+/**
+ * Get job SSH info.
+ */
+const getSshInfo = (req, res) => {
+  Job.prototype.getJobSshInfo(
+    req.job.jobStatus.username,
+    req.job.name,
+    req.job.jobStatus.appId,
+    (sshInfo, error) => {
+      if (error === null) {
+        return res.status(200).json(sshInfo);
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
 // module exports
-module.exports = {load, list, get, update, remove};
+module.exports = {
+  load,
+  list,
+  get,
+  update,
+  remove,
+  getConfig,
+  getSshInfo,
+};

@@ -99,6 +99,10 @@ class Job {
     unirest.get(launcherConfig.frameworkPath(name))
         .headers(launcherConfig.webserviceRequestHeaders)
         .end((frameworkRes) => {
+          if (frameworkRes.body === undefined) {
+            next({}, new Error('could not connect to framework launcher'));
+            return;
+          }
           const framework = typeof frameworkRes.body === 'object' ?
               frameworkRes.body : JSON.parse(frameworkRes.body);
           let job = {
@@ -272,6 +276,63 @@ class Job {
             .end(() => next());
         } else {
           next(new Error('can not delete other user\'s job'));
+        }
+      });
+  }
+
+  getJobConfig(userName, jobName, next) {
+    let url = launcherConfig.webhdfsUri +
+      '/webhdfs/v1/Container/' + userName + '/' + jobName +
+      '/JobConfig.json?op=OPEN';
+    unirest.get(url)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          next(requestResJson, null);
+        } catch (error) {
+          next({}, error);
+        }
+      });
+  }
+
+  getJobSshInfo(userName, jobName, applicationId, next) {
+    let folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}/`;
+    let webhdfsUrlPrefix = `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}`;
+    let webhdfsUrl = `${webhdfsUrlPrefix}?op=LISTSTATUS`;
+    unirest.get(webhdfsUrl)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          let result = {
+            'containers': [],
+            'keyPair': {
+              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}.ssh/`,
+              'publicKeyFileName': `${applicationId}.pub`,
+              'privateKeyFileName': `${applicationId}`,
+              'privateKeyDirectDownloadLink':
+                `${webhdfsUrlPrefix}.ssh/${applicationId}?op=OPEN`,
+            },
+          };
+          for (let x of requestResJson.FileStatuses.FileStatus) {
+            let pattern = /^container_(.*)-(.*)-(.*)$/g;
+            let arr = pattern.exec(x.pathSuffix);
+            if (arr !== null) {
+              result.containers.push({
+                'id': 'container_' + arr[1],
+                'sshIp': arr[2],
+                'sshPort': arr[3],
+              });
+            }
+          }
+          next(result, null);
+        } catch (error) {
+          next({}, error);
         }
       });
   }
