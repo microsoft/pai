@@ -114,5 +114,25 @@ const remove = (req, res) => {
   });
 };
 
+/**
+ * Stop job.
+ */
+const stop = (req, res) => {
+  req.body.username = req.user.username;
+  Job.prototype.stopJob(req.job.name, req.body, (err) => {
+    if (err) {
+      logger.warn('stop job %s error\n%s', req.job.name, err.stack);
+      return res.status(500).json({
+        error: 'JobStopError',
+        message: 'job stop error',
+      });
+    } else {
+      return res.status(202).json({
+        message: `stop job ${req.job.name} successfully`,
+      });
+    }
+  });
+};
+
 // module exports
-module.exports = {load, list, get, update, remove};
+module.exports = {load, list, get, update, remove, stop};

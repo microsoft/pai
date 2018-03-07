@@ -29,7 +29,7 @@
         <td style='text-align:right'><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
         <!-- TODO: Change this button to 'Cancel' or 'Stop' in the future. -->
-        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
+        <td><button class="btn btn-default btn-sm" onclick="stopJob('<%= jobs[i].name %>')">Stop</button></td>
       </tr>
 <%
     }

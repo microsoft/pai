@@ -166,13 +166,13 @@ const loadJobs = () => {
   });
 };
 
-const deleteJob = (jobName) => {
-  const res = confirm('Are you sure to delete the job?');
+const stopJob = (jobName) => {
+  const res = confirm('Are you sure to stop the job?');
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
-        type: 'DELETE',
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/stop`,
+        type: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -215,7 +215,7 @@ const loadJobDetail = (jobName) => {
 };
 
 window.loadJobs = loadJobs;
-window.deleteJob = deleteJob;
+window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 
 const resizeContentWrapper = () => {
@@ -244,4 +244,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = {loadJobs, deleteJob, loadJobDetail};
+module.exports = {loadJobs, stopJob, loadJobDetail};

@@ -276,6 +276,25 @@ class Job {
       });
   }
 
+  stopJob(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+            requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send({'executionType': 'STOP'})
+            .end((res) => next());
+        } else {
+          next(new Error('can not stop other user\'s job'));
+        }
+      });
+  }
+
   generateYarnContainerScript(data, idx) {
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
