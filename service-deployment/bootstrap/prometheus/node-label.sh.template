@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist %}
-    {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prom' ] == 'true' %}
+    {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prom=true
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
