@@ -49,14 +49,14 @@ const loadServices = () => {
       grafanaUri: webportalConfig.grafanaUri,
       exporterPort: webportalConfig.exporterPort,
     }));
-    $('#service-datatable').DataTable({
+    $('#service-datatable').dataTable({
       'scrollY': (($(window).height() - 265)) + 'px',
         'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
         'columnDefs': [
           {orderDataType: 'dom-text', targets: [1, 2]},
           {type: 'ip-address', targets: [0]},
         ],
-    });
+    }).api();
   });
 };
 
