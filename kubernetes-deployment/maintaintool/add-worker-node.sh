@@ -34,12 +34,6 @@ sed -i "/127.0.1.1/s/^/# /" /etc/hosts
 # Comment hostip line
 sed -i "/$hostip/s/^/# /" /etc/hosts
 
-# Change hostip line to "$hostip $hostname"
-# grep -q "$hostip" /etc/hosts && \
-#     sed -i "/$hostip/c\\$hostip $(hostname)" /etc/hosts || \
-#     sed -i "\$a$hostip $(hostname)" /etc/hosts
-
-
 # Prepare docker for remote host
 if command -v docker >/dev/null 2>&1; then
     echo docker has been installed. And skip docker install.
