@@ -334,3 +334,32 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "could not find job $jobName"
     }
     ```
+
+8. `PUT jobs/:jobName/executionType`
+
+    Start or stop a job.
+
+    *Request*
+    ```
+    PUT /api/v1/jobs/:jobName/executionType
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      "message": "execute job $jobName successfully"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobExecuteError",
+      "message": "job execute error"
+    }
+    ```
