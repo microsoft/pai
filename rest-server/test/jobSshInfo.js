@@ -123,7 +123,8 @@ describe('Get job SSH info: /api/v1/jobs/:jobName/ssh', () => {
       .get('/api/v1/jobs/job1/ssh')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
-        expect(res, 'json response').be.json;
+        expect(res, 'response format').be.json;
+        expect(JSON.stringify(res.body), 'response body content').include('keyPair');
         done();
       });
   });

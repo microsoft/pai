@@ -111,7 +111,8 @@ describe('Get job config: /api/v1/jobs/:jobName/config', () => {
       .get('/api/v1/jobs/job1/config')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
-        expect(res, 'json response').be.json;
+        expect(res, 'response format').be.json;
+        expect(JSON.stringify(res.body), 'response body content').include('jobName');
         done();
       });
   });
