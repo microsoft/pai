@@ -171,8 +171,11 @@ const stopJob = (jobName) => {
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/stop`,
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`,
         type: 'PUT',
+        data: {
+          executionType: 'STOP',
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },

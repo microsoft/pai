@@ -276,7 +276,7 @@ class Job {
       });
   }
 
-  stopJob(name, data, next) {
+  executeJob(name, data, next) {
     unirest.get(launcherConfig.frameworkRequestPath(name))
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {
@@ -287,10 +287,10 @@ class Job {
         } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
-            .send({'executionType': 'STOP'})
+            .send({'executionType': data.executionType})
             .end((res) => next());
         } else {
-          next(new Error('can not stop other user\'s job'));
+          next(new Error('can not execute other user\'s job'));
         }
       });
   }
