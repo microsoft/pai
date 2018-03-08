@@ -291,7 +291,13 @@ class Job {
             typeof requestRes.body === 'object' ?
             requestRes.body :
             JSON.parse(requestRes.body);
-          next(requestResJson, null);
+          if (requestRes.status === 200) {
+            next(requestResJson, null);
+          } else if (requestRes.status === 404) {
+            next(requestResJson, new Error('ConfigFileNotFound'));
+          } else {
+            next(requestResJson, new Error('InternalServerError'));
+          }
         } catch (error) {
           next({}, error);
         }
@@ -309,28 +315,34 @@ class Job {
             typeof requestRes.body === 'object' ?
             requestRes.body :
             JSON.parse(requestRes.body);
-          let result = {
-            'containers': [],
-            'keyPair': {
-              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}.ssh/`,
-              'publicKeyFileName': `${applicationId}.pub`,
-              'privateKeyFileName': `${applicationId}`,
-              'privateKeyDirectDownloadLink':
-                `${webhdfsUrlPrefix}.ssh/${applicationId}?op=OPEN`,
-            },
-          };
-          for (let x of requestResJson.FileStatuses.FileStatus) {
-            let pattern = /^container_(.*)-(.*)-(.*)$/g;
-            let arr = pattern.exec(x.pathSuffix);
-            if (arr !== null) {
-              result.containers.push({
-                'id': 'container_' + arr[1],
-                'sshIp': arr[2],
-                'sshPort': arr[3],
-              });
+          if (requestRes.status === 200) {
+            let result = {
+              'containers': [],
+              'keyPair': {
+                'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}.ssh/`,
+                'publicKeyFileName': `${applicationId}.pub`,
+                'privateKeyFileName': `${applicationId}`,
+                'privateKeyDirectDownloadLink':
+                  `${webhdfsUrlPrefix}.ssh/${applicationId}?op=OPEN`,
+              },
+            };
+            for (let x of requestResJson.FileStatuses.FileStatus) {
+              let pattern = /^container_(.*)-(.*)-(.*)$/g;
+              let arr = pattern.exec(x.pathSuffix);
+              if (arr !== null) {
+                result.containers.push({
+                  'id': 'container_' + arr[1],
+                  'sshIp': arr[2],
+                  'sshPort': arr[3],
+                });
+              }
             }
+            next(result, null);
+          } else if (requestRes.status === 404) {
+            next(requestResJson, new Error('SshInfoNotFound'));
+          } else {
+            next(requestResJson, new Error('InternalServerError'));
           }
-          next(result, null);
         } catch (error) {
           next({}, error);
         }

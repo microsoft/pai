@@ -29,6 +29,7 @@ process.env.LOWDB_PASSWD = 'adminisi';
 
 
 // module dependencies
+const mustache = require('mustache');
 const nock = require('nock');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -37,6 +38,7 @@ const server = require('../src/index');
 chai.use(chaiHttp);
 
 
+global.mustache = mustache;
 global.nock = nock;
 global.chai = chai;
 global.assert = chai.assert;
@@ -45,3 +47,31 @@ global.should = chai.should;
 global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
+
+global.jobDetailTemplate = JSON.stringify({
+  'summarizedFrameworkInfo': {
+    'frameworkName': '{{jobName}}',
+  },
+  'aggregatedFrameworkRequest': {
+    'frameworkRequest': {
+      'frameworkDescriptor': {
+        'user': {
+          'name': '{{userName}}',
+        },
+      },
+    },
+  },
+  'aggregatedFrameworkStatus': {
+    'frameworkStatus': {
+      'frameworkRetryPolicyState': {
+        'retriedCount': 0,
+        'transientNormalRetriedCount': 0,
+        'transientConflictRetriedCount': 0,
+        'nonTransientRetriedCount': 0,
+        'unKnownRetriedCount': 0,
+      },
+      'frameworkState': 'APPLICATION_RUNNING',
+      'applicationId': '{{applicationId}}',
+    },
+  },
+});

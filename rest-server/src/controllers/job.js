@@ -30,7 +30,7 @@ const load = (req, res, next, jobName) => {
       logger.warn('could not connect to framework launcher');
       return res.status(500).json({
         error: 'CouldNotConnectToFrameworkLauncher',
-        message: `could not connect to framework launcher`,
+        message: 'could not connect to framework launcher',
       });
     } else if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
@@ -133,6 +133,11 @@ const getConfig = (req, res) => {
     (configJsonString, error) => {
       if (error === null) {
         return res.status(200).json(configJsonString);
+      } else if (error.message === 'ConfigFileNotFound') {
+        return res.status(404).json({
+          error: 'ConfigFileNotFound',
+          message: error.message,
+        });
       } else {
         return res.status(500).json({
           error: 'InternalServerError',
@@ -154,6 +159,11 @@ const getSshInfo = (req, res) => {
     (sshInfo, error) => {
       if (error === null) {
         return res.status(200).json(sshInfo);
+      } else if (error.message === 'SshInfoNotFound') {
+        return res.status(404).json({
+          error: 'SshInfoNotFound',
+          message: error.message,
+        });
       } else {
         return res.status(500).json({
           error: 'InternalServerError',

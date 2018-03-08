@@ -15,52 +15,98 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Get job config JSON string: /api/v1/jobs/:jobName/config', () => {
-  // Mock WebHDFS: Read the content of the JobConfig.json file
+describe('Get job config: /api/v1/jobs/:jobName/config', () => {
   beforeEach(() => {
-    nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job1/JobConfig.json?op=OPEN')
-      .reply(
-        200,
-        {
-          'jobName': 'job1'
-        });
+
+    //
+    // Mock FrameworkLauncher
+    //
 
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job1')
       .reply(
         200,
+        mustache.render(
+          jobDetailTemplate,
+          {
+            'jobName': 'job1',
+            'userName': 'test',
+            'applicationId': 'app1',
+          }
+        )
+      );
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job2')
+      .reply(
+        404,
         {
-          'summarizedFrameworkInfo': {
-            'frameworkName': 'job1',
-          },
-          'aggregatedFrameworkRequest': {
-            'frameworkRequest': {
-              'frameworkDescriptor': {
-                'user': {
-                  'name': 'test'
-                }
-              }
-            }
-          },
-          'aggregatedFrameworkStatus': {
-            'frameworkStatus': {
-              'frameworkRetryPolicyState': {
-                'retriedCount': 0,
-                'transientNormalRetriedCount': 0,
-                'transientConflictRetriedCount': 0,
-                'nonTransientRetriedCount': 0,
-                'unKnownRetriedCount': 0
-              },
-              'frameworkState': 'APPLICATION_RUNNING',
-              'applicationId': 'application_1519960554030_0043',
-            }
-          },
-        });
+          'exception': 'NotFoundException',
+          'message': '',
+          'javaClassName': '',
+        }
+      );
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job3')
+      .reply(
+        200,
+        mustache.render(
+          jobDetailTemplate,
+          {
+            'jobName': 'job3',
+            'userName': 'test',
+            'applicationId': 'app3',
+          }
+        )
+      );
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job5')
+      .reply(
+        200,
+        mustache.render(
+          jobDetailTemplate,
+          {
+            'jobName': 'job5',
+            'userName': 'test',
+            'applicationId': 'app5',
+          }
+        )
+      );
+
+    //
+    // Mock WebHDFS
+    //
+
+    nock(webhdfsUri)
+      .get('/webhdfs/v1/Container/test/job1/JobConfig.json?op=OPEN')
+      .reply(
+        200,
+        {
+          'jobName': 'job1',
+        }
+      );
+
+    nock(webhdfsUri)
+      .get('/webhdfs/v1/Container/test/job3/JobConfig.json?op=OPEN')
+      .reply(
+        404,
+        {
+          'RemoteException': {
+            'exception': 'FileNotFoundException',
+            'javaClassName': 'java.io.FileNotFoundException',
+            'message': 'File not found.',
+            },
+        }
+      );
   });
 
-  // GET /api/v1/jobs/:jobName/ssh
-  it('should return job config JSON string', (done) => {
+  //
+  // Positive cases
+  //
+
+  it('Case 1 (Positive): The job exists, and its config file exists too.', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/job1/config')
       .end((err, res) => {
@@ -69,5 +115,48 @@ describe('Get job config JSON string: /api/v1/jobs/:jobName/config', () => {
         done();
       });
   });
+
+  //
+  // Negative cases
+  //
+
+  it('Case 2 (Negative): The job does not exist at all.', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs/job2/config')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(404);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
+
+  it('Case 3 (Negative): The job exists, but does not contain config file.', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs/job3/config')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(404);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
+
+  it('Case 4 (Negative): Cannot connect to Launcher.', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs/job4/config')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(500);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
+
+  it('Case 5 (Negative): Cannot connect to WebHDFS.', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs/job5/config')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(500);
+        expect(res, 'json response').be.json;
+        done();
+      });
+  });
 });
- 
