@@ -306,6 +306,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerConnectionLostCount(0);
     taskStatus.setContainerGpus(
         ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute());
+    taskStatus.setContainerPorts(ResourceDescriptor.fromResource(container.getResource()).getPortRanges());
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -325,6 +326,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerExitDiagnostics(null);
     taskStatus.setContainerExitType(null);
     taskStatus.setContainerGpus(null);
+    taskStatus.setContainerPorts(null);
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -493,6 +495,30 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+
+  public Integer getUnAllocatedTaskCount(String taskRoleName) {
+    int unAllocatedTastCount = 0;
+    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskstatus : taskStatusList) {
+      if (taskstatus.getTaskState() == TaskState.TASK_WAITING || taskstatus.getTaskState() == TaskState.CONTAINER_REQUESTED) {
+        unAllocatedTastCount++;
+      }
+    }
+    return unAllocatedTastCount;
+  }
+
+  public synchronized List<ValueRange> getAllocatedTaskPorts(String taskRoleName) {
+    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskstatus : taskStatusList) {
+      if (taskstatus.getTaskState() == TaskState.CONTAINER_ALLOCATED ||
+          taskstatus.getTaskState() == TaskState.CONTAINER_LAUNCHED ||
+          taskstatus.getTaskState() == TaskState.CONTAINER_RUNNING) {
+        return taskstatus.getContainerPorts();
+      }
+    }
+    return null;
+  }
+
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatus(TaskStatusLocator locator) {
     assertTaskStatusLocator(locator);

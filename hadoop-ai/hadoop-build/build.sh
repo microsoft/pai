@@ -19,17 +19,16 @@
 
 cd /
 
-wget https://issues.apache.org/jira/secure/attachment/12906213/hadoop-2.7.2-gpu.patch
-
+wget https://issues.apache.org/jira/secure/attachment/12913143/hadoop-2.7.2-gpu-port.patch
 git clone https://github.com/apache/hadoop.git
 
 cd hadoop
 
 git checkout branch-2.7.2
 
-cp /hadoop-2.7.2-gpu.patch /hadoop
+cp /hadoop-2.7.2-gpu-port.patch /hadoop
 
-git apply hadoop-2.7.2-gpu.patch
+git apply hadoop-2.7.2-gpu-port.patch
 
 mvn package -Pdist,native -DskipTests -Dtar
 

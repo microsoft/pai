@@ -35,6 +35,7 @@ import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
@@ -321,18 +322,11 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), true, diagnostics));
   }
 
-  // Principle to setup ContainerRequest for a Task:
-  // 1. Exactly match the Task's Requirement
-  //    -> Keeps Waiting Allocation, i.e. containerRequestTimeoutSec = -1
-  // 2. Too Relax for the Task's Requirement
-  //    -> Reject Allocation and Re-Request, See testContainer
-  // 3. Too Strict for the Task's Requirement
-  //    -> Timeout Request and Re-Request, i.e. containerRequestTimeoutSec != -1
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+
     ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
@@ -344,18 +338,19 @@ public class ApplicationMaster extends AbstractService {
           requestResource, maxResource);
     }
 
-    if (requestResource.getGpuNumber() > 0) {
-      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+    updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+    SelectionResult selectionResult = selectionManager.select(requestResource, taskRoleName);
 
-      SelectionResult selectionResult = selectionManager.select(requestResource, requestNodeLabel, requestNodeGpuType);
-      if (selectionResult != null) {
-        ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-        optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute());
-        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHost());
-      }
+    ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
+    if (selectionResult.getSelectedNodeHosts().size() <= 0) {
+      return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
     }
 
-    return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
+    //Random pick a host from the result set
+    int random = new Random().nextInt(selectionResult.getSelectedNodeHosts().size());
+    String candidateNode = selectionResult.getSelectedNodeHosts().get(random);
+    optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(candidateNode));
+    return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, candidateNode);
   }
 
   private String generateContainerDiagnostics(TaskStatus taskStatus) {
@@ -526,7 +521,7 @@ public class ApplicationMaster extends AbstractService {
     return true;
   }
 
-  private Boolean testContainer(Container container) {
+  private Boolean testContainer(Container container, TaskStatus taskStatus) throws Exception {
     String containerId = container.getId().toString();
     String containerHostName = container.getNodeId().getHost();
 
@@ -534,6 +529,25 @@ public class ApplicationMaster extends AbstractService {
       return false;
     }
 
+    // To keep all tasks have the same ports in a task role.
+    // Will reject this container if the ports are not the same.
+    String taskRoleName = taskStatus.getTaskRoleName();
+    List<ValueRange> allocatedPorts = statusManager.getAllocatedTaskPorts(taskRoleName);
+    List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
+
+    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
+    LOGGER.logDebug(" Test Container, TaskRoleName: [%s] UseTheSamePorts: [%s], previous allocated ports: [%s], current allocated ports: [%s]",
+        taskRoleName, useTheSamePorts, allocatedPorts, containerPorts);
+    if (requestManager != null && useTheSamePorts) {
+      if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
+        if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
+          LOGGER.logWarning(
+              "[%s]: Container ports are not consistent with previous allocated ports",
+              containerId);
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -580,8 +594,10 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
-
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
+
+    String containerPortsString = setupPortsEnvironment(taskStatus);
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
 
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to
@@ -605,13 +621,52 @@ public class ApplicationMaster extends AbstractService {
     return launchContext;
   }
 
+  // This function is to convert task's containerPorts from List<Range> format to string format
+  // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
+
+  private String setupPortsEnvironment(TaskStatus taskStatus) {
+
+    String taskRoleName = taskStatus.getTaskRoleName();
+    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
+    List<ValueRange> portRanges = taskStatus.getContainerPorts();
+    StringBuilder portsString = new StringBuilder();
+
+    if (portDefinitions != null && !portDefinitions.isEmpty()) {
+      Iterator iter = portDefinitions.entrySet().iterator();
+      int basePort = 0;
+      while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        String key = (String) entry.getKey();
+        Ports ports = (Ports) entry.getValue();
+        //if user specified ports, directly use the PortDefinitions in request.
+        if (ports.getStart() > 0) {
+          portsString.append(key + ":" + ports.getStart());
+          for (int i = 2; i < ports.getCount(); i++) {
+            portsString.append("," + (ports.getStart() + i - 1));
+          }
+          portsString.append(";");
+        } else {
+          //if user not specified ports, assign the allocated ContainerPorts to each port label.
+          List<ValueRange> assignPorts = ValueRangeUtils.getSubRange(portRanges, ports.getCount(), basePort);
+          basePort = assignPorts.get(assignPorts.size() - 1).getEnd() + 1;
+          portsString.append(key + ":" + assignPorts.get(0).toDetailString(","));
+          for (int i = 1; i < assignPorts.size(); i++) {
+            portsString.append("," + assignPorts.get(i).toDetailString(","));
+          }
+          portsString.append(";");
+        }
+      }
+    }
+    return portsString.toString();
+  }
+
   private void updateNodeReports(List<NodeReport> nodeReports) throws Exception {
     for (NodeReport nodeReport : nodeReports) {
       NodeState state = nodeReport.getNodeState();
       if (state.isUnusable()) {
-        selectionManager.removeCandidateNode(nodeReport);
+        selectionManager.removeNode(nodeReport);
       } else {
-        selectionManager.addCandidateNode(nodeReport);
+        selectionManager.addNode(nodeReport);
       }
 
       // TODO: Update TaskStatus.ContainerIsDecommissioning
@@ -1067,7 +1122,7 @@ public class ApplicationMaster extends AbstractService {
     removeContainerRequest(taskStatus);
 
     // 2. testContainer
-    if (!testContainer(container)) {
+    if (!testContainer(container, taskStatus)) {
       LOGGER.logInfo(
           "%s[%s]: Container is Rejected, Release Container and Request again",
           taskLocator, containerId);
@@ -1446,5 +1501,17 @@ public class ApplicationMaster extends AbstractService {
 
   protected ClusterConfiguration getClusterConfiguration() {
     return requestManager.getClusterConfiguration();
+  }
+
+  protected Configuration getConfiguration() {
+    return this.conf;
+  }
+
+  protected StatusManager getStatusManager() {
+    return this.statusManager;
+  }
+
+  protected RequestManager getRequestManager() {
+    return this.requestManager;
   }
 }

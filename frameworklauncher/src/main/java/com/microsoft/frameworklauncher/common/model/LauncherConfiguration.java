@@ -59,6 +59,12 @@ public class LauncherConfiguration implements Serializable {
   // is also limited to 100MB = 500K * 200 bytes/task.
   private Integer maxTotalTaskNumber = 500000;
 
+  private Integer amContainerBasePort = 2000;
+  private Integer amSearchNodeBufferFactor = 2;
+
+  private Boolean amSkipLocalTriedResource = false;
+  private Boolean amAllowNoneGpuJobOnGpuNode = true;
+
   // ApplicationMaster Setup
   private Integer amVersion = 0;
   //AM Default Resource which can support max to 10000 total Tasks in one Framework
@@ -228,6 +234,38 @@ public class LauncherConfiguration implements Serializable {
 
   public void setMaxTotalTaskNumber(Integer maxTotalTaskNumber) {
     this.maxTotalTaskNumber = maxTotalTaskNumber;
+  }
+
+  public Integer getAmContainerBasePort() {
+    return amContainerBasePort;
+  }
+
+  public void setAmContainerBasePort(Integer amContainerBasePort) {
+    this.amContainerBasePort = amContainerBasePort;
+  }
+
+  public Integer getAmSearchNodeBufferFactor() {
+    return amSearchNodeBufferFactor;
+  }
+
+  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
+    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
+  }
+
+    public Boolean getAmSkipLocalTriedResource() {
+    return amSkipLocalTriedResource;
+  }
+
+  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
+    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
+  }
+
+  public Boolean getAmAllowNoneGpuJobOnGpuNode() {
+    return amAllowNoneGpuJobOnGpuNode;
+  }
+
+  public void setAmAllowNoneGpuJobOnGpuNode(Boolean amAllowNoneGpuJobOnGpuNode) {
+    this.amAllowNoneGpuJobOnGpuNode = amAllowNoneGpuJobOnGpuNode;
   }
 
   public Integer getAmVersion() {

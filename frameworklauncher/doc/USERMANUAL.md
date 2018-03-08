@@ -580,6 +580,7 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 |:---- |:---- |
 | CONTAINER_IP | Only set when generateInstanceHostList is enabled. |
 | CONTAINER_GPUS | Only set when gpuNumber is greater than 0. |
+| CONTAINER_PORTS | String value, Only set when portDefinitions is set, the format is: portLabel1:port1,port2,port3;portLabel2:port4,port5,port6|
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>

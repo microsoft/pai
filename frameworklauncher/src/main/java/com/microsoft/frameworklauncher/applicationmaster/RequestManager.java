@@ -406,6 +406,22 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return taskResources;
   }
 
+  // Get a job's total Memory, CPU, and GPU request.  this interface will ignore the GPU attribute and Ports.
+  public ResourceDescriptor getJobTotalCountableResources() {
+    ResourceDescriptor totalResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+    for (String taskRoleName : taskResources.keySet()) {
+      int taskNumber = taskRoles.get(taskRoleName).getTaskNumber();
+      ResourceDescriptor taskRoleResource = ResourceDescriptor.newInstance(
+          taskResources.get(taskRoleName).getMemoryMB() * taskNumber,
+          taskResources.get(taskRoleName).getCpuNumber() * taskNumber,
+          taskResources.get(taskRoleName).getGpuNumber() * taskNumber,
+          (long) 0
+      );
+      ResourceDescriptor.addTo(totalResource, taskRoleResource);
+    }
+    return totalResource;
+  }
+
   public Map<String, TaskRolePlatformSpecificParametersDescriptor> getTaskPlatParams() {
     return taskPlatParams;
   }
