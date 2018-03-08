@@ -23,30 +23,32 @@ const logger = require('../config/logger');
  * Load job and append to req.
  */
 const load = (req, res, next, jobName) => {
-  new Job(jobName, (job) => {
-    if (Object.keys(job).length === 1) {
-      // If the job object only contains 'name' field, then the call
-      // to the framework launcher must have been failed.
-      logger.warn('could not connect to framework launcher');
-      return res.status(500).json({
-        error: 'CouldNotConnectToFrameworkLauncher',
-        message: 'could not connect to framework launcher',
-      });
-    } else if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
+  new Job(jobName, (job, error) => {
+    if (error === null) {
+      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+        logger.warn('duplicate job %s', jobName);
+        return res.status(400).json({
+          error: 'DuplicateJobSubmission',
+          message: 'duplicate job submission',
+        });
+      } else {
+        req.job = job;
+        return next();
+      }
+    } else if (error.message == 'JobNotFound' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: 'JobNotFound',
         message: `could not find job ${jobName}`,
       });
-    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
-      logger.warn('duplicate job %s', jobName);
-      return res.status(400).json({
-        error: 'DuplicateJobSubmission',
-        message: 'duplicate job submission',
-      });
     } else {
-      req.job = job;
-      return next();
+      if (Object.keys(job).length === 1) {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
     }
   });
 };

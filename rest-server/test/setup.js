@@ -48,9 +48,9 @@ global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
 
-global.jobDetailTemplate = JSON.stringify({
+global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {
-    'frameworkName': '{{jobName}}',
+    'frameworkName': '{{frameworkName}}',
   },
   'aggregatedFrameworkRequest': {
     'frameworkRequest': {

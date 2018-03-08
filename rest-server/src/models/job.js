@@ -32,45 +32,21 @@ const dockerContainerScriptTemplate = require('../templates/dockerContainerScrip
 class Job {
   constructor(name, next) {
     this.name = name;
-    this.getJob(name, (job) => {
-      for (let key of Object.keys(job)) {
-        this[key] = job[key];
-      }
-      next(this);
-    });
-  }
-
-  convertJobState(frameworkState, exitCode) {
-    let jobState = '';
-    switch (frameworkState) {
-      case 'FRAMEWORK_WAITING':
-      case 'APPLICATION_CREATED':
-      case 'APPLICATION_LAUNCHED':
-      case 'APPLICATION_WAITING':
-        jobState = 'WAITING';
-        break;
-      case 'APPLICATION_RUNNING':
-      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
-      case 'APPLICATION_COMPLETED':
-        jobState = 'RUNNING';
-        break;
-      case 'FRAMEWORK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
-          jobState = 'SUCCEEDED';
-        } else {
-          jobState = 'FAILED';
+    this.getJob(name, (jobDetail, error) => {
+      if (error === null) {
+        for (let key of Object.keys(jobDetail)) {
+          this[key] = jobDetail[key];
         }
-        break;
-      default:
-        jobState = 'UNKNOWN';
-    }
-    return jobState;
+      }
+      next(this, error);
+    });
   }
 
   getJobList(next) {
     unirest.get(launcherConfig.frameworksPath())
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .end((res) => {
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((res) => {
+        try {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
@@ -92,85 +68,32 @@ class Job {
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
           next(jobList);
-        });
+        } catch (error) {
+          next(null, error);
+        }
+      });
   }
 
   getJob(name, next) {
     unirest.get(launcherConfig.frameworkPath(name))
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .end((frameworkRes) => {
-          if (frameworkRes.body === undefined) {
-            next({}, new Error('could not connect to framework launcher'));
-            return;
-          }
-          const framework = typeof frameworkRes.body === 'object' ?
-              frameworkRes.body : JSON.parse(frameworkRes.body);
-          let job = {
-            jobStatus: {
-              name,
-              username: 'unknown',
-              state: 'JOB_NOT_FOUND',
-            },
-            taskRoles: {},
-          };
-          if (framework.exception !== undefined) {
-            next(job, new Error('job not found'));
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          if (requestRes.status === 200) {
+            next(this.generateJobDetail(requestResJson), null);
+          } else if (requestRes.status === 404) {
+            next(null, new Error('JobNotFound'));
           } else {
-            const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
-            if (frameworkStatus) {
-              const jobState = this.convertJobState(
-                  frameworkStatus.frameworkState,
-                  frameworkStatus.applicationExitCode);
-              let jobRetryCount = 0;
-              const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
-              jobRetryCount =
-                jobRetryCountInfo.transientNormalRetriedCount +
-                jobRetryCountInfo.transientConflictRetriedCount +
-                jobRetryCountInfo.nonTransientRetriedCount +
-                jobRetryCountInfo.unKnownRetriedCount;
-              job.jobStatus = {
-                name,
-                username: 'unknown',
-                state: jobState,
-                subState: frameworkStatus.frameworkState,
-                retries: jobRetryCount,
-                createdTime: frameworkStatus.frameworkCreatedTimestamp,
-                completedTime: frameworkStatus.frameworkCompletedTimestamp,
-                appId: frameworkStatus.applicationId,
-                appProgress: frameworkStatus.applicationProgress,
-                appTrackingUrl: frameworkStatus.applicationTrackingUrl,
-                appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
-                appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
-                appExitCode: frameworkStatus.applicationExitCode,
-                appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
-                appExitType: frameworkStatus.applicationExitType,
-              };
-            }
-            const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
-            if (frameworkRequest.frameworkDescriptor) {
-              job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-            }
-            const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
-            if (taskRoleStatuses) {
-              for (let taskRole of Object.keys(taskRoleStatuses)) {
-                job.taskRoles[taskRole] = {
-                  taskRoleStatus: {name: taskRole},
-                  taskStatuses: [],
-                };
-                for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
-                  job.taskRoles[taskRole].taskStatuses.push({
-                    taskIndex: task.taskIndex,
-                    containerId: task.containerId,
-                    containerIp: task.containerIp,
-                    containerGpus: task.containerGpus,
-                    containerLog: task.containerLogHttpAddress,
-                  });
-                }
-              }
-            }
-            next(job);
+            next(null, new Error('InternalServerError'));
           }
-        });
+        } catch (error) {
+          next(null, error);
+        }
+      });
   }
 
   putJob(name, data, next) {
@@ -294,12 +217,12 @@ class Job {
           if (requestRes.status === 200) {
             next(requestResJson, null);
           } else if (requestRes.status === 404) {
-            next(requestResJson, new Error('ConfigFileNotFound'));
+            next(null, new Error('ConfigFileNotFound'));
           } else {
-            next(requestResJson, new Error('InternalServerError'));
+            next(null, new Error('InternalServerError'));
           }
         } catch (error) {
-          next({}, error);
+          next(null, error);
         }
       });
   }
@@ -339,14 +262,101 @@ class Job {
             }
             next(result, null);
           } else if (requestRes.status === 404) {
-            next(requestResJson, new Error('SshInfoNotFound'));
+            next(null, new Error('SshInfoNotFound'));
           } else {
-            next(requestResJson, new Error('InternalServerError'));
+            next(null, new Error('InternalServerError'));
           }
         } catch (error) {
-          next({}, error);
+          next(null, error);
         }
       });
+  }
+
+  convertJobState(frameworkState, exitCode) {
+    let jobState = '';
+    switch (frameworkState) {
+      case 'FRAMEWORK_WAITING':
+      case 'APPLICATION_CREATED':
+      case 'APPLICATION_LAUNCHED':
+      case 'APPLICATION_WAITING':
+        jobState = 'WAITING';
+        break;
+      case 'APPLICATION_RUNNING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
+        jobState = 'RUNNING';
+        break;
+      case 'FRAMEWORK_COMPLETED':
+        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+          jobState = 'SUCCEEDED';
+        } else {
+          jobState = 'FAILED';
+        }
+        break;
+      default:
+        jobState = 'UNKNOWN';
+    }
+    return jobState;
+  }
+
+  generateJobDetail(framework) {
+    let jobDetail = {
+      'jobStatus': {},
+      'taskRoles': {},
+    };
+    const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
+    if (frameworkStatus) {
+      const jobState = this.convertJobState(
+          frameworkStatus.frameworkState,
+          frameworkStatus.applicationExitCode);
+      let jobRetryCount = 0;
+      const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
+      jobRetryCount =
+        jobRetryCountInfo.transientNormalRetriedCount +
+        jobRetryCountInfo.transientConflictRetriedCount +
+        jobRetryCountInfo.nonTransientRetriedCount +
+        jobRetryCountInfo.unKnownRetriedCount;
+      jobDetail.jobStatus = {
+        name: framework.name,
+        username: 'unknown',
+        state: jobState,
+        subState: frameworkStatus.frameworkState,
+        retries: jobRetryCount,
+        createdTime: frameworkStatus.frameworkCreatedTimestamp,
+        completedTime: frameworkStatus.frameworkCompletedTimestamp,
+        appId: frameworkStatus.applicationId,
+        appProgress: frameworkStatus.applicationProgress,
+        appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+        appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
+        appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
+        appExitCode: frameworkStatus.applicationExitCode,
+        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitType: frameworkStatus.applicationExitType,
+      };
+    }
+    const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
+    if (frameworkRequest.frameworkDescriptor) {
+      jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+    }
+    const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
+    if (taskRoleStatuses) {
+      for (let taskRole of Object.keys(taskRoleStatuses)) {
+        jobDetail.taskRoles[taskRole] = {
+          taskRoleStatus: {name: taskRole},
+          taskStatuses: [],
+        };
+        for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+          jobDetail.taskRoles[taskRole].taskStatuses.push({
+            taskIndex: task.taskIndex,
+            containerId: task.containerId,
+            containerIp: task.containerIp,
+            containerGpus: task.containerGpus,
+            containerLog: task.containerLogHttpAddress,
+          });
+        }
+      }
+    }
+    return jobDetail;
   }
 
   generateYarnContainerScript(data, idx) {

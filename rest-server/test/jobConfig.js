@@ -27,9 +27,9 @@ describe('Get job config: /api/v1/jobs/:jobName/config', () => {
       .reply(
         200,
         mustache.render(
-          jobDetailTemplate,
+          frameworkDetailTemplate,
           {
-            'jobName': 'job1',
+            'frameworkName': 'job1',
             'userName': 'test',
             'applicationId': 'app1',
           }
@@ -52,9 +52,9 @@ describe('Get job config: /api/v1/jobs/:jobName/config', () => {
       .reply(
         200,
         mustache.render(
-          jobDetailTemplate,
+          frameworkDetailTemplate,
           {
-            'jobName': 'job3',
+            'frameworkName': 'job3',
             'userName': 'test',
             'applicationId': 'app3',
           }
@@ -66,9 +66,9 @@ describe('Get job config: /api/v1/jobs/:jobName/config', () => {
       .reply(
         200,
         mustache.render(
-          jobDetailTemplate,
+          frameworkDetailTemplate,
           {
-            'jobName': 'job5',
+            'frameworkName': 'job5',
             'userName': 'test',
             'applicationId': 'app5',
           }
