@@ -22,3 +22,5 @@ docker &
 docker run hello-world
 
 pip install kubernetes
+
+bash
