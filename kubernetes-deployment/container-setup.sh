@@ -19,7 +19,7 @@
 
 cp -r /docker/* /usr/bin/
 docker &
-docker run hello-world
+docker run hello-world  || exit $?
 
 pip install kubernetes
 
