@@ -205,6 +205,7 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
+        // TODO: get ssh info here.
       }
     },
     error: (xhr, textStatus, error) => {
@@ -214,9 +215,14 @@ const loadJobDetail = (jobName) => {
   });
 };
 
+showSshInfo = (containerId) => {
+  alert(containerId);
+};
+
 window.loadJobs = loadJobs;
 window.deleteJob = deleteJob;
 window.loadJobDetail = loadJobDetail;
+window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});

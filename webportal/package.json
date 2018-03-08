@@ -63,7 +63,8 @@
     "uglifyjs-webpack-plugin": "1.1.4",
     "util": "0.10.3",
     "webpack": "3.10.0",
-    "winston": "2.4.0"
+    "winston": "2.4.0",
+    "yarn": "1.5.1"
   },
   "scripts": {
     "build:dev": "npm run clean && npm run preprocess && npm run webpack -- --watch",
