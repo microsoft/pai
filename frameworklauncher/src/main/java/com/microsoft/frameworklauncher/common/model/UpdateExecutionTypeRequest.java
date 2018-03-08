@@ -17,48 +17,20 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.validation.CommonValidation;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
-public class ParentFrameworkDescriptor implements Serializable {
+public class UpdateExecutionTypeRequest implements Serializable {
   @Valid
   @NotNull
-  @Pattern(regexp = CommonValidation.NAMING_CONVENTION_REGEX_STR)
-  private String parentFrameworkName;
+  private ExecutionType executionType;
 
-  @Valid
-  @NotNull
-  private boolean deleteOnParentDeleted = false;
-
-  @Valid
-  @NotNull
-  private boolean stopOnParentStopped = false;
-
-  public String getParentFrameworkName() {
-    return parentFrameworkName;
+  public ExecutionType getExecutionType() {
+    return executionType;
   }
 
-  public void setParentFrameworkName(String parentFrameworkName) {
-    this.parentFrameworkName = parentFrameworkName;
-  }
-
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
-  }
-
-  public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
-    this.deleteOnParentDeleted = deleteOnParentDeleted;
-  }
-
-  public boolean isStopOnParentStopped() {
-    return stopOnParentStopped;
-  }
-
-  public void setStopOnParentStopped(boolean stopOnParentStopped) {
-    this.stopOnParentStopped = stopOnParentStopped;
+  public void setExecutionType(ExecutionType executionType) {
+    this.executionType = executionType;
   }
 }

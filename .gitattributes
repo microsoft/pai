@@ -7,8 +7,8 @@
 *.py     text diff=python
 *.pl     text diff=perl
 *.pm     text diff=perl
-*.css    text
-*.js     text
+*.css    text eol=lf
+*.js     text eol=lf
 *.sql    text
 
 *.sh     text eol=lf

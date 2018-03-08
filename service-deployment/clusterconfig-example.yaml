@@ -188,7 +188,7 @@ machinelist:
     launcher: "true"
     restserver: "true"
     webportal: "true"
-    prom: "true"
+    prometheus: "true"
     grafana: "true"
     pylon: "true"
     node-exporter: "true"
