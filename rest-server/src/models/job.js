@@ -276,7 +276,7 @@ class Job {
       });
   }
 
-  executeJob(name, data, next) {
+  putJobExecutionType(name, data, next) {
     unirest.get(launcherConfig.frameworkRequestPath(name))
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {

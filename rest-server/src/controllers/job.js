@@ -117,15 +117,13 @@ const remove = (req, res) => {
 /**
  * Start or stop job.
  */
-const execute = (req, res) => {
+const execute = (req, res, next) => {
   req.body.username = req.user.username;
-  Job.prototype.executeJob(req.job.name, req.body, (err) => {
+  Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);
-      return res.status(500).json({
-        error: 'JobExecuteError',
-        message: 'job execute error',
-      });
+      err.message = 'job execute error';
+      next(err);
     } else {
       return res.status(202).json({
         message: `execute job ${req.job.name} successfully`,

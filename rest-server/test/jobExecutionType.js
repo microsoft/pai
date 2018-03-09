@@ -95,7 +95,6 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         'value': 'STOP',
       })
       .end((err, res) => {
-        console.log(res.body)
         expect(res, 'status code').to.have.status(202);
         expect(res, 'json response').be.json;
         expect(res.body.message, 'response message').equal('execute job test1 successfully');
@@ -111,10 +110,8 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         'value': 'STOP',
       })
       .end((err, res) => {
-        console.log(res.body)
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
-        expect(res.body.error, 'response error').equal('JobExecuteError');
         expect(res.body.message, 'response message').equal('job execute error');
         done();
       });
@@ -127,7 +124,6 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         'value': 'STOP',
       })
       .end((err, res) => {
-        console.log(res.body)
         expect(res, 'status code').to.have.status(401);
         expect(res, 'json response').be.json;
         expect(res.body.message, 'response message').equal('No authorization token was found');
