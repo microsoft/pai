@@ -20,9 +20,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
-import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
@@ -111,14 +109,14 @@ public class SelectionManager { // THREAD SAFE
     }
   }
 
-  private void filterNodesForNonGpuJob(ResourceDescriptor jobTotalRequestResource) {
-    if (jobTotalRequestResource != null && jobTotalRequestResource.getGpuNumber() == 0) {
+  private void filterNodesForNonGpuJob(int jobTotalRequestGpu) {
+    if (jobTotalRequestGpu == 0) {
       for (int i = filteredNodes.size(); i > 0; i--) {
         Node node = allNodes.get(filteredNodes.get(i - 1));
         ResourceDescriptor totalResource = node.getTotalResource();
         if (totalResource.getGpuNumber() > 0) {
-          LOGGER.logDebug("skip nodes with Gpu resource for non-gpu job: Node [%s], Job request resource: [%s], Node total tesource: [%s]",
-              node.getHost(), jobTotalRequestResource, totalResource);
+          LOGGER.logDebug("skip nodes with Gpu resource for 0-gpu job: Node [%s], Node total resource: [%s]",
+              node.getHost(), totalResource);
           filteredNodes.remove(i - 1);
         }
       }
@@ -179,12 +177,12 @@ public class SelectionManager { // THREAD SAFE
         "select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
     String requestNodeLabel = am.getRequestManager().getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
     String requestNodeGpuType = am.getRequestManager().getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
-    int pendingTaskNumber = am.getStatusManager().getUnAllocatedTaskCount(taskRoleName);
+    int pendingTaskNumber = am.getStatusManager().getUnAssociatedTaskCount(taskRoleName);
     List<ValueRange> reUsePorts = null;
 
     // Prefer to use previous successfully allocated ports. if no successfully ports, try to re-use the "Requesting" ports.
     if (am.getRequestManager().getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
-      reUsePorts = am.getStatusManager().getAllocatedTaskPorts(taskRoleName);
+      reUsePorts = am.getStatusManager().getLiveAssociatedContainerPorts(taskRoleName);
       if (ValueRangeUtils.getValueNumber(reUsePorts) <= 0 && requestedPortsCache.containsKey(taskRoleName)) {
         reUsePorts = requestedPortsCache.get(taskRoleName);
         // the cache only guide the next task to use previous requesting port.
@@ -213,8 +211,8 @@ public class SelectionManager { // THREAD SAFE
     filterNodesByNodeLabel(requestNodeLabel);
     filterNodesByGpuType(requestNodeGpuType);
     if (!am.getConfiguration().getLauncherConfig().getAmAllowNoneGpuJobOnGpuNode()) {
-      ResourceDescriptor jobTotalRequestResource = am.getRequestManager().getJobTotalCountableResources();
-      filterNodesForNonGpuJob(jobTotalRequestResource);
+      int jobTotalRequestGpu = am.getRequestManager().getTotalGpuCount();
+      filterNodesForNonGpuJob(jobTotalRequestGpu);
     }
 
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
@@ -231,7 +229,7 @@ public class SelectionManager { // THREAD SAFE
       //don't have candidate nodes for this request.
       if (requestNodeGpuType != null || requestResource.getPortNumber() > 0) {
         //If gpuType or portNumber is specified, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to fix in optimizedRequestResource:%s, NodeGpuType: [%s]",
+        throw new NotAvailableException(String.format("Don't have enough nodes to fit in optimizedRequestResource:%s, NodeGpuType: [%s]",
             optimizedRequestResource, requestNodeGpuType));
       }
     }
@@ -246,7 +244,7 @@ public class SelectionManager { // THREAD SAFE
     // If the port was not allocated and was not specified previously, need allocate the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
-          am.getConfiguration().getLauncherConfig().getAmContainerBasePort());
+          am.getConfiguration().getLauncherConfig().getAmContainerMinPort());
 
       if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
         LOGGER.logDebug("Allocated port: optimizedRequestResource: [%s]", optimizedRequestResource);

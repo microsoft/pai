@@ -342,13 +342,13 @@ public class ApplicationMaster extends AbstractService {
     SelectionResult selectionResult = selectionManager.select(requestResource, taskRoleName);
 
     ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
-    if (selectionResult.getSelectedNodeHosts().size() <= 0) {
+    if (selectionResult.getNodeHosts().size() <= 0) {
       return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
     }
 
     //Random pick a host from the result set
-    int random = new Random().nextInt(selectionResult.getSelectedNodeHosts().size());
-    String candidateNode = selectionResult.getSelectedNodeHosts().get(random);
+    int random = new Random().nextInt(selectionResult.getNodeHosts().size());
+    String candidateNode = selectionResult.getNodeHosts().get(random);
     optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(candidateNode));
     return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, candidateNode);
   }
@@ -532,13 +532,13 @@ public class ApplicationMaster extends AbstractService {
     // To keep all tasks have the same ports in a task role.
     // Will reject this container if the ports are not the same.
     String taskRoleName = taskStatus.getTaskRoleName();
-    List<ValueRange> allocatedPorts = statusManager.getAllocatedTaskPorts(taskRoleName);
+    List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
     List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
 
     Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
     LOGGER.logDebug(" Test Container, TaskRoleName: [%s] UseTheSamePorts: [%s], previous allocated ports: [%s], current allocated ports: [%s]",
         taskRoleName, useTheSamePorts, allocatedPorts, containerPorts);
-    if (requestManager != null && useTheSamePorts) {
+    if (useTheSamePorts) {
       if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
         if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
           LOGGER.logWarning(
@@ -623,9 +623,7 @@ public class ApplicationMaster extends AbstractService {
 
   // This function is to convert task's containerPorts from List<Range> format to string format
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
-
   private String setupPortsEnvironment(TaskStatus taskStatus) {
-
     String taskRoleName = taskStatus.getTaskRoleName();
     Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
     List<ValueRange> portRanges = taskStatus.getContainerPorts();

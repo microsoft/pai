@@ -41,6 +41,7 @@ public class Node implements Comparable<Node> {
   }
 
   // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
+  @Override
   public int compareTo(Node arg0) {
     if (this.getAvailableResource().getGpuNumber() > arg0.getAvailableResource().getGpuNumber())
       return 1;

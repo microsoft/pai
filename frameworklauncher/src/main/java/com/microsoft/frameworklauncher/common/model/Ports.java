@@ -24,10 +24,13 @@ import java.io.Serializable;
 public class Ports implements Serializable {
   @Valid
   @NotNull
+  // start is the begin port
   private Integer start;
 
   @Valid
   @NotNull
+  // count is the number of port from "start", for example, if start is 80 and count is 2. the Ports is 80, 81
+  // if start is 0, and count > 0, it means any ports is ok, and the number is count.
   private Integer count;
 
   public Integer getStart() {

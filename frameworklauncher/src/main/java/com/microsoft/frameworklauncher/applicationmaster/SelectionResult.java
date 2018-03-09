@@ -29,20 +29,20 @@ import java.util.List;
 
 public class SelectionResult {
 
-  private Map<String, Long> selectedNodes = new HashMap<String, Long>();
+  private Map<String, Long> nodes = new HashMap<String, Long>();
   private List<ValueRange> overlapPorts = new ArrayList<ValueRange>();
   private ResourceDescriptor optimizedResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
 
   public void addSelection(String hostName, Long gpuAttribute, List<ValueRange> portList) {
-    if (selectedNodes.isEmpty()) {
-      selectedNodes.put(hostName, gpuAttribute);
+    if (nodes.isEmpty()) {
+      nodes.put(hostName, gpuAttribute);
       overlapPorts = ValueRangeUtils.coalesceRangeList(portList);
       return;
     }
-    if (selectedNodes.containsKey(hostName)) {
-      selectedNodes.remove(hostName);
+    if (nodes.containsKey(hostName)) {
+      nodes.remove(hostName);
     }
-    selectedNodes.put(hostName, gpuAttribute);
+    nodes.put(hostName, gpuAttribute);
     overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, portList);
   }
 
@@ -50,9 +50,9 @@ public class SelectionResult {
     return overlapPorts;
   }
 
-  public List<String> getSelectedNodeHosts() {
+  public List<String> getNodeHosts() {
     List<String> hostList = new ArrayList<String>();
-    for (String hostName : selectedNodes.keySet()) {
+    for (String hostName : nodes.keySet()) {
       hostList.add(hostName);
 
     }
@@ -60,7 +60,7 @@ public class SelectionResult {
   }
 
   public Long getGpuAttribute(String hostName) {
-    return selectedNodes.get(hostName);
+    return nodes.get(hostName);
   }
 
   public void setOptimizedResource(ResourceDescriptor optimizedResource) {
@@ -74,7 +74,7 @@ public class SelectionResult {
   @Override
   public String toString() {
     String output = "SelectionResult:";
-    for (Map.Entry<String, Long> entry : selectedNodes.entrySet()) {
+    for (Map.Entry<String, Long> entry : nodes.entrySet()) {
       output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
     }
     return output;

@@ -18,7 +18,6 @@
 
 package com.microsoft.frameworklauncher.common.utils;
 
-import org.apache.avro.generic.GenericData;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -202,9 +202,9 @@ public class ResourceDescriptor implements Serializable {
       rd.setGpuNumber((int) getGpuNumber.invoke(res));
       rd.setGpuAttribute((long) getGpuAttribute.invoke(res));
     } catch (NoSuchMethodException e) {
-      LOGGER.logDebug(e, "Ignore: Fail get GPU information, YARN library doesn't support gpu as resources");
+      LOGGER.logDebug(e, "Ignore: Failed get GPU information, YARN library doesn't support gpu as resources");
     } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Fail to get GPU information, illegal access function");
+      LOGGER.logError(e, "Ignore: Failed to get GPU information, illegal access function");
     }
 
     try {
@@ -236,8 +236,6 @@ public class ResourceDescriptor implements Serializable {
       LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
       LOGGER.logDebug(e, "Ignore: Failed to get the class name");
-    } catch (Exception e) {
-      LOGGER.logDebug(e, "Ignore: Unknown exception");
     }
     LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
     return rd;
@@ -289,8 +287,6 @@ public class ResourceDescriptor implements Serializable {
         LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get the class Name");
-      } catch (Exception e) {
-        LOGGER.logDebug(e, "Ignore: Unknown exception");
       }
     }
     LOGGER.logDebug("Put LocalResource " + this.toString() + " to hadoop resource: " + res);
@@ -345,7 +341,7 @@ public class ResourceDescriptor implements Serializable {
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]", CommonExts.toStringWithBits(getGpuAttribute())) + " " +
         String.format("PortNumber: [%s]", getPortNumber()) +
-        String.format("portRanges: [%s]", ValueRangeUtils.toString(portRanges));
+        String.format("PortRanges: [%s]", ValueRangeUtils.toString(portRanges));
   }
 
 }

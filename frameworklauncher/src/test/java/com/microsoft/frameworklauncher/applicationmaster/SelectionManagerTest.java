@@ -20,7 +20,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.*;
-import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
@@ -82,69 +81,69 @@ public class SelectionManagerTest {
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1);
 
     //Empty allocation failed;
-    Assert.assertEquals(0, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(0, result.getNodeHosts().size());
     sm.addNode(node1);
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 3, 0L), null, null, 1);
-    Assert.assertEquals(0, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(0, result.getNodeHosts().size());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1);
-    Assert.assertEquals("node1", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 3L);
+    Assert.assertEquals("node1", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 3L);
 
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     sm.addNode(node3);
     sm.addNode(node4);
     ResourceDescriptor resourceDescriptor = ResourceDescriptor.newInstance(1, 1, 8, 0L);
     result = sm.select(resourceDescriptor, null, null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node3");
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xFF);
+    Assert.assertEquals(result.getNodeHosts().get(0), "node3");
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xFF);
 
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
-
-    result = sm.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node4");
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF0);
-
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 8, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1);
-    Assert.assertEquals(0, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node4");
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
+
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
+
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1);
+    Assert.assertEquals(0, result.getNodeHosts().size());
 
     sm.addNode(node2);
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node2");
+    Assert.assertEquals(result.getNodeHosts().get(0), "node2");
 
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
-
-    result = sm.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node2");
-
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1);
-    Assert.assertEquals(0, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node2");
+
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 2, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
+
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1);
+    Assert.assertEquals(0, result.getNodeHosts().size());
 
     sm.addNode(new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1);
 
-    Assert.assertEquals(result.getSelectedNodeHosts().size(), 2);
+    Assert.assertEquals(result.getNodeHosts().size(), 2);
 
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 1, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node5");
+    Assert.assertEquals(result.getNodeHosts().get(0), "node5");
 
-    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 2, 1, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm.addContainerRequest(ResourceDescriptor.newInstance(1, 2, 1, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1);
-    Assert.assertEquals(2, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(2, result.getNodeHosts().size());
 
     sm.addNode(new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L)));
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1);
 
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node6");
+    Assert.assertEquals(result.getNodeHosts().get(0), "node6");
     sm.addNode(node6);
 
     //Allocation with Gpu type label
@@ -163,41 +162,41 @@ public class SelectionManagerTest {
     sm2.addNode(node6);
 
     result = sm2.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().size(), 2);
-    if (result.getSelectedNodeHosts().get(0).equals("node6")) {
-      Assert.assertEquals(240, result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue());
-      Assert.assertEquals(15, result.getGpuAttribute(result.getSelectedNodeHosts().get(1)).longValue());
+    Assert.assertEquals(result.getNodeHosts().size(), 2);
+    if (result.getNodeHosts().get(0).equals("node6")) {
+      Assert.assertEquals(240, result.getGpuAttribute(result.getNodeHosts().get(0)).longValue());
+      Assert.assertEquals(15, result.getGpuAttribute(result.getNodeHosts().get(1)).longValue());
     }
-    if (result.getSelectedNodeHosts().get(0).equals("node3")) {
-      Assert.assertEquals(15, result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue());
-      Assert.assertEquals(240, result.getGpuAttribute(result.getSelectedNodeHosts().get(1)).longValue());
+    if (result.getNodeHosts().get(0).equals("node3")) {
+      Assert.assertEquals(15, result.getGpuAttribute(result.getNodeHosts().get(0)).longValue());
+      Assert.assertEquals(240, result.getGpuAttribute(result.getNodeHosts().get(1)).longValue());
     }
     List<String> nodeList = new ArrayList<String>();
 
-    nodeList.add(result.getSelectedNodeHosts().get(0));
-    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), nodeList);
+    nodeList.add(result.getNodeHosts().get(0));
+    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), nodeList);
 
     nodeList.clear();
-    nodeList.add(result.getSelectedNodeHosts().get(1));
-    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(1))), nodeList);
+    nodeList.add(result.getNodeHosts().get(1));
+    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(1))), nodeList);
 
     result = sm2.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), "K40", null, 1);
-    Assert.assertEquals(result.getSelectedNodeHosts().get(0), "node3");
-    Assert.assertEquals(0xF0L, result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node3");
+    Assert.assertEquals(0xF0L, result.getGpuAttribute(result.getNodeHosts().get(0)).longValue());
 
-    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     //Node label not match
     result = sm2.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), "M40", null, 1);
-    Assert.assertEquals(0, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(0, result.getNodeHosts().size());
 
     Node node7 = new Node("node7", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
     sm2.addNode(node7);
 
     result = sm2.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1);
-    Assert.assertEquals("node7", result.getSelectedNodeHosts().get(0));
+    Assert.assertEquals("node7", result.getNodeHosts().get(0));
 
-    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     //Case for gpu type config only
     node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -211,16 +210,16 @@ public class SelectionManagerTest {
     sm3.addNode(node4);
 
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "K40", 1);
-    Assert.assertEquals("node3", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF);
+    Assert.assertEquals("node3", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF);
 
-    sm3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "T40", 1);
-    Assert.assertEquals("node4", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF0);
+    Assert.assertEquals("node4", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
 
-    sm3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    sm3.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
     try {
       result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40", 1);
@@ -228,8 +227,8 @@ public class SelectionManagerTest {
     } catch (NotAvailableException e) {
     }
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40", 1);
-    Assert.assertEquals("node3", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF0);
+    Assert.assertEquals("node3", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
 
     SelectionManager sm4 = new SelectionManager(am);
 
@@ -245,19 +244,19 @@ public class SelectionManagerTest {
     }
 
     result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0x33L), null, "M40", 1);
-    Assert.assertEquals("node6", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0x33);
+    Assert.assertEquals("node6", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0x33);
 
 
     result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0xFL), null, null, 1);
-    Assert.assertEquals("node6", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xFL);
-    sm4.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getSelectedNodeHosts().get(0))), result.getSelectedNodeHosts());
+    Assert.assertEquals("node6", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xFL);
+    sm4.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), result.getNodeHosts());
 
 
     result = sm4.select(ResourceDescriptor.newInstance(1, 1, 4, 0xF0L), null, "K40", 1);
-    Assert.assertEquals("node7", result.getSelectedNodeHosts().get(0));
-    Assert.assertEquals(result.getGpuAttribute(result.getSelectedNodeHosts().get(0)).longValue(), 0xF0);
+    Assert.assertEquals("node7", result.getNodeHosts().get(0));
+    Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
   }
 
   @Test
@@ -289,17 +288,17 @@ public class SelectionManagerTest {
     sm.addNode(node2);
 
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, null), null, null, 2);
-    Assert.assertEquals(2, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 2);
-    Assert.assertEquals(2, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports4), null, null, 1);
-    Assert.assertEquals(1, result.getSelectedNodeHosts().size());
+    Assert.assertEquals(1, result.getNodeHosts().size());
 
   }
 

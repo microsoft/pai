@@ -113,5 +113,4 @@ public class TaskRoleDescriptor implements Serializable {
   public void setUseTheSamePorts(Boolean useTheSamePorts) {
     this.useTheSamePorts = useTheSamePorts;
   }
-
 }

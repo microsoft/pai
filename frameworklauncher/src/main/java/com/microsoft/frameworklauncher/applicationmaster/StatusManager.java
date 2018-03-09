@@ -496,23 +496,21 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    * REGION ReadInterface
    */
 
-  public Integer getUnAllocatedTaskCount(String taskRoleName) {
-    int unAllocatedTastCount = 0;
+  public synchronized Integer getUnAssociatedTaskCount(String taskRoleName) {
+    int unAssociatedTastCount = 0;
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskstatus : taskStatusList) {
-      if (taskstatus.getTaskState() == TaskState.TASK_WAITING || taskstatus.getTaskState() == TaskState.CONTAINER_REQUESTED) {
-        unAllocatedTastCount++;
+      if(!TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskstatus.getTaskState())) {
+        unAssociatedTastCount++;
       }
     }
-    return unAllocatedTastCount;
+    return unAssociatedTastCount;
   }
 
-  public synchronized List<ValueRange> getAllocatedTaskPorts(String taskRoleName) {
+  public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskstatus : taskStatusList) {
-      if (taskstatus.getTaskState() == TaskState.CONTAINER_ALLOCATED ||
-          taskstatus.getTaskState() == TaskState.CONTAINER_LAUNCHED ||
-          taskstatus.getTaskState() == TaskState.CONTAINER_RUNNING) {
+      if(TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskstatus.getTaskState())) {
         return taskstatus.getContainerPorts();
       }
     }

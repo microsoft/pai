@@ -59,12 +59,6 @@ public class LauncherConfiguration implements Serializable {
   // is also limited to 100MB = 500K * 200 bytes/task.
   private Integer maxTotalTaskNumber = 500000;
 
-  private Integer amContainerBasePort = 2000;
-  private Integer amSearchNodeBufferFactor = 2;
-
-  private Boolean amSkipLocalTriedResource = false;
-  private Boolean amAllowNoneGpuJobOnGpuNode = true;
-
   // ApplicationMaster Setup
   private Integer amVersion = 0;
   //AM Default Resource which can support max to 10000 total Tasks in one Framework
@@ -100,6 +94,17 @@ public class LauncherConfiguration implements Serializable {
   // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
   private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
+
+  // Small ports usually reserved for system usage,  the minimum port a job can use.
+  private Integer amContainerMinPort = 2000;
+  private Integer amSearchNodeBufferFactor = 2;
+
+  // true: AM will skip the resource(gpu and port) already tried in previous tasks' allocation.
+  private Boolean amSkipLocalTriedResource = false;
+
+  // true: AM will allocate a none Gpu job in to host with Gpu resource.
+  // false: AM will not allocated a none Gpu job into a Gpu machine.
+  private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
@@ -236,12 +241,12 @@ public class LauncherConfiguration implements Serializable {
     this.maxTotalTaskNumber = maxTotalTaskNumber;
   }
 
-  public Integer getAmContainerBasePort() {
-    return amContainerBasePort;
+  public Integer getAmContainerMinPort() {
+    return amContainerMinPort;
   }
 
-  public void setAmContainerBasePort(Integer amContainerBasePort) {
-    this.amContainerBasePort = amContainerBasePort;
+  public void setAmContainerMinPort(Integer amContainerMinPort) {
+    this.amContainerMinPort = amContainerMinPort;
   }
 
   public Integer getAmSearchNodeBufferFactor() {
