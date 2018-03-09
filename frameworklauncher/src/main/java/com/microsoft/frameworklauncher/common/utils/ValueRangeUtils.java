@@ -19,10 +19,7 @@ package com.microsoft.frameworklauncher.common.utils;
 
 import com.microsoft.frameworklauncher.common.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 public class ValueRangeUtils {
 
@@ -329,5 +326,41 @@ public class ValueRangeUtils {
       }
     }
     return portString.toString();
+  }
+
+  // This function is to convert port from List<ValueRange> format to string format
+  // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
+  // the Ports label defined in portsDefinitions
+
+  public static String toEnviromentString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) {
+    StringBuilder portsString = new StringBuilder();
+
+    if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
+      Iterator iter = portsDefinitions.entrySet().iterator();
+      int basePort = 0;
+      while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        String key = (String) entry.getKey();
+        Ports ports = (Ports) entry.getValue();
+        //if user specified ports, directly use the PortDefinitions in request.
+        if (ports.getStart() > 0) {
+          portsString.append(key + ":" + ports.getStart());
+          for (int i = 2; i <= ports.getCount(); i++) {
+            portsString.append("," + (ports.getStart() + i - 1));
+          }
+          portsString.append(";");
+        } else {
+          //if user not specified ports, assign the allocated ContainerPorts to each port label.
+          List<ValueRange> assignPorts = ValueRangeUtils.getSubRange(portRanges, ports.getCount(), basePort);
+          basePort = assignPorts.get(assignPorts.size() - 1).getEnd() + 1;
+          portsString.append(key + ":" + assignPorts.get(0).toDetailString(","));
+          for (int i = 1; i < assignPorts.size(); i++) {
+            portsString.append("," + assignPorts.get(i).toDetailString(","));
+          }
+          portsString.append(";");
+        }
+      }
+    }
+    return portsString.toString();
   }
 }

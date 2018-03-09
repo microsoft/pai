@@ -22,7 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.microsoft.frameworklauncher.common.model.*;
 
@@ -126,6 +128,39 @@ public class ValueRangeUtilsTest {
     for (int i = 0; i < ValueRangeUtils.getValueNumber(testRangeList10); i++) {
       Assert.assertEquals(expectedResult[i], ValueRangeUtils.getValue(testRangeList10, i).intValue());
     }
+
+    Map<String, Ports> portDefinitions = new HashMap<String, Ports>();
+    Ports ports1 = new Ports();
+    ports1.setCount(2);
+    ports1.setStart(8000);
+    portDefinitions.put("http_Port", ports1);
+    Ports ports2 = new Ports();
+    ports2.setCount(4);
+    ports2.setStart(9000);
+    portDefinitions.put("http_SSH", ports2);
+
+    List<ValueRange> testValueRange = new ArrayList<ValueRange>();
+    testValueRange.add(ValueRange.newInstance(8000, 8001));
+    List<ValueRange> testValueRange2 = new ArrayList<ValueRange>();
+    testValueRange.add(ValueRange.newInstance(9000, 9003));
+    String environmentString = ValueRangeUtils.toEnviromentString(testValueRange, portDefinitions);
+    Assert.assertEquals(environmentString, "http_SSH:9000,9001,9002,9003;http_Port:8000,8001;");
+
+    Map<String, Ports> portDefinitions2 = new HashMap<String, Ports>();
+    Ports ports3 = new Ports();
+    ports3.setCount(2);
+    ports3.setStart(0);
+    portDefinitions2.put("http_Port", ports3);
+    Ports ports4 = new Ports();
+    ports4.setCount(4);
+    ports4.setStart(0);
+    portDefinitions2.put("http_SSH", ports4);
+
+    environmentString = ValueRangeUtils.toEnviromentString(testRangeList, portDefinitions2);
+
+    Assert.assertEquals(environmentString.split(";").length, 2);
+    Assert.assertEquals(environmentString.split(",").length, 5);
+
   }
 }
 

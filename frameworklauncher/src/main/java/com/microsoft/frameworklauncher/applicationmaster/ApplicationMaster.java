@@ -333,7 +333,7 @@ public class ApplicationMaster extends AbstractService {
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
       LOGGER.logWarning(
           "Request Resource does not fit in the Max Resource configured in current cluster, " +
-              "request may be fail or never got satisfied: " +
+              "request may be fail or never get satisfied: " +
               "Request Resource: [%s], Max Resource: [%s]",
           requestResource, maxResource);
     }
@@ -346,7 +346,8 @@ public class ApplicationMaster extends AbstractService {
       return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
     }
 
-    //Random pick a host from the result set
+    // Random pick a host from the result set to avoid conflicted requests from concurrent container requests
+    // from different jobs
     int random = new Random().nextInt(selectionResult.getNodeHosts().size());
     String candidateNode = selectionResult.getNodeHosts().get(random);
     optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(candidateNode));
@@ -624,38 +625,9 @@ public class ApplicationMaster extends AbstractService {
   // This function is to convert task's containerPorts from List<Range> format to string format
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
   private String setupPortsEnvironment(TaskStatus taskStatus) {
-    String taskRoleName = taskStatus.getTaskRoleName();
-    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
+    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskStatus.getTaskRoleName()).getPortDefinitions();
     List<ValueRange> portRanges = taskStatus.getContainerPorts();
-    StringBuilder portsString = new StringBuilder();
-
-    if (portDefinitions != null && !portDefinitions.isEmpty()) {
-      Iterator iter = portDefinitions.entrySet().iterator();
-      int basePort = 0;
-      while (iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        String key = (String) entry.getKey();
-        Ports ports = (Ports) entry.getValue();
-        //if user specified ports, directly use the PortDefinitions in request.
-        if (ports.getStart() > 0) {
-          portsString.append(key + ":" + ports.getStart());
-          for (int i = 2; i < ports.getCount(); i++) {
-            portsString.append("," + (ports.getStart() + i - 1));
-          }
-          portsString.append(";");
-        } else {
-          //if user not specified ports, assign the allocated ContainerPorts to each port label.
-          List<ValueRange> assignPorts = ValueRangeUtils.getSubRange(portRanges, ports.getCount(), basePort);
-          basePort = assignPorts.get(assignPorts.size() - 1).getEnd() + 1;
-          portsString.append(key + ":" + assignPorts.get(0).toDetailString(","));
-          for (int i = 1; i < assignPorts.size(); i++) {
-            portsString.append("," + assignPorts.get(i).toDetailString(","));
-          }
-          portsString.append(";");
-        }
-      }
-    }
-    return portsString.toString();
+    return ValueRangeUtils.toEnviromentString(portRanges, portDefinitions);
   }
 
   private void updateNodeReports(List<NodeReport> nodeReports) throws Exception {
@@ -666,7 +638,6 @@ public class ApplicationMaster extends AbstractService {
       } else {
         selectionManager.addNode(nodeReport);
       }
-
       // TODO: Update TaskStatus.ContainerIsDecommissioning
     }
   }
