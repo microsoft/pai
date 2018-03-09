@@ -30,7 +30,7 @@ const load = (req, res, next, jobName) => {
         error: 'JobNotFound',
         message: `could not find job ${jobName}`,
       });
-    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
       logger.warn('duplicate job %s', jobName);
       return res.status(400).json({
         error: 'DuplicateJobSubmission',
@@ -119,7 +119,7 @@ const remove = (req, res) => {
  */
 const execute = (req, res) => {
   req.body.username = req.user.username;
-  Job.prototype.stopJob(req.job.name, req.body, (err) => {
+  Job.prototype.executeJob(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({
