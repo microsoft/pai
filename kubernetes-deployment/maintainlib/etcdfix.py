@@ -29,6 +29,143 @@ import logging
 import logging.config
 
 
+class etcdfix_conf_validation:
+
+    """
+    A class to validation the cluster configuration.
+    """
+
+    def __init__(self, cluster_config, node_config):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.cluster_config = cluster_config
+        self.node_config = node_config
+
+
+
+    def node_conf_validation(self, node_cfg = None):
+
+        if node_cfg == None:
+            node_cfg = self.node_config
+
+        if 'nodename' not in node_cfg:
+
+            self.logger.error("nodename not in your node configuration.")
+
+            return False
+
+        if 'hostip' not in node_cfg:
+
+            self.logger.error("hostip not in your node configuration.")
+
+            return False
+
+        if common.ipv4_address_validation(node_cfg['hostip']) == False:
+
+            self.logger.error("The hostip in configuration is invalid.")
+
+            return False
+
+        if 'sshport' in node_cfg and common.port_validation(node_cfg['sshport']) == False:
+
+            self.logger.error("The sshport in configuration is in valid.")
+
+            return False
+
+        if 'username' not in node_cfg:
+
+            self.logger.error("username not in your node configuration.")
+
+            return False
+
+        if 'password' not in node_cfg:
+
+            self.logger.error("password not in your node configuration.")
+
+            return False
+
+        if 'etcdid' not in node_cfg:
+
+            self.logger.error("etcdid not in your node configuration.")
+
+            return False
+
+        return True
+
+
+
+    def cluster_conf_validation(self):
+
+        if 'mastermachinelist' not in self.cluster_config:
+
+            self.logger.error("mastermachinelist not in your cluster configuration.")
+
+            return False
+
+        ret = False
+
+        for host in self.cluster_config['mastermachinelist']:
+
+            hostObject = self.cluster_config['mastermachinelist'][host]
+
+            if self.node_conf_validation(hostObject) == False:
+
+                return False
+
+            if str(hostObject['nodename']) == str(self.node_config['nodename']):
+
+                if str(hostObject['hostip']) != str(self.node_config['hostip']):
+
+                    self.logger.error("Hostip of the bad node in cluster configuration is inconsistent with node configuration")
+                    return False
+
+                if str(hostObject['username']) != str(self.node_config['username']):
+
+                    self.logger.error("username of the bad node in cluster configuration is inconsistent with node configuration")
+                    return False
+
+                if str(hostObject['password']) != str(self.node_config['password']):
+
+                    self.logger.error("password of the bad node in cluster configuration is inconsistent with node configuration")
+                    return False
+
+                if 'sshport' not in hostObject:
+
+                    hostObject['sshport'] = 22
+
+                if 'sshport' not in self.node_config:
+
+                    self.node_config['sshport'] = 22
+
+                if str(hostObject['sshport']) != str(self.node_config['sshport']):
+
+                    self.logger.error(
+                        "sshport of the bad node in cluster configuration is inconsistent with node configuration")
+                    return False
+
+                if str(hostObject['etcdid']) != str(self.node_config['etcdid']):
+
+                    self.logger.error(
+                        "etcdid of the bad node in cluster configuration is inconsistent with node configuration")
+                    return False
+
+                ret = True
+
+
+        if ret == False:
+
+            self.logger.error("Bad node not in your cluster configuration.")
+
+        return ret
+
+
+
+    def validation(self):
+
+        return self.node_conf_validation() and self.cluster_conf_validation()
+
+
 
 class etcdfix:
 
@@ -221,9 +358,14 @@ class etcdfix:
 
         self.stop_bad_etcd_server(bad_node_config)
 
+        # Waiting for the bad node to demote from leader.
         while True:
 
             good_node_config = self.get_etcd_leader_node()
+
+            if good_node_config == None:
+
+                return False
 
             if good_node_config['nodename'] != self.bad_node_config['nodename']:
 
@@ -234,3 +376,5 @@ class etcdfix:
         self.update_etcd_cluster(good_node_config, bad_node_config)
 
         self.restart_etcd_server(bad_node_config)
+
+        return True
