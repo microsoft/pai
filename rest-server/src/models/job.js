@@ -287,7 +287,7 @@ class Job {
         } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
-            .send({'executionType': data.executionType})
+            .send({'executionType': data.value})
             .end((res) => next());
         } else {
           next(new Error('can not execute other user\'s job'));

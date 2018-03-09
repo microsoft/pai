@@ -345,6 +345,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
+    *Parameters*
+    ```
+    {
+      "value": "START" | "STOP"
+    }
+    ```
+
     *Response if succeeded*
     ```
     Status: 200

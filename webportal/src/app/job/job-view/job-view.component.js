@@ -174,7 +174,7 @@ const stopJob = (jobName) => {
         url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`,
         type: 'PUT',
         data: {
-          executionType: 'STOP',
+          value: 'STOP',
         },
         headers: {
           Authorization: `Bearer ${token}`,

@@ -81,7 +81,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         },
       })
       .put('/v1/Frameworks/test1/executionType', {
-        'executionType': 'STOP',
+        'value': 'STOP',
       })
       .reply(200, null);
   });
@@ -92,7 +92,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       .put('/api/v1/jobs/test1/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
       .send({
-        'executionType': 'STOP',
+        'value': 'STOP',
       })
       .end((err, res) => {
         console.log(res.body)
@@ -108,7 +108,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       .put('/api/v1/jobs/test2/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
       .send({
-        'executionType': 'STOP',
+        'value': 'STOP',
       })
       .end((err, res) => {
         console.log(res.body)
@@ -124,7 +124,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
     chai.request(server)
       .put('/api/v1/jobs/test3/executionType')
       .send({
-        'executionType': 'STOP',
+        'value': 'STOP',
       })
       .end((err, res) => {
         console.log(res.body)
