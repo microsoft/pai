@@ -333,7 +333,7 @@ public class ApplicationMaster extends AbstractService {
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
       LOGGER.logWarning(
           "Request Resource does not fit in the Max Resource configured in current cluster, " +
-              "request may be fail or never get satisfied: " +
+              "request may fail or never get satisfied: " +
               "Request Resource: [%s], Max Resource: [%s]",
           requestResource, maxResource);
     }
