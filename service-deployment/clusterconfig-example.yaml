@@ -84,6 +84,13 @@ clusterinfo:
     lowdb_admin: your_admin_username
     # database admin password
     lowdb_passwd: your_admin_password
+    # etcd database admin username
+    etcd_admin: your_admin_username
+    # etcd database admin password
+    etcd_password: your_admin_password
+    # uri for etcd
+    etcd_uri: http://10.151.40.234:4001,http://10.151.40.235:4001,http://10.151.40.236:4001
+
 
   # The config for web portal
   webportalinfo:
@@ -99,9 +106,9 @@ clusterinfo:
     k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
-    
+
   # The config for Grafana
-  grafanainfo:  
+  grafanainfo:
     # The address of the grafana to connect to
     grafana_url: http://10.0.3.9
     # port for grafana
@@ -192,7 +199,7 @@ machinelist:
     grafana: "true"
     pylon: "true"
     node-exporter: "true"
-    
+
   # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11

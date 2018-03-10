@@ -52,6 +52,12 @@ spec:
           value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
         - name: LOWDB_PASSWD
           value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
+        - name: ETCD_ADMIN
+          value: {{ clusterinfo['restserverinfo']['etcd_admin'] }}
+        - name: ETCD_PASSWORD
+          value: {{ clusterinfo['restserverinfo']['etcd_password'] }}
+        - name: ETCD_URI
+          value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
         ports:
         - name: rest-server
           containerPort: 8080
