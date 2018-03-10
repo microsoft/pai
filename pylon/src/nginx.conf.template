@@ -158,7 +158,7 @@ http {
     }
     location ~ ^/yarn(.*)$ {
       set $target_path   $1$is_args$args;
-      set $yarn_root_url {{YARN_URI}};
+      set $yarn_root_url {{YARN_WEB_PORTAL_URI}};
       if ($yarn_root_url ~ ^http://([^/]+):(\d+)$) {
         return 301 $scheme://$http_host/yarn/$1/$2$target_path;
       }
@@ -234,7 +234,7 @@ http {
 
     # PAI web portal
     location ~ ^(.*)$ {
-      proxy_pass {{WEBPORTAL_URI}}$1$is_args$args;
+      proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
       #
       # Disable compression. Without this line sub_filter won't work.
       # Ref: https://serverfault.com/a/892447
@@ -257,7 +257,7 @@ http {
         '/prometheus';
       sub_filter
         '{{K8S_DASHBOARD_URI}}'
-        '/kubernetes/dashboard';
+        '/kubernetes';
       sub_filter
         '{{GRAFANA_URI}}'
         '/grafana';
