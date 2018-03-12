@@ -350,6 +350,11 @@ class etcdfix:
 
     def run(self):
 
+        validation = etcdfix_conf_validation(self.cluster_config, self.bad_node_config)
+
+        if validation.validation() == False:
+            return False
+
         self.logger.info("Begin to fix etcd-cluster's bad member!")
 
         bad_node_config = self.bad_node_config
