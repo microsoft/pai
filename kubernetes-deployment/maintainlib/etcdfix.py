@@ -22,7 +22,6 @@ import subprocess
 import jinja2
 import argparse
 import paramiko
-import kubernetes
 import etcd
 import common
 import logging
