@@ -86,6 +86,7 @@ class Job {
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
+              executionType: frameworkInfo.executionType,
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
