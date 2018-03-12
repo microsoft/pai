@@ -119,7 +119,7 @@ mastermachinelist:
   ok-machine-node:
     # juge the node by nodename
     # inconsistent hostip
-    nodename: 1.2.3.4
+    nodename: 1.2.3.41
     hostip: 1.2.3.4
     sshport: 22
     username: test
