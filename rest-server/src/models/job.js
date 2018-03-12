@@ -192,7 +192,7 @@ class Job {
         let frameworkDescription;
         async.parallel([
           (parallelCallback) => {
-            async.each(['tmp', 'finished'], (file, eachCallback) => {
+            async.each(['log', 'tmp', 'finished'], (file, eachCallback) => {
               fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
             }, (err) => {
               parallelCallback(err);
