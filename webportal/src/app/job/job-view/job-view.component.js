@@ -104,6 +104,10 @@ const convertState = (state) => {
       cls = 'label-success';
       stateText = 'Succeeded';
       break;
+    case 'STOPPED':
+      cls = 'label-warning';
+      stateText = 'Stopped';
+      break;
     case 'FAILED':
       cls = 'label-danger';
       stateText = 'Failed';

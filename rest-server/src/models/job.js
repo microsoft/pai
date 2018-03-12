@@ -57,6 +57,8 @@ class Job {
       case 'FRAMEWORK_COMPLETED':
         if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
           jobState = 'SUCCEEDED';
+        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+          jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
         }
