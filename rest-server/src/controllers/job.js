@@ -23,22 +23,32 @@ const logger = require('../config/logger');
  * Load job and append to req.
  */
 const load = (req, res, next, jobName) => {
-  new Job(jobName, (job) => {
-    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
+  new Job(jobName, (job, error) => {
+    if (error === null) {
+      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+        logger.warn('duplicate job %s', jobName);
+        return res.status(400).json({
+          error: 'DuplicateJobSubmission',
+          message: 'duplicate job submission',
+        });
+      } else {
+        req.job = job;
+        return next();
+      }
+    } else if (error.message == 'JobNotFound' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: 'JobNotFound',
         message: `could not find job ${jobName}`,
       });
-    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
-      logger.warn('duplicate job %s', jobName);
-      return res.status(400).json({
-        error: 'DuplicateJobSubmission',
-        message: 'duplicate job submission',
-      });
     } else {
-      req.job = job;
-      return next();
+      if (Object.keys(job).length === 1) {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
     }
   });
 };
@@ -114,5 +124,65 @@ const remove = (req, res) => {
   });
 };
 
+
+/**
+ * Get job config json string.
+ */
+const getConfig = (req, res) => {
+  Job.prototype.getJobConfig(
+    req.job.jobStatus.username,
+    req.job.name,
+    (configJsonString, error) => {
+      if (error === null) {
+        return res.status(200).json(configJsonString);
+      } else if (error.message === 'ConfigFileNotFound') {
+        return res.status(404).json({
+          error: 'ConfigFileNotFound',
+          message: error.message,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
+/**
+ * Get job SSH info.
+ */
+const getSshInfo = (req, res) => {
+  Job.prototype.getJobSshInfo(
+    req.job.jobStatus.username,
+    req.job.name,
+    req.job.jobStatus.appId,
+    (sshInfo, error) => {
+      if (error === null) {
+        return res.status(200).json(sshInfo);
+      } else if (error.message === 'SshInfoNotFound') {
+        return res.status(404).json({
+          error: 'SshInfoNotFound',
+          message: error.message,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
 // module exports
-module.exports = {load, list, get, update, remove};
+module.exports = {
+  load,
+  list,
+  get,
+  update,
+  remove,
+  getConfig,
+  getSshInfo,
+};

@@ -40,6 +40,12 @@ router.route('/:jobName')
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(tokenConfig.check, jobController.remove);
 
+router.route('/:jobName/config')
+    .get(jobController.getConfig);
+
+router.route('/:jobName/ssh')
+    .get(jobController.getSshInfo);
+
 /** Load job when API with jobName route parameter is hit */
 router.param('jobName', jobController.load);
 
