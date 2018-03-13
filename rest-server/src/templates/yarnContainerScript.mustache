@@ -20,7 +20,23 @@
 
 # Entrypoint script for yarn container.
 
-trap "kill 0" EXIT
+exec 13>/tmp/pai_yarncontainer_$CONTAINER_ID.log
+BASH_XTRACEFD=13
+
+function exit_handler()
+{
+  printf "%s %s\n" \
+    "[ERROR]" "EXIT signal received in yarn container, exiting ..."
+  set +x
+  exec 13>&-
+  hdfs dfs -put /tmp/pai_yarncontainer_$CONTAINER_ID.log \
+    {{{ hdfsUri }}}/Container/{{{ jobData.username }}}/{{{ jobData.jobName }}}/log/
+  kill 0
+}
+
+set -x
+trap exit_handler EXIT
+
 
 docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}

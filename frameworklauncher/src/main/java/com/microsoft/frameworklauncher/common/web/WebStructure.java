@@ -44,6 +44,7 @@ public class WebStructure {
   public static final String FRAMEWORK_STATUS_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "FrameworkStatus";
   public static final String TASK_ROLE_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "TaskRoles" + PATH_SEPARATOR + TASK_ROLE_NAME_PATH_PARAM_PLACEMENT;
   public static final String TASK_NUMBER_PATH = TASK_ROLE_PATH + PATH_SEPARATOR + "TaskNumber";
+  public static final String EXECUTION_TYPE_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "ExecutionType";
   public static final String MIGRATE_TASK_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "MigrateTasks" + PATH_SEPARATOR + CONTAINER_ID_PATH_PARAM_PLACEMENT;
   public static final String APPLICATION_PROGRESS_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "ApplicationProgress";
   public static final String AGGREGATED_FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "AggregatedFrameworkRequest";
@@ -83,6 +84,11 @@ public class WebStructure {
     return TASK_NUMBER_PATH
         .replace(FRAMEWORK_NAME_PATH_PARAM_PLACEMENT, frameworkName)
         .replace(TASK_ROLE_NAME_PATH_PARAM_PLACEMENT, taskRoleName);
+  }
+
+  public static String getExecutionTypePath(String frameworkName) {
+    return EXECUTION_TYPE_PATH
+        .replace(FRAMEWORK_NAME_PATH_PARAM_PLACEMENT, frameworkName);
   }
 
   public static String getMigrateTaskPath(String frameworkName, String containerId) {

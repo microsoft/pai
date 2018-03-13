@@ -97,6 +97,17 @@ public class LauncherClient {
     });
   }
 
+  public void putExecutionType(String frameworkName, UpdateExecutionTypeRequest updateExecutionTypeRequest) throws Exception {
+    executeWithRetry(() -> {
+      CommonValidation.validate(frameworkName);
+      CommonValidation.validate(updateExecutionTypeRequest);
+      return webClient.put(
+          WebStructure.getExecutionTypePath(frameworkName),
+          ContentType.APPLICATION_JSON,
+          WebCommon.toJson(updateExecutionTypeRequest));
+    });
+  }
+
   public void putMigrateTask(String frameworkName, String containerId, MigrateTaskRequest migrateTaskRequest) throws Exception {
     executeWithRetry(() -> {
       CommonValidation.validate(frameworkName);

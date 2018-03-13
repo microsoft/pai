@@ -81,12 +81,12 @@ public class YamlUtils {
     }
 
     for (Map.Entry<TKey, TValue> kvp : yamlDict.entrySet()) {
-      TValue Value = kvp.getValue();
+      TValue value = kvp.getValue();
       if (!otherYamlDict.containsKey(kvp.getKey())) {
         return false;
       }
       TValue otherValue = otherYamlDict.get(kvp.getKey());
-      if (!deepEquals(Value, otherValue)) {
+      if (!deepEquals(value, otherValue)) {
         return false;
       }
     }

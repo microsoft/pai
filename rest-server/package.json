@@ -50,6 +50,6 @@
   "scripts": {
     "lint": "eslint src/**/*.js",
     "start": "node index.js",
-    "test": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit"
+    "test": "npm run lint && mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit"
   }
 }

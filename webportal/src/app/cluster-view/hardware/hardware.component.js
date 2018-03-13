@@ -311,7 +311,7 @@ const loadData = () => {
         machineMetaData: data,
       });
       $('#content-wrapper').html(hardwareHtml);
-      table = $('#hardware-table').DataTable({
+      table = $('#hardware-table').dataTable({
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
@@ -319,7 +319,7 @@ const loadData = () => {
           {type: 'ip-address', targets: [1]},
           {type: 'title-numeric', targets: [2, 3, 4, 5, 6, 7]},
         ],
-      });
+      }).api();
       let instanceList = [];
       for (let i = 0; i < data.data.result.length; i++) {
         instanceList.push(data.data.result[i].metric.instance);

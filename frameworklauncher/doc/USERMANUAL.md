@@ -227,6 +227,33 @@ Update TaskNumber for a Requested Framework
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
+#### <a name="PUT_ExecutionType">PUT ExecutionType</a>
+**Request**
+
+    PUT /v1/Frameworks/{FrameworkName}/ExecutionType
+
+Type: application/json
+
+Body: [UpdateExecutionTypeRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateExecutionTypeRequest.java)
+
+**Description**
+
+Update ExecutionType for a Requested Framework
+
+Notes:
+1. It is ignored to change Framework ExecutionType from STOP to START, if previous STOP has already caused the Framework of current FrameworkVersion entered FINAL_STATES, i.e. FRAMEWORK_COMPLETED. So, to ensure starting the Framework again after STOP, just change the FrameworkVersion instead.
+
+**Response**
+
+| HttpStatusCode | Body | Description |
+|:---- |:---- |:---- |
+| Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
+| BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+| Forbidden(403) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+
+
 #### <a name="PUT_MigrateTask">PUT MigrateTask</a>
 **Request**
 

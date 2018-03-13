@@ -388,6 +388,28 @@ public class LauncherModule {
   }
 
   @PUT
+  @Path(WebStructure.EXECUTION_TYPE_PATH)
+  @Consumes({MediaType.APPLICATION_JSON})
+  public Response putExecutionType(
+      @Context HttpServletRequest hsr,
+      @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName,
+      UpdateExecutionTypeRequest updateExecutionTypeRequest) throws Exception {
+    LOGGER.logSplittedLines(Level.INFO,
+        "[%s]: putExecutionType: \n%s",
+        frameworkName, WebCommon.toJson(updateExecutionTypeRequest));
+
+    CommonValidation.validate(frameworkName);
+    CommonValidation.validate(updateExecutionTypeRequest);
+    checkWritableAccess(hsr, frameworkName);
+
+    requestManager.updateExecutionType(frameworkName, updateExecutionTypeRequest);
+    return Response
+        .status(HttpStatus.SC_ACCEPTED)
+        .header("Location", hsr.getRequestURL())
+        .build();
+  }
+
+  @PUT
   @Path(WebStructure.MIGRATE_TASK_PATH)
   @Consumes({MediaType.APPLICATION_JSON})
   public Response putMigrateTask(

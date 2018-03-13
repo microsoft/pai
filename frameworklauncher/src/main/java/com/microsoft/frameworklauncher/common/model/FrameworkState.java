@@ -23,35 +23,42 @@ public enum FrameworkState implements Serializable {
   // Framework Waiting to Create Application
   //    [START_STATES]
   //    createApplication         -> APPLICATION_CREATED
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   FRAMEWORK_WAITING,
 
   // Framework's current associated Application Created
   //    launchApplication         -> APPLICATION_LAUNCHED
   //    launchApplication         -> APPLICATION_RETRIEVING_DIAGNOSTICS
   //    recover                   -> APPLICATION_LAUNCHED
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_CREATED,
 
   // Framework's current associated Application Launched
   //    resyncWithRM              -> APPLICATION_WAITING
   //    resyncWithRM              -> APPLICATION_RETRIEVING_DIAGNOSTICS
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_LAUNCHED,
 
   // Framework's current associated Application Waiting to Allocated AM Container
   //    resyncWithRM              -> APPLICATION_RUNNING
   //    resyncWithRM              -> APPLICATION_RETRIEVING_DIAGNOSTICS
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_WAITING,
 
   // Framework's current associated Application Running
   //    resyncWithRM              -> APPLICATION_RETRIEVING_DIAGNOSTICS
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_RUNNING,
 
   // Framework's current associated Application Retrieving ExitDiagnostics
   //    onDiagnosticsRetrieved    -> APPLICATION_COMPLETED
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_RETRIEVING_DIAGNOSTICS,
 
   // Framework's current associated Application Completed
   //    attemptToRetry            -> FRAMEWORK_WAITING
   //    attemptToRetry            -> FRAMEWORK_COMPLETED
+  //    stopFramework             -> FRAMEWORK_COMPLETED
   APPLICATION_COMPLETED,
 
   // Framework Completed, possibly with Application retries
