@@ -134,6 +134,7 @@ Make sure your dev box has full network access to the cluster.
 Python(2.x) and lib install:
 ```yaml
 sudo apt-get install python python-paramiko python-yaml python-jinja2
+sudo pip install python-etcd kubernetes
 ```
 
 Note: kubectl will be installed on this dev-box. So it can access to your kubernetes cluster.

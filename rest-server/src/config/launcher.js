@@ -30,6 +30,7 @@ const logger = require('./logger');
 // get config from environment variables
 let launcherConfig = {
   hdfsUri: process.env.HDFS_URI,
+  webhdfsUri: process.env.WEBHDFS_URI,
   webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
   webserviceRequestHeaders: {
     'Accept': 'application/json',
@@ -68,6 +69,9 @@ launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
+    .uri()
+    .required(),
+  webhdfsUri: Joi.string()
     .uri()
     .required(),
   webserviceUri: Joi.string()

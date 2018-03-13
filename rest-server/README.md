@@ -65,7 +65,14 @@ REST Server exposes a set of interface that allows you to manage jobs.
     ```
     http://restserver/api/v1/jobs/exampleJob
     ```
-
+    Get the job config JSON content:
+    ```
+    http://restserver/api/v1/jobs/exampleJob/config
+    ```
+    Get the job's SSH info:
+    ```
+    http://restserver/api/v1/jobs/exampleJob/ssh
+    ```
 
 ## RestAPI
 
@@ -335,7 +342,94 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-8. `PUT jobs/:jobName/executionType`
+8. `GET jobs/:jobName/config`
+
+    Get job config JSON content.
+
+    *Request*
+    ```
+    GET /api/v1/jobs/:jobName/config
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "jobName": "test",
+      "image": "pai.run.tensorflow",
+      ...
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "<depends on the error>"
+    }
+    ```
+
+9. `GET jobs/:jobName/ssh`
+
+    Get job SSH info.
+
+    *Request*
+    ```
+    GET /api/v1/jobs/:jobName/ssh
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "containers": [
+        {
+          "id": "<container id>",
+          "sshIp": "<ip to access the container's ssh service>",
+          "sshPort": "<port to access the container's ssh service>"
+        },
+        ...
+      ],
+      "keyPair": {
+        "folderPath": "HDFS path to the job's ssh folder",
+        "publicKeyFileName": "file name of the public key file",
+        "privateKeyFileName": "file name of the private key file",
+        "privateKeyDirectDownloadLink": "HTTP URL to download the private key file"
+      }
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "<depends on the error>"
+    }
+    ```
+
+10. `PUT jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -369,4 +463,3 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "error": "JobExecuteError",
       "message": "job execute error"
     }
-    ```

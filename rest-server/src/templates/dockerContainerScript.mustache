@@ -20,7 +20,23 @@
 
 # Bootstrap script for docker container.
 
-trap "kill 0" EXIT
+exec 17>/tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log
+BASH_XTRACEFD=17
+
+function exit_handler()
+{
+  printf "%s %s\n" \
+    "[ERROR]" "EXIT signal received in docker container, exiting ..."
+  set +x
+  exec 17>&-
+  hdfs dfs -put /tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log \
+    {{{ hdfsUri }}}/Container/{{{ jobData.username }}}/{{{ jobData.jobName }}}/log/
+  kill 0
+}
+
+set -x
+trap exit_handler EXIT
+
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
 while /bin/true; do
