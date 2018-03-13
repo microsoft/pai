@@ -192,3 +192,8 @@ sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a remove
 ```bash
 sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a repair
 ```
+
+## Repair the crashed etcd node (kubernetes failed to restart it) 
+```bash
+sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a etcdfix
+```
