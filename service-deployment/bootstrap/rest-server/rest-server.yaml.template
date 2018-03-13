@@ -44,6 +44,8 @@ spec:
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+        - name: WEBHDFS_URI
+          value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
         - name: LOWDB_FILE

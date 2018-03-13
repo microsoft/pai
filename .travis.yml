@@ -7,7 +7,7 @@ matrix:
       before_install:
         - cd kubernetes-deployment
       install:
-        - pip install paramiko pyyaml jinja2
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes
       script:
         - python -m unittest discover test/
     - language: java

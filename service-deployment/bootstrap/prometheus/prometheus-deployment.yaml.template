@@ -30,12 +30,13 @@ spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        prom: "true"
+        prometheus: "true"
       containers:
       - name: prometheus
         image: quay.io/coreos/prometheus:v1.1.1
         args:
           - '-config.file=/etc/prometheus/prometheus.yml'
+          - '--web.listen-address=0.0.0.0:{{clusterinfo['prometheusinfo']['prometheus_port']}}'
         ports:
         - name: web
           containerPort: {{clusterinfo['prometheusinfo']['prometheus_port']}}
