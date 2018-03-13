@@ -62,6 +62,10 @@ launcherConfig.frameworkRequestPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
 };
 
+launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
+};
+
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
@@ -86,6 +90,9 @@ const launcherConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   frameworkRequestPath: Joi.func()
+    .arity(1)
+    .required(),
+  frameworkExecutionTypePath: Joi.func()
     .arity(1)
     .required(),
   webserviceRequestHeaders: Joi.object()

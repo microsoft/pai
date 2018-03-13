@@ -42,6 +42,35 @@ class Job {
     });
   }
 
+  convertJobState(frameworkState, exitCode) {
+    let jobState = '';
+    switch (frameworkState) {
+      case 'FRAMEWORK_WAITING':
+      case 'APPLICATION_CREATED':
+      case 'APPLICATION_LAUNCHED':
+      case 'APPLICATION_WAITING':
+        jobState = 'WAITING';
+        break;
+      case 'APPLICATION_RUNNING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
+        jobState = 'RUNNING';
+        break;
+      case 'FRAMEWORK_COMPLETED':
+        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+          jobState = 'SUCCEEDED';
+        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+          jobState = 'STOPPED';
+        } else {
+          jobState = 'FAILED';
+        }
+        break;
+      default:
+        jobState = 'UNKNOWN';
+    }
+    return jobState;
+  }
+
   getJobList(next) {
     unirest.get(launcherConfig.frameworksPath())
       .headers(launcherConfig.webserviceRequestHeaders)
@@ -60,6 +89,7 @@ class Job {
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
+              executionType: frameworkInfo.executionType,
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
@@ -203,6 +233,25 @@ class Job {
       });
   }
 
+  putJobExecutionType(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+            requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send({'executionType': data.value})
+            .end((res) => next());
+        } else {
+          next(new Error('can not execute other user\'s job'));
+        }
+      });
+  }
+
   getJobConfig(userName, jobName, next) {
     let url = launcherConfig.webhdfsUri +
       '/webhdfs/v1/Container/' + userName + '/' + jobName +
@@ -270,33 +319,6 @@ class Job {
           next(null, error);
         }
       });
-  }
-
-  convertJobState(frameworkState, exitCode) {
-    let jobState = '';
-    switch (frameworkState) {
-      case 'FRAMEWORK_WAITING':
-      case 'APPLICATION_CREATED':
-      case 'APPLICATION_LAUNCHED':
-      case 'APPLICATION_WAITING':
-        jobState = 'WAITING';
-        break;
-      case 'APPLICATION_RUNNING':
-      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
-      case 'APPLICATION_COMPLETED':
-        jobState = 'RUNNING';
-        break;
-      case 'FRAMEWORK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
-          jobState = 'SUCCEEDED';
-        } else {
-          jobState = 'FAILED';
-        }
-        break;
-      default:
-        jobState = 'UNKNOWN';
-    }
-    return jobState;
   }
 
   generateJobDetail(framework) {
