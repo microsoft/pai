@@ -30,8 +30,8 @@ let etcdConfig = {
 
 etcdConfig.etcdHosts = etcdConfig.etcdUri.split(",")
 
-etcdConfig.storagePath = () => {
-  return `/v2/keys/users/`;
+etcdConfig.storagePaths = () => {
+  return etcdConfig.etcdHosts.map(ele => ele + "/v2/keys/")
 };
 
 etcdConfig.userPath = (username) => {
@@ -59,7 +59,7 @@ const etcdConfigSchema = Joi.object().keys({
   adminPass: Joi.string()
     .min(6)
     .required(),
-  storagePath: Joi.func()
+  storagePaths: Joi.func()
     .arity(0)
     .required(),
   userPath: Joi.func()
