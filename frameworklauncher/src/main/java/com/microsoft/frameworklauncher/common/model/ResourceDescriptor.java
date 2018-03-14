@@ -133,8 +133,6 @@ public class ResourceDescriptor implements Serializable {
       this.setPortNumber(0);
     } else if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) == 0) {
       this.setPortNumber(portNumber);
-    } else if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) > 0) {
-      throw new BadRequestException("illegal portDefinitions in ResourceDescriptor, any port and specified port are now allowed to coexistence");
     }
   }
 
