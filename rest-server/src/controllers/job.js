@@ -24,32 +24,33 @@ const logger = require('../config/logger');
  */
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
-    if (!error) {
-      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
-        logger.warn('duplicate job %s', jobName);
-        return res.status(400).json({
-          error: 'DuplicateJobSubmission',
-          message: 'duplicate job submission',
-        });
+    if (error) {
+      if (error.message === 'JobNotFound') {
+        if (req.method !== 'PUT') {
+          logger.warn('load job %s error, could not find job', jobName);
+          return res.status(404).json({
+            error: 'JobNotFound',
+            message: `could not find job ${jobName}`,
+          });
+        }
       } else {
-        req.job = job;
-        return next();
-      }
-    } else if (error.message === 'JobNotFound' && req.method !== 'PUT') {
-      logger.warn('load job %s error, could not find job', jobName);
-      return res.status(404).json({
-        error: 'JobNotFound',
-        message: `could not find job ${jobName}`,
-      });
-    } else {
-      if (Object.keys(job).length === 1) {
         logger.warn('internal server error');
         return res.status(500).json({
           error: 'InternalServerError',
           message: 'internal server error',
         });
       }
+    } else {
+      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
+        logger.warn('duplicate job %s', jobName);
+        return res.status(400).json({
+          error: 'DuplicateJobSubmission',
+          message: 'duplicate job submission',
+        });
+      }
     }
+    req.job = job;
+    return next();
   });
 };
 
