@@ -18,6 +18,7 @@
 
 // module dependencies
 
+require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -36,6 +37,7 @@ const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
+let sshInfo = null;
 
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
@@ -190,6 +192,7 @@ const deleteJob = (jobName) => {
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();
+  sshInfo = null;
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
     type: 'GET',
@@ -205,7 +208,17 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
-        // TODO: get ssh info here.
+        $.ajax({
+          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
+          type: 'GET',
+          success: (data) => {
+            sshInfo = data;
+          },
+          error: (xhr, textStatus, error) => {
+            const res = JSON.parse(xhr.responseText);
+            alert(res.message);
+          },
+        });
       }
     },
     error: (xhr, textStatus, error) => {
@@ -216,7 +229,16 @@ const loadJobDetail = (jobName) => {
 };
 
 showSshInfo = (containerId) => {
-  alert(containerId);
+  if (sshInfo === null) {
+    return;
+  }
+  for (let x of sshInfo.containers) {
+    if (x.id === containerId) {
+      $('#sshInfoDialog').modal('show');
+      //alert(JSON.stringify(x));
+      break;
+    }
+  }
 };
 
 window.loadJobs = loadJobs;
