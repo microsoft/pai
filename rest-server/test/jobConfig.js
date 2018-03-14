@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Get job config: /api/v1/jobs/:jobName/config', () => {
+describe('Get job config: GET /api/v1/jobs/:jobName/config', () => {
   beforeEach(() => {
 
     //

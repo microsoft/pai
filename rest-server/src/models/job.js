@@ -23,6 +23,7 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const childProcess = require('child_process');
+const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -194,21 +195,26 @@ class Job {
           if (parallelError) {
             return next(parallelError);
           } else {
+            let cmd = '';
+            if (config.env !== 'test') {
+              cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
+            }
             childProcess.exec(
-                `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`,
-                (err, stdout, stderr) => {
-                  logger.info('[stdout]\n%s', stdout);
-                  logger.info('[stderr]\n%s', stderr);
-                  if (err) {
-                    return next(err);
-                  } else {
-                    unirest.put(launcherConfig.frameworkPath(name))
-                        .headers(launcherConfig.webserviceRequestHeaders)
-                        .send(frameworkDescription)
-                        .end((res) => next());
-                  }
-                });
+              cmd,
+              (err, stdout, stderr) => {
+                logger.info('[stdout]\n%s', stdout);
+                logger.info('[stderr]\n%s', stderr);
+                if (err) {
+                  return next(err);
+                } else {
+                  unirest.put(launcherConfig.frameworkPath(name))
+                      .headers(launcherConfig.webserviceRequestHeaders)
+                      .send(frameworkDescription)
+                      .end((res) => next());
+                }
+              }
+            );
           }
         });
       }

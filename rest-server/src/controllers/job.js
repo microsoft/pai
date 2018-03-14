@@ -45,7 +45,7 @@ const load = (req, res, next, jobName) => {
         logger.warn('duplicate job %s', jobName);
         return res.status(400).json({
           error: 'DuplicateJobSubmission',
-          message: 'duplicate job submission',
+          message: `job already exists: '${jobName}'`,
         });
       }
     }
