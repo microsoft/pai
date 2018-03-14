@@ -17,31 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
-kubectl delete ds hadoop-resource-manager-ds
-kubectl delete ds hadoop-data-node-ds
-kubectl delete ds hadoop-name-node-ds
-kubectl delete ds zookeeper-ds
-
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
-
-{% for host in machinelist %}
-    {% if 'hdfsrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole-
-    {% endif %}
-    {% if 'yarnrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-    {% endif %}
-    {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper-
-    {% endif %}
-{% endfor %}
-
-popd > /dev/null
+hdfs dfs -chmod 777 /

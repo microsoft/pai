@@ -17,31 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+cp  /hadoop-configuration/namenode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
+cp  /hadoop-configuration/resourcemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
+cp  /hadoop-configuration/resourcemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
-kubectl delete ds hadoop-resource-manager-ds
-kubectl delete ds hadoop-data-node-ds
-kubectl delete ds hadoop-name-node-ds
-kubectl delete ds zookeeper-ds
-
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
-
-{% for host in machinelist %}
-    {% if 'hdfsrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole-
-    {% endif %}
-    {% if 'yarnrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-    {% endif %}
-    {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper-
-    {% endif %}
-{% endfor %}
-
-popd > /dev/null
+sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
+sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-site.xml
