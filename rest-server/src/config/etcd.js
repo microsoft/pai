@@ -21,6 +21,7 @@ const Joi = require('joi');
 const user = require('../models/user');
 const indexConfig = require('./index');
 const logger = require('../config/logger');
+//const storage = require('../util/etcd2');
 
 let etcdConfig = {
   etcdUri: process.env.ETCD_URI,
@@ -79,5 +80,6 @@ if (error) {
 }
 etcdConfig = value;
 
+// var testStorage = new EtcdRest();
 // module exports
 module.exports = etcdConfig;

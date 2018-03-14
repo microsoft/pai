@@ -24,3 +24,5 @@ class StorageBase{
 
     delete(key,next) {}
 }
+
+module.exports = StorageBase
