@@ -27,11 +27,13 @@ require('datatables.net-plugins/sorting/title-numeric.js');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
+const marked = require('marked');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
+const jobViewComponent = require('./job-view.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobDetailTableComponent = require('./job-detail-table.component.ejs');
-const jobViewComponent = require('./job-view.component.ejs');
+const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
@@ -228,14 +230,19 @@ const loadJobDetail = (jobName) => {
   });
 };
 
-showSshInfo = (containerId) => {
+const showSshInfo = (containerId) => {
   if (sshInfo === null) {
     return;
   }
   for (let x of sshInfo.containers) {
     if (x.id === containerId) {
-      $('#sshInfoDialog').modal('show');
-      //alert(JSON.stringify(x));
+      $('#sshInfoModalPlaceHolder').html(jobDetailSshInfoModalComponent({
+        'containerId': containerId,
+        'sshIp': x.sshIp,
+        'sshPort': x.sshPort,
+        'keyPair': sshInfo.keyPair,
+      }));
+      $('#sshInfoModal').modal('show');
       break;
     }
   }

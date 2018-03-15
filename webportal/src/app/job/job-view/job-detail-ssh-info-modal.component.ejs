@@ -1,0 +1,33 @@
+<!-- Modal -->
+<div id="sshInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">SSH to <%= containerId %></h4>
+      </div>
+      <div class="modal-body">
+<%
+        const marked = require('marked');
+        const mdContent = `
+Step 1. Start a Bash shell terminal.
+
+Step 2. Download the [private key](${keyPair.privateKeyDirectDownloadLink}):
+\`\`\`
+wget ${keyPair.privateKeyDirectDownloadLink} -O ${keyPair.privateKeyFileName}
+\`\`\`
+ 
+Step 3. Run:
+\`\`\`
+ssh -i ${keyPair.privateKeyFileName} -p ${sshPort} root@${sshIp}
+\`\`\`
+        `;
+        const htmlContent = marked(mdContent);
+%>
+        <%= htmlContent %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
