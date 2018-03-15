@@ -174,11 +174,11 @@ http {
     #
 
     # Kubernetes dashbaord
-    location ~ ^/kubernetes$ {
+    location ~ ^/kubernetes-dashboard$ {
       # Add '/' to the end of the URL, otherwise there will be a 404 error.
       return 301 $scheme://$http_host$request_uri/;
     }
-    location ~ ^/kubernetes(.*)$ {
+    location ~ ^/kubernetes-dashboard(.*)$ {
       proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
     }
 
@@ -257,7 +257,7 @@ http {
         '/prometheus';
       sub_filter
         '{{K8S_DASHBOARD_URI}}'
-        '/kubernetes';
+        '/kubernetes-dashboard';
       sub_filter
         '{{GRAFANA_URI}}'
         '/grafana';

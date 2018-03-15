@@ -28,7 +28,7 @@ For example:
 
 The following web portals can be accessed via Pylon:
 
-- K8s dashboard: `http://<pylon_server>/kubernetes/`
+- K8s dashboard: `http://<pylon_server>/kubernetes-dashboard/`
 - Yarn web portal: `http://<pylon_server>/yarn/`
 - WebHDFS dashboard: `http://<pylon_server>/webhdfs/`
 - Grafana: `http://<pylon_server>/grafana/`
