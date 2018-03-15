@@ -204,10 +204,40 @@ else
       "[INFO]" "begin to download ssh key pair from hdfs ..."
   hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
 fi
-# Start ssh service
-start_ssh_service
 # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
 hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
+
+# Generate ssh config
+ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
+hdfs dfs -mkdir -p ${ssh_config_path} || exit 1
+hdfs dfs -touchz ${ssh_config_path}/$APP_ID-$PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
+while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID-" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
+  printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
+  sleep 10
+done
+NodeList=$(hdfs dfs -ls ${ssh_config_path} \
+  | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID-" \
+  | grep -oE "[^/]+$" \
+  | sed -e "s/^$APP_ID-//g" \
+  | sort -n)
+if [ "$(echo $NodeList | wc -l)" -ne $PAI_JOB_TASK_COUNT ]; then
+  printf "%s %s\n%s\n%s\n\n" \
+    "[ERROR]" "NodeList" \
+    "$(echo $NodeList)" \
+    "ssh services in $(echo $NodeList | wc -l) containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
+  exit 2
+fi
+while read line; do
+  node=(${line//-/ });
+  printf "%s\n  %s\n  %s\n  %s\n" \
+    "Hostname ${node[0]}-${node[1]}" \
+    "HostName ${node[2]}" \
+    "Port ${node[3]}" \
+    "User root" >> /root/.ssh/config
+done <<< $NodeList
+
+# Start ssh service
+start_ssh_service
 
 # Write env to bashrc
 env | sed "s/^/export /" >> ~/.bashrc
