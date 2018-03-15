@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cp -r /docker/* /usr/bin/
-docker &
+
 docker run hello-world  || exit $?
 
 pip install kubernetes
