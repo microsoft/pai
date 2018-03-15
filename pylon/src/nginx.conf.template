@@ -189,7 +189,7 @@ http {
     }
     location ~ ^/webhdfs(.*)$ {
       proxy_pass {{WEBHDFS_URI}}$1$is_args$args;
-      set $base $scheme://$http_host/webhdfs/dashboard/;
+      set $base $scheme://$http_host/webhdfs/;
       sub_filter_types *;
       sub_filter_once off;
       sub_filter
