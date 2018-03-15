@@ -87,7 +87,7 @@ http {
     }
     location @handle_webhdfs_api_redirect {
       if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
-        return 307 $scheme://$http_host/a/$2/$3/$4;
+        return 307 $scheme://$http_host/a/$1/$2/$3;
       }
     }
 
