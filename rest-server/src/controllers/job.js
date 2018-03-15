@@ -24,8 +24,8 @@ const logger = require('../config/logger');
  */
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
-    if (error === null) {
-      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+    if (!error) {
+      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
         logger.warn('duplicate job %s', jobName);
         return res.status(400).json({
           error: 'DuplicateJobSubmission',
@@ -35,7 +35,7 @@ const load = (req, res, next, jobName) => {
         req.job = job;
         return next();
       }
-    } else if (error.message == 'JobNotFound' && req.method !== 'PUT') {
+    } else if (error.message === 'JobNotFound' && req.method !== 'PUT') {
       logger.warn('load job %s error, could not find job', jobName);
       return res.status(404).json({
         error: 'JobNotFound',
@@ -124,6 +124,23 @@ const remove = (req, res) => {
   });
 };
 
+/**
+ * Start or stop job.
+ */
+const execute = (req, res, next) => {
+  req.body.username = req.user.username;
+  Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
+    if (err) {
+      logger.warn('execute job %s error\n%s', req.job.name, err.stack);
+      err.message = 'job execute error';
+      next(err);
+    } else {
+      return res.status(202).json({
+        message: `execute job ${req.job.name} successfully`,
+      });
+    }
+  });
+};
 
 /**
  * Get job config json string.
@@ -183,6 +200,7 @@ module.exports = {
   get,
   update,
   remove,
+  execute,
   getConfig,
   getSshInfo,
 };

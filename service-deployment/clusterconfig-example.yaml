@@ -92,9 +92,9 @@ clusterinfo:
     # root url of the rest server
     rest_server_uri: http://10.0.3.9:9186
     # root url of the prometheus server
-    prometheus_uri: http://10.0.1.9:9090
+    prometheus_uri: http://10.0.3.9:9091
     # root url of the grafana portal
-    grafana_uri: http://10.0.1.9:3000
+    grafana_uri: http://10.0.3.9:3000
     # root url of the k8s dashboard
     k8s_dashboard_uri: http://10.0.3.9:9090
     # root url of the k8s apiserver
@@ -114,7 +114,7 @@ clusterinfo:
     # The address of the prometheus to connect to
     prometheus_url: http://10.0.3.9
     # port for prometheus port
-    prometheus_port: 9090
+    prometheus_port: 9091
     # port for node exporter
     node_exporter_port: 9100
     # cadvisor port
@@ -128,11 +128,11 @@ clusterinfo:
     # root url of the webhdfs api server
     webhdfs_uri: http://10.0.3.9:50070
     # root url of the prometheus server
-    prometheus_uri: http://10.0.1.9:9090
+    prometheus_uri: http://10.0.3.9:9091
     # root url of the k8s dashboard
     k8s_dashboard_uri: http://10.0.3.9:9090
     # root url of grafana
-    grafana_uri: http://10.0.1.9:3000
+    grafana_uri: http://10.0.3.9:3000
     # root url of the web portal
     webportal_uri: http://10.0.3.9:9286
     # port of pylon

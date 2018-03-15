@@ -23,6 +23,7 @@ public class SummarizedFrameworkInfo implements Serializable {
   // From Request
   private String frameworkName;
   private Integer frameworkVersion;
+  private ExecutionType executionType;
   private String frameworkDescription;
   private String userName;
   private Long firstRequestTimestamp;
@@ -40,6 +41,7 @@ public class SummarizedFrameworkInfo implements Serializable {
     FrameworkDescriptor frameworkDescriptor = frameworkRequest.getFrameworkDescriptor();
     sFrameworkInfo.setFrameworkName(frameworkRequest.getFrameworkName());
     sFrameworkInfo.setFrameworkVersion(frameworkDescriptor.getVersion());
+    sFrameworkInfo.setExecutionType(frameworkDescriptor.getExecutionType());
     sFrameworkInfo.setFrameworkDescription(frameworkDescriptor.getDescription());
     sFrameworkInfo.setUserName(frameworkDescriptor.getUser().getName());
     sFrameworkInfo.setFirstRequestTimestamp(frameworkRequest.getFirstRequestTimestamp());
@@ -66,6 +68,14 @@ public class SummarizedFrameworkInfo implements Serializable {
 
   public void setFrameworkVersion(Integer frameworkVersion) {
     this.frameworkVersion = frameworkVersion;
+  }
+
+  public ExecutionType getExecutionType() {
+    return executionType;
+  }
+
+  public void setExecutionType(ExecutionType executionType) {
+    this.executionType = executionType;
   }
 
   public String getFrameworkDescription() {

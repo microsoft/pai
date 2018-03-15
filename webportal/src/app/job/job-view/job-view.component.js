@@ -108,6 +108,10 @@ const convertState = (state) => {
       cls = 'label-success';
       stateText = 'Succeeded';
       break;
+    case 'STOPPED':
+      cls = 'label-warning';
+      stateText = 'Stopped';
+      break;
     case 'FAILED':
       cls = 'label-danger';
       stateText = 'Failed';
@@ -170,13 +174,16 @@ const loadJobs = () => {
   });
 };
 
-const deleteJob = (jobName) => {
-  const res = confirm('Are you sure to delete the job?');
+const stopJob = (jobName) => {
+  const res = confirm('Are you sure to stop the job?');
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
-        type: 'DELETE',
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`,
+        type: 'PUT',
+        data: {
+          value: 'STOP',
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -249,7 +256,7 @@ const showSshInfo = (containerId) => {
 };
 
 window.loadJobs = loadJobs;
-window.deleteJob = deleteJob;
+window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showSshInfo = showSshInfo;
 
@@ -279,4 +286,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = {loadJobs, deleteJob, loadJobDetail};
+module.exports = {loadJobs, stopJob, loadJobDetail};

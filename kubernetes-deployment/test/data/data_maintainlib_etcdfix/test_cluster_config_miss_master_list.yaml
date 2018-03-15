@@ -1,0 +1,110 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+clusterID: unittest
+
+
+clusterinfo:
+  # the ip address of nameserver in your cluster
+  cluster-dns: 168.63.129.16
+
+
+  # the ip address of API-server
+  # If kubernetes-ha is enable, this should be the ip or vip of lb.
+  # If kubernetes-ha is not enable, this should be the ip of the master node.
+  api-servers-ip: 10.0.3.7
+
+
+  # the port of API-server, please do not change the default port number below
+  #api-server-port: 8080
+  # specify an IP range not in the same network segment with the host machine.
+  service-cluster-ip-range: 10.254.0.0/16
+  # According to the etcdversion, you should fill a corresponding backend name.
+  # If you are not familiar with etcd, please don't change it.
+  storage-backend: etcd2
+  # Specify the host's nodename that runs dashboard
+  dashboard-host: 10.0.3.11
+  # The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr.
+  dockerregistry: gcr.io/google_containers
+  # http://gcr.io/google_containers/hyperkube. Or the tag in your registry.
+  hyperkubeversion: v1.7.3
+  # http://gcr.io/google_containers/etcd. Or the tag in your registry.
+  # If you are not familiar with etcd, please don't change it.
+  etcdversion: 2.2.5
+  # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
+  apiserverversion: v1.7.3
+  # http://gcr.io/google_containers/kube-scheduler. Or the tag in your registry.
+  kubeschedulerversion: v1.7.3
+  # http://gcr.io/google_containers/kube-controller-manager
+  kubecontrollermanagerversion:  v1.7.3
+  # http://gcr.io/google_containers/kubernetes-dashboard-amd64
+  dashboard_version: v1.6.1
+
+
+component_list:
+
+  apiserver:
+  - src: apiserver.yaml
+    dst: src/etc/kubernetes/manifests
+
+  controller-manager:
+  - src: controller-manager.yaml
+    dst: src/etc/kubernetes/manifests
+
+  etcd:
+  - src: etcd.yaml
+    dst: src/etc/kubernetes/manifests
+
+  scheduler:
+  - src: scheduler.yaml
+    dst: src/etc/kubernetes/manifests
+
+  kubelet:
+  - src: kubelet.sh
+    dst: src/
+
+
+
+remote_deployment:
+  master:
+    listname: mastermachinelist
+    component:
+    - name: apiserver
+    - name: controller-manager
+    - name: etcd
+    - name: scheduler
+    - name: kubelet
+
+  worker:
+    listname: workermachinelist
+    component:
+    - name: kubelet
+
+
+workermachinelist:
+
+  worker-01:
+    nodename: 1.2.3.10
+    hostip: 1.2.3.10
+    username: unittest
+    password: unittest123
+
+  worker-02:
+    nodename: 1.2.3.11
+    hostip: 1.2.3.11
+    username: unittest
+    password: unittest123
