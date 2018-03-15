@@ -15,3 +15,9 @@
   display: block;
   z-index: 1;
 }
+
+.disabled {
+  pointer-events: none;
+  color: silver;
+  cursor: default;
+}

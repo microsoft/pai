@@ -9,16 +9,21 @@
 <%
         const marked = require('marked');
         const mdContent = `
-Step 1. Start a Bash shell terminal.
+Step 1. Open a Bash shell terminal.
 
 Step 2. Download the [private key](${keyPair.privateKeyDirectDownloadLink}):
 \`\`\`
-wget ${keyPair.privateKeyDirectDownloadLink} -O ${keyPair.privateKeyFileName}
+wget ${keyPair.privateKeyDirectDownloadLink} -O key
 \`\`\`
- 
-Step 3. Run:
+
+Step 3. Set correct permissions for the key file:
 \`\`\`
-ssh -i ${keyPair.privateKeyFileName} -p ${sshPort} root@${sshIp}
+chmod 600 key
+\`\`\`
+
+Step 4. Run:
+\`\`\`
+ssh -o StrictHostKeyChecking=no -i key -p ${sshPort} root@${sshIp}
 \`\`\`
         `;
         const htmlContent = marked(mdContent);
