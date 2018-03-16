@@ -42,7 +42,5 @@ docker run \
   --cluster-domain=cluster.local  \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
-  --logtostderr=true \
   --image-gc-high-threshold=98 \
-  --image-gc-low-threshold=95 \
-  --v=2
+  --image-gc-low-threshold=95
