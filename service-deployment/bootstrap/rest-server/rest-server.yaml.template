@@ -53,7 +53,7 @@ spec:
         - name: LOWDB_ADMIN
           value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
         - name: LOWDB_PASSWD
-          value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
+          value: "{{ clusterinfo['restserverinfo']['lowdb_passwd'] }}"
         ports:
         - name: rest-server
           containerPort: 8080
