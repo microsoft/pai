@@ -26,8 +26,8 @@ const logger = require('../config/logger');
 const validate = (schema, parameters) => {
   return (req, res, next) => {
     if (parameters) {
-      for (let each in parameters.params) {
-        req.body.each = req.params.each;
+      for (let each of parameters.params) {
+        req.body[each] = req.params[each];
       }
     }
     Joi.validate(req.body, schema, (err, value) => {
