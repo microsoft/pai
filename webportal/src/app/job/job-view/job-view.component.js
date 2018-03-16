@@ -27,7 +27,6 @@ require('datatables.net-plugins/sorting/title-numeric.js');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
-const marked = require('marked');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');

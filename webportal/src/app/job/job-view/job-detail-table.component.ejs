@@ -81,14 +81,9 @@
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
           <td>
             <a onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
-<%
-              if (jobStatus.state !== 'RUNNING') {
-%>
+              <% if (jobStatus.state !== 'RUNNING') { %>
                 class='disabled'
-
-<%
-              }
-%>
+              <% } %>
               href='#'>SSH Info</a>
             &nbsp;|&nbsp;
             <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Log</a>
