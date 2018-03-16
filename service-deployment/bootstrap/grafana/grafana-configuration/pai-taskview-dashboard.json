@@ -26,7 +26,7 @@
       "height": 74,
       "panels": [
         {
-          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics)\n",
+          "content": "[JobLevelMetrics](http://10.151.40.133:3000/dashboard/db/joblevelmetrics)  | \n [TaskRoleLevelMetrics](http://10.151.40.133:3000/dashboard/db/taskrolelevelmetrics)  |\n [TaskLevelMetrics](http://10.151.40.133:3000/dashboard/db/tasklevelmetrics)\n",
           "height": "30px",
           "id": 28,
           "links": [],
@@ -97,7 +97,7 @@
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "refId": "A"
             }
           ],
@@ -200,7 +200,7 @@
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -290,7 +290,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -302,7 +302,7 @@
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "refId": "B",
               "step": 600
             }
@@ -397,7 +397,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -480,7 +480,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -563,7 +563,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -664,13 +664,13 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index, acc_id)(container_accelerator_duty_cycle{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index)(container_accelerator_duty_cycle{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "hide": false,
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -762,13 +762,13 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, acc_id) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}} - {{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "{{container_label_PAI_JOB_NAME}} - {{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
