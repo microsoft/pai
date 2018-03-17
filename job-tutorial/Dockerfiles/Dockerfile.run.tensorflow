@@ -25,9 +25,11 @@
 
 FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
+ENV TENSORFLOW_VERSION=1.4.0
+
 # For how to run TensorFlow on Hadoop,
 # please refer to https://www.tensorflow.org/deploy/hadoop
-RUN pip install tensorflow-gpu && \
-    pip3 install tensorflow-gpu
+RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
+    pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
 
 WORKDIR /root
