@@ -2,7 +2,7 @@
   <h3 class="text-center"><%= jobStatus.name %></h3>
 </div>
 
-<table class="table table-hover">
+<table class="table">
   <tr>
     <th class="text-right">User Name</th>
     <td class="text-left"><%= jobStatus.username %></td>
@@ -57,7 +57,7 @@
 
 <hr class="divider">
 
-<table class="table table-hover">
+<table class="table">
   <thead>
     <tr>
       <th>Task Role</th>
@@ -65,7 +65,7 @@
       <th>Name of Container</th>
       <th>IP of Container</th>
       <th>GPU ID(s) in Container</th>
-      <th>Log in Container</th>
+      <th>Links</th>
     </tr>
   </thead>
   <tbody>
@@ -79,7 +79,15 @@
           <td><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
           <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
-          <td><a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Task Log</a></td>
+          <td>
+            <a onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
+              <% if (jobStatus.state !== 'RUNNING') { %>
+                class='disabled'
+              <% } %>
+              href='#'>SSH Info</a>
+            &nbsp;|&nbsp;
+            <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Log</a>
+          </td>
         </tr>
       <% } %>
     <% } %>
