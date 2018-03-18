@@ -83,7 +83,7 @@ RUN CNTK_VERSION_DASHED=$(echo $CNTK_VERSION | tr . -) && \
     echo "$CNTK_SHA256 CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz" | sha256sum --check --strict - && \
     tar -xzf CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz && \
     rm -f CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz && \
-    wget -q https://raw.githubusercontent.com/Microsoft/CNTK-docker/master/ubuntu-14.04/version_2/${CNTK_VERSION}/gpu/runtime/install-cntk-docker.sh
+    wget -q https://raw.githubusercontent.com/Microsoft/CNTK-docker/master/ubuntu-14.04/version_2/${CNTK_VERSION}/gpu/runtime/install-cntk-docker.sh \
          -O /cntk/Scripts/install/linux/install-cntk-docker.sh && \
     /bin/bash /cntk/Scripts/install/linux/install-cntk-docker.sh && \
     /root/anaconda3/bin/conda clean --all --yes && \

@@ -26,7 +26,7 @@ BASH_XTRACEFD=17
 function exit_handler()
 {
   printf "%s %s\n" \
-    "[ERROR]" "EXIT signal received in docker container, exiting ..."
+    "[DEBUG]" "EXIT signal received in docker container, exiting ..."
   set +x
   exec 17>&-
   hdfs dfs -put /tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log \
@@ -204,6 +204,7 @@ else
       "[INFO]" "begin to download ssh key pair from hdfs ..."
   hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
 fi
+chmod 400 ~/.ssh/$APP_ID
 # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
 hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
 
@@ -215,26 +216,29 @@ while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID
   printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
   sleep 10
 done
-NodeList=$(hdfs dfs -ls ${ssh_config_path} \
+NodeList=($(hdfs dfs -ls ${ssh_config_path} \
   | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID-" \
   | grep -oE "[^/]+$" \
   | sed -e "s/^$APP_ID-//g" \
-  | sort -n)
-if [ "$(echo $NodeList | wc -l)" -ne $PAI_JOB_TASK_COUNT ]; then
+  | sort -n))
+if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
   printf "%s %s\n%s\n%s\n\n" \
     "[ERROR]" "NodeList" \
-    "$(echo $NodeList)" \
-    "ssh services in $(echo $NodeList | wc -l) containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
+    "${NodeList[@]}" \
+    "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
   exit 2
 fi
-while read line; do
+for line in "${NodeList[@]}"; do
   node=(${line//-/ });
-  printf "%s\n  %s\n  %s\n  %s\n" \
-    "Hostname ${node[0]}-${node[1]}" \
+  printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
+    "Host ${node[0]}-${node[1]}" \
     "HostName ${node[2]}" \
     "Port ${node[3]}" \
-    "User root" >> /root/.ssh/config
-done <<< $NodeList
+    "User root" \
+    "StrictHostKeyChecking no" \
+    "UserKnownHostsFile /dev/null" \
+    "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
+done
 
 # Start ssh service
 start_ssh_service
@@ -242,6 +246,7 @@ start_ssh_service
 # Write env to bashrc
 env | sed "s/^/export /" >> ~/.bashrc
 
+sleep 10
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"

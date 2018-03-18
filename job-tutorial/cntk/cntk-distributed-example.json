@@ -6,7 +6,7 @@
   "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/data",
   // make a new dir for output on hdfs
   "outputDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/output",
-  // prepare g2p training script cntk-example.sh and upload to hdfs
+  // prepare g2p distributed training script cntk-distributed-example.sh and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/code",
 
   "taskRoles": [
@@ -16,15 +16,17 @@
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 0,
-      "command": "cd code && /bin/bash cntk-distributed-example-mpi.sh"
+      "command": "/usr/local/mpi/bin/mpirun --allow-run-as-root -x PATH -x LD_LIBRARY_PATH -np 1 --host worker-0,worker-1 /bin/bash -c 'cd code && /bin/bash cntk-distributed-example.sh'"
     },
     {
       "name": "worker",
-      "taskNumber": 4,
+      "taskNumber": 2,
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 2,
-      "command": "cd code && /bin/bash cntk-distributed-example-worker.sh"
+      "command": "/bin/bash"
     }
-  ]
+  ],
+  "killAllOnCompletedTaskNumber": 1,
+  "retryCount": 0
 }

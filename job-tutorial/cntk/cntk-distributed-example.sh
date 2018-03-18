@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Example script for CNTK job
+# Example script for distributed CNTK job
 
 # hdfs address in IP:PORT format
 hdfs_addr=$(sed -e "s@hdfs://@@g" <<< $PAI_DEFAULT_FS_URI)
@@ -33,11 +33,8 @@ export DATA_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_DATA_DIR)
 export OUTPUT_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
 
-# prepare hostfile for openmpi
-while read line; do
-  printf "%s %s" "worker-$line" "slots=2" >> hostfile.txt
-done <<< $(seq 0 3)
-
-# download CNTK G2P BrainScript example and upload to hdfs
+# prepare CNTK distributed BrainScript and upload to hdfs
+# please refer to CNTK G2P example and brainscript parallel training docs for details
 # https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
-mpirun --allow-run-as-root -hostfile hostfile.txt cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
+# https://docs.microsoft.com/en-us/cognitive-toolkit/Multiple-GPUs-and-machines#3-configuring-parallel-training-in-cntk-in-brainscript
+cntk configFile=g2p-distributed.cntk parallelTrain=true DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
