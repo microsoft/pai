@@ -29,6 +29,7 @@ process.env.LOWDB_PASSWD = 'adminisi';
 
 
 // module dependencies
+const jwt = require('jsonwebtoken');
 const mustache = require('mustache');
 const nock = require('nock');
 const chai = require('chai');
@@ -38,6 +39,7 @@ const server = require('../src/index');
 chai.use(chaiHttp);
 
 
+global.jwt = jwt;
 global.mustache = mustache;
 global.nock = nock;
 global.chai = chai;
@@ -47,6 +49,25 @@ global.should = chai.should;
 global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
+
+global.jobConfigTemplate = JSON.stringify({
+  'jobName': '{{jobName}}',
+  'image': 'aiplatform/pai.run.tensorflow',
+  'dataDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'codeDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'taskRoles': [
+    {
+      'name': 'role1',
+      'taskNumber': 1,
+      'cpuNumber': 2,
+      'memoryMB': 16384,
+      'gpuNumber': 0,
+      'command': 'python hello.py',
+    },
+  ],
+  'killAllOnCompletedTaskNumber': 1,
+  'retryCount': 0,
+});
 
 global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {

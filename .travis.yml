@@ -45,15 +45,6 @@ matrix:
       script:
         - npm test
     - language: node_js
-      node_js: 8
-      env: NODE_ENV=test
-      before_install:
-        - cd rest-server
-      install:
-        - npm install
-      script:
-        - npm test
-    - language: node_js
       node_js: 6
       before_install:
         - cd webportal

@@ -118,12 +118,17 @@ launcherConfig = value;
 // prepare hdfs file path
 const prepareHdfsPath = () => {
   async.each(['Container', 'Output'], (hdfsPath, callback) => {
+    let cmd = '';
+    if (config.env !== 'test') {
+      cmd = `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
+          hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`;
+    }
     childProcess.exec(
-        `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
-        hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`,
-        (err, stdout, stderr) => {
-          callback(err);
-        });
+      cmd,
+      (err, stdout, stderr) => {
+        callback(err);
+      }
+    );
   }, (err) => {
     if (err) {
       throw err;
