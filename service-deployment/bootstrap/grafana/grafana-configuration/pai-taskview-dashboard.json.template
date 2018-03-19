@@ -762,7 +762,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, acc_id) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index, acc_id) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
