@@ -37,9 +37,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {PortsConsistentValidation.Validator.class})
+@Constraint(validatedBy = {PortConsistentValidation.Validator.class})
 
-public @interface PortsConsistentValidation {
+public @interface PortConsistentValidation {
 
   String message() default "{com.microsoft.frameworklauncher.common.validation.PortsConsistentValidation.message}";
 
@@ -50,12 +50,12 @@ public @interface PortsConsistentValidation {
   @Target({FIELD})
   @Retention(RUNTIME)
   @interface List {
-    PortsConsistentValidation[] value();
+    PortConsistentValidation[] value();
   }
 
-  public static class Validator implements ConstraintValidator<PortsConsistentValidation, ResourceDescriptor> {
+  public static class Validator implements ConstraintValidator<PortConsistentValidation, ResourceDescriptor> {
     @Override
-    public void initialize(PortsConsistentValidation constraintAnnotation) {
+    public void initialize(PortConsistentValidation constraintAnnotation) {
     }
 
     @Override
@@ -81,7 +81,7 @@ public @interface PortsConsistentValidation {
       if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) > 0) {
         context.disableDefaultConstraintViolation();
         String notValidMessage = String.format(
-            "illegal portDefinitions in ResourceDescriptor, \"any port\" and \"specified\" port are now allowed to coexistence");
+            "illegal portDefinitions in ResourceDescriptor, \"any port\" and \"specified\" port are not allowed to coexistence");
         context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
         return false;
       }

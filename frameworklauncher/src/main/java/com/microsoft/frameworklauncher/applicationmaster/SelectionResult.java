@@ -33,17 +33,17 @@ public class SelectionResult {
   private List<ValueRange> overlapPorts = new ArrayList<ValueRange>();
   private ResourceDescriptor optimizedResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
 
-  public void addSelection(String hostName, Long gpuAttribute, List<ValueRange> portList) {
+  public void addSelection(String hostName, Long gpuAttribute, List<ValueRange> ports) {
     if (nodes.isEmpty()) {
       nodes.put(hostName, gpuAttribute);
-      overlapPorts = ValueRangeUtils.coalesceRangeList(portList);
+      overlapPorts = ValueRangeUtils.coalesceRangeList(ports);
       return;
     }
     if (nodes.containsKey(hostName)) {
       nodes.remove(hostName);
     }
     nodes.put(hostName, gpuAttribute);
-    overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, portList);
+    overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, ports);
   }
 
   public List<ValueRange> getOverlapPorts() {
@@ -51,12 +51,7 @@ public class SelectionResult {
   }
 
   public List<String> getNodeHosts() {
-    List<String> hostList = new ArrayList<String>();
-    for (String hostName : nodes.keySet()) {
-      hostList.add(hostName);
-
-    }
-    return hostList;
+    return new ArrayList<>(nodes.keySet());
   }
 
   public Long getGpuAttribute(String hostName) {

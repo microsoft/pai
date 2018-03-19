@@ -22,12 +22,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
+import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
-import com.microsoft.frameworklauncher.common.model.*;
+
 
 import java.util.*;
 
@@ -45,9 +46,9 @@ public class SelectionManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(SelectionManager.class);
 
   private final ApplicationMaster am;
-  private final LinkedHashMap<String, Node> allNodes = new LinkedHashMap<>();
-  private final LinkedHashMap<String, ResourceDescriptor> localTriedResource = new LinkedHashMap<>();
-  private final LinkedHashMap<String, List<ValueRange>> requestedPortsCache = new LinkedHashMap<>();
+  private final Map<String, Node> allNodes = new HashMap<>();
+  private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
+  private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
 
   private final List<String> filteredNodes = new ArrayList<String>();
 
@@ -60,26 +61,21 @@ public class SelectionManager { // THREAD SAFE
   }
 
   private void randomizeNodes() {
-
     filteredNodes.clear();
     for (String nodeName : allNodes.keySet()) {
       filteredNodes.add(nodeName);
     }
-    int randomTimes = filteredNodes.size();
-    while (randomTimes-- > 0) {
-      int randomIndex = Math.abs(new Random().nextInt(filteredNodes.size()));
-      filteredNodes.add(filteredNodes.remove(randomIndex));
-    }
+    Collections.shuffle(filteredNodes);
   }
 
   private void filterNodesByNodeLabel(String requestNodeLabel) {
     if (requestNodeLabel != null) {
-      for (int i = filteredNodes.size(); i > 0; i--) {
-        Set<String> availableNodeLabels = allNodes.get(filteredNodes.get(i - 1)).getLabels();
+      for (int i = filteredNodes.size() - 1; i >= 0; i--) {
+        Set<String> availableNodeLabels = allNodes.get(filteredNodes.get(i)).getLabels();
         if (!HadoopUtils.matchNodeLabel(requestNodeLabel, availableNodeLabels)) {
           LOGGER.logDebug("NodeLabel does not match: Node: [%s] Request NodeLabel: [%s]",
-              filteredNodes.get(i - 1), requestNodeLabel);
-          filteredNodes.remove(i - 1);
+              filteredNodes.get(i), requestNodeLabel);
+          filteredNodes.remove(i);
         }
       }
     }
@@ -89,11 +85,11 @@ public class SelectionManager { // THREAD SAFE
     if (requestNodeGpuType != null) {
       Map<String, NodeConfiguration> configuredNodes = am.getClusterConfiguration().getNodes();
       if (configuredNodes != null) {
-        for (int i = filteredNodes.size(); i > 0; i--) {
-          String nodeHost = filteredNodes.get(i - 1);
+        for (int i = filteredNodes.size() - 1; i >= 0; i--) {
+          String nodeHost = filteredNodes.get(i);
           if (!configuredNodes.containsKey(nodeHost)) {
             LOGGER.logDebug("Node:[%s] is not found in clusterConfiguration: Request NodeGpuType: [%s]", nodeHost, requestNodeGpuType);
-            filteredNodes.remove(i - 1);
+            filteredNodes.remove(i);
             continue;
           }
           List<String> requestNodeGpuTypes = Arrays.asList(requestNodeGpuType.split(","));
@@ -101,23 +97,25 @@ public class SelectionManager { // THREAD SAFE
           if (!requestNodeGpuTypes.contains(availableNodeGpuType)) {
             LOGGER.logDebug("NodeGpuType does not match: Node: [%s] Request NodeGpuType: [%s], Available NodeGpuType: [%s]",
                 nodeHost, requestNodeGpuType, availableNodeGpuType);
-            filteredNodes.remove(i - 1);
+            filteredNodes.remove(i);
             continue;
           }
         }
+      } else {
+        LOGGER.logWarning("clusterConfiguration is not set, Request NodeGpuType: [%s]", requestNodeGpuType);
       }
     }
   }
 
-  private void filterNodesForNonGpuJob(int jobTotalRequestGpu) {
+  private void filterNodesForNoneGpuJob(int jobTotalRequestGpu) {
     if (jobTotalRequestGpu == 0) {
-      for (int i = filteredNodes.size(); i > 0; i--) {
-        Node node = allNodes.get(filteredNodes.get(i - 1));
+      for (int i = filteredNodes.size() - 1; i >= 0; i--) {
+        Node node = allNodes.get(filteredNodes.get(i));
         ResourceDescriptor totalResource = node.getTotalResource();
         if (totalResource.getGpuNumber() > 0) {
-          LOGGER.logDebug("skip nodes with Gpu resource for 0-gpu job: Node [%s], Node total resource: [%s]",
+          LOGGER.logDebug("skip gpu node for none gpu job: Node [%s], Node total resource: [%s]",
               node.getHost(), totalResource);
-          filteredNodes.remove(i - 1);
+          filteredNodes.remove(i);
         }
       }
     }
@@ -125,17 +123,17 @@ public class SelectionManager { // THREAD SAFE
 
   private void filterNodesByResource(ResourceDescriptor requestResource, Boolean skipLocalTriedResource) {
     if (requestResource != null) {
-      for (int i = filteredNodes.size(); i > 0; i--) {
-        Node node = allNodes.get(filteredNodes.get(i - 1));
-        ResourceDescriptor availableResource = node.getAvailableResource();
+      for (int i = filteredNodes.size() - 1; i >= 0; i--) {
+        Node node = allNodes.get(filteredNodes.get(i));
+        ResourceDescriptor availableResource = YamlUtils.deepCopy(node.getAvailableResource(), ResourceDescriptor.class);
         if (skipLocalTriedResource && localTriedResource.containsKey(node.getHost())) {
           LOGGER.logDebug("Skip local tried resources: [%s] on Node : [%s]", localTriedResource.get(node.getHost()), node.getHost());
-          ResourceDescriptor.subtractFrom(availableResource, localTriedResource.get(node.getHost()));
+          availableResource = ResourceDescriptor.subtract(availableResource, localTriedResource.get(node.getHost()));
         }
         if (!ResourceDescriptor.fitsIn(requestResource, availableResource)) {
           LOGGER.logDebug("Resource does not fit in: Node: [%s] Request Resource: [%s], Available Resource: [%s]",
               node.getHost(), requestResource, availableResource);
-          filteredNodes.remove(i - 1);
+          filteredNodes.remove(i);
         }
       }
     }
@@ -145,15 +143,14 @@ public class SelectionManager { // THREAD SAFE
     //TODO: Node GPU policy filter the nodes;
   }
 
-  private SelectionResult SelectNodes(ResourceDescriptor requestResource, int pendingTaskNumber) {
-    //TODO: apply other node selection policy in  the futher;
+  private SelectionResult selectNodes(ResourceDescriptor requestResource, int pendingTaskNumber) {
+    //TODO: apply other node selection policy in the future;
     return selectNodesByJobPacking(requestResource, pendingTaskNumber);
   }
 
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int pendingTaskNumber) {
-
-    int requestNumber = pendingTaskNumber * am.getConfiguration().getLauncherConfig().getAmSearchNodeBufferFactor();
+    int requestNumber = pendingTaskNumber * am.conf.getLauncherConfig().getAmSearchNodeBufferFactor();
     List<Node> candidateNodes = new ArrayList<Node>();
     SelectionResult result = new SelectionResult();
     for (String nodeName : filteredNodes) {
@@ -161,12 +158,12 @@ public class SelectionManager { // THREAD SAFE
     }
     Collections.sort(candidateNodes);
     for (int i = 0; i < requestNumber && i < candidateNodes.size(); i++) {
-      Node select = candidateNodes.get(i);
+      Node node = candidateNodes.get(i);
       Long gpuAttribute = requestResource.getGpuAttribute();
       if (gpuAttribute == 0) {
-        gpuAttribute = selectCandidateGpuAttribute(select, requestResource.getGpuNumber());
+        gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
-      result.addSelection(select.getHost(), gpuAttribute, select.getAvailableResource().getPortRanges());
+      result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
     }
     return result;
   }
@@ -175,23 +172,25 @@ public class SelectionManager { // THREAD SAFE
 
     LOGGER.logInfo(
         "select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
-    String requestNodeLabel = am.getRequestManager().getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String requestNodeGpuType = am.getRequestManager().getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
-    int pendingTaskNumber = am.getStatusManager().getUnAssociatedTaskCount(taskRoleName);
+    String requestNodeLabel = am.requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
+    String requestNodeGpuType = am.requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+    int pendingTaskNumber = am.statusManager.getUnassociatedTaskCount(taskRoleName);
     List<ValueRange> reUsePorts = null;
 
     // Prefer to use previous successfully allocated ports. if no successfully ports, try to re-use the "Requesting" ports.
-    if (am.getRequestManager().getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
-      reUsePorts = am.getStatusManager().getLiveAssociatedContainerPorts(taskRoleName);
-      if (ValueRangeUtils.getValueNumber(reUsePorts) <= 0 && requestedPortsCache.containsKey(taskRoleName)) {
-        reUsePorts = requestedPortsCache.get(taskRoleName);
+    if (am.requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
+      reUsePorts = am.statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+      if (ValueRangeUtils.getValueNumber(reUsePorts) <= 0 && previousRequestedPorts.containsKey(taskRoleName)) {
+        reUsePorts = previousRequestedPorts.get(taskRoleName);
         // the cache only guide the next task to use previous requesting port.
-        requestedPortsCache.remove(taskRoleName);
+        previousRequestedPorts.remove(taskRoleName);
       }
     }
+
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, reUsePorts);
-    if (!requestedPortsCache.containsKey(taskRoleName) && pendingTaskNumber > 1)
-      requestedPortsCache.put(taskRoleName, result.getOptimizedResource().getPortRanges());
+    if (pendingTaskNumber > 0) {
+      previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
+    }
     return result;
   }
 
@@ -210,9 +209,9 @@ public class SelectionManager { // THREAD SAFE
     randomizeNodes();
     filterNodesByNodeLabel(requestNodeLabel);
     filterNodesByGpuType(requestNodeGpuType);
-    if (!am.getConfiguration().getLauncherConfig().getAmAllowNoneGpuJobOnGpuNode()) {
-      int jobTotalRequestGpu = am.getRequestManager().getTotalGpuCount();
-      filterNodesForNonGpuJob(jobTotalRequestGpu);
+    if (!am.conf.getLauncherConfig().getAmAllowNoneGpuJobOnGpuNode()) {
+      int jobTotalRequestGpu = am.requestManager.getTotalGpuCount();
+      filterNodesForNoneGpuJob(jobTotalRequestGpu);
     }
 
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
@@ -222,7 +221,7 @@ public class SelectionManager { // THREAD SAFE
       optimizedRequestResource.setPortRanges(reUsePorts);
     }
 
-    filterNodesByResource(optimizedRequestResource, am.getConfiguration().getLauncherConfig().getAmSkipLocalTriedResource());
+    filterNodesByResource(optimizedRequestResource, am.conf.getLauncherConfig().getAmSkipLocalTriedResource());
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, pendingTaskNumber);
     if (filteredNodes.size() < 1) {
@@ -233,24 +232,25 @@ public class SelectionManager { // THREAD SAFE
             optimizedRequestResource, requestNodeGpuType));
       }
     }
-    SelectionResult selectionResult = SelectNodes(optimizedRequestResource, pendingTaskNumber);
+    SelectionResult selectionResult = selectNodes(optimizedRequestResource, pendingTaskNumber);
     List<ValueRange> portRanges = allocatePorts(selectionResult, optimizedRequestResource);
     optimizedRequestResource.setPortRanges(portRanges);
     selectionResult.setOptimizedResource(optimizedRequestResource);
     return selectionResult;
   }
 
-  public List<ValueRange> allocatePorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
+  public synchronized List<ValueRange> allocatePorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
     // If the port was not allocated and was not specified previously, need allocate the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
-          am.getConfiguration().getLauncherConfig().getAmContainerMinPort());
+          am.conf.getLauncherConfig().getAmContainerMinPort());
 
       if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
         LOGGER.logDebug("Allocated port: optimizedRequestResource: [%s]", optimizedRequestResource);
         return newCandidatePorts;
       } else {
-        throw new NotAvailableException("The selected candidate nodes don't have enough ports");
+        throw new NotAvailableException(String.format("The selected candidate nodes don't have enough ports, optimizedRequestResource:[%s]",
+            optimizedRequestResource));
       }
     }
     return optimizedRequestResource.getPortRanges();
@@ -282,7 +282,7 @@ public class SelectionManager { // THREAD SAFE
     } else {
       Node existNode = allNodes.get(reportedNode.getHost());
       existNode.updateFromReportedNode(reportedNode);
-      LOGGER.logDebug("addNode: %s ", existNode);
+      LOGGER.logDebug("updateNode: %s ", existNode);
     }
   }
 
@@ -310,12 +310,6 @@ public class SelectionManager { // THREAD SAFE
     for (String nodeHost : nodeHosts) {
       if (allNodes.containsKey(nodeHost)) {
         allNodes.get(nodeHost).addContainerRequest(resource);
-        if (!localTriedResource.containsKey(nodeHost)) {
-          localTriedResource.put(nodeHost, YamlUtils.deepCopy(resource, ResourceDescriptor.class));
-        } else {
-          ResourceDescriptor triedResource = localTriedResource.get(nodeHost);
-          ResourceDescriptor.addTo(triedResource, resource);
-        }
       } else {
         LOGGER.logWarning("addContainerRequest: Node is no longer a candidate: %s", nodeHost);
       }
@@ -334,6 +328,13 @@ public class SelectionManager { // THREAD SAFE
     for (String nodeHost : nodeHosts) {
       if (allNodes.containsKey(nodeHost)) {
         allNodes.get(nodeHost).removeContainerRequest(resource);
+        if (!localTriedResource.containsKey(nodeHost)) {
+          localTriedResource.put(nodeHost, YamlUtils.deepCopy(resource, ResourceDescriptor.class));
+        } else {
+          ResourceDescriptor triedResource = localTriedResource.get(nodeHost);
+          triedResource = ResourceDescriptor.add(triedResource, resource);
+          localTriedResource.put(nodeHost, triedResource);
+        }
       } else {
         LOGGER.logWarning("removeContainerRequest: Node is no longer a candidate: %s", nodeHost);
       }

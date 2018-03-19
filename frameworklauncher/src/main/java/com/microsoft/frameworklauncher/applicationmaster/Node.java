@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.Resource;
 
 import java.util.Set;
 
@@ -42,22 +43,25 @@ public class Node implements Comparable<Node> {
 
   // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
   @Override
-  public int compareTo(Node arg0) {
-    if (this.getAvailableResource().getGpuNumber() > arg0.getAvailableResource().getGpuNumber())
+  public int compareTo(Node other) {
+    ResourceDescriptor thisAvailableResource = this.getAvailableResource();
+    ResourceDescriptor otherAvailableResource = other.getAvailableResource();
+
+    if (thisAvailableResource.getGpuNumber() > otherAvailableResource.getGpuNumber())
       return 1;
-    if (this.getAvailableResource().getGpuNumber() < arg0.getAvailableResource().getGpuNumber()) {
+    if (thisAvailableResource.getGpuNumber() < otherAvailableResource.getGpuNumber()) {
       return -1;
     }
-    if (this.getAvailableResource().getCpuNumber() > arg0.getAvailableResource().getCpuNumber()) {
+    if (thisAvailableResource.getCpuNumber() > otherAvailableResource.getCpuNumber()) {
       return 1;
     }
-    if (this.getAvailableResource().getCpuNumber() < arg0.getAvailableResource().getCpuNumber()) {
+    if (thisAvailableResource.getCpuNumber() < otherAvailableResource.getCpuNumber()) {
       return -1;
     }
-    if (this.getAvailableResource().getMemoryMB() > arg0.getAvailableResource().getMemoryMB()) {
+    if (thisAvailableResource.getMemoryMB() > otherAvailableResource.getMemoryMB()) {
       return 1;
     }
-    if (this.getAvailableResource().getMemoryMB() < arg0.getAvailableResource().getMemoryMB()) {
+    if (thisAvailableResource.getMemoryMB() < otherAvailableResource.getMemoryMB()) {
       return -1;
     }
     return 0;

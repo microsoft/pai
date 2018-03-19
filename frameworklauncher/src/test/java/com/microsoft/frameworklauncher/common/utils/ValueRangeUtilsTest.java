@@ -143,7 +143,7 @@ public class ValueRangeUtilsTest {
     testValueRange.add(ValueRange.newInstance(8000, 8001));
     List<ValueRange> testValueRange2 = new ArrayList<ValueRange>();
     testValueRange.add(ValueRange.newInstance(9000, 9003));
-    String environmentString = ValueRangeUtils.toEnviromentString(testValueRange, portDefinitions);
+    String environmentString = ValueRangeUtils.toEnviromentVariableString(testValueRange, portDefinitions);
     Assert.assertEquals(environmentString, "http_SSH:9000,9001,9002,9003;http_Port:8000,8001;");
 
     Map<String, Ports> portDefinitions2 = new HashMap<String, Ports>();
@@ -156,7 +156,7 @@ public class ValueRangeUtilsTest {
     ports4.setStart(0);
     portDefinitions2.put("http_SSH", ports4);
 
-    environmentString = ValueRangeUtils.toEnviromentString(testRangeList, portDefinitions2);
+    environmentString = ValueRangeUtils.toEnviromentVariableString(testRangeList, portDefinitions2);
 
     Assert.assertEquals(environmentString.split(";").length, 2);
     Assert.assertEquals(environmentString.split(",").length, 5);

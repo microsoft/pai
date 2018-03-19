@@ -496,22 +496,22 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    * REGION ReadInterface
    */
 
-  public synchronized Integer getUnAssociatedTaskCount(String taskRoleName) {
-    int unAssociatedTastCount = 0;
+  public synchronized Integer getUnassociatedTaskCount(String taskRoleName) {
+    int unassociatedTastCount = 0;
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskstatus : taskStatusList) {
-      if(!TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskstatus.getTaskState())) {
-        unAssociatedTastCount++;
+    for (TaskStatus taskStatus : taskStatusList) {
+      if (!TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
+        unassociatedTastCount++;
       }
     }
-    return unAssociatedTastCount;
+    return unassociatedTastCount;
   }
 
   public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskstatus : taskStatusList) {
-      if(TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskstatus.getTaskState())) {
-        return taskstatus.getContainerPorts();
+    for (TaskStatus taskStatus : taskStatusList) {
+      if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
+        return taskStatus.getContainerPorts();
       }
     }
     return null;

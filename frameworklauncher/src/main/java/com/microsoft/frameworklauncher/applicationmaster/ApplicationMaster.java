@@ -322,6 +322,13 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), true, diagnostics));
   }
 
+  // Principle to setup ContainerRequest for a Task:
+  // 1. Exactly match the Task's Requirement
+  //    -> Keeps Waiting Allocation, i.e. containerRequestTimeoutSec = -1
+  // 2. Too Relax for the Task's Requirement
+  //    -> Reject Allocation and Re-Request, See testContainer
+  // 3. Too Strict for the Task's Requirement
+  //    -> Timeout Request and Re-Request, i.e. containerRequestTimeoutSec != -1
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
@@ -348,8 +355,7 @@ public class ApplicationMaster extends AbstractService {
 
     // Random pick a host from the result set to avoid conflicted requests from concurrent container requests
     // from different jobs
-    int random = new Random().nextInt(selectionResult.getNodeHosts().size());
-    String candidateNode = selectionResult.getNodeHosts().get(random);
+    String candidateNode = selectionResult.getNodeHosts().get(CommonUtils.getRandomNumber(0, selectionResult.getNodeHosts().size()-1));
     optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(candidateNode));
     return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, candidateNode);
   }
@@ -522,32 +528,40 @@ public class ApplicationMaster extends AbstractService {
     return true;
   }
 
+  // To keep all tasks have the same ports in a task role.
+  // Will reject this container if the ports are not the same.
+  private Boolean testContainerPorts(Container container, TaskStatus taskStatus) throws Exception {
+    String taskRoleName = taskStatus.getTaskRoleName();
+    List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+    List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
+
+    String logPrefix = String.format("[%s][%s]: testContainerPorts: ", container.getId().toString(), taskRoleName);
+    String rejectedLogPrefix = logPrefix + "Rejected: ";
+    String acceptedLogPrefix = logPrefix + "Accepted: ";
+
+    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
+    if (useTheSamePorts) {
+      if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
+        if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
+          LOGGER.logWarning(rejectedLogPrefix + "Container ports are not consistent with previous allocated ports.");
+          return false;
+        }
+      }
+      LOGGER.logInfo(acceptedLogPrefix + "ports are the same.");
+    }
+    return true;
+  }
+
   private Boolean testContainer(Container container, TaskStatus taskStatus) throws Exception {
+
     String containerId = container.getId().toString();
     String containerHostName = container.getNodeId().getHost();
 
     if (!testContainerNode(containerId, containerHostName)) {
       return false;
     }
-
-    // To keep all tasks have the same ports in a task role.
-    // Will reject this container if the ports are not the same.
-    String taskRoleName = taskStatus.getTaskRoleName();
-    List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
-    List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
-
-    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
-    LOGGER.logDebug(" Test Container, TaskRoleName: [%s] UseTheSamePorts: [%s], previous allocated ports: [%s], current allocated ports: [%s]",
-        taskRoleName, useTheSamePorts, allocatedPorts, containerPorts);
-    if (useTheSamePorts) {
-      if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
-        if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
-          LOGGER.logWarning(
-              "[%s]: Container ports are not consistent with previous allocated ports",
-              containerId);
-          return false;
-        }
-      }
+    if (!testContainerPorts(container, taskStatus)) {
+      return false;
     }
     return true;
   }
@@ -627,7 +641,7 @@ public class ApplicationMaster extends AbstractService {
   private String setupPortsEnvironment(TaskStatus taskStatus) {
     Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskStatus.getTaskRoleName()).getPortDefinitions();
     List<ValueRange> portRanges = taskStatus.getContainerPorts();
-    return ValueRangeUtils.toEnviromentString(portRanges, portDefinitions);
+    return ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
   }
 
   private void updateNodeReports(List<NodeReport> nodeReports) throws Exception {
@@ -1470,17 +1484,5 @@ public class ApplicationMaster extends AbstractService {
 
   protected ClusterConfiguration getClusterConfiguration() {
     return requestManager.getClusterConfiguration();
-  }
-
-  protected Configuration getConfiguration() {
-    return this.conf;
-  }
-
-  protected StatusManager getStatusManager() {
-    return this.statusManager;
-  }
-
-  protected RequestManager getRequestManager() {
-    return this.requestManager;
   }
 }
