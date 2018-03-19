@@ -45,7 +45,8 @@
     "mustache": "2.3.0",
     "nock": "9.1.6",
     "unirest": "0.5.1",
-    "winston": "2.4.0"
+    "winston": "2.4.0",
+    "node-etcd": "5.1.0"
   },
   "scripts": {
     "lint": "eslint src/**/*.js",

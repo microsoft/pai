@@ -16,21 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const EtcdV2 = require('./etcd2')
 
-class StorageBase {
-
-  get(key, next, options) { }
-
-  set(key, value, next, options) { }
-
-  delete(key, next, options) { }
-
-  getSync(key, options) { }
-
-  setSync(key, value, options) { }
-
-  delSync(key, options) { }
-
+const getStorageObject = (type, options = undefined) => {
+  switch (type) {
+    case "etcd2":
+      return new EtcdV2(options);
+    default:
+  }
 }
 
-module.exports = StorageBase
+module.exports = { getStorageObject }

@@ -16,14 +16,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const userModel = require('./user');
+const etcdConfig = require('../config/etcd');
 
 const check = (username, password, callback) => {
-  if (!userModel.db.has(username).value()) {
+  let user = userModel.db.getSync(etcdConfig.userPath(username));
+  if (user.errCode !== "0") {
     callback(null, false, false);
   } else {
-    const user = userModel.db.get(username).value();
     userModel.encrypt(username, password, (err, derivedKey) => {
-      callback(err, derivedKey === user.passwd, user.admin);
+      callback(err, derivedKey === userModel.db.getSync(etcdConfig.userPasswdPath(username)).value, userModel.db.getSync(etcdConfig.userAdminPath(username)).value);
     });
   }
 };

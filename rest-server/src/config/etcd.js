@@ -18,10 +18,9 @@
 
 // module dependencies
 const Joi = require('joi');
-const user = require('../models/user');
 const indexConfig = require('./index');
 const logger = require('../config/logger');
-//const storage = require('../util/etcd2');
+const dbUtility = require('../util/dbUtility');
 
 let etcdConfig = {
   etcdUri: process.env.ETCD_URI,
@@ -31,20 +30,20 @@ let etcdConfig = {
 
 etcdConfig.etcdHosts = etcdConfig.etcdUri.split(",")
 
-etcdConfig.storagePaths = () => {
-  return etcdConfig.etcdHosts.map(ele => ele + "/v2/keys/")
+etcdConfig.storagePath = () => {
+  return `/users/`
 };
 
 etcdConfig.userPath = (username) => {
-  return `/v2/keys/users/${username}`;
+  return `/users/${username}`;
 };
 
 etcdConfig.userPasswdPath = (username) => {
-  return `/v2/keys/users/${username}/passwd`;
+  return `/users/${username}/passwd`;
 };
 
 etcdConfig.userAdminPath = (username) => {
-  return `/v2/keys/users/${username}/admin`;
+  return `/users/${username}/admin`;
 };
 
 const etcdConfigSchema = Joi.object().keys({
@@ -60,7 +59,7 @@ const etcdConfigSchema = Joi.object().keys({
   adminPass: Joi.string()
     .min(6)
     .required(),
-  storagePaths: Joi.func()
+  storagePath: Joi.func()
     .arity(0)
     .required(),
   userPath: Joi.func()
@@ -80,6 +79,29 @@ if (error) {
 }
 etcdConfig = value;
 
-// var testStorage = new EtcdRest();
-// module exports
+const db = dbUtility.getStorageObject("etcd2", {
+  'hosts': etcdConfig.etcdHosts
+})
+
+const prepareStoragePath = () => {
+  logger.info("prepare storage path:");
+  db.set(etcdConfig.storagePath(), null, (res) => {
+    if(res.errCode !== "0") {
+      throw new Error('build storage path failed');
+    }
+  },{dir: true})
+}
+
+if(indexConfig.env !== 'test'){
+  db.get(etcdConfig.storagePath(), (res) => {
+    logger.info(res);
+    if(res.errCode === "0"){
+      logger.info("storage path already exists");
+    } else {
+      logger.info("storage path not exist");
+      prepareStoragePath();
+    }
+  })
+}
+
 module.exports = etcdConfig;

@@ -15,45 +15,175 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const unirest = require('unirest');
-const logger = require('../config/logger');
-const StorageBase = require('./storageBase');
+const Etcd = require('node-etcd');
+const StorageBase = require('./storageBase')
+const logger = require('../config/logger')
 
-class EtcdRest extends StorageBase {
-  get_new_promise() {
-    return new Promise((undefined, reject) => {
-      logger.info('kit v1')
-      reject()
-    });
+class EtcdV2 extends StorageBase {
+  constructor(options) {
+    super();
+    this.options = options;
+    this.etcdClient = new Etcd(this.options.hosts);
   }
 
-    handle_promise_helper(options) {
-        return new Promise(function (resolve, reject) {
-            unirest.get(options.url)
-                .end((res) => {
-                    logger.info("options.url is " + options.url);
-                    if (res.status === 200) {
-                        logger.info(options.url + ":get info succeed");
-                        resolve(res);
-                    }
-                    else {
-                        logger.warn(options.url + ":get info failed");
-                        reject(res)
-                    }
-                })
-        });
+  get(key, next, options = null) {
+    try {
+      this.etcdClient.get(key, options, (err, res) => {
+        logger.info("get");
+        logger.info(res);
+        if (err === null) {
+          const resJson = {
+            errCode: "0",
+            key: res.node.key,
+            value: res.node.value
+          };
+          next(resJson);
+        } else {
+          const resJson = {
+            errCode: "-1",
+            errMsg: err.message
+          };
+          next(resJson);
+        }
+      });
+    } catch (err) {
+      const resJson = {
+        errCode: "-2",
+        errMsg: "Exception in etcd2 get function. Error message: " + err.message
+      }
+      next(resJson);
     }
+  }
 
-    get(key, next) {
-        var startPromise = get_new_promise();
-        key.forEach(item => {
-            startPromise = startPromise.then(undefined, (undefined) => {
-                return handle_promise_helper({ 'url': item })
-            })
-        });
+  set(key, value, next, options = null) {
+    try {
+      this.etcdClient.set(key, value, options, (err, res) => {
+        if (err === null) {
+          const resJson = {
+            errCode: "0",
+            errMsg: "OK"
+          };
+          next(resJson)
+        } else {
+          const resJson = {
+            errCode: "-1",
+            errMsg: err.message
+          };
+          next(resJson)
+        }
+      });
+    } catch (err) {
+      const resJson = {
+        errorCode: "-2",
+        errorMsg: "Exception in etcd2 set function. Error message: " + err.message
+      };
+      next(resJson)
     }
+  }
+
+  delete(key, next, options = null) {
+    try {
+      this.etcdClient.del(key, options, (err, res) => {
+        if (err === null) {
+          const resJson = {
+            errCode: "0",
+            errMsg: "OK"
+          }
+          next(resJson)
+        } else {
+          const resJson = {
+            errCode: "-1",
+            errMsg: err.message
+          }
+          next(resJson)
+        }
+      })
+    } catch (err) {
+      const resJson = {
+        errorCode: "-2",
+        errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
+      }
+      next(resJson)
+    }
+  }
+
+  getSync(key, options = null) {
+    var resJson = {}
+    try {
+      let res = this.etcdClient.getSync(key, options);
+      if (res.err === null) {
+        resJson = {
+          errCode: "0",
+          key: res.body.node.key,
+          value: res.body.node.value
+        }
+      } else {
+        resJson = {
+          errCode: "-1",
+          errMsg: res.err.error.message
+        }
+      }
+    } catch (err) {
+      resJson = {
+        errCode: "-2",
+        errMsg: "Exception in etcd2 getSync function. Error message: " + err.message
+      }
+    } finally {
+      return resJson;
+    }
+  }
+
+  setSync(key, value, options = null) {
+    var resJson = {};
+    try {
+      this.etcdClient.set("/can_directory");
+      let res = this.etcdClient.setSync(key, value, options);
+      if (res.err === null) {
+        resJson = {
+          errCode: "0",
+          errMsg: "OK"
+        }
+      } else {
+        resJson = {
+          errCode: "-1",
+          errMsg: res.err.error.message
+        }
+      }
+    } catch (err) {
+      resJson = {
+        errCode: "-2",
+        errMsg: "Exception in etcd2 setSync function. Error message: " + err.message
+      }
+    } finally {
+      return resJson
+    }
+  }
+
+  delSync(key, options = null) {
+    var resJson = {};
+    try {
+      let res = this.etcdClient.delSync(key, options);
+      if (res.err === null) {
+        resJson = {
+          errCode: "0",
+          errMsg: "OK"
+        }
+      } else {
+        resJson = {
+          errCode: "-1",
+          errMsg: res.err.error.message
+        }
+      }
+    } catch (err) {
+      resJson = {
+        errorCode: "-2",
+        errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
+      }
+    } finally {
+      return resJson
+    }
+  }
 }
 
-module.exports = { get };
+module.exports = EtcdV2
