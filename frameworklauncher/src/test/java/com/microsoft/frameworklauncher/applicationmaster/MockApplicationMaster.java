@@ -47,7 +47,7 @@ public class MockApplicationMaster extends ApplicationMaster {
     hdfsStore = new MockHdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
-    selectionManager = new SelectionManager(this);
+    selectionManager = new SelectionManager();
   }
 
   @Override

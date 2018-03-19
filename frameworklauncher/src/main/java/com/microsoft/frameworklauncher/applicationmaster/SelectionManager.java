@@ -23,6 +23,7 @@ import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
@@ -45,22 +46,32 @@ import java.util.*;
 public class SelectionManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(SelectionManager.class);
 
-  private final ApplicationMaster am;
+  private LauncherConfiguration conf = null;
+  private StatusManager statusManager = null;
+  private RequestManager requestManager = null;
+  private ClusterConfiguration clusterConfiguration = null;
+
   private final Map<String, Node> allNodes = new HashMap<>();
   private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
   private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
 
   private final List<String> filteredNodes = new ArrayList<String>();
 
-  public SelectionManager(ApplicationMaster am) {
-    this.am = am;
+  public SelectionManager() {
+  }
+
+  public void init(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager, ClusterConfiguration clusterConfiguration) {
+    this.conf = conf;
+    this.statusManager = statusManager;
+    this.requestManager = requestManager;
+    this.clusterConfiguration = clusterConfiguration;
   }
 
   public synchronized void addNode(NodeReport nodeReport) throws Exception {
     addNode(Node.fromNodeReport(nodeReport));
   }
 
-  private void randomizeNodes() {
+  private void initFilteredNodes() {
     filteredNodes.clear();
     for (String nodeName : allNodes.keySet()) {
       filteredNodes.add(nodeName);
@@ -83,7 +94,7 @@ public class SelectionManager { // THREAD SAFE
 
   private void filterNodesByGpuType(String requestNodeGpuType) {
     if (requestNodeGpuType != null) {
-      Map<String, NodeConfiguration> configuredNodes = am.getClusterConfiguration().getNodes();
+      Map<String, NodeConfiguration> configuredNodes = clusterConfiguration.getNodes();
       if (configuredNodes != null) {
         for (int i = filteredNodes.size() - 1; i >= 0; i--) {
           String nodeHost = filteredNodes.get(i);
@@ -150,7 +161,7 @@ public class SelectionManager { // THREAD SAFE
 
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int pendingTaskNumber) {
-    int requestNumber = pendingTaskNumber * am.conf.getLauncherConfig().getAmSearchNodeBufferFactor();
+    int requestNumber = pendingTaskNumber * conf.getAmSearchNodeBufferFactor();
     List<Node> candidateNodes = new ArrayList<Node>();
     SelectionResult result = new SelectionResult();
     for (String nodeName : filteredNodes) {
@@ -168,27 +179,46 @@ public class SelectionManager { // THREAD SAFE
     return result;
   }
 
-  public synchronized SelectionResult select(ResourceDescriptor requestResource, String taskRoleName) throws NotAvailableException {
+  public synchronized SelectionResult selectSingleNode(ResourceDescriptor requestResource,
+      String taskRoleName) throws NotAvailableException {
+    SelectionResult results = select(requestResource, taskRoleName);
+    // Random pick a host from the result set to avoid conflicted requests from concurrent container requests
+    // from different jobs
+    ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
+    String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
+    optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
+
+    // re-create single node result object.
+    SelectionResult result = new SelectionResult();
+    result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
+    result.setOptimizedResource(optimizedRequestResource);
+
+    return result;
+  }
+  public synchronized SelectionResult select(ResourceDescriptor requestResource, String taskRoleName)
+      throws NotAvailableException {
 
     LOGGER.logInfo(
         "select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
-    String requestNodeLabel = am.requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String requestNodeGpuType = am.requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
-    int pendingTaskNumber = am.statusManager.getUnassociatedTaskCount(taskRoleName);
+    String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
+    String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+    int pendingTaskNumber = statusManager.getUnassociatedTaskCount(taskRoleName);
     List<ValueRange> reUsePorts = null;
 
     // Prefer to use previous successfully allocated ports. if no successfully ports, try to re-use the "Requesting" ports.
-    if (am.requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
-      reUsePorts = am.statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+    if (requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
+      reUsePorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
       if (ValueRangeUtils.getValueNumber(reUsePorts) <= 0 && previousRequestedPorts.containsKey(taskRoleName)) {
         reUsePorts = previousRequestedPorts.get(taskRoleName);
         // the cache only guide the next task to use previous requesting port.
         previousRequestedPorts.remove(taskRoleName);
       }
     }
-
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, reUsePorts);
-    if (pendingTaskNumber > 0) {
+
+    // This pendingTaskNumber includes current task, when pendingTaskNumber == 1 means current task is the last task.
+    // If there has other task pending, push current port to previousRequestedPorts for next task re-use.
+    if (pendingTaskNumber > 1) {
       previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
     }
     return result;
@@ -206,11 +236,11 @@ public class SelectionManager { // THREAD SAFE
         "select: Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s], TaskNumber: [%d], ReUsePorts: [%s]",
         requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, ValueRangeUtils.toString(reUsePorts));
 
-    randomizeNodes();
+    initFilteredNodes();
     filterNodesByNodeLabel(requestNodeLabel);
     filterNodesByGpuType(requestNodeGpuType);
-    if (!am.conf.getLauncherConfig().getAmAllowNoneGpuJobOnGpuNode()) {
-      int jobTotalRequestGpu = am.requestManager.getTotalGpuCount();
+    if (!conf.getAmAllowNoneGpuJobOnGpuNode()) {
+      int jobTotalRequestGpu = requestManager.getTotalGpuCount();
       filterNodesForNoneGpuJob(jobTotalRequestGpu);
     }
 
@@ -221,7 +251,7 @@ public class SelectionManager { // THREAD SAFE
       optimizedRequestResource.setPortRanges(reUsePorts);
     }
 
-    filterNodesByResource(optimizedRequestResource, am.conf.getLauncherConfig().getAmSkipLocalTriedResource());
+    filterNodesByResource(optimizedRequestResource, conf.getAmSkipLocalTriedResource());
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, pendingTaskNumber);
     if (filteredNodes.size() < 1) {
@@ -243,7 +273,7 @@ public class SelectionManager { // THREAD SAFE
     // If the port was not allocated and was not specified previously, need allocate the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
-          am.conf.getLauncherConfig().getAmContainerMinPort());
+          conf.getAmContainerMinPort());
 
       if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
         LOGGER.logDebug("Allocated port: optimizedRequestResource: [%s]", optimizedRequestResource);
@@ -266,7 +296,7 @@ public class SelectionManager { // THREAD SAFE
 
     // By default, using the simple sequential selection.
     // To improve it, considers the Gpu topology structure, find a node which can minimize
-    // the communication cost among Gpus;
+    // the communication cost among Gpus.
     for (int i = 0; i < requestGpuNumber; i++) {
       selectedGpuAttribute += (availableGpuAttribute - (availableGpuAttribute & (availableGpuAttribute - 1)));
       availableGpuAttribute &= (availableGpuAttribute - 1);

@@ -14,7 +14,7 @@ public class ResourceDescriptorTest {
   @Test
   public void testResourceDescriptor() throws Exception {
 
-      String resourceDescriptorContent = "{\n" +
+      String resourceDescriptorJsonContent = "{\n" +
                                 "          \"cpuNumber\": 1,\n" +
                                 "          \"memoryMB\": 2,\n" +
                                 "          \"gpuNumber\": 3,\n" +
@@ -29,14 +29,24 @@ public class ResourceDescriptorTest {
                                 "          \t}\n" +
                                 "          }\n" +
                                 "        }";
-      ResourceDescriptor resourceDescriptor = WebCommon.toObject(resourceDescriptorContent, ResourceDescriptor.class);
+      String resourceDescriptorYamlContent = "!!com.microsoft.frameworklauncher.common.model.ResourceDescriptor\n" +
+          "cpuNumber: 1\n" +
+          "diskMB: 0\n" +
+          "diskType: HDD\n" +
+          "gpuAttribute: 0\n" +
+          "gpuNumber: 3\n" +
+          "memoryMB: 2\n" +
+          "portDefinitions:\n" +
+          "  httpPort: {count: 1, start: 0}\n" +
+          "  sshPort: {count: 1, start: 0}\n";
+
+      ResourceDescriptor resourceDescriptor = WebCommon.toObject(resourceDescriptorJsonContent, ResourceDescriptor.class);
 
       Assert.assertEquals(resourceDescriptor.getCpuNumber().intValue(), 1);
       Assert.assertEquals(resourceDescriptor.getGpuNumber().longValue(), 3L);
       Assert.assertEquals(resourceDescriptor.getPortNumber().intValue(), 2);
 
-      byte[] resourceDescriptorBytes = YamlUtils.toBytes(resourceDescriptor);
-      ResourceDescriptor resourceDescriptor2 = YamlUtils.toObject(resourceDescriptorBytes, ResourceDescriptor.class);
+      ResourceDescriptor resourceDescriptor2 = YamlUtils.toObject(resourceDescriptorYamlContent.getBytes(), ResourceDescriptor.class);
       Assert.assertEquals(resourceDescriptor.getCpuNumber(), resourceDescriptor2.getCpuNumber());
       Assert.assertEquals(resourceDescriptor.getGpuNumber(), resourceDescriptor2.getGpuNumber());
       Assert.assertEquals(resourceDescriptor.getDiskMB(), resourceDescriptor2.getDiskMB());
