@@ -118,6 +118,13 @@ class TestBootstrap(unittest.TestCase):
         args.file = "testfile"
         self.assertTrue(bootstrap.option_validation(args))
 
+        # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a etcdfix
+        # Target: True
+        args.path = "testpath"
+        args.action = "etcdfix"
+        args.file = "testfile"
+        self.assertTrue(bootstrap.option_validation(args))
+
 
 
     # option_validation: Missing option
@@ -148,6 +155,14 @@ class TestBootstrap(unittest.TestCase):
         args.action = "repair"
         args.file = None
         self.assertFalse(bootstrap.option_validation(args))
+
+        # sudo ./bootstrap.py -p yourclusterconfig.yaml -a etcdfix
+        # Target: False
+        args.path = "testpath"
+        args.action = "etcdfix"
+        args.file = None
+        self.assertFalse(bootstrap.option_validation(args))
+
 
 
 
