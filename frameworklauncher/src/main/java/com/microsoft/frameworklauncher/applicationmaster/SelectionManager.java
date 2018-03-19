@@ -266,7 +266,7 @@ public class SelectionManager { // THREAD SAFE
 
     // By default, using the simple sequential selection.
     // To improve it, considers the Gpu topology structure, find a node which can minimize
-    // the communication cost among Gpus;
+    // the communication cost among Gpus.
     for (int i = 0; i < requestGpuNumber; i++) {
       selectedGpuAttribute += (availableGpuAttribute - (availableGpuAttribute & (availableGpuAttribute - 1)));
       availableGpuAttribute &= (availableGpuAttribute - 1);
