@@ -111,5 +111,6 @@ else
     python ../../service_dependency_solve.py -w -s hadoop-jobhistory-service
 fi
 
+kubectl create -f one-time-job-hadoop.yaml
 
 popd > /dev/null

@@ -60,4 +60,6 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-c
 RUN cp docker-17.06.2-ce.tgz /usr/local
 RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
 
-CMD bash
+COPY container-setup.sh /
+
+CMD ["/container-setup.sh"]

@@ -62,6 +62,10 @@ launcherConfig.frameworkRequestPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
 };
 
+launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
+};
+
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
@@ -88,6 +92,9 @@ const launcherConfigSchema = Joi.object().keys({
   frameworkRequestPath: Joi.func()
     .arity(1)
     .required(),
+  frameworkExecutionTypePath: Joi.func()
+    .arity(1)
+    .required(),
   webserviceRequestHeaders: Joi.object()
     .required(),
   jobRootDir: Joi.string()
@@ -111,12 +118,17 @@ launcherConfig = value;
 // prepare hdfs file path
 const prepareHdfsPath = () => {
   async.each(['Container', 'Output'], (hdfsPath, callback) => {
+    let cmd = '';
+    if (config.env !== 'test') {
+      cmd = `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
+          hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`;
+    }
     childProcess.exec(
-        `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
-        hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`,
-        (err, stdout, stderr) => {
-          callback(err);
-        });
+      cmd,
+      (err, stdout, stderr) => {
+        callback(err);
+      }
+    );
   }, (err) => {
     if (err) {
       throw err;

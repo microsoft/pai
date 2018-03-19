@@ -23,6 +23,7 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const childProcess = require('child_process');
+const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -40,6 +41,35 @@ class Job {
       }
       next(this, error);
     });
+  }
+
+  convertJobState(frameworkState, exitCode) {
+    let jobState = '';
+    switch (frameworkState) {
+      case 'FRAMEWORK_WAITING':
+      case 'APPLICATION_CREATED':
+      case 'APPLICATION_LAUNCHED':
+      case 'APPLICATION_WAITING':
+        jobState = 'WAITING';
+        break;
+      case 'APPLICATION_RUNNING':
+      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
+      case 'APPLICATION_COMPLETED':
+        jobState = 'RUNNING';
+        break;
+      case 'FRAMEWORK_COMPLETED':
+        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
+          jobState = 'SUCCEEDED';
+        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+          jobState = 'STOPPED';
+        } else {
+          jobState = 'FAILED';
+        }
+        break;
+      default:
+        jobState = 'UNKNOWN';
+    }
+    return jobState;
   }
 
   getJobList(next) {
@@ -60,6 +90,7 @@ class Job {
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
+              executionType: frameworkInfo.executionType,
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
@@ -164,21 +195,26 @@ class Job {
           if (parallelError) {
             return next(parallelError);
           } else {
+            let cmd = '';
+            if (config.env !== 'test') {
+              cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
+            }
             childProcess.exec(
-                `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`,
-                (err, stdout, stderr) => {
-                  logger.info('[stdout]\n%s', stdout);
-                  logger.info('[stderr]\n%s', stderr);
-                  if (err) {
-                    return next(err);
-                  } else {
-                    unirest.put(launcherConfig.frameworkPath(name))
-                        .headers(launcherConfig.webserviceRequestHeaders)
-                        .send(frameworkDescription)
-                        .end((res) => next());
-                  }
-                });
+              cmd,
+              (err, stdout, stderr) => {
+                logger.info('[stdout]\n%s', stdout);
+                logger.info('[stderr]\n%s', stderr);
+                if (err) {
+                  return next(err);
+                } else {
+                  unirest.put(launcherConfig.frameworkPath(name))
+                      .headers(launcherConfig.webserviceRequestHeaders)
+                      .send(frameworkDescription)
+                      .end((res) => next());
+                }
+              }
+            );
           }
         });
       }
@@ -199,6 +235,25 @@ class Job {
             .end(() => next());
         } else {
           next(new Error('can not delete other user\'s job'));
+        }
+      });
+  }
+
+  putJobExecutionType(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+            requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send({'executionType': data.value})
+            .end((res) => next());
+        } else {
+          next(new Error('can not execute other user\'s job'));
         }
       });
   }
@@ -270,33 +325,6 @@ class Job {
           next(null, error);
         }
       });
-  }
-
-  convertJobState(frameworkState, exitCode) {
-    let jobState = '';
-    switch (frameworkState) {
-      case 'FRAMEWORK_WAITING':
-      case 'APPLICATION_CREATED':
-      case 'APPLICATION_LAUNCHED':
-      case 'APPLICATION_WAITING':
-        jobState = 'WAITING';
-        break;
-      case 'APPLICATION_RUNNING':
-      case 'APPLICATION_RETRIEVING_DIAGNOSTICS':
-      case 'APPLICATION_COMPLETED':
-        jobState = 'RUNNING';
-        break;
-      case 'FRAMEWORK_COMPLETED':
-        if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
-          jobState = 'SUCCEEDED';
-        } else {
-          jobState = 'FAILED';
-        }
-        break;
-      default:
-        jobState = 'UNKNOWN';
-    }
-    return jobState;
   }
 
   generateJobDetail(framework) {
