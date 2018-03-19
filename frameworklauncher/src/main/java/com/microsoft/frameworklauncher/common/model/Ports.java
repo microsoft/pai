@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
@@ -30,8 +29,8 @@ public class Ports implements Serializable {
 
   @Valid
   @NotNull
-  // count is the number of port from "start", for example, if start is 80 and count is 2. the Ports is 80, 81
-  // if start is 0, and count > 0, it means any ports is ok, and the number is count.
+  // count is the number of ports from "start", for example, if start is 80 and count is 2. the Ports is 80, 81
+  // if start is 0, and count > 0, it means any ports are ok, and the number is count.
   private Integer count;
 
   public Integer getStart() {

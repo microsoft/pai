@@ -348,8 +348,7 @@ public class ApplicationMaster extends AbstractService {
 
     // Random pick a host from the result set to avoid conflicted requests from concurrent container requests
     // from different jobs
-    int random = new Random().nextInt(selectionResult.getNodeHosts().size());
-    String candidateNode = selectionResult.getNodeHosts().get(random);
+    String candidateNode = selectionResult.getNodeHosts().get(CommonUtils.getRandomNumber(0, selectionResult.getNodeHosts().size()-1));
     optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute(candidateNode));
     return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, candidateNode);
   }
@@ -627,7 +626,7 @@ public class ApplicationMaster extends AbstractService {
   private String setupPortsEnvironment(TaskStatus taskStatus) {
     Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskStatus.getTaskRoleName()).getPortDefinitions();
     List<ValueRange> portRanges = taskStatus.getContainerPorts();
-    return ValueRangeUtils.toEnviromentString(portRanges, portDefinitions);
+    return ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
   }
 
   private void updateNodeReports(List<NodeReport> nodeReports) throws Exception {
@@ -1470,17 +1469,5 @@ public class ApplicationMaster extends AbstractService {
 
   protected ClusterConfiguration getClusterConfiguration() {
     return requestManager.getClusterConfiguration();
-  }
-
-  protected Configuration getConfiguration() {
-    return this.conf;
-  }
-
-  protected StatusManager getStatusManager() {
-    return this.statusManager;
-  }
-
-  protected RequestManager getRequestManager() {
-    return this.requestManager;
   }
 }

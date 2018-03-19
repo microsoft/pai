@@ -18,7 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation;
-import com.microsoft.frameworklauncher.common.validation.PortsConsistentValidation;
+import com.microsoft.frameworklauncher.common.validation.PortConsistentValidation;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   @GpuConsistentValidation
-  @PortsConsistentValidation
+  @PortConsistentValidation
   // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
   private ResourceDescriptor amResource;
 

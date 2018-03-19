@@ -408,10 +408,9 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   public int getTotalGpuCount() {
     int gpuCount = 0;
-    Map<String, TaskRoleDescriptor> cachedTaskRoles = taskRoles;
-    for (String taskRoleName : taskResources.keySet()) {
-      int taskNumber = cachedTaskRoles.get(taskRoleName).getTaskNumber();
-      gpuCount += taskResources.get(taskRoleName).getGpuNumber() * taskNumber;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot  = taskRoles;
+    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRolesSnapshot .entrySet()) {
+      gpuCount += taskRole.getValue().getTaskService().getResource().getGpuNumber() * taskRole.getValue().getTaskNumber();
     }
     return gpuCount;
   }

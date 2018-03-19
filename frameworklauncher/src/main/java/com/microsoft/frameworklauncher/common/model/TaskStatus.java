@@ -137,8 +137,8 @@ public class TaskStatus implements Serializable {
     return containerPorts;
   }
 
-  public void setContainerPorts(List<ValueRange> ports) {
-    containerPorts = ports;
+  public void setContainerPorts(List<ValueRange> containerPorts) {
+    this.containerPorts = containerPorts;
   }
 
   public Long getContainerGpus() {

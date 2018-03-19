@@ -47,6 +47,7 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     this.end = end;
   }
 
+  @Override
   public int compareTo(ValueRange other) {
     if (other == null) {
       return -1;
@@ -55,8 +56,7 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
       return 0;
     } else if (getBegin() - other.getBegin() < 0) {
       return -1;
-    } else if (getBegin() - other.getBegin() == 0
-        && getEnd() - other.getEnd() < 0) {
+    } else if (getBegin() - other.getBegin() == 0 && getEnd() - other.getEnd() < 0) {
       return -1;
     } else {
       return 1;

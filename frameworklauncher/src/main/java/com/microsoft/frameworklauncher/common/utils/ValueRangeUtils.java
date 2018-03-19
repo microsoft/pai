@@ -332,7 +332,7 @@ public class ValueRangeUtils {
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
   // the Ports label defined in portsDefinitions
 
-  public static String toEnviromentString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) {
+  public static String toEnviromentVariableString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) {
     StringBuilder portsString = new StringBuilder();
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {

@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
-import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import org.apache.hadoop.yarn.api.records.Resource;
 
@@ -108,18 +107,18 @@ public class ResourceDescriptor implements Serializable {
     return portDefinitions;
   }
 
-  public void setPortDefinitions(Map<String, Ports> portDefinitions) throws Exception {
+  public void setPortDefinitions(Map<String, Ports> portDefinitions) {
     this.portDefinitions = portDefinitions;
     if (portDefinitions == null) {
       return;
     }
 
     // Convert port information from user input format to List<Range> format for AM scheduling.
-    List<ValueRange> portRangeList = new ArrayList<ValueRange>();
+    List<ValueRange> portRanges = new ArrayList<ValueRange>();
     int portNumber = 0;
     for (Ports ports : portDefinitions.values()) {
       if (ports.getStart() != 0) {
-        portRangeList.add(ValueRange.newInstance(ports.getStart(), ports.getStart() + ports.getCount() - 1));
+        portRanges.add(ValueRange.newInstance(ports.getStart(), ports.getStart() + ports.getCount() - 1));
       } else {
         portNumber += ports.getCount();
       }
@@ -127,11 +126,10 @@ public class ResourceDescriptor implements Serializable {
 
     // portNumber and portRangeList are not allow coexistence.
     // user is not allowed to set "Any" port and "Specified" port in the same task role.
-    // if
-    if (portNumber == 0 && ValueRangeUtils.getValueNumber(portRangeList) > 0) {
-      this.setPortRanges(portRangeList);
+    if (portNumber == 0 && ValueRangeUtils.getValueNumber(portRanges) > 0) {
+      this.setPortRanges(portRanges);
       this.setPortNumber(0);
-    } else if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) == 0) {
+    } else if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRanges) == 0) {
       this.setPortNumber(portNumber);
     }
   }
@@ -173,14 +171,14 @@ public class ResourceDescriptor implements Serializable {
   }
 
   public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber,
-      Long gpuAttribute, int portNumber, List<ValueRange> portRange) {
+      Long gpuAttribute, int portNumber, List<ValueRange> portRanges) {
     ResourceDescriptor resource = new ResourceDescriptor();
     resource.setMemoryMB(memoryMB);
     resource.setCpuNumber(cpuNumber);
     resource.setGpuNumber(gpuNumber);
     resource.setGpuAttribute(gpuAttribute);
     resource.setPortNumber(portNumber);
-    resource.setPortRanges(portRange);
+    resource.setPortRanges(portRanges);
     return resource;
   }
 
@@ -294,34 +292,25 @@ public class ResourceDescriptor implements Serializable {
   // Maybe underestimate if any GpuAttribute == 0
   public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
     ResourceDescriptor ret = YamlUtils.deepCopy(lhs, ResourceDescriptor.class);
-    ResourceDescriptor.subtractFrom(ret, rhs);
-    return ret;
-  }
-
-  public static ResourceDescriptor subtractFrom(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    lhs.setMemoryMB(lhs.getMemoryMB() - rhs.getMemoryMB());
-    lhs.setCpuNumber(lhs.getCpuNumber() - rhs.getCpuNumber());
-    lhs.setGpuAttribute(lhs.getGpuAttribute() & (~(rhs.getGpuAttribute())));
-    lhs.setGpuNumber(Long.bitCount(lhs.getGpuAttribute()));
-    lhs.setPortRanges(ValueRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
-    lhs.setPortNumber(ValueRangeUtils.getValueNumber(lhs.getPortRanges()));
-    return lhs;
-  }
-
-  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    ResourceDescriptor ret = YamlUtils.deepCopy(lhs, ResourceDescriptor.class);
-    ResourceDescriptor.addTo(ret, rhs);
+    ret.setMemoryMB(ret.getMemoryMB() - rhs.getMemoryMB());
+    ret.setCpuNumber(ret.getCpuNumber() - rhs.getCpuNumber());
+    ret.setGpuAttribute(ret.getGpuAttribute() & (~(rhs.getGpuAttribute())));
+    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    ret.setPortRanges(ValueRangeUtils.subtractRange(ret.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
     return ret;
   }
 
   // Maybe overestimate if any GpuAttribute == 0
-  public static void addTo(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    lhs.setMemoryMB(lhs.getMemoryMB() + rhs.getMemoryMB());
-    lhs.setCpuNumber(lhs.getCpuNumber() + rhs.getCpuNumber());
-    lhs.setGpuAttribute(lhs.getGpuAttribute() | rhs.getGpuAttribute());
-    lhs.setGpuNumber(Long.bitCount(lhs.getGpuAttribute()));
-    lhs.setPortRanges(ValueRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
-    lhs.setPortNumber(ValueRangeUtils.getValueNumber(lhs.getPortRanges()));
+  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = YamlUtils.deepCopy(lhs, ResourceDescriptor.class);
+    ret.setMemoryMB(ret.getMemoryMB() + rhs.getMemoryMB());
+    ret.setCpuNumber(ret.getCpuNumber() + rhs.getCpuNumber());
+    ret.setGpuAttribute(ret.getGpuAttribute() | rhs.getGpuAttribute());
+    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    ret.setPortRanges(ValueRangeUtils.addRange(ret.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
+    return ret;
   }
 
   public static boolean fitsIn(ResourceDescriptor smaller, ResourceDescriptor bigger) {
@@ -339,7 +328,7 @@ public class ResourceDescriptor implements Serializable {
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]", CommonExts.toStringWithBits(getGpuAttribute())) + " " +
         String.format("PortNumber: [%s]", getPortNumber()) +
-        String.format("PortRanges: [%s]", ValueRangeUtils.toString(portRanges));
+        String.format("PortRanges: [%s]]", ValueRangeUtils.toString(portRanges));
   }
 
 }

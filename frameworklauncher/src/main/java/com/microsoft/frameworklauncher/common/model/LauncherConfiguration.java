@@ -97,12 +97,13 @@ public class LauncherConfiguration implements Serializable {
 
   // Small ports usually reserved for system usage,  the minimum port a job can use.
   private Integer amContainerMinPort = 2000;
+  // the factor to enlarge the candidate nodes compare with the request.
   private Integer amSearchNodeBufferFactor = 2;
 
-  // true: AM will skip the resource(gpu and port) already tried in previous tasks' allocation.
+  // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
   private Boolean amSkipLocalTriedResource = false;
 
-  // true: AM will allocate a none Gpu job in to host with Gpu resource.
+  // true: AM will allocate a none Gpu job in to node with Gpu resource.
   // false: AM will not allocated a none Gpu job into a Gpu machine.
   private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
@@ -241,38 +242,6 @@ public class LauncherConfiguration implements Serializable {
     this.maxTotalTaskNumber = maxTotalTaskNumber;
   }
 
-  public Integer getAmContainerMinPort() {
-    return amContainerMinPort;
-  }
-
-  public void setAmContainerMinPort(Integer amContainerMinPort) {
-    this.amContainerMinPort = amContainerMinPort;
-  }
-
-  public Integer getAmSearchNodeBufferFactor() {
-    return amSearchNodeBufferFactor;
-  }
-
-  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
-    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
-  }
-
-    public Boolean getAmSkipLocalTriedResource() {
-    return amSkipLocalTriedResource;
-  }
-
-  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
-    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
-  }
-
-  public Boolean getAmAllowNoneGpuJobOnGpuNode() {
-    return amAllowNoneGpuJobOnGpuNode;
-  }
-
-  public void setAmAllowNoneGpuJobOnGpuNode(Boolean amAllowNoneGpuJobOnGpuNode) {
-    this.amAllowNoneGpuJobOnGpuNode = amAllowNoneGpuJobOnGpuNode;
-  }
-
   public Integer getAmVersion() {
     return amVersion;
   }
@@ -375,6 +344,38 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
     this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
+  }
+
+  public Integer getAmContainerMinPort() {
+    return amContainerMinPort;
+  }
+
+  public void setAmContainerMinPort(Integer amContainerMinPort) {
+    this.amContainerMinPort = amContainerMinPort;
+  }
+
+  public Integer getAmSearchNodeBufferFactor() {
+    return amSearchNodeBufferFactor;
+  }
+
+  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
+    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
+  }
+
+  public Boolean getAmSkipLocalTriedResource() {
+    return amSkipLocalTriedResource;
+  }
+
+  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
+    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
+  }
+
+  public Boolean getAmAllowNoneGpuJobOnGpuNode() {
+    return amAllowNoneGpuJobOnGpuNode;
+  }
+
+  public void setAmAllowNoneGpuJobOnGpuNode(Boolean amAllowNoneGpuJobOnGpuNode) {
+    this.amAllowNoneGpuJobOnGpuNode = amAllowNoneGpuJobOnGpuNode;
   }
 
   public String getWebServerBindHost() {
