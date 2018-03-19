@@ -81,7 +81,7 @@ public @interface PortConsistentValidation {
       if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) > 0) {
         context.disableDefaultConstraintViolation();
         String notValidMessage = String.format(
-            "illegal portDefinitions in ResourceDescriptor, \"any port\" and \"specified\" port are now allowed to coexistence");
+            "illegal portDefinitions in ResourceDescriptor, \"any port\" and \"specified\" port are not allowed to coexistence");
         context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
         return false;
       }

@@ -103,8 +103,8 @@ public class LauncherConfiguration implements Serializable {
   // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
   private Boolean amSkipLocalTriedResource = false;
 
-  // true: AM will allocate a none Gpu job in to node with Gpu resource.
-  // false: AM will not allocated a none Gpu job into a Gpu machine.
+  // true: AM will allocate a none Gpu job into a node with Gpu resource.
+  // false: AM will not allocate a none Gpu job a node with Gpu resource.
   private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
   // WebServer Setup

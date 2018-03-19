@@ -274,8 +274,8 @@ public class ResourceDescriptor implements Serializable {
         Method setRangesList = hadoopValueRangesClass.getMethod("setRangesList", List.class);
         setRangesList.invoke(obj, hadoopValueRangeList);
 
-        Method setPort = clazz.getMethod("setPorts", hadoopValueRangesClass);
-        setPort.invoke(res, obj);
+        Method setPorts = clazz.getMethod("setPorts", hadoopValueRangesClass);
+        setPorts.invoke(res, obj);
 
       } catch (NoSuchMethodException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support Port");

@@ -408,8 +408,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   public int getTotalGpuCount() {
     int gpuCount = 0;
-    Map<String, TaskRoleDescriptor> taskRolesSnapshot  = taskRoles;
-    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRolesSnapshot .entrySet()) {
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = taskRoles;
+    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRolesSnapshot.entrySet()) {
       gpuCount += taskRole.getValue().getTaskService().getResource().getGpuNumber() * taskRole.getValue().getTaskNumber();
     }
     return gpuCount;
@@ -439,7 +439,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
     return existsLocalVersionFrameworkRequest == 1;
   }
-
 
   /**
    * REGION Callbacks

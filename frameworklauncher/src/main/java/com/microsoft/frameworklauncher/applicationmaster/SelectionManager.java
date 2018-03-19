@@ -61,7 +61,6 @@ public class SelectionManager { // THREAD SAFE
   }
 
   private void randomizeNodes() {
-
     filteredNodes.clear();
     for (String nodeName : allNodes.keySet()) {
       filteredNodes.add(nodeName);
@@ -114,7 +113,7 @@ public class SelectionManager { // THREAD SAFE
         Node node = allNodes.get(filteredNodes.get(i));
         ResourceDescriptor totalResource = node.getTotalResource();
         if (totalResource.getGpuNumber() > 0) {
-          LOGGER.logDebug("skip gpu node for none-gpu job: Node [%s], Node total resource: [%s]",
+          LOGGER.logDebug("skip gpu node for none gpu job: Node [%s], Node total resource: [%s]",
               node.getHost(), totalResource);
           filteredNodes.remove(i);
         }
@@ -145,13 +144,12 @@ public class SelectionManager { // THREAD SAFE
   }
 
   private SelectionResult selectNodes(ResourceDescriptor requestResource, int pendingTaskNumber) {
-    //TODO: apply other node selection policy in the further;
+    //TODO: apply other node selection policy in the future;
     return selectNodesByJobPacking(requestResource, pendingTaskNumber);
   }
 
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int pendingTaskNumber) {
-
     int requestNumber = pendingTaskNumber * am.conf.getLauncherConfig().getAmSearchNodeBufferFactor();
     List<Node> candidateNodes = new ArrayList<Node>();
     SelectionResult result = new SelectionResult();
@@ -190,7 +188,7 @@ public class SelectionManager { // THREAD SAFE
     }
 
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, reUsePorts);
-    if (pendingTaskNumber > 1) {
+    if (pendingTaskNumber > 0) {
       previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
     }
     return result;
@@ -241,7 +239,7 @@ public class SelectionManager { // THREAD SAFE
     return selectionResult;
   }
 
-  public List<ValueRange> allocatePorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
+  public synchronized List<ValueRange> allocatePorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
     // If the port was not allocated and was not specified previously, need allocate the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
@@ -251,7 +249,8 @@ public class SelectionManager { // THREAD SAFE
         LOGGER.logDebug("Allocated port: optimizedRequestResource: [%s]", optimizedRequestResource);
         return newCandidatePorts;
       } else {
-        throw new NotAvailableException("The selected candidate nodes don't have enough ports");
+        throw new NotAvailableException(String.format("The selected candidate nodes don't have enough ports, optimizedRequestResource:[%s]",
+            optimizedRequestResource));
       }
     }
     return optimizedRequestResource.getPortRanges();
@@ -283,7 +282,7 @@ public class SelectionManager { // THREAD SAFE
     } else {
       Node existNode = allNodes.get(reportedNode.getHost());
       existNode.updateFromReportedNode(reportedNode);
-      LOGGER.logDebug("addNode: %s ", existNode);
+      LOGGER.logDebug("updateNode: %s ", existNode);
     }
   }
 
