@@ -107,7 +107,7 @@ public class SelectionManager { // THREAD SAFE
           }
         }
       } else {
-        LOGGER.logWarning("clusterConfiguration is not set, Request NodeGpuType: [%s]", requestNodeGpuType);
+        LOGGER.logWarning("Configured Nodes is not found in ClusterConfiguration: Ignore Request NodeGpuType: [%s]", requestNodeGpuType);
       }
     }
   }
@@ -249,7 +249,7 @@ public class SelectionManager { // THREAD SAFE
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
     if (ValueRangeUtils.getValueNumber(reusePorts) > 0) {
       LOGGER.logInfo(
-          "select: reuse pre-allocated ports: [%s]", ValueRangeUtils.toString(reusePorts));
+          "select: reuse pre-selected ports: [%s]", ValueRangeUtils.toString(reusePorts));
       optimizedRequestResource.setPortRanges(reusePorts);
     }
 
