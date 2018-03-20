@@ -65,7 +65,6 @@ public @interface PortConsistentValidation {
         return true;
       }
 
-      // Convert port information from user input format to List<Range> format for AM scheduling.
       java.util.List<ValueRange> portRangeList = new ArrayList<ValueRange>();
       Map<String, Ports> portDefinitions = r.getPortDefinitions();
 
