@@ -162,6 +162,7 @@ public class SelectionManager { // THREAD SAFE
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int pendingTaskNumber) {
     int requestNumber = pendingTaskNumber * conf.getAmSearchNodeBufferFactor();
+
     List<Node> candidateNodes = new ArrayList<Node>();
     SelectionResult result = new SelectionResult();
     for (String nodeName : filteredNodes) {
@@ -214,6 +215,7 @@ public class SelectionManager { // THREAD SAFE
         previousRequestedPorts.remove(taskRoleName);
       }
     }
+
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, reUsePorts);
 
     // This pendingTaskNumber includes current task, when pendingTaskNumber == 1 means current task is the last task.
