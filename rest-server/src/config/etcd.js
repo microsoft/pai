@@ -19,7 +19,6 @@
 // module dependencies
 const Joi = require('joi');
 const logger = require('../config/logger');
-const dbUtility = require('../util/dbUtility');
 
 let etcdConfig = {
   etcdUri: process.env.ETCD_URI,
