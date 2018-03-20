@@ -39,18 +39,18 @@ class EtcdV2 extends StorageBase {
           };
         } else {
           resJson = {
-            errCode: '-1',
+            errCode: StorageBase.prototype.getErrorCode().ERROR,
             errMsg: err.message
           };
         }
-        next(resJson);
+        next(err, resJson);
       });
     } catch (err) {
       resJson = {
-        errCode: "-2",
+        errCode: StorageBase.prototype.getErrorCode().FAILED,
         errMsg: "Exception in etcd2 get function. Error message: " + err.message
       }
-      next(resJson);
+      next(err, resJson);
     }
   }
 
@@ -60,23 +60,23 @@ class EtcdV2 extends StorageBase {
       this.etcdClient.set(key, value, options, (err, res) => {
         if (err === null) {
           resJson = {
-            errCode: "0",
+            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
             errMsg: "OK"
           };
         } else {
           resJson = {
-            errCode: "-1",
+            errCode: StorageBase.prototype.getErrorCode().ERROR,
             errMsg: err.message
           };
         }
-        next(resJson)
+        next(err, resJson);
       });
     } catch (err) {
       resJson = {
-        errorCode: "-2",
+        errorCode: StorageBase.prototype.getErrorCode().FAILED,
         errorMsg: "Exception in etcd2 set function. Error message: " + err.message
       };
-      next(resJson)
+      next(err, resJson)
     }
   }
 
@@ -86,23 +86,23 @@ class EtcdV2 extends StorageBase {
       this.etcdClient.del(key, options, (err, res) => {
         if (err === null) {
           resJson = {
-            errCode: "0",
+            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
             errMsg: "OK"
           }
         } else {
           resJson = {
-            errCode: "-1",
+            errCode: StorageBase.prototype.getErrorCode().ERROR,
             errMsg: err.message
           }
         }
-        next(resJson)
+        next(err, resJson);
       })
     } catch (err) {
       const resJson = {
-        errorCode: "-2",
+        errorCode: StorageBase.prototype.getErrorCode().FAILED,
         errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
       }
-      next(resJson)
+      next(err, resJson)
     }
   }
 
@@ -112,19 +112,19 @@ class EtcdV2 extends StorageBase {
       let res = this.etcdClient.getSync(key, options);
       if (res.err === null) {
         resJson = {
-          errCode: "0",
+          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
           key: res.body.node.key,
           value: res.body.node.value
         }
       } else {
         resJson = {
-          errCode: "-1",
+          errCode: StorageBase.prototype.getErrorCode().ERROR,
           errMsg: res.err.error.message
         }
       }
     } catch (err) {
       resJson = {
-        errCode: "-2",
+        errCode: StorageBase.prototype.getErrorCode().FAILED,
         errMsg: "Exception in etcd2 getSync function. Error message: " + err.message
       }
     } finally {
@@ -135,22 +135,21 @@ class EtcdV2 extends StorageBase {
   setSync(key, value, options = null) {
     let resJson = {};
     try {
-      this.etcdClient.set("/can_directory");
       let res = this.etcdClient.setSync(key, value, options);
       if (res.err === null) {
         resJson = {
-          errCode: "0",
+          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
           errMsg: "OK"
         }
       } else {
         resJson = {
-          errCode: "-1",
+          errCode: StorageBase.prototype.getErrorCode().ERROR,
           errMsg: res.err.error.message
         }
       }
     } catch (err) {
       resJson = {
-        errCode: "-2",
+        errCode: StorageBase.prototype.getErrorCode().FAILED,
         errMsg: "Exception in etcd2 setSync function. Error message: " + err.message
       }
     } finally {
@@ -164,18 +163,18 @@ class EtcdV2 extends StorageBase {
       let res = this.etcdClient.delSync(key, options);
       if (res.err === null) {
         resJson = {
-          errCode: "0",
+          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
           errMsg: "OK"
         }
       } else {
         resJson = {
-          errCode: "-1",
+          errCode: StorageBase.prototype.getErrorCode().ERROR,
           errMsg: res.err.error.message
         }
       }
     } catch (err) {
       resJson = {
-        errorCode: "-2",
+        errorCode: StorageBase.prototype.getErrorCode().FAILED,
         errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
       }
     } finally {
@@ -184,13 +183,13 @@ class EtcdV2 extends StorageBase {
   }
 
   has(key, next, options = null) {
-    this.get(key, (res) => {
-       if(res.errCode === '-1' ){
-        next(false,res.errMsg);
-       } else {
-        next(true,null);
-       }
-     } ,options);
+    this.get(key, (err, res) => {
+      if (res.errCode === StorageBase.prototype.getErrorCode().ERROR && res.errMsg === 'Key not found') {
+        next(res.errMsg, false);
+      } else {
+        next(null, true);
+      }
+    }, options);
   }
 }
 

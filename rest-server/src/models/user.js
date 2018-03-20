@@ -43,31 +43,54 @@ const db = dbUtility.getStorageObject("etcd2", {
 })
 
 const update = (username, password, admin, modify, callback) => {
-  logger.info("user update");
-  logger.info("modify is " + modify);
   if (typeof modify === 'undefined') {
     callback(null, false);
   } else {
-    db.has(etcdConfig.userPath(username), (res, error) => {
+    db.has(etcdConfig.userPath(username), (error, res) => {
+      logger.info(res);
       if (res !== modify) {
         callback(null, false);
       } else {
         encrypt(username, password, (err, derivedKey) => {
+          logger.info("encrypt" + err);
           if (err) {
             callback(err, false);
           } else {
             if (modify) {
-              db.set(etcdConfig.userPasswdPath(username), derivedKey, (res) => {
+              db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, res) => {
+                logger.info("update user password: " + err);
+                logger.info("update user password: " + res);
+                if (err !== null) {
+                  logger.info(err);
+                  callback(err, false);
+                }
               }, { prevExist: true })
             } else {
-              db.set(etcdConfig.userPath(username), null, (res) => {
-                db.set(etcdConfig.userPasswdPath(username), derivedKey, (result) => {
-                  logger.info(result)
+              db.set(etcdConfig.userPath(username), null, (err, res) => {
+                logger.info("set user path: " + err);
+                logger.info("set user path: " + res);
+                if (err !== null) {
+                  logger.info(err);
+                  callback(err, false);
+                }
+                db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, result) => {
+                  logger.info("set user password path: " + err);
+                  logger.info("set user password path: " + res);
+                  if (err !== null) {
+                    logger.info(error);
+                    callback(error, false);
+                  }
                 })
               }, { dir: true })
             }
             if (typeof admin !== 'undefined') {
-              db.set(etcdConfig.userAdminPath(username), admin, (res) => {
+              db.set(etcdConfig.userAdminPath(username), admin, (err, res) => {
+                logger.info("set user admin path: " + err);
+                logger.info("set user admin path: " + res);
+                if (err !== null) {
+                  logger.info(err);
+                  callback(err, false);
+                }
               })
             }
             callback(null, true);
@@ -83,22 +106,22 @@ const remove = (username, callback) => {
   if (typeof username === 'undefined') {
     callback(new Error('user does not exist'), false);
   } else {
-    db.has(etcdConfig.userPath(username), (res, error) => {
+    db.has(etcdConfig.userPath(username), (error, res) => {
       logger.info('remove db.has' + res)
       if (!res) {
         callback(new Error('user does not exist'), false);
       } else {
-        db.get(etcdConfig.userAdminPath(username), (res) => {
-          logger.info(res);
-          if (res.errCode !== '0') {
-            callback(new Error('delete user failed'), false);
+        db.get(etcdConfig.userAdminPath(username), (err, res) => {
+          if (err !== null) {
+            callback(err, false);
           } else {
-            logger.info("res.value is " + res.value);
-            if (res.value) {
+            if (res.value === 'true') {
               callback(new Error('can not delete admin user'), false);
             } else {
-              db.delete(etcdConfig.userPath(username), (result) => {
-                logger.info(result);
+              db.delete(etcdConfig.userPath(username), (error, result) => {
+                if (error !== null) {
+                  callback(new Error('delete user failed'), false);
+                }
                 callback(null, true);
               }, { recursive: true });
             }
@@ -122,8 +145,8 @@ const setDefaultAdmin = () => {
 
 const prepareStoragePath = () => {
   logger.info("prepare storage path:");
-  db.set(etcdConfig.storagePath(), null, (res) => {
-    if (res.errCode !== "0") {
+  db.set(etcdConfig.storagePath(), null, (err, res) => {
+    if (!err) {
       throw new Error('build storage path failed');
     } else {
       setDefaultAdmin();
@@ -132,7 +155,7 @@ const prepareStoragePath = () => {
 }
 
 if (config.env !== 'test') {
-  db.has(etcdConfig.storagePath(), (res, error) => {
+  db.has(etcdConfig.storagePath(), (err, res) => {
     logger.info("db.has callback " + res);
     logger.info(etcdConfig.storagePath());
     if (res) {
