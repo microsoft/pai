@@ -1469,11 +1469,4 @@ public class ApplicationMaster extends AbstractService {
       return requestManager.existsLocalVersionFrameworkRequest();
     }
   }
-<<<<<<< HEAD
-=======
-
-  protected ClusterConfiguration getClusterConfiguration() {
-    return requestManager.getClusterConfiguration();
-  }
->>>>>>> 6a1a015b70f0fc791942f578244061a3211c7a2d
 }
