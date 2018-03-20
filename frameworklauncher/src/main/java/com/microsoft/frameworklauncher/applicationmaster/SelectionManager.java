@@ -258,8 +258,8 @@ public class SelectionManager { // THREAD SAFE
       //don't have candidate nodes for this request.
       if (requestNodeGpuType != null || requestResource.getPortNumber() > 0) {
         //If gpuType or portNumber is specified, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to fit in optimizedRequestResource:%s, NodeGpuType: [%s]",
-            optimizedRequestResource, requestNodeGpuType));
+        throw new NotAvailableException(String.format("Don't have enough nodes to meet request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+            optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
     }
     SelectionResult selectionResult = selectNodes(optimizedRequestResource, pendingTaskNumber);

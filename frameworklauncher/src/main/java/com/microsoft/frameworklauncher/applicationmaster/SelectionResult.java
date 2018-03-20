@@ -68,7 +68,7 @@ public class SelectionResult {
 
   @Override
   public String toString() {
-    String output = "SelectionResult:";
+    String output = String.format("SelectionResult: [optimizedResource: %s]" , optimizedResource);
     for (Map.Entry<String, Long> entry : nodes.entrySet()) {
       output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
     }
