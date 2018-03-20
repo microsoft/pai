@@ -18,6 +18,8 @@
 
 package com.microsoft.frameworklauncher.common.utils;
 
+import com.microsoft.frameworklauncher.common.model.Ports;
+import com.microsoft.frameworklauncher.common.model.ValueRange;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,8 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.microsoft.frameworklauncher.common.model.*;
 
 public class ValueRangeUtilsTest {
 

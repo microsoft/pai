@@ -19,7 +19,10 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
-import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
+import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
+import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
@@ -61,8 +64,7 @@ public class SelectionManagerTest {
     AMForTest am = new AMForTest();
     am.initialize();
     am.setClusterConfiguration(new ClusterConfiguration());
-    SelectionManager sm = new SelectionManager();
-    sm.init(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
+    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
 
     long candidateGPU = sm.selectCandidateGpuAttribute(node1, 1);
     Assert.assertEquals(1L, candidateGPU);
@@ -156,8 +158,7 @@ public class SelectionManagerTest {
     node4 = new Node("node4", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 8, 0xFFL));
     node6 = new Node("node6", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
 
-    SelectionManager sm2 = new SelectionManager();
-    sm2.init(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
+    SelectionManager sm2 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
 
     sm2.addNode(node3);
     sm2.addNode(node4);
@@ -206,8 +207,7 @@ public class SelectionManagerTest {
 
 
     am.initialClusterTestNodes();
-    SelectionManager sm3 = new SelectionManager();
-    sm3.init(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
+    SelectionManager sm3 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
     sm3.addNode(node3);
     sm3.addNode(node4);
 
@@ -232,8 +232,7 @@ public class SelectionManagerTest {
     Assert.assertEquals("node3", result.getNodeHosts().get(0));
     Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
 
-    SelectionManager sm4 = new SelectionManager();
-    sm4.init(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
+    SelectionManager sm4 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
 
     node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
@@ -286,8 +285,7 @@ public class SelectionManagerTest {
     AMForTest am = new AMForTest();
     am.initialize();
     am.setClusterConfiguration(new ClusterConfiguration());
-    SelectionManager sm = new SelectionManager();
-    sm.init(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
+    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager, am.clusterConfiguration);
     sm.addNode(node1);
     sm.addNode(node2);
 
@@ -308,7 +306,8 @@ public class SelectionManagerTest {
 
   private class AMForTest extends MockApplicationMaster {
     private ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
-      public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
+
+    public void setClusterConfiguration(ClusterConfiguration clusterConfiguration) {
       this.clusterConfiguration = clusterConfiguration;
     }
 
