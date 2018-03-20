@@ -243,8 +243,8 @@ done
 # Start ssh service
 start_ssh_service
 
-# Write env to bashrc
-env | sed "s/^/export /" >> ~/.bashrc
+# Write env to system-wide environment
+env > /etc/environment
 
 sleep 10
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
