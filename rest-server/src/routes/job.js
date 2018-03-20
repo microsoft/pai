@@ -35,7 +35,7 @@ router.route('/:jobName')
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(tokenConfig.check, param.validate(jobConfig.schema), jobController.update)
+    .put(tokenConfig.check, param.add({'params': ['jobName']}), param.validate(jobConfig.schema), jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(tokenConfig.check, jobController.remove);

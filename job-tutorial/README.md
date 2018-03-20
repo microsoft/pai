@@ -92,7 +92,7 @@ Below please find the detailed explanation for each of the parameters in the con
 
 | Field Name                     | Schema                     | Description                              |
 | :----------------------------- | :------------------------- | :--------------------------------------- |
-| `jobName`                      | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique |
+| `jobName`                      | String in `^[A-Za-z0-9\-._~]+$` format, deprecated | Name for the job, need to be unique |
 | `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
 | `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
@@ -135,7 +135,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | :--------------------------------- | :--------------------------------------- |
 | PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
-| PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_JOB_NAME                       | `jobName` in request path                |
 | PAI_USER_NAME                      | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
