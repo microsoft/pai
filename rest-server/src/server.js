@@ -26,7 +26,6 @@ const config = require('./config/index');
 const launcherConfig = require('./config/launcher');
 const logger = require('./config/logger');
 const app = require('./config/express');
-const etcd = require('./config/etcd');
 
 
 logger.info('config: %j', config);

@@ -33,10 +33,7 @@ let config = {
   env: process.env.NODE_ENV,
   logLevel: process.env.LOG_LEVEL,
   serverPort: process.env.SERVER_PORT,
-  jwtSecret: process.env.JWT_SECRET,
-  lowdbFile: process.env.LOWDB_FILE,
-  lowdbAdmin: process.env.LOWDB_ADMIN,
-  lowdbPasswd: process.env.LOWDB_PASSWD,
+  jwtSecret: process.env.JWT_SECRET
 };
 
 // define config schema
@@ -54,15 +51,7 @@ const configSchema = Joi.object().keys({
     .default(9186),
   jwtSecret: Joi.string()
     .required()
-    .description('JWT Secret required to sign'),
-  lowdbFile: Joi.string()
-    .required(),
-  lowdbAdmin: Joi.string()
-    .token()
-    .required(),
-  lowdbPasswd: Joi.string()
-    .min(6)
-    .required(),
+    .description('JWT Secret required to sign')
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);
