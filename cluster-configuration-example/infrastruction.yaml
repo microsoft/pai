@@ -1,0 +1,161 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+# Find the namesever in  /etc/resolv.conf
+cluster-dns: IP
+
+# To support k8s ha, you should set an lb address here.
+# If deploy k8s with single master node, please set master IP address here
+load-balance-ip: IP
+
+
+machineinfo:
+
+  NC24R:
+    mem: 224
+    gpu:
+    # type: gpu{type}
+      type: teslak80
+      count: 4
+    cpu:
+      vcore: 24
+    dataFolder: "/mnt"
+    # Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
+    os: ubuntu16.04
+
+  D8SV3:
+    mem: 32
+    cpu:
+      vcore: 8
+    dataFolder: "/mnt"
+    # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    os: ubuntu16.04
+
+
+
+machinelist:
+  # hostname, must be the same as it in the host network
+  infra-01:
+    # The nodename in k8s. To avoid complication, it is suggested to fill in the hostip for the nodename.
+    # If you are confident that DNS can resolve your named nodename correctly, you can specify a UNIQUE_HOST_NAME.
+    # hostip: the static IP of this node. We assume the IP of a host will not change.
+    # sshport: the ssh port of this node. If not specified, the port is 22.
+    # username/password: the user name and password in the OS. Make sure it is granted with sudo permission.
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    etcdid: etcdid1
+    username: username
+    password: password
+    machinetype: D8SV3
+    k8s-role: master
+    dashboard: "true"
+    zkid: "1"
+    # hdfsrole:   master or worker
+    # yarnrole:   master or worker
+    # zookeeper:  "true"   or not set this value
+    # Note: if zookeeper is set, you should set zkid in this machine.
+    # jobhistory: "true"   or not set this value
+    # grafana: "true"   or not set this value
+    # pylon: "true"   or not set this value
+    hdfsrole: master
+    yarnrole: master
+    zookeeper: "true"
+    jobhistory: "true"
+    launcher: "true"
+    restserver: "true"
+    webportal: "true"
+    prometheus: "true"
+    grafana: "true"
+    pylon: "true"
+    node-exporter: "true"
+
+
+  infra-02:
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    etcdid: etcdid2
+    username: username
+    password: password
+    machinetype: D8SV3
+    k8s-role: master
+    node-exporter: "true"
+
+
+  infra-03:
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    etcdid: etcdid3
+    username: username
+    password: password
+    machinetype: D8SV3
+    k8s-role: master
+    node-exporter: "true"
+
+
+  worker-01:
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    username: username
+    password: password
+    machinetype: NC24R
+    k8s-role: worker
+    hdfsrole: worker
+    yarnrole: worker
+    node-exporter: "true"
+
+
+  worker-02:
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    username: username
+    password: password
+    machinetype: NC24R
+    k8s-role: worker
+    hdfsrole: worker
+    yarnrole: worker
+    node-exporter: "true"
+
+
+  worker-03:
+    hostname: XXXX
+    nodename: IP
+    hostip: IP
+    sshport: PORT
+    username: username
+    password: password
+    machinetype: NC24R
+    k8s-role: worker
+    hdfsrole: worker
+    yarnrole: worker
+    node-exporter: "true"
+
+
+
+
+
+
