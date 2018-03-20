@@ -18,14 +18,14 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
-import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
+import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 public class SelectionResult {
 
@@ -58,17 +58,17 @@ public class SelectionResult {
     return nodes.get(hostName);
   }
 
-  public void setOptimizedResource(ResourceDescriptor optimizedResource) {
-    this.optimizedResource = optimizedResource;
-  }
-
   public ResourceDescriptor getOptimizedResource() {
     return optimizedResource;
   }
 
+  public void setOptimizedResource(ResourceDescriptor optimizedResource) {
+    this.optimizedResource = optimizedResource;
+  }
+
   @Override
   public String toString() {
-    String output = String.format("SelectionResult: [optimizedResource: %s]" , optimizedResource);
+    String output = String.format("SelectionResult: [OptimizedResource: %s]", optimizedResource);
     for (Map.Entry<String, Long> entry : nodes.entrySet()) {
       output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
     }

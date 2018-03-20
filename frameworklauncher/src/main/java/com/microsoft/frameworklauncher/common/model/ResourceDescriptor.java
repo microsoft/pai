@@ -18,11 +18,9 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
-import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import org.apache.hadoop.yarn.api.records.Resource;
-
-import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -70,6 +68,109 @@ public class ResourceDescriptor implements Serializable {
   @Valid
   @NotNull
   private Long gpuAttribute = 0L;
+
+  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
+    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, new ArrayList<ValueRange>());
+  }
+
+  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber,
+      Long gpuAttribute, int portNumber, List<ValueRange> portRanges) {
+    ResourceDescriptor resource = new ResourceDescriptor();
+    resource.setMemoryMB(memoryMB);
+    resource.setCpuNumber(cpuNumber);
+    resource.setGpuNumber(gpuNumber);
+    resource.setGpuAttribute(gpuAttribute);
+    resource.setPortNumber(portNumber);
+    resource.setPortRanges(portRanges);
+    return resource;
+  }
+
+  public static ResourceDescriptor fromResource(Resource res) throws Exception {
+    ResourceDescriptor rd = new ResourceDescriptor();
+    rd.setMemoryMB(res.getMemory());
+    rd.setCpuNumber(res.getVirtualCores());
+    rd.setGpuAttribute(0L);
+    rd.setGpuNumber(0);
+    Class<?> clazz = res.getClass();
+
+    try {
+
+      Method getGpuNumber = clazz.getMethod("getGPUs");
+      Method getGpuAttribute = clazz.getMethod("getGPUAttribute");
+
+      rd.setGpuNumber((int) getGpuNumber.invoke(res));
+      rd.setGpuAttribute((long) getGpuAttribute.invoke(res));
+    } catch (NoSuchMethodException e) {
+      LOGGER.logDebug(e, "Ignore: Failed get GPU information, YARN library doesn't support gpu as resources");
+    } catch (IllegalAccessException e) {
+      LOGGER.logError(e, "Ignore: Failed to get GPU information, illegal access function");
+    }
+
+    try {
+
+      Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+      Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+      Method getPorts = clazz.getMethod("getPorts");
+
+      Object hadoopValueRanges = getPorts.invoke(res);
+      if (hadoopValueRanges != null) {
+        Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
+        Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
+
+        Method getSortedRangesList = hadoopValueRangesClass.getMethod("getSortedRangesList");
+        List<Object> hadoopValueRangeList = (List<Object>) getSortedRangesList.invoke(hadoopValueRanges);
+
+        List<ValueRange> rangeList = new ArrayList<ValueRange>();
+        for (Object hadoopRange : hadoopValueRangeList) {
+          ValueRange range = new ValueRange();
+          range.setBegin((int) getBegin.invoke(hadoopRange));
+          range.setEnd((int) getEnd.invoke(hadoopRange));
+          rangeList.add(range);
+        }
+        rd.setPortRanges(rangeList);
+      }
+    } catch (NoSuchMethodException e) {
+      LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support port");
+    } catch (IllegalAccessException e) {
+      LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
+    } catch (ClassNotFoundException e) {
+      LOGGER.logDebug(e, "Ignore: Failed to get the class name");
+    }
+    LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
+    return rd;
+  }
+
+  // Maybe underestimate if any GpuAttribute == 0
+  public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    ret.setMemoryMB(lhs.getMemoryMB() - rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() - rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() & (~(rhs.getGpuAttribute())));
+    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    ret.setPortRanges(ValueRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
+    return ret;
+  }
+
+  // Maybe overestimate if any GpuAttribute == 0
+  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
+    ResourceDescriptor ret = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    ret.setMemoryMB(lhs.getMemoryMB() + rhs.getMemoryMB());
+    ret.setCpuNumber(lhs.getCpuNumber() + rhs.getCpuNumber());
+    ret.setGpuAttribute(lhs.getGpuAttribute() | rhs.getGpuAttribute());
+    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    ret.setPortRanges(ValueRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
+    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
+    return ret;
+  }
+
+  public static boolean fitsIn(ResourceDescriptor smaller, ResourceDescriptor bigger) {
+    return smaller.getMemoryMB() <= bigger.getMemoryMB()
+        && smaller.getCpuNumber() <= bigger.getCpuNumber()
+        && smaller.getGpuNumber() <= bigger.getGpuNumber()
+        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute())
+        && ValueRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
+  }
 
   public Integer getCpuNumber() {
     return cpuNumber;
@@ -166,77 +267,6 @@ public class ResourceDescriptor implements Serializable {
     this.gpuAttribute = gpuAttribute;
   }
 
-  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
-    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, new ArrayList<ValueRange>());
-  }
-
-  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber,
-      Long gpuAttribute, int portNumber, List<ValueRange> portRanges) {
-    ResourceDescriptor resource = new ResourceDescriptor();
-    resource.setMemoryMB(memoryMB);
-    resource.setCpuNumber(cpuNumber);
-    resource.setGpuNumber(gpuNumber);
-    resource.setGpuAttribute(gpuAttribute);
-    resource.setPortNumber(portNumber);
-    resource.setPortRanges(portRanges);
-    return resource;
-  }
-
-  public static ResourceDescriptor fromResource(Resource res) throws Exception {
-    ResourceDescriptor rd = new ResourceDescriptor();
-    rd.setMemoryMB(res.getMemory());
-    rd.setCpuNumber(res.getVirtualCores());
-    rd.setGpuAttribute(0L);
-    rd.setGpuNumber(0);
-    Class<?> clazz = res.getClass();
-
-    try {
-
-      Method getGpuNumber = clazz.getMethod("getGPUs");
-      Method getGpuAttribute = clazz.getMethod("getGPUAttribute");
-
-      rd.setGpuNumber((int) getGpuNumber.invoke(res));
-      rd.setGpuAttribute((long) getGpuAttribute.invoke(res));
-    } catch (NoSuchMethodException e) {
-      LOGGER.logDebug(e, "Ignore: Failed get GPU information, YARN library doesn't support gpu as resources");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get GPU information, illegal access function");
-    }
-
-    try {
-
-      Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
-      Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
-      Method getPorts = clazz.getMethod("getPorts");
-
-      Object hadoopValueRanges = getPorts.invoke(res);
-      if (hadoopValueRanges != null) {
-        Method getBegin = hadoopValueRangeClass.getMethod("getBegin");
-        Method getEnd = hadoopValueRangeClass.getMethod("getEnd");
-
-        Method getSortedRangesList = hadoopValueRangesClass.getMethod("getSortedRangesList");
-        List<Object> hadoopValueRangeList = (List<Object>) getSortedRangesList.invoke(hadoopValueRanges);
-
-        List<ValueRange> rangeList = new ArrayList<ValueRange>();
-        for (Object hadoopRange : hadoopValueRangeList) {
-          ValueRange range = new ValueRange();
-          range.setBegin((int) getBegin.invoke(hadoopRange));
-          range.setEnd((int) getEnd.invoke(hadoopRange));
-          rangeList.add(range);
-        }
-        rd.setPortRanges(rangeList);
-      }
-    } catch (NoSuchMethodException e) {
-      LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support port");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
-    } catch (ClassNotFoundException e) {
-      LOGGER.logDebug(e, "Ignore: Failed to get the class name");
-    }
-    LOGGER.logDebug("Get ResourceDescriptor: " + rd + " from hadoop resource: " + res);
-    return rd;
-  }
-
   public Resource toResource() throws Exception {
     Resource res = Resource.newInstance(memoryMB, cpuNumber);
     Class<?> clazz = res.getClass();
@@ -287,38 +317,6 @@ public class ResourceDescriptor implements Serializable {
     }
     LOGGER.logDebug("Put LocalResource " + this.toString() + " to hadoop resource: " + res);
     return res;
-  }
-
-  // Maybe underestimate if any GpuAttribute == 0
-  public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    ResourceDescriptor ret = YamlUtils.deepCopy(lhs, ResourceDescriptor.class);
-    ret.setMemoryMB(ret.getMemoryMB() - rhs.getMemoryMB());
-    ret.setCpuNumber(ret.getCpuNumber() - rhs.getCpuNumber());
-    ret.setGpuAttribute(ret.getGpuAttribute() & (~(rhs.getGpuAttribute())));
-    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
-    ret.setPortRanges(ValueRangeUtils.subtractRange(ret.getPortRanges(), rhs.getPortRanges()));
-    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
-    return ret;
-  }
-
-  // Maybe overestimate if any GpuAttribute == 0
-  public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    ResourceDescriptor ret = YamlUtils.deepCopy(lhs, ResourceDescriptor.class);
-    ret.setMemoryMB(ret.getMemoryMB() + rhs.getMemoryMB());
-    ret.setCpuNumber(ret.getCpuNumber() + rhs.getCpuNumber());
-    ret.setGpuAttribute(ret.getGpuAttribute() | rhs.getGpuAttribute());
-    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
-    ret.setPortRanges(ValueRangeUtils.addRange(ret.getPortRanges(), rhs.getPortRanges()));
-    ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
-    return ret;
-  }
-
-  public static boolean fitsIn(ResourceDescriptor smaller, ResourceDescriptor bigger) {
-    return smaller.getMemoryMB() <= bigger.getMemoryMB()
-        && smaller.getCpuNumber() <= bigger.getCpuNumber()
-        && smaller.getGpuNumber() <= bigger.getGpuNumber()
-        && smaller.getGpuAttribute() == (smaller.getGpuAttribute() & bigger.getGpuAttribute())
-        && ValueRangeUtils.fitInRange(smaller.getPortRanges(), bigger.getPortRanges());
   }
 
   @Override

@@ -21,7 +21,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
-import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
@@ -29,7 +28,6 @@ import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
-
 
 import java.util.*;
 
@@ -45,22 +43,18 @@ import java.util.*;
  */
 public class SelectionManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(SelectionManager.class);
-
+  private final Map<String, Node> allNodes = new HashMap<>();
+  private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
+  private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
+  private final List<String> filteredNodes = new ArrayList<String>();
   private LauncherConfiguration conf = null;
   private StatusManager statusManager = null;
   private RequestManager requestManager = null;
   private ClusterConfiguration clusterConfiguration = null;
 
-  private final Map<String, Node> allNodes = new HashMap<>();
-  private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
-  private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
+  private int reusePortsTimes = 0;
 
-  private final List<String> filteredNodes = new ArrayList<String>();
-
-  public SelectionManager() {
-  }
-
-  public void init(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager, ClusterConfiguration clusterConfiguration) {
+  public SelectionManager(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager, ClusterConfiguration clusterConfiguration) {
     this.conf = conf;
     this.statusManager = statusManager;
     this.requestManager = requestManager;
@@ -195,11 +189,12 @@ public class SelectionManager { // THREAD SAFE
 
     return result;
   }
+
   public synchronized SelectionResult select(ResourceDescriptor requestResource, String taskRoleName)
       throws NotAvailableException {
 
     LOGGER.logInfo(
-        "select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
+        "Select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
     String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
     int pendingTaskNumber = statusManager.getUnassociatedTaskCount(taskRoleName);
@@ -218,8 +213,15 @@ public class SelectionManager { // THREAD SAFE
 
     // This pendingTaskNumber includes current task, when pendingTaskNumber == 1 means current task is the last task.
     // If there has other task pending, push current port to previousRequestedPorts for next task re-use.
+    // reusePortsTimes time is used to avoid pending taskTaskNumber not decrease when previous jobs time out while next job not started.
     if (pendingTaskNumber > 1) {
-      previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
+      if(reusePortsTimes == 0) {
+        reusePortsTimes = pendingTaskNumber;
+      }
+      if(reusePortsTimes > 1) {
+        previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
+      }
+      reusePortsTimes --;
     }
     return result;
   }
@@ -230,11 +232,11 @@ public class SelectionManager { // THREAD SAFE
   }
 
   public synchronized SelectionResult select(ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType,
-      int pendingTaskNumber, List<ValueRange> reUsePorts) throws NotAvailableException {
+      int pendingTaskNumber, List<ValueRange> reusePorts) throws NotAvailableException {
 
     LOGGER.logInfo(
-        "select: Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s], TaskNumber: [%d], ReUsePorts: [%s]",
-        requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, ValueRangeUtils.toString(reUsePorts));
+        "select: Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s], TaskNumber: [%d], ReusePorts: [%s]",
+        requestResource, requestNodeLabel, requestNodeGpuType, pendingTaskNumber, ValueRangeUtils.toString(reusePorts));
 
     initFilteredNodes();
     filterNodesByNodeLabel(requestNodeLabel);
@@ -245,10 +247,10 @@ public class SelectionManager { // THREAD SAFE
     }
 
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-    if (ValueRangeUtils.getValueNumber(reUsePorts) > 0) {
+    if (ValueRangeUtils.getValueNumber(reusePorts) > 0) {
       LOGGER.logInfo(
-          "select: re-use pre-allocated ports: [%s]", ValueRangeUtils.toString(reUsePorts));
-      optimizedRequestResource.setPortRanges(reUsePorts);
+          "select: reuse pre-allocated ports: [%s]", ValueRangeUtils.toString(reusePorts));
+      optimizedRequestResource.setPortRanges(reusePorts);
     }
 
     filterNodesByResource(optimizedRequestResource, conf.getAmSkipLocalTriedResource());
@@ -263,20 +265,20 @@ public class SelectionManager { // THREAD SAFE
       }
     }
     SelectionResult selectionResult = selectNodes(optimizedRequestResource, pendingTaskNumber);
-    List<ValueRange> portRanges = allocatePorts(selectionResult, optimizedRequestResource);
+    List<ValueRange> portRanges = selectPorts(selectionResult, optimizedRequestResource);
     optimizedRequestResource.setPortRanges(portRanges);
     selectionResult.setOptimizedResource(optimizedRequestResource);
     return selectionResult;
   }
 
-  public synchronized List<ValueRange> allocatePorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
-    // If the port was not allocated and was not specified previously, need allocate the ports for this task.
+  public synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
+    // If the ports were not selected and was not specified previously, need select the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
 
       if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
-        LOGGER.logDebug("Allocated port: optimizedRequestResource: [%s]", optimizedRequestResource);
+        LOGGER.logDebug("SelectPorts: optimizedRequestResource: [%s]", optimizedRequestResource);
         return newCandidatePorts;
       } else {
         throw new NotAvailableException(String.format("The selected candidate nodes don't have enough ports, optimizedRequestResource:[%s]",

@@ -82,9 +82,8 @@ public class ApplicationMaster extends AbstractService {
   protected NMClientAsync nmClient;
   protected StatusManager statusManager;
   protected RequestManager requestManager;
-  private RMResyncHandler rmResyncHandler;
   protected SelectionManager selectionManager;
-
+  private RMResyncHandler rmResyncHandler;
   /**
    * REGION StateVariable
    */
@@ -172,14 +171,15 @@ public class ApplicationMaster extends AbstractService {
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
         LaunchClientType.APPLICATION_MASTER, conf.getLoggedInUser().getName());
 
-    selectionManager = new SelectionManager();
+    statusManager = new StatusManager(this, conf, zkStore);
+    requestManager = new RequestManager(this, conf, zkStore, launcherClient);
+    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager, requestManager.getClusterConfiguration());
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
   @Override
   protected void recover() throws Exception {
     super.recover();
-    statusManager = new StatusManager(this, conf, zkStore);
     statusManager.start();
 
     // Here StatusManager recover completed
@@ -190,7 +190,6 @@ public class ApplicationMaster extends AbstractService {
   @Override
   protected void run() throws Exception {
     super.run();
-    requestManager = new RequestManager(this, conf, zkStore, launcherClient);
     requestManager.start();
   }
 
@@ -334,7 +333,6 @@ public class ApplicationMaster extends AbstractService {
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
 
-    selectionManager.init(conf.getLauncherConfig(), statusManager, requestManager, requestManager.getClusterConfiguration());
     ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
@@ -345,15 +343,17 @@ public class ApplicationMaster extends AbstractService {
               "Request Resource: [%s], Max Resource: [%s]",
           requestResource, maxResource);
     }
+    if (requestResource.getGpuNumber() > 0 || requestResource.getPortNumber() > 0) {
+      updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+      SelectionResult selectionResult = selectionManager.selectSingleNode(requestResource, taskRoleName);
 
-    updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
-    SelectionResult selectionResult = selectionManager.selectSingleNode(requestResource, taskRoleName);
-
-    ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
-    if (selectionResult.getNodeHosts().size() <= 0) {
+      ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
+      if (selectionResult.getNodeHosts().size() > 0) {
+        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHosts().get(0));
+      }
       return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
     }
-    return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHosts().get(0));
+    return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
   }
 
   private String generateContainerDiagnostics(TaskStatus taskStatus) {
@@ -569,6 +569,9 @@ public class ApplicationMaster extends AbstractService {
     List<String> sourceLocations = requestManager.getTaskServices().get(taskRoleName).getSourceLocations();
     String entryPoint = requestManager.getTaskServices().get(taskRoleName).getEntryPoint();
 
+    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
+    List<ValueRange> portRanges = taskStatus.getContainerPorts();
+
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
     try {
@@ -604,9 +607,6 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
 
-    // Setup Ports Environment
-    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskStatus.getTaskRoleName()).getPortDefinitions();
-    List<ValueRange> portRanges = taskStatus.getContainerPorts();
     String containerPortsString = ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
 

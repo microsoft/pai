@@ -31,6 +31,13 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
   @NotNull
   private Integer end;
 
+  public static ValueRange newInstance(int begin, int end) {
+    ValueRange valueRange = new ValueRange();
+    valueRange.setBegin(begin);
+    valueRange.setEnd(end);
+    return valueRange;
+  }
+
   public Integer getBegin() {
     return begin;
   }
@@ -61,13 +68,6 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     } else {
       return 1;
     }
-  }
-
-  public static ValueRange newInstance(int begin, int end) {
-    ValueRange valueRange = new ValueRange();
-    valueRange.setBegin(begin);
-    valueRange.setEnd(end);
-    return valueRange;
   }
 
   public ValueRange clone() {

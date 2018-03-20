@@ -21,7 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.Resource;
 
 import java.util.Set;
 
@@ -39,6 +38,14 @@ public class Node implements Comparable<Node> {
     this.totalResource = totalResource;
     this.usedResource = usedResource;
     this.requestedResource = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+  }
+
+  public static Node fromNodeReport(NodeReport nodeReport) throws Exception {
+    return new Node(
+        nodeReport.getNodeId().getHost(),
+        nodeReport.getNodeLabels(),
+        ResourceDescriptor.fromResource(nodeReport.getCapability()),
+        ResourceDescriptor.fromResource(nodeReport.getUsed()));
   }
 
   // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
@@ -65,14 +72,6 @@ public class Node implements Comparable<Node> {
       return -1;
     }
     return 0;
-  }
-
-  public static Node fromNodeReport(NodeReport nodeReport) throws Exception {
-    return new Node(
-        nodeReport.getNodeId().getHost(),
-        nodeReport.getNodeLabels(),
-        ResourceDescriptor.fromResource(nodeReport.getCapability()),
-        ResourceDescriptor.fromResource(nodeReport.getUsed()));
   }
 
   public void updateFromReportedNode(Node reportedNode) {
