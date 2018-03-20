@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
+describe('Submit job: POST /api/v1/jobs', () => {
   beforeEach(() => {
 
     //
@@ -89,7 +89,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 1 (Positive): Submit a job.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
@@ -106,7 +106,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 1 (Negative): Invalid token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + invalidToken)
       .send({})
       .end((err, res) => {
@@ -119,7 +119,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 2 (Negative): Schema checking failed.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
@@ -132,9 +132,9 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 3 (Negative): Duplicated job name.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/job1')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -145,9 +145,9 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 4 (Negative): Cannot connect to Launcher.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/another_new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'another_new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
