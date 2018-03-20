@@ -43,15 +43,15 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
 3. Submit a job
 
-    HTTP PUT the config file as json with access token in header to:
+    HTTP POST the config file as json with access token in header to:
     ```
-    http://restserver/api/v1/jobs/exampleJob
+    http://restserver/api/v1/jobs
     ```
     For example, you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X PUT http://restserver/api/v1/jobs/exampleJob \
+         -X POST http://restserver/api/v1/jobs \
          -d @exampleJob.json
     ```
 
@@ -262,13 +262,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `PUT jobs/:jobName`
+6. `POST jobs`
 
     Submit a job in the system.
 
     *Request*
     ```
-    PUT /api/v1/jobs/:jobName
+    POST /api/v1/jobs
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
