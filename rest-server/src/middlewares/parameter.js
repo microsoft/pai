@@ -20,16 +20,24 @@
 const Joi = require('joi');
 const logger = require('../config/logger');
 
+
+/**
+ * Add parameters.
+ */
+const add = (parameters) => {
+  return (req, res, next) => {
+    for (let each of parameters.params) {
+      req.body[each] = req.params[each];
+    }
+    return next();
+  };
+};
+
 /**
  * Validate parameters.
  */
-const validate = (schema, parameters) => {
+const validate = (schema) => {
   return (req, res, next) => {
-    if (parameters) {
-      for (let each of parameters.params) {
-        req.body[each] = req.params[each];
-      }
-    }
     Joi.validate(req.body, schema, (err, value) => {
       if (err) {
         const errorType = 'ParameterValidationError';
@@ -48,4 +56,4 @@ const validate = (schema, parameters) => {
 };
 
 // module exports
-module.exports = {validate};
+module.exports = {add, validate};
