@@ -41,7 +41,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public @interface PortConsistentValidation {
 
-  String message() default "{com.microsoft.frameworklauncher.common.validation.PortsConsistentValidation.message}";
+  String message() default "{com.microsoft.frameworklauncher.common.validation.PortConsistentValidation.message}";
 
   Class<?>[] groups() default {};
 
