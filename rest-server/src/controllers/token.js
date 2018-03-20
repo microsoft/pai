@@ -30,6 +30,7 @@ const get = (req, res) => {
   const expiration = req.body.expiration;
   tokenModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
+      logger.warn (err);
       logger.warn('user %s authentication failed', username);
       return res.status(401).json({
         error: 'AuthenticationFailed',

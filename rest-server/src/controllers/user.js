@@ -58,6 +58,7 @@ const remove = (req, res) => {
   const username = req.body.username;
   if (req.user.admin) {
     userModel.remove(username, (err, state) => {
+      logger.info("remove " + err);
       if (err || !state) {
         logger.warn('remove user %s failed', username);
         return res.status(500).json({

@@ -36,10 +36,10 @@ class StorageBase {
 
   getErrorCode() {
     let errorCodes =  Object.freeze({
-      SUCCESS: Symbol("success"),
-      ERROR: Symbol('error'),
-      FAILED: Symbol('failed'),
-      KEYNOTFOUND: Symbol('key not found')
+      SUCCESS: 0,
+      ERROR: 1,
+      FAILED: 2,
+      KEYNOTFOUND: 3
     });
     return errorCodes;
   }

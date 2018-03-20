@@ -78,15 +78,4 @@ if (error) {
 }
 etcdConfig = value;
 
-// const db = dbUtility.getStorageObject("etcd2", {
-//   'hosts': etcdConfig.etcdHosts
-// })
-
-// logger.info("start db.has");
-// db.has('/users/admin/passwd',(res,error) => {
-//    logger.info("db.has call back");
-//    logger.info(res);
-// });
-// logger.info("end db.has");
-
 module.exports = etcdConfig;

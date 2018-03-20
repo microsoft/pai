@@ -33,7 +33,7 @@ class EtcdV2 extends StorageBase {
       this.etcdClient.get(key, options, (err, res) => {
         if (err === null) {
           resJson = {
-            errCode: '0',
+            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
             key: res.node.key,
             value: res.node.value
           };

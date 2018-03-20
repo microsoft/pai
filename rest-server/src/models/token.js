@@ -17,16 +17,44 @@
 
 const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
+const logger = require('../config/logger')
 
 const check = (username, password, callback) => {
-  let user = userModel.db.getSync(etcdConfig.userPath(username));
-  if (user.errCode !== "0") {
-    callback(null, false, false);
-  } else {
-    userModel.encrypt(username, password, (err, derivedKey) => {
-      callback(err, derivedKey === userModel.db.getSync(etcdConfig.userPasswdPath(username)).value, userModel.db.getSync(etcdConfig.userAdminPath(username)).value);
-    });
-  }
+  // let user = userModel.db.getSync(etcdConfig.userPath(username));
+  // if (user.errCode !== "0") {
+  //   callback(null, false, false);
+  // } else {
+  //   userModel.encrypt(username, password, (err, derivedKey) => {
+  //     callback(err, derivedKey === userModel.db.getSync(etcdConfig.userPasswdPath(username)).value, userModel.db.getSync(etcdConfig.userAdminPath(username)).value);
+  //   });
+  // }
+  userModel.db.has(etcdConfig.userPath(username), (res, error) => {
+    logger.info("userModel.db.has" + res);
+    if (!res) {
+      callback(null, false, false);
+    } else {
+      let pass = '';
+      let isAdmin = '';
+      userModel.db.get(etcdConfig.userPasswdPath(username), (res) => {
+        if (res.errCode !== userModel.db.getErrorCode().SUCCESS) {
+          callback(res.errMsg, false, false);
+        }
+        pass = res.value;
+        userModel.db.get(etcdConfig.userAdminPath(username), (res) => {
+          if (res.errCode !== '0') {
+            callback(res.errMsg, false, false);
+          }
+          isAdmin = res.value;
+          logger.info("db pass is" + pass);
+          logger.info('isAdmin ' + isAdmin);
+          userModel.encrypt(username, password, (err, derivedKey) => {
+            logger.info('derivedkey is ' + derivedKey);
+            callback(err, derivedKey === pass, isAdmin);
+          })
+        })
+      })
+    }
+  })
 };
 
-module.exports = {check};
+module.exports = { check };
