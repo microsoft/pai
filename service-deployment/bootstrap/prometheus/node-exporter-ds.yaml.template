@@ -31,7 +31,7 @@ spec:
       nodeSelector:
         node-exporter: "true"
       containers:
-      - image: prom/node-exporter
+      - image: prom/node-exporter:v0.15.2
         volumeMounts:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount

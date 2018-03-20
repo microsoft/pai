@@ -18,6 +18,7 @@
 
 // module dependencies
 
+require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -28,14 +29,16 @@ const url = require('url');
 // const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
+const jobViewComponent = require('./job-view.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobDetailTableComponent = require('./job-detail-table.component.ejs');
-const jobViewComponent = require('./job-view.component.ejs');
+const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
+let sshInfo = null;
 
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
@@ -197,6 +200,7 @@ const stopJob = (jobName) => {
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();
+  sshInfo = null;
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
     type: 'GET',
@@ -212,6 +216,17 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
+        $.ajax({
+          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
+          type: 'GET',
+          success: (data) => {
+            sshInfo = data;
+          },
+          error: (xhr, textStatus, error) => {
+            const res = JSON.parse(xhr.responseText);
+            alert(res.message);
+          },
+        });
       }
     },
     error: (xhr, textStatus, error) => {
@@ -221,9 +236,28 @@ const loadJobDetail = (jobName) => {
   });
 };
 
+const showSshInfo = (containerId) => {
+  if (sshInfo === null) {
+    return;
+  }
+  for (let x of sshInfo.containers) {
+    if (x.id === containerId) {
+      $('#sshInfoModalPlaceHolder').html(jobDetailSshInfoModalComponent({
+        'containerId': containerId,
+        'sshIp': x.sshIp,
+        'sshPort': x.sshPort,
+        'keyPair': sshInfo.keyPair,
+      }));
+      $('#sshInfoModal').modal('show');
+      break;
+    }
+  }
+};
+
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
+window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
