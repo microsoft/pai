@@ -28,27 +28,25 @@ class EtcdV2 extends StorageBase {
   }
 
   get(key, next, options = null) {
+    let resJson = {}
     try {
       this.etcdClient.get(key, options, (err, res) => {
-        logger.info("get");
-        logger.info(res);
         if (err === null) {
-          const resJson = {
-            errCode: "0",
+          resJson = {
+            errCode: '0',
             key: res.node.key,
             value: res.node.value
           };
-          next(resJson);
         } else {
-          const resJson = {
-            errCode: "-1",
+          resJson = {
+            errCode: '-1',
             errMsg: err.message
           };
-          next(resJson);
         }
+        next(resJson);
       });
     } catch (err) {
-      const resJson = {
+      resJson = {
         errCode: "-2",
         errMsg: "Exception in etcd2 get function. Error message: " + err.message
       }
@@ -57,24 +55,24 @@ class EtcdV2 extends StorageBase {
   }
 
   set(key, value, next, options = null) {
+    let resJson = {}
     try {
       this.etcdClient.set(key, value, options, (err, res) => {
         if (err === null) {
-          const resJson = {
+          resJson = {
             errCode: "0",
             errMsg: "OK"
           };
-          next(resJson)
         } else {
-          const resJson = {
+          resJson = {
             errCode: "-1",
             errMsg: err.message
           };
-          next(resJson)
         }
+        next(resJson)
       });
     } catch (err) {
-      const resJson = {
+      resJson = {
         errorCode: "-2",
         errorMsg: "Exception in etcd2 set function. Error message: " + err.message
       };
@@ -83,21 +81,21 @@ class EtcdV2 extends StorageBase {
   }
 
   delete(key, next, options = null) {
+    let resJson = {}
     try {
       this.etcdClient.del(key, options, (err, res) => {
         if (err === null) {
-          const resJson = {
+          resJson = {
             errCode: "0",
             errMsg: "OK"
           }
-          next(resJson)
         } else {
-          const resJson = {
+          resJson = {
             errCode: "-1",
             errMsg: err.message
           }
-          next(resJson)
         }
+        next(resJson)
       })
     } catch (err) {
       const resJson = {
@@ -109,7 +107,7 @@ class EtcdV2 extends StorageBase {
   }
 
   getSync(key, options = null) {
-    var resJson = {}
+    let resJson = {}
     try {
       let res = this.etcdClient.getSync(key, options);
       if (res.err === null) {
@@ -135,7 +133,7 @@ class EtcdV2 extends StorageBase {
   }
 
   setSync(key, value, options = null) {
-    var resJson = {};
+    let resJson = {};
     try {
       this.etcdClient.set("/can_directory");
       let res = this.etcdClient.setSync(key, value, options);
@@ -161,7 +159,7 @@ class EtcdV2 extends StorageBase {
   }
 
   delSync(key, options = null) {
-    var resJson = {};
+    let resJson = {};
     try {
       let res = this.etcdClient.delSync(key, options);
       if (res.err === null) {
@@ -183,6 +181,16 @@ class EtcdV2 extends StorageBase {
     } finally {
       return resJson
     }
+  }
+
+  has(key, next, options = null) {
+    this.get(key, (res) => {
+       if(res.errCode === '-1' ){
+        next(false,res.errMsg);
+       } else {
+        next(true,null);
+       }
+     } ,options);
   }
 }
 

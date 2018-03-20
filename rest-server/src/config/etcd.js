@@ -18,7 +18,6 @@
 
 // module dependencies
 const Joi = require('joi');
-const indexConfig = require('./index');
 const logger = require('../config/logger');
 const dbUtility = require('../util/dbUtility');
 
@@ -79,29 +78,15 @@ if (error) {
 }
 etcdConfig = value;
 
-const db = dbUtility.getStorageObject("etcd2", {
-  'hosts': etcdConfig.etcdHosts
-})
+// const db = dbUtility.getStorageObject("etcd2", {
+//   'hosts': etcdConfig.etcdHosts
+// })
 
-const prepareStoragePath = () => {
-  logger.info("prepare storage path:");
-  db.set(etcdConfig.storagePath(), null, (res) => {
-    if(res.errCode !== "0") {
-      throw new Error('build storage path failed');
-    }
-  },{dir: true})
-}
-
-if(indexConfig.env !== 'test'){
-  db.get(etcdConfig.storagePath(), (res) => {
-    logger.info(res);
-    if(res.errCode === "0"){
-      logger.info("storage path already exists");
-    } else {
-      logger.info("storage path not exist");
-      prepareStoragePath();
-    }
-  })
-}
+// logger.info("start db.has");
+// db.has('/users/admin/passwd',(res,error) => {
+//    logger.info("db.has call back");
+//    logger.info(res);
+// });
+// logger.info("end db.has");
 
 module.exports = etcdConfig;

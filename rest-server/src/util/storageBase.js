@@ -17,6 +17,7 @@
 
 // module dependencies
 
+
 class StorageBase {
 
   get(key, next, options) { }
@@ -25,12 +26,23 @@ class StorageBase {
 
   delete(key, next, options) { }
 
+  has(key, next, options) { }
+
   getSync(key, options) { }
 
   setSync(key, value, options) { }
 
   delSync(key, options) { }
 
+  getErrorCode() {
+    let errorCodes =  Object.freeze({
+      SUCCESS: Symbol("success"),
+      ERROR: Symbol('error'),
+      FAILED: Symbol('failed'),
+      KEYNOTFOUND: Symbol('key not found')
+    });
+    return errorCodes;
+  }
 }
 
 module.exports = StorageBase

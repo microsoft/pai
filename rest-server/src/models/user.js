@@ -42,37 +42,41 @@ const db = dbUtility.getStorageObject("etcd2", {
   'hosts': etcdConfig.etcdHosts
 })
 
+// const db = etcdConfig.db
 
 const update = (username, password, admin, modify, callback) => {
-  logger.info("user update")
-  if (typeof modify === 'undefined') {
-    callback(null, false);
-  } else {
-    encrypt(username, password, (err, derivedKey) => {
-      if (err) {
-        callback(err, false);
-      } else {
-        if (modify) {
-          db.set(etcdConfig.userPasswdPath(username), derivedKey, (res) => {
-            logger.info(res);
-          }, {prevExist: true})
+  logger.info("user update");
+  logger.info("modify is " + modify);
+  db.has(etcdConfig.userPath(username), (res,error) => {
+    if(typeof modify === 'undefined' || res !== modify){
+      callback(null, false);
+    } else {
+      encrypt(username, password, (err, derivedKey) => {
+        if (err) {
+          callback(err, false);
         } else {
-          db.set(etcdConfig.userPath(username), null, (res) => {
-            logger.info(res)
-            db.set(etcdConfig.userPasswdPath(username), derivedKey, (result) => {
-              logger.info(result)
+          if (modify) {
+            db.set(etcdConfig.userPasswdPath(username), derivedKey, (res) => {
+              logger.info(res);
+            }, {prevExist: true})
+          } else {
+            db.set(etcdConfig.userPath(username), null, (res) => {
+              logger.info(res)
+              db.set(etcdConfig.userPasswdPath(username), derivedKey, (result) => {
+                logger.info(result)
+              })
+            },{dir: true})
+          }
+          if (typeof admin !== 'undefined') {
+            db.set(etcdConfig.userAdminPath(username), admin, (res) => {
+              logger.info(res)
             })
-          },{dir: true})
+          }
+          callback(null, true);
         }
-        if (typeof admin !== 'undefined') {
-          db.set(etcdConfig.userAdminPath(username), admin, (res) => {
-            logger.info(res)
-          })
-        }
-        callback(null, true);
-      }
-    });
-  }
+      });
+    }
+  });
 };
 
 const remove = (username, callback) => {
@@ -97,6 +101,41 @@ const remove = (username, callback) => {
     })
   }
 };
+
+const setDefaultAdmin = () => {
+  logger.info("create default admin");
+  update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
+    if (status) {
+      logger.info('create default admin successfully');
+    } else {
+      throw new Error('unable to set default admin');
+    }
+  })
+};
+
+const prepareStoragePath = () => {
+  logger.info("prepare storage path:");
+  db.set(etcdConfig.storagePath(), null, (res) => {
+    if(res.errCode !== "0") {
+      throw new Error('build storage path failed');
+    } else {
+      setDefaultAdmin();
+    }
+  },{dir: true})
+}
+
+if(config.env !== 'test'){
+  db.has(etcdConfig.storagePath(), (res, error) => {
+    logger.info("db.has callback " + res);
+    logger.info(etcdConfig.storagePath());
+    if (res) {
+      logger.info("storage path already exists");
+    } else {
+      logger.info("storage path not exist");
+      prepareStoragePath();
+    }
+  })
+}
 
 // module exports
 module.exports = {encrypt, db, update, remove};
