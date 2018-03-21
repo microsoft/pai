@@ -109,7 +109,6 @@ machinelist:
     # sshport: the ssh port of this node. If not specified, the port is 22.
     # username/password: the user name and password in the OS. Make sure it is granted with sudo permission.
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     etcdid: etcdid1
@@ -141,7 +140,6 @@ machinelist:
 
   infra-02:
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     etcdid: etcdid2
@@ -154,7 +152,6 @@ machinelist:
 
   infra-03:
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     etcdid: etcdid3
@@ -167,7 +164,6 @@ machinelist:
 
   worker-01:
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     username: username
@@ -181,7 +177,6 @@ machinelist:
 
   worker-02:
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     username: username
@@ -195,7 +190,6 @@ machinelist:
 
   worker-03:
     hostname: XXXX
-    nodename: IP
     hostip: IP
     sshport: PORT
     username: username
