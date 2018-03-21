@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+# If corresponding values aren't be set in the machine list, the default value will be filled in.
 DefaultMachineProperties:
   user: username
   password: password
