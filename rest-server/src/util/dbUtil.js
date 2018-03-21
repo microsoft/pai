@@ -16,14 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const EtcdV2 = require('./etcd2')
+const Etcd2 = require('./etcd2');
 
-const getStorageObject = (type, options = undefined) => {
+const getStorageObject = (type, options = null) => {
   switch (type) {
-    case "etcd2":
-      return new EtcdV2(options);
+    case 'etcd2':
+      return new Etcd2(options);
     default:
   }
-}
+};
 
-module.exports = { getStorageObject }
+module.exports = {getStorageObject};

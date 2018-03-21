@@ -19,7 +19,6 @@
 
 
 class StorageBase {
-
   get(key, next, options) { }
 
   set(key, value, next, options) { }
@@ -27,22 +26,6 @@ class StorageBase {
   delete(key, next, options) { }
 
   has(key, next, options) { }
-
-  getSync(key, options) { }
-
-  setSync(key, value, options) { }
-
-  delSync(key, options) { }
-
-  getErrorCode() {
-    let errorCodes =  Object.freeze({
-      SUCCESS: 0,
-      ERROR: 1,
-      FAILED: 2,
-      KEYNOTFOUND: 3
-    });
-    return errorCodes;
-  }
 }
 
-module.exports = StorageBase
+module.exports = StorageBase;

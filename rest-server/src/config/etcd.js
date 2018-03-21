@@ -18,30 +18,29 @@
 
 // module dependencies
 const Joi = require('joi');
-const logger = require('../config/logger');
 
 let etcdConfig = {
   etcdUri: process.env.ETCD_URI,
   adminName: process.env.ETCD_ADMIN,
-  adminPass: process.env.ETCD_PASSWORD
+  adminPass: process.env.ETCD_PASSWORD,
 };
 
-etcdConfig.etcdHosts = etcdConfig.etcdUri.split(",")
+etcdConfig.etcdHosts = etcdConfig.etcdUri.split(',');
 
 etcdConfig.storagePath = () => {
-  return `/users/`
+  return `/users`;
 };
 
 etcdConfig.userPath = (username) => {
-  return `/users/${username}`;
+  return `${etcdConfig.storagePath()}/${username}`;
 };
 
 etcdConfig.userPasswdPath = (username) => {
-  return `/users/${username}/passwd`;
+  return `${etcdConfig.userPath(username)}/passwd`;
 };
 
 etcdConfig.userAdminPath = (username) => {
-  return `/users/${username}/admin`;
+  return `${etcdConfig.userPath(username)}/admin`;
 };
 
 const etcdConfigSchema = Joi.object().keys({
@@ -68,10 +67,10 @@ const etcdConfigSchema = Joi.object().keys({
     .required(),
   userAdminPath: Joi.func()
     .arity(1)
-    .required()
+    .required(),
 }).required();
 
-const { error, value } = Joi.validate(etcdConfig, etcdConfigSchema);
+const {error, value} = Joi.validate(etcdConfig, etcdConfigSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }

@@ -17,10 +17,9 @@
 
 // module dependencies
 const Etcd = require('node-etcd');
-const StorageBase = require('./storageBase')
-const logger = require('../config/logger')
+const StorageBase = require('./storageBase');
 
-class EtcdV2 extends StorageBase {
+class Etcd2 extends StorageBase {
   constructor(options) {
     super();
     this.options = options;
@@ -28,169 +27,70 @@ class EtcdV2 extends StorageBase {
   }
 
   get(key, next, options = null) {
-    let resJson = {}
     try {
       this.etcdClient.get(key, options, (err, res) => {
         if (err === null) {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-            key: res.node.key,
-            value: res.node.value
-          };
+          let kvMap = this.flattenRes(res.node);
+          next(null, kvMap);
         } else {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().ERROR,
-            errMsg: err.message
-          };
+          next(err, null);
         }
-        next(err, resJson);
       });
     } catch (err) {
-      resJson = {
-        errCode: StorageBase.prototype.getErrorCode().FAILED,
-        errMsg: "Exception in etcd2 get function. Error message: " + err.message
-      }
-      next(err, resJson);
+      next(err, null);
     }
   }
 
   set(key, value, next, options = null) {
-    let resJson = {}
     try {
       this.etcdClient.set(key, value, options, (err, res) => {
         if (err === null) {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-            errMsg: "OK"
-          };
+          next(null, res);
         } else {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().ERROR,
-            errMsg: err.message
-          };
+          next(err, null);
         }
-        next(err, resJson);
       });
     } catch (err) {
-      resJson = {
-        errorCode: StorageBase.prototype.getErrorCode().FAILED,
-        errorMsg: "Exception in etcd2 set function. Error message: " + err.message
-      };
-      next(err, resJson)
+      next(err, null);
     }
   }
 
   delete(key, next, options = null) {
-    let resJson = {}
     try {
       this.etcdClient.del(key, options, (err, res) => {
         if (err === null) {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-            errMsg: "OK"
-          }
+          next(null, res);
         } else {
-          resJson = {
-            errCode: StorageBase.prototype.getErrorCode().ERROR,
-            errMsg: err.message
-          }
+          next(err, null);
         }
-        next(err, resJson);
-      })
+      });
     } catch (err) {
-      const resJson = {
-        errorCode: StorageBase.prototype.getErrorCode().FAILED,
-        errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
-      }
-      next(err, resJson)
-    }
-  }
-
-  getSync(key, options = null) {
-    let resJson = {}
-    try {
-      let res = this.etcdClient.getSync(key, options);
-      if (res.err === null) {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-          key: res.body.node.key,
-          value: res.body.node.value
-        }
-      } else {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().ERROR,
-          errMsg: res.err.error.message
-        }
-      }
-    } catch (err) {
-      resJson = {
-        errCode: StorageBase.prototype.getErrorCode().FAILED,
-        errMsg: "Exception in etcd2 getSync function. Error message: " + err.message
-      }
-    } finally {
-      return resJson;
-    }
-  }
-
-  setSync(key, value, options = null) {
-    let resJson = {};
-    try {
-      let res = this.etcdClient.setSync(key, value, options);
-      if (res.err === null) {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-          errMsg: "OK"
-        }
-      } else {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().ERROR,
-          errMsg: res.err.error.message
-        }
-      }
-    } catch (err) {
-      resJson = {
-        errCode: StorageBase.prototype.getErrorCode().FAILED,
-        errMsg: "Exception in etcd2 setSync function. Error message: " + err.message
-      }
-    } finally {
-      return resJson
-    }
-  }
-
-  delSync(key, options = null) {
-    let resJson = {};
-    try {
-      let res = this.etcdClient.delSync(key, options);
-      if (res.err === null) {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().SUCCESS,
-          errMsg: "OK"
-        }
-      } else {
-        resJson = {
-          errCode: StorageBase.prototype.getErrorCode().ERROR,
-          errMsg: res.err.error.message
-        }
-      }
-    } catch (err) {
-      resJson = {
-        errorCode: StorageBase.prototype.getErrorCode().FAILED,
-        errorMsg: "Exception in etcd2 delete function. Error message: " + err.message
-      }
-    } finally {
-      return resJson
+      next(err, null);
     }
   }
 
   has(key, next, options = null) {
-    this.get(key, (err, res) => {
-      if (res.errCode === StorageBase.prototype.getErrorCode().ERROR && res.errMsg === 'Key not found') {
-        next(res.errMsg, false);
+    this.etcdClient.get(key, options, (err, res) => {
+      if (err !== null && err.errorCode === 100) {
+        next(err, false);
       } else {
         next(null, true);
       }
-    }, options);
+    });
+  }
+
+  flattenRes(res) {
+    let flatRes = new Map();
+    flatRes.set(res.key, res.value);
+    if (res.dir !== undefined && res.dir && res.nodes !== undefined) {
+      for (let node of res.nodes) {
+        this.flattenRes(node).forEach((value, key) => {
+          flatRes.set(key, value);
+        });
+      }
+    }
+    return flatRes;
   }
 }
 
-module.exports = EtcdV2
+module.exports = Etcd2;

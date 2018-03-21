@@ -17,39 +17,25 @@
 
 const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
-const logger = require('../config/logger')
+const logger = require('../config/logger');
 
 const check = (username, password, callback) => {
   userModel.db.has(etcdConfig.userPath(username), (error, res) => {
-    logger.info("userModel.db.has" + res);
     if (!res) {
       callback(null, false, false);
     } else {
-      let pass = '';
-      let isAdmin = '';
-      userModel.db.get(etcdConfig.userPasswdPath(username), (err, res) => {
-        logger.info("userpassword res " + res);
-        logger.info("userpassword err " + err);
-        if (err !== null) {
-          logger.info("block1")
-          callback(err, false, false);
-        }
-        pass = res.value;
-        userModel.db.get(etcdConfig.userAdminPath(username), (err, res) => {
-          if (err !== null) {
-            logger.info("block2")
-            callback(res.errMsg, false, false);
-          }
-          isAdmin = res.value;
-          logger.info('isAdmin ' + isAdmin);
+      userModel.db.get(etcdConfig.userPath(username), (error, res) => {
+        if (error !== null) {
+          logger.info(error);
+          callback(error, false, false);
+        } else {
           userModel.encrypt(username, password, (err, derivedKey) => {
-            logger.info('derivedKey is ' + derivedKey)
-            callback(err, derivedKey === pass, isAdmin);
-          })
-        })
-      })
+            callback(err, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)));
+          });
+        }
+      }, {recursive: true});
     }
-  })
+  });
 };
 
-module.exports = { check };
+module.exports = {check};

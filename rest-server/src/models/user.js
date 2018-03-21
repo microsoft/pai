@@ -17,13 +17,11 @@
 
 
 // module dependencies
-const path = require('path');
-const fse = require('fs-extra');
 const crypto = require('crypto');
 const config = require('../config/index');
-const dbUtility = require('../util/dbUtility');
+const dbUtility = require('../util/dbUtil');
 const etcdConfig = require('../config/etcd');
-const logger = require('../config/logger')
+const logger = require('../config/logger');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -38,9 +36,9 @@ const encrypt = (username, password, callback) => {
   }
 };
 
-const db = dbUtility.getStorageObject("etcd2", {
-  'hosts': etcdConfig.etcdHosts
-})
+const db = dbUtility.getStorageObject('etcd2', {
+  'hosts': etcdConfig.etcdHosts,
+});
 
 const update = (username, password, admin, modify, callback) => {
   if (typeof modify === 'undefined') {
@@ -52,46 +50,37 @@ const update = (username, password, admin, modify, callback) => {
         callback(null, false);
       } else {
         encrypt(username, password, (err, derivedKey) => {
-          logger.info("encrypt" + err);
           if (err) {
             callback(err, false);
           } else {
             if (modify) {
               db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, res) => {
-                logger.info("update user password: " + err);
-                logger.info("update user password: " + res);
                 if (err !== null) {
                   logger.info(err);
                   callback(err, false);
                 }
-              }, { prevExist: true })
+              }, {prevExist: true});
             } else {
               db.set(etcdConfig.userPath(username), null, (err, res) => {
-                logger.info("set user path: " + err);
-                logger.info("set user path: " + res);
                 if (err !== null) {
                   logger.info(err);
                   callback(err, false);
                 }
                 db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, result) => {
-                  logger.info("set user password path: " + err);
-                  logger.info("set user password path: " + res);
                   if (err !== null) {
                     logger.info(error);
                     callback(error, false);
                   }
-                })
-              }, { dir: true })
+                });
+              }, {dir: true});
             }
             if (typeof admin !== 'undefined') {
               db.set(etcdConfig.userAdminPath(username), admin, (err, res) => {
-                logger.info("set user admin path: " + err);
-                logger.info("set user admin path: " + res);
                 if (err !== null) {
                   logger.info(err);
                   callback(err, false);
                 }
-              })
+              });
             }
             callback(null, true);
           }
@@ -102,12 +91,10 @@ const update = (username, password, admin, modify, callback) => {
 };
 
 const remove = (username, callback) => {
-  logger.info('username is' + username);
   if (typeof username === 'undefined') {
     callback(new Error('user does not exist'), false);
   } else {
     db.has(etcdConfig.userPath(username), (error, res) => {
-      logger.info('remove db.has' + res)
       if (!res) {
         callback(new Error('user does not exist'), false);
       } else {
@@ -115,7 +102,7 @@ const remove = (username, callback) => {
           if (err !== null) {
             callback(err, false);
           } else {
-            if (res.value === 'true') {
+            if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
               callback(new Error('can not delete admin user'), false);
             } else {
               db.delete(etcdConfig.userPath(username), (error, result) => {
@@ -123,49 +110,72 @@ const remove = (username, callback) => {
                   callback(new Error('delete user failed'), false);
                 }
                 callback(null, true);
-              }, { recursive: true });
+              }, {recursive: true});
             }
           }
-        })
+        });
       }
-    })
+    });
   }
 };
 
 const setDefaultAdmin = () => {
-  logger.info("create default admin");
   update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
-    if (status) {
-      logger.info('create default admin successfully');
-    } else {
+    if (!status) {
       throw new Error('unable to set default admin');
     }
-  })
+  });
 };
 
 const prepareStoragePath = () => {
-  logger.info("prepare storage path:");
   db.set(etcdConfig.storagePath(), null, (err, res) => {
     if (!err) {
       throw new Error('build storage path failed');
     } else {
       setDefaultAdmin();
     }
-  }, { dir: true })
-}
+  }, {dir: true});
+};
 
 if (config.env !== 'test') {
   db.has(etcdConfig.storagePath(), (err, res) => {
-    logger.info("db.has callback " + res);
-    logger.info(etcdConfig.storagePath());
-    if (res) {
-      logger.info("storage path already exists");
-    } else {
-      logger.info("storage path not exist");
+    if (!res) {
       prepareStoragePath();
     }
-  })
+  });
+
+  // db.get(etcdConfig.storagePath(), (err, res) => {
+  //   logger.info(etcdConfig.storagePath());
+  //   logger.info(res);
+  // })
+
+  // db.get(etcdConfig.storagePath(), (err, res) => {
+  //   logger.info(etcdConfig.storagePath() + 'recursive');
+  //   logger.info(res);
+  // },{recursive:true})
+
+  // db.get('/users/admin', (err, res) => {
+  //   logger.info('/users/admin');
+  //   logger.info(res);
+  // })
+
+
+  // db.get('/users/admin', (err, res) => {
+  //   logger.info('/users/admin' + 'recursive');
+  //   logger.info(res);
+  // },{recursive:true})
+
+
+  // db.get('/users/admin/admin', (err, res) => {
+  //   logger.info('/users/admin');
+  //   logger.info(res);
+  // })
+
+  // db.get('/users/admin/admin', (err, res) => {
+  //   logger.info('/users/admin' + 'recursive');
+  //   logger.info(res);
+  // },{recursive:true})
 }
 
 // module exports
-module.exports = { encrypt, db, update, remove };
+module.exports = {encrypt, db, update, remove};
