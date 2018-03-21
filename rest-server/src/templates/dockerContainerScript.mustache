@@ -147,15 +147,15 @@ export PAI_CURRENT_CONTAINER_PORT=$PAI_CONTAINER_HOST_PORT
 
 function prepare_ssh()
 {
-   mkdir /root/.ssh
-   sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-   sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+  mkdir /root/.ssh
+  sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+  sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 }
 
 function start_ssh_service()
 {
   printf "%s %s\n" \
-   "[INFO]" "start ssh service"
+    "[INFO]" "start ssh service"
   cat /root/.ssh/$APP_ID.pub >> /root/.ssh/authorized_keys
   sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
@@ -164,18 +164,18 @@ function start_ssh_service()
 
 function hdfs_upload_atomically()
 {
-   printf "%s %s\n%s %s\n%s %s\n" \
+  printf "%s %s\n%s %s\n%s %s\n" \
     "[INFO]" "upload ssh key to hdfs" \
     "[INFO]" "destination path is ${2}" \
     "[INFO]" "source path is ${1}"
-   tempFolder=${2}"_temp"
-   if hdfs dfs -test -d $tempFolder ; then
-     printf "%s %s\n" \
-    "[WARNING]" "$tempFolder already exists, overwriting..."
-     hdfs dfs -rm -r $tempFolder || exit 1
-   fi
-   hdfs dfs -put ${1} $tempFolder || exit 1
-   hdfs dfs -mv $tempFolder ${2} || exit 1
+  tempFolder=${2}"_temp"
+  if hdfs dfs -test -d $tempFolder ; then
+    printf "%s %s\n" \
+      "[WARNING]" "$tempFolder already exists, overwriting..."
+    hdfs dfs -rm -r $tempFolder || exit 1
+  fi
+  hdfs dfs -put ${1} $tempFolder || exit 1
+  hdfs dfs -mv $tempFolder ${2} || exit 1
 }
 
 # Start sshd in docker container
@@ -200,8 +200,8 @@ else
     sleep 10
   done
   printf "%s %s\n%s %s\n" \
-      "[INFO]" "ssh key pair ready ..." \
-      "[INFO]" "begin to download ssh key pair from hdfs ..."
+    "[INFO]" "ssh key pair ready ..." \
+    "[INFO]" "begin to download ssh key pair from hdfs ..."
   hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
 fi
 chmod 400 ~/.ssh/$APP_ID
@@ -244,7 +244,7 @@ done
 start_ssh_service
 
 # Write env to system-wide environment
-env > /etc/environment
+env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
 sleep 10
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
