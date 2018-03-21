@@ -16,6 +16,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubernetes:
+  # Find the namesever in  /etc/resolv.conf
+  cluster-dns: IP
+  # To support k8s ha, you should set an lb address here.
+  # If deploy k8s with single master node, please set master IP address here
+  load-balance-ip: IP
+  # specify an IP range not in the same network segment with the host machine.
+  service-cluster-ip-range: A.B.C.D/X
   # According to the etcdversion, you should fill a corresponding backend name.
   # If you are not familiar with etcd, please don't change it.
   storage-backend: etcd2
