@@ -49,8 +49,7 @@ public class MockApplicationMaster extends ApplicationMaster {
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
     statusManager = new StatusManager(this, conf, zkStore);
     requestManager = new RequestManager(this, conf, zkStore, launcherClient);
-    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager,
-        requestManager.getClusterConfiguration());
+    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager);
   }
 
   @Override

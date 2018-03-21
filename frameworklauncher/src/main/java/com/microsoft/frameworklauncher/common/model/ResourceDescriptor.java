@@ -142,11 +142,15 @@ public class ResourceDescriptor implements Serializable {
 
   // Maybe underestimate if any GpuAttribute == 0
   public static ResourceDescriptor subtract(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    ResourceDescriptor ret = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    ResourceDescriptor ret = new ResourceDescriptor();
     ret.setMemoryMB(lhs.getMemoryMB() - rhs.getMemoryMB());
     ret.setCpuNumber(lhs.getCpuNumber() - rhs.getCpuNumber());
     ret.setGpuAttribute(lhs.getGpuAttribute() & (~(rhs.getGpuAttribute())));
-    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() - rhs.getGpuNumber());
+    }
     ret.setPortRanges(ValueRangeUtils.subtractRange(lhs.getPortRanges(), rhs.getPortRanges()));
     ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
     return ret;
@@ -154,11 +158,15 @@ public class ResourceDescriptor implements Serializable {
 
   // Maybe overestimate if any GpuAttribute == 0
   public static ResourceDescriptor add(ResourceDescriptor lhs, ResourceDescriptor rhs) {
-    ResourceDescriptor ret = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    ResourceDescriptor ret = new ResourceDescriptor();
     ret.setMemoryMB(lhs.getMemoryMB() + rhs.getMemoryMB());
     ret.setCpuNumber(lhs.getCpuNumber() + rhs.getCpuNumber());
     ret.setGpuAttribute(lhs.getGpuAttribute() | rhs.getGpuAttribute());
-    ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    if (lhs.getGpuAttribute() != 0 && rhs.getGpuAttribute() != 0) {
+      ret.setGpuNumber(Long.bitCount(ret.getGpuAttribute()));
+    } else {
+      ret.setGpuNumber(lhs.getGpuNumber() + rhs.getGpuNumber());
+    }
     ret.setPortRanges(ValueRangeUtils.addRange(lhs.getPortRanges(), rhs.getPortRanges()));
     ret.setPortNumber(ValueRangeUtils.getValueNumber(ret.getPortRanges()));
     return ret;

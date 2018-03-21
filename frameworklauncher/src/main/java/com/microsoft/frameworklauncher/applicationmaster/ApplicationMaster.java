@@ -173,7 +173,7 @@ public class ApplicationMaster extends AbstractService {
 
     statusManager = new StatusManager(this, conf, zkStore);
     requestManager = new RequestManager(this, conf, zkStore, launcherClient);
-    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager, requestManager.getClusterConfiguration());
+    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -345,7 +345,7 @@ public class ApplicationMaster extends AbstractService {
     }
     if (requestResource.getGpuNumber() > 0 || requestResource.getPortNumber() > 0) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
-      SelectionResult selectionResult = selectionManager.selectSingleNode(requestResource, taskRoleName);
+      SelectionResult selectionResult = selectionManager.selectSingleNode(taskRoleName);
 
       ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
       if (selectionResult.getNodeHosts().size() > 0) {

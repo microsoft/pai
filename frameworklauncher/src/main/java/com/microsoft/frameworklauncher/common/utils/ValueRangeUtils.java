@@ -17,7 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.utils;
 
-import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.model.Ports;
+import com.microsoft.frameworklauncher.common.model.ValueRange;
 
 import java.util.*;
 

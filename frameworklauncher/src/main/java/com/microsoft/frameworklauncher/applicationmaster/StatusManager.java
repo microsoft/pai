@@ -496,11 +496,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    * REGION ReadInterface
    */
 
-  public synchronized Integer getUnassociatedTaskCount(String taskRoleName) {
+  public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
     int unassociatedTastCount = 0;
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusList) {
-      if (!TaskStateDefinition.CONTAINER_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
+      if (!TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
         unassociatedTastCount++;
       }
     }
