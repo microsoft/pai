@@ -16,10 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubernetes:
-  # the port of API-server, please do not change the default port number below
-  # api-server-port: 8080
-  # specify an IP range not in the same network segment with the host machine.
-  service-cluster-ip-range: 10.254.0.0/16
   # According to the etcdversion, you should fill a corresponding backend name.
   # If you are not familiar with etcd, please don't change it.
   storage-backend: etcd2
