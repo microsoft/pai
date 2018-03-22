@@ -131,10 +131,12 @@ clusterinfo:
     prometheus_uri: http://10.0.3.9:9091
     # root url of the k8s dashboard
     k8s_dashboard_uri: http://10.0.3.9:9090
+    # root url of the yarn web portal
+    yarn_web_portal_uri: http://10.0.3.9:8088
     # root url of grafana
-    grafana_uri: http://10.0.3.9:3000
-    # root url of the web portal
-    webportal_uri: http://10.0.3.9:9286
+    grafana_uri: http://10.0.1.9:3000
+    # root url of PAI web portal
+    pai_web_portal_uri: http://10.0.3.9:9286
     # port of pylon
     port: 80
 
