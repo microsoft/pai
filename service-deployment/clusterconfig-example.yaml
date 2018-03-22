@@ -211,4 +211,3 @@ machinelist:
     hdfsrole: worker
     yarnrole: worker
     node-exporter: "true"
-
