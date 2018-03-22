@@ -176,8 +176,7 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    // Random pick a host from the result set to avoid conflicted requests from concurrent container requests
-    // from different jobs
+    // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
     ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
     String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
     optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
@@ -213,13 +212,13 @@ public class SelectionManager { // THREAD SAFE
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, startStatesTaskCount, reusePorts, configuredNodes);
 
     if (requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
-      // This startStatesTaskCount includes current task, when startStatesTaskCount == 1 means current task is the last task.
-      // If there has other task pending, push current port to previousRequestedPorts for next task re-use.
-      // reusePortsTimes time is used to avoid pending startStatesTaskCount not decrease when previous jobs time out while next job not started.
+      // This startStatesTaskCount also count current task. StartStatesTaskCount == 1 means current task is the last task.
+      // reusePortsTimes time is used to avoid startStatesTaskCount not decrease in the situation of timeout tasks back to startStates.
       if (startStatesTaskCount > 1) {
         if (reusePortsTimes == 0) {
           reusePortsTimes = startStatesTaskCount;
         }
+        // If there has other tasks waiting, push current ports to previousRequestedPorts.
         if (reusePortsTimes > 1) {
           previousRequestedPorts.put(taskRoleName, result.getOptimizedResource().getPortRanges());
         }
@@ -256,9 +255,9 @@ public class SelectionManager { // THREAD SAFE
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, startStatesTaskCount);
     if (filteredNodes.size() < 1) {
-      //don't have candidate nodes for this request.
+      // Don't have candidate nodes for this request.
       if (requestNodeGpuType != null || requestResource.getPortNumber() > 0) {
-        //If gpuType or portNumber is specified, abort this request and try later.
+        // GpuType and port relax are not support in yarn, If gpuType or portNumber is specified, abort this request and try later.
         throw new NotAvailableException(String.format("Don't have enough nodes to meet request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
