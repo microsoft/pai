@@ -55,7 +55,6 @@ matrix:
         - npm run build
       script:
         - npm test
-        - npm run coveralls
     - language: node_js
       node_js: 7
       before_install:
@@ -65,4 +64,3 @@ matrix:
         - npm run build
       script:
         - npm test
-        - npm run coveralls
