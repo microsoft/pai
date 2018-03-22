@@ -17,7 +17,6 @@
 
 const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
-const logger = require('../config/logger');
 
 const check = (username, password, callback) => {
   userModel.db.has(etcdConfig.userPath(username), (errMsg, res) => {

@@ -98,7 +98,7 @@ const setAdmin = (admin, username, callback) => {
       callback(null, true);
     }
   });
-}
+};
 
 const remove = (username, callback) => {
   if (typeof username === 'undefined') {
@@ -156,7 +156,6 @@ if (config.env !== 'test') {
       logger.info('base storage path exists');
     }
   });
-
 }
 
 // module exports
