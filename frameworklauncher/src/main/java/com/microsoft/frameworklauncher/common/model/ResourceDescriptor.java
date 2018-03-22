@@ -69,10 +69,6 @@ public class ResourceDescriptor implements Serializable {
   @NotNull
   private Long gpuAttribute = 0L;
 
-  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
-    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, new ArrayList<ValueRange>());
-  }
-
   public Integer getCpuNumber() {
     return cpuNumber;
   }
@@ -166,6 +162,10 @@ public class ResourceDescriptor implements Serializable {
 
   public void setGpuAttribute(Long gpuAttribute) {
     this.gpuAttribute = gpuAttribute;
+  }
+
+  public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber, Long gpuAttribute) {
+    return ResourceDescriptor.newInstance(memoryMB, cpuNumber, gpuNumber, gpuAttribute, 0, new ArrayList<ValueRange>());
   }
 
   public static ResourceDescriptor newInstance(Integer memoryMB, Integer cpuNumber, Integer gpuNumber,
@@ -293,7 +293,7 @@ public class ResourceDescriptor implements Serializable {
         String.format("CpuNumber: [%s]", getCpuNumber()) + " " +
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]", CommonExts.toStringWithBits(getGpuAttribute())) + " " +
-        String.format("PortNumber: [%s]", getPortNumber()) +
+        String.format("PortNumber: [%s]", getPortNumber()) + " " +
         String.format("PortRanges: [%s]]", ValueRangeUtils.toString(portRanges));
   }
 
