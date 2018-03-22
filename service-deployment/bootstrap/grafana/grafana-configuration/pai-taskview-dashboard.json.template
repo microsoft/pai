@@ -846,7 +846,7 @@
         "options": [],
         "query": "label_values(container_label_PAI_JOB_NAME)",
         "refresh": 1,
-        "regex": "",
+        "regex": "^(?!\s*$).+",
         "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
