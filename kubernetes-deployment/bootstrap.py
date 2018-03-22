@@ -377,7 +377,7 @@ def remove_nodes(cluster_config, node_list_config):
 
 
 
-def maintain_one_node(cluster_config, maintain_config, node_config, job_name):
+def maintain_one_node(cluster_config, node_config, job_name):
 
     module_name = "maintainlib.{0}".format(job_name)
     module = importlib.import_module(module_name)
@@ -392,11 +392,11 @@ def maintain_one_node(cluster_config, maintain_config, node_config, job_name):
 def maintain_nodes(cluster_config, node_list_config, job_name):
 
     # Todo: load maintain from a DB such as etcd instead of a yaml file.
-    maintain_config = load_yaml_file("maintain.yaml")
+    #maintain_config = load_yaml_file("maintain.yaml")
 
     for host in node_list_config['machinelist']:
 
-        maintain_one_node(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
+        maintain_one_node(cluster_config, node_list_config['machinelist'][host], job_name)
 
 
 
@@ -411,10 +411,10 @@ def option_validation(args):
             return False
         ret = True
 
-    option_list_with_file = ['add', 'remove', 'repair']
+    option_list_with_file = ['add', 'remove', 'repair', 'etcdfix']
     if args.action in option_list_with_file:
         if args.file == None:
-            logger.error("Option -a [add, remove, repair] should combine with option -f")
+            logger.error("Option -a [add, remove, repair, etcdfix] should combine with option -f")
             return False
         ret = True
 
@@ -511,6 +511,24 @@ def main():
         destory_whole_cluster(cluster_config)
 
         logger.info("Clean up job finished")
+        return
+
+    if args.action == 'etcdfix':
+
+        logger.info("Begin to fix broken etcd server.")
+
+        node_list_config = load_yaml_file(args.file)
+
+        logger.debug("FIX ETCD on {0}".format(str(node_list_config)))
+
+        if len(node_list_config['machinelist']) != 1:
+
+            logger.error("etcdfix can't fix more than one machine everytime. Please fix them one by one!")
+            sys.exit(1)
+
+        maintain_nodes(cluster_config, node_list_config, args.action)
+
+        logger.info("Etcd has been fixed.")
         return
 
     if args.action == 'deploy':

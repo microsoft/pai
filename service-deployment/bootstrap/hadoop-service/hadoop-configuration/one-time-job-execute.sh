@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,21 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-# tag: pai.run.tensorflow
-#
-# Before building this image you need to build the base image first:
-#
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-
-
-FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
-
-ENV TENSORFLOW_VERSION=1.4.0
-
-# For how to run TensorFlow on Hadoop,
-# please refer to https://www.tensorflow.org/deploy/hadoop
-RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
-    pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
-
-WORKDIR /root
+hdfs dfs -chmod 777 /

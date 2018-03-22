@@ -141,6 +141,7 @@ servicelist:
       - hadoop-node-manager.yaml
       - hadoop-jobhistory.yaml
       - zookeeper.yaml
+      - one-time-job-hadoop.yaml
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh

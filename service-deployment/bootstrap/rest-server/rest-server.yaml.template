@@ -44,14 +44,16 @@ spec:
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+        - name: WEBHDFS_URI
+          value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
         - name: LOWDB_FILE
           value: /var/pai/{{ clusterinfo['restserverinfo']['lowdb_path'] }}
         - name: LOWDB_ADMIN
-          value: {{ clusterinfo['restserverinfo']['lowdb_admin'] }}
+          value: "{{ clusterinfo['restserverinfo']['lowdb_admin'] }}"
         - name: LOWDB_PASSWD
-          value: {{ clusterinfo['restserverinfo']['lowdb_passwd'] }}
+          value: "{{ clusterinfo['restserverinfo']['lowdb_passwd'] }}"
         ports:
         - name: rest-server
           containerPort: 8080

@@ -118,6 +118,8 @@ username
 password
 ```
 
+*NOTE*: If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+
 ## Runtime environment
 
 Each task in a job runs in one Docker container. 
