@@ -34,6 +34,7 @@
     "dotenv": "4.0.0",
     "eslint": "4.17.0",
     "eslint-config-google": "0.9.1",
+    "express": "4.16.2",
     "express-jwt": "5.3.0",
     "fs-extra": "4.0.2",
     "help": "3.0.2",

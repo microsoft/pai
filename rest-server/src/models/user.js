@@ -44,45 +44,43 @@ const update = (username, password, admin, modify, callback) => {
   if (typeof modify === 'undefined') {
     callback(null, false);
   } else {
-    db.has(etcdConfig.userPath(username), (error, res) => {
-      logger.info(res);
+    db.has(etcdConfig.userPath(username), (errMsg, res) => {
       if (res !== modify) {
         callback(null, false);
       } else {
-        encrypt(username, password, (err, derivedKey) => {
-          if (err) {
-            callback(err, false);
+        encrypt(username, password, (errMsg, derivedKey) => {
+          if (errMsg) {
+            callback(errMsg, false);
           } else {
             if (modify) {
-              db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, res) => {
-                if (err !== null) {
-                  logger.info(err);
-                  callback(err, false);
+              db.set(etcdConfig.userPasswdPath(username), derivedKey, (errMsg, res) => {
+                if (errMsg !== null) {
+                  logger.warn('modify %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
+                  callback(errMsg, false);
+                } else {
+                  setAdmin(admin, username, (errMsg, res) => {
+                    callback(errMsg, res);
+                  });
                 }
               }, {prevExist: true});
             } else {
-              db.set(etcdConfig.userPath(username), null, (err, res) => {
-                if (err !== null) {
-                  logger.info(err);
-                  callback(err, false);
+              db.set(etcdConfig.userPath(username), null, (errMsg, res) => {
+                if (errMsg !== null) {
+                  logger.warn('create %s user directory failed. error message:%s', etcdConfig.userPath(username), errMsg);
+                  callback(errMsg, false);
                 }
-                db.set(etcdConfig.userPasswdPath(username), derivedKey, (err, result) => {
-                  if (err !== null) {
-                    logger.info(error);
-                    callback(error, false);
+                db.set(etcdConfig.userPasswdPath(username), derivedKey, (errMsg, result) => {
+                  if (errMsg !== null) {
+                    logger.warn('set %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
+                    callback(errMsg, false);
+                  } else {
+                    setAdmin(admin, username, (errMsg, res) => {
+                      callback(errMsg, res);
+                    });
                   }
                 });
               }, {dir: true});
             }
-            if (typeof admin !== 'undefined') {
-              db.set(etcdConfig.userAdminPath(username), admin, (err, res) => {
-                if (err !== null) {
-                  logger.info(err);
-                  callback(err, false);
-                }
-              });
-            }
-            callback(null, true);
           }
         });
       }
@@ -90,23 +88,35 @@ const update = (username, password, admin, modify, callback) => {
   }
 };
 
+const setAdmin = (admin, username, callback) => {
+  let isAdmin = (typeof admin === 'undefined') ? false : admin;
+  db.set(etcdConfig.userAdminPath(username), isAdmin, (errMsg, res) => {
+    if (errMsg !== null) {
+      logger.warn('set %s admin failed. error message:%s', etcdConfig.userAdminPath(username), errMsg);
+      callback(errMsg, false);
+    } else {
+      callback(null, true);
+    }
+  });
+}
+
 const remove = (username, callback) => {
   if (typeof username === 'undefined') {
     callback(new Error('user does not exist'), false);
   } else {
-    db.has(etcdConfig.userPath(username), (error, res) => {
+    db.has(etcdConfig.userPath(username), (errMsg, res) => {
       if (!res) {
         callback(new Error('user does not exist'), false);
       } else {
-        db.get(etcdConfig.userAdminPath(username), (err, res) => {
-          if (err !== null) {
-            callback(err, false);
+        db.get(etcdConfig.userAdminPath(username), (errMsg, res) => {
+          if (errMsg !== null) {
+            callback(errMsg, false);
           } else {
             if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
               callback(new Error('can not delete admin user'), false);
             } else {
-              db.delete(etcdConfig.userPath(username), (error, result) => {
-                if (error !== null) {
+              db.delete(etcdConfig.userPath(username), (errMsg, result) => {
+                if (errMsg !== null) {
                   callback(new Error('delete user failed'), false);
                 }
                 callback(null, true);
@@ -119,7 +129,7 @@ const remove = (username, callback) => {
   }
 };
 
-const setDefaultAdmin = () => {
+const setDefaultAdmin = (callback) => {
   update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
     if (!status) {
       throw new Error('unable to set default admin');
@@ -128,8 +138,9 @@ const setDefaultAdmin = () => {
 };
 
 const prepareStoragePath = () => {
-  db.set(etcdConfig.storagePath(), null, (err, res) => {
-    if (!err) {
+  logger.warn('in prepare');
+  db.set(etcdConfig.storagePath(), null, (errMsg, res) => {
+    if (errMsg !== null) {
       throw new Error('build storage path failed');
     } else {
       setDefaultAdmin();
@@ -138,43 +149,14 @@ const prepareStoragePath = () => {
 };
 
 if (config.env !== 'test') {
-  db.has(etcdConfig.storagePath(), (err, res) => {
+  db.has(etcdConfig.storagePath(), (errMsg, res) => {
     if (!res) {
       prepareStoragePath();
+    } else {
+      logger.info('base storage path exists');
     }
   });
 
-  // db.get(etcdConfig.storagePath(), (err, res) => {
-  //   logger.info(etcdConfig.storagePath());
-  //   logger.info(res);
-  // })
-
-  // db.get(etcdConfig.storagePath(), (err, res) => {
-  //   logger.info(etcdConfig.storagePath() + 'recursive');
-  //   logger.info(res);
-  // },{recursive:true})
-
-  // db.get('/users/admin', (err, res) => {
-  //   logger.info('/users/admin');
-  //   logger.info(res);
-  // })
-
-
-  // db.get('/users/admin', (err, res) => {
-  //   logger.info('/users/admin' + 'recursive');
-  //   logger.info(res);
-  // },{recursive:true})
-
-
-  // db.get('/users/admin/admin', (err, res) => {
-  //   logger.info('/users/admin');
-  //   logger.info(res);
-  // })
-
-  // db.get('/users/admin/admin', (err, res) => {
-  //   logger.info('/users/admin' + 'recursive');
-  //   logger.info(res);
-  // },{recursive:true})
 }
 
 // module exports

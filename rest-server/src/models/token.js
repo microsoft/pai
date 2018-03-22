@@ -20,17 +20,16 @@ const etcdConfig = require('../config/etcd');
 const logger = require('../config/logger');
 
 const check = (username, password, callback) => {
-  userModel.db.has(etcdConfig.userPath(username), (error, res) => {
+  userModel.db.has(etcdConfig.userPath(username), (errMsg, res) => {
     if (!res) {
       callback(null, false, false);
     } else {
-      userModel.db.get(etcdConfig.userPath(username), (error, res) => {
-        if (error !== null) {
-          logger.info(error);
-          callback(error, false, false);
+      userModel.db.get(etcdConfig.userPath(username), (errMsg, res) => {
+        if (errMsg !== null) {
+          callback(errMsg, false, false);
         } else {
-          userModel.encrypt(username, password, (err, derivedKey) => {
-            callback(err, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)));
+          userModel.encrypt(username, password, (errMsg, derivedKey) => {
+            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)));
           });
         }
       }, {recursive: true});

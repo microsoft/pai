@@ -26,55 +26,55 @@ class Etcd2 extends StorageBase {
     this.etcdClient = new Etcd(this.options.hosts);
   }
 
-  get(key, next, options = null) {
+  get(key, callback, options = null) {
     try {
       this.etcdClient.get(key, options, (err, res) => {
         if (err === null) {
           let kvMap = this.flattenRes(res.node);
-          next(null, kvMap);
+          callback(null, kvMap);
         } else {
-          next(err, null);
+          callback(err, null);
         }
       });
     } catch (err) {
-      next(err, null);
+      callback(err, null);
     }
   }
 
-  set(key, value, next, options = null) {
+  set(key, value, callback, options = null) {
     try {
       this.etcdClient.set(key, value, options, (err, res) => {
         if (err === null) {
-          next(null, res);
+          callback(null, res);
         } else {
-          next(err, null);
+          callback(err, null);
         }
       });
     } catch (err) {
-      next(err, null);
+      callback(err, null);
     }
   }
 
-  delete(key, next, options = null) {
+  delete(key, callback, options = null) {
     try {
       this.etcdClient.del(key, options, (err, res) => {
         if (err === null) {
-          next(null, res);
+          callback(null, res);
         } else {
-          next(err, null);
+          callback(err, null);
         }
       });
     } catch (err) {
-      next(err, null);
+      callback(err, null);
     }
   }
 
-  has(key, next, options = null) {
+  has(key, callback, options = null) {
     this.etcdClient.get(key, options, (err, res) => {
       if (err !== null && err.errorCode === 100) {
-        next(err, false);
+        callback(err, false);
       } else {
-        next(null, true);
+        callback(null, true);
       }
     });
   }

@@ -84,8 +84,8 @@ clusterinfo:
     etcd_admin: your_admin_username
     # etcd database admin password
     etcd_password: your_admin_password
-    # uri for etcd
-    etcd_uri: http://10.151.40.234:4001,http://10.151.40.235:4001,http://10.151.40.236:4001
+    # all uri for etcd use comma-sepated, e.g. "http://ip1:port,http://ip2:port2"
+    etcd_uri: your_etcd_uri
 
 
   # The config for web portal
