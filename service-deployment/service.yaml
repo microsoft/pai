@@ -217,4 +217,3 @@ servicelist:
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
-    
