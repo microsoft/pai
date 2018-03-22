@@ -23,9 +23,9 @@ process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:50070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
-process.env.LOWDB_FILE = './user.db.json';
-process.env.LOWDB_ADMIN = 'iamadmin';
-process.env.LOWDB_PASSWD = 'adminisi';
+process.env.ETCD_URI = 'http://etcd.test.ip1.pai:4001,http://etcd.test.ip2.pai:4001';
+process.env.ETCD_ADMIN = 'etcdAdmin';
+process.env.ETCD_PASSWORD = 'adminis';
 
 
 // module dependencies
