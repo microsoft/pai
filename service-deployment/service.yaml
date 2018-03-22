@@ -20,66 +20,66 @@ imagelist:
   # The image name should be the same as the folder in src.
   # please set your template file name in the templatelist. If there is no template in this image, fill None.
   # If the docker image have prerequisite custom image, please fill it in  prerequisite. If no, fill None.
-  base-image:
-    templatelist:
-      - None
-    copy:
-      - host-configure/
-    prerequisite: None
+  # base-image:
+  #   templatelist:
+  #     - None
+  #   copy:
+  #     - host-configure/
+  #   prerequisite: None
 
-  drivers:
-    templatelist:
-      - dockerfile
-    prerequisite: None
+  # drivers:
+  #   templatelist:
+  #     - dockerfile
+  #   prerequisite: None
 
-  hadoop-run:
-    templatelist:
-      # dockerfile.template
-      - dockerfile
-    prerequisite: base-image
+  # hadoop-run:
+  #   templatelist:
+  #     # dockerfile.template
+  #     - dockerfile
+  #   prerequisite: base-image
 
-  zookeeper:
-    templatelist:
-      - dockerfile
-    prerequisite: base-image
+  # zookeeper:
+  #   templatelist:
+  #     - dockerfile
+  #   prerequisite: base-image
 
-  frameworklauncher:
-    # the copy will be placed in the path src/framworklauncher/copied_file
-    copy:
-      - ../frameworklauncher
-    templatelist:
-      - dockerfile
-    prerequisite: hadoop-run
+  # frameworklauncher:
+  #   # the copy will be placed in the path src/framworklauncher/copied_file
+  #   copy:
+  #     - ../frameworklauncher
+  #   templatelist:
+  #     - dockerfile
+  #   prerequisite: hadoop-run
 
-  rest-server:
-    copy:
-      # created by the prepare hadoop function on docker_build.py
-      - src/hadoop-run/hadoop
-      - ../rest-server
-    templatelist:
-      - dockerfile
-    prerequisite: None
+  # rest-server:
+  #   copy:
+  #     # created by the prepare hadoop function on docker_build.py
+  #     - src/hadoop-run/hadoop
+  #     - ../rest-server
+  #   templatelist:
+  #     - dockerfile
+  #   prerequisite: None
 
-  webportal:
-    copy:
-      - ../pai-fs
-      - ../job-tutorial
-      - ../webportal
-    templatelist:
-      - None
-    prerequisite: None
+  # webportal:
+  #   copy:
+  #     - ../pai-fs
+  #     - ../job-tutorial
+  #     - ../webportal
+  #   templatelist:
+  #     - None
+  #   prerequisite: None
 
-  cleaning-image:
-    templatelist:
-      - dockerfile
-    prerequisite: None
+  # cleaning-image:
+  #   templatelist:
+  #     - dockerfile
+  #   prerequisite: None
  
-  gpu-exporter:
-    copy:
-      - ../prometheus/exporter
-    templatelist:
-      - start.sh
-    prerequisite: None
+  # gpu-exporter:
+  #   copy:
+  #     - ../prometheus/exporter
+  #   templatelist:
+  #     - start.sh
+  #   prerequisite: None
     
   grafana:
     copy:
@@ -88,113 +88,115 @@ imagelist:
       - None
     prerequisite: None
     
-  pylon:
-    copy:
-      - ../pylon
-    templatelist:
-      - None
-    prerequisite: None
+  # pylon:
+  #   copy:
+  #     - ../pylon
+  #   templatelist:
+  #     - None
+  #   prerequisite: None
 
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
 servicelist:
-  cleaning:
-    prerequisite:
-      - None
-    templatelist:
-      - cleaning.yaml
+  # cleaning:
+  #   prerequisite:
+  #     - None
+  #   templatelist:
+  #     - cleaning.yaml
 
-  cluster-configuration:
-    prerequisite:
-      - None
-    templatelist:
-      - secret.yaml
-      - host-configuration/host-configuration.yaml
-      - gpu-configuration/gpu-configuration.yml
-      - gpu-configuration/gpu-configuration.json
-      - docker-credentials/config.json
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # cluster-configuration:
+  #   prerequisite:
+  #     - None
+  #   templatelist:
+  #     - secret.yaml
+  #     - host-configuration/host-configuration.yaml
+  #     - gpu-configuration/gpu-configuration.yml
+  #     - gpu-configuration/gpu-configuration.json
+  #     - docker-credentials/config.json
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  drivers:
-    prerequisite:
-      - cluster-configuration
-    templatelist:
-      - node-label.sh
-      - drivers.yaml
-      - cleanup.sh
-    # Note： your script should start all your service dependency. Make sure service has completed the starting process.
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # drivers:
+  #   prerequisite:
+  #     - cluster-configuration
+  #   templatelist:
+  #     - node-label.sh
+  #     - drivers.yaml
+  #     - cleanup.sh
+  #   # Note： your script should start all your service dependency. Make sure service has completed the starting process.
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  hadoop-service:
-    prerequisite:
-      - cluster-configuration
-      - drivers
-    templatelist:
-      - node-label.sh
-      - configmap-create.sh
-      - hadoop-name-node.yaml
-      - hadoop-data-node.yaml
-      - hadoop-resource-manager.yaml
-      - hadoop-node-manager.yaml
-      - hadoop-jobhistory.yaml
-      - zookeeper.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # hadoop-service:
+  #   prerequisite:
+  #     - cluster-configuration
+  #     - drivers
+  #   templatelist:
+  #     - node-label.sh
+  #     - configmap-create.sh
+  #     - hadoop-name-node.yaml
+  #     - hadoop-data-node.yaml
+  #     - hadoop-resource-manager.yaml
+  #     - hadoop-node-manager.yaml
+  #     - hadoop-jobhistory.yaml
+  #     - zookeeper.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  frameworklauncher:
-    prerequisite:
-      - cluster-configuration
-      - hadoop-service
-    templatelist:
-      - node-label.sh
-      - frameworklauncher.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # frameworklauncher:
+  #   prerequisite:
+  #     - cluster-configuration
+  #     - hadoop-service
+  #   templatelist:
+  #     - node-label.sh
+  #     - frameworklauncher.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  rest-server:
-    prerequisite:
-      - cluster-configuration
-      - frameworklauncher
-    templatelist:
-      - node-label.sh
-      - rest-server.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # rest-server:
+  #   prerequisite:
+  #     - cluster-configuration
+  #     - frameworklauncher
+  #   templatelist:
+  #     - node-label.sh
+  #     - rest-server.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  webportal:
-    prerequisite:
-      - cluster-configuration
-      - rest-server
-    templatelist:
-      - node-label.sh
-      - webportal-ds.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # webportal:
+  #   prerequisite:
+  #     - cluster-configuration
+  #     - rest-server
+  #   templatelist:
+  #     - node-label.sh
+  #     - webportal-ds.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
-  prometheus:
-    prerequisite:
-      - cluster-configuration
-      - drivers
-    templatelist:
-      - node-label.sh
-      - node-exporter-ds.yaml
-      - prometheus-configmap.yaml
-      - prometheus-deployment.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # prometheus:
+  #   prerequisite:
+  #     #- cluster-configuration
+  #     #- drivers
+  #     - None
+  #   templatelist:
+  #     - node-label.sh
+  #     - node-exporter-ds.yaml
+  #     - prometheus-configmap.yaml
+  #     - prometheus-deployment.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh
 
   grafana:
     prerequisite:
-      - cluster-configuration
-      - prometheus
+      #- cluster-configuration
+      #- prometheus
+      - None
     templatelist:
       - node-label.sh
       - grafana.yaml
@@ -208,12 +210,12 @@ servicelist:
     startscript: start.sh
     stopscript: cleanup.sh
 
-  pylon:
-    prerequisite:
-      - cluster-configuration
-    templatelist:
-      - node-label.sh
-      - pylon.yaml
-      - cleanup.sh
-    startscript: start.sh
-    stopscript: cleanup.sh
+  # pylon:
+  #   prerequisite:
+  #     - cluster-configuration
+  #   templatelist:
+  #     - node-label.sh
+  #     - pylon.yaml
+  #     - cleanup.sh
+  #   startscript: start.sh
+  #   stopscript: cleanup.sh

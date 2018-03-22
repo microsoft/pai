@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-clusterID: your_cluster_id
+clusterID: phltest 
 
 
 clusterinfo:
@@ -38,83 +38,81 @@ clusterinfo:
   dockerregistryinfo:
 
     # If public, please fill it the same as your username
-    docker_namespace: your_registry_namespace
+    docker_namespace: aiplatform
 
     # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
     # docker_registry_domain: public
-    docker_registry_domain: your_registry_domain
+    docker_registry_domain: public
     # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
-    docker_username: your_registry_username
-    docker_password: your_registry_password
+    docker_username: abuccts
+    docker_password: core666
 
-    docker_tag: your_image_tag
+    docker_tag: 0.3.0
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
-    secretname: your_secret_name
+    secretname: dockersecret
 
   # hadoop config information
   hadoopinfo:
     # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
     # hadoop-version
     # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
-    custom_hadoop_binary_path: None
+    custom_hadoop_binary_path: /hadoop-binary/hadoop-2.7.2.tar.gz
     hadoopversion: 2.7.2
     configmapname: hadoop-configuration
-    hadoop_vip: 10.0.3.9
+    hadoop_vip: 10.151.40.133
 
   frameworklauncher:
-    frameworklauncher_vip: 10.0.3.9
+    frameworklauncher_vip: 10.151.40.133
     frameworklauncher_port: 9086
 
   restserverinfo:
     # path for rest api server src dir
     src_path: ../rest-server/
     # uri for frameworklauncher webservice
-    webservice_uri: http://10.0.3.9:9086
+    webservice_uri: http://10.151.40.133:9086
     # uri for hdfs
-    hdfs_uri: hdfs://10.0.3.9:9000
-    # root url of the webhdfs api server
-    webhdfs_uri: http://10.0.3.9:50070
+    hdfs_uri: hdfs://10.151.40.133:9000
     # port for rest api server
     server_port: 9186
     # secret for signing authentication tokens, e.g., "Hello PAI!"
-    jwt_secret: your_jwt_secret
+    jwt_secret: "Hello PAI!"
     # authentication database file path relative to PAI data path
     lowdb_path: "rest-server/user.db.json"
     # database admin username
-    lowdb_admin: your_admin_username
+    lowdb_admin: admin
     # database admin password
-    lowdb_passwd: your_admin_password
+    lowdb_passwd: asdfgh
 
   # The config for web portal
   webportalinfo:
     # root url of the rest server
-    rest_server_uri: http://10.0.3.9:9186
+    rest_server_uri: http://10.151.40.133:9186
     # root url of the prometheus server
-    prometheus_uri: http://10.0.3.9:9091
+    prometheus_uri: http://10.151.40.132:9090
     # root url of the grafana portal
-    grafana_uri: http://10.0.3.9:3000
+    grafana_uri: http://10.151.40.133:3000
     # root url of the k8s dashboard
-    k8s_dashboard_uri: http://10.0.3.9:9090
+    k8s_dashboard_uri: http://10.151.40.133:9090
     # root url of the k8s apiserver
-    k8s_api_server_uri: http://10.0.3.9:8080
+    k8s_api_server_uri: http://10.151.40.133:8080
     # port for webportal
     server_port: 9286
     
   # The config for Grafana
   grafanainfo:  
     # The address of the grafana to connect to
-    grafana_url: http://10.0.3.9
+    grafana_url: http://10.151.40.133
     # port for grafana
     grafana_port: 3000
 
   # The config for monitor service
   prometheusinfo:
     # The address of the prometheus to connect to
-    prometheus_url: http://10.0.3.9
+    prometheus_url: http://10.151.40.132
     # port for prometheus port
-    prometheus_port: 9091
+    prometheus_port: 9090
     # port for node exporter
     node_exporter_port: 9100
     # cadvisor port
@@ -122,19 +120,19 @@ clusterinfo:
 
   pyloninfo:
     # root url of the rest server
-    rest_server_uri: http://10.0.3.9:9186
+    rest_server_uri: http://10.151.40.133:9186
     # root url of the k8s apiserver
-    k8s_api_server_uri: http://10.0.3.9:8080
+    k8s_api_server_uri: http://10.151.40.133:8080
     # root url of the webhdfs api server
-    webhdfs_uri: http://10.0.3.9:50070
+    webhdfs_uri: http://10.151.40.133:50070
     # root url of the prometheus server
-    prometheus_uri: http://10.0.3.9:9091
+    prometheus_uri: http://10.151.40.132:9090
     # root url of the k8s dashboard
-    k8s_dashboard_uri: http://10.0.3.9:9090
+    k8s_dashboard_uri: http://10.151.40.133:9090
     # root url of grafana
-    grafana_uri: http://10.0.3.9:3000
+    grafana_uri: http://10.151.40.133:3000
     # root url of the web portal
-    webportal_uri: http://10.0.3.9:9286
+    webportal_uri: http://10.151.40.133:9286
     # port of pylon
     port: 80
 
@@ -167,13 +165,13 @@ machineinfo:
 # An example
 machinelist:
   # Replace your own hostname here.
-  infra-03:
+  phltestaux1:
     # recommend to be the same as host IP
-    nodename: 10.0.3.9
+    nodename: 10.151.40.133
     # Replace your own machine type here
     machinetype: D8SV3
     # Replace your own IP here.
-    ip: 10.0.3.9
+    ip: 10.151.40.133
     # all hadooprole: master will install zk, please specify a unique zkid for each node. Begin at "1".
     zkid: "1"
     # hdfsrole:   master or worker
@@ -190,24 +188,24 @@ machinelist:
     launcher: "true"
     restserver: "true"
     webportal: "true"
-    prometheus: "true"
     grafana: "true"
     pylon: "true"
-    node-exporter: "true"
-    
+  
   # Do the same work as the machine above.
-  worker-01:
-    nodename: 10.0.3.11
+  phltest1:
+    nodename: 10.151.40.131
     machinetype: NC24R
-    ip: 10.0.3.11
+    ip: 10.151.40.131
     hdfsrole: worker
     yarnrole: worker
     node-exporter: "true"
+    #prometheus: "true"
   # Do the same work as the machine above.
-  worker-02:
-    nodename: 10.0.3.12
+  phltest2:
+    nodename: 10.151.40.132
     machinetype: NC24R
-    ip: 10.0.3.12
+    ip: 10.151.40.132
     hdfsrole: worker
     yarnrole: worker
     node-exporter: "true"
+    prometheus: "true"
