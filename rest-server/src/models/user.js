@@ -58,7 +58,7 @@ const update = (username, password, admin, modify, callback) => {
                   logger.warn('modify %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
                   callback(errMsg, false);
                 } else {
-                  setAdmin(admin, username, (errMsg, res) => {
+                  setUserAdmin(admin, username, (errMsg, res) => {
                     callback(errMsg, res);
                   });
                 }
@@ -74,7 +74,7 @@ const update = (username, password, admin, modify, callback) => {
                     logger.warn('set %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
                     callback(errMsg, false);
                   } else {
-                    setAdmin(admin, username, (errMsg, res) => {
+                    setUserAdmin(admin, username, (errMsg, res) => {
                       callback(errMsg, res);
                     });
                   }
@@ -88,7 +88,7 @@ const update = (username, password, admin, modify, callback) => {
   }
 };
 
-const setAdmin = (admin, username, callback) => {
+const setUserAdmin = (admin, username, callback) => {
   let isAdmin = (typeof admin === 'undefined') ? false : admin;
   db.set(etcdConfig.userAdminPath(username), isAdmin, (errMsg, res) => {
     if (errMsg !== null) {
@@ -138,7 +138,6 @@ const setDefaultAdmin = (callback) => {
 };
 
 const prepareStoragePath = () => {
-  logger.warn('in prepare');
   db.set(etcdConfig.storagePath(), null, (errMsg, res) => {
     if (errMsg !== null) {
       throw new Error('build storage path failed');
