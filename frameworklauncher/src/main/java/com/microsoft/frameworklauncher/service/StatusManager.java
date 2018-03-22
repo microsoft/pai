@@ -41,6 +41,17 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   private final Service service;
   private final LauncherConfiguration conf;
   private final ZookeeperStore zkStore;
+
+
+  /**
+   * REGION BaseStatus
+   */
+  // Service only need to maintain LauncherStatus and AllFrameworkStatuses, and it is the only maintainer.
+  private LauncherStatus launcherStatus = null;
+  // FrameworkName -> FrameworkStatus
+  private Map<String, FrameworkStatus> frameworkStatuses = null;
+
+
   /**
    * REGION ExtensionStatus
    * ExtensionStatus should be always CONSISTENT with BaseStatus
@@ -52,13 +63,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   private final Map<String, String> associatedApplicationIdLocators = new HashMap<>();
   // Live Associated ApplicationId -> FrameworkName
   private final Map<String, String> liveAssociatedApplicationIdLocators = new HashMap<>();
-  /**
-   * REGION BaseStatus
-   */
-  // Service only need to maintain LauncherStatus and AllFrameworkStatuses, and it is the only maintainer.
-  private LauncherStatus launcherStatus = null;
-  // FrameworkName -> FrameworkStatus
-  private Map<String, FrameworkStatus> frameworkStatuses = null;
 
 
   /**
