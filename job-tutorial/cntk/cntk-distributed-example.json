@@ -16,7 +16,7 @@
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 0,
-      "command": "/usr/local/mpi/bin/mpirun --allow-run-as-root -x PATH -x LD_LIBRARY_PATH -np 1 --host worker-0,worker-1 /bin/bash -c 'cd code && /bin/bash cntk-distributed-example.sh'"
+      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-distributed-example.sh"
     },
     {
       "name": "worker",

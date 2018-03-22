@@ -36,7 +36,7 @@ RUN OPENMPI_SHA1="84d035e7ab1572e5ebc086049f05b694d2158844" && \
     echo "$OPENMPI_SHA1 openmpi-${OPENMPI_VERSION}.tar.gz" | sha1sum --check --strict - && \
     tar -xzf openmpi-${OPENMPI_VERSION}.tar.gz && \
     cd openmpi-${OPENMPI_VERSION} && \
-    ./configure --prefix=/usr/local/mpi && \
+    ./configure --prefix=/usr/local/mpi --enable-mpirun-prefix-by-default && \
     make -j $(nproc) install && \
     cd .. && \
     rm -rf openmpi-${OPENMPI_VERSION} && \
