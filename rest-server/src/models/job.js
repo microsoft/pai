@@ -337,8 +337,8 @@ class Job {
           'resource': {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,
-            'portDefinitions': data.taskRoles[i].gpuNumber,
-            'portList': portList,
+            'gpuNumber': data.taskRoles[i].gpuNumber,
+            'portDefinitions': portList,
             'diskType': 0,
             'diskMB': 0,
           },
