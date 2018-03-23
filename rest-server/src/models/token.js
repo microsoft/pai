@@ -28,7 +28,7 @@ const check = (username, password, callback) => {
           callback(errMsg, false, false);
         } else {
           userModel.encrypt(username, password, (errMsg, derivedKey) => {
-            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)));
+            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)) === 'true');
           });
         }
       });
