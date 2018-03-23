@@ -19,13 +19,13 @@
 
 
 class StorageBase {
-  get(key, callback, options) { }
+  get(key, options, callback) { }
 
-  set(key, value, callback, options) { }
+  set(key, value, options, callback) { }
 
-  delete(key, callback, options) { }
+  delete(key, options, callback) { }
 
-  has(key, callback, options) { }
+  has(key, options, callback) { }
 }
 
 module.exports = StorageBase;

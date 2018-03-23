@@ -76,7 +76,7 @@ describe('etcd2 get function test', () => {
   // positive test case
   // get exist single key value pair
   it('should return a map [/single_test,test]', (done) => {
-    db.get('/single_test', (err, res) => {
+    db.get('/single_test', null, (err, res) => {
       expect(res).to.have.all.keys('/single_test');
       expect(res.get('/single_test')).to.be.equal('test');
       done();
@@ -86,7 +86,7 @@ describe('etcd2 get function test', () => {
   // negative test case
   // get non-exist key
   it('should return null', (done) => {
-    db.get('/non_exist', (err, res) => {
+    db.get('/non_exist', null, (err, res) => {
       expect(res).to.be.equal(null);
       expect(err.errorCode).to.be.equal(100);
       done();
@@ -96,13 +96,13 @@ describe('etcd2 get function test', () => {
   // positive test case
   // get key value pair recursive
   it('should return kv map in flatten way', (done) => {
-    db.get('/test1', (err, res) => {
+    db.get('/test1', { recursive: true }, (err, res) => {
       expect(res).to.have.all.keys('/test1', '/test1/admin', '/test1/passwd');
       expect(res.get('/test1')).to.be.equal(undefined);
       expect(res.get('/test1/admin')).to.be.equal('true');
       expect(res.get('/test1/passwd')).to.be.equal('7519213ff7915e05dd97dd0638d9d474055bfbaf4224492036aa79278f7114c21558fd27a37eae527320a48cdb448ab771f5ec1067d1e6be21ea9dc18371b15b');
       done();
-    }, { recursive: true });
+    });
   });
 
 });
@@ -128,7 +128,7 @@ describe('etcd2 set function test', () => {
 
   // set a key value pair
   it('should set a key value pair', (done) => {
-    db.set('/set_key_test', 'set_key_test', (err, res) => {
+    db.set('/set_key_test', 'set_key_test', null, (err, res) => {
       expect(res).to.nested.include({'node.value':'set_key_test'})
       done();
     })
@@ -180,17 +180,17 @@ describe('etcd2 delete function test', () => {
 
   // delete single key
   it('should delete key del_test1', (done) => {
-    db.delete('/del_test1', (err, res) => {
+    db.delete('/del_test1', null, (err, res) => {
       expect(res).to.nested.include({'action':'delete','node.key':'/del_test'})
       done();
     })
   });
 
   it('should delete key del_test2 recursively', (done) => {
-    db.delete('/del_test2', (err, res) => {
+    db.delete('/del_test2', {recursive: true}, (err, res) => {
       expect(res).to.nested.include({'action':'delete','node.key':'/del_test2','node.dir':true})
       done();
-    },{recursive: true})
+    })
   });
 });
 
@@ -224,7 +224,7 @@ describe('etcd2 has function test', () => {
 
   // get exist single key value pair
   it('key exists should return true', (done) => {
-    db.has('/has_test1', (err, res) => {
+    db.has('/has_test1', null, (err, res) => {
       expect(res).to.be.true;
       done();
     });
@@ -232,7 +232,7 @@ describe('etcd2 has function test', () => {
 
   // get non-exist single key value pair
   it('key not exist should return false', (done) => {
-    db.has('/has_test2', (err, res) => {
+    db.has('/has_test2', null, (err, res) => {
       expect(res).to.be.false;
       done();
     });

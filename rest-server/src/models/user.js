@@ -44,7 +44,7 @@ const update = (username, password, admin, modify, callback) => {
   if (typeof modify === 'undefined') {
     callback(null, false);
   } else {
-    db.has(etcdConfig.userPath(username), (errMsg, res) => {
+    db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
       if (res !== modify) {
         callback(null, false);
       } else {
@@ -53,8 +53,8 @@ const update = (username, password, admin, modify, callback) => {
             callback(errMsg, false);
           } else {
             if (modify) {
-              db.set(etcdConfig.userPasswdPath(username), derivedKey, (errMsg, res) => {
-                if (errMsg !== null) {
+              db.set(etcdConfig.userPasswdPath(username), derivedKey, {prevExist: true}, (errMsg, res) => {
+                if (errMsg) {
                   logger.warn('modify %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
                   callback(errMsg, false);
                 } else {
@@ -66,15 +66,15 @@ const update = (username, password, admin, modify, callback) => {
                     callback(null, true);
                   }
                 }
-              }, {prevExist: true});
+              });
             } else {
-              db.set(etcdConfig.userPath(username), null, (errMsg, res) => {
-                if (errMsg !== null) {
+              db.set(etcdConfig.userPath(username), null, {dir: true}, (errMsg, res) => {
+                if (errMsg) {
                   logger.warn('create %s user directory failed. error message:%s', etcdConfig.userPath(username), errMsg);
                   callback(errMsg, false);
                 }
-                db.set(etcdConfig.userPasswdPath(username), derivedKey, (errMsg, result) => {
-                  if (errMsg !== null) {
+                db.set(etcdConfig.userPasswdPath(username), derivedKey, null, (errMsg, result) => {
+                  if (errMsg) {
                     logger.warn('set %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
                     callback(errMsg, false);
                   } else {
@@ -83,7 +83,7 @@ const update = (username, password, admin, modify, callback) => {
                     });
                   }
                 });
-              }, {dir: true});
+              });
             }
           }
         });
@@ -94,8 +94,8 @@ const update = (username, password, admin, modify, callback) => {
 
 const setUserAdmin = (admin, username, callback) => {
   let isAdmin = (typeof admin === 'undefined') ? false : admin;
-  db.set(etcdConfig.userAdminPath(username), isAdmin, (errMsg, res) => {
-    if (errMsg !== null) {
+  db.set(etcdConfig.userAdminPath(username), isAdmin, null, (errMsg, res) => {
+    if (errMsg) {
       logger.warn('set %s admin failed. error message:%s', etcdConfig.userAdminPath(username), errMsg);
       callback(errMsg, false);
     } else {
@@ -108,23 +108,23 @@ const remove = (username, callback) => {
   if (typeof username === 'undefined') {
     callback(new Error('user does not exist'), false);
   } else {
-    db.has(etcdConfig.userPath(username), (errMsg, res) => {
+    db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
       if (!res) {
         callback(new Error('user does not exist'), false);
       } else {
-        db.get(etcdConfig.userAdminPath(username), (errMsg, res) => {
-          if (errMsg !== null) {
+        db.get(etcdConfig.userAdminPath(username), null, (errMsg, res) => {
+          if (errMsg) {
             callback(errMsg, false);
           } else {
             if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
               callback(new Error('can not delete admin user'), false);
             } else {
-              db.delete(etcdConfig.userPath(username), (errMsg, result) => {
-                if (errMsg !== null) {
+              db.delete(etcdConfig.userPath(username), {recursive: true}, (errMsg, result) => {
+                if (errMsg) {
                   callback(new Error('delete user failed'), false);
                 }
                 callback(null, true);
-              }, {recursive: true});
+              });
             }
           }
         });
@@ -142,17 +142,17 @@ const setDefaultAdmin = (callback) => {
 };
 
 const prepareStoragePath = () => {
-  db.set(etcdConfig.storagePath(), null, (errMsg, res) => {
-    if (errMsg !== null) {
+  db.set(etcdConfig.storagePath(), null, {dir: true}, (errMsg, res) => {
+    if (errMsg) {
       throw new Error('build storage path failed');
     } else {
       setDefaultAdmin();
     }
-  }, {dir: true});
+  });
 };
 
 if (config.env !== 'test') {
-  db.has(etcdConfig.storagePath(), (errMsg, res) => {
+  db.has(etcdConfig.storagePath(), null, (errMsg, res) => {
     if (!res) {
       prepareStoragePath();
     } else {

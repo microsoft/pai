@@ -26,10 +26,10 @@ class Etcd2 extends StorageBase {
     this.etcdClient = new Etcd(this.options.hosts);
   }
 
-  get(key, callback, options = null) {
+  get(key, options, callback) {
     try {
       this.etcdClient.get(key, options, (err, res) => {
-        if (err === null) {
+        if (!err) {
           let kvMap = this.flattenRes(res.node);
           callback(null, kvMap);
         } else {
@@ -41,10 +41,10 @@ class Etcd2 extends StorageBase {
     }
   }
 
-  set(key, value, callback, options = null) {
+  set(key, value, options, callback) {
     try {
       this.etcdClient.set(key, value, options, (err, res) => {
-        if (err === null) {
+        if (!err) {
           callback(null, res);
         } else {
           callback(err, null);
@@ -55,10 +55,10 @@ class Etcd2 extends StorageBase {
     }
   }
 
-  delete(key, callback, options = null) {
+  delete(key, options, callback) {
     try {
       this.etcdClient.del(key, options, (err, res) => {
-        if (err === null) {
+        if (!err) {
           callback(null, res);
         } else {
           callback(err, null);
@@ -69,9 +69,9 @@ class Etcd2 extends StorageBase {
     }
   }
 
-  has(key, callback, options = null) {
+  has(key, options, callback) {
     this.etcdClient.get(key, options, (err, res) => {
-      if (err !== null && err.errorCode === 100) {
+      if (err && err.errorCode === 100) {
         callback(err, false);
       } else {
         callback(null, true);
