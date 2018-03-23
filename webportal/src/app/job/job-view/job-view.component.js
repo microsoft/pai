@@ -216,17 +216,26 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
-        $.ajax({
-          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
-          type: 'GET',
-          success: (data) => {
-            sshInfo = data;
-          },
-          error: (xhr, textStatus, error) => {
-            const res = JSON.parse(xhr.responseText);
-            alert(res.message);
-          },
-        });
+        $('a[name^=sshInfoLink]').addClass('disabled');
+        if (data.jobStatus.state !== 'RUNNING') {
+          $('div[name^=sshInfoDiv]').attr('title', 'Job is not running.');
+        } else {
+          $.ajax({
+            url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
+            type: 'GET',
+            success: (data) => {
+              sshInfo = data;
+              $('a[name^=sshInfoLink]').removeClass('disabled');
+              $('div[name^=sshInfoDiv]').attr('title', '');
+            },
+            error: (xhr, textStatus, error) => {
+              const res = JSON.parse(xhr.responseText);
+              if (res.message === 'SshInfoNotFound') {
+                $('div[name^=sshInfoDiv]').attr('title', 'This job does not contain SSH info.');
+              }
+            },
+          });
+        }
       }
     },
     error: (xhr, textStatus, error) => {
