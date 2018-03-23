@@ -23,6 +23,8 @@ DefaultMachineProperties:
   sshport: port
 
 
+# MachineSku
+# MachineType
 machineinfo:
 
   NC24R:
@@ -33,16 +35,16 @@ machineinfo:
       count: 4
     cpu:
       vcore: 24
-    dataFolder: "/mnt"
-    # Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
+    #dataFolder: "/mnt"
+    #Note: Up to now, the only supported os version is Ubuntu16.04. Please do not change it here.
     os: ubuntu16.04
 
   D8SV3:
     mem: 32
     cpu:
       vcore: 8
-    dataFolder: "/mnt"
-    # Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
+    #dataFolder: "/mnt"
+    #Note: Up to now, the only supported os version is Ubuntu16.04. Pls don't change it here.
     os: ubuntu16.04
 
 
@@ -55,7 +57,7 @@ machinelist:
     # hostip: the static IP of this node. We assume the IP of a host will not change.
     # sshport: the ssh port of this node. If not specified, the port is 22.
     # username/password: the user name and password in the OS. Make sure it is granted with sudo permission.
-    hostname: XXXX
+    # hostname: XXXX
     hostip: IP
     #sshport: PORT (Option)
     etcdid: etcdid1
@@ -83,6 +85,11 @@ machinelist:
     grafana: "true"
     pylon: "true"
     node-exporter: "true"
+
+    # True : False
+
+    # pairole: master
+
 
 
   infra-02:

@@ -17,9 +17,6 @@
 
 cluster:
 
-  # PAI data root path
-  paiPath: "/var/pai"
-
   # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
   nvidia_drivers_version: 384.111
 
@@ -57,7 +54,6 @@ hadoop:
   # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
   custom_hadoop_binary_path: None
   hadoopversion: 2.7.2
-  configmapname: hadoop-configuration
 
 
 frameworklauncher:
@@ -65,8 +61,6 @@ frameworklauncher:
 
 
 restserver:
-  # path for rest api server src dir
-  src_path: ../rest-server/
   # port for rest api server
   server_port: 9186
   # secret for signing authentication tokens, e.g., "Hello PAI!"
