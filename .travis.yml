@@ -35,6 +35,7 @@ matrix:
         - npm install
       script:
         - npm test
+        - npm run coveralls
     - language: node_js
       node_js: 7
       env: NODE_ENV=test
@@ -44,6 +45,7 @@ matrix:
         - npm install
       script:
         - npm test
+        - npm run coveralls
     - language: node_js
       node_js: 6
       before_install:
