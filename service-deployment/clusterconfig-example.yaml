@@ -87,7 +87,6 @@ clusterinfo:
     # all uri for etcd use comma-sepated, e.g. "http://ip1:port,http://ip2:port2"
     etcd_uri: your_etcd_uri
 
-
   # The config for web portal
   webportalinfo:
     # root url of the rest server
@@ -102,7 +101,7 @@ clusterinfo:
     k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
-  
+   
   # The config for Grafana
   grafanainfo:  
     # The address of the grafana to connect to
@@ -111,7 +110,7 @@ clusterinfo:
     grafana_port: 3000
 
   # The config for monitor service
-  prometheusinfo:     
+  prometheusinfo: 
     # The address of the prometheus to connect to
     prometheus_url: http://10.0.3.9
     # port for prometheus port
@@ -197,7 +196,7 @@ machinelist:
     grafana: "true"
     pylon: "true"
     node-exporter: "true"
-  
+ 
   # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11
