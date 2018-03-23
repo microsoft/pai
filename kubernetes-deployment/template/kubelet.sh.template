@@ -19,7 +19,7 @@
 
 docker run \
     --name=kubelet \
-    --volume=/etc/kubernetes/manifests:/etc/kubernetes/manifests:rw \
+    --volume=/etc/kubernetes:/etc/kubernetes:rw \
     --volume=/:/rootfs:rw \
     --volume=/sys:/sys:rw \
     --volume=/dev:/dev:rw \
@@ -36,7 +36,8 @@ docker run \
     {{ clusterconfig['dockerregistry'] }}/hyperkube:{{ clusterconfig['hyperkubeversion'] }} \
     /hyperkube kubelet --address={{ hostcofig['hostip'] }} \
   --register-node=true \
-  --api-servers={{ clusterconfig['api-servers-ip'] }}:8080 \
+  --kubeconfig=/etc/kubernetes/config \
+  --require-kubeconfig \
   --hostname-override={{ hostcofig['nodename'] }} \
   --cluster-dns={{ clusterconfig['cluster-dns'] }} \
   --cluster-domain=cluster.local  \
