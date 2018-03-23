@@ -20,6 +20,8 @@
 
 # Example script for distributed CNTK job
 
+trap "kill 0" EXIT
+
 # hdfs address in IP:PORT format
 hdfs_addr=$(sed -e "s@hdfs://@@g" <<< $PAI_DEFAULT_FS_URI)
 
