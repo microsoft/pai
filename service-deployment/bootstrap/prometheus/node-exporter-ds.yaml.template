@@ -90,6 +90,7 @@ spec:
           value: "/var/drivers/nvidia/current/lib:/var/drivers/nvidia/current/lib64"
         args:
           - '--port={{ clusterinfo['prometheusinfo']['cadvisor_port'] }}' 
+          - '--docker_env_metadata_whitelist=APP_ID,PAI_TASK_INDEX,PAI_CONTAINER_HOST_IP,PAI_CONTAINER_ID'
         name: cadvisor
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['cadvisor_port'] }}

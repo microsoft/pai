@@ -80,13 +80,15 @@
           <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
           <td>
-            <a onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
-              <% if (jobStatus.state !== 'RUNNING') { %>
-                class='disabled'
-              <% } %>
-              href='#'>SSH Info</a>
-            &nbsp;|&nbsp;
-            <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Log</a>
+            <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
+              <a name='sshInfoLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
+                onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
+                href='javascript:void(0);'>SSH Info</a>
+            </div>
+            <div style='float:left'>&nbsp;|&nbsp;</div>
+            <div style='float:left'>
+              <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Log</a>
+            </div>
           </td>
         </tr>
       <% } %>
