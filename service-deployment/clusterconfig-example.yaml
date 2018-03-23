@@ -80,10 +80,10 @@ clusterinfo:
     server_port: 9186
     # secret for signing authentication tokens, e.g., "Hello PAI!"
     jwt_secret: your_jwt_secret
-    # etcd database admin username
-    etcd_admin: your_admin_username
-    # etcd database admin password
-    etcd_password: your_admin_password
+    # PAI default admin username
+    default_pai_admin_username: your_default_pai_admin_username
+    # PAI default admin password
+    default_pai_admin_password: your_default_pai_admin_password
     # all uri for etcd use comma-sepated, e.g. "http://ip1:port,http://ip2:port2"
     etcd_uri: your_etcd_uri
 
@@ -102,7 +102,7 @@ clusterinfo:
     k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
-    
+  
   # The config for Grafana
   grafanainfo:  
     # The address of the grafana to connect to
@@ -111,7 +111,7 @@ clusterinfo:
     grafana_port: 3000
 
   # The config for monitor service
-  prometheusinfo:
+  prometheusinfo:     
     # The address of the prometheus to connect to
     prometheus_url: http://10.0.3.9
     # port for prometheus port
@@ -195,7 +195,7 @@ machinelist:
     grafana: "true"
     pylon: "true"
     node-exporter: "true"
-    
+  
   # Do the same work as the machine above.
   worker-01:
     nodename: 10.0.3.11

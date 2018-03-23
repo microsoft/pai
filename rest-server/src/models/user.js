@@ -58,9 +58,13 @@ const update = (username, password, admin, modify, callback) => {
                   logger.warn('modify %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
                   callback(errMsg, false);
                 } else {
-                  setUserAdmin(admin, username, (errMsg, res) => {
-                    callback(errMsg, res);
-                  });
+                  if (typeof admin !== 'undefined') {
+                    setUserAdmin(admin, username, (errMsg, res) => {
+                      callback(errMsg, res);
+                    });
+                  } else {
+                    callback(null, true);
+                  }
                 }
               }, {prevExist: true});
             } else {

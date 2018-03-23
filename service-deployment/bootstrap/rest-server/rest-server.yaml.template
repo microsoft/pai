@@ -48,10 +48,10 @@ spec:
           value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
-        - name: ETCD_ADMIN
-          value: {{ clusterinfo['restserverinfo']['etcd_admin'] }}
-        - name: ETCD_PASSWORD
-          value: {{ clusterinfo['restserverinfo']['etcd_password'] }}
+        - name: DEFAULT_PAI_ADMIN_USERNAME
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
+        - name: DEFAULT_PAI_ADMIN_PASSWORD
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
         ports:

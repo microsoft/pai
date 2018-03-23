@@ -21,8 +21,8 @@ const Joi = require('joi');
 
 let etcdConfig = {
   etcdUri: process.env.ETCD_URI,
-  adminName: process.env.ETCD_ADMIN,
-  adminPass: process.env.ETCD_PASSWORD,
+  adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
+  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
 etcdConfig.etcdHosts = etcdConfig.etcdUri.split(',');
