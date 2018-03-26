@@ -1,6 +1,6 @@
 
-<table class="table">
-  <tr>
+<table class="table table-condensed">
+  <tr style='background-color:whitesmoke'>
     <th>Job Name</th>
     <th>User Name</th>
     <th>Start Time</th>
@@ -20,9 +20,21 @@
 
 <hr class="divider">
 
-<table class="table">
+<table class="table table-condensed">
   <tr>
-    <th style="width:160px">Application Info:</th>
+    <th style="width:160px; background-color:whitesmoke">Monitoring Pages</th>
+    <td>
+      <a href="<%= jobStatus.appTrackingUrl %>" target="_blank">
+        Application Tracking Page
+      </a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="<%= grafanaUri %>/dashboard/db/joblevelmetrics?var_job=<%= jobName %>" target="_blank">
+        Job Metrics Page
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <th style="width:160px; background-color:whitesmoke">Application Info</th>
     <td>
       Start Time: <%= convertTime(false, jobStatus.appLaunchedTime) %>
       &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -45,29 +57,12 @@
     <% } %>
   </div>
 </div>
-
-<hr class="divider">
-
-<table class="table">
-  <tr>
-    <th style="width:160px">Monitoring Pages:</th>
-    <td>
-      <a href="<%= jobStatus.appTrackingUrl %>" target="_blank">
-        Application Tracking Page
-      </a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="<%= grafanaUri %>/dashboard/db/joblevelmetrics?var_job=<%= jobName %>" target="_blank">
-        Job Metrics Page
-      </a>
-    </td>
-  </tr>
-</table>
  
 <hr class="divider">
 
-<table class="table">
+<table class="table table-condensed">
   <thead>
-    <tr>
+    <tr style='background-color:whitesmoke'>
       <th>Task Role</th>
       <th>Task Index</th>
       <th>Name of Container</th>
