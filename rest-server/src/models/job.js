@@ -23,6 +23,7 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const childProcess = require('child_process');
+const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -32,11 +33,13 @@ const dockerContainerScriptTemplate = require('../templates/dockerContainerScrip
 class Job {
   constructor(name, next) {
     this.name = name;
-    this.getJob(name, (job) => {
-      for (let key of Object.keys(job)) {
-        this[key] = job[key];
+    this.getJob(name, (jobDetail, error) => {
+      if (error === null) {
+        for (let key of Object.keys(jobDetail)) {
+          this[key] = jobDetail[key];
+        }
       }
-      next(this);
+      next(this, error);
     });
   }
 
@@ -57,6 +60,8 @@ class Job {
       case 'FRAMEWORK_COMPLETED':
         if (typeof exitCode !== 'undefined' && parseInt(exitCode) === 0) {
           jobState = 'SUCCEEDED';
+        } else if (typeof exitCode !== 'undefined' && parseInt(exitCode) == 214) {
+          jobState = 'STOPPED';
         } else {
           jobState = 'FAILED';
         }
@@ -69,8 +74,9 @@ class Job {
 
   getJobList(next) {
     unirest.get(launcherConfig.frameworksPath())
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .end((res) => {
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((res) => {
+        try {
           const resJson = typeof res.body === 'object' ?
               res.body : JSON.parse(res.body);
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
@@ -84,6 +90,7 @@ class Job {
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
               subState: frameworkInfo.frameworkState,
+              executionType: frameworkInfo.executionType,
               retries: retries,
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
@@ -92,81 +99,32 @@ class Job {
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
           next(jobList);
-        });
+        } catch (error) {
+          next(null, error);
+        }
+      });
   }
 
   getJob(name, next) {
     unirest.get(launcherConfig.frameworkPath(name))
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .end((frameworkRes) => {
-          const framework = typeof frameworkRes.body === 'object' ?
-              frameworkRes.body : JSON.parse(frameworkRes.body);
-          let job = {
-            jobStatus: {
-              name,
-              username: 'unknown',
-              state: 'JOB_NOT_FOUND',
-            },
-            taskRoles: {},
-          };
-          if (framework.exception !== undefined) {
-            next(job, new Error('job not found'));
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          if (requestRes.status === 200) {
+            next(this.generateJobDetail(requestResJson), null);
+          } else if (requestRes.status === 404) {
+            next(null, new Error('JobNotFound'));
           } else {
-            const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
-            if (frameworkStatus) {
-              const jobState = this.convertJobState(
-                  frameworkStatus.frameworkState,
-                  frameworkStatus.applicationExitCode);
-              let jobRetryCount = 0;
-              const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
-              jobRetryCount =
-                jobRetryCountInfo.transientNormalRetriedCount +
-                jobRetryCountInfo.transientConflictRetriedCount +
-                jobRetryCountInfo.nonTransientRetriedCount +
-                jobRetryCountInfo.unKnownRetriedCount;
-              job.jobStatus = {
-                name,
-                username: 'unknown',
-                state: jobState,
-                subState: frameworkStatus.frameworkState,
-                retries: jobRetryCount,
-                createdTime: frameworkStatus.frameworkCreatedTimestamp,
-                completedTime: frameworkStatus.frameworkCompletedTimestamp,
-                appId: frameworkStatus.applicationId,
-                appProgress: frameworkStatus.applicationProgress,
-                appTrackingUrl: frameworkStatus.applicationTrackingUrl,
-                appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
-                appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
-                appExitCode: frameworkStatus.applicationExitCode,
-                appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
-                appExitType: frameworkStatus.applicationExitType,
-              };
-            }
-            const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
-            if (frameworkRequest.frameworkDescriptor) {
-              job.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-            }
-            const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
-            if (taskRoleStatuses) {
-              for (let taskRole of Object.keys(taskRoleStatuses)) {
-                job.taskRoles[taskRole] = {
-                  taskRoleStatus: {name: taskRole},
-                  taskStatuses: [],
-                };
-                for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
-                  job.taskRoles[taskRole].taskStatuses.push({
-                    taskIndex: task.taskIndex,
-                    containerId: task.containerId,
-                    containerIp: task.containerIp,
-                    containerGpus: task.containerGpus,
-                    containerLog: task.containerLogHttpAddress,
-                  });
-                }
-              }
-            }
-            next(job);
+            next(null, new Error('InternalServerError'));
           }
-        });
+        } catch (error) {
+          next(null, error);
+        }
+      });
   }
 
   putJob(name, data, next) {
@@ -192,7 +150,7 @@ class Job {
         let frameworkDescription;
         async.parallel([
           (parallelCallback) => {
-            async.each(['tmp', 'finished'], (file, eachCallback) => {
+            async.each(['log', 'tmp', 'finished'], (file, eachCallback) => {
               fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
             }, (err) => {
               parallelCallback(err);
@@ -237,21 +195,26 @@ class Job {
           if (parallelError) {
             return next(parallelError);
           } else {
+            let cmd = '';
+            if (config.env !== 'test') {
+              cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
+            }
             childProcess.exec(
-                `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`,
-                (err, stdout, stderr) => {
-                  logger.info('[stdout]\n%s', stdout);
-                  logger.info('[stderr]\n%s', stderr);
-                  if (err) {
-                    return next(err);
-                  } else {
-                    unirest.put(launcherConfig.frameworkPath(name))
-                        .headers(launcherConfig.webserviceRequestHeaders)
-                        .send(frameworkDescription)
-                        .end((res) => next());
-                  }
-                });
+              cmd,
+              (err, stdout, stderr) => {
+                logger.info('[stdout]\n%s', stdout);
+                logger.info('[stderr]\n%s', stderr);
+                if (err) {
+                  return next(err);
+                } else {
+                  unirest.put(launcherConfig.frameworkPath(name))
+                      .headers(launcherConfig.webserviceRequestHeaders)
+                      .send(frameworkDescription)
+                      .end((res) => next());
+                }
+              }
+            );
           }
         });
       }
@@ -274,6 +237,154 @@ class Job {
           next(new Error('can not delete other user\'s job'));
         }
       });
+  }
+
+  putJobExecutionType(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+            requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send({'executionType': data.value})
+            .end((res) => next());
+        } else {
+          next(new Error('can not execute other user\'s job'));
+        }
+      });
+  }
+
+  getJobConfig(userName, jobName, next) {
+    let url = launcherConfig.webhdfsUri +
+      '/webhdfs/v1/Container/' + userName + '/' + jobName +
+      '/JobConfig.json?op=OPEN';
+    unirest.get(url)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          if (requestRes.status === 200) {
+            next(requestResJson, null);
+          } else if (requestRes.status === 404) {
+            next(null, new Error('ConfigFileNotFound'));
+          } else {
+            next(null, new Error('InternalServerError'));
+          }
+        } catch (error) {
+          next(null, error);
+        }
+      });
+  }
+
+  getJobSshInfo(userName, jobName, applicationId, next) {
+    let folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}/`;
+    let webhdfsUrlPrefix = `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}`;
+    let webhdfsUrl = `${webhdfsUrlPrefix}?op=LISTSTATUS`;
+    unirest.get(webhdfsUrl)
+      .end((requestRes) => {
+        try {
+          const requestResJson =
+            typeof requestRes.body === 'object' ?
+            requestRes.body :
+            JSON.parse(requestRes.body);
+          if (requestRes.status === 200) {
+            let result = {
+              'containers': [],
+              'keyPair': {
+                'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}.ssh/`,
+                'publicKeyFileName': `${applicationId}.pub`,
+                'privateKeyFileName': `${applicationId}`,
+                'privateKeyDirectDownloadLink':
+                  `${webhdfsUrlPrefix}.ssh/${applicationId}?op=OPEN`,
+              },
+            };
+            for (let x of requestResJson.FileStatuses.FileStatus) {
+              let pattern = /^container_(.*)-(.*)-(.*)$/g;
+              let arr = pattern.exec(x.pathSuffix);
+              if (arr !== null) {
+                result.containers.push({
+                  'id': 'container_' + arr[1],
+                  'sshIp': arr[2],
+                  'sshPort': arr[3],
+                });
+              }
+            }
+            next(result, null);
+          } else if (requestRes.status === 404) {
+            next(null, new Error('SshInfoNotFound'));
+          } else {
+            next(null, new Error('InternalServerError'));
+          }
+        } catch (error) {
+          next(null, error);
+        }
+      });
+  }
+
+  generateJobDetail(framework) {
+    let jobDetail = {
+      'jobStatus': {},
+      'taskRoles': {},
+    };
+    const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
+    if (frameworkStatus) {
+      const jobState = this.convertJobState(
+          frameworkStatus.frameworkState,
+          frameworkStatus.applicationExitCode);
+      let jobRetryCount = 0;
+      const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
+      jobRetryCount =
+        jobRetryCountInfo.transientNormalRetriedCount +
+        jobRetryCountInfo.transientConflictRetriedCount +
+        jobRetryCountInfo.nonTransientRetriedCount +
+        jobRetryCountInfo.unKnownRetriedCount;
+      jobDetail.jobStatus = {
+        name: framework.name,
+        username: 'unknown',
+        state: jobState,
+        subState: frameworkStatus.frameworkState,
+        retries: jobRetryCount,
+        createdTime: frameworkStatus.frameworkCreatedTimestamp,
+        completedTime: frameworkStatus.frameworkCompletedTimestamp,
+        appId: frameworkStatus.applicationId,
+        appProgress: frameworkStatus.applicationProgress,
+        appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+        appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
+        appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
+        appExitCode: frameworkStatus.applicationExitCode,
+        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitType: frameworkStatus.applicationExitType,
+      };
+    }
+    const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
+    if (frameworkRequest.frameworkDescriptor) {
+      jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+    }
+    const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
+    if (taskRoleStatuses) {
+      for (let taskRole of Object.keys(taskRoleStatuses)) {
+        jobDetail.taskRoles[taskRole] = {
+          taskRoleStatus: {name: taskRole},
+          taskStatuses: [],
+        };
+        for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+          jobDetail.taskRoles[taskRole].taskStatuses.push({
+            taskIndex: task.taskIndex,
+            containerId: task.containerId,
+            containerIp: task.containerIp,
+            containerGpus: task.containerGpus,
+            containerLog: task.containerLogHttpAddress,
+          });
+        }
+      }
+    }
+    return jobDetail;
   }
 
   generateYarnContainerScript(data, idx) {

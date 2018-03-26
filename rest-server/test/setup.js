@@ -20,6 +20,7 @@
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = 8080;
 process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
+process.env.WEBHDFS_URI = 'http://hdfs.test.pai:50070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.LOWDB_FILE = './user.db.json';
@@ -28,6 +29,8 @@ process.env.LOWDB_PASSWD = 'adminisi';
 
 
 // module dependencies
+const jwt = require('jsonwebtoken');
+const mustache = require('mustache');
 const nock = require('nock');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -36,10 +39,60 @@ const server = require('../src/index');
 chai.use(chaiHttp);
 
 
+global.jwt = jwt;
+global.mustache = mustache;
 global.nock = nock;
 global.chai = chai;
 global.assert = chai.assert;
 global.expect = chai.expect;
 global.should = chai.should;
 global.server = server;
+global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
+
+global.jobConfigTemplate = JSON.stringify({
+  'jobName': '{{jobName}}',
+  'image': 'aiplatform/pai.run.tensorflow',
+  'dataDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'codeDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'taskRoles': [
+    {
+      'name': 'role1',
+      'taskNumber': 1,
+      'cpuNumber': 2,
+      'memoryMB': 16384,
+      'gpuNumber': 0,
+      'command': 'python hello.py',
+    },
+  ],
+  'killAllOnCompletedTaskNumber': 1,
+  'retryCount': 0,
+});
+
+global.frameworkDetailTemplate = JSON.stringify({
+  'summarizedFrameworkInfo': {
+    'frameworkName': '{{frameworkName}}',
+  },
+  'aggregatedFrameworkRequest': {
+    'frameworkRequest': {
+      'frameworkDescriptor': {
+        'user': {
+          'name': '{{userName}}',
+        },
+      },
+    },
+  },
+  'aggregatedFrameworkStatus': {
+    'frameworkStatus': {
+      'frameworkRetryPolicyState': {
+        'retriedCount': 0,
+        'transientNormalRetriedCount': 0,
+        'transientConflictRetriedCount': 0,
+        'nonTransientRetriedCount': 0,
+        'unKnownRetriedCount': 0,
+      },
+      'frameworkState': 'APPLICATION_RUNNING',
+      'applicationId': '{{applicationId}}',
+    },
+  },
+});

@@ -18,6 +18,7 @@
 
 // module dependencies
 
+require('bootstrap/js/modal.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
@@ -28,14 +29,16 @@ const url = require('url');
 // const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
+const jobViewComponent = require('./job-view.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobDetailTableComponent = require('./job-detail-table.component.ejs');
-const jobViewComponent = require('./job-view.component.ejs');
+const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
+let sshInfo = null;
 
 const jobViewHtml = jobViewComponent({
   breadcrumb: breadcrumbComponent,
@@ -104,6 +107,10 @@ const convertState = (state) => {
       cls = 'label-success';
       stateText = 'Succeeded';
       break;
+    case 'STOPPED':
+      cls = 'label-warning';
+      stateText = 'Stopped';
+      break;
     case 'FAILED':
       cls = 'label-danger';
       stateText = 'Failed';
@@ -166,13 +173,16 @@ const loadJobs = () => {
   });
 };
 
-const deleteJob = (jobName) => {
-  const res = confirm('Are you sure to delete the job?');
+const stopJob = (jobName) => {
+  const res = confirm('Are you sure to stop the job?');
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
-        type: 'DELETE',
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`,
+        type: 'PUT',
+        data: {
+          value: 'STOP',
+        },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -190,6 +200,7 @@ const deleteJob = (jobName) => {
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();
+  sshInfo = null;
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
     type: 'GET',
@@ -205,6 +216,26 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
+        $('a[name^=sshInfoLink]').addClass('disabled');
+        if (data.jobStatus.state !== 'RUNNING') {
+          $('div[name^=sshInfoDiv]').attr('title', 'Job is not running.');
+        } else {
+          $.ajax({
+            url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
+            type: 'GET',
+            success: (data) => {
+              sshInfo = data;
+              $('a[name^=sshInfoLink]').removeClass('disabled');
+              $('div[name^=sshInfoDiv]').attr('title', '');
+            },
+            error: (xhr, textStatus, error) => {
+              const res = JSON.parse(xhr.responseText);
+              if (res.message === 'SshInfoNotFound') {
+                $('div[name^=sshInfoDiv]').attr('title', 'This job does not contain SSH info.');
+              }
+            },
+          });
+        }
       }
     },
     error: (xhr, textStatus, error) => {
@@ -214,9 +245,28 @@ const loadJobDetail = (jobName) => {
   });
 };
 
+const showSshInfo = (containerId) => {
+  if (sshInfo === null) {
+    return;
+  }
+  for (let x of sshInfo.containers) {
+    if (x.id === containerId) {
+      $('#sshInfoModalPlaceHolder').html(jobDetailSshInfoModalComponent({
+        'containerId': containerId,
+        'sshIp': x.sshIp,
+        'sshPort': x.sshPort,
+        'keyPair': sshInfo.keyPair,
+      }));
+      $('#sshInfoModal').modal('show');
+      break;
+    }
+  }
+};
+
 window.loadJobs = loadJobs;
-window.deleteJob = deleteJob;
+window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
+window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -244,4 +294,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = {loadJobs, deleteJob, loadJobDetail};
+module.exports = {loadJobs, stopJob, loadJobDetail};

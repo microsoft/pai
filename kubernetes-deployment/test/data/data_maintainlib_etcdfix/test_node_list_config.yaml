@@ -15,21 +15,66 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+machinelist:
 
-# tag: pai.run.tensorflow
-#
-# Before building this image you need to build the base image first:
-#
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+  ok-machine-node:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.4
+    sshport: 22
+    username: test
+    password: test123
+    etcdid: etcdid1
 
 
-FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+  miss-node-name:
+    hostip: 1.2.3.4
+    sshport: 22
+    username: test
+    password: test123
+    etcdid: etcdid1
 
-ENV TENSORFLOW_VERSION=1.4.0
+  miss-host-ip:
+    nodename: 1.2.3.4
+    sshport: 22
+    username: test
+    password: test123
+    etcdid: etcdid1
 
-# For how to run TensorFlow on Hadoop,
-# please refer to https://www.tensorflow.org/deploy/hadoop
-RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
-    pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
+  wrong-host-ip:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.-1
+    sshport: 22
+    username: test
+    password: test123
+    etcdid: etcdid1
 
-WORKDIR /root
+  wrong-ssh-port:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.4
+    sshport: -1
+    username: test
+    password: test123
+    etcdid: etcdid1
+
+  miss-user-name:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.4
+    sshport: 22
+    password: test123
+    etcdid: etcdid1
+
+  miss-password:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.4
+    sshport: 22
+    username: test
+    etcdid: etcdid1
+
+  miss-etcd-id:
+    nodename: 1.2.3.4
+    hostip: 1.2.3.4
+    sshport: 22
+    username: test
+    password: test123
+
+

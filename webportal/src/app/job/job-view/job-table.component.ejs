@@ -7,14 +7,11 @@
       <th>Duration</th>
       <th>Retries</th>
       <th>Status</th>
-      <!-- TODO: Change this caption to 'Cancel' or 'Stop' in the future. -->
-      <th>Delete</th>
+      <th>Stop</th>
     </tr>
   </thead>
   <tbody>
-  <%
-    for (let i = 0; i < jobs.length; i ++) {
-  %>
+    <% for (let i = 0; i < jobs.length; i ++) { %>
       <tr>
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
@@ -28,11 +25,14 @@
         </td>
         <td style='text-align:right'><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
-        <!-- TODO: Change this button to 'Cancel' or 'Stop' in the future. -->
-        <td><button class="btn btn-default btn-sm" onclick="deleteJob('<%= jobs[i].name %>')">Delete</button></td>
+        <td>
+          <% if (jobs[i].executionType === "STOP" || jobs[i].subState === "FRAMEWORK_COMPLETED") { %>
+            <button class="btn btn-default btn-sm" disabled>Stop</button>
+          <% } else { %>
+            <button class="btn btn-default btn-sm" onclick="stopJob('<%= jobs[i].name %>')">Stop</button>
+          <% } %>
+        </td>
       </tr>
-<%
-    }
-%>
+    <% } %>
   </tbody>
 </table>

@@ -7,7 +7,7 @@ matrix:
       before_install:
         - cd kubernetes-deployment
       install:
-        - pip install paramiko pyyaml jinja2
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes
       script:
         - python -m unittest discover test/
     - language: java
@@ -35,6 +35,7 @@ matrix:
         - npm install
       script:
         - npm test
+        - npm run coveralls
     - language: node_js
       node_js: 7
       env: NODE_ENV=test
@@ -44,15 +45,7 @@ matrix:
         - npm install
       script:
         - npm test
-    - language: node_js
-      node_js: 8
-      env: NODE_ENV=test
-      before_install:
-        - cd rest-server
-      install:
-        - npm install
-      script:
-        - npm test
+        - npm run coveralls
     - language: node_js
       node_js: 6
       before_install:

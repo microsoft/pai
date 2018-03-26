@@ -23,22 +23,57 @@ const logger = require('../config/logger');
  * Load job and append to req.
  */
 const load = (req, res, next, jobName) => {
-  new Job(jobName, (job) => {
-    if (job.jobStatus.state === 'JOB_NOT_FOUND' && req.method !== 'PUT') {
-      logger.warn('load job %s error, could not find job', jobName);
-      return res.status(404).json({
-        error: 'JobNotFound',
-        message: `could not find job ${jobName}`,
-      });
-    } else if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT') {
+  new Job(jobName, (job, error) => {
+    if (error) {
+      if (error.message === 'JobNotFound') {
+        if (req.method !== 'PUT') {
+          logger.warn('load job %s error, could not find job', jobName);
+          return res.status(404).json({
+            error: 'JobNotFound',
+            message: `could not find job ${jobName}`,
+          });
+        }
+      } else {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
+    } else {
+      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
+        logger.warn('duplicate job %s', jobName);
+        return res.status(400).json({
+          error: 'DuplicateJobSubmission',
+          message: `job already exists: '${jobName}'`,
+        });
+      }
+    }
+    req.job = job;
+    return next();
+  });
+};
+
+const init = (req, res, next) => {
+  const jobName = req.body.jobName;
+  new Job(jobName, (job, error) => {
+    if (error) {
+      if (error.message === 'JobNotFound') {
+        req.job = job;
+        next();
+      } else {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
+    } else {
       logger.warn('duplicate job %s', jobName);
       return res.status(400).json({
         error: 'DuplicateJobSubmission',
-        message: 'duplicate job submission',
+        message: `job already exists: '${jobName}'`,
       });
-    } else {
-      req.job = job;
-      return next();
     }
   });
 };
@@ -114,5 +149,84 @@ const remove = (req, res) => {
   });
 };
 
+/**
+ * Start or stop job.
+ */
+const execute = (req, res, next) => {
+  req.body.username = req.user.username;
+  Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
+    if (err) {
+      logger.warn('execute job %s error\n%s', req.job.name, err.stack);
+      err.message = 'job execute error';
+      next(err);
+    } else {
+      return res.status(202).json({
+        message: `execute job ${req.job.name} successfully`,
+      });
+    }
+  });
+};
+
+/**
+ * Get job config json string.
+ */
+const getConfig = (req, res) => {
+  Job.prototype.getJobConfig(
+    req.job.jobStatus.username,
+    req.job.name,
+    (configJsonString, error) => {
+      if (error === null) {
+        return res.status(200).json(configJsonString);
+      } else if (error.message === 'ConfigFileNotFound') {
+        return res.status(404).json({
+          error: 'ConfigFileNotFound',
+          message: error.message,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
+/**
+ * Get job SSH info.
+ */
+const getSshInfo = (req, res) => {
+  Job.prototype.getJobSshInfo(
+    req.job.jobStatus.username,
+    req.job.name,
+    req.job.jobStatus.appId,
+    (sshInfo, error) => {
+      if (error === null) {
+        return res.status(200).json(sshInfo);
+      } else if (error.message === 'SshInfoNotFound') {
+        return res.status(404).json({
+          error: 'SshInfoNotFound',
+          message: error.message,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: error.message,
+        });
+      }
+    }
+  );
+};
+
 // module exports
-module.exports = {load, list, get, update, remove};
+module.exports = {
+  load,
+  init,
+  list,
+  get,
+  update,
+  remove,
+  execute,
+  getConfig,
+  getSshInfo,
+};

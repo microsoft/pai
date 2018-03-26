@@ -49,7 +49,8 @@ RUN apt-get -y update && \
       realpath \
       net-tools && \
     mkdir -p /cluster-configuration &&\
-    git clone https://github.com/Microsoft/pai.git
+    git clone https://github.com/Microsoft/pai.git &&\
+    pip install python-etcd
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
@@ -59,4 +60,6 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-c
 RUN cp docker-17.06.2-ce.tgz /usr/local
 RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
 
-CMD bash
+COPY container-setup.sh /
+
+CMD ["/container-setup.sh"]

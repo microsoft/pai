@@ -16,20 +16,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# tag: pai.run.tensorflow
-#
-# Before building this image you need to build the base image first:
-#
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+etcd-reconfiguration-stop:
+
+    file-list:
+    - name: stop-etcd-server.sh
+      src: maintaintool/etcdfix/stop-etcd-server.sh
+      dst: etcd-reconfiguration-stop
 
 
-FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+etcd-reconfiguration-update:
 
-ENV TENSORFLOW_VERSION=1.4.0
+    file-list:
+    - name: update-etcd-cluster.sh
+      src: maintaintool/etcdfix/update-etcd-cluster.sh
+      dst: etcd-reconfiguration-update
 
-# For how to run TensorFlow on Hadoop,
-# please refer to https://www.tensorflow.org/deploy/hadoop
-RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
-    pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
 
-WORKDIR /root
+etcd-reconfiguration-restart:
+
+    template-list:
+    - name: etcd.yaml
+      src: template/etcd.yaml.template
+      dst: etcd-reconfiguration-restart
+
+    file-list:
+    - name: restart-etcd-server.sh
+      src: maintaintool/etcdfix/restart-etcd-server.sh
+      dst: etcd-reconfiguration-restart
