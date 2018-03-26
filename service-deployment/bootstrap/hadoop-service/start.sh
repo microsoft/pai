@@ -19,6 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
+# Step 4 of 5 to set up Hadoop queues.
+# Put capacity-scheduler.xml, instantiated from capacity-scheduler.xml.template by deploy.py,
+# into the hadoop-configuration folder, so that the file can be accessed in the container
+# as a part of the configmap.
+cp capacity-scheduler.xml ./hadoop-configuration/
+
 chmod u+x node-label.sh
 
 ./node-label.sh

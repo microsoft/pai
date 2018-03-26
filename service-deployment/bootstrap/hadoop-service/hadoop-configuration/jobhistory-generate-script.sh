@@ -20,6 +20,11 @@
 cp  /hadoop-configuration/jobhistory-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/jobhistory-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
+# Step 5(3) of 5 to set up Hadoop queues.
+# Copy the capacity-scheduler.xml from configmap to the hadoop configuration folder.
+# Do the same for resourcemanager and nodemanager.
+cp /hadoop-configuration/capacity-scheduler.xml $HADOOP_CONF_DIR/
+
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 

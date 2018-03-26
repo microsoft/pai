@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 import yaml
 import os
 import sys
@@ -71,7 +73,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        print(error_msg)
         sys.exit(1)
 
     return res
@@ -84,7 +86,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        print(error_msg)
         sys.exit(1)
 
 
@@ -94,7 +96,7 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print "docker registry login successfully"
+    print("docker registry login successfully")
 
 
 
@@ -131,7 +133,7 @@ def generate_secret_base64code(docker_info):
             "Failed to base64 the docker's config.json"
         )
     else:
-        print "docker registry authentication not provided"
+        print("docker registry authentication not provided")
 
         base64code = "{}".encode("base64")
 
@@ -169,7 +171,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print "Successfully clean up the generated file"
+    print("Successfully clean up the generated file")
 
 
 
