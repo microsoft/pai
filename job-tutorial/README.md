@@ -22,20 +22,20 @@
 
 ## Introduction
 
-The system supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
-It also supports other type of workload through a customized docker image. 
-Users need to prepare a config file and submit it for a job submission. 
+The system supports major deep learning frameworks, including CNTK and TensorFlow, etc.
+It also supports other type of workload through a customized docker image.
+Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
 
 ## Prerequisites
 
-This guide assumes the system has already been deployed properly and a docker registry is available to store docker images. 
+This guide assumes the system has already been deployed properly and a docker registry is available to store docker images.
 
 
 ## Docker image
 
-The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance. 
+The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance.
 The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
 
 To build a base Docker image, for example [Dockerfile.build.base](Dockerfiles/Dockerfile.build.base), run:
@@ -56,8 +56,8 @@ docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
 docker push your_docker_registry/pai.run.tensorflow
 ```
 
-And the image is ready to serve. Note that above script assume the docker registry is deployed locally. 
-Actual script can vary depending on the configuration of Docker registry. 
+And the image is ready to serve. Note that above script assume the docker registry is deployed locally.
+Actual script can vary depending on the configuration of Docker registry.
 
 
 ## Json config file for job submission
@@ -122,10 +122,10 @@ password
 
 ## Runtime environment
 
-Each task in a job runs in one Docker container. 
+Each task in a job runs in one Docker container.
 For a multi-task job, one task might communicate with others.
-So a task need to be aware of other tasks' runtime information such as IP, port, etc. 
-The system exposes such runtime information as environment variables to each task's Docker container. 
+So a task need to be aware of other tasks' runtime information such as IP, port, etc.
+The system exposes such runtime information as environment variables to each task's Docker container.
 For mutual communication, user can write code in the container to access those runtime environment variables.
 Those environment variables can also be used in the job config file.
 
@@ -225,3 +225,28 @@ A distributed TensorFlow job is listed below as an example:
 3. Submit the job through web portal
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
+
+## Ssh Connection
+You can ssh connect to a specified container from outside or inside containers.
+### Ssh connect from outside
+
+1. Get job ssh connect info by calling /api/v1/jobs/:jobName/ssh api or click into job detail page on webportal.
+
+2. Open a Bash shell terminal.
+
+3. Download the private key from HDFS which file name is corresponding application id.
+   For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
+   ```sh
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
+   ```
+4. Use `chmod ` command to set correct permission for the key file.
+   ```sh
+   chmod 600 application_Id
+   ```
+5. Use `ssh` command to connect into container. for example
+   ```sh
+   ssh -i application_id -p sshPort root@container_ip
+   ```
+### Ssh connect from inside
+
+1. You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect to another container.
