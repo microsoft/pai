@@ -306,6 +306,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerConnectionLostCount(0);
     taskStatus.setContainerGpus(
         ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute());
+    taskStatus.setContainerPorts(ResourceDescriptor.fromResource(container.getResource()).getPortRanges());
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -325,6 +326,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerExitDiagnostics(null);
     taskStatus.setContainerExitType(null);
     taskStatus.setContainerGpus(null);
+    taskStatus.setContainerPorts(null);
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -493,6 +495,28 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
+
+  public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
+    int unassociatedTastCount = 0;
+    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusList) {
+      if (!TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
+        unassociatedTastCount++;
+      }
+    }
+    return unassociatedTastCount;
+  }
+
+  public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
+    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusList) {
+      if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
+        return taskStatus.getContainerPorts();
+      }
+    }
+    return null;
+  }
+
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatus(TaskStatusLocator locator) {
     assertTaskStatusLocator(locator);

@@ -42,6 +42,7 @@ FrameworkLauncher (or Launcher for short) is built to enable running Large-Scale
 
 * **Batch Jobs Requirements**
   * GPU as a Resource
+  * Port as a Resource
   * GangAllocation: Start Services together
   * KillAllOnAnyCompleted and KillAllOnAnyServiceCompleted
   * Framework Tree Management: DeleteOnParentDeleted, StopOnParentStopped
@@ -55,7 +56,7 @@ Compile-time dependencies:
 * JDK 1.8+
 
 Run-time dependencies:
-* Hadoop 2.7.2.ai is required to support GPU as a Resource, if you do not need it, any Hadoop 2.7+ is fine.
+* Hadoop 2.7.2 with YARN-7481 is required to support GPU as a Resource and Port as a Resource, if you do not need it, any Hadoop 2.7+ is fine.
 * Apache Zookeeper
 
 ### Build Launcher Distribution
