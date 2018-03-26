@@ -432,13 +432,6 @@ class Job {
       },
     };
     for (let i = 0; i < data.taskRoles.length; i ++) {
-      const portList = {};
-      for (let j = 0; j < data.taskRoles[i].portList; j ++) {
-        portList[data.taskRoles[i].portList[j].label] = {
-          'start': data.taskRoles[i].portList[j].startAt,
-          'count': data.taskRoles[i].portList[j].portNumber,
-        };
-      }
       const taskRole = {
         'taskNumber': data.taskRoles[i].taskNumber,
         'taskService': {
@@ -449,7 +442,7 @@ class Job {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,
             'gpuNumber': data.taskRoles[i].gpuNumber,
-            'portDefinitions': portList,
+            'portRanges': [],
             'diskType': 0,
             'diskMB': 0,
           },

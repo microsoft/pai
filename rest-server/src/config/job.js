@@ -54,31 +54,6 @@ const jobConfigSchema = Joi.object().keys({
         gpuNumber: Joi.number()
           .integer()
           .default(0),
-        portList: Joi.array()
-          .items(Joi.object().keys({
-            label: Joi.string()
-              .regex(/^[A-Za-z0-9\-._~]+$/)
-              .required(),
-            startAt: Joi.number()
-              .integer()
-              .default(0),
-            portNumber: Joi.number()
-              .integer()
-              .default(1),
-          }))
-          .optional()
-          .default([
-            {
-              label: 'http',
-              startAt: 0,
-              portNumber: 1,
-            },
-            {
-              label: 'ssh',
-              startAt: 0,
-              portNumber: 1,
-            },
-          ]),
         command: Joi.string()
           .required(),
       }))
