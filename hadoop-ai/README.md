@@ -63,16 +63,16 @@ https://issues.apache.org/jira/browse/YARN-7481
    
     copy the downloaded file into your linux hadoop root folder and run:
 
-    git apply hadoop-2.7.2-gpu-port.patch
+    git apply hadoop-2.7.2.port-gpu.patch
 
     if you see the output below you have successfully applied this patch
 
-		../../hadoop-2.7.2-gpu-port:276: trailing whitespace.
-		../../hadoop-2.7.2-gpu-port:1630: trailing whitespace.
-		../../hadoop-2.7.2-gpu-port:1631: trailing whitespace.
+		../../hadoop-2.7.2.port-gpu:276: trailing whitespace.
+		../../hadoop-2.7.2.port-gpu:1630: trailing whitespace.
+		../../hadoop-2.7.2.port-gpu:1631: trailing whitespace.
 		  public static final long REFRESH_GPU_INTERVAL_MS = 60 * 1000;
-		../../hadoop-2.7.2-gpu-port:1632: trailing whitespace.
-		../../hadoop-2.7.2-gpu-port:1640: trailing whitespace.
+		../../hadoop-2.7.2.port-gpu:1632: trailing whitespace.
+		../../hadoop-2.7.2.port-gpu:1640: trailing whitespace.
 		          Pattern.compile("^\\s*([0-9]{1,2})\\s*,\\s*([0-9]*)\\s*MiB,\\s*([0-9]+)\\s*MiB");
 		warning: squelched 94 whitespace errors
 		warning: 99 lines add whitespace errors.
