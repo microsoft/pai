@@ -70,12 +70,12 @@ clusterinfo:
       weight: 20
     vc1:
       name: PAI VC 1
-	    description: The first production virtual cluster.
-	    weight: 50
+      description: The first production virtual cluster.
+      weight: 50
     vc2:
       name: PAI VC 2
-	    description: The second production virtual cluster.
-	    weight: 30
+      description: The second production virtual cluster.
+      weight: 30
 
   frameworklauncher:
     frameworklauncher_vip: 10.0.3.9
