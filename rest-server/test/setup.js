@@ -23,9 +23,9 @@ process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:50070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
-process.env.LOWDB_FILE = './user.db.json';
-process.env.LOWDB_ADMIN = 'iamadmin';
-process.env.LOWDB_PASSWD = 'adminisi';
+process.env.ETCD_URI = 'http://etcd.test.ip1.pai:4001';
+process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
+process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
 
 
 // module dependencies
@@ -49,6 +49,7 @@ global.should = chai.should;
 global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
+global.etcdHosts = process.env.ETCD_URI;
 
 global.jobConfigTemplate = JSON.stringify({
   'jobName': '{{jobName}}',

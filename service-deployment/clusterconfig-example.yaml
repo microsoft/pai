@@ -80,12 +80,12 @@ clusterinfo:
     server_port: 9186
     # secret for signing authentication tokens, e.g., "Hello PAI!"
     jwt_secret: your_jwt_secret
-    # authentication database file path relative to PAI data path
-    lowdb_path: "rest-server/user.db.json"
-    # database admin username
-    lowdb_admin: your_admin_username
-    # database admin password
-    lowdb_passwd: your_admin_password
+    # PAI default admin username
+    default_pai_admin_username: your_default_pai_admin_username
+    # PAI default admin password
+    default_pai_admin_password: your_default_pai_admin_password
+    # all uri for etcd use comma-sepated, e.g. "http://ip1:port,http://ip2:port2"
+    etcd_uri: your_etcd_uri
 
   # The config for web portal
   webportalinfo:
@@ -101,7 +101,7 @@ clusterinfo:
     k8s_api_server_uri: http://10.0.3.9:8080
     # port for webportal
     server_port: 9286
-    
+  
   # The config for Grafana
   grafanainfo:  
     # The address of the grafana to connect to
