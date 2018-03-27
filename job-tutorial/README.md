@@ -226,9 +226,9 @@ A distributed TensorFlow job is listed below as an example:
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
 
-## Ssh Connection
+## SSH Connection
 You can ssh connect to a specified container either from outside or inside container.
-### Ssh connect from outside
+### SSH connect from outside
 
 1. Get job ssh connect info by invoking `/api/v1/jobs/:jobName/ssh` api or clicking the job detail page on webportal.
 
@@ -247,6 +247,9 @@ You can ssh connect to a specified container either from outside or inside conta
    ```sh
    ssh -i application_id -p sshPort root@container_ip
    ```
-### Ssh connect inside containers
+### SSH connect inside containers
 
-You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job.
+You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker0 container directly with below command line:
+```sh
+ssh worker-0
+```
