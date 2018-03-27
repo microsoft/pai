@@ -43,7 +43,7 @@ describe('Add new user: put /api/v1/user', () => {
         'errorCode': 100,
         'message': 'Key not found',
         'cause': '/test',
-        'index': 10
+        'index': 1
       });
 
     nock(etcdHosts)
@@ -129,8 +129,8 @@ describe('update user: put /api/v1/user', () => {
         'node': {
           'key': '/users/new_user',
           'dir': true,
-          'modifiedIndex': 2,
-          'createdIndex': 2
+          'modifiedIndex': 5,
+          'createdIndex': 5
         }
       });
 
@@ -166,14 +166,14 @@ describe('update user: put /api/v1/user', () => {
         'node': {
           'key': '/users/new_user/passwd',
           'value': '055ce1d842cf891d62d2bbedfbdcd3e1a9421ac94f4109fc01e11bd99b029671358bd0a871c7857d2ac01aa528c2504a05bcfc190205cc164d8f4c05cc5808e4',
-          'modifiedIndex': 4,
-          'createdIndex': 4
+          'modifiedIndex': 9,
+          'createdIndex': 9
         },
         'prevNode': {
           'key': '/users/new_user/passwd',
           'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-          'modifiedIndex': 5,
-          'createdIndex': 5
+          'modifiedIndex': 10,
+          'createdIndex': 10
         }
       });
 
@@ -184,14 +184,14 @@ describe('update user: put /api/v1/user', () => {
         'node':{
           'key':'/users/new_user/admin',
           'value':'false',
-          'modifiedIndex':120,
-          'createdIndex':118
+          'modifiedIndex':11,
+          'createdIndex':11
         },
         'prevNode':{
           'key':'/users/new_user/admin',
           'value':'true',
-          'modifiedIndex':118,
-          'createdIndex':118
+          'modifiedIndex':12,
+          'createdIndex':12
         }
       });
 
@@ -247,16 +247,16 @@ describe('delete user : delete /api/v1/user', () => {
             [{
               'key': '/users/delete_admin_user/admin',
               'value': 'true',
-              'modifiedIndex': 6,
-              'createdIndex': 6
+              'modifiedIndex': 13,
+              'createdIndex': 13
             }, {
               'key': '/users/delete_admin_user/passwd',
               'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-              'modifiedIndex': 7,
-              'createdIndex': 7
+              'modifiedIndex': 14,
+              'createdIndex': 14
             }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
+          'modifiedIndex': 15,
+          'createdIndex': 15
         }
       });
 
@@ -267,8 +267,8 @@ describe('delete user : delete /api/v1/user', () => {
         'node': {
           'key': '/users/delete_admin_user/admin',
           'value': 'true',
-          'modifiedIndex': 126,
-          'createdIndex': 126
+          'modifiedIndex': 16,
+          'createdIndex': 16
         }
       });
 
@@ -278,7 +278,7 @@ describe('delete user : delete /api/v1/user', () => {
         'errorCode': 100,
         'message': 'Key not found',
         'cause': '/users/delete_non_exist_user',
-        'index': 126
+        'index': 17
       });
 
     nock(etcdHosts)
@@ -292,16 +292,16 @@ describe('delete user : delete /api/v1/user', () => {
             [{
               'key': '/users/delete_non_admin_user/admin',
               'value': 'false',
-              'modifiedIndex': 6,
-              'createdIndex': 6
+              'modifiedIndex': 18,
+              'createdIndex': 18
             }, {
               'key': '/users/delete_non_admin_user/passwd',
               'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-              'modifiedIndex': 7,
-              'createdIndex': 7
+              'modifiedIndex': 19,
+              'createdIndex': 19
             }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
+          'modifiedIndex': 20,
+          'createdIndex': 20
         }
       });
 
@@ -312,8 +312,8 @@ describe('delete user : delete /api/v1/user', () => {
         'node': {
           'key': '/users/delete_non_admin_user/admin',
           'value': 'false',
-          'modifiedIndex': 126,
-          'createdIndex': 126
+          'modifiedIndex': 21,
+          'createdIndex': 21
         }
       });
 
@@ -324,14 +324,14 @@ describe('delete user : delete /api/v1/user', () => {
         'node': {
           'key': '/delete_non_admin_user',
           'dir': true,
-          'modifiedIndex': 9,
-          'createdIndex': 9
+          'modifiedIndex': 22,
+          'createdIndex': 22
         },
         'prevNode': {
           'key': '/delete_non_admin_user',
           'dir': true,
-          'modifiedIndex': 9,
-          'createdIndex': 9
+          'modifiedIndex': 23,
+          'createdIndex': 23
         }
       });
   });
@@ -374,7 +374,7 @@ describe('delete user : delete /api/v1/user', () => {
   // Positive cases
   //
 
-  it('Case 2 (Positive): delete exist non-admin user.1234', (done) => {
+  it('Case 3 (Positive): delete exist non-admin user.1234', (done) => {
     global.chai.request(global.server)
       .delete('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
