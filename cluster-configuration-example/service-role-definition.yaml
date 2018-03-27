@@ -17,8 +17,8 @@
 
 
 pai-master:
-  namenode: "true"
-  resourcemanager: "true"
+  name-node: "true"
+  resource-manager: "true"
   zookeeper: "true"
   jobhistory: "true"
   launcher: "true"
@@ -31,6 +31,6 @@ pai-master:
 
 
 pai-worker:
-  datanode: "true"
-  nodemanager: "true"
+  data-node: "true"
+  node-manager: "true"
   node-exporter: "true"

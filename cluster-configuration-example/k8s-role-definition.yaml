@@ -17,7 +17,7 @@
 
 
 # the component should be bootstrapped remotely
-component_list:
+component-list:
 
   apiserver:
   - src: apiserver.yaml
@@ -48,7 +48,7 @@ component_list:
 
 
 
-k8s_role:
+k8s-role:
 
   master:
     component:
