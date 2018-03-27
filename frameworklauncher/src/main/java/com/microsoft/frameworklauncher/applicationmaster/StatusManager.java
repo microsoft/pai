@@ -497,14 +497,14 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
 
   public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
-    int unassociatedTastCount = 0;
+    int startStatesTaskCount = 0;
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusList) {
-      if (!TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
-        unassociatedTastCount++;
+      if (TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
+        startStatesTaskCount++;
       }
     }
-    return unassociatedTastCount;
+    return startStatesTaskCount;
   }
 
   public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {

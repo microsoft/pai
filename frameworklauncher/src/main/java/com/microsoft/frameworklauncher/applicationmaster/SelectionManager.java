@@ -263,9 +263,11 @@ public class SelectionManager { // THREAD SAFE
       }
     }
     SelectionResult selectionResult = selectNodes(optimizedRequestResource, startStatesTaskCount);
-    List<ValueRange> portRanges = selectPorts(selectionResult, optimizedRequestResource);
-    optimizedRequestResource.setPortRanges(portRanges);
-    selectionResult.setOptimizedResource(optimizedRequestResource);
+    if(selectionResult.getNodeHosts().size() > 0) {
+      List<ValueRange> portRanges = selectPorts(selectionResult, optimizedRequestResource);
+      optimizedRequestResource.setPortRanges(portRanges);
+      selectionResult.setOptimizedResource(optimizedRequestResource);
+    }
     return selectionResult;
   }
 
