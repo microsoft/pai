@@ -63,7 +63,7 @@ clusterinfo:
     configmapname: hadoop-configuration
     hadoop_vip: 10.0.3.9
 
-  # Step 1 of 5 to set up Hadoop queues.
+  # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues.
   virtualClusters:
     default:
