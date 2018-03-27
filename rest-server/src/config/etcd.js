@@ -17,48 +17,63 @@
 
 
 // module dependencies
-const fse = require('fs-extra');
 const Joi = require('joi');
-const dotenv = require('dotenv');
 
-
-require.extensions['.mustache'] = (module, filename) => {
-  module.exports = fse.readFileSync(filename, 'utf8');
+let etcdConfig = {
+  etcdUri: process.env.ETCD_URI,
+  adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
+  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
-dotenv.config();
+etcdConfig.etcdHosts = etcdConfig.etcdUri.split(',');
 
-// get config from environment variables
-let config = {
-  env: process.env.NODE_ENV,
-  logLevel: process.env.LOG_LEVEL,
-  serverPort: process.env.SERVER_PORT,
-  jwtSecret: process.env.JWT_SECRET,
+etcdConfig.storagePath = () => {
+  return `/users`;
 };
 
-// define config schema
-const configSchema = Joi.object().keys({
-  env: Joi.string()
-    .allow(['test', 'development', 'production'])
-    .default('development'),
-  logLevel: Joi.string()
-    .allow(['error', 'warn', 'info', 'verbose', 'debug', 'silly'])
-    .default('debug'),
-  serverPort: Joi.number()
-    .integer()
-    .min(8000)
-    .max(65535)
-    .default(9186),
-  jwtSecret: Joi.string()
+etcdConfig.userPath = (username) => {
+  return `${etcdConfig.storagePath()}/${username}`;
+};
+
+etcdConfig.userPasswdPath = (username) => {
+  return `${etcdConfig.userPath(username)}/passwd`;
+};
+
+etcdConfig.userAdminPath = (username) => {
+  return `${etcdConfig.userPath(username)}/admin`;
+};
+
+const etcdConfigSchema = Joi.object().keys({
+  etcdUri: Joi.string()
+    .required(),
+  etcdHosts: Joi.array().items(Joi.string()
+    .uri()
     .required()
-    .description('JWT Secret required to sign'),
+    ).required(),
+  adminName: Joi.string()
+    .token()
+    .required(),
+  adminPass: Joi.string()
+    .min(6)
+    .required(),
+  storagePath: Joi.func()
+    .arity(0)
+    .required(),
+  userPath: Joi.func()
+    .arity(1)
+    .required(),
+  userPasswdPath: Joi.func()
+    .arity(1)
+    .required(),
+  userAdminPath: Joi.func()
+    .arity(1)
+    .required(),
 }).required();
 
-const {error, value} = Joi.validate(config, configSchema);
+const {error, value} = Joi.validate(etcdConfig, etcdConfigSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }
-config = value;
+etcdConfig = value;
 
-// module exports
-module.exports = config;
+module.exports = etcdConfig;

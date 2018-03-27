@@ -16,16 +16,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const userModel = require('./user');
+const etcdConfig = require('../config/etcd');
 
 const check = (username, password, callback) => {
-  if (!userModel.db.has(username).value()) {
-    callback(null, false, false);
-  } else {
-    const user = userModel.db.get(username).value();
-    userModel.encrypt(username, password, (err, derivedKey) => {
-      callback(err, derivedKey === user.passwd, user.admin);
-    });
-  }
+  userModel.db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
+    if (!res) {
+      callback(null, false, false);
+    } else {
+      userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (errMsg, res) => {
+        if (errMsg) {
+          callback(errMsg, false, false);
+        } else {
+          userModel.encrypt(username, password, (errMsg, derivedKey) => {
+            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)) === 'true');
+          });
+        }
+      });
+    }
+  });
 };
 
 module.exports = {check};
