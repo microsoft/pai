@@ -114,7 +114,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.portList`            | List, optional             | List of `portType` to use                |
 | `taskRole.portType.label`      | String in `^[A-Za-z0-9\-._~]+$` format, required | Label name for the port type |
 | `taskRole.portType.beginAt`    | Integer, required          | The port to begin with in the port type, 0 for random selection |
-| `taskRole.portType.portNumber` | Integer, required          | Number of ports of the specific type     |
+| `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
 | `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
@@ -194,12 +194,12 @@ A distributed TensorFlow job is listed below as an example:
         {
           "label": "http",
           "beginAt": 0,
-          "portNumbrt": 1
+          "portNumber": 1
         },
         {
           "label": "ssh",
           "beginAt": 0,
-          "portNumbrt": 1
+          "portNumber": 1
         }
       ],
       // run tf_cnn_benchmarks.py in code directory
