@@ -261,3 +261,31 @@ A distributed TensorFlow job is listed below as an example:
 3. Submit the job through web portal
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
+
+## SSH Connection
+You can ssh connect to a specified container either from outside or inside container.
+### SSH connect from outside
+
+1. Get job ssh connect info by invoking `/api/v1/jobs/:jobName/ssh` api or clicking the job detail page on webportal.
+
+2. Open a Bash shell terminal.
+
+3. Download the corresponding private key from HDFS.
+   For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
+   ```sh
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
+   ```
+4. Use `chmod` command to set correct permission for the key file.
+   ```sh
+   chmod 400 application_id
+   ```
+5. Use `ssh` command to connect into container. for example
+   ```sh
+   ssh -i application_id -p ssh_port root@container_ip
+   ```
+### SSH connect inside containers
+
+You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
+```sh
+ssh worker-0
+```
