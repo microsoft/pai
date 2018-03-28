@@ -32,27 +32,36 @@ describe('user token test: post /api/v1/token', () => {
   beforeEach(() => {
 
     nock(etcdHosts)
-      .get('/v2/keys/users/new_user?recursive=true')
+      .get('/v2/keys/users/token_test_user?recursive=true')
       .reply(200, {
         'action': 'get',
         'node': {
-          'key': '/users/new_user',
+          'key': '/users/token_test_user',
           'dir': true,
           'nodes':
             [{
-              'key': '/users/new_user/admin',
+              'key': '/users/token_test_user/admin',
               'value': 'true',
               'modifiedIndex': 1,
               'createdIndex': 1
             }, {
-              'key': '/users/new_user/passwd',
-              'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
+              'key': '/users/token_test_user/passwd',
+              'value': 'a293c494f64ee6e56dafaf1863c514986e52a807b96b43332724496b17b86f6191ff900d133da06f68f41053f185f1c588a804e2b746d48f0d1546eb82aba472',
               'modifiedIndex': 2,
               'createdIndex': 2
             }],
           'modifiedIndex': 3,
           'createdIndex': 3
         }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/non_exist_user')
+      .reply(200, {
+        'errorCode': 100,
+        'message': 'Key not found',
+        'cause': '/users/non_exist_user',
+        'index': 4242650
       });
 
 
@@ -62,11 +71,11 @@ describe('user token test: post /api/v1/token', () => {
   // Positive cases
   //
 
-  it('Case 1 (Positive): The admin username and password is right, return right token .', (done) => {
+  it('Case 1 (Positive): Return valid token with right username and password.', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/token')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'new_user', 'password': '123456' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'token_test_user', 'password': '123456' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
@@ -78,11 +87,24 @@ describe('user token test: post /api/v1/token', () => {
   // Negative cases
   //
 
-  it('Case 2 (Negative): wrong password, authentication failed', (done) => {
+  it('Case 2 (Negative): Should authenticate failed with wrong password', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/token')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'new_user', 'password': 'abcdef' })))
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'token_test_user', 'password': 'abcdef' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('authentication failed');
+        done();
+      });
+  });
+
+  it('Case 3 (Negative): Should authenticate failed with non-exist user', (done) => {
+    global.chai.request(global.server)
+      .post('/api/v1/token')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'non_exist_user', 'password': 'abcdef' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;

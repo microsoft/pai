@@ -32,6 +32,7 @@ deleteUserTemplate = JSON.stringify({
 //
 
 const validToken = global.jwt.sign({ username: 'new_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
+const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
 const invalidToken = '';
 
 describe('Add new user: put /api/v1/user', () => {
@@ -105,7 +106,7 @@ describe('Add new user: put /api/v1/user', () => {
   // Negative cases
   //
 
-  it('Case 2 (Negative): Add a new admin user failed because modify value is true.', (done) => {
+  it('Case 2 (Negative): Should fail to add new user with modify=true.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -117,17 +118,30 @@ describe('Add new user: put /api/v1/user', () => {
         done();
       });
   });
+
+  it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'test_user', 'password': '123456', 'admin': true, 'modify': false })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        done();
+      });
+  });
 });
 
 describe('update user: put /api/v1/user', () => {
   beforeEach(() => {
 
     nock(etcdHosts)
-      .put('/v2/keys/users/new_user?dir=true')
+      .put('/v2/keys/users/update_user?dir=true')
       .reply(200, {
         'action': 'set',
         'node': {
-          'key': '/users/new_user',
+          'key': '/users/update_user',
           'dir': true,
           'modifiedIndex': 5,
           'createdIndex': 5
@@ -135,21 +149,21 @@ describe('update user: put /api/v1/user', () => {
       });
 
     nock(etcdHosts)
-      .get('/v2/keys/users/new_user')
+      .get('/v2/keys/users/update_user')
       .reply(200, {
         'action': 'get',
         'node': {
-          'key': '/users/admin',
+          'key': '/users/update_user',
           'dir': true,
           'nodes':
             [{
-              'key': '/users/admin/admin',
+              'key': '/users/update_user/admin',
               'value': 'true',
               'modifiedIndex': 6,
               'createdIndex': 6
             }, {
-              'key': '/users/admin/passwd',
-              'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
+              'key': '/users/update_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
               'modifiedIndex': 7,
               'createdIndex': 7
             }],
@@ -160,39 +174,48 @@ describe('update user: put /api/v1/user', () => {
 
 
     nock(etcdHosts)
-      .put('/v2/keys/users/new_user/passwd?prevExist=true', { 'value': '055ce1d842cf891d62d2bbedfbdcd3e1a9421ac94f4109fc01e11bd99b029671358bd0a871c7857d2ac01aa528c2504a05bcfc190205cc164d8f4c05cc5808e4' })
+      .put('/v2/keys/users/update_user/passwd?prevExist=true', { 'value': '5e8f697ad7918d757e7c21c897bb4fccaa5ba1f3ecd11d3e61c6db7e1410f4d9ae4745accb97622ead6e38f91c328154af838098f5796c3de81fe7f6c14b817b' })
       .reply(200, {
         'action': 'update',
         'node': {
-          'key': '/users/new_user/passwd',
-          'value': '055ce1d842cf891d62d2bbedfbdcd3e1a9421ac94f4109fc01e11bd99b029671358bd0a871c7857d2ac01aa528c2504a05bcfc190205cc164d8f4c05cc5808e4',
+          'key': '/users/update_user/passwd',
+          'value': '5e8f697ad7918d757e7c21c897bb4fccaa5ba1f3ecd11d3e61c6db7e1410f4d9ae4745accb97622ead6e38f91c328154af838098f5796c3de81fe7f6c14b817b',
           'modifiedIndex': 9,
           'createdIndex': 9
         },
         'prevNode': {
-          'key': '/users/new_user/passwd',
-          'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
+          'key': '/users/update_user/passwd',
+          'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
           'modifiedIndex': 10,
           'createdIndex': 10
         }
       });
 
-      nock(etcdHosts)
-      .put('/v2/keys/users/new_user/admin', { 'value': 'false' })
+    nock(etcdHosts)
+      .put('/v2/keys/users/update_user/admin', { 'value': 'false' })
       .reply(200, {
-        'action':'update',
-        'node':{
-          'key':'/users/new_user/admin',
-          'value':'false',
-          'modifiedIndex':11,
-          'createdIndex':11
+        'action': 'update',
+        'node': {
+          'key': '/users/update_user/admin',
+          'value': 'false',
+          'modifiedIndex': 11,
+          'createdIndex': 11
         },
-        'prevNode':{
-          'key':'/users/new_user/admin',
-          'value':'true',
-          'modifiedIndex':12,
-          'createdIndex':12
+        'prevNode': {
+          'key': '/users/update_user/admin',
+          'value': 'true',
+          'modifiedIndex': 12,
+          'createdIndex': 12
         }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/non_exist_user')
+      .reply(200, {
+        'errorCode': 100,
+        'message': 'Key not found',
+        'cause': '/users/non_exist_user',
+        'index': 4242650
       });
 
   });
@@ -201,11 +224,24 @@ describe('update user: put /api/v1/user', () => {
   // Positive cases
   //
 
-  it('Case 1 (Positive): update user password.', (done) => {
+  it('Case 1 (Positive): Update user password.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': 'abcdef', 'admin': true, 'modify': true })))
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): Update user set admin=false.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -215,18 +251,40 @@ describe('update user: put /api/v1/user', () => {
   });
 
   //
-  // Positive cases
+  // Negative cases
   //
 
-  it('Case 2 (Positive): update user set admin=false.', (done) => {
+  it('Case 3 (Negative): Should fail to modify a non-exist user.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update failed');
+        done();
+      });
+  });
+
+  it('Case 4 (Negative): Should trigger validation error if password sets null.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': null, 'admin': false, 'modify': true })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        done();
+      });
+  });
+
+  it('Case 5 (Negative): Should fail to update user with non-admin token.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(201);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        global.chai.expect(res, 'status code').to.have.status(401);
         done();
       });
   });
@@ -337,44 +395,10 @@ describe('delete user : delete /api/v1/user', () => {
   });
 
   //
-  // Negative cases
-  //
-
-  it('Case 1 (Negative): Can not delete admin user', (done) => {
-    global.chai.request(global.server)
-      .delete('/api/v1/user')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_admin_user'})))
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
-        done();
-      });
-  });
-
-  //
-  // Negative cases
-  //
-
-  it('Case 2 (Negative): Can not delete non-exist user.', (done) => {
-    global.chai.request(global.server)
-      .delete('/api/v1/user')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_exist_user'})))
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
-        done();
-      });
-  });
-
-  //
   // Positive cases
   //
 
-  it('Case 3 (Positive): delete exist non-admin user.1234', (done) => {
+  it('Case 1 (Positive): delete exist non-admin user', (done) => {
     global.chai.request(global.server)
       .delete('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -384,5 +408,47 @@ describe('delete user : delete /api/v1/user', () => {
         done();
       });
   });
+
+  //
+  // Negative cases
+  //
+
+  it('Case 2 (Negative): Should fail to delete admin user', (done) => {
+    global.chai.request(global.server)
+      .delete('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_admin_user' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        done();
+      });
+  });
+
+  it('Case 3 (Negative): Should fail to delete non-exist user.', (done) => {
+    global.chai.request(global.server)
+      .delete('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_exist_user' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        done();
+      });
+  });
+
+  it('Case 4 (Negative): Should fail to delete user with non-admin token.', (done) => {
+    global.chai.request(global.server)
+      .delete('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        done();
+      });
+  });
+
 
 });
