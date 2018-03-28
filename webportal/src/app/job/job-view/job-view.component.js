@@ -210,8 +210,10 @@ const loadJobDetail = (jobName) => {
         alert(data.message);
       } else {
         $('#view-table').html(jobDetailTableComponent({
+          jobName: data.name,
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
+          grafanaUri: webportalConfig.grafanaUri,
           convertTime,
           convertState,
           convertGpu,
