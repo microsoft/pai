@@ -506,7 +506,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
     return startStatesTaskCount;
   }
-  
+
   public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusList) {
