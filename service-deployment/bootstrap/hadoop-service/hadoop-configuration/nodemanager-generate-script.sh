@@ -21,7 +21,7 @@ cp  /hadoop-configuration/nodemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-si
 cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
 # Step 4(2) of 4 to set up Hadoop queues.
-# Copy the capacity-scheduler.xml from configmap to the hadoop configuration folder.
+# Patch the original capacity-scheduler.xml file with the one in the configmap.
 # Three sub-steps:
 #   1) Extract the head part from the original capacity-scheduler.xml file (a.k.a. the target file).
 #   2) Extract the 'configuration' part from the capacity-scheduler.xml in the configmap (a.k.a. the content file).
@@ -29,9 +29,10 @@ cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.x
 # Do the same for resourcemanager and jobhistory.
 TARGET_FILE=$HADOOP_CONF_DIR/capacity-scheduler.xml
 CONTENT_FILE=/hadoop-configuration/capacity-scheduler.xml.content
-sed -n 1,$((`grep -n "<configuration>" $TARGET_FILE | cut -d: -f 1` - 1))p $TARGET_FILE > tmp
-sed -n $((`grep -n "<configuration>" $CONTENT_FILE | cut -d: -f 1`)),$((`wc -l < $CONTENT_FILE`))p $CONTENT_FILE >> tmp
-cp -f tmp $TARGET_FILE
+TEMP_FILE=./capacity-scheduler.xml
+sed -n 1,$((`grep -n "<configuration>" $TARGET_FILE | cut -d: -f 1` - 1))p $TARGET_FILE > $TEMP_FILE
+sed -n $((`grep -n "<configuration>" $CONTENT_FILE | cut -d: -f 1`)),$((`wc -l < $CONTENT_FILE`))p $CONTENT_FILE >> $TEMP_FILE
+cp -f $TEMP_FILE $TARGET_FILE
 
 HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/yarn-site.xml  -n $HOST_NAME
