@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
-import com.microsoft.frameworklauncher.common.model.ClusterConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
