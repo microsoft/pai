@@ -31,7 +31,7 @@ TARGET_FILE=$HADOOP_CONF_DIR/capacity-scheduler.xml
 CONTENT_FILE=/hadoop-configuration/capacity-scheduler.xml.content
 TEMP_FILE=./capacity-scheduler.xml
 sed -n 1,$((`grep -n "<configuration>" $TARGET_FILE | cut -d: -f 1` - 1))p $TARGET_FILE > $TEMP_FILE
-sed -n $((`grep -n "<configuration>" $CONTENT_FILE | cut -d: -f 1`)),$((`wc -l < $CONTENT_FILE`))p $CONTENT_FILE >> $TEMP_FILE
+cat $CONTENT_FILE >> $TEMP_FILE
 cp -f $TEMP_FILE $TARGET_FILE
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
