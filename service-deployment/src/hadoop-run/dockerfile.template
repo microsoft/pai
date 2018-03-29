@@ -41,10 +41,7 @@ ENV HADOOP_PREFIX=/usr/local/hadoop \
 
 ENV PATH=$PATH:$HADOOP_BIN_DIR:$HADOOP_SBIN_DIR:/usr/share/zookeeper/bin
 
-# It is not necessary to copy capacity-scheduler.xml here because this file
-# will be prepared by deploy.py during the process of service deployment.
-#COPY core-site.xml hadoop-env.sh yarn-env.sh mapred-site.xml capacity-scheduler.xml $HADOOP_CONF_DIR/
-COPY core-site.xml hadoop-env.sh yarn-env.sh mapred-site.xml $HADOOP_CONF_DIR/
+COPY core-site.xml hadoop-env.sh yarn-env.sh mapred-site.xml capacity-scheduler.xml $HADOOP_CONF_DIR/
 
 RUN chown -R root:root /var
 RUN mkdir -p $HADOOP_YARN_HOME/logs

@@ -1,0 +1,37 @@
+<!--
+  Step 2 of 4 to set up Hadoop queues.
+  Rewrite the configurations of virtual clusters in cluster config yaml file
+  to the template file of the configuration of the capacity cluster.
+-->
+
+<configuration>
+
+  <property>
+    <name>yarn.scheduler.capacity.resource-calculator</name>
+    <value>org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator</value>
+    <description>
+      Calculate resources using GPU only. This is a feature of Hadoop-AI.
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>
+      {{ clusterinfo.virtualClusters|join(", ") }}
+    </value>
+    <description>
+      The queues at the this level (root is the root queue).
+    </description>
+  </property>
+
+{% for queueName in clusterinfo.virtualClusters %}
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.capacity</name>
+    <value>{{ clusterinfo.virtualClusters[queueName]["weight"] }}</value>
+    <description>
+      {{ clusterinfo.virtualClusters[queueName]["description"] }}
+    </description>
+  </property>
+{% endfor %}
+
+</configuration>
