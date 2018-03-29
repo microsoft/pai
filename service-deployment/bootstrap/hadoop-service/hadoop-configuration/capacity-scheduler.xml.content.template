@@ -28,19 +28,19 @@
   <property>
     <name>yarn.scheduler.capacity.root.queues</name>
     <value>
-      {{ clusterinfo.virtualClusters|join(", ") }}
+      {{ clusterinfo.hadoopQueues|join(", ") }}
     </value>
     <description>
       The queues at the this level (root is the root queue).
     </description>
   </property>
 
-{% for queueName in clusterinfo.virtualClusters %}
+{% for queueName in clusterinfo.hadoopQueues %}
   <property>
     <name>yarn.scheduler.capacity.root.{{ queueName }}.capacity</name>
-    <value>{{ clusterinfo.virtualClusters[queueName]["weight"] }}</value>
+    <value>{{ clusterinfo.hadoopQueues[queueName]["weight"] }}</value>
     <description>
-      {{ clusterinfo.virtualClusters[queueName]["description"] }}
+      {{ clusterinfo.hadoopQueues[queueName]["description"] }}
     </description>
   </property>
 {% endfor %}
