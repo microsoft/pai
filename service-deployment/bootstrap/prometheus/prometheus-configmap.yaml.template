@@ -24,7 +24,7 @@ data:
     # Scrape config for cluster components.
     scrape_configs: 
     - job_name: 'node_exporter'
-      scrape_interval: 15s
+      scrape_interval: 30s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
@@ -34,7 +34,7 @@ data:
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__ 
     - job_name: 'cadvisor'
-      scrape_interval: 15s
+      scrape_interval: 30s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
