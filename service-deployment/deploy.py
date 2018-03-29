@@ -290,9 +290,9 @@ def copy_arrangement(service_config):
         copy_arrangement_service(srv, service_config)
 
 
-def generate_weights_of_hadoop_queues(cluster_config):
+def generate_configuration_of_hadoop_queues(cluster_config):
     #
-    hadoop_queues = {}
+    hadoop_queues_config = {}
     #
     total_num_gpus = 0
     for machine_name in cluster_config["machinelist"]:
@@ -306,26 +306,27 @@ def generate_weights_of_hadoop_queues(cluster_config):
             num_gpus = machine_type_config["gpu"]["count"]
         total_num_gpus += num_gpus
     #
-    total_num_gpus_configured = 0
     total_weight = 0
     for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
         vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
         num_gpus_configured = vc_config["numGPUs"]
-        total_num_gpus_configured += num_gpus_configured
         weight = float(num_gpus_configured) / float(total_num_gpus)
-        hadoop_queues[vc_name] = {
+        hadoop_queues_config[vc_name] = {
             "description": vc_config["description"],
             "weight": weight
         }
         total_weight += weight
-    hadoop_queues["default"] = {
+    hadoop_queues_config["default"] = {
         "description": "Default virtual cluster.",
-        "weight": 1 - total_weight
+        "weight": max(0, 1 - total_weight)
     }
+    if total_weight > 1:
+        print("WARNING: Too many GPUs configured.")
+        for hq_name in hadoop_queues_config:
+            hq_config = hadoop_queues_config[hq_name]
+            hq_config["weight"] /= total_weight
     #
-    if total_num_gpus_configured > total_num_gpus:
-        print("Too many GPUs configured.")
-    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues
+    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
 
 def main():
@@ -356,7 +357,7 @@ def main():
         cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
 
     # step 4: generate configuration of hadoop queues
-    generate_weights_of_hadoop_queues(cluster_config)
+    generate_configuration_of_hadoop_queues(cluster_config)
 
     # step 5: generate templatefile
     if args.service == 'all':
