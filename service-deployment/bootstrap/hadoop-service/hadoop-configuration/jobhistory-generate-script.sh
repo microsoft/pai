@@ -20,6 +20,7 @@
 cp  /hadoop-configuration/jobhistory-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/jobhistory-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
+chmod +x /hadoop-configuration/prepare-scheduler-config-file.sh
 /hadoop-configuration/prepare-scheduler-config-file.sh
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 

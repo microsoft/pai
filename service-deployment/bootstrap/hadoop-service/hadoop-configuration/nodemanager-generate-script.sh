@@ -20,6 +20,7 @@
 cp  /hadoop-configuration/nodemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
+chmod +x /hadoop-configuration/prepare-scheduler-config-file.sh
 /hadoop-configuration/prepare-scheduler-config-file.sh
 
 HOST_NAME=`hostname`
