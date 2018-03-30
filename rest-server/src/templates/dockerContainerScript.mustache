@@ -26,7 +26,7 @@ BASH_XTRACEFD=17
 function exit_handler()
 {
   printf "%s %s\n" \
-    "[DEBUG]" "EXIT signal received in docker container, exiting ..."
+    "[ERROR]" "EXIT signal received in docker container, exiting ..."
   set +x
   exec 17>&-
   hdfs dfs -put /tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log \
@@ -130,15 +130,15 @@ export PAI_CURRENT_CONTAINER_PORT=$PAI_CONTAINER_HOST_PORT
 
 function prepare_ssh()
 {
-  mkdir /root/.ssh
-  sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-  sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+   mkdir /root/.ssh
+   sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+   sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 }
 
 function start_ssh_service()
 {
   printf "%s %s\n" \
-    "[INFO]" "start ssh service"
+   "[INFO]" "start ssh service"
   cat /root/.ssh/$APP_ID.pub >> /root/.ssh/authorized_keys
   sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
@@ -147,18 +147,18 @@ function start_ssh_service()
 
 function hdfs_upload_atomically()
 {
-  printf "%s %s\n%s %s\n%s %s\n" \
+   printf "%s %s\n%s %s\n%s %s\n" \
     "[INFO]" "upload ssh key to hdfs" \
     "[INFO]" "destination path is ${2}" \
     "[INFO]" "source path is ${1}"
-  tempFolder=${2}"_temp"
-  if hdfs dfs -test -d $tempFolder ; then
-    printf "%s %s\n" \
-      "[WARNING]" "$tempFolder already exists, overwriting..."
-    hdfs dfs -rm -r $tempFolder || exit 1
-  fi
-  hdfs dfs -put ${1} $tempFolder || exit 1
-  hdfs dfs -mv $tempFolder ${2} || exit 1
+   tempFolder=${2}"_temp"
+   if hdfs dfs -test -d $tempFolder ; then
+     printf "%s %s\n" \
+    "[WARNING]" "$tempFolder already exists, overwriting..."
+     hdfs dfs -rm -r $tempFolder || exit 1
+   fi
+   hdfs dfs -put ${1} $tempFolder || exit 1
+   hdfs dfs -mv $tempFolder ${2} || exit 1
 }
 
 # Start sshd in docker container
@@ -183,53 +183,18 @@ else
     sleep 10
   done
   printf "%s %s\n%s %s\n" \
-    "[INFO]" "ssh key pair ready ..." \
-    "[INFO]" "begin to download ssh key pair from hdfs ..."
+      "[INFO]" "ssh key pair ready ..." \
+      "[INFO]" "begin to download ssh key pair from hdfs ..."
   hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
 fi
-chmod 400 ~/.ssh/$APP_ID
+# Start ssh service
+start_ssh_service
 # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
 hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
 
-# Generate ssh config
-ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
-hdfs dfs -mkdir -p ${ssh_config_path} || exit 1
-hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT || exit 1
-while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
-  printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
-  sleep 10
-done
-NodeList=($(hdfs dfs -ls ${ssh_config_path} \
-  | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" \
-  | grep -oE "[^/]+$" \
-  | sed -e "s/^$APP_ID+//g" \
-  | sort -n))
-if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
-  printf "%s %s\n%s\n%s\n\n" \
-    "[ERROR]" "NodeList" \
-    "${NodeList[@]}" \
-    "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
-  exit 2
-fi
-for line in "${NodeList[@]}"; do
-  node=(${line//+/ });
-  printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
-    "Host ${node[0]}-${node[1]}" \
-    "HostName ${node[2]}" \
-    "Port ${node[3]}" \
-    "User root" \
-    "StrictHostKeyChecking no" \
-    "UserKnownHostsFile /dev/null" \
-    "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
-done
+# Write env to bashrc
+env | sed "s/^/export /" >> ~/.bashrc
 
-# Start ssh service
-start_ssh_service
-
-# Write env to system-wide environment
-env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
-
-sleep 10
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"

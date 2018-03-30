@@ -20,9 +20,6 @@
 cp  /hadoop-configuration/resourcemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/resourcemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 
-chmod +x /hadoop-configuration/prepare-scheduler-config-file.sh
-/hadoop-configuration/prepare-scheduler-config-file.sh
-
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 

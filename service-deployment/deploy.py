@@ -37,7 +37,7 @@ def write_generated_file(file_path, content_data):
 
 def load_yaml_config(config_path):
 
-    with open(config_path, mode="r", encoding="utf-8") as f:
+    with open(config_path, "r") as f:
         cluster_data = yaml.load(f)
 
     return cluster_data
@@ -297,7 +297,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
     total_num_gpus = 0
     for machine_name in cluster_config["machinelist"]:
         machine_config = cluster_config["machinelist"][machine_name]
-        if machine_config["yarnrole"] != "worker":
+        if "yarnrole" not in machine_config or machine_config["yarnrole"] != "worker":
             continue
         machine_type = machine_config["machinetype"]
         machine_type_config = cluster_config["machineinfo"][machine_type]

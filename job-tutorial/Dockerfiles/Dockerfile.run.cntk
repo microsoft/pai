@@ -23,7 +23,7 @@
 # docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
 
 
-FROM pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
 ENV CNTK_VERSION=2.0.beta11.0
 
@@ -49,6 +49,19 @@ RUN git clone --recursive https://github.com/Microsoft/hdfs-mount.git && \
     cd .. && \
     rm -rf hdfs-mount
 
+# Install Open MPI
+RUN OPENMPI_VERSION=1.10.4 && \
+    OPENMPI_SHA1="84d035e7ab1572e5ebc086049f05b694d2158844" && \
+    wget -q https://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
+    echo "$OPENMPI_SHA1 openmpi-${OPENMPI_VERSION}.tar.gz" | sha1sum --check --strict - && \
+    tar -xzf openmpi-${OPENMPI_VERSION}.tar.gz && \
+    cd openmpi-${OPENMPI_VERSION} && \
+    ./configure --prefix=/usr/local/mpi && \
+    make -j $(nproc) install && \
+    cd .. && \
+    rm -rf openmpi-${OPENMPI_VERSION} && \
+    rm -rf openmpi-${OPENMPI_VERSION}.tar.gz
+
 # Install Anaconda
 RUN ANACONDA_PREFIX="/root/anaconda3" && \
     ANACONDA_VERSION="3-4.1.1" && \
@@ -70,8 +83,8 @@ RUN CNTK_VERSION_DASHED=$(echo $CNTK_VERSION | tr . -) && \
     echo "$CNTK_SHA256 CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz" | sha256sum --check --strict - && \
     tar -xzf CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz && \
     rm -f CNTK-${CNTK_VERSION_DASHED}-Linux-64bit-GPU.tar.gz && \
-    wget -q https://raw.githubusercontent.com/Microsoft/CNTK-docker/master/ubuntu-14.04/version_2/${CNTK_VERSION}/gpu/runtime/install-cntk-docker.sh \
-         -O /cntk/Scripts/install/linux/install-cntk-docker.sh && \
+    wget -q https://raw.githubusercontent.com/Microsoft/CNTK-docker/master/ubuntu-
+14.04/version_2/${CNTK_VERSION}/gpu/runtime/install-cntk-docker.sh
     /bin/bash /cntk/Scripts/install/linux/install-cntk-docker.sh && \
     /root/anaconda3/bin/conda clean --all --yes && \
     rm -rf /cntk/cntk/python
