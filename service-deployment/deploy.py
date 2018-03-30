@@ -321,7 +321,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
         "weight": max(0, 100 - total_weight)
     }
     if total_weight > 100:
-        print("WARNING: Too many GPUs configured.")
+        print("WARNING: Too many GPUs configured in virtual clusters.")
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
             hq_config["weight"] /= (total_weight / 100)
