@@ -17,22 +17,26 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
 
-wget https://issues.apache.org/jira/secure/attachment/12915640/hadoop-2.7.2.port-gpu.patch
-git clone https://github.com/apache/hadoop.git
+# Example script for distributed CNTK job
 
-cd hadoop
+trap "kill 0" EXIT
 
-git checkout branch-2.7.2
+# hdfs address in IP:PORT format
+hdfs_addr=$(sed -e "s@hdfs://@@g" <<< $PAI_DEFAULT_FS_URI)
 
-cp /hadoop-2.7.2.port-gpu.patch /hadoop
+# hdfs mount point
+mnt_point=/mnt/hdfs
 
-git apply hadoop-2.7.2.port-gpu.patch
+# mount hdfs as a local file system
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@$PAI_DEFAULT_FS_URI@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
-mvn package -Pdist,native -DskipTests -Dtar
 
-cp /hadoop/hadoop-dist/target/hadoop-2.7.2.tar.gz /hadoop-binary
-
-echo "Successfully build hadoop 2.7.2 AI"
-
+# prepare CNTK distributed BrainScript and upload to hdfs
+# please refer to CNTK G2P example and brainscript parallel training docs for details
+# https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript
+# https://docs.microsoft.com/en-us/cognitive-toolkit/Multiple-GPUs-and-machines#3-configuring-parallel-training-in-cntk-in-brainscript
+cntk configFile=g2p-distributed.cntk parallelTrain=true DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

@@ -24,7 +24,7 @@ import org.apache.hadoop.yarn.api.records.NodeReport;
 
 import java.util.Set;
 
-public class Node {
+public class Node implements Comparable<Node> {
   private final String host;
   private Set<String> labels;
   private ResourceDescriptor totalResource;
@@ -46,6 +46,32 @@ public class Node {
         nodeReport.getNodeLabels(),
         ResourceDescriptor.fromResource(nodeReport.getCapability()),
         ResourceDescriptor.fromResource(nodeReport.getUsed()));
+  }
+
+  // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
+  @Override
+  public int compareTo(Node other) {
+    ResourceDescriptor thisAvailableResource = this.getAvailableResource();
+    ResourceDescriptor otherAvailableResource = other.getAvailableResource();
+
+    if (thisAvailableResource.getGpuNumber() > otherAvailableResource.getGpuNumber())
+      return 1;
+    if (thisAvailableResource.getGpuNumber() < otherAvailableResource.getGpuNumber()) {
+      return -1;
+    }
+    if (thisAvailableResource.getCpuNumber() > otherAvailableResource.getCpuNumber()) {
+      return 1;
+    }
+    if (thisAvailableResource.getCpuNumber() < otherAvailableResource.getCpuNumber()) {
+      return -1;
+    }
+    if (thisAvailableResource.getMemoryMB() > otherAvailableResource.getMemoryMB()) {
+      return 1;
+    }
+    if (thisAvailableResource.getMemoryMB() < otherAvailableResource.getMemoryMB()) {
+      return -1;
+    }
+    return 0;
   }
 
   public void updateFromReportedNode(Node reportedNode) {
