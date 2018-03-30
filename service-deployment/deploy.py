@@ -310,7 +310,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
     for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
         vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
         num_gpus_configured = vc_config["numGPUs"]
-        weight = float(num_gpus_configured) / float(total_num_gpus)
+        weight = float(num_gpus_configured) / float(total_num_gpus) * 100
         hadoop_queues_config[vc_name] = {
             "description": vc_config["description"],
             "weight": weight
@@ -318,13 +318,13 @@ def generate_configuration_of_hadoop_queues(cluster_config):
         total_weight += weight
     hadoop_queues_config["default"] = {
         "description": "Default virtual cluster.",
-        "weight": max(0, 1 - total_weight)
+        "weight": max(0, 100 - total_weight)
     }
-    if total_weight > 1:
+    if total_weight > 100:
         print("WARNING: Too many GPUs configured.")
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
-            hq_config["weight"] /= total_weight
+            hq_config["weight"] /= (total_weight / 100)
     #
     cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
