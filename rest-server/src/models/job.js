@@ -95,6 +95,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
+              queue: frameworkInfo.queue
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
@@ -158,6 +159,7 @@ class Job {
           },
           (parallelCallback) => {
             async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
+              logger.warn(JSON.stringify(data))
               fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
@@ -419,12 +421,13 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
+    const queue = data.queue || 'default';
     const frameworkDescription = {
       'version': 10,
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': 'default',
+        'queue': queue,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
