@@ -48,12 +48,12 @@ spec:
           value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
         - name: JWT_SECRET
           value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
-        - name: LOWDB_FILE
-          value: /var/pai/{{ clusterinfo['restserverinfo']['lowdb_path'] }}
-        - name: LOWDB_ADMIN
-          value: "{{ clusterinfo['restserverinfo']['lowdb_admin'] }}"
-        - name: LOWDB_PASSWD
-          value: "{{ clusterinfo['restserverinfo']['lowdb_passwd'] }}"
+        - name: DEFAULT_PAI_ADMIN_USERNAME
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
+        - name: DEFAULT_PAI_ADMIN_PASSWORD
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
+        - name: ETCD_URI
+          value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
         ports:
         - name: rest-server
           containerPort: 8080

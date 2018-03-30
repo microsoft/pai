@@ -79,6 +79,13 @@ A json file describe detailed configuration required for a job submission. The d
       "cpuNumber":  Integer,
       "memoryMB":   Integer,
       "gpuNumber":  Integer,
+      "portList": [
+        {
+          "label": String,
+          "beginAt": Integer,
+          "portNumber": Integer
+        }
+      ],
       "command":    String
     }
   ],
@@ -104,6 +111,10 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
+| `taskRole.portList`            | List, optional             | List of `portType` to use                |
+| `taskRole.portType.label`      | String in `^[A-Za-z0-9\-._~]+$` format, required | Label name for the port type |
+| `taskRole.portType.beginAt`    | Integer, required          | The port to begin with in the port type, 0 for random selection |
+| `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
 | `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
@@ -151,7 +162,8 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_JOB_TASK_ROLE_LIST             | Comma separated all task role names in config file |
 | PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
 | PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
-| PAI_CONTAINER_HOST_PORT            | Allocated port for current docker container |
+| PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
+| PAI_CONTAINER_HOST_\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
 
 
@@ -178,6 +190,18 @@ A distributed TensorFlow job is listed below as an example:
       "cpuNumber": 2,
       "memoryMB": 8192,
       "gpuNumber": 0,
+      "portList": [
+        {
+          "label": "http",
+          "beginAt": 0,
+          "portNumber": 1
+        },
+        {
+          "label": "ssh",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ],
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
@@ -190,6 +214,18 @@ A distributed TensorFlow job is listed below as an example:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
+      "portList": [
+        {
+          "label": "http",
+          "beginAt": 0,
+          "portNumber": 1
+        },
+        {
+          "label": "ssh",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ],
       "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     }
   ],
@@ -225,3 +261,31 @@ A distributed TensorFlow job is listed below as an example:
 3. Submit the job through web portal
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
+
+## SSH Connection
+You can ssh connect to a specified container either from outside or inside container.
+### SSH connect from outside
+
+1. Get job ssh connect info by invoking `/api/v1/jobs/:jobName/ssh` api or clicking the job detail page on webportal.
+
+2. Open a Bash shell terminal.
+
+3. Download the corresponding private key from HDFS.
+   For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
+   ```sh
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
+   ```
+4. Use `chmod` command to set correct permission for the key file.
+   ```sh
+   chmod 400 application_id
+   ```
+5. Use `ssh` command to connect into container. for example
+   ```sh
+   ssh -i application_id -p ssh_port root@container_ip
+   ```
+### SSH connect inside containers
+
+You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
+```sh
+ssh worker-0
+```

@@ -35,6 +35,7 @@ import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.service.SystemTaskQueue;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
@@ -81,9 +82,8 @@ public class ApplicationMaster extends AbstractService {
   protected NMClientAsync nmClient;
   protected StatusManager statusManager;
   protected RequestManager requestManager;
-  private RMResyncHandler rmResyncHandler;
   protected SelectionManager selectionManager;
-
+  private RMResyncHandler rmResyncHandler;
   /**
    * REGION StateVariable
    */
@@ -171,14 +171,15 @@ public class ApplicationMaster extends AbstractService {
         conf.getLauncherConfig().getWebServerAddress(), 30, 10,
         LaunchClientType.APPLICATION_MASTER, conf.getLoggedInUser().getName());
 
-    selectionManager = new SelectionManager(this);
+    statusManager = new StatusManager(this, conf, zkStore);
+    requestManager = new RequestManager(this, conf, zkStore, launcherClient);
+    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
   @Override
   protected void recover() throws Exception {
     super.recover();
-    statusManager = new StatusManager(this, conf, zkStore);
     statusManager.start();
 
     // Here StatusManager recover completed
@@ -189,7 +190,6 @@ public class ApplicationMaster extends AbstractService {
   @Override
   protected void run() throws Exception {
     super.run();
-    requestManager = new RequestManager(this, conf, zkStore, launcherClient);
     requestManager.start();
   }
 
@@ -332,29 +332,27 @@ public class ApplicationMaster extends AbstractService {
     String taskRoleName = taskStatus.getTaskRoleName();
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+
     ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
       LOGGER.logWarning(
           "Request Resource does not fit in the Max Resource configured in current cluster, " +
-              "request may be fail or never got satisfied: " +
+              "request may fail or never get satisfied: " +
               "Request Resource: [%s], Max Resource: [%s]",
           requestResource, maxResource);
     }
-
-    if (requestResource.getGpuNumber() > 0) {
+    if (requestResource.getGpuNumber() > 0 || requestResource.getPortNumber() > 0) {
       updateNodeReports(yarnClient.getNodeReports(NodeState.RUNNING));
+      SelectionResult selectionResult = selectionManager.selectSingleNode(taskRoleName);
 
-      SelectionResult selectionResult = selectionManager.select(requestResource, requestNodeLabel, requestNodeGpuType);
-      if (selectionResult != null) {
-        ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-        optimizedRequestResource.setGpuAttribute(selectionResult.getGpuAttribute());
-        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHost());
+      ResourceDescriptor optimizedRequestResource = selectionResult.getOptimizedResource();
+      if (selectionResult.getNodeHosts().size() > 0) {
+        return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, null, selectionResult.getNodeHosts().get(0));
       }
+      return HadoopUtils.toContainerRequest(optimizedRequestResource, requestPriority, requestNodeLabel, null);
     }
-
     return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
   }
 
@@ -522,18 +520,42 @@ public class ApplicationMaster extends AbstractService {
         LOGGER.logInfo(acceptedLogPrefix + "Node is an antiaffinity allocation.");
       }
     }
-
     return true;
   }
 
-  private Boolean testContainer(Container container) {
+  // To keep all tasks have the same ports in a task role.
+  // Will reject this container if the ports are not the same.
+  private Boolean testContainerPorts(Container container, String taskRoleName) throws Exception {
+    List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+    List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
+
+    String logPrefix = String.format("[%s][%s]: testContainerPorts: ", container.getId().toString(), taskRoleName);
+    String rejectedLogPrefix = logPrefix + "Rejected: ";
+    String acceptedLogPrefix = logPrefix + "Accepted: ";
+
+    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
+    if (useTheSamePorts) {
+      if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
+        if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
+          LOGGER.logWarning(rejectedLogPrefix + "Container ports are not the same as previous allocated ports.");
+          return false;
+        }
+      }
+      LOGGER.logInfo(acceptedLogPrefix + "Container ports are the same as previous allocated ports.");
+    }
+    return true;
+  }
+
+  private Boolean testContainer(Container container, String taskRoleName) throws Exception {
     String containerId = container.getId().toString();
     String containerHostName = container.getNodeId().getHost();
 
     if (!testContainerNode(containerId, containerHostName)) {
       return false;
     }
-
+    if (!testContainerPorts(container, taskRoleName)) {
+      return false;
+    }
     return true;
   }
 
@@ -546,6 +568,9 @@ public class ApplicationMaster extends AbstractService {
     Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
     List<String> sourceLocations = requestManager.getTaskServices().get(taskRoleName).getSourceLocations();
     String entryPoint = requestManager.getTaskServices().get(taskRoleName).getEntryPoint();
+
+    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
+    List<ValueRange> portRanges = taskStatus.getContainerPorts();
 
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
@@ -580,8 +605,10 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
-
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
+
+    String containerPortsString = ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
 
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to
@@ -609,11 +636,10 @@ public class ApplicationMaster extends AbstractService {
     for (NodeReport nodeReport : nodeReports) {
       NodeState state = nodeReport.getNodeState();
       if (state.isUnusable()) {
-        selectionManager.removeCandidateNode(nodeReport);
+        selectionManager.removeNode(nodeReport);
       } else {
-        selectionManager.addCandidateNode(nodeReport);
+        selectionManager.addNode(nodeReport);
       }
-
       // TODO: Update TaskStatus.ContainerIsDecommissioning
     }
   }
@@ -1067,7 +1093,7 @@ public class ApplicationMaster extends AbstractService {
     removeContainerRequest(taskStatus);
 
     // 2. testContainer
-    if (!testContainer(container)) {
+    if (!testContainer(container, taskRoleName)) {
       LOGGER.logInfo(
           "%s[%s]: Container is Rejected, Release Container and Request again",
           taskLocator, containerId);
@@ -1442,9 +1468,5 @@ public class ApplicationMaster extends AbstractService {
     } else {
       return requestManager.existsLocalVersionFrameworkRequest();
     }
-  }
-
-  protected ClusterConfiguration getClusterConfiguration() {
-    return requestManager.getClusterConfiguration();
   }
 }
