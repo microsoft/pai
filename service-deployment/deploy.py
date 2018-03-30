@@ -316,10 +316,7 @@ def main():
     if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
         cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
 
-    # step 4: generate configuration of hadoop queues
-    generate_configuration_of_hadoop_queues(cluster_config)
-
-    # step 5: generate templatefile
+    # step 4: generate templatefile
     if args.service == 'all':
 
         copy_arrangement(service_config)
@@ -330,7 +327,7 @@ def main():
         copy_arrangement_service(args.service, service_config)
         generate_template_file_service(args.service, cluster_config, service_config)
 
-    # step 6: Bootstrap service.
+    # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
         if args.service == 'all':
