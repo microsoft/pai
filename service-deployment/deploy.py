@@ -17,8 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import yaml
 import os
 import sys
@@ -73,7 +71,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        print error_msg
         sys.exit(1)
 
     return res
@@ -86,7 +84,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        print error_msg
         sys.exit(1)
 
 
@@ -96,11 +94,11 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print("docker registry login successfully")
+    print "docker registry login successfully"
 
 
 
-def generate_docker_credential(docker_info):
+def genenrate_docker_credential(docker_info):
 
     username = str(docker_info[ "docker_username" ])
     passwd = str(docker_info[ "docker_password" ])
@@ -133,7 +131,7 @@ def generate_secret_base64code(docker_info):
             "Failed to base64 the docker's config.json"
         )
     else:
-        print("docker registry authentication not provided")
+        print "docker registry authentication not provided"
 
         base64code = "{}".encode("base64")
 
@@ -171,7 +169,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print("Successfully clean up the generated file")
+    print "Successfully clean up the generated file"
 
 
 
@@ -290,44 +288,6 @@ def copy_arrangement(service_config):
         copy_arrangement_service(srv, service_config)
 
 
-def generate_configuration_of_hadoop_queues(cluster_config):
-    #
-    hadoop_queues_config = {}
-    #
-    total_num_gpus = 0
-    for machine_name in cluster_config["machinelist"]:
-        machine_config = cluster_config["machinelist"][machine_name]
-        if "yarnrole" not in machine_config or machine_config["yarnrole"] != "worker":
-            continue
-        machine_type = machine_config["machinetype"]
-        machine_type_config = cluster_config["machineinfo"][machine_type]
-        num_gpus = 0
-        if "gpu" in machine_type_config:
-            num_gpus = machine_type_config["gpu"]["count"]
-        total_num_gpus += num_gpus
-    #
-    total_weight = 0
-    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
-        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
-        num_gpus_configured = vc_config["numGPUs"]
-        weight = float(num_gpus_configured) / float(total_num_gpus)
-        hadoop_queues_config[vc_name] = {
-            "description": vc_config["description"],
-            "weight": weight
-        }
-        total_weight += weight
-    hadoop_queues_config["default"] = {
-        "description": "Default virtual cluster.",
-        "weight": max(0, 1 - total_weight)
-    }
-    if total_weight > 1:
-        print("WARNING: Too many GPUs configured.")
-        for hq_name in hadoop_queues_config:
-            hq_config = hadoop_queues_config[hq_name]
-            hq_config["weight"] /= total_weight
-    #
-    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -348,7 +308,7 @@ def main():
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
 
     generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
@@ -381,7 +341,7 @@ def main():
             single_service_bootstrap(args.service, service_config)
 
 
-    # Optional : clean all the generated file.
+    # Option : clean all the generated file.
     if args.clean:
         clean_up_generated_file(service_config)
 

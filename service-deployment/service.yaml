@@ -143,10 +143,6 @@ servicelist:
       - zookeeper.yaml
       - one-time-job-hadoop.yaml
       - cleanup.sh
-      # Step 3 of 4 to set up Hadoop queues.
-      # Tell deploy.py to instantiate capacity-scheduler.xml.content from
-      # capacity-scheduler.xml.content.template.
-      - hadoop-configuration/capacity-scheduler.xml.content
     startscript: start.sh
     stopscript: cleanup.sh
 
@@ -222,3 +218,4 @@ servicelist:
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
+    
