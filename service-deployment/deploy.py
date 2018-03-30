@@ -327,6 +327,7 @@ def main():
         copy_arrangement_service(args.service, service_config)
         generate_template_file_service(args.service, cluster_config, service_config)
 
+		
     # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
