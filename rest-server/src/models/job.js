@@ -95,7 +95,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
-              queue: frameworkInfo.queue
+              queue: frameworkInfo.queue,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
@@ -159,7 +159,6 @@ class Job {
           },
           (parallelCallback) => {
             async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-              logger.warn(JSON.stringify(data))
               fse.outputFile(
                   path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
                   this.generateYarnContainerScript(data, idx),
