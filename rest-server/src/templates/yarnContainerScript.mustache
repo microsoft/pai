@@ -87,6 +87,7 @@ docker run --name $docker_name \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \
+  --label PAI_JOB_QUEUE={{{ jobData.queue }}} \
   --label PAI_USER_NAME={{{ jobData.username }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env APP_ID=$APP_ID \

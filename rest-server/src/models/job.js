@@ -420,13 +420,12 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
-    const queue = data.queue || 'default';
     const frameworkDescription = {
       'version': 10,
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': queue,
+        'queue': data.queue,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
