@@ -30,7 +30,7 @@ data:
         role: node
       relabel_configs:
       - source_labels: [__address__]
-        regex: '(.*):(.*)'
+        regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__ 
     - job_name: 'cadvisor'
@@ -40,7 +40,7 @@ data:
         role: node
       relabel_configs:
       - source_labels: [__address__]
-        regex: '(.*):(.*)'
+        regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['cadvisor_port'] }}'
         target_label: __address__ 
 
