@@ -32,11 +32,26 @@
 +        <value>1048576</value>
 +        <description>default is 8GB, here we set 1024G</description>
 +    </property>
++
++    <!-- BEGIN: Set up the scheduler -->
++    <!-- Ref: https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html -->
 +    
 +    <property>
 +      <name>yarn.resourcemanager.scheduler.class</name>
 +      <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
 +    </property>
++
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.enable</name>
++      <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.policies</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
++    </property>
++
++    <!-- END: Set up the scheduler -->
 +
 +    <property>
 +      <name>yarn.resourcemanager.store.class</name>
