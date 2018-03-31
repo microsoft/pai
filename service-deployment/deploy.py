@@ -17,8 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from __future__ import print_function
-
 import yaml
 import os
 import sys
@@ -73,7 +71,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        print error_msg
         sys.exit(1)
 
     return res
@@ -86,7 +84,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        print error_msg
         sys.exit(1)
 
 
@@ -96,11 +94,11 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print("docker registry login successfully")
+    print "docker registry login successfully"
 
 
 
-def generate_docker_credential(docker_info):
+def genenrate_docker_credential(docker_info):
 
     username = str(docker_info[ "docker_username" ])
     passwd = str(docker_info[ "docker_password" ])
@@ -133,7 +131,7 @@ def generate_secret_base64code(docker_info):
             "Failed to base64 the docker's config.json"
         )
     else:
-        print("docker registry authentication not provided")
+        print "docker registry authentication not provided"
 
         base64code = "{}".encode("base64")
 
@@ -171,7 +169,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print("Successfully clean up the generated file")
+    print "Successfully clean up the generated file"
 
 
 
@@ -328,7 +326,6 @@ def generate_configuration_of_hadoop_queues(cluster_config):
     #
     cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
-
 def main():
     parser = argparse.ArgumentParser()
 
@@ -348,7 +345,7 @@ def main():
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
 
     generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
@@ -356,10 +353,7 @@ def main():
     if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
         cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
 
-    # step 4: generate configuration of hadoop queues
-    generate_configuration_of_hadoop_queues(cluster_config)
-
-    # step 5: generate templatefile
+    # step 4: generate templatefile
     if args.service == 'all':
 
         copy_arrangement(service_config)
@@ -370,7 +364,8 @@ def main():
         copy_arrangement_service(args.service, service_config)
         generate_template_file_service(args.service, cluster_config, service_config)
 
-    # step 6: Bootstrap service.
+
+    # step 5: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
         if args.service == 'all':
@@ -381,7 +376,7 @@ def main():
             single_service_bootstrap(args.service, service_config)
 
 
-    # Optional : clean all the generated file.
+    # Option : clean all the generated file.
     if args.clean:
         clean_up_generated_file(service_config)
 

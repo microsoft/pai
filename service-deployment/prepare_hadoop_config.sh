@@ -56,9 +56,7 @@ cp hadoop/yarn-site.xml bootstrap/hadoop-service/hadoop-configuration/resourcema
 
 
 # patch for hadoop-run
-# It is not necessary to patch capacity-scheduler.xml here because this file
-# will be prepared by deploy.py during the process of service deployment.
-#patch src/hadoop-run/capacity-scheduler.xml config-patch/capacity-scheduler.xml.patch
+patch src/hadoop-run/capacity-scheduler.xml config-patch/capacity-scheduler.xml.patch
 patch src/hadoop-run/core-site.xml config-patch/core-site.xml.patch
 patch src/hadoop-run/hadoop-env.sh config-patch/hadoop-env.sh.patch
 patch src/hadoop-run/mapred-site.xml config-patch/mapred-site.xml.patch

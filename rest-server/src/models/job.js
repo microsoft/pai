@@ -95,6 +95,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
+              queue: frameworkInfo.queue,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
@@ -424,7 +425,7 @@ class Job {
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': 'default',
+        'queue': data.virtualCluster,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
