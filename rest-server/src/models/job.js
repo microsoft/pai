@@ -95,7 +95,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
-              queue: frameworkInfo.queue,
+              virtualCluster: frameworkInfo.queue,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
