@@ -1,6 +1,6 @@
 --- hadoop/yarn-site.xml	2017-11-13 02:36:07.769706914 -0500
 +++ bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml	2017-11-13 02:38:31.329774525 -0500
-@@ -12,8 +12,113 @@
+@@ -12,8 +12,128 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -32,11 +32,26 @@
 +        <value>1048576</value>
 +        <description>default is 8GB, here we set 1024G</description>
 +    </property>
++
++    <!-- BEGIN: Set up the scheduler -->
++    <!-- Ref: https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html -->
 +    
 +    <property>
 +      <name>yarn.resourcemanager.scheduler.class</name>
 +      <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
 +    </property>
++
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.enable</name>
++      <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.policies</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
++    </property>
++
++    <!-- END: Set up the scheduler -->
 +
 +    <property>
 +      <name>yarn.resourcemanager.store.class</name>

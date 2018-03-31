@@ -63,6 +63,20 @@ clusterinfo:
     configmapname: hadoop-configuration
     hadoop_vip: 10.0.3.9
 
+  # Step 1 of 4 to set up Hadoop queues.
+  # Define all virtual clusters, equivalent concept of Hadoop queues.
+  # All unallocated GPUs will go to an auto-generated VC called 'default'.
+  virtualClusters:
+    vc1:
+      description: VC for Alice's team.
+      numGPUs: 2
+    vc2:
+      description: VC for Bob's team.
+      numGPUs: 4
+    vc3:
+      description: VC for Charlie's team.
+      numGPUs: 6
+
   frameworklauncher:
     frameworklauncher_vip: 10.0.3.9
     frameworklauncher_port: 9086

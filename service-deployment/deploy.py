@@ -288,6 +288,43 @@ def copy_arrangement(service_config):
         copy_arrangement_service(srv, service_config)
 
 
+def generate_configuration_of_hadoop_queues(cluster_config):
+    #
+    hadoop_queues_config = {}
+    #
+    total_num_gpus = 0
+    for machine_name in cluster_config["machinelist"]:
+        machine_config = cluster_config["machinelist"][machine_name]
+        if "yarnrole" not in machine_config or machine_config["yarnrole"] != "worker":
+            continue
+        machine_type = machine_config["machinetype"]
+        machine_type_config = cluster_config["machineinfo"][machine_type]
+        num_gpus = 0
+        if "gpu" in machine_type_config:
+            num_gpus = machine_type_config["gpu"]["count"]
+        total_num_gpus += num_gpus
+    #
+    total_weight = 0
+    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
+        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
+        num_gpus_configured = vc_config["numGPUs"]
+        weight = float(num_gpus_configured) / float(total_num_gpus) * 100
+        hadoop_queues_config[vc_name] = {
+            "description": vc_config["description"],
+            "weight": weight
+        }
+        total_weight += weight
+    hadoop_queues_config["default"] = {
+        "description": "Default virtual cluster.",
+        "weight": max(0, 100 - total_weight)
+    }
+    if total_weight > 100:
+        print("WARNING: Too many GPUs configured in virtual clusters.")
+        for hq_name in hadoop_queues_config:
+            hq_config = hadoop_queues_config[hq_name]
+            hq_config["weight"] /= (total_weight / 100)
+    #
+    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
 def main():
     parser = argparse.ArgumentParser()
