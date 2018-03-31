@@ -53,7 +53,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 0,
-            'queue':'default',
+            'virtualCluster':'default',
           },
           {
             'name': 'job2',
@@ -68,7 +68,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 1,
-            'queue': 'default',
+            'virtualCluster': 'default',
           },
         ],
       });
@@ -94,7 +94,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
   // Positive cases
   //
 
-  it('Case 1 (Positive): Submit a job with default queue', (done) => {
+  it('Case 1 (Positive): Submit a job to the default vc', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -107,11 +107,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   });
 
-  it('Case 2 (Positive): Submit a job which queue=vc1.', (done) => {
+  it('Case 2 (Positive): Submit a job to vc1.', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'queue': 'vc1' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
