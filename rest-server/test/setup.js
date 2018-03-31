@@ -56,6 +56,7 @@ global.jobConfigTemplate = JSON.stringify({
   'image': 'aiplatform/pai.run.tensorflow',
   'dataDir': 'hdfs://10.240.0.10:9000/test/script/test',
   'codeDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'virtualCluster': '{{virtualCluster}}',
   'taskRoles': [
     {
       'name': 'role1',

@@ -36,6 +36,7 @@ describe('Jobs API /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 0,
+            'queue': 'vc1'
           },
           {
             'name': 'job2',
@@ -50,6 +51,7 @@ describe('Jobs API /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 1,
+            'virtualCluster': 'default'
           },
         ],
       });
