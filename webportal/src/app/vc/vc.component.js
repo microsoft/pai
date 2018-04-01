@@ -22,6 +22,8 @@ require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
+const url = require('url');
+//
 require('./vc.component.scss');
 const vcComponent = require('./vc.component.ejs');
 const breadcrumbComponent = require('../job/breadcrumb/breadcrumb.component.ejs');
@@ -31,13 +33,14 @@ let table = null;
 
 //
 
-const loadData = () => {
+const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
     url: webportalConfig.restServerUri + '/api/v1/jobs',
     success: function(data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
+        specifiedVc: specifiedVc,
         grafanaUri: webportalConfig.grafanaUri
       });
       $('#content-wrapper').html(vcHtml);
@@ -70,9 +73,9 @@ const resizeContentWrapper = () => {
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
-  loadData();
   window.onresize = function(envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();
+  loadData(url.parse(window.location.href, true).query['vcName']);
 });
