@@ -38,6 +38,7 @@ const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
+let configInfo = null;
 let sshInfo = null;
 
 const jobViewHtml = jobViewComponent({
@@ -127,7 +128,7 @@ const convertGpu = (gpuAttribute) => {
   const gpuList = [];
   for (let i = 0; i < bitmap.length; i ++) {
     if (bitmap[i] === '1') {
-      gpuList.push(bitmap.length - i - 1);
+      gpuList.push('#' + (bitmap.length - i - 1).toString());
     }
   }
   if (gpuList.length > 0) {
@@ -200,6 +201,7 @@ const stopJob = (jobName) => {
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();
+  configInfo = null;
   sshInfo = null;
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
@@ -218,6 +220,26 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
+        //
+        $('a[name=configInfoLink]').addClass('disabled');
+        $.ajax({
+          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/config`,
+          type: 'GET',
+          success: (data) => {
+            configInfo = data;
+            $('a[name=configInfoLink]').removeClass('disabled');
+            $('div[name=configInfoDiv]').attr('title', '');
+          },
+          error: (xhr, textStatus, error) => {
+            const res = JSON.parse(xhr.responseText);
+            if (res.message === 'ConfigFileNotFound') {
+              $('div[name=configInfoDiv]').attr('title', 'This job\'s config file has not been stored.');
+            } else {
+              $('div[name=configInfoDiv]').attr('title', 'Error: ' + res.message);
+            }
+          },
+        });
+        //
         $('a[name^=sshInfoLink]').addClass('disabled');
         if (data.jobStatus.state !== 'RUNNING') {
           $('div[name^=sshInfoDiv]').attr('title', 'Job is not running.');
@@ -234,6 +256,8 @@ const loadJobDetail = (jobName) => {
               const res = JSON.parse(xhr.responseText);
               if (res.message === 'SshInfoNotFound') {
                 $('div[name^=sshInfoDiv]').attr('title', 'This job does not contain SSH info.');
+              } else {
+                $('div[name^=sshInfoDiv]').attr('title', 'Error: ' + res.message);
               }
             },
           });
@@ -246,6 +270,10 @@ const loadJobDetail = (jobName) => {
     },
   });
 };
+
+const showConfigInfo = () => {
+  alert(configInfo);
+}
 
 const showSshInfo = (containerId) => {
   if (sshInfo === null) {
@@ -268,6 +296,7 @@ const showSshInfo = (containerId) => {
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
+window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
