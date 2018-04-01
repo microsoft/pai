@@ -367,6 +367,10 @@ class Job {
     if (frameworkRequest.frameworkDescriptor) {
       jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
     }
+    const frameworkInfo = framework.summarizedFrameworkInfo;
+    if (frameworkInfo) {
+      jobDetail.jobStatus.virtualCluster = frameworkInfo.queue;
+    }
     const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
     if (taskRoleStatuses) {
       for (let taskRole of Object.keys(taskRoleStatuses)) {

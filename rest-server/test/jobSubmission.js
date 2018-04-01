@@ -53,7 +53,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 0,
-            'virtualCluster':'default',
+            'queue':'default',
           },
           {
             'name': 'job2',
@@ -68,7 +68,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 1,
-            'virtualCluster': 'default',
+            'queue': 'default',
           },
         ],
       });
