@@ -16,7 +16,7 @@
       <tr>
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
-        <td><%= jobs[i].virtualCluster %></td>
+        <td><%= (jobs[i].virtualCluster) ? jobs[i].virtualCluster : 'default' %></td>
         <td>
           <span title="<%= Math.round(jobs[i].createdTime / 1000) %>"/>
           <%= convertTime(false, jobs[i].createdTime) %>
