@@ -74,6 +74,7 @@ global.jobConfigTemplate = JSON.stringify({
 global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {
     'frameworkName': '{{frameworkName}}',
+    'queue': '{{queueName}}'
   },
   'aggregatedFrameworkRequest': {
     'frameworkRequest': {
