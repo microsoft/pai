@@ -41,6 +41,36 @@ const loadData = (specifiedVc) => {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
+        data: {
+          vc1: {
+            description: 'VC of Alice\'s team.',
+            activeJobs: 10,
+            activeGpus: 42,
+            configuredGpus: 4,
+            configuredGpusInHadoop: 4,
+          },
+        vc2: {
+            description: 'VC of Bob\'s team.',
+            activeJobs: 2,
+            activeGpus: 8,
+            configuredGpus: 16,
+            configuredGpusInHadoop: 16,
+          },
+        vc3: {
+            description: 'VC of Charlie\'s team.',
+            activeJobs: 7,
+            activeGpus: 7,
+            configuredGpus: 64,
+            configuredGpusInHadoop: 64,
+          },
+        default: {
+            description: 'Default VC.',
+            activeJobs: 1,
+            activeGpus: 4,
+            configuredGpus: 4,
+            configuredGpusInHadoop: 4,
+          },
+        },
         grafanaUri: webportalConfig.grafanaUri
       });
       $('#content-wrapper').html(vcHtml);

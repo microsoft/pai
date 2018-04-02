@@ -3,7 +3,6 @@
 <section class='content'>
 <div class='box'>
   <div class='box-body'>
-    <p>Specified VC: <%= specifiedVc %></p>
     <table id='vc-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
       <thead>
         <tr>
@@ -17,58 +16,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>default</td>
-          <td>The default virtual cluster.</td>
-          <td>10</td>
-          <td>42</td>
-          <td>4</td>
-          <td>1050.0</td>
-          <td>
-            <a href="view.html?vcName=default">View Jobs</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Go to VC Metrics Page
-          </td>
-        </tr>
-        <tr>
-          <td>vc1</td>
-          <td>VC of Alice's team.</td>
-          <td>2</td>
-          <td>8</td>
-          <td>16</td>
-          <td>12.5</td>
-          <td>
-            <a href="view.html?vcName=vc1">View Jobs</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Go to VC Metrics Page
-          </td>
-        </tr>
-        <tr>
-          <td>vc2</td>
-          <td>VC of Bob's team.</td>
-          <td>7</td>
-          <td>7</td>
-          <td>64</td>
-          <td>10.9</td>
-          <td>
-            <a href="view.html?vcName=vc2">View Jobs</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Go to VC Metrics Page
-          </td>
-        </tr>
-        <tr>
-          <td>vc3</td>
-          <td>VC of Charlie's team.</td>
-          <td>1</td>
-          <td>4</td>
-          <td>4</td>
-          <td>100.0</td>
-          <td>
-            <a href="view.html?vcName=vc3">View Jobs</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Go to VC Metrics Page
-          </td>
-        </tr>
+        <% for (let x in data) { %>
+          <% if (specifiedVc && x !== specifiedVc) continue; %>
+          <tr>
+            <td><%= x %></td>
+            <td><%= data[x]['description'] %></td>
+            <td><%= data[x]['activeJobs'] %></td>
+            <td><%= data[x]['activeGpus'] %></td>
+            <td><%= data[x]['configuredGpus'] %></td>
+            <td><%= data[x]['activeGpus'] / data[x]['configuredGpus'] * 100 %></td>
+            <td>
+              <a href="view.html?vcName=<%= x %>">View Jobs</a>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              Go to VC Metrics Page
+            </td>
+          </tr>
+        <% } %>
       </tbody>
     </table>
   </div>
