@@ -90,6 +90,9 @@ const jobConfigSchema = Joi.object().keys({
   killAllOnCompletedTaskNumber: Joi.number()
     .integer()
     .default(0),
+  virtualCluster: Joi.string()
+    .allow('')
+    .default('default'),
   retryCount: Joi.number()
     .integer()
     .default(0),
