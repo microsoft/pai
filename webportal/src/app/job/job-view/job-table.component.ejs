@@ -3,6 +3,7 @@
     <tr>
       <th>Job Name</th>
       <th>User Name</th>
+      <th>Virtual Cluster</th>
       <th>Start Time</th>
       <th>Duration</th>
       <th>Retries</th>
@@ -15,15 +16,16 @@
       <tr>
         <td><a href="view.html?jobName=<%= jobs[i].name %>"><%= jobs[i].name %></a></td>
         <td><%= jobs[i].username %></td>
+        <td><%= (jobs[i].virtualCluster) ? jobs[i].virtualCluster : 'default' %></td>
         <td>
           <span title="<%= Math.round(jobs[i].createdTime / 1000) %>"/>
           <%= convertTime(false, jobs[i].createdTime) %>
         </td>
-        <td style='text-align:right'>
+        <td>
           <span title="<%= getDurationInSeconds(jobs[i].createdTime, jobs[i].completedTime) %>"/>
           <%= convertTime(true, jobs[i].createdTime, jobs[i].completedTime) %>
         </td>
-        <td style='text-align:right'><%= jobs[i].retries %></td>
+        <td><%= jobs[i].retries %></td>
         <td><%= convertState(jobs[i].state) %></td>
         <td>
           <% if (jobs[i].executionType === "STOP" || jobs[i].subState === "FRAMEWORK_COMPLETED") { %>

@@ -3,6 +3,7 @@
   <tr style='background-color:whitesmoke'>
     <th>Job Name</th>
     <th>User Name</th>
+    <th>Virtual Cluster</th>
     <th>Start Time</th>
     <th>Duration</th>
     <th>Retries</th>
@@ -11,6 +12,7 @@
   <tr>
     <td><%= jobName %></td>
     <td><%= jobStatus.username %></td>
+    <td><%= (jobStatus.virtualCluster) ? jobStatus.virtualCluster : 'default' %></td>
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
     <td><%= jobStatus.retries %></td>

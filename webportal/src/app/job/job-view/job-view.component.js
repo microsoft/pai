@@ -156,10 +156,10 @@ const loadJobs = () => {
         table = $('#job-table').dataTable({
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          'order': [[2, 'desc']],
+          'order': [[3, 'desc']],
           'columnDefs': [
-            {type: 'natural', targets: [0, 1, 4, 5]},
-            {type: 'title-numeric', targets: [2, 3]},
+            {type: 'natural', targets: [0, 1, 2, 5, 6]},
+            {type: 'title-numeric', targets: [3, 4]},
           ],
         }).api();
       }
