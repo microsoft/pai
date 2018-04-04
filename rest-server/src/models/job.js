@@ -72,7 +72,7 @@ class Job {
     return jobState;
   }
 
-  getJobList(next) {
+  getJobList(query, next) {
     unirest.get(launcherConfig.frameworksPath())
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((res) => {
@@ -98,7 +98,7 @@ class Job {
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
-          next(jobList);
+          next(jobList.slice(query.perPage * (query.page - 1), query.perPage * query.page));
         } catch (error) {
           next(null, error);
         }
