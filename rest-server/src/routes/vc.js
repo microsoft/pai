@@ -25,7 +25,7 @@ router.route('/')
 
 router.route('/:vcName')
     /** GET /api/v1/vcs/vcName - Return cluster specified vc info */
-    .get(vcController.get)
+    .get(vcController.get);
 
 /** Load vc when API with vcName route parameter is hit */
 router.param('vcName', vcController.load);

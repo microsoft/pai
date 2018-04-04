@@ -317,3 +317,5 @@ describe('Vcs API /api/v1/vcs', () => {
         done();
       });
   });
+
+});

@@ -17,12 +17,13 @@
 
 
 // module dependencies
-
+const unirest = require('unirest');
+const yarnConfig = require('../config/yarn');
 
 class Vc {
   constructor(name, next) {
-    this.getVcList((vcList, error) = > {
-      if(error === null) {
+    this.getVcList((vcList, error) => {
+      if (error === null) {
         if (name in vcList) {
           for (let key of Object.keys(vcList[name])) {
             this[key] = vcList[name][key];
@@ -35,6 +36,40 @@ class Vc {
     });
   }
 
+  getCapacitySchedulerInfo(queueInfo) {
+    let queues = {};
+    function traverse(queueInfo, queueDict) {
+      if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
+        queueInfo.map((queueInfo) => {
+          return {
+            name: queueInfo.queueName,
+            absoluteCapacity: queueInfo.absoluteCapacity,
+            absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
+            absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
+            capacity: queueInfo.capacity,
+            maxApplications: queueInfo.maxApplications,
+            maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
+            maxCapacity: queueInfo.maxCapacity,
+            numActiveApplications: queueInfo.numActiveApplications,
+            numApplications: queueInfo.numApplications,
+            numContainers: queueInfo.numContainers,
+            numPendingApplications: queueInfo.numPendingApplications,
+            resourcesUsed: queueInfo.resourcesUsed,
+            state: queueInfo.state,
+            usedCapacity: queueInfo.usedCapacity,
+          };
+        });
+        queueDict[queueInfo.queueName] = queueInfo;
+      } else {
+        for (let i = 0; i < queueInfo.queues.length; i++) {
+            traverse(queueInfo.queues[i], queueDict);
+        }
+      }
+    }
+    traverse(queueInfo, queues);
+    return queues;
+  }
+
   getVcList(next) {
     unirest.get(yarnConfig.yarnVcInfoPath)
       .headers(yarnConfig.webserviceRequestHeaders)
@@ -44,7 +79,7 @@ class Vc {
               res.body : JSON.parse(res.body);
           const schedulerInfo = resJson.scheduler.schedulerInfo;
           if (schedulerInfo.type === 'capacityScheduler') {
-            const vcInfo = getCapacitySchedulerInfo(schedulerInfo);
+            const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
             next(vcInfo);
           } else {
             next(null, new Error('InternalServerError'));
@@ -53,38 +88,6 @@ class Vc {
           next(null, error);
         }
       });
-  }
-
-  getCapacitySchedulerInfo(queueInfo) {
-    let queues = {};
-    function traverse(queueInfo, queueDict) {
-      if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
-        queueInfo.map((queueInfo) => {
-          name: queueInfo.queueName,
-          absoluteCapacity: queueInfo.absoluteCapacity,
-          absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
-          absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
-          capacity: queueInfo.capacity,
-          maxApplications: queueInfo.maxApplications,
-          maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
-          maxCapacity: queueInfo.maxCapacity,
-          numActiveApplications: queueInfo.numActiveApplications,
-          numApplications: queueInfo.numApplications,
-          numContainers: queueInfo.numContainers,
-          numPendingApplications: queueInfo.numPendingApplications,
-          resourcesUsed: queueInfo.resourcesUsed,
-          state: queueInfo.state,
-          usedCapacity: queueInfo.usedCapacity,
-        });
-        queueDict[queueInfo.queueName] = queueInfo;
-      } else {
-        for (var queue in queueInfo.queues) {
-            traverse(queue, queueDict);
-        }
-      }
-    };
-    traverse(queueInfo, queues);
-    return queues;
   }
 }
 
