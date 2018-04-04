@@ -22,9 +22,9 @@
 +    </property>
 +    
 +    <property>
-+        <name>yarn.nodemanager.resource.gpus</name>
-+        <value>4</value>
-+        <description>GPU Supported</description>
++        <name>yarn.resourcemanager.max-completed-applications</name>
++        <value>1000</value>
++        <description>maximum number of completed applications</description>
 +    </property>
 +
 +    <property>
