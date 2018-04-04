@@ -17,22 +17,38 @@
 
 
 // module dependencies
-const express = require('express');
-const controller = require('../controllers/index');
-const tokenRouter = require('./token');
-const userRouter = require('./user');
-const jobRouter = require('./job');
-const vcRouter = require('./vc');
+const path = require('path');
+const fse = require('fs-extra');
+const Joi = require('joi');
+const async = require('async');
+const unirest = require('unirest');
+const childProcess = require('child_process');
+const config = require('./index');
+const logger = require('./logger');
 
-const router = new express.Router();
 
-router.route('/')
-    .all(controller.index);
+// get config from environment variables
+let yarnConfig = {
+  yarnUri: process.env.YARN_URI,
+  webserviceRequestHeaders: {
+    'Accept': 'application/json',
+  },
+  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+};
 
-router.use('/token', tokenRouter);
-router.use('/user', userRouter);
-router.use('/jobs', jobRouter);
-router.use('/vcs', vcRouter);
+const yarnConfigSchema = Joi.object().keys({
+  yarnUri: Joi.string()
+    .uri()
+    .required(),
+  yarnVcInfoPath: Joi.string()
+    .uri()
+    .required(),
+}).required();
 
-// module exports
-module.exports = router;
+const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
+if (error) {
+  throw new Error(`yarn config error\n${error}`);
+}
+yarnConfig = value;
+
+module.exports = yarnConfig;
