@@ -82,7 +82,7 @@ const init = (req, res, next) => {
  * Get list of jobs.
  */
 const list = (req, res) => {
-  Job.prototype.getJobList((jobList, err) => {
+  Job.prototype.getJobList(req._query, (jobList, err) => {
     if (err) {
       logger.warn('list jobs error\n%s', err.stack);
       return res.status(500).json({

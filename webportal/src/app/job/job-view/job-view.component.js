@@ -141,7 +141,7 @@ const convertGpu = (gpuAttribute) => {
 const loadJobs = () => {
   loading.showLoading();
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/jobs`,
+    url: `${webportalConfig.restServerUri}/api/v1/jobs?page=1&perPage=200`,
     type: 'GET',
     success: (data) => {
       if (data.error) {

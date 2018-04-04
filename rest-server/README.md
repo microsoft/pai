@@ -225,6 +225,14 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     GET /api/v1/jobs/:jobName
     ```
 
+    *Parameters*
+    ```
+    {
+      "page": "page number, starting from 1",
+      "perPage": "entries per page"
+    }
+    ```
+
     *Response if succeeded*
     ```
     {

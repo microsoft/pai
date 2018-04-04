@@ -36,11 +36,29 @@ const validate = (schema) => {
         });
       } else {
         req.body = value;
-        return next();
+        next();
       }
     });
   };
 };
 
+const jobQuery = (req, res, next) => {
+  const query = {};
+  const page = parseInt(req.query.page);
+  const perPage = parseInt(req.query.perPage);
+  if (!isNaN(page) && page > 0) {
+    query.page = page;
+  } else {
+    query.page = 1;
+  }
+  if (!isNaN(perPage) && perPage > 0) {
+    query.perPage = perPage;
+  } else {
+    query.perPage = 100;
+  }
+  req._query = query;
+  next();
+};
+
 // module exports
-module.exports = {validate};
+module.exports = {validate, jobQuery};
