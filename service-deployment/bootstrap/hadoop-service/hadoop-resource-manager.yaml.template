@@ -36,6 +36,8 @@ spec:
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /var/lib/yarn
+          name: yarn-resourcemanager-storage
         readinessProbe:
           exec:
             command:
@@ -59,6 +61,9 @@ spec:
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
+      - name: yarn-resourcemanager-storage
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/yarn/resource
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
