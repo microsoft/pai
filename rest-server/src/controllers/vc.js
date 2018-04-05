@@ -20,10 +20,7 @@ const Vc = require('../models/vc');
 const logger = require('../config/logger');
 
 /**
- * Load job and append to req.
- */
-/**
- * Load job and append to req.
+ * Load vc and append to req.
  */
 const load = (req, res, next, vcName) => {
   new Vc(vcName, (vcInfo, error) => {

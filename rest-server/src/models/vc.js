@@ -19,6 +19,7 @@
 // module dependencies
 const unirest = require('unirest');
 const yarnConfig = require('../config/yarn');
+const logger = require('../config/logger');
 
 class Vc {
   constructor(name, next) {
@@ -40,29 +41,25 @@ class Vc {
     let queues = {};
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
-        queueInfo.map((queueInfo) => {
-          return {
-            name: queueInfo.queueName,
-            absoluteCapacity: queueInfo.absoluteCapacity,
-            absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
-            absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
-            capacity: queueInfo.capacity,
-            maxApplications: queueInfo.maxApplications,
-            maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
-            maxCapacity: queueInfo.maxCapacity,
-            numActiveApplications: queueInfo.numActiveApplications,
-            numApplications: queueInfo.numApplications,
-            numContainers: queueInfo.numContainers,
-            numPendingApplications: queueInfo.numPendingApplications,
-            resourcesUsed: queueInfo.resourcesUsed,
-            state: queueInfo.state,
-            usedCapacity: queueInfo.usedCapacity,
-          };
-        });
-        queueDict[queueInfo.queueName] = queueInfo;
+        queueDict[queueInfo.queueName] = {
+          name: queueInfo.queueName,
+          absoluteCapacity: queueInfo.absoluteCapacity,
+          absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
+          absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
+          maxApplications: queueInfo.maxApplications,
+          maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
+          maxCapacity: queueInfo.maxCapacity,
+          numActiveApplications: queueInfo.numActiveApplications,
+          numApplications: queueInfo.numApplications,
+          numContainers: queueInfo.numContainers,
+          numPendingApplications: queueInfo.numPendingApplications,
+          resourcesUsed: queueInfo.resourcesUsed,
+          state: queueInfo.state,
+          usedCapacity: queueInfo.usedCapacity,
+        };
       } else {
-        for (let i = 0; i < queueInfo.queues.length; i++) {
-            traverse(queueInfo.queues[i], queueDict);
+        for (let i = 0; i < queueInfo.queues.queue.length; i++) {
+            traverse(queueInfo.queues.queue[i], queueDict);
         }
       }
     }
@@ -80,8 +77,9 @@ class Vc {
           const schedulerInfo = resJson.scheduler.schedulerInfo;
           if (schedulerInfo.type === 'capacityScheduler') {
             const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
-            next(vcInfo);
+            next(vcInfo, null);
           } else {
+            logger.error(`unsupported scheduler type: ${schedulerInfo.type}`);
             next(null, new Error('InternalServerError'));
           }
         } catch (error) {

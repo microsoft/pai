@@ -17,7 +17,7 @@
 
 // test
 describe('Vcs API /api/v1/vcs', () => {
-  // Mock launcher webservice
+  // Mock yarn rest api
   beforeEach(() => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -289,6 +289,7 @@ describe('Vcs API /api/v1/vcs', () => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
         expect(res.body).to.have.property('a1a');
+        expect(res.body).to.nested.include({'b2.maxApplications': 3535});
         done();
       });
   });
@@ -297,18 +298,18 @@ describe('Vcs API /api/v1/vcs', () => {
   // get exist vc info
   it('should return vc info', (done) => {
     chai.request(server)
-      .get('/api/v1/vcs/b')
+      .get('/api/v1/vcs/b3')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('absoluteCapacity', '89.5');
+        expect(res.body).to.have.property('absoluteCapacity', 0.4475);
         done();
       });
   });
 
   // negative test case
-  // get non-exist key
-  it('should return null', (done) => {
+  // get non-exist vc
+  it('should return not found', (done) => {
     chai.request(server)
       .get('/api/v1/vcs/noexist')
       .end((err, res) => {
@@ -318,4 +319,38 @@ describe('Vcs API /api/v1/vcs', () => {
       });
   });
 
+  // negative test case
+  // unsupported scheduler type
+  it('should return GetVcListError', (done) => {
+    nock.cleanAll();
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        "scheduler":
+        {
+          "schedulerInfo":
+          {
+            "type":"fifoScheduler",
+            "capacity":1,
+            "usedCapacity":"NaN",
+            "qstate":"RUNNING",
+            "minQueueMemoryCapacity":1024,
+            "maxQueueMemoryCapacity":10240,
+            "numNodes":0,
+            "usedNodeCapacity":0,
+            "availNodeCapacity":0,
+            "totalNodeCapacity":0,
+            "numContainers":0
+          }
+        }
+      });
+    chai.request(server)
+      .get('/api/v1/vcs')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(500);
+        expect(res, 'json response').be.json;
+        expect(res.body).to.have.property('error', 'GetVcListError');
+        done();
+      });
+  });
 });
