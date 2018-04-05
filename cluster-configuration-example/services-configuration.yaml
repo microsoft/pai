@@ -17,6 +17,8 @@
 
 cluster:
 
+  clusterid: pai-example
+
   # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
   nvidia-drivers-version: 384.111
 
