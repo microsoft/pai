@@ -34,10 +34,13 @@ let table = null;
 //
 
 const loadData = (specifiedVc) => {
+  // This is mock data.
+  // TODO: Call GET /api/v1/virtual-clusters instead when the development
+  //       of this API is ready.
   $.ajax({
     type: 'GET',
-    url: webportalConfig.restServerUri + '/api/v1/jobs',
-    success: function(data) {
+    url: webportalConfig.restServerUri + '/api/v1/',
+    success: function (data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
@@ -49,21 +52,21 @@ const loadData = (specifiedVc) => {
             configuredGpus: 4,
             configuredGpusInHadoop: 4,
           },
-        vc2: {
+          vc2: {
             description: 'VC of Bob\'s team.',
             activeJobs: 2,
             activeGpus: 8,
             configuredGpus: 16,
             configuredGpusInHadoop: 16,
           },
-        vc3: {
+          vc3: {
             description: 'VC of Charlie\'s team.',
             activeJobs: 7,
             activeGpus: 7,
             configuredGpus: 64,
             configuredGpusInHadoop: 64,
           },
-        default: {
+          default: {
             description: 'Default VC.',
             activeJobs: 1,
             activeGpus: 4,
@@ -78,12 +81,11 @@ const loadData = (specifiedVc) => {
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
-          {type: 'natural', targets: [0]},
-          {type: 'title-numeric', targets: [1]},
+          { type: 'natural', targets: [0, 1] },
         ],
       }).api();
     },
-    error: function() {
+    error: function () {
       alert('Error when loading data.');
     },
   });
@@ -92,7 +94,7 @@ const loadData = (specifiedVc) => {
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({ 'height': $(window).height() + 'px' });
   if (table != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
@@ -103,7 +105,7 @@ const resizeContentWrapper = () => {
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
-  window.onresize = function(envent) {
+  window.onresize = function (envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();
