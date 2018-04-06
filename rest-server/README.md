@@ -463,3 +463,86 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "error": "JobExecuteError",
       "message": "job execute error"
     }
+
+11. `GET vcs/`
+
+    Get the list of vcs.
+
+    *Request*
+    ```
+    GET /api/v1/vcs
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "vc1": 
+      {
+      }
+      ...
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "GetVcListError",
+      "message": "get vc list error"
+    }
+    ```
+    
+12. `GET vcs/:vcName`
+
+    Get vc status in the system.
+
+    *Request*
+    ```
+    GET /api/v1/vcs/:vcName
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "capacity":0,
+      "usedCapacity":0,
+      "maxCapacity":0,
+      "absoluteCapacity":50,
+      "absoluteMaxCapacity":100,
+      "absoluteUsedCapacity":0,
+      "maxApplications":5000,
+      "maxApplicationsPerUser":5000,
+      "maxCapacity":100,
+      "numActiveApplications":0,
+      "numApplications":0,
+      "numContainers":0,
+      "numPendingApplications":0,
+      "resourcesUsed":{  
+       "memory":0,
+       "vCores":0,
+       "GPUs":0
+      },
+      "state":"RUNNING",
+    }
+    ```
+
+    *Response if the vc does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "VcNotFound",
+      "message": "could not find vc $vcName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "internal server error"
+    }
+    ```

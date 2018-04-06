@@ -42,20 +42,20 @@ class Vc {
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
         queueDict[queueInfo.queueName] = {
-          name: queueInfo.queueName,
+          capacity: queueInfo.capacity,
+          usedCapacity: queueInfo.usedCapacity,
+          maxCapacity: queueInfo.maxCapacity,
           absoluteCapacity: queueInfo.absoluteCapacity,
           absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
           absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
           maxApplications: queueInfo.maxApplications,
           maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
-          maxCapacity: queueInfo.maxCapacity,
           numActiveApplications: queueInfo.numActiveApplications,
           numApplications: queueInfo.numApplications,
           numContainers: queueInfo.numContainers,
           numPendingApplications: queueInfo.numPendingApplications,
           resourcesUsed: queueInfo.resourcesUsed,
           state: queueInfo.state,
-          usedCapacity: queueInfo.usedCapacity,
         };
       } else {
         for (let i = 0; i < queueInfo.queues.queue.length; i++) {
@@ -79,7 +79,7 @@ class Vc {
             const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
             next(vcInfo, null);
           } else {
-            logger.error(`unsupported scheduler type: ${schedulerInfo.type}`);
+            logger.warn(`unsupported scheduler type: ${schedulerInfo.type}`);
             next(null, new Error('InternalServerError'));
           }
         } catch (error) {
