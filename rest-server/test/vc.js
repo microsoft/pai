@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-describe('Vcs API /api/v1/vcs', () => {
+describe('Vcs API /api/v1/virtual-clusters', () => {
   // Mock yarn rest api
   beforeEach(() => {
     nock(yarnUri)
@@ -281,10 +281,10 @@ describe('Vcs API /api/v1/vcs', () => {
       });
   });
 
-  // GET /api/v1/vcs
+  // GET /api/v1/virtual-clusters
   it('should return vc list', (done) => {
     chai.request(server)
-      .get('/api/v1/vcs')
+      .get('/api/v1/virtual-clusters')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -298,7 +298,7 @@ describe('Vcs API /api/v1/vcs', () => {
   // get exist vc info
   it('should return vc info', (done) => {
     chai.request(server)
-      .get('/api/v1/vcs/b3')
+      .get('/api/v1/virtual-clusters/b3')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
@@ -311,7 +311,7 @@ describe('Vcs API /api/v1/vcs', () => {
   // get non-exist vc
   it('should return not found', (done) => {
     chai.request(server)
-      .get('/api/v1/vcs/noexist')
+      .get('/api/v1/virtual-clusters/noexist')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
@@ -345,7 +345,7 @@ describe('Vcs API /api/v1/vcs', () => {
         }
       });
     chai.request(server)
-      .get('/api/v1/vcs')
+      .get('/api/v1/virtual-clusters')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
