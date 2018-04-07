@@ -32,7 +32,7 @@ router.route('/')
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
-router.use('/vcs', vcRouter);
+router.use('/virtual-clusters', vcRouter);
 
 // module exports
 module.exports = router;
