@@ -464,13 +464,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "job execute error"
     }
 
-11. `GET vcs/`
+11. `GET virtual-clusters/`
 
     Get the list of vcs.
 
     *Request*
     ```
-    GET /api/v1/vcs
+    GET /api/v1/virtual-clusters
     ```
 
     *Response if succeeded*
@@ -493,13 +493,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
     
-12. `GET vcs/:vcName`
+12. `GET virtual-clusters/:vcName`
 
     Get vc status in the system.
 
     *Request*
     ```
-    GET /api/v1/vcs/:vcName
+    GET /api/v1/virtual-clusters/:vcName
     ```
 
     *Response if succeeded*

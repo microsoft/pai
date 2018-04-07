@@ -16,14 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Vc = require('../models/vc');
+const VirtualCluster = require('../models/vc');
 const logger = require('../config/logger');
 
 /**
  * Load vc and append to req.
  */
 const load = (req, res, next, vcName) => {
-  new Vc(vcName, (vcInfo, error) => {
+  new VirtualCluster(vcName, (vcInfo, error) => {
     if (error) {
       if (error.message === 'VcNotFound') {
         logger.warn('load vc %s error, could not find vc', vcName);
@@ -55,7 +55,7 @@ const get = (req, res) => {
  * Get all vc info.
  */
 const list = (req, res) => {
-  Vc.prototype.getVcList((vcList, err) => {
+  VirtualCluster.prototype.getVcList((vcList, err) => {
     if (err) {
       logger.warn('get vc list error\n%s', err.stack);
       return res.status(500).json({

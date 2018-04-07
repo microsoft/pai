@@ -21,7 +21,7 @@ const unirest = require('unirest');
 const yarnConfig = require('../config/yarn');
 const logger = require('../config/logger');
 
-class Vc {
+class VirtualCluster {
   constructor(name, next) {
     this.getVcList((vcList, error) => {
       if (error === null) {
@@ -90,4 +90,4 @@ class Vc {
 }
 
 // module exports
-module.exports = Vc;
+module.exports = VirtualCluster;
