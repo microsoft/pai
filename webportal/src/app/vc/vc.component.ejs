@@ -13,7 +13,7 @@
             <th>Pending Jobs</th>
             <th>Used Capacity</th>
             <th>Configured Capacity</th>
-            <th>Utilization (%)</th>
+            <th>Utilization</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -31,16 +31,18 @@
                   <%= data[x]['numPendingJobs'] %>
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['usedCapacity'], 2) %>
+                  <%= formatNumber(data[x]['usedCapacity'], 2) %> %
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['capacity'], 2) %>
+                  <%= formatNumber(data[x]['capacity'], 2) %> %
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['usedCapacity'] / data[x]['capacity'] * 100, 2) %>
+                  <%= formatNumber(data[x]['usedCapacity'] / data[x]['capacity'] * 100, 2) %> %
                 </td>
                 <td>
-                  <a href="view.html?vcName=<%= x %>">View All Jobs</a>
+                  <a href="view.html?vcName=<%= x %>">View All Jobs in
+                    <%= x %>
+                  </a>
                 </td>
               </tr>
               <% } %>
