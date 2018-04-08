@@ -69,8 +69,6 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /dev
-          name: device-mount
         - mountPath: /var/drivers
           name: driver-path
         - name: rootfs
@@ -85,9 +83,6 @@ spec:
         - name: docker
           mountPath: /var/lib/docker
           readOnly: true
-        env:
-        - name: LD_LIBRARY_PATH
-          value: "/var/drivers/nvidia/current/lib:/var/drivers/nvidia/current/lib64"
         args:
           - '--port={{ clusterinfo['prometheusinfo']['cadvisor_port'] }}' 
           - '--docker_env_metadata_whitelist=APP_ID,PAI_TASK_INDEX,PAI_CONTAINER_HOST_IP,PAI_CONTAINER_ID'
