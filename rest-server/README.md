@@ -466,7 +466,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 11. `GET virtual-clusters/`
 
-    Get the list of v irtual clusters.
+    Get the list of virtual clusters.
 
     *Request*
     ```
