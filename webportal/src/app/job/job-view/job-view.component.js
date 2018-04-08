@@ -148,7 +148,7 @@ const loadJobs = (specifiedVc) => {
         alert(data.message);
       } else {
         $('#view-table').html(jobTableComponent({
-          jobs: data,
+          jobs: data.slice(0, 300),
           specifiedVc: specifiedVc,
           getDurationInSeconds,
           convertTime,
