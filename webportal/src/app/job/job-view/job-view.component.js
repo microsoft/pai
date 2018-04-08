@@ -138,7 +138,7 @@ const convertGpu = (gpuAttribute) => {
   }
 };
 
-const loadJobs = () => {
+const loadJobs = (specifiedVc) => {
   loading.showLoading();
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs`,
@@ -149,6 +149,7 @@ const loadJobs = () => {
       } else {
         $('#view-table').html(jobTableComponent({
           jobs: data.slice(0, 300),
+          specifiedVc: specifiedVc,
           getDurationInSeconds,
           convertTime,
           convertState,
@@ -291,7 +292,7 @@ $(document).ready(() => {
     loadJobDetail(query['jobName']);
     $('#content-wrapper').css({'overflow': 'auto'});
   } else {
-    loadJobs();
+    loadJobs(query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });
