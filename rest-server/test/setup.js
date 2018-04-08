@@ -26,6 +26,7 @@ process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.ETCD_URI = 'http://etcd.test.ip1.pai:4001';
 process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
 process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
+process.env.YARN_URI = 'http://yarn.test.pai:8088';
 
 
 // module dependencies
@@ -50,6 +51,7 @@ global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
 global.etcdHosts = process.env.ETCD_URI;
+global.yarnUri = process.env.YARN_URI;
 
 global.jobConfigTemplate = JSON.stringify({
   'jobName': '{{jobName}}',

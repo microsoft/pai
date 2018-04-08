@@ -17,46 +17,32 @@
 
 
 // module dependencies
-const cors = require('cors');
-const morgan = require('morgan');
-const express = require('express');
-const compress = require('compression');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const config = require('./index');
-const logger = require('./logger');
-const router = require('../routes/index');
+const Joi = require('joi');
 
+// get config from environment variables
+let yarnConfig = {
+  yarnUri: process.env.YARN_URI,
+  webserviceRequestHeaders: {
+    'Accept': 'application/json',
+  },
+  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+};
 
-const app = express();
+const yarnConfigSchema = Joi.object().keys({
+  yarnUri: Joi.string()
+    .uri()
+    .required(),
+  webserviceRequestHeaders: Joi.object()
+    .required(),
+  yarnVcInfoPath: Joi.string()
+    .uri()
+    .required(),
+}).required();
 
-app.use(cors());
-app.use(compress());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(cookieParser());
+const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
+if (error) {
+  throw new Error(`yarn config error\n${error}`);
+}
+yarnConfig = value;
 
-// setup the logger for requests
-app.use(morgan('dev', {'stream': logger.stream}));
-
-// mount all v1 APIs to /api/v1
-app.use('/api/v1', router);
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  const err = new Error('API not found');
-  err.status = 404;
-  next(err);
-});
-
-// error handler
-app.use((err, req, res, next) => {
-  logger.warn('%s', err.stack);
-  res.status(err.status || 500).json({
-    message: err.message,
-    error: config.env === 'development' ? err.stack : '',
-  });
-});
-
-// module exports
-module.exports = app;
+module.exports = yarnConfig;
