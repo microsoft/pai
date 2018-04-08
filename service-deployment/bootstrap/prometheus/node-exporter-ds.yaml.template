@@ -32,6 +32,9 @@ spec:
         node-exporter: "true"
       containers:
       - image: prom/node-exporter:v0.15.2
+        resources:
+          limits:
+            memory: "1Gi"
         volumeMounts:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
@@ -55,6 +58,9 @@ spec:
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        resources:
+          limits:
+            memory: "1Gi"
         securityContext:
           privileged: true
         volumeMounts:
