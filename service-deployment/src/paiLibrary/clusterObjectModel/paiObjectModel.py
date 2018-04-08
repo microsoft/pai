@@ -21,11 +21,11 @@ class paiObjectModel:
 
         k8sDict = dict()
 
-        # chapter : clusterID
+        # section : clusterID
 
-        k8sDict["clusterID"] = self.rawData["serviceConfiguration"]["clusterid"]
+        k8sDict["clusterID"] = self.rawData["serviceConfiguration"]["cluster"]["clusterid"]
 
-        # chapter : clusterinfo
+        # section : clusterinfo
 
         k8sDict["clusterinfo"] = self.rawData["kubernetesConfiguration"]["kubernetes"]
         k8sDict["clusterinfo"]["api-servers-ip"] = k8sDict["clusterinfo"]["load-balance-ip"]
@@ -37,15 +37,15 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
 
-        # chapter : component_list
+        # section : component_list
 
         k8sDict["component_list"] = self.rawData["k8sRoleDefinition"]["component-list"]
 
-        # chapter : remote_deployment
+        # section : remote_deployment
 
         k8sDict["remote_deployment"] = self.rawData["k8sRoleDefinition"]["k8s-role"]
 
-        # chapter : mastermachinelist & workermachinelist & proxymachinelist
+        # section : mastermachinelist & workermachinelist & proxymachinelist
 
         masterDict = dict()
         workerDict = dict()
@@ -114,10 +114,66 @@ class paiObjectModel:
 
 
 
+    def labelExpend(self, host):
+
+        if "pai-master" in host and host["pai-master"] == "true":
+
+            host["hdfsrole"] = "master"
+            host["yarnrole"] = "master"
+            host["zookeeper"] = "true"
+            host["jobhistory"] = "true"
+            host["launcher"] = "true"
+            host["restserver"] = "true"
+            host["webportal"] = "true"
+            host["prometheus"] = "true"
+            host["grafana"] = "true"
+            host["pylon"] = "true"
+            host["node-exporter"] = "true"
+
+        if "pai-worker" in host and host["pai-worker"] == "true":
+
+            host["hdfsrole"] = "worker"
+            host["yarnrole"] = "worker"
+            host["node-exporter"] = "true"
+
+
+
+    def serviceParse(self):
+
+        serviceDict = dict()
+
+        # section : clusterID
+
+        serviceDict["clusterID"] = self.rawData["serviceConfiguration"]["cluster"]["clusterid"]
+
+        # section : clusterinfo:
+
+        serviceDict["clusterinfo"] = self.rawData["serviceConfiguration"]["cluster"]
+        serviceDict["clusterinfo"]["datapath"] = serviceDict["clusterinfo"]["data-path"]
+        serviceDict["clusterinfo"]["nvidia_drivers_version"] = serviceDict["clusterinfo"]["nvidia-drivers-version"]
+        serviceDict["clusterinfo"]["dockerverison"] = serviceDict["clusterinfo"]["docker-verison"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"] = serviceDict["clusterinfo"]["docker-registry-info"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_namespace"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["docker-namespace"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_registry_domain"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["docker-registry-domain"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["docker-username"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["docker-password"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_tag"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["docker-tag"]
+        serviceDict["clusterinfo"]["dockerregistryinfo"]["secretname"] = \
+            serviceDict["clusterinfo"]["docker-registry-info"]["secret-name"]
+
+        # section : hadoop
+
+
+
     def parseConfiguration(self):
 
         self.objectModel["k8s"] = self.k8sParse()
-        self.objectModel["service"] = self.
+        self.objectModel["service"] = self.serviceParse()
 
 
 
