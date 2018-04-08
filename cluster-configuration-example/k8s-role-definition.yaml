@@ -40,6 +40,10 @@ component-list:
   - src: kubelet.sh
     dst: src/
 
+  kubeconfig:
+  - src: config
+    dst: src/etc/kubernetes
+
   haproxy:
   - src: haproxy.yaml
     dst: src/etc/kubernetes/manifests
@@ -57,14 +61,17 @@ k8s-role:
     - name: etcd
     - name: scheduler
     - name: kubelet
+    - name: kubeconfig
 
 
   worker:
     component:
     - name: kubelet
+    - name: kubeconfig
 
 
   proxy:
     component:
     - name: kubelet
     - name: haproxy
+    - name: kubeconfig

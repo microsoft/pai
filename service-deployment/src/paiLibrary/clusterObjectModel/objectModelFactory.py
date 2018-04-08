@@ -1,4 +1,5 @@
 import paiObjectModel
+import yaml
 
 class objectModelFactory:
 
@@ -12,8 +13,21 @@ class objectModelFactory:
         self.kubernetesConfiguration = None
         self.serviceConfiguration = None
 
+        self.configurationMap = dict()
         self.setConfiguration(configurationPath)
+        self.initializeConifugration()
+
+
         self.objectModel = dict()
+
+
+
+    def loadYamlConfig(configPath):
+
+        with open(configPath, "r") as file:
+            clusterData = yaml.load(file)
+
+        return clusterData
 
 
 
@@ -23,6 +37,15 @@ class objectModelFactory:
         self.k8sRoleDefinition = "{0}/k8s-role-definition.yaml".format(configurationPath)
         self.kubernetesConfiguration = "{0}/kubernetes-configuration.yaml".format(configurationPath)
         self.serviceConfiguration = "{0}/services-configuration.yaml".format(configurationPath)
+
+
+
+    def initializeConifugration(self):
+
+        self.configurationMap["clusterConfiguration"] = self.loadYamlConfig(self.clusterConfigurationPath)
+        self.configurationMap["k8sRoleDefinition"] = self.loadYamlConfig(self.k8sRoleDefinition)
+        self.configurationMap["kubernetesConfiguration"] = self.loadYamlConfig(self.kubernetesConfiguration)
+        self.configurationMap["serviceConfiguration"] = self.loadYamlConfig(self.serviceConfiguration)
 
 
 
