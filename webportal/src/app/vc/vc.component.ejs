@@ -9,10 +9,10 @@
         <thead>
           <tr>
             <th>VC Name</th>
-            <th>Description</th>
-            <th>Active Jobs</th>
-            <th>Active GPUs</th>
-            <th>Configured GPUs</th>
+            <th>Running Jobs</th>
+            <th>Pending Jobs</th>
+            <th>Used Capacity</th>
+            <th>Configured Capacity</th>
             <th>Utilization (%)</th>
             <th>Actions</th>
           </tr>
@@ -25,23 +25,22 @@
                   <%= x %>
                 </td>
                 <td>
-                  <%= data[x]['description'] %>
+                  <%= data[x]['numActiveJobs'] %>
                 </td>
                 <td>
-                  <%= data[x]['activeJobs'] %>
+                  <%= data[x]['numPendingJobs'] %>
                 </td>
                 <td>
-                  <%= data[x]['activeGpus'] %>
+                  <%= formatNumber(data[x]['usedCapacity'], 2) %>
                 </td>
                 <td>
-                  <%= data[x]['configuredGpus'] %>
+                  <%= formatNumber(data[x]['capacity'], 2) %>
                 </td>
                 <td>
-                  <%= data[x]['activeGpus'] / data[x]['configuredGpus'] * 100 %>
+                  <%= formatNumber(data[x]['usedCapacity'] / data[x]['capacity'] * 100, 2) %>
                 </td>
                 <td>
-                  <a href="view.html?vcName=<%= x %>">View Jobs</a>
-                  &nbsp;&nbsp;|&nbsp;&nbsp; Go to VC Metrics Page
+                  <a href="view.html?vcName=<%= x %>">View All Jobs</a>
                 </td>
               </tr>
               <% } %>
