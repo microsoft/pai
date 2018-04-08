@@ -20,16 +20,16 @@ const VirtualCluster = require('../models/vc');
 const logger = require('../config/logger');
 
 /**
- * Load vc and append to req.
+ * Load virtual cluster and append to req.
  */
 const load = (req, res, next, vcName) => {
   new VirtualCluster(vcName, (vcInfo, error) => {
     if (error) {
-      if (error.message === 'VcNotFound') {
-        logger.warn('load vc %s error, could not find vc', vcName);
+      if (error.message === 'VirtualClusterNotFound') {
+        logger.warn('load virtual cluster %s error, could not find virtual cluster', vcName);
         return res.status(404).json({
-          error: 'VcNotFound',
-          message: `could not find vc ${vcName}`,
+          error: 'VirtualClusterNotFound',
+          message: `could not find virtual cluster ${vcName}`,
         });
       } else {
         logger.warn('internal server error');
@@ -45,28 +45,28 @@ const load = (req, res, next, vcName) => {
 };
 
 /**
- * Get vc status.
+ * Get virtual cluster status.
  */
 const get = (req, res) => {
   return res.json(req.vc);
 };
 
 /**
- * Get all vc info.
+ * Get all virtual clusters info.
  */
 const list = (req, res) => {
   VirtualCluster.prototype.getVcList((vcList, err) => {
     if (err) {
-      logger.warn('get vc list error\n%s', err.stack);
+      logger.warn('get virtual cluster list error\n%s', err.stack);
       return res.status(500).json({
-        error: 'GetVcListError',
-        message: 'get vc list error',
+        error: 'GetVirtualClusterListError',
+        message: 'get virtual cluster list error',
       });
     } else if (vcList === undefined) {
-      logger.warn('list vcs error, no vc found');
+      logger.warn('list virtual clusters error, no virtual cluster found');
       return res.status(500).json({
-        error: 'VcListNotFound',
-        message: 'could not find vc list',
+        error: 'VirtualClusterListNotFound',
+        message: 'could not find virtual cluster list',
       });
     } else {
       return res.status(200).json(vcList);

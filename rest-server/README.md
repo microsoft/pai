@@ -466,7 +466,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
 11. `GET virtual-clusters/`
 
-    Get the list of vcs.
+    Get the list of v irtual clusters.
 
     *Request*
     ```
@@ -488,14 +488,14 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     Status: 500
 
     {
-      "error": "GetVcListError",
-      "message": "get vc list error"
+      "error": "GetVirtualClusterListError",
+      "message": "get virtual cluster list error"
     }
     ```
     
 12. `GET virtual-clusters/:vcName`
 
-    Get vc status in the system.
+    Get virtual cluster status in the system.
 
     *Request*
     ```
@@ -505,35 +505,30 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Response if succeeded*
     ```
     {
-      "capacity":0,
-      "usedCapacity":0,
-      "maxCapacity":0,
-      "absoluteCapacity":50,
-      "absoluteMaxCapacity":100,
-      "absoluteUsedCapacity":0,
-      "maxApplications":5000,
-      "maxApplicationsPerUser":5000,
+      //capacity percentage this virtual cluster can use of entire cluster
+      "capacity":50,
+      //max capacity percentage this virtual cluster can use of entire cluster
       "maxCapacity":100,
-      "numActiveApplications":0,
-      "numApplications":0,
-      "numContainers":0,
-      "numPendingApplications":0,
+      // used capacity percentage this virtual cluster can use of entire cluster
+      "usedCapacity":0,
+      "numActiveJobs":0,
+      "numJobs":0,
+      "numPendingJobs":0,
       "resourcesUsed":{  
        "memory":0,
        "vCores":0,
        "GPUs":0
       },
-      "state":"RUNNING",
     }
     ```
 
-    *Response if the vc does not exist*
+    *Response if the virtual cluster does not exist*
     ```
     Status: 404
 
     {
-      "error": "VcNotFound",
-      "message": "could not find vc $vcName"
+      "error": "VirtualClusterNotFound",
+      "message": "could not find virtual cluster $vcName"
     }
     ```
 

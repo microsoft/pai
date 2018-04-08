@@ -30,7 +30,7 @@ class VirtualCluster {
             this[key] = vcList[name][key];
           }
         } else {
-          error = new Error('VcNotFound');
+          error = new Error('VirtualClusterNotFound');
         }
       }
       next(this, error);
@@ -42,20 +42,13 @@ class VirtualCluster {
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
         queueDict[queueInfo.queueName] = {
-          capacity: queueInfo.capacity,
-          usedCapacity: queueInfo.usedCapacity,
-          maxCapacity: queueInfo.maxCapacity,
-          absoluteCapacity: queueInfo.absoluteCapacity,
-          absoluteMaxCapacity: queueInfo.absoluteMaxCapacity,
-          absoluteUsedCapacity: queueInfo.absoluteUsedCapacity,
-          maxApplications: queueInfo.maxApplications,
-          maxApplicationsPerUser: queueInfo.maxApplicationsPerUser,
-          numActiveApplications: queueInfo.numActiveApplications,
-          numApplications: queueInfo.numApplications,
-          numContainers: queueInfo.numContainers,
-          numPendingApplications: queueInfo.numPendingApplications,
+          capacity: queueInfo.absoluteCapacity,
+          maxCapacity: queueInfo.absoluteMaxCapacity,
+          usedCapacity: queueInfo.absoluteUsedCapacity,
+          numActiveJobs: queueInfo.numActiveApplications,
+          numJobs: queueInfo.numApplications,
+          numPendingJobs: queueInfo.numPendingApplications,
           resourcesUsed: queueInfo.resourcesUsed,
-          state: queueInfo.state,
         };
       } else {
         for (let i = 0; i < queueInfo.queues.queue.length; i++) {

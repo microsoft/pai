@@ -218,7 +218,7 @@ describe('Vcs API /api/v1/virtual-clusters', () => {
                         "maxApplications": 3535,
                         "maxApplicationsPerUser": 353500,
                         "maxCapacity": 100.0,
-                        "numActiveApplications": 0,
+                        "numActiveApplications": 123,
                         "numApplications": 0,
                         "numContainers": 0,
                         "numPendingApplications": 0,
@@ -282,27 +282,27 @@ describe('Vcs API /api/v1/virtual-clusters', () => {
   });
 
   // GET /api/v1/virtual-clusters
-  it('should return vc list', (done) => {
+  it('should return virtual cluster list', (done) => {
     chai.request(server)
       .get('/api/v1/virtual-clusters')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
         expect(res.body).to.have.property('a1a');
-        expect(res.body).to.nested.include({'b2.maxApplications': 3535});
+        expect(res.body).to.nested.include({'b2.numActiveJobs': 123});
         done();
       });
   });
 
   // positive test case
   // get exist vc info
-  it('should return vc info', (done) => {
+  it('should return virtual cluster info', (done) => {
     chai.request(server)
       .get('/api/v1/virtual-clusters/b3')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('absoluteCapacity', 0.4475);
+        expect(res.body).to.have.property('capacity', 0.4475);
         done();
       });
   });
@@ -321,7 +321,7 @@ describe('Vcs API /api/v1/virtual-clusters', () => {
 
   // negative test case
   // unsupported scheduler type
-  it('should return GetVcListError', (done) => {
+  it('should return GetVirtualClusterListError', (done) => {
     nock.cleanAll();
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
@@ -349,7 +349,7 @@ describe('Vcs API /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('error', 'GetVcListError');
+        expect(res.body).to.have.property('error', 'GetVirtualClusterListError');
         done();
       });
   });

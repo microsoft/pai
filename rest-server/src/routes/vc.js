@@ -20,14 +20,14 @@ const vcController = require('../controllers/vc');
 const router = new express.Router();
 
 router.route('/')
-    /** GET /api/v1/virtual-clusters - Return cluster vc info */
+    /** GET /api/v1/virtual-clusters - Return cluster virtual cluster info */
     .get(vcController.list);
 
 router.route('/:vcName')
-    /** GET /api/v1/virtual-clusters/vcName - Return cluster specified vc info */
+    /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
     .get(vcController.get);
 
-/** Load vc when API with vcName route parameter is hit */
+/** Load virtual cluster when API with vcName route parameter is hit */
 router.param('vcName', vcController.load);
 
 // module exports
