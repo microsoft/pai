@@ -36,7 +36,7 @@ spec:
         image: prom/prometheus:v2.1.0
         resources:
           limits:
-            memory: "1Gi"
+            memory: "10Gi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
           - '--web.listen-address=0.0.0.0:{{clusterinfo['prometheusinfo']['prometheus_port']}}'
