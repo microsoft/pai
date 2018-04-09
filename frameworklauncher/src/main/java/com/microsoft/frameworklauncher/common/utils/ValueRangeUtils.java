@@ -238,6 +238,9 @@ public class ValueRangeUtils {
   public static List<ValueRange> getSubRange(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
     List<ValueRange> resultList = new ArrayList<ValueRange>();
+    if(getValueNumber(availableRange) <= 0) {
+      return resultList;
+    }
     Random random = new Random();
     //Pick a random number from 0 to the max value;
     int maxValue = availableRange.get(availableRange.size() - 1).getEnd();

@@ -250,19 +250,28 @@ public class SelectionManager { // THREAD SAFE
           "select: reuse pre-selected ports: [%s]", ValueRangeUtils.toString(reusePorts));
       optimizedRequestResource.setPortRanges(reusePorts);
     }
+    if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
+      //If port is required and the portRange is not set in previous steps, allocate port ranges from all candidate nodes.
+      //It is possible to not get the required ports. But it is ok, we will try to select ports again after get the small set of candidate nodes.
+      List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
+      if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
+        optimizedRequestResource.setPortRanges(portRanges);
+      }
+    }
 
     filterNodesByResource(optimizedRequestResource, conf.getAmSkipLocalTriedResource());
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, startStatesTaskCount);
     if (filteredNodes.size() < 1) {
       // Don't have candidate nodes for this request.
-      if (requestNodeGpuType != null || requestResource.getPortNumber() > 0) {
-        // GpuType and port relax are not support in yarn, If gpuType or portNumber is specified, abort this request and try later.
+      if (requestNodeGpuType != null) {
+        // GpuType relax are not support in yarn, If gpuType is specified, abort this request and try later.
         throw new NotAvailableException(String.format("Don't have enough nodes to meet request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
     }
     SelectionResult selectionResult = selectNodes(optimizedRequestResource, startStatesTaskCount);
+    //If port is not previous selected, select ports from the selectionResult.
     List<ValueRange> portRanges = selectPorts(selectionResult, optimizedRequestResource);
     optimizedRequestResource.setPortRanges(portRanges);
     selectionResult.setOptimizedResource(optimizedRequestResource);
@@ -284,6 +293,15 @@ public class SelectionManager { // THREAD SAFE
       }
     }
     return optimizedRequestResource.getPortRanges();
+  }
+
+  public synchronized List<ValueRange> selectPortsFromFilteredNodes(ResourceDescriptor optimizedRequestResource) {
+    List<ValueRange> overlapPorts = new ArrayList<ValueRange>();
+    for (String nodeName : filteredNodes) {
+      overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(nodeName).getAvailableResource().getPortRanges());
+    }
+    return ValueRangeUtils.getSubRange(overlapPorts, optimizedRequestResource.getPortNumber(),
+        conf.getAmContainerMinPort());
   }
 
   @VisibleForTesting
