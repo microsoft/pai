@@ -4,7 +4,7 @@ import sys
 from xml.dom import minidom
 
 def parse_xml(smi, logDir):
-    xmldoc = minidom.parse('test.xml')
+    xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
     print(len(gpuList))
     gpu_count = len(gpuList)
@@ -24,18 +24,13 @@ def main(argv):
     logDir = argv[0]
     test = argv[1]
 
-    if(test):
-        file = open("test.xml", "r") 
-        smi_output = file.read()
+    try:
+        nvidia_smi_path = "nvidia-smi "
+        nvidia_smi_query = "-q -x"
+        smi_output = subprocess.check_output([nvidia_smi_path, nvidia_smi_query])
         parse_xml(smi_output, logDir)
-    else:
-        try:
-            nvidia_smi_path = "nvidia-smi -q -x"
-            nvidia_smi_query = "-q -x"
-            smi_output = subprocess.check_output([nvidia_smi_path, nvidia_smi_query])
-            parse_xml(smi_output, logDir)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 # execute test cmd example: python .\gpu_exporter.py ./ True
 if __name__ == "__main__":
