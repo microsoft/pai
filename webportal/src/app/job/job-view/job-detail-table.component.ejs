@@ -1,51 +1,54 @@
-<div class="page-header">
-  <h3 class="text-center"><%= jobStatus.name %></h3>
-</div>
 
-<table class="table">
-  <tr>
-    <th class="text-right">User Name</th>
-    <td class="text-left"><%= jobStatus.username %></td>
+<table class="table table-condensed">
+  <tr style='background-color:whitesmoke'>
+    <th>Job Name</th>
+    <th>User Name</th>
+    <th>Start Time</th>
+    <th>Duration</th>
+    <th>Retries</th>
+    <th>Status</th>
   </tr>
   <tr>
-    <th class="text-right">Start Time</th>
-    <td class="text-left"><%= convertTime(false, jobStatus.createdTime) %></td>
+    <td><%= jobName %></td>
+    <td><%= jobStatus.username %></td>
+    <td><%= convertTime(false, jobStatus.createdTime) %></td>
+    <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
+    <td><%= jobStatus.retries %></td>
+    <td><%= convertState(jobStatus.state) %></td>
+  </tr>
+</table>
+
+<hr class="divider">
+
+<table class="table table-condensed">
+  <tr>
+    <th style="width:160px; background-color:whitesmoke">Monitoring Pages</th>
+    <td>
+      <a href="<%= jobStatus.appTrackingUrl %>" target="_blank">
+        Application Tracking Page
+      </a>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      <a href="<%= grafanaUri %>/dashboard/db/joblevelmetrics?var_job=<%= jobName %>" target="_blank">
+        Job Metrics Page
+      </a>
+    </td>
   </tr>
   <tr>
-    <th class="text-right">Duration</th>
-    <td class="text-left"><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
-  </tr>
-  <tr>
-    <th class="text-right">Retries</th>
-    <td class="text-left"><%= jobStatus.retries %></td>
-  </tr>
-  <tr>
-    <th class="text-right">Status</th>
-    <td class="text-left"><%= convertState(jobStatus.state) %></td>
-  </tr>
-  <tr>
-    <th class="text-right">Tracking Url</th>
-    <td class="text-left"><a href="<%= jobStatus.appTrackingUrl %>" target="_blank">Yarn Log</a></td>
-  </tr>
-  <tr>
-    <th class="text-right">Application Start Time</th>
-    <td class="text-left"><%= convertTime(false, jobStatus.appLaunchedTime) %></td>
-  </tr>
-  <tr>
-    <th class="text-right">Application Finish Time</th>
-    <td class="text-left"><%= convertTime(false, jobStatus.appCompletedTime) %></td>
-  </tr>
-  <tr>
-    <th class="text-right">Application Exit Diagnostics</th>
-    <td class="text-left">
+    <th style="width:160px; background-color:whitesmoke">Application Info</th>
+    <td>
+      Start Time: <%= convertTime(false, jobStatus.appLaunchedTime) %>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      Finish Time: <%= convertTime(false, jobStatus.appCompletedTime) %>
+      &nbsp;&nbsp;|&nbsp;&nbsp;
       <a data-toggle="collapse" href="#appExitDiagnostics" aria-expanded="false" aria-controls="appExitDiagnostics">
-        Application Exit Diagnostics
+        Exit Diagnostics
       </a>
     </td>
   </tr>
 </table>
 
 <div class="collapse" id="appExitDiagnostics">
+  <br>
   <div class="well">
     <% if (jobStatus.appExitDiagnostics) { %>
       <%= jobStatus.appExitDiagnostics.replace(/\n/g, "<br>") %>
@@ -54,18 +57,18 @@
     <% } %>
   </div>
 </div>
-
+ 
 <hr class="divider">
 
-<table class="table">
+<table class="table table-condensed">
   <thead>
-    <tr>
+    <tr style='background-color:whitesmoke'>
       <th>Task Role</th>
       <th>Task Index</th>
       <th>Name of Container</th>
       <th>IP of Container</th>
-      <th>GPU ID(s) in Container</th>
-      <th>Links</th>
+      <th>GPU List</th>
+      <th>Operations</th>
     </tr>
   </thead>
   <tbody>
@@ -80,13 +83,15 @@
           <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
           <td>
-            <a onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
-              <% if (jobStatus.state !== 'RUNNING') { %>
-                class='disabled'
-              <% } %>
-              href='#'>SSH Info</a>
-            &nbsp;|&nbsp;
-            <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Log</a>
+            <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
+              <a name='sshInfoLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
+                onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
+                href='javascript:void(0);'>Show SSH Info</a>
+            </div>
+            <div style='float:left'>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+            <div style='float:left'>
+              <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Go to Tracking Page</a>
+            </div>
           </td>
         </tr>
       <% } %>

@@ -24,7 +24,7 @@ FROM ubuntu:16.04
 WORKDIR /root/
 
 RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip
+    apt-get -y install wget build-essential python python-pip git
 
 RUN pip install jinja2
 
@@ -43,6 +43,9 @@ RUN wget http://www.zlib.net/zlib-1.2.11.tar.gz && \
 # OpenSSL version 1.0.2 - 1.1.0
 RUN wget https://www.openssl.org/source/openssl-1.1.0f.tar.gz && \
     tar -zxf openssl-1.1.0f.tar.gz
+
+# subs_filter
+RUN git clone git://github.com/yaoweibin/ngx_http_substitutions_filter_module.git
 
 #
 # Configure nginx build
@@ -65,7 +68,8 @@ RUN ./configure \
   # External modules
   --with-openssl=../openssl-1.1.0f \
   --with-pcre=../pcre-8.40 \
-  --with-zlib=../zlib-1.2.11
+  --with-zlib=../zlib-1.2.11 \
+  --add-module=/root/ngx_http_substitutions_filter_module
 
 #
 # Make and install nginx
