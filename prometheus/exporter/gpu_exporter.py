@@ -29,9 +29,9 @@ def main(argv):
     logDir = argv[0]
 
     try:
-        nvidia_smi_path = "nvidia-smi"
-        nvidia_smi_query = ("--query-gpu=uuid,utilization.gpu,utilization.memory,")
-        nvidia_smi_format = "--format=csv,nounits"
+        nvidia_smi_path = "nvidia-smi "
+        nvidia_smi_query = "--query-gpu=uuid,utilization.gpu,utilization.memory "
+        nvidia_smi_format = "--format=csv,nounits "
         smi_output = subprocess.check_output([nvidia_smi_path, nvidia_smi_query, nvidia_smi_format])
         parse_smi(smi_output, logDir)
     except subprocess.CalledProcessError as e:
