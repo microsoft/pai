@@ -4,7 +4,7 @@ import sys
 from xml.dom import minidom
 
 def parse_xml(smi, logDir):
-    xmldoc = minidom.parse('test.xml')
+    xmldoc = minidom.parse(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
     print(len(gpuList))
     gpu_count = len(gpuList)
