@@ -192,8 +192,132 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["restserverinfo"] = \
             self.rawData["serviceConfiguration"]["restserver"]
         serviceDict["clusterinfo"]["restserverinfo"]["src_path"] = "../rest-server/"
-        serviceDict["clusterinfo"]["restserverinfo"]["webservice_uri"]
+        serviceDict["clusterinfo"]["restserverinfo"]["webservice_uri"] = self.getWebServiceUri()
+        serviceDict["clusterinfo"]["restserverinfo"]["hdfs_uri"] = self.getHdfsUri()
+        serviceDict["clusterinfo"]["restserverinfo"]["webhdfs_uri"] = self.getWebhdfsUri()
+        serviceDict["clusterinfo"]["restserverinfo"]["server_port"] = \
+            serviceDict["clusterinfo"]["restserverinfo"]["server-port"]
+        serviceDict["clusterinfo"]["restserverinfo"]["jwt_secret"] = \
+            serviceDict["clusterinfo"]["restserverinfo"]["jwt-secret"]
+        serviceDict["clusterinfo"]["restserverinfo"]["jwt_secret"] = \
+            serviceDict["clusterinfo"]["restserverinfo"]["jwt-secret"]
+        serviceDict["clusterinfo"]["restserverinfo"]["default_pai_admin_username"] = \
+            serviceDict["clusterinfo"]["restserverinfo"]["default-pai-admin-username"]
+        serviceDict["clusterinfo"]["restserverinfo"]["etcd_uri"] = self.getEtcdUri()
 
+        # section: webportal
+
+        serviceDict["clusterinfo"]["webportalinfo"] = \
+            self.rawData["serviceConfiguration"]["webportal"]
+        serviceDict["clusterinfo"]["webportalinfo"]["rest_server_uri"] = self.getRestServerUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["prometheus_uri"] =self.getPrometheusUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["grafana_uri"] = self.getGrafanaUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["k8s_dashboard_uri"] = self.getK8sDashboardUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["k8s_api_server_uri"] = self.getK8sApiServerUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["server_port"] = \
+            self.rawData["serviceConfiguration"]["webportal"]["server-port"]
+
+        # section: grafana
+
+
+
+    def getK8sApiServerUri(self):
+
+        ip = self.rawData["kubernetesConfiguration"]["kubernetes"]["load-balance-ip"]
+        ret = "http://{0}:{1}".format(ip, 8080)
+        return ret
+
+
+
+    def getK8sDashboardUri(self):
+
+        vip = ""
+
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            if "dashboard" in host and host["dashboard"] == "true":
+                vip = host["hostip"]
+                break
+
+        if vip == "":
+            print "no machine labeled with dashboard = true"
+            sys.exit(1)
+
+        ret = "http://{0}:9090".format(vip)
+        return ret
+
+
+
+
+    def getGrafanaUri(self):
+
+        vip = self.getMasterIP()
+        port = self.rawData["serviceConfiguration"]["grafana"]["grafana-port"]
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
+
+
+
+    def getPrometheusUri(self):
+
+        vip = self.getMasterIP()
+        port = self.rawData["serviceConfiguration"]["prometheus"]["prometheus-port"]
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
+
+
+
+    def getRestServerUri(self):
+
+        vip = self.getMasterIP()
+        port = self.rawData["serviceConfiguration"]["restserver"]["server-port"]
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
+
+
+
+    def getEtcdUri(self):
+
+        ret = ""
+        deli = ""
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            if "k8s-role" in host and host["k8s-role"] == "master":
+                tmp = "http://{0}:4001".format(host["hostip"])
+                ret = ret + deli
+                ret = ret + tmp
+                deli = ","
+
+        if ret == "":
+            print "No machine labeled with k8s-role = master!"
+            sys.exit(1)
+
+        return ret
+
+
+
+    def getWebServiceUri(self):
+
+        vip = self.getMasterIP()
+        port = self.rawData["serviceConfiguration"]["frameworklauncher"]["frameworklauncher_port"]
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
+
+
+
+    def getWebhdfsUri(self):
+
+        vip = self.getMasterIP()
+        port = "50070"
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
+
+
+
+    def getHdfsUri(self):
+
+        vip = self.getMasterIP()
+        port = "9000"
+        ret = "http://{0}:{1}".format(vip, str(port))
+        return ret
 
 
 

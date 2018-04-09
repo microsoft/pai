@@ -67,12 +67,10 @@ restserver:
   server-port: 9186
   # secret for signing authentication tokens, e.g., "Hello PAI!"
   jwt-secret: your_jwt_secret
-  # authentication database file path relative to PAI data path
-  lowdb-path: "rest-server/user.db.json"
   # database admin username
-  lowdb-admin: your_admin_username
+  default-pai-admin-username: your_default_pai_admin_username
   # database admin password
-  lowdb-passwd: your_admin_password
+  default-pai-admin-password: your_default_pai_admin_password
 
 
 webportal:
