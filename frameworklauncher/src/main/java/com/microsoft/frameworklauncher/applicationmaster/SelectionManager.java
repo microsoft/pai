@@ -252,7 +252,6 @@ public class SelectionManager { // THREAD SAFE
     }
     if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
       //If port is required and the portRange is not set in previous steps, allocate port ranges from all candidate nodes.
-      //It is possible to not get the required ports. But it is ok, we will try to select ports again after get the small set of candidate nodes.
       List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
       if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
         optimizedRequestResource.setPortRanges(portRanges);
@@ -265,8 +264,13 @@ public class SelectionManager { // THREAD SAFE
     if (filteredNodes.size() < 1) {
       // Don't have candidate nodes for this request.
       if (requestNodeGpuType != null) {
-        // GpuType relax are not support in yarn, If gpuType is specified, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to meet request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+        // GpuType relax is not supported in yarn, the gpuType is specified, abort this request and try later.
+        throw new NotAvailableException(String.format("Don't have enough nodes to meet GpuType request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+            optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
+      }
+      if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
+        // Port relax is not supported in yarn, The portNumber is specified, but the port range is not selected, abort this request and try later.
+        throw new NotAvailableException(String.format("Don't have enough nodes to meet Port request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
     }
