@@ -28,7 +28,7 @@ const router = new express.Router();
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
-    .get(jobController.list)
+    .get(param.jobQuery, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
     .post(tokenConfig.check, param.validate(jobConfig.schema), jobController.init, jobController.update);
