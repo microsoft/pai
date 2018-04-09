@@ -27,7 +27,7 @@ def main(argv):
     test = argv[1]
 
     try:
-        nvidia_smi_path = "nvidia-smi -q -x"
+        nvidia_smi_path = "nvidia-smi"
         nvidia_smi_query = "-q -x"
         smi_output = subprocess.check_output([nvidia_smi_path, nvidia_smi_query])
         parse_xml(smi_output, logDir)
