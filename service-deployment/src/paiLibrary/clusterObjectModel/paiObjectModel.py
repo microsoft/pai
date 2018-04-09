@@ -1,3 +1,4 @@
+import sys
 
 
 class paiObjectModel:
@@ -167,6 +168,46 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["docker-registry-info"]["secret-name"]
 
         # section : hadoop
+
+        serviceDict["clusterinfo"]["hadoopinfo"] = \
+            self.rawData["serviceConfiguration"]["hadoop"]
+        serviceDict["clusterinfo"]["hadoopinfo"]["custom_hadoop_binary_path"] = \
+            serviceDict["clusterinfo"]["hadoopinfo"]["custom-hadoop-binary-path"]
+        serviceDict["clusterinfo"]["hadoopinfo"]["hadoopversion"] = \
+            serviceDict["clusterinfo"]["hadoopinfo"]["hadoop-version"]
+        serviceDict["clusterinfo"]["hadoopinfo"]["configmapname"] = "hadoop-configuration"
+        serviceDict["clusterinfo"]["hadoopinfo"]["hadoop_vip"] = \
+            serviceDict["clusterinfo"]["hadoopinfo"]["hadoop-version"] = self.getMasterIP()
+
+        # section : frameworklauncher
+
+        serviceDict["clusterinfo"]["frameworklauncher"] = \
+            self.rawData["serviceConfiguration"]["frameworklauncher"]
+        serviceDict["clusterinfo"]["frameworklauncher"]["frameworklauncher_port"] = \
+            serviceDict["clusterinfo"]["frameworklauncher"]["frameworklauncher-port"]
+        serviceDict["clusterinfo"]["frameworklauncher"]["frameworklauncher_vip"] = self.getMasterIP()
+
+        # section : restserverinfo
+
+        serviceDict["clusterinfo"]["restserverinfo"] = \
+            self.rawData["serviceConfiguration"]["restserver"]
+        serviceDict["clusterinfo"]["restserverinfo"]["src_path"] = "../rest-server/"
+        serviceDict["clusterinfo"]["restserverinfo"]["webservice_uri"]
+
+
+
+
+
+    def getMasterIP(self):
+
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            if "pai-master" in host and host["pai-master"] == "true":
+                return host["pai-master"]["hostip"]
+
+        print "At least one and only one machine should be labeled with pai-master = true"
+        print "please modify your cluster configuration, thanks."
+
+        sys.exit(1)
 
 
 
