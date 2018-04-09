@@ -1,5 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
 //
 // MIT License
 //
@@ -15,48 +13,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const cors = require('cors');
-const morgan = require('morgan');
 const express = require('express');
-const compress = require('compression');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const config = require('./index');
-const logger = require('./logger');
-const router = require('../routes/index');
+const vcController = require('../controllers/vc');
 
+const router = new express.Router();
 
-const app = express();
+router.route('/')
+    /** GET /api/v1/virtual-clusters - Return cluster virtual cluster info */
+    .get(vcController.list);
 
-app.use(cors());
-app.use(compress());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(cookieParser());
+router.route('/:vcName')
+    /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
+    .get(vcController.get);
 
-// setup the logger for requests
-app.use(morgan('dev', {'stream': logger.stream}));
-
-// mount all v1 APIs to /api/v1
-app.use('/api/v1', router);
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  const err = new Error('API not found');
-  err.status = 404;
-  next(err);
-});
-
-// error handler
-app.use((err, req, res, next) => {
-  logger.warn('%s', err.stack);
-  res.status(err.status || 500).json({
-    message: err.message,
-    error: config.env === 'development' ? err.stack : '',
-  });
-});
+/** Load virtual cluster when API with vcName route parameter is hit */
+router.param('vcName', vcController.load);
 
 // module exports
-module.exports = app;
+module.exports = router;
