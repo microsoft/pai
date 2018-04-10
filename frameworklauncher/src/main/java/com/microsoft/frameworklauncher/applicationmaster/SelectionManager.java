@@ -282,7 +282,7 @@ public class SelectionManager { // THREAD SAFE
     return selectionResult;
   }
 
-  public synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
+  private synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
     // If the ports were not selected and was not specified previously, need select the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
@@ -299,13 +299,16 @@ public class SelectionManager { // THREAD SAFE
     return optimizedRequestResource.getPortRanges();
   }
 
-  public synchronized List<ValueRange> selectPortsFromFilteredNodes(ResourceDescriptor optimizedRequestResource) {
-    List<ValueRange> overlapPorts = new ArrayList<ValueRange>();
-    for (String nodeName : filteredNodes) {
-      overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(nodeName).getAvailableResource().getPortRanges());
+  private List<ValueRange> selectPortsFromFilteredNodes(ResourceDescriptor optimizedRequestResource) {
+    if (filteredNodes.size() > 0) {
+      List<ValueRange> overlapPorts = allNodes.get(filteredNodes.get(0)).getAvailableResource().getPortRanges();
+      for (int i = 1; i < filteredNodes.size(); i++) {
+        overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(filteredNodes.get(i)).getAvailableResource().getPortRanges());
+      }
+      return ValueRangeUtils.getSubRange(overlapPorts, optimizedRequestResource.getPortNumber(),
+          conf.getAmContainerMinPort());
     }
-    return ValueRangeUtils.getSubRange(overlapPorts, optimizedRequestResource.getPortNumber(),
-        conf.getAmContainerMinPort());
+    return new ArrayList<ValueRange>();
   }
 
   @VisibleForTesting
