@@ -43,6 +43,7 @@ const loadData = (specifiedVc) => {
         specifiedVc: specifiedVc,
         data: data,
         formatNumber: formatNumber,
+        yarnWebPortalUri: webportalConfig.yarnWebPortalUri,
         grafanaUri: webportalConfig.grafanaUri,
       });
       $('#content-wrapper').html(vcHtml);
@@ -50,7 +51,7 @@ const loadData = (specifiedVc) => {
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
-          { type: 'natural', targets: [0, 1] },
+          { type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] },
         ],
       }).api();
     },
