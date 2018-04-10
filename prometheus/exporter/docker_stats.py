@@ -42,15 +42,14 @@ def parseDockerStats(stats):
     containerStats = {}
 
     for i in range(rowNum):
-        id = data[i][1]
+        id = data[i][0]
         containerInfo = {
-            "Container": data[i][0],
-            "id": data[i][1],
-            "CPUPerc": parsePercentile(data[i][2]),
-            "MemUsage_Limit": parseUsageLimit(data[i][3]),
-            "NetIO": parseIO(data[i][4]),
-            "BlockIO": parseIO(data[i][5]),
-            "MemPerc": parsePercentile(data[i][6])
+            "id": data[i][0],
+            "CPUPerc": parsePercentile(data[i][1]),
+            "MemUsage_Limit": parseUsageLimit(data[i][2]),
+            "NetIO": parseIO(data[i][3]),
+            "BlockIO": parseIO(data[i][4]),
+            "MemPerc": parsePercentile(data[i][5])
         }
         containerStats[id] = containerInfo
     return containerStats
@@ -60,7 +59,7 @@ def stats(argv):
     logDir = ""
     
     try:
-        dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.Container}}, {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD])
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
