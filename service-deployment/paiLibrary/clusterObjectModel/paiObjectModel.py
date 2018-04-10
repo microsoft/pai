@@ -219,6 +219,64 @@ class paiObjectModel:
 
         # section: grafana
 
+        serviceDict["clusterinfo"]["grafanainfo"] = \
+            self.rawData["serviceConfiguration"]["grafana"]
+        serviceDict["clusterinfo"]["grafanainfo"]["grafana_url"] = "http://{0}".format(self.getMasterIP())
+        serviceDict["clusterinfo"]["grafanainfo"]["grafana_port"] = \
+            serviceDict["clusterinfo"]["grafanainfo"]["grafana-port"]
+
+        # section: prometheus
+
+        serviceDict["clusterinfo"]["prometheusinfo"] = \
+            self.rawData["serviceConfiguration"]["prometheus"]
+        serviceDict["clusterinfo"]["prometheusinfo"]["prometheus_url"] = "http://{0}".format(self.getMasterIP())
+        serviceDict["clusterinfo"]["prometheusinfo"]["prometheus_port"] = \
+            serviceDict["clusterinfo"]["prometheusinfo"]["prometheus-port"]
+        serviceDict["clusterinfo"]["prometheusinfo"]["node_exporter_port"] = \
+            serviceDict["clusterinfo"]["prometheusinfo"]["node-exporter-port"]
+
+        # section
+
+        serviceDict["clusterinfo"]["pyloninfo"] = \
+            self.rawData["serviceConfiguration"]["pylon"]
+        serviceDict["clusterinfo"]["pyloninfo"]["rest_server_uri"] = self.getRestServerUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["k8s_api_server_uri"] = self.getK8sApiServerUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["webhdfs_uri"] = self.getWebhdfsUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["prometheus_uri"] = self.getPrometheusUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["k8s_dashboard_uri"] = self.getK8sDashboardUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["yarn_web_portal_uri"] = self.getK8sDashboardUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
+
+        # section: machineinfo
+
+        serviceDict["machineinfo"] = self.rawData["clusterConfiguration"]["machine-sku"]
+
+
+        # section: machinelist
+
+        serviceDict["machinelist"] = dict()
+
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            hostname = host["hostname"]
+            self.labelExpend(host)
+            host["nodename"] = host["hostip"]
+            host["machinetype"] = host["machine-type"]
+            host["ip"] = host["hostip"]
+
+            serviceDict["machinelist"][hostname] = host
+
+
+
+
+
+    def getPaiWebPortalUri(self):
+
+        ip = self.getMasterIP()
+        port = self.rawData["serviceConfiguration"]["webportal"]["server-port"]
+        ret = "http://{0}:{1}".format(ip, port)
+        return ret
+
 
 
     def getK8sApiServerUri(self):
@@ -339,6 +397,21 @@ class paiObjectModel:
 
         self.objectModel["k8s"] = self.k8sParse()
         self.objectModel["service"] = self.serviceParse()
+
+
+
+    def getDict(self):
+
+        self.objectModel
+
+
+
+    def execute(self):
+
+        self.validata()
+        self.parseConfiguration()
+
+        return self.getDict()
 
 
 

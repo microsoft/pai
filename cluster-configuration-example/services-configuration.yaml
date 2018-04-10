@@ -88,8 +88,6 @@ prometheus:
   prometheus-port: 9091
   # port for node exporter
   node-exporter-port: 9100
-  # cadvisor port
-  cadvisor-port: 8089
 
 
 pylon:
