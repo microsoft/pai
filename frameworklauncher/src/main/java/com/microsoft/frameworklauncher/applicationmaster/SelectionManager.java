@@ -253,6 +253,8 @@ public class SelectionManager { // THREAD SAFE
     if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
       //If port is required and the portRange is not set in previous steps, allocate port ranges from all candidate nodes.
       List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
+      LOGGER.logInfo(
+          "select: select ports from all filteredNodes  :  [%s]", ValueRangeUtils.toString(portRanges));
       if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
         optimizedRequestResource.setPortRanges(portRanges);
       }
