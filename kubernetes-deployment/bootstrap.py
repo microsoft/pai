@@ -28,6 +28,7 @@ import importlib
 import time
 import logging
 import logging.config
+from paiLibrary.clusterObjectModel import objectModelFactory
 
 
 from maintainlib import common as pai_common
@@ -106,6 +107,14 @@ def load_yaml_file(path):
 def load_cluster_config(config_path):
 
     return load_yaml_file(config_path)
+
+
+
+def logClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+    return ret["k8s"]
 
 
 
@@ -452,7 +461,7 @@ def main():
     logger.info("Pass option validation! ")
 
     config_path = args.path
-    cluster_config = load_cluster_config(config_path)
+    cluster_config = logClusterObjectModel(config_path)
 
     master_list = cluster_config['mastermachinelist']
     etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)

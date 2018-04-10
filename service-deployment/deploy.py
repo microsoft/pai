@@ -24,6 +24,8 @@ import subprocess
 import jinja2
 import argparse
 
+from paiLibrary.clusterObjectModel import objectModelFactory
+
 
 
 def write_generated_file(file_path, content_data):
@@ -39,6 +41,15 @@ def load_yaml_config(config_path):
         cluster_data = yaml.load(f)
 
     return cluster_data
+
+
+
+def loadClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+
+    return ret["service"]
 
 
 
@@ -302,7 +313,7 @@ def main():
     # step 1: load configuration from yaml file.
     config_path = args.path
 
-    cluster_config = load_yaml_config(config_path)
+    cluster_config = loadClusterObjectModel(config_path)
     service_config = load_yaml_config("service.yaml")
 
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining

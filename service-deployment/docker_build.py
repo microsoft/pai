@@ -23,6 +23,18 @@ import os
 import argparse
 import yaml
 import jinja2
+from paiLibrary.clusterObjectModel import objectModelFactory
+
+
+
+def loadClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+
+    return ret["service"]
+
+
 
 
 
@@ -313,7 +325,7 @@ def main():
 
     args = parser.parse_args()
 
-    cluster_config = load_yaml_config( args.path )
+    cluster_config = loadClusterObjectModel( args.path )
     service_config = load_yaml_config( "service.yaml" )
 
     hadoop_version = cluster_config['clusterinfo']['hadoopinfo']['hadoopversion']
