@@ -55,8 +55,6 @@ def parseDockerStats(stats):
     return containerStats
     
 def stats(argv):
-    print(argv) 
-    logDir = ""
     
     try:
         dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
