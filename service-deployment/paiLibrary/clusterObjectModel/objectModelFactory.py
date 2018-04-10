@@ -51,6 +51,12 @@ class objectModelFactory:
 
     def objectModelPipeLine(self):
 
+        ret = paiObjectModel(self.configurationMap)
+        objectModel = ret.execute()
+        return objectModel
+
+
+
 
 
 
