@@ -176,17 +176,19 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
-    ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
-    String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
-    optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
+    if(results.getNodeHosts().size() > 1) {
+      // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
+      ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
+      String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
+      optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
 
-    // re-create single node result object.
-    SelectionResult result = new SelectionResult();
-    result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
-    result.setOptimizedResource(optimizedRequestResource);
-
-    return result;
+      // re-create single node result object.
+      SelectionResult result = new SelectionResult();
+      result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
+      result.setOptimizedResource(optimizedRequestResource);
+      return result;
+    }
+    return results;
   }
 
   public synchronized SelectionResult select(String taskRoleName)
