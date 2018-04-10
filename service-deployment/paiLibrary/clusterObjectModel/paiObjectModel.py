@@ -402,7 +402,7 @@ class paiObjectModel:
 
     def getDict(self):
 
-        self.objectModel
+        return self.objectModel
 
 
 
