@@ -22,10 +22,10 @@ class objectModelFactory:
 
 
 
-    def loadYamlConfig(configPath):
+    def loadYamlConfig(self, configPath):
 
-        with open(configPath, "r") as file:
-            clusterData = yaml.load(file)
+        with open(configPath, "r") as f:
+            clusterData = yaml.load(f)
 
         return clusterData
 
