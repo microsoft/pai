@@ -35,6 +35,6 @@ def main(argv):
     containerId = argv[0]
     inspect([containerId])
 
-# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 True
+# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 
 if __name__ == "__main__":
     main(sys.argv[1:])
