@@ -94,6 +94,7 @@ docker run --name $docker_name \
   --env HADOOP_USER_NAME=$HADOOP_USER_NAME \
   --env PAI_TASK_INDEX=$TASK_INDEX \
   --env PAI_CONTAINER_HOST_IP=$CONTAINER_IP \
+  --env PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS \
   --env PAI_CONTAINER_ID=$CONTAINER_ID \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
   '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh' \

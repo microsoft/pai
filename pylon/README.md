@@ -28,8 +28,9 @@ For example:
 
 The following web portals can be accessed via Pylon:
 
-- K8s dashboard: `http://<pylon_server>/kubernetes/dashboard/`
-- WebHDFS dashboard: `http://<pylon_server>/webhdfs/dashboard/`
+- K8s dashboard: `http://<pylon_server>/kubernetes-dashboard/`
+- Yarn web portal: `http://<pylon_server>/yarn/`
+- WebHDFS dashboard: `http://<pylon_server>/webhdfs/`
 - Grafana: `http://<pylon_server>/grafana/`
 - PAI web portal: `http://<pylon_server>/`
 
@@ -45,8 +46,9 @@ Steps:
   set WEBHDFS_URI=...
   set PROMETHEUS_URI=...
   set K8S_DASHBOARD_URI=...
+  set YARN_WEB_PORTAL_URI=...
   set GRAFANA_URI=...
-  set WEBPORTAL_URI=...
+  set PAI_WEB_PORTAL_URI=...
   ```
 - Run: `python render.py`
 - Copy the generated `nginx.conf` to the nginx configuration folder.
@@ -62,6 +64,7 @@ The following parameters in the [clusterconfig.yaml](../service-deployment/clust
 - `webhdfs_uri`: String. The root url of WebHDFS's API server.
 - `prometheus_uri`: String. The root url of Prometheus's API server.
 - `k8s_dashboard_uri`: String. The root url of the Kubernetes dashboard.
+- `yarn_web_portal_uri`: String. The root url of the Yarn web portal.
 - `grafana_uri`: String. The root url of Grafana.
-- `webportal_uri`: String. The root url of the web portal.
+- `pai_web_portal_uri`: String. The root url of the PAI web portal.
 - `port`: Integer. The port number to access the Pylon service. 

@@ -35,24 +35,24 @@ clusterinfo:
   service-cluster-ip-range: 10.254.0.0/16
   # According to the etcdversion, you should fill a corresponding backend name.
   # If you are not familiar with etcd, please don't change it.
-  storage-backend: etcd2
+  storage-backend: etcd3
   # Specify the host's nodename that runs dashboard
   dashboard-host: 10.0.3.11
   # The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr.
   dockerregistry: gcr.io/google_containers
   # http://gcr.io/google_containers/hyperkube. Or the tag in your registry.
-  hyperkubeversion: v1.7.3
+  hyperkubeversion: v1.9.4
   # http://gcr.io/google_containers/etcd. Or the tag in your registry.
   # If you are not familiar with etcd, please don't change it.
-  etcdversion: 2.2.5
+  etcdversion: 3.2.17
   # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
-  apiserverversion: v1.7.3
+  apiserverversion: v1.9.4
   # http://gcr.io/google_containers/kube-scheduler. Or the tag in your registry.
-  kubeschedulerversion: v1.7.3
+  kubeschedulerversion: v1.9.4
   # http://gcr.io/google_containers/kube-controller-manager
-  kubecontrollermanagerversion:  v1.7.3
+  kubecontrollermanagerversion:  v1.9.4
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
-  dashboard_version: v1.6.1
+  dashboard_version: v1.8.3
 
 
 # the component should be bootstrapped remotely
@@ -79,6 +79,10 @@ component_list:
   - src: kubelet.sh
     dst: src/
 
+  kubeconfig:
+  - src: config
+    dst: src/etc/kubernetes
+
   #haproxy:
   #- src: haproxy.yaml
   #  dst: src/etc/kubernetes/manifests
@@ -96,12 +100,14 @@ remote_deployment:
     - name: etcd
     - name: scheduler
     - name: kubelet
+    - name: kubeconfig
 
 
   worker:
     listname: workermachinelist
     component:
     - name: kubelet
+    - name: kubeconfig
 
 
   # If customized LB set in your cluster, you should add this role to your cluster.
@@ -111,6 +117,7 @@ remote_deployment:
   #  component:
   #  - name: kubelet
   #  - name: haproxy
+  #  - name: kubeconfig
 
 
 

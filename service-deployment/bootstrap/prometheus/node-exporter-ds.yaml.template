@@ -32,6 +32,9 @@ spec:
         node-exporter: "true"
       containers:
       - image: prom/node-exporter:v0.15.2
+        resources:
+          limits:
+            memory: "1Gi"
         volumeMounts:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
@@ -55,6 +58,9 @@ spec:
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        resources:
+          limits:
+            memory: "1Gi"
         securityContext:
           privileged: true
         volumeMounts:
@@ -65,36 +71,6 @@ spec:
         - mountPath: {{ clusterinfo[ 'dataPath' ] }}/prometheus
           name: collector-mount
         name: gpu-exporter
-      - image: google/cadvisor:v0.29.0 
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /dev
-          name: device-mount
-        - mountPath: /var/drivers
-          name: driver-path
-        - name: rootfs
-          mountPath: /rootfs
-          readOnly: true
-        - name: var-run
-          mountPath: /var/run
-          readOnly: false
-        - name: sys
-          mountPath: /sys
-          readOnly: true
-        - name: docker
-          mountPath: /var/lib/docker
-          readOnly: true
-        env:
-        - name: LD_LIBRARY_PATH
-          value: "/var/drivers/nvidia/current/lib:/var/drivers/nvidia/current/lib64"
-        args:
-          - '--port={{ clusterinfo['prometheusinfo']['cadvisor_port'] }}' 
-        name: cadvisor
-        ports:
-        - containerPort: {{ clusterinfo['prometheusinfo']['cadvisor_port'] }}
-          hostPort: {{ clusterinfo['prometheusinfo']['cadvisor_port'] }}
-          name: scrape-cadvisor
       volumes:
         - name: device-mount
           hostPath:

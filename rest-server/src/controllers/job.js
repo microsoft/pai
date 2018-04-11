@@ -54,6 +54,30 @@ const load = (req, res, next, jobName) => {
   });
 };
 
+const init = (req, res, next) => {
+  const jobName = req.body.jobName;
+  new Job(jobName, (job, error) => {
+    if (error) {
+      if (error.message === 'JobNotFound') {
+        req.job = job;
+        next();
+      } else {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
+    } else {
+      logger.warn('duplicate job %s', jobName);
+      return res.status(400).json({
+        error: 'DuplicateJobSubmission',
+        message: `job already exists: '${jobName}'`,
+      });
+    }
+  });
+};
+
 /**
  * Get list of jobs.
  */
@@ -197,6 +221,7 @@ const getSshInfo = (req, res) => {
 // module exports
 module.exports = {
   load,
+  init,
   list,
   get,
   update,

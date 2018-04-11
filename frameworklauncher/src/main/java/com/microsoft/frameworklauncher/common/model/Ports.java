@@ -15,35 +15,42 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-// Represent Integer values in Closed Range [begin, end]
-public class Range implements Serializable {
+public class Ports implements Serializable {
   @Valid
   @NotNull
-  private Integer begin;
+  // start is the begin port
+  private Integer start;
 
   @Valid
   @NotNull
-  private Integer end;
+  // count is the number of ports from "start", for example, if start is 80 and count is 2. the Ports is 80, 81
+  // if start is 0, and count > 0, it means any ports are ok, and the number is count.
+  private Integer count;
 
-  public Integer getBegin() {
-    return begin;
+  public Integer getStart() {
+    return start;
   }
 
-  public void setBegin(Integer begin) {
-    this.begin = begin;
+  public void setStart(Integer start) {
+    this.start = start;
   }
 
-  public Integer getEnd() {
-    return end;
+  public Integer getCount() {
+    return count;
   }
 
-  public void setEnd(Integer end) {
-    this.end = end;
+  public void setCount(Integer count) {
+    this.count = count;
+  }
+
+  public String toString() {
+    return String.format("%d,%d", start, count);
   }
 }
