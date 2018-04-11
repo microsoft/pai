@@ -149,8 +149,7 @@ const loadJobs = (limit) => {
       } else {
         let displayDataSet = [];
         let rowCount = limit ? limit : 1000;
-        data = data.splice(0, rowCount);
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.slice(0, rowCount).length; i++) {
           let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
           let stopBtnStyle = (data[i].executionType === "STOP" || data[i].subState === "FRAMEWORK_COMPLETED") ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>'
           displayDataSet.push({
