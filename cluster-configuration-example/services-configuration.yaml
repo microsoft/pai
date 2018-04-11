@@ -56,6 +56,21 @@ hadoop:
   # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
   custom-hadoop-binary-path: None
   hadoop-version: 2.7.2
+  # Step 1 of 4 to set up Hadoop queues.
+  # Define all virtual clusters, equivalent concept of Hadoop queues.
+  # The capacity of each virtual cluster is specified as the percentage of the whole resources in the system.
+  # All un-configured resources will go to an auto-generated virtual cluster called 'default'.
+  virtualClusters:
+    vc1:
+      description: VC for Alice's team.
+      capacity: 20
+    vc2:
+      description: VC for Bob's team.
+      capacity: 20
+    vc3:
+      description: VC for Charlie's team.
+      capacity: 20
+
 
 
 frameworklauncher:
