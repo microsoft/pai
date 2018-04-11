@@ -125,7 +125,7 @@ const convertState = (state) => {
 const convertGpu = (gpuAttribute) => {
   const bitmap = (+gpuAttribute).toString(2);
   const gpuList = [];
-  for (let i = 0; i < bitmap.length; i ++) {
+  for (let i = 0; i < bitmap.length; i++) {
     if (bitmap[i] === '1') {
       gpuList.push(bitmap.length - i - 1);
     }
@@ -138,7 +138,7 @@ const convertGpu = (gpuAttribute) => {
   }
 };
 
-const loadJobs = () => {
+const loadJobs = (limit) => {
   loading.showLoading();
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs`,
@@ -147,20 +147,46 @@ const loadJobs = () => {
       if (data.error) {
         alert(data.message);
       } else {
-        $('#view-table').html(jobTableComponent({
-          jobs: data.slice(0, 300),
-          getDurationInSeconds,
-          convertTime,
-          convertState,
-        }));
+        let displayDataSet = [];
+        let rowCount = limit ? limit : 1000;
+        data = data.splice(0, rowCount);
+        for (let i = 0; i < data.length; i++) {
+          let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
+          let stopBtnStyle = (data[i].executionType === "STOP" || data[i].subState === "FRAMEWORK_COMPLETED") ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>'
+          displayDataSet.push({
+            JobName: '<a href="view.html?jobName=' + data[i].name + '\">' + data[i].name + '</a>',
+            userName: data[i].username,
+            vcName: vcName,
+            StartTime: '<span title=\"' + Math.round(data[i].createdTime / 1000) + '\"/>' +
+              convertTime(false, data[i].createdTime),
+            Duration: '<span title=\"' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '\"/>' +
+              convertTime(true, data[i].createdTime, data[i].completedTime),
+            Retries: data[i].retries,
+            Status: convertState(data[i].state),
+            Stop: stopBtnStyle
+          })
+        }
+        $('#view-table').html(jobTableComponent({}));
         table = $('#job-table').dataTable({
+          data: displayDataSet,
+          columns: [
+            { title: 'JobName', data: 'JobName' },
+            { title: 'userName', data: 'userName' },
+            { title: 'vcName', data: 'vcName' },
+            { title: 'StartTime', data: 'StartTime' },
+            { title: 'Duration', data: 'Duration' },
+            { title: 'Retries', data: 'Retries' },
+            { title: 'Status', data: 'Status' },
+            { title: 'Stop', data: 'Stop' }
+          ],
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          'order': [[2, 'desc']],
+          'order': [[3, 'desc']],
           'columnDefs': [
-            {type: 'natural', targets: [0, 1, 4, 5]},
-            {type: 'title-numeric', targets: [2, 3]},
+            { type: 'natural', targets: [0, 1, 2, 5, 6] },
+            { type: 'title-numeric', targets: [3, 4] },
           ],
+          'deferRender': true
         }).api();
       }
       loading.hideLoading();
@@ -271,7 +297,7 @@ window.loadJobDetail = loadJobDetail;
 window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+  $('#content-wrapper').css({ 'height': $(window).height() + 'px' });
   if (table != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
@@ -281,7 +307,7 @@ const resizeContentWrapper = () => {
 $('#content-wrapper').html(jobViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function(envent) {
+  window.onresize = function (envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();
@@ -289,11 +315,11 @@ $(document).ready(() => {
   const query = url.parse(window.location.href, true).query;
   if (query['jobName']) {
     loadJobDetail(query['jobName']);
-    $('#content-wrapper').css({'overflow': 'auto'});
+    $('#content-wrapper').css({ 'overflow': 'auto' });
   } else {
-    loadJobs();
-    $('#content-wrapper').css({'overflow': 'hidden'});
+    loadJobs(query['limit']);
+    $('#content-wrapper').css({ 'overflow': 'hidden' });
   }
 });
 
-module.exports = {loadJobs, stopJob, loadJobDetail};
+module.exports = { loadJobs, stopJob, loadJobDetail };
