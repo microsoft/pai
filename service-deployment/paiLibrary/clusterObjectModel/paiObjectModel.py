@@ -62,6 +62,9 @@ class paiObjectModel:
         # section : remote_deployment
 
         k8sDict["remote_deployment"] = self.rawData["k8sRoleDefinition"]["k8s-role"]
+        k8sDict["remote_deployment"]["master"]["listname"] = "mastermachinelist"
+        k8sDict["remote_deployment"]["worker"]["listname"] = "workermachinelist"
+        k8sDict["remote_deployment"]["proxy"]["listname"] = "proxymachinelist"
 
         # section : mastermachinelist & workermachinelist & proxymachinelist
 

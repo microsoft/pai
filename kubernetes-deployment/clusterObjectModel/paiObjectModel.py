@@ -15,7 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 import sys
 
 
@@ -63,6 +62,9 @@ class paiObjectModel:
         # section : remote_deployment
 
         k8sDict["remote_deployment"] = self.rawData["k8sRoleDefinition"]["k8s-role"]
+        k8sDict["remote_deployment"]["master"]["listname"] = "mastermachinelist"
+        k8sDict["remote_deployment"]["worker"]["listname"] = "workermachinelist"
+        k8sDict["remote_deployment"]["proxy"]["listname"] = "proxymachinelist"
 
         # section : mastermachinelist & workermachinelist & proxymachinelist
 
@@ -171,7 +173,7 @@ class paiObjectModel:
         # section : clusterinfo:
 
         serviceDict["clusterinfo"] = self.rawData["serviceConfiguration"]["cluster"]
-        serviceDict["clusterinfo"]["datapath"] = serviceDict["clusterinfo"]["data-path"]
+        serviceDict["clusterinfo"]["dataPath"] = serviceDict["clusterinfo"]["data-path"]
         serviceDict["clusterinfo"]["nvidia_drivers_version"] = serviceDict["clusterinfo"]["nvidia-drivers-version"]
         serviceDict["clusterinfo"]["dockerverison"] = serviceDict["clusterinfo"]["docker-verison"]
         serviceDict["clusterinfo"]["dockerregistryinfo"] = serviceDict["clusterinfo"]["docker-registry-info"]
@@ -200,6 +202,12 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["hadoopinfo"]["hadoop_vip"] = \
             serviceDict["clusterinfo"]["hadoopinfo"]["hadoop-version"] = self.getMasterIP()
 
+
+        # section : virtualClusters
+
+        serviceDict["clusterinfo"]["virtualClusters"] = self.rawData["serviceConfiguration"]["hadoop"]["virtualClusters"]
+
+
         # section : frameworklauncher
 
         serviceDict["clusterinfo"]["frameworklauncher"] = \
@@ -225,6 +233,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["restserverinfo"]["default_pai_admin_username"] = \
             serviceDict["clusterinfo"]["restserverinfo"]["default-pai-admin-username"]
         serviceDict["clusterinfo"]["restserverinfo"]["etcd_uri"] = self.getEtcdUri()
+        serviceDict["clusterinfo"]["restserverinfo"]["yarn_uri"] = self.getYarnWebPortalUri()
 
         # section: webportal
 
@@ -237,6 +246,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["webportalinfo"]["k8s_api_server_uri"] = self.getK8sApiServerUri()
         serviceDict["clusterinfo"]["webportalinfo"]["server_port"] = \
             self.rawData["serviceConfiguration"]["webportal"]["server-port"]
+        serviceDict["clusterinfo"]["webportalinfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
 
         # section: grafana
 
