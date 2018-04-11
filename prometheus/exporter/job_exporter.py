@@ -30,13 +30,13 @@ def parseFromEnv(envs):
 
     return envStr
 
-def dockerGPU(argv, gpuMetrics):
-    print(argv) 
-    logDir = argv[0]
-    stats = docker_stats.stats(argv)
+def genJobMetrics(logDir, gpuMetrics):
+    stats = docker_stats.stats()
     outputFile = open(logDir + "/job_exporter.prom", "w")
     for container in stats:
-        inspectInfo = docker_inspect.inspect([container])
+        inspectInfo = docker_inspect.inspect(container)
+        if not inspectInfo["labels"]:
+            return
         gpuIds, labelStr = parseFromLabels(inspectInfo["labels"])
         envStr = parseFromEnv(inspectInfo["env"])
         labelStr = labelStr + envStr
@@ -70,9 +70,9 @@ def main(argv):
         # collect GPU metrics
         gpuMetrics = gpu_exporter.main([logDir])
         # join with docker stats metrics and docker inspect labels
-        dockerGPU([logDir], gpuMetrics)
+        genJobMetrics(logDir, gpuMetrics)
         time.sleep(timeSleep)
 
-# example: python job_exporter.py ./datastorage/prometheus True 3
+# example: python job_exporter.py ./datastorage/prometheus 3
 if __name__ == "__main__":
     main(sys.argv[1:])
