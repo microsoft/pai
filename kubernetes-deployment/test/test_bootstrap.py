@@ -36,15 +36,15 @@ class TestBootstrap(unittest.TestCase):
 
     def setUp(self):
 
-        #try:
+        try:
 
-        #    os.chdir(os.path.abspath("test"))
+            os.chdir(os.path.abspath("test"))
 
-        #except:
+        except:
 
-        #    pass
+            pass
 
-        configuration_path = "test/test_logging.yaml"
+        configuration_path = "test_logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:
