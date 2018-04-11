@@ -37,7 +37,7 @@ const loadData = (specifiedVc) => {
   $.ajax({
     type: 'GET',
     url: webportalConfig.restServerUri + '/api/v1/virtual-clusters',
-    success: function (data) {
+    success: function(data) {
       const vcHtml = vcComponent({
         breadcrumb: breadcrumbComponent,
         specifiedVc: specifiedVc,
@@ -51,11 +51,11 @@ const loadData = (specifiedVc) => {
         scrollY: (($(window).height() - 265)) + 'px',
         lengthMenu: [[20, 50, 100, -1], [20, 50, 100, 'All']],
         columnDefs: [
-          { type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6] },
+          {type: 'natural', targets: [0, 1, 2, 3, 4, 5, 6]},
         ],
       }).api();
     },
-    error: function () {
+    error: function() {
       alert('Error when loading data.');
     },
   });
@@ -64,14 +64,14 @@ const loadData = (specifiedVc) => {
 //
 
 const formatNumber = (x, precision) => {
-  n = Math.pow(10, precision);
+  const n = Math.pow(10, precision);
   return (Math.round(x * n) / n).toFixed(precision);
-}
+};
 
 //
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({ 'height': $(window).height() + 'px' });
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
@@ -82,7 +82,7 @@ const resizeContentWrapper = () => {
 
 $(document).ready(() => {
   $('#sidebar-menu--vc').addClass('active');
-  window.onresize = function (envent) {
+  window.onresize = function(envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();
