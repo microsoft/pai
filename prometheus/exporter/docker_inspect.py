@@ -31,6 +31,10 @@ def inspect(argv):
     except subprocess.CalledProcessError as e:
         raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
-# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 
+def main(argv):
+    containerId = argv[0]
+    inspect([containerId])
+
+# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 True
 if __name__ == "__main__":
-    inspect(sys.argv[1:])
+    main(sys.argv[1:])
