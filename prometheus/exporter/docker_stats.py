@@ -54,8 +54,7 @@ def parseDockerStats(stats):
         containerStats[id] = containerInfo
     return containerStats
     
-def stats(argv):
-    
+def stats():
     try:
         dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD])
@@ -64,6 +63,9 @@ def stats(argv):
     except subprocess.CalledProcessError as e:
             raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
-# execute cmd example: python .\docker_stats.py 
+def main(argv):
+    stats()
+
+# execute cmd example: python .\docker_stats.py True
 if __name__ == "__main__":
-    stats(sys.argv[1:])
+    main(sys.argv[1:])
