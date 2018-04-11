@@ -174,6 +174,7 @@ class paiObjectModel:
 
         serviceDict["clusterinfo"] = self.rawData["serviceConfiguration"]["cluster"]
         serviceDict["clusterinfo"]["dataPath"] = serviceDict["clusterinfo"]["data-path"]
+        serviceDict["clusterinfo"]["paiPath"] = "/var/pai"
         serviceDict["clusterinfo"]["nvidia_drivers_version"] = serviceDict["clusterinfo"]["nvidia-drivers-version"]
         serviceDict["clusterinfo"]["dockerverison"] = serviceDict["clusterinfo"]["docker-verison"]
         serviceDict["clusterinfo"]["dockerregistryinfo"] = serviceDict["clusterinfo"]["docker-registry-info"]
