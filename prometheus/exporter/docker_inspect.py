@@ -3,28 +3,34 @@ import subprocess
 import json
 import sys
 
+targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "PAI_CURRENT_GPU_ID"}
+targetEnv = {"PAI_TASK_INDEX"}
+
 def parseDockerInspect(jsonStr):
     jsonObject = json.loads(jsonStr)
     labels = []
     envs = []
     inspectMetrics = {}
 
-    for key in jsonObject[0]["Config"]["Labels"]:
-        labels.append("container_label_{0}=\"{1}\"".format(key.replace(".", "_"), jsonObject[0]["Config"]["Labels"][key]))
-
-    for env in jsonObject[0]["Config"]["Env"]:
-        envItem = env.split("=")
-        envs.append("container_env_{0}=\"{1}\"".format(envItem[0].replace(".", "_"), envItem[1]))
-
+    if jsonObject[0]["Config"]["Labels"]:
+        for key in jsonObject[0]["Config"]["Labels"]:
+            if key in targetLabel:
+                print("")
+                labels.append("container_label_{0}=\"{1}\"".format(key.replace(".", "_"), jsonObject[0]["Config"]["Labels"][key]))
+            
+    if jsonObject[0]["Config"]["Env"]:
+        for env in jsonObject[0]["Config"]["Env"]:
+            envItem = env.split("=")
+            if envItem[0] in targetEnv:
+                envs.append("container_env_{0}=\"{1}\"".format(envItem[0].replace(".", "_"), envItem[1]))
+    
     inspectMetrics = {"env": envs, "labels": labels}
     return inspectMetrics
     
-def inspect(argv):
-    containerId = argv[0]
-
+def inspect(containerId):
     try:
-        dockerInspectCMD = "sudo docker inspect" + containerId
-        dockerDockerInspect = subprocess.check_output([dockerInspectCMD])
+        dockerInspectCMD = "docker inspect " + containerId
+        dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
         inspectInfo = parseDockerInspect(dockerDockerInspect)
         print(inspectInfo)
         return inspectInfo
@@ -33,7 +39,7 @@ def inspect(argv):
 
 def main(argv):
     containerId = argv[0]
-    inspect([containerId])
+    inspect(containerId)
 
 # execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 
 if __name__ == "__main__":
