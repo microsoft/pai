@@ -414,7 +414,7 @@ class paiObjectModel:
 
         vip = self.getMasterIP()
         port = "9000"
-        ret = "http://{0}:{1}".format(vip, str(port))
+        ret = "hdfs://{0}:{1}".format(vip, str(port))
         return ret
 
 
