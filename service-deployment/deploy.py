@@ -23,9 +23,13 @@ import sys
 import subprocess
 import jinja2
 import argparse
+import logging
+import logging.config
 
 from paiLibrary.clusterObjectModel import objectModelFactory
 
+
+logger = logging.getLogger(__name__)
 
 
 def write_generated_file(file_path, content_data):
@@ -82,7 +86,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -95,7 +99,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -105,7 +109,7 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print "docker registry login successfully"
+    logger.info("docker registry login successfully")
 
 
 
@@ -180,7 +184,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print "Successfully clean up the generated file"
+    logger.info("Successfully clean up the generated file")
 
 
 
@@ -300,7 +304,22 @@ def copy_arrangement(service_config):
 
 
 
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = load_yaml_config(configuration_path)
+
+    logging.config.dictConfig(logging_configuration)
+
+
+
 def main():
+
+    setup_logging()
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")

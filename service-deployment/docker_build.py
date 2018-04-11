@@ -24,7 +24,11 @@ import argparse
 import yaml
 import jinja2
 from paiLibrary.clusterObjectModel import objectModelFactory
+import logging
+import logging.config
 
+
+logger = logging.getLogger(__name__)
 
 
 def loadClusterObjectModel(config_path):
@@ -92,9 +96,9 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
         shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
         error_msg = "docker registry login error"
         execute_shell(shell_cmd, error_msg)
-        print "docker registry login successfully"
+        logger.info("docker registry login successfully")
     else:
-        print "docker registry authentication not provided"
+        logger.info("docker registry authentication not provided")
 
 
 
@@ -199,7 +203,7 @@ def build_docker_images(cluster_config, service_config, target):
                 cluster_config['clusterinfo']['dockerregistryinfo']['docker_namespace']
             )
 
-        print "success building all docker images"
+        logger.info("success building all docker images")
 
     else:
 
@@ -236,7 +240,7 @@ def push_docker_images(cluster_config, service_config, target):
                     shell=True
                 )
             except subprocess.CalledProcessError as dockertagerr:
-                print "failed to tag {0}".format(image)
+                logger.error("failed to tag {0}".format(image))
                 sys.exit(1)
 
             try:
@@ -245,10 +249,10 @@ def push_docker_images(cluster_config, service_config, target):
                     shell=True
                 )
             except subprocess.CalledProcessError as dockerpusherr:
-                print "failed to push {0}".format(image)
+                logger.error("failed to push {0}".format(image))
                 sys.exit(1)
 
-        print "success push all the images"
+        logger.info("success push all the images")
 
     else:
 
@@ -260,7 +264,7 @@ def push_docker_images(cluster_config, service_config, target):
                 shell=True
             )
         except subprocess.CalledProcessError as dockertagerr:
-            print "failed to tag {0}".format(image)
+            logger.error("failed to tag {0}".format(image))
             sys.exit(1)
 
         try:
@@ -269,7 +273,7 @@ def push_docker_images(cluster_config, service_config, target):
                 shell=True
             )
         except subprocess.CalledProcessError as dockerpusherr:
-            print "failed to push {0}".format(image)
+            logger.error("failed to push {0}".format(image))
             sys.exit(1)
 
 
@@ -303,7 +307,7 @@ def hadoop_binary_prepare(custom_hadoop_path, hadoop_version):
                 shell = True
             )
         except subprocess.CalledProcessError as cperr:
-            print "failed to cp hadoop binary"
+            logger.error("failed to cp hadoop binary")
             sys.exit(1)
     else:
         url = "http://archive.apache.org/dist/hadoop/common/{0}/{0}.tar.gz".format("hadoop-" + hadoop_version)
@@ -313,12 +317,28 @@ def hadoop_binary_prepare(custom_hadoop_path, hadoop_version):
                 shell = True
             )
         except subprocess.CalledProcessError as wgeterr:
-            print "failed to wget hadoop binary"
+            logger.error("failed to wget hadoop binary")
             sys.exit(1)
 
 
 
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = load_yaml_config(configuration_path)
+
+    logging.config.dictConfig(logging_configuration)
+
+
+
+
 def main():
+
+    setup_logging()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help="path to cluster configuration file")
     parser.add_argument('-n', '--imagename', default='all', help="Build and push target image to the registry")
