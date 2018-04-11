@@ -342,16 +342,19 @@ def initial_bootstrap_cluster(cluster_config):
 
     if 'proxy' in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment']['proxy']['listname']
-        machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+        if listname in cluster_config:
+            machine_list = cluster_config[listname]
+            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
 
     listname = cluster_config['remote_deployment']['master']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
 
     listname = cluster_config['remote_deployment']['worker']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
 
 
 
