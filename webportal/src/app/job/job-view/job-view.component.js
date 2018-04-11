@@ -148,44 +148,44 @@ const loadJobs = (limit) => {
         alert(data.message);
       } else {
         let displayDataSet = [];
-        let rowCount = limit ? limit : 1000;
-        for (let i = 0; i < data.slice(0, rowCount).length; i++) {
+        let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 1000);
+        for (let i = 0; i < rowCount; i++) {
           let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
-          let stopBtnStyle = (data[i].executionType === "STOP" || data[i].subState === "FRAMEWORK_COMPLETED") ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>'
+          let stopBtnStyle = (data[i].executionType === 'STOP' || data[i].subState === 'FRAMEWORK_COMPLETED') ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>';
           displayDataSet.push({
-            JobName: '<a href="view.html?jobName=' + data[i].name + '\">' + data[i].name + '</a>',
+            jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
             userName: data[i].username,
             vcName: vcName,
-            StartTime: '<span title=\"' + Math.round(data[i].createdTime / 1000) + '\"/>' +
+            startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
               convertTime(false, data[i].createdTime),
-            Duration: '<span title=\"' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '\"/>' +
+            duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
               convertTime(true, data[i].createdTime, data[i].completedTime),
-            Retries: data[i].retries,
-            Status: convertState(data[i].state),
-            Stop: stopBtnStyle
-          })
+            retries: data[i].retries,
+            status: convertState(data[i].state),
+            stop: stopBtnStyle,
+          });
         }
         $('#view-table').html(jobTableComponent({}));
         table = $('#job-table').dataTable({
-          data: displayDataSet,
-          columns: [
-            { title: 'JobName', data: 'JobName' },
-            { title: 'userName', data: 'userName' },
-            { title: 'vcName', data: 'vcName' },
-            { title: 'StartTime', data: 'StartTime' },
-            { title: 'Duration', data: 'Duration' },
-            { title: 'Retries', data: 'Retries' },
-            { title: 'Status', data: 'Status' },
-            { title: 'Stop', data: 'Stop' }
+          'data': displayDataSet,
+          'columns': [
+            {title: 'Job Name', data: 'jobName'},
+            {title: 'user Name', data: 'userName'},
+            {title: 'Virtual Cluster', data: 'vcName'},
+            {title: 'Start Time', data: 'startTime'},
+            {title: 'Duration', data: 'duration'},
+            {title: 'Retries', data: 'retries'},
+            {title: 'Status', data: 'status'},
+            {title: 'Stop', data: 'stop'},
           ],
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
           'order': [[3, 'desc']],
           'columnDefs': [
-            { type: 'natural', targets: [0, 1, 2, 5, 6] },
-            { type: 'title-numeric', targets: [3, 4] },
+            {type: 'natural', targets: [0, 1, 2, 5, 6]},
+            {type: 'title-numeric', targets: [3, 4]},
           ],
-          'deferRender': true
+          'deferRender': true,
         }).api();
       }
       loading.hideLoading();
@@ -296,7 +296,7 @@ window.loadJobDetail = loadJobDetail;
 window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
-  $('#content-wrapper').css({ 'height': $(window).height() + 'px' });
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
     table.columns.adjust().draw();
@@ -306,7 +306,7 @@ const resizeContentWrapper = () => {
 $('#content-wrapper').html(jobViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function (envent) {
+  window.onresize = function(envent) {
     resizeContentWrapper();
   };
   resizeContentWrapper();
@@ -314,11 +314,11 @@ $(document).ready(() => {
   const query = url.parse(window.location.href, true).query;
   if (query['jobName']) {
     loadJobDetail(query['jobName']);
-    $('#content-wrapper').css({ 'overflow': 'auto' });
+    $('#content-wrapper').css({'overflow': 'auto'});
   } else {
     loadJobs(query['limit']);
-    $('#content-wrapper').css({ 'overflow': 'hidden' });
+    $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });
 
-module.exports = { loadJobs, stopJob, loadJobDetail };
+module.exports = {loadJobs, stopJob, loadJobDetail};
