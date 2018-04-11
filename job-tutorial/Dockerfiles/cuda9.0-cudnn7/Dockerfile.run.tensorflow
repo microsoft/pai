@@ -20,16 +20,20 @@
 #
 # Before building this image you need to build the base image first:
 #
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04 .
 
 
 FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
-ENV TENSORFLOW_VERSION=1.4.0
+ENV TENSORFLOW_VERSION=1.7.0
 
 # For how to run TensorFlow on Hadoop,
 # please refer to https://www.tensorflow.org/deploy/hadoop
 RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
     pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
+
+# Add symbol link for libcuda.so
+RUN ln -s /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so \
+          /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so.1
 
 WORKDIR /root
