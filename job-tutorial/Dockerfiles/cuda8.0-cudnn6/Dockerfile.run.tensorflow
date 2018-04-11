@@ -15,38 +15,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: prometheus-deployment
-spec:
-  replicas: 1
-  template:
-    metadata:
-      name: prometheus
-      labels:
-        app: prometheus
-    spec:
-      hostNetwork: true
-      hostPID: true
-      nodeSelector:
-        prometheus: "true"
-      containers:
-      - name: prometheus
-        image: prom/prometheus:v2.1.0
-        resources:
-          limits:
-            memory: "10Gi"
-        args:
-          - '--config.file=/etc/prometheus/prometheus.yml'
-          - '--web.listen-address=0.0.0.0:{{clusterinfo['prometheusinfo']['prometheus_port']}}'
-        ports:
-        - name: web
-          containerPort: {{clusterinfo['prometheusinfo']['prometheus_port']}}
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/prometheus
-      volumes:
-      - name: config-volume
-        configMap:
-          name: prometheus-configmap
+
+# tag: pai.run.tensorflow
+#
+# Before building this image you need to build the base image first:
+#
+# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+
+
+FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+
+ENV TENSORFLOW_VERSION=1.4.0
+
+# For how to run TensorFlow on Hadoop,
+# please refer to https://www.tensorflow.org/deploy/hadoop
+RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
+    pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
+
+# Add symbol link for libcuda.so
+RUN ln -s /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so \
+          /usr/local/cuda/targets/x86_64-linux/lib/stubs/libcuda.so.1
+
+WORKDIR /root
