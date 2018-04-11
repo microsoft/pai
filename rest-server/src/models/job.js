@@ -95,6 +95,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
+              virtualCluster: frameworkInfo.queue,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
@@ -366,6 +367,10 @@ class Job {
     if (frameworkRequest.frameworkDescriptor) {
       jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
     }
+    const frameworkInfo = framework.summarizedFrameworkInfo;
+    if (frameworkInfo) {
+      jobDetail.jobStatus.virtualCluster = frameworkInfo.queue;
+    }
     const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
     if (taskRoleStatuses) {
       for (let taskRole of Object.keys(taskRoleStatuses)) {
@@ -424,7 +429,7 @@ class Job {
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': 'default',
+        'queue': data.virtualCluster,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,

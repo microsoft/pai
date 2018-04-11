@@ -142,7 +142,7 @@ const remove = (req, res) => {
         message: 'job deleted error, cannot delete other user\'s job',
       });
     } else {
-      return res.status(204).json({
+      return res.status(202).json({
         message: `deleted job ${req.job.name} successfully`,
       });
     }
@@ -157,7 +157,7 @@ const execute = (req, res, next) => {
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);
-      err.message = 'job execute error';
+      err.message = err.message || 'job execute error';
       next(err);
     } else {
       return res.status(202).json({
