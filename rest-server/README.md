@@ -199,6 +199,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     GET /api/v1/jobs
     ```
 
+    *Parameters*
+    ```
+    {
+      "username": "filter jobs with username"
+    }
+    ```
+
     *Response if succeeded*
     ```
     {
