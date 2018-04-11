@@ -138,7 +138,7 @@ const convertGpu = (gpuAttribute) => {
   }
 };
 
-const loadJobs = (limit) => {
+const loadJobs = (limit, specifiedVc) => {
   loading.showLoading();
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs`,
@@ -151,6 +151,9 @@ const loadJobs = (limit) => {
         let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 1000);
         for (let i = 0; i < rowCount; i++) {
           let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
+          if (specifiedVc && vcName !== specifiedVc) {
+            continue;
+          }
           let stopBtnStyle = (data[i].executionType === 'STOP' || data[i].subState === 'FRAMEWORK_COMPLETED') ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>';
           displayDataSet.push({
             jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
@@ -316,7 +319,7 @@ $(document).ready(() => {
     loadJobDetail(query['jobName']);
     $('#content-wrapper').css({'overflow': 'auto'});
   } else {
-    loadJobs(query['limit']);
+    loadJobs(query['limit'], query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });

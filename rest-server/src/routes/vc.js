@@ -1,5 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
 //
 // MIT License
 //
@@ -15,23 +13,22 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 // module dependencies
-const dotenv = require('dotenv');
+const express = require('express');
+const vcController = require('../controllers/vc');
 
+const router = new express.Router();
 
-dotenv.config();
+router.route('/')
+    /** GET /api/v1/virtual-clusters - Return cluster virtual cluster info */
+    .get(vcController.list);
 
-// get config from environment variables
-let config = {
-  restServerUri: process.env.REST_SERVER_URI,
-  prometheusUri: process.env.PROMETHEUS_URI,
-  yarnWebPortalUri: process.env.YARN_WEB_PORTAL_URI,
-  grafanaUri: process.env.GRAFANA_URI,
-  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
-  k8sApiServerUri: process.env.K8S_API_SERVER_URI,
-  exporterPort: process.env.EXPORTER_PORT,
-};
+router.route('/:vcName')
+    /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
+    .get(vcController.get);
+
+/** Load virtual cluster when API with vcName route parameter is hit */
+router.param('vcName', vcController.load);
 
 // module exports
-module.exports = config;
+module.exports = router;
