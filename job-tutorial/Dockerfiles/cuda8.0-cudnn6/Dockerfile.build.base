@@ -26,10 +26,10 @@
 
 # Tag: nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
 # Label: com.nvidia.build.id: 32579957
-# Label: com.nvidia.build.ref: 88bc4e08cac2668ec821eead444e5ede2cafcf25 
-# Label: com.nvidia.cuda.version: 8.0.61 
-# Label: com.nvidia.cudnn.version: 6.0.21 
-# Label: com.nvidia.volumes.needed: nvidia_driver 
+# Label: com.nvidia.build.ref: 88bc4e08cac2668ec821eead444e5ede2cafcf25
+# Label: com.nvidia.cuda.version: 8.0.61
+# Label: com.nvidia.cudnn.version: 6.0.21
+# Label: com.nvidia.volumes.needed: nvidia_driver
 # Label: maintainer: NVIDIA CORPORATION <cudatools@nvidia.com>
 # Ubuntu 16.04
 FROM nvidia/cuda@sha256:0f107eb29b1254ba4fb3a8f0c35e74dd3f2e32fd0cb962280450d1f5359f5ee3
@@ -76,6 +76,6 @@ ENV HADOOP_PREFIX=${HADOOP_INSTALL} \
     HADOOP_OPTS="-Djava.library.path=${HADOOP_INSTALL}/lib/native"
 
 ENV PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${HADOOP_BIN_DIR}:${HADOOP_SBIN_DIR} \
-    LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:${JAVA_HOME}/jre/lib/amd64/server
+    LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/targets/x86_64-linux/lib/stubs:${JAVA_HOME}/jre/lib/amd64/server
 
 WORKDIR /root
