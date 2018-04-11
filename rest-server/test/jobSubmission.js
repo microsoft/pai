@@ -53,6 +53,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 0,
+            'queue':'default',
           },
           {
             'name': 'job2',
@@ -67,6 +68,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 1,
+            'queue': 'default',
           },
         ],
       });
@@ -74,28 +76,46 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.nock(global.launcherWebserviceUri)
       .get('/v1/Frameworks/new_job')
       .reply(404, {});
+
+    global.nock(global.launcherWebserviceUri)
+      .get('/v1/Frameworks/new_job_queue_vc1')
+      .reply(404, {});
+
   });
 
   //
   // Get a valid token that expires in 60 seconds.
   //
 
-  const validToken = global.jwt.sign({username: 'user1', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+  const validToken = global.jwt.sign({ username: 'user1', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
   const invalidToken = '';
 
   //
   // Positive cases
   //
 
-  it('Case 1 (Positive): Submit a job.', (done) => {
+  it('Case 1 (Positive): Submit a job to the default vc', (done) => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): Submit a job to vc1.', (done) => {
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update job new_job_queue_vc1 successfully');
         done();
       });
   });
@@ -155,4 +175,5 @@ describe('Submit job: POST /api/v1/jobs', () => {
         done();
       });
   });
+
 });

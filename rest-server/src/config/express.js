@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
   logger.warn('%s', err.stack);
   res.status(err.status || 500).json({
     message: err.message,
-    error: config.env === 'development' ? err.stack : {},
+    error: config.env === 'development' ? err.stack : '',
   });
 });
 

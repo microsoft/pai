@@ -17,21 +17,32 @@
 
 
 // module dependencies
-const dotenv = require('dotenv');
-
-
-dotenv.config();
+const Joi = require('joi');
 
 // get config from environment variables
-let config = {
-  restServerUri: process.env.REST_SERVER_URI,
-  prometheusUri: process.env.PROMETHEUS_URI,
-  yarnWebPortalUri: process.env.YARN_WEB_PORTAL_URI,
-  grafanaUri: process.env.GRAFANA_URI,
-  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
-  k8sApiServerUri: process.env.K8S_API_SERVER_URI,
-  exporterPort: process.env.EXPORTER_PORT,
+let yarnConfig = {
+  yarnUri: process.env.YARN_URI,
+  webserviceRequestHeaders: {
+    'Accept': 'application/json',
+  },
+  yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
 };
 
-// module exports
-module.exports = config;
+const yarnConfigSchema = Joi.object().keys({
+  yarnUri: Joi.string()
+    .uri()
+    .required(),
+  webserviceRequestHeaders: Joi.object()
+    .required(),
+  yarnVcInfoPath: Joi.string()
+    .uri()
+    .required(),
+}).required();
+
+const {error, value} = Joi.validate(yarnConfig, yarnConfigSchema);
+if (error) {
+  throw new Error(`yarn config error\n${error}`);
+}
+yarnConfig = value;
+
+module.exports = yarnConfig;

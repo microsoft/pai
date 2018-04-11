@@ -48,6 +48,7 @@ const config = {
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     view: './src/app/job/job-view/job-view.component.js',
+    virtualClusters: './src/app/vc/vc.component.js',
     services: './src/app/cluster-view/services/services.component.js',
     hardware: './src/app/cluster-view/hardware/hardware.component.js',
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
@@ -223,6 +224,14 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'view']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'virtual-clusters.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'virtualClusters']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',
