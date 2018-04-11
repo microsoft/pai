@@ -60,7 +60,7 @@ machine-list:
       k8s-role: master
       dashboard: "true"
       zkid: "1"
-      pai-master: "ture"
+      pai-master: "true"
 
 
 
@@ -93,7 +93,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
     - hostname: hostname
@@ -103,7 +103,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
     - hostname: hostname
@@ -113,7 +113,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
 
