@@ -16,7 +16,7 @@ def parse_xml(smi, logDir):
         minorNumber = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
         gpuUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "")
         gpuMemUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "")
-        outputFile.write('nvidiasmi_utilization_gpus{{minor_number={0}}} {1}\n'.format(minorNumber, gpuUtil))
+        outputFile.write('nvidiasmi_utilization_gpu{{minor_number={0}}} {1}\n'.format(minorNumber, gpuUtil))
         outputFile.write('nvidiasmi_utilization_memory{{minor_number={0}}} {1}\n'.format(minorNumber, gpuMemUtil))
 
 def main(argv):
