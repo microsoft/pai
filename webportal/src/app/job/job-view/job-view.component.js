@@ -170,7 +170,7 @@ const loadJobs = (limit) => {
           'data': displayDataSet,
           'columns': [
             {title: 'Job Name', data: 'jobName'},
-            {title: 'user Name', data: 'userName'},
+            {title: 'User Name', data: 'userName'},
             {title: 'Virtual Cluster', data: 'vcName'},
             {title: 'Start Time', data: 'startTime'},
             {title: 'Duration', data: 'duration'},
