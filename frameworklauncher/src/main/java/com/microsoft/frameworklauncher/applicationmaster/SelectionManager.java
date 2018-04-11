@@ -176,17 +176,19 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
-    ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
-    String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
-    optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
+    if(results.getNodeHosts().size() > 1) {
+      // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
+      ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
+      String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
+      optimizedRequestResource.setGpuAttribute(results.getGpuAttribute(candidateNode));
 
-    // re-create single node result object.
-    SelectionResult result = new SelectionResult();
-    result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
-    result.setOptimizedResource(optimizedRequestResource);
-
-    return result;
+      // re-create single node result object.
+      SelectionResult result = new SelectionResult();
+      result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
+      result.setOptimizedResource(optimizedRequestResource);
+      return result;
+    }
+    return results;
   }
 
   public synchronized SelectionResult select(String taskRoleName)
@@ -250,26 +252,41 @@ public class SelectionManager { // THREAD SAFE
           "select: reuse pre-selected ports: [%s]", ValueRangeUtils.toString(reusePorts));
       optimizedRequestResource.setPortRanges(reusePorts);
     }
+    if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
+      //If port is required and the portRange is not set in previous steps, allocate port ranges from all candidate nodes.
+      List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
+      LOGGER.logInfo(
+          "select: select ports from all filteredNodes  :  [%s]", ValueRangeUtils.toString(portRanges));
+      if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
+        optimizedRequestResource.setPortRanges(portRanges);
+      }
+    }
 
     filterNodesByResource(optimizedRequestResource, conf.getAmSkipLocalTriedResource());
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, startStatesTaskCount);
     if (filteredNodes.size() < 1) {
       // Don't have candidate nodes for this request.
-      if (requestNodeGpuType != null || requestResource.getPortNumber() > 0) {
-        // GpuType and port relax are not support in yarn, If gpuType or portNumber is specified, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to meet request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+      if (requestNodeGpuType != null) {
+        // GpuType relax is not supported in yarn, the gpuType is specified, abort this request and try later.
+        throw new NotAvailableException(String.format("Don't have enough nodes to meet GpuType request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+            optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
+      }
+      if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
+        // Port relax is not supported in yarn, The portNumber is specified, but the port range is not selected, abort this request and try later.
+        throw new NotAvailableException(String.format("Don't have enough nodes to meet Port request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
     }
     SelectionResult selectionResult = selectNodes(optimizedRequestResource, startStatesTaskCount);
+    //If port is not previous selected, select ports from the selectionResult.
     List<ValueRange> portRanges = selectPorts(selectionResult, optimizedRequestResource);
     optimizedRequestResource.setPortRanges(portRanges);
     selectionResult.setOptimizedResource(optimizedRequestResource);
     return selectionResult;
   }
 
-  public synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
+  private synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
     // If the ports were not selected and was not specified previously, need select the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
@@ -284,6 +301,18 @@ public class SelectionManager { // THREAD SAFE
       }
     }
     return optimizedRequestResource.getPortRanges();
+  }
+
+  private List<ValueRange> selectPortsFromFilteredNodes(ResourceDescriptor optimizedRequestResource) {
+    if (filteredNodes.size() > 0) {
+      List<ValueRange> overlapPorts = allNodes.get(filteredNodes.get(0)).getAvailableResource().getPortRanges();
+      for (int i = 1; i < filteredNodes.size(); i++) {
+        overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(filteredNodes.get(i)).getAvailableResource().getPortRanges());
+      }
+      return ValueRangeUtils.getSubRange(overlapPorts, optimizedRequestResource.getPortNumber(),
+          conf.getAmContainerMinPort());
+    }
+    return new ArrayList<ValueRange>();
   }
 
   @VisibleForTesting
