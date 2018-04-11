@@ -470,3 +470,81 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "error": "JobExecuteError",
       "message": "job execute error"
     }
+
+11. `GET virtual-clusters/`
+
+    Get the list of virtual clusters.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "vc1": 
+      {
+      }
+      ...
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "GetVirtualClusterListError",
+      "message": "get virtual cluster list error"
+    }
+    ```
+    
+12. `GET virtual-clusters/:vcName`
+
+    Get virtual cluster status in the system.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters/:vcName
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      //capacity percentage this virtual cluster can use of entire cluster
+      "capacity":50,
+      //max capacity percentage this virtual cluster can use of entire cluster
+      "maxCapacity":100,
+      // used capacity percentage this virtual cluster can use of entire cluster
+      "usedCapacity":0,
+      "numActiveJobs":0,
+      "numJobs":0,
+      "numPendingJobs":0,
+      "resourcesUsed":{  
+       "memory":0,
+       "vCores":0,
+       "GPUs":0
+      },
+    }
+    ```
+
+    *Response if the virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "VirtualClusterNotFound",
+      "message": "could not find virtual cluster $vcName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "internal server error"
+    }
+    ```

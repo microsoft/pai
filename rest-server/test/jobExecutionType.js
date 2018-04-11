@@ -112,7 +112,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('job execute error');
+        expect(res.body.message, 'response message').equal('can not execute other user\'s job');
         done();
       });
   });
