@@ -160,7 +160,7 @@ const loadJobs = (limit, specifiedVc) => {
           displayDataSet.push({
             jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
             userName: data[i].username,
-            vcName: vcName,
+            vcName: '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>',
             startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
               convertTime(false, data[i].createdTime),
             duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +

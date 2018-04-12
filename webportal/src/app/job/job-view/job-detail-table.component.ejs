@@ -11,9 +11,12 @@
     <th>Action</th>
   </tr>
   <tr>
+    <%
+    const vcName = (jobStatus.virtualCluster) ? jobStatus.virtualCluster : 'default';
+    %>
     <td><%= jobName %></td>
     <td><%= jobStatus.username %></td>
-    <td><%= (jobStatus.virtualCluster) ? jobStatus.virtualCluster : 'default' %></td>
+    <td><a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a></td>
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
     <td><%= jobStatus.retries %></td>
