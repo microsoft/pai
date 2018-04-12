@@ -45,27 +45,30 @@ According to your environment, you can customize the hadoop configuration in thi
 
 ## Cluster configuration and script generation
 
-Please specify the cluster configuration in a yaml file. The file [clusterconfig-example.yaml](./clusterconfig-example.yaml) illustrates such an example, where some detailed explanation is included.
+Configure the [cluster configuration](../cluster-configuration/). And the configuration file in this path
+illustrate such an example, where some detailed explanation is included.
 When deploying services to your cluster, please replace the specified fields with your own configuration.
+
+Note: Don't change the file name!!!!!!!!!!!!
 
 
 ## Build docker image
 
 ```
-sudo ./docker_build.py -p your-cluster-config.yaml
+sudo ./docker_build.py -p /path/to/configuration/
 ```
 
 ## Deploying services on k8s
 
 Run the following command:
 ```
-sudo ./deploy.py -d -p your-cluster-config.yaml
+sudo ./deploy.py -d -p /path/to/configuration/
 ```
 
 ## Cleanup your previous deployment
 
 ```
-sudo ./deploy.py -p your-cluster-config.yaml
+sudo ./deploy.py -p /path/to/configuration/
 sudo ./cleanup-service.py
 ```
 
@@ -126,12 +129,12 @@ The new property should be placed in clusterinfo, machineinfo or machinelist.
 Prepare hadoop configuration. If you are not sure whether your service depends on it or not. Please don't skip this step.
 
 
-- ```sudo ./docker_build –p clusterconfig -n your_image_name```
+- ```sudo ./docker_build -p /path/to/configuration/ -n your_image_name```
 
 To ensure your docker image could be built successfully.
 
 
-- ```sudo ./deploy -p clusterconfig -d -s your_service_name```
+- ```sudo ./deploy -p /path/to/configuration/ -d -s your_service_name```
 
 To ensure your service could be start up correctly.
 
