@@ -20,7 +20,7 @@ import subprocess
 import sys
 from xml.dom import minidom
 
-def parse_xml(smi, logDir):
+def parseSmiXmlResult(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
     print(len(gpuList))
@@ -41,7 +41,7 @@ def genGpuMetricsFromSmi(logDir):
         nvidia_smi_path = "nvidia-smi "
         nvidia_smi_query = "-q -x"
         smi_output = subprocess.check_output([nvidia_smi_path, nvidia_smi_query])
-        parse_xml(smi_output, logDir)
+        parseSmiXmlResult(smi_output, logDir)
     except subprocess.CalledProcessError as e:
         raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
