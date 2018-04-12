@@ -50,7 +50,8 @@ machine-sku:
 
 machine-list:
 
-    - hostip: IP
+    - hostname: hostname (echo `hostname`)
+      hostip: IP
       machine-type: D8SV3
       etcdid: etcdid1
       #sshport: PORT (Optional)
@@ -59,11 +60,12 @@ machine-list:
       k8s-role: master
       dashboard: "true"
       zkid: "1"
-      pai-master: "ture"
+      pai-master: "true"
 
 
 
-    - hostip: IP
+    - hostname: hostname
+      hostip: IP
       machine-type: D8SV3
       etcdid: etcdid2
       #sshport: PORT (Optional)
@@ -73,7 +75,8 @@ machine-list:
       node-exporter: "true"
 
 
-    - hostip: IP
+    - hostname: hostname
+      hostip: IP
       machine-type: D8SV3
       etcdid: etcdid3
       #sshport: PORT (Optional)
@@ -83,31 +86,34 @@ machine-list:
       node-exporter: "true"
 
 
-    - hostip: IP
+    - hostname: hostname
+      hostip: IP
       machine-type: NC24R
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
-    - hostip: IP
+    - hostname: hostname
+      hostip: IP
       machine-type: NC24R
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
-    - hostip: IP
+    - hostname: hostname
+      hostip: IP
       machinetype: NC24R
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "ture"
+      pai-worker: "true"
 
 
 

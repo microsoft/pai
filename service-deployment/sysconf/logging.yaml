@@ -15,56 +15,45 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+version: 1
+disable_existing_loggers: False
+formatters:
+    pai_k8sdp:
+        format: "%(asctime)s [%(levelname)s] - %(name)s : %(message)s"
 
-# the component should be bootstrapped remotely
-component-list:
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: pai_k8sdp
+        stream: ext://sys.stdout
 
-  apiserver:
-  - src: apiserver.yaml
-    # the full dst path will be " template/generated/&{hostip}/ .... "
-    dst: src/etc/kubernetes/manifests
+    info_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: pai_k8sdp
+        filename: info.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
 
-  controller-manager:
-  - src: controller-manager.yaml
-    dst: src/etc/kubernetes/manifests
+    error_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: ERROR
+        formatter: pai_k8sdp
+        filename: errors.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
 
-  etcd:
-  - src: etcd.yaml
-    dst: src/etc/kubernetes/manifests
-
-  scheduler:
-  - src: scheduler.yaml
-    dst: src/etc/kubernetes/manifests
-
-  kubelet:
-  - src: kubelet.sh
-    dst: src/
-
-  haproxy:
-  - src: haproxy.yaml
-    dst: src/etc/kubernetes/manifests
-  - src: haproxy.cfg
-    dst: src/haproxy
-
-
-
-k8s-role:
-
-  master:
-    component:
-    - name: apiserver
-    - name: controller-manager
-    - name: etcd
-    - name: scheduler
-    - name: kubelet
+loggers:
+    modulename:
+        level: ERROR
+        handlers: [console]
+        propagate: no
 
 
-  worker:
-    component:
-    - name: kubelet
+root:
+    level: INFO
+    handlers: [console, info_handler, error_handler]
 
-
-  proxy:
-    component:
-    - name: kubelet
-    - name: haproxy

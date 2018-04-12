@@ -25,7 +25,13 @@ import sys
 import subprocess
 import jinja2
 import argparse
+import logging
+import logging.config
 
+from paiLibrary.clusterObjectModel import objectModelFactory
+
+
+logger = logging.getLogger(__name__)
 
 
 def write_generated_file(file_path, content_data):
@@ -41,6 +47,15 @@ def load_yaml_config(config_path):
         cluster_data = yaml.load(f)
 
     return cluster_data
+
+
+
+def loadClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+
+    return ret["service"]
 
 
 
@@ -73,7 +88,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -86,7 +101,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print(error_msg)
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -96,7 +111,7 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print("docker registry login successfully")
+    logger.info("docker registry login successfully")
 
 
 
@@ -133,7 +148,7 @@ def generate_secret_base64code(docker_info):
             "Failed to base64 the docker's config.json"
         )
     else:
-        print("docker registry authentication not provided")
+        logger.info("docker registry authentication not provided")
 
         base64code = "{}".encode("base64")
 
@@ -171,7 +186,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print("Successfully clean up the generated file")
+    logger.info("Successfully clean up the generated file")
 
 
 
@@ -308,7 +323,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
         "weight": max(0, 100 - total_weight)
     }
     if total_weight > 100:
-        print("WARNING: Too many resources configured in virtual clusters.")
+        logger.warning("Too many resources configured in virtual clusters.")
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
             hq_config["weight"] /= (total_weight / 100)
@@ -357,7 +372,22 @@ def generate_configuration_of_hadoop_queues_by_num_gpus(cluster_config):
 """
 
 
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = load_yaml_config(configuration_path)
+
+    logging.config.dictConfig(logging_configuration)
+
+
+
 def main():
+
+    setup_logging()
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
@@ -370,7 +400,7 @@ def main():
     # step 1: load configuration from yaml file.
     config_path = args.path
 
-    cluster_config = load_yaml_config(config_path)
+    cluster_config = loadClusterObjectModel(config_path)
     service_config = load_yaml_config("service.yaml")
 
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
