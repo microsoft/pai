@@ -150,7 +150,7 @@ Note: kubectl will be installed on this dev-box. So it can access to your kubern
 sudo docker build -t kubernetes-deployment .
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /path/to/your/cluster-configuration:/cluster-configuration  \
+        -v /path/to/configuration/directory:/cluster-configuration  \
         -v /var/lib/docker:/varl/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         --pid=host \
@@ -168,38 +168,38 @@ cd /pai/kubernetes-deployment
 ## bootstrap
 
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -a deploy
+sudo ./bootstrap.py -p /path/to/configuration/directory -a deploy
 ```
 
 ## Destroy your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -a clean
+sudo ./bootstrap.py -p /path/to/configuration/directory -a clean
 ```
 
 ## Only install kubectl into your dev-box
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -a install_kubectl
+sudo ./bootstrap.py -p /path/to/configuration/directory -a install_kubectl
 ```
 
 ## Add new nodes to your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -f yournodelist.yaml -a add
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a add
 ```
 
 ## Remove nodes from your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -f yournodelist.yaml -a remove
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a remove
 ```
 
 
 ## Repair the worker node with the unhealthy states
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -f yournodelist.yaml -a repair
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a repair
 ```
 
 
 ## Repair the crashed etcd node (kubernetes failed to restart it) 
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/ -f yournodelist.yaml -a etcdfix
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a etcdfix
 ```
 
