@@ -72,8 +72,12 @@ class Job {
     return jobState;
   }
 
-  getJobList(next) {
-    unirest.get(launcherConfig.frameworksPath())
+  getJobList(query, next) {
+    let reqPath = launcherConfig.frameworksPath();
+    if (query.username) {
+      reqPath = `${reqPath}?UserName=${query.username}`;
+    }
+    unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((res) => {
         try {

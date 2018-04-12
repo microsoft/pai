@@ -126,7 +126,7 @@ const convertState = (state) => {
 const convertGpu = (gpuAttribute) => {
   const bitmap = (+gpuAttribute).toString(2);
   const gpuList = [];
-  for (let i = 0; i < bitmap.length; i ++) {
+  for (let i = 0; i < bitmap.length; i++) {
     if (bitmap[i] === '1') {
       gpuList.push('#' + (bitmap.length - i - 1).toString());
     }
@@ -139,7 +139,7 @@ const convertGpu = (gpuAttribute) => {
   }
 };
 
-const loadJobs = (specifiedVc) => {
+const loadJobs = (limit, specifiedVc) => {
   loading.showLoading();
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs`,
@@ -148,14 +148,40 @@ const loadJobs = (specifiedVc) => {
       if (data.error) {
         alert(data.message);
       } else {
-        $('#view-table').html(jobTableComponent({
-          jobs: data.slice(0, 300),
-          specifiedVc: specifiedVc,
-          getDurationInSeconds,
-          convertTime,
-          convertState,
-        }));
+        let displayDataSet = [];
+        let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 1000);
+        for (let i = 0; i < rowCount; i++) {
+          let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
+          if (specifiedVc && vcName !== specifiedVc) {
+            continue;
+          }
+          let stopBtnStyle = (data[i].executionType === 'STOP' || data[i].subState === 'FRAMEWORK_COMPLETED') ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>';
+          displayDataSet.push({
+            jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
+            userName: data[i].username,
+            vcName: vcName,
+            startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
+              convertTime(false, data[i].createdTime),
+            duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
+              convertTime(true, data[i].createdTime, data[i].completedTime),
+            retries: data[i].retries,
+            status: convertState(data[i].state),
+            stop: stopBtnStyle,
+          });
+        }
+        $('#view-table').html(jobTableComponent({}));
         table = $('#job-table').dataTable({
+          'data': displayDataSet,
+          'columns': [
+            {title: 'Job Name', data: 'jobName'},
+            {title: 'User Name', data: 'userName'},
+            {title: 'Virtual Cluster', data: 'vcName'},
+            {title: 'Start Time', data: 'startTime'},
+            {title: 'Duration', data: 'duration'},
+            {title: 'Retries', data: 'retries'},
+            {title: 'Status', data: 'status'},
+            {title: 'Stop', data: 'stop'},
+          ],
           'scrollY': (($(window).height() - 265)) + 'px',
           'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
           'order': [[3, 'desc']],
@@ -163,6 +189,7 @@ const loadJobs = (specifiedVc) => {
             {type: 'natural', targets: [0, 1, 2, 5, 6]},
             {type: 'title-numeric', targets: [3, 4]},
           ],
+          'deferRender': true,
         }).api();
       }
       loading.hideLoading();
@@ -321,7 +348,7 @@ $(document).ready(() => {
     loadJobDetail(query['jobName']);
     $('#content-wrapper').css({'overflow': 'auto'});
   } else {
-    loadJobs(query['vcName']);
+    loadJobs(query['limit'], query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });

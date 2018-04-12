@@ -8,41 +8,45 @@
       <table id='vc-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
         <thead>
           <tr>
-            <th>VC Name</th>
-            <th>Running Jobs</th>
-            <th>Pending Jobs</th>
-            <th>Used Capacity</th>
-            <th>Configured Capacity</th>
+            <th>Name</th>
+            <th>Capacity</th>
             <th>Utilization</th>
+            <th>Memory</th>
+            <th>CPUs</th>
+            <th>GPUs</th>
+            <th>Active Jobs</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <% for (let x in data) { %>
-            <% if (specifiedVc && x !== specifiedVc) continue; %>
+          <% for (let vcName in data) { %>
+            <% if (specifiedVc && vcName !== specifiedVc) continue; %>
               <tr>
                 <td>
-                  <%= x %>
+                  <a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a>
                 </td>
                 <td>
-                  <%= data[x]['numActiveJobs'] %>
+                  <%= formatNumber(data[vcName]['capacity'], 2) %> %
                 </td>
                 <td>
-                  <%= data[x]['numPendingJobs'] %>
+                  <%= formatNumber(data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['usedCapacity'], 2) %> %
+                  <%= data[vcName]['resourcesUsed']['memory'] %> MB
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['capacity'], 2) %> %
+                  <%= data[vcName]['resourcesUsed']['vCores'] %>
                 </td>
                 <td>
-                  <%= formatNumber(data[x]['usedCapacity'] / data[x]['capacity'] * 100, 2) %> %
+                  <%= data[vcName]['resourcesUsed']['GPUs'] %>
                 </td>
                 <td>
-                  <a href="view.html?vcName=<%= x %>">View All Jobs in
-                    <%= x %>
-                  </a>
+                  <%= data[vcName]['numJobs'] %>
+                </td>
+                <td>
+                  <a href="view.html?vcName=<%= vcName %>">View Jobs</a>
+                  &nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a href="<%= yarnWebPortalUri %>/cluster/scheduler?openQueues=<%= vcName %>" target="_blank">Go to Yarn Page</a>
                 </td>
               </tr>
               <% } %>

@@ -110,6 +110,8 @@ clusterinfo:
     rest_server_uri: http://10.0.3.9:9186
     # root url of the prometheus server
     prometheus_uri: http://10.0.3.9:9091
+    # root url of the yarn web portal
+    yarn_web_portal_uri: http://10.0.3.9:8088
     # root url of the grafana portal
     grafana_uri: http://10.0.3.9:3000
     # root url of the k8s dashboard
@@ -134,8 +136,6 @@ clusterinfo:
     prometheus_port: 9091
     # port for node exporter
     node_exporter_port: 9100
-    # cadvisor port
-    cadvisor_port: 8089
 
   pyloninfo:
     # root url of the rest server
