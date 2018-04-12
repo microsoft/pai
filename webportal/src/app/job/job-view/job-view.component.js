@@ -32,6 +32,7 @@ const loadingComponent = require('../loading/loading.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobDetailTableComponent = require('./job-detail-table.component.ejs');
+const jobDetailConfigInfoModalComponent = require('./job-detail-config-info-modal.component.ejs');
 const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
@@ -173,8 +174,8 @@ const loadJobs = (limit, specifiedVc) => {
         table = $('#job-table').dataTable({
           'data': displayDataSet,
           'columns': [
-            {title: 'Job Name', data: 'jobName'},
-            {title: 'User Name', data: 'userName'},
+            {title: 'Job', data: 'jobName'},
+            {title: 'User', data: 'userName'},
             {title: 'Virtual Cluster', data: 'vcName'},
             {title: 'Start Time', data: 'startTime'},
             {title: 'Duration', data: 'duration'},
@@ -299,17 +300,18 @@ const loadJobDetail = (jobName) => {
   });
 };
 
-const showConfigInfo = () => {
-  alert(configInfo);
-}
+const showConfigInfo = (jobName) => {
+  $('#modalPlaceHolder').html(jobDetailConfigInfoModalComponent({
+    'jobName': jobName,
+    'configInfo': configInfo,
+  }));
+  $('#configInfoModal').modal('show');
+};
 
 const showSshInfo = (containerId) => {
-  if (sshInfo === null) {
-    return;
-  }
   for (let x of sshInfo.containers) {
     if (x.id === containerId) {
-      $('#sshInfoModalPlaceHolder').html(jobDetailSshInfoModalComponent({
+      $('#modalPlaceHolder').html(jobDetailSshInfoModalComponent({
         'containerId': containerId,
         'sshIp': x.sshIp,
         'sshPort': x.sshPort,

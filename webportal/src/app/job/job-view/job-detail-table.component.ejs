@@ -1,8 +1,8 @@
 
 <table class="table table-condensed">
   <tr style='background-color:whitesmoke'>
-    <th>Job Name</th>
-    <th>User Name</th>
+    <th>Job</th>
+    <th>User</th>
     <th>Virtual Cluster</th>
     <th>Start Time</th>
     <th>Duration</th>
@@ -35,7 +35,7 @@
     <td>
       <div name='configInfoDiv' style='float:left'>
         <a name='configInfoLink'
-           onclick='showConfigInfo()'
+           onclick="showConfigInfo('<%= jobName %>')"
            href='javascript:void(0);'>
            View Job Config
         </a>

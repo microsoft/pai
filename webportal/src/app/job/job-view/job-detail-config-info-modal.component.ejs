@@ -1,0 +1,16 @@
+<!-- Modal -->
+<div id="configInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Config of <%= jobName %></h4>
+      </div>
+      <div class="modal-body">
+        <pre><code><%= JSON.stringify(configInfo, null, 2) %></code></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
