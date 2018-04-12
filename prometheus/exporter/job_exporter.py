@@ -18,6 +18,8 @@ def parseFromLabels(labels):
                 s2 = s1[1].replace("\"", "").split(",")
                 for id in s2:
                     gpuIds.append(id)
+        else: 
+            continue
         labelStr += label + ","
 
     return gpuIds, labelStr
@@ -36,7 +38,7 @@ def genJobMetrics(logDir, gpuMetrics):
     for container in stats:
         inspectInfo = docker_inspect.inspect(container)
         if not inspectInfo["labels"]:
-            return
+            continue
         gpuIds, labelStr = parseFromLabels(inspectInfo["labels"])
         envStr = parseFromEnv(inspectInfo["env"])
         labelStr = labelStr + envStr
