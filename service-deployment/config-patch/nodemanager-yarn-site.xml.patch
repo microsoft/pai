@@ -1,6 +1,6 @@
 --- yarn-site.xml	2018-04-04 07:06:34.494361873 -0400
 +++ nodemanager-yarn-site.xml	2018-04-04 05:58:55.731371334 -0400
-@@ -12,8 +12,122 @@
+@@ -12,8 +12,127 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -121,6 +121,11 @@
 +    <property>
 +      <name>yarn.nodemanager.recovery.dir</name>
 +      <value>/var/lib/yarn/yarn-nm-recovery</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.address</name>
++      <value>{{ host_config['ip'] }}:8041</value>
 +    </property>
  
  </configuration>
