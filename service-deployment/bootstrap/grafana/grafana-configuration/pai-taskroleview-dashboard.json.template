@@ -105,7 +105,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_CPUPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role", container_label_PAI_JOB_NAME=~"$job"}) * 100",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_CPUPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) * 100",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -206,7 +206,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_MemUsage{container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role", container_label_PAI_JOB_NAME=~"$job"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_MemUsage{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -298,7 +298,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetIn{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role", container_label_PAI_JOB_NAME=~"$job"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetIn{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
@@ -308,7 +308,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetOut{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role",container_label_PAI_JOB_NAME=~"$job"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetOut{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -494,7 +494,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME)(container_GPUPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role", container_label_PAI_JOB_NAME=~"$job"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME)(container_GPUPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -592,7 +592,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_GPUMemPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~"$task_role", container_label_PAI_JOB_NAME=~"$job"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_GPUMemPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
