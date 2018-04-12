@@ -8,6 +8,7 @@
   "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/code",
+  "virtualCluster": "deafult",
 
   "taskRoles": [
     {
