@@ -6,6 +6,7 @@
   "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorboard-jobguid/data",
   // prepare visualization script tensorboard-example.sh and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorboard-jobguid/code",
+  "virtualCluster": "default",
 
   "taskRoles": [
     {
