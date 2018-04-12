@@ -48,16 +48,20 @@ while /bin/true; do
   [ -f "/tmp/pai-root/alive/$APP_ID/docker_$CONTAINER_ID" ] && [ ! "$(docker ps | grep $docker_name)" ] && break
 done &
 
+gpu_id=''
 nvidia_devices=''
 {{# taskData.gpuNumber }}
 nvidia_devices+='--device=/dev/nvidiactl --device=/dev/nvidia-uvm'
 gpu_bitmap=$(perl -e 'printf "%b",'$CONTAINER_GPUS)
 for (( i=0,j=$((${#gpu_bitmap}-1)); i<${#gpu_bitmap}; i++,j-- )); do
   if [ ${gpu_bitmap:$i:1} -gt 0 ]; then
+    gpu_id+="$j,"
     nvidia_devices+=" --device=/dev/nvidia$j"
   fi
 done
+gpu_id=$(echo $gpu_id | sed "s/,$//g")
 {{/ taskData.gpuNumber }}
+printf "%s %s\n%s\n\n" "[INFO]" "GPU_ID" "$gpu_id"
 printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 
 
@@ -85,6 +89,7 @@ docker run --name $docker_name \
   --security-opt apparmor:unconfined \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
+  --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \
   --label PAI_JOB_VC_NAME={{{ jobData.virtualCluster }}} \
