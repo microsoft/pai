@@ -27,6 +27,8 @@ chmod u+x node-label.sh
 
 ./node-label.sh
 
-kubectl create -f grafana.yaml
+kubectl create namespace test
+
+kubectl  create -f grafana.yaml
 
 popd > /dev/null

@@ -93,7 +93,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (irate(container_cpu_usage_seconds_total{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\", container_env_pai_task_index=~\"$task\"}[5m])) * 100",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (container_CPUPerc{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\", container_env_pai_task_index=~\"$task\"}) * 100",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -194,7 +194,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (container_memory_usage_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (container_MemUsage{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -286,7 +286,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (rate(container_network_receive_bytes_total{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (container_NetIn{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -297,7 +297,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (rate(container_network_transmit_bytes_total{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index) (container_NetOut{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -393,15 +393,22 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index) (container_fs_usage_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index) (container_BlockIn{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}",
+              "legendFormat": "In {{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
+            },
+            {
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index) (container_BlockOut{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Out {{container_label_PAI_JOB_NAME}}-{{container_env_pai_task_index}}",
+              "refId": "B"
             }
           ],
           "thresholds": [],
@@ -476,7 +483,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index)(container_accelerator_duty_cycle{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index)(container_GPUPerc{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -559,7 +566,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index) (container_GPUMemPerc{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -664,13 +671,13 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index, acc_id)(container_accelerator_duty_cycle{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME,container_env_pai_task_index, minor_number)(container_GPUPerc{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "hide": false,
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}-{{'{{acc_id}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_env_pai_task_index}}'}}-{{'{{minor_number}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -762,13 +769,12 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index, acc_id) (container_accelerator_memory_used_bytes{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
-              "format": "time_series",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_pai_task_index, minor_number) (container_MemUsage{container_env_pai_task_index=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "hide": false,
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}} - {{'{{container_env_pai_task_index}}'}}-{{'{{acc_id}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}} - {{'{{container_env_pai_task_index}}'}}-{{'{{minor_number}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
