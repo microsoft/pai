@@ -63,6 +63,7 @@ export PAI_CURRENT_TASK_ROLE_TASK_COUNT={{{ taskData.taskNumber }}}
 export PAI_CURRENT_TASK_ROLE_CPU_COUNT={{{ taskData.cpuNumber }}}
 export PAI_CURRENT_TASK_ROLE_MEM_MB={{{ taskData.memoryMB }}}
 export PAI_CURRENT_TASK_ROLE_GPU_COUNT={{{ taskData.gpuNumber }}}
+export PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$PAI_TASK_INDEX
 export PAI_JOB_TASK_COUNT={{{ tasksNumber }}}
 export PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
 export PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
@@ -78,35 +79,20 @@ export PAI_CONTAINER_HOST_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PO
 export PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT_LIST)"
 
 task_role_no={{{ idx }}}
-# Touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_HOST_IP-CONTAINER_HOST_PORT" format on hdfs
-# To communicate with other containers, add APP_ID as prefix to differentiate attempts with same job name
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/$APP_ID-$task_role_no-$PAI_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_HOST_PORT || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/ | grep "/$PAI_JOB_NAME/tmp/$APP_ID-" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
-  printf "%s %s\n" "[INFO]" "Waiting for other containers ..."
-  sleep 10
-done
-hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/tmp/ \
-  | grep "/$PAI_JOB_NAME/tmp/$APP_ID-" \
-  | grep -oE "[^/]+$" \
-  | sed -e "s/^$APP_ID-//g" \
-  | sort -n -k 2 -t"-" \
-  > ContainerList
-if [ "$(cat ContainerList | wc -l)" -ne $PAI_JOB_TASK_COUNT ]; then
-  printf "%s %s\n%s\n%s\n\n" \
-    "[ERROR]" "ContainerList" \
-    "$(cat ContainerList)" \
-    "$(cat ContainerList | wc -l) containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
-  exit 2
-fi
 
-export PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$((`cat ContainerList | grep "^$task_role_no-" | grep -n "$task_role_no-$PAI_TASK_INDEX-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_HOST_PORT" | cut -d ":" -f 1`-1))
-task_role_list=(${PAI_JOB_TASK_ROLE_LIST//,/ })
-for i in `seq 0 $((PAI_JOB_TASK_ROLE_COUNT-1))`; do
-  host_list=`cat ContainerList | grep "^$i-" | cut -d "-" -f 3-4 | tr "-" ":" | sed -e :E -e "N;s/\n/,/;tE"`
-  export PAI_TASK_ROLE_${i}_HOST_LIST=$host_list
-  export PAI_TASK_ROLE_${task_role_list[$i]}_HOST_LIST=$host_list
+
+# Get container host list from framework launcher webservice
+framework_status=$(curl -X GET -H "Accept: application/json" {{{ statusUri }}} | jq -r ".aggregatedFrameworkStatus")
+for taskrole in $(cat $framework_status |  jq -r ".aggregatedTaskRoleStatuses|keys[]"); do
+  host_list=''
+  for task in $(cat $framework_status |  jq -r ".aggregatedTaskRoleStatuses.${taskrole}.taskStatuses.taskStatusArray[]"); do
+    host_list+=$(echo $task | jq -r ".containerIp"):
+    host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
+  done
+  host_list=$(echo $host_list | sed "s/,$//g")
+  export PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list
 done
-rm ContainerList
+
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
