@@ -8,6 +8,7 @@
   "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/output",
   // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/code",
+  "virtualCluster": "default",
 
   "taskRoles": [
     {
