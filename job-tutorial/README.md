@@ -106,7 +106,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
 | `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
-| `virtualCluster`               | String, optional           | The virtual cluster job runs on          |
+| `virtualCluster`               | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
@@ -148,8 +148,8 @@ Below we show a complete list of environment variables accessible in a Docker co
 | :--------------------------------- | :--------------------------------------- |
 | PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
-| PAI_JOB_VC_NAME                    | `virtualCluster` in config file          |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_JOB_VC_NAME                    | The virtual cluster in which the job is running     |
 | PAI_USER_NAME                      | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
