@@ -87,11 +87,10 @@ def main(argv):
         logDir = argv[0]
         timeSleep = int(argv[1])
         # collect GPU metrics
-        gpuMetrics = gpu_exporter.main([logDir])
+        gpuMetrics = gpu_exporter.genGpuMetricsFromSmi([logDir])
         # join with docker stats metrics and docker inspect labels
         genJobMetrics(logDir, gpuMetrics)
         time.sleep(timeSleep)
 
-# example: python job_exporter.py ./datastorage/prometheus 3
 if __name__ == "__main__":
     main(sys.argv[1:])
