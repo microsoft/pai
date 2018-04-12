@@ -19,8 +19,8 @@ def parseFromLabels(labels):
                 for id in s2:
                     gpuIds.append(id)
         else: 
-            continue
-        labelStr += label + ","
+            labelStr += label + ","
+        
 
     return gpuIds, labelStr
 
