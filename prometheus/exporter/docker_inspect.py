@@ -15,7 +15,6 @@ def parseDockerInspect(jsonStr):
     if jsonObject[0]["Config"]["Labels"]:
         for key in jsonObject[0]["Config"]["Labels"]:
             if key in targetLabel:
-                print("")
                 labels.append("container_label_{0}=\"{1}\"".format(key.replace(".", "_"), jsonObject[0]["Config"]["Labels"][key]))
             
     if jsonObject[0]["Config"]["Env"]:
