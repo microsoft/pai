@@ -88,7 +88,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME)(irate(container_cpu_usage_seconds_total{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) * 100",
+              "expr": "avg by (container_label_PAI_JOB_NAME)(container_CPUPerc{container_label_PAI_JOB_NAME=~\"$job\"}) * 100",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -189,7 +189,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_memory_usage_bytes{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_MemUsage{ container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -281,23 +281,23 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (rate(container_network_receive_bytes_total{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (rate(container_network_transmit_bytes_total{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "B",
               "step": 600
             }
@@ -388,15 +388,22 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_fs_usage_bytes{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "In {{container_label_PAI_JOB_NAME}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
+            },
+            {
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "Out {{container_label_PAI_JOB_NAME}}",
+              "refId": "B"
             }
           ],
           "thresholds": [],
@@ -471,7 +478,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME)(container_accelerator_duty_cycle{container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME)(container_GPUPerc{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -554,7 +561,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_accelerator_memory_used_bytes{container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (container_GPUMemPerc{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
