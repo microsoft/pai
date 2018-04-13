@@ -42,4 +42,4 @@ RUN cp -r /usr/local/docker/* /usr/bin/
 # start
 #
 
-CMD python /usr/local/job_exporter.py {{ clusterconfig['clusterinfo'][ 'dataPath' ] }}/prometheus 30
+CMD python /usr/local/job_exporter.py /datastorage/prometheus 30
