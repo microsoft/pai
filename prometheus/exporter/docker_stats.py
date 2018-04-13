@@ -38,7 +38,7 @@ def parseUsageLimit(data):
 
 def convertToByte(data):
     data = data.lower()
-    number = float(re.findall(r"\d", data)[0])
+    number = float(re.findall(r"\d+", data)[0])
     if ("tb" in data) or ("tib" in data):
         return number * 1024 * 1024 * 1024 * 1024
     elif ("gb" in data) or ("gib" in data):
