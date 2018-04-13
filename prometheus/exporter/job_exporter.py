@@ -93,6 +93,7 @@ def main(argv):
     iter = 0
     while(True):
         print("job exporter running {0} iteration".format(str(iter)))
+        iter += 1
         # collect GPU metrics
         gpuMetrics = gpu_exporter.genGpuMetricsFromSmi(logDir)
         # join with docker stats metrics and docker inspect labels
