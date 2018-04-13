@@ -92,7 +92,7 @@
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "job {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "A"
             }
           ],
