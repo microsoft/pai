@@ -56,8 +56,8 @@ def parseDockerStats(stats):
     
 def stats():
     try:
-        dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
-        dockerDockerStats = subprocess.check_output([dockerStatsCMD])
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
     except subprocess.CalledProcessError as e:

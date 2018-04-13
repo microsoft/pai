@@ -3,7 +3,7 @@ import subprocess
 import json
 import sys
 
-targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "PAI_CURRENT_GPU_ID"}
+targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
 targetEnv = {"PAI_TASK_INDEX"}
 
 def parseDockerInspect(jsonStr):
