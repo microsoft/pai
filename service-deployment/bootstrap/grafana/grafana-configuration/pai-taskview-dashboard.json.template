@@ -769,7 +769,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_PAI_TASK_INDEX, minor_number) (container_MemUsage{container_env_PAI_TASK_INDEX=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME, container_env_PAI_TASK_INDEX, minor_number) (container_GPUMemPerc{container_env_PAI_TASK_INDEX=~\"$task\",container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"})",
               "hide": false,
               "instant": false,
               "interval": "",
