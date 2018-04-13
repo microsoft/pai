@@ -783,7 +783,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Task Avg GPU Memory Usage",
+          "title": "Task Per GPU Memory Usage",
           "tooltip": {
             "msResolution": false,
             "shared": true,
