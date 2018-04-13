@@ -88,7 +88,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME)(container_CPUPerc{container_label_PAI_JOB_NAME=~\"$job\"}) * 100",
+              "expr": "avg by (container_label_PAI_JOB_NAME)(container_CPUPerc{container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -128,7 +128,6 @@
               "format": "percent",
               "label": "%",
               "logBase": 1,
-              "max": "100",
               "min": 0,
               "show": true
             },
@@ -392,7 +391,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "In {{container_label_PAI_JOB_NAME}}",
+              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -402,7 +401,7 @@
               "expr": "avg by (container_label_PAI_JOB_NAME) (container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Out {{container_label_PAI_JOB_NAME}}",
+              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "B"
             }
           ],
