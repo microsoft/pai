@@ -397,6 +397,10 @@ class Job {
   }
 
   generateYarnContainerScript(data, idx) {
+    let tasksNumber = 0;
+    for (let i = 0; i < data.taskRoles.length; i ++) {
+      tasksNumber += data.taskRoles[i].taskNumber;
+    }
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
           'idx': idx,
@@ -412,10 +416,6 @@ class Job {
   }
 
   generateDockerContainerScript(data, idx) {
-    let tasksNumber = 0;
-    for (let i = 0; i < data.taskRoles.length; i ++) {
-      tasksNumber += data.taskRoles[i].taskNumber;
-    }
     const dockerContainerScript = mustache.render(
         dockerContainerScriptTemplate, {
           'idx': idx,
