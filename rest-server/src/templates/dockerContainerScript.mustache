@@ -46,63 +46,11 @@ while /bin/true; do
 done &
 
 
-printf "%s %s\n%s\n\n" "[INFO]" "HADOOP CLASSPATH" "$(hadoop classpath --glob)"
-
 export PAI_WORK_DIR="$(pwd)"
-export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
-export PAI_JOB_NAME={{{ jobData.jobName }}}
-export PAI_USER_NAME={{{ jobData.username }}}
-export PAI_DATA_DIR={{{ jobData.dataDir }}}
-export PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
-export PAI_CODE_DIR={{{ jobData.codeDir }}}
-export PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}}
-export PAI_CURRENT_TASK_ROLE_TASK_COUNT={{{ taskData.taskNumber }}}
-export PAI_CURRENT_TASK_ROLE_CPU_COUNT={{{ taskData.cpuNumber }}}
-export PAI_CURRENT_TASK_ROLE_MEM_MB={{{ taskData.memoryMB }}}
-export PAI_CURRENT_TASK_ROLE_GPU_COUNT={{{ taskData.gpuNumber }}}
-export PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$PAI_TASK_INDEX
-export PAI_JOB_TASK_COUNT={{{ tasksNumber }}}
-export PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
-export PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
-export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
-
-port_list=(${PAI_CONTAINER_HOST_PORT_LIST//;/ })
-for ports in "${port_list[@]}"; do
-  port_label="$(cut -f 1 -d":" <<< $ports)"
-  export PAI_CONTAINER_HOST_${port_label}_PORT_LIST="$(cut -f 2 -d":" <<< $ports)"
-done
-
-export PAI_CONTAINER_HOST_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)"
-export PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT_LIST)"
-
 task_role_no={{{ idx }}}
-
-
-function get_host_list()
-{
-  while true; do
-    taskrole_statuses=$(curl -X GET -H "Accept: application/json" {{{ statusUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
-    jq -re ".[].taskStatuses.taskStatusArray[].containerIp") <<< $(cat $taskrole_statuses) > /dev/null
-    if [ $? -ne 0 ]; then
-      break
-    fi
-  done
-  for taskrole in $(cat $taskrole_statuses |  jq -r ".|keys[]"); do
-    host_list=''
-    for task in $(cat $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[]"); do
-      host_list+=$(echo $task | jq -r ".containerIp"):
-      host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
-    done
-    host_list=$(echo $host_list | sed "s/,$//g")
-    export PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list
-  done
-}
-
-# Get container host list from framework launcher webservice
-get_host_list
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
@@ -110,19 +58,6 @@ if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -get $PAI_CODE_DIR || exit 1
 fi
 
-# Backward compatibility
-export PAI_USERNAME=$PAI_USER_NAME
-export PAI_TASK_ROLE_NAME=$PAI_CURRENT_TASK_ROLE_NAME
-export PAI_TASK_ROLE_NUM=$PAI_CURRENT_TASK_ROLE_TASK_COUNT
-export PAI_TASK_CPU_NUM=$PAI_CURRENT_TASK_ROLE_CPU_COUNT
-export PAI_TASK_MEM_MB=$PAI_CURRENT_TASK_ROLE_MEM_MB
-export PAI_TASK_GPU_NUM=$PAI_CURRENT_TASK_ROLE_GPU_COUNT
-export PAI_TASK_ROLE_INDEX=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX
-export PAI_TASKS_NUM=$PAI_JOB_TASK_COUNT
-export PAI_TASK_ROLES_NUM=$PAI_JOB_TASK_ROLE_COUNT
-export PAI_TASK_ROLE_LIST=$PAI_JOB_TASK_ROLE_LIST
-export PAI_CURRENT_CONTAINER_IP=$PAI_CONTAINER_HOST_IP
-export PAI_CURRENT_CONTAINER_PORT=$PAI_CONTAINER_HOST_PORT
 
 function prepare_ssh()
 {

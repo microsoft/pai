@@ -400,7 +400,11 @@ class Job {
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
           'idx': idx,
+          'tasksNumber': tasksNumber,
+          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
+          'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
+          'statusUri': launcherConfig.frameworkStatusPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
         });
@@ -415,11 +419,7 @@ class Job {
     const dockerContainerScript = mustache.render(
         dockerContainerScriptTemplate, {
           'idx': idx,
-          'tasksNumber': tasksNumber,
-          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
-          'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
-          'statusUri': launcherConfig.frameworkStatusPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
         });

@@ -69,6 +69,90 @@ docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
   || { echo 'Authorized failed' ; exit 1; }
 {{/ jobData.authFile }}
 
+
+# Get container host list from framework launcher webservice
+function get_host_list()
+{
+  while true; do
+    taskrole_statuses=$(curl -X GET -H "Accept: application/json" {{{ statusUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+    jq -re ".[].taskStatuses.taskStatusArray[].containerIp") <<< $(cat $taskrole_statuses) > /dev/null
+    if [ $? -ne 0 ]; then
+      break
+    fi
+    sleep $[ ( $RANDOM % 10 )  + 10 ]s
+  done
+  for taskrole in $(cat $taskrole_statuses |  jq -r ".|keys[]"); do
+    host_list=''
+    for task in $(cat $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[]"); do
+      host_list+=$(echo $task | jq -r ".containerIp"):
+      host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
+    done
+    host_list=$(echo $host_list | sed "s/,$//g")
+    echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
+  done
+}
+
+
+# Prepare env file
+ENV_LIST=env.list
+
+cat <<ENV >> $ENV_LIST
+APP_ID=$APP_ID
+FRAMEWORK_NAME=$FRAMEWORK_NAME
+HADOOP_USER_NAME=$HADOOP_USER_NAME
+PAI_TASK_INDEX=$TASK_INDEX
+PAI_CONTAINER_HOST_IP=$CONTAINER_IP
+PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS
+PAI_CONTAINER_ID=$CONTAINER_ID
+PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
+PAI_JOB_NAME={{{ jobData.jobName }}}
+PAI_USER_NAME={{{ jobData.username }}}
+PAI_DATA_DIR={{{ jobData.dataDir }}}
+PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
+PAI_CODE_DIR={{{ jobData.codeDir }}}
+PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}}
+PAI_CURRENT_TASK_ROLE_TASK_COUNT={{{ taskData.taskNumber }}}
+PAI_CURRENT_TASK_ROLE_CPU_COUNT={{{ taskData.cpuNumber }}}
+PAI_CURRENT_TASK_ROLE_MEM_MB={{{ taskData.memoryMB }}}
+PAI_CURRENT_TASK_ROLE_GPU_COUNT={{{ taskData.gpuNumber }}}
+PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$TASK_INDEX
+PAI_JOB_TASK_COUNT={{{ tasksNumber }}}
+PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
+PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
+PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
+ENV
+
+port_list=(${CONTAINER_PORTS//;/ })
+for ports in "${port_list[@]}"; do
+  port_label="$(cut -f 1 -d":" <<< $ports)"
+  echo PAI_CONTAINER_HOST_${port_label}_PORT_LIST="$(cut -f 2 -d":" <<< $ports)" >> $ENV_LIST
+done
+
+echo PAI_CONTAINER_HOST_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
+echo PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT_LIST)" >> $ENV_LIST
+
+get_host_list $ENV_LIST
+
+# Backward compatibility
+cat <<ENV >> $ENV_LIST
+# Backward compatibility
+PAI_USERNAME={{{ jobData.username }}}
+PAI_TASK_ROLE_NAME={{{ taskData.name }}}
+PAI_TASK_ROLE_NUM={{{ taskData.taskNumber }}}
+PAI_TASK_CPU_NUM={{{ taskData.cpuNumber }}}
+PAI_TASK_MEM_MB={{{ taskData.memoryMB }}}
+PAI_TASK_GPU_NUM={{{ taskData.gpuNumber }}}
+PAI_TASK_ROLE_INDEX=$TASK_INDEX
+PAI_TASKS_NUM={{{ tasksNumber }}}
+PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
+PAI_TASK_ROLE_LIST={{{ taskRoleList }}}
+PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP
+ENV
+
+echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
+
+
+# Pull docker image and run
 docker pull {{{ jobData.image }}} \
   || { echo 'Can not pull Docker image' ; exit 1; }
 docker run --name $docker_name \
@@ -90,13 +174,7 @@ docker run --name $docker_name \
   --label PAI_JOB_VC_NAME={{{ jobData.virtualCluster }}} \
   --label PAI_USER_NAME={{{ jobData.username }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
-  --env APP_ID=$APP_ID \
-  --env FRAMEWORK_NAME=$FRAMEWORK_NAME \
-  --env HADOOP_USER_NAME=$HADOOP_USER_NAME \
-  --env PAI_TASK_INDEX=$TASK_INDEX \
-  --env PAI_CONTAINER_HOST_IP=$CONTAINER_IP \
-  --env PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS \
-  --env PAI_CONTAINER_ID=$CONTAINER_ID \
+  --env-file $ENV_LIST \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
   '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh' \
   || exit 1
