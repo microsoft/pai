@@ -53,7 +53,7 @@ spec:
           readOnly: true
         name: node-exporter
         args:
-          - '--collector.textfile.directory={{ clusterinfo[ 'dataPath' ] }}/prometheus'
+          - '--collector.textfile.directory=/datastorage/prometheus'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
