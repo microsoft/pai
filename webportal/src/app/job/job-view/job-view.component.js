@@ -32,12 +32,14 @@ const loadingComponent = require('../loading/loading.component.ejs');
 const jobViewComponent = require('./job-view.component.ejs');
 const jobTableComponent = require('./job-table.component.ejs');
 const jobDetailTableComponent = require('./job-detail-table.component.ejs');
+const jobDetailConfigInfoModalComponent = require('./job-detail-config-info-modal.component.ejs');
 const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
+let configInfo = null;
 let sshInfo = null;
 
 const jobViewHtml = jobViewComponent({
@@ -127,7 +129,7 @@ const convertGpu = (gpuAttribute) => {
   const gpuList = [];
   for (let i = 0; i < bitmap.length; i++) {
     if (bitmap[i] === '1') {
-      gpuList.push(bitmap.length - i - 1);
+      gpuList.push('#' + (bitmap.length - i - 1).toString());
     }
   }
   if (gpuList.length > 0) {
@@ -158,7 +160,7 @@ const loadJobs = (limit, specifiedVc) => {
           displayDataSet.push({
             jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
             userName: data[i].username,
-            vcName: vcName,
+            vcName: '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>',
             startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
               convertTime(false, data[i].createdTime),
             duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
@@ -172,8 +174,8 @@ const loadJobs = (limit, specifiedVc) => {
         table = $('#job-table').dataTable({
           'data': displayDataSet,
           'columns': [
-            {title: 'Job Name', data: 'jobName'},
-            {title: 'User Name', data: 'userName'},
+            {title: 'Job', data: 'jobName'},
+            {title: 'User', data: 'userName'},
             {title: 'Virtual Cluster', data: 'vcName'},
             {title: 'Start Time', data: 'startTime'},
             {title: 'Duration', data: 'duration'},
@@ -228,6 +230,7 @@ const stopJob = (jobName) => {
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();
+  configInfo = null;
   sshInfo = null;
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
@@ -246,6 +249,26 @@ const loadJobDetail = (jobName) => {
           convertState,
           convertGpu,
         }));
+        //
+        $('a[name=configInfoLink]').addClass('disabled');
+        $.ajax({
+          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/config`,
+          type: 'GET',
+          success: (data) => {
+            configInfo = data;
+            $('a[name=configInfoLink]').removeClass('disabled');
+            $('div[name=configInfoDiv]').attr('title', '');
+          },
+          error: (xhr, textStatus, error) => {
+            const res = JSON.parse(xhr.responseText);
+            if (res.message === 'ConfigFileNotFound') {
+              $('div[name=configInfoDiv]').attr('title', 'This job\'s config file has not been stored.');
+            } else {
+              $('div[name=configInfoDiv]').attr('title', 'Error: ' + res.message);
+            }
+          },
+        });
+        //
         $('a[name^=sshInfoLink]').addClass('disabled');
         if (data.jobStatus.state !== 'RUNNING') {
           $('div[name^=sshInfoDiv]').attr('title', 'Job is not running.');
@@ -262,6 +285,8 @@ const loadJobDetail = (jobName) => {
               const res = JSON.parse(xhr.responseText);
               if (res.message === 'SshInfoNotFound') {
                 $('div[name^=sshInfoDiv]').attr('title', 'This job does not contain SSH info.');
+              } else {
+                $('div[name^=sshInfoDiv]').attr('title', 'Error: ' + res.message);
               }
             },
           });
@@ -275,13 +300,18 @@ const loadJobDetail = (jobName) => {
   });
 };
 
+const showConfigInfo = (jobName) => {
+  $('#modalPlaceHolder').html(jobDetailConfigInfoModalComponent({
+    'jobName': jobName,
+    'configInfo': configInfo,
+  }));
+  $('#configInfoModal').modal('show');
+};
+
 const showSshInfo = (containerId) => {
-  if (sshInfo === null) {
-    return;
-  }
   for (let x of sshInfo.containers) {
     if (x.id === containerId) {
-      $('#sshInfoModalPlaceHolder').html(jobDetailSshInfoModalComponent({
+      $('#modalPlaceHolder').html(jobDetailSshInfoModalComponent({
         'containerId': containerId,
         'sshIp': x.sshIp,
         'sshPort': x.sshPort,
@@ -296,6 +326,7 @@ const showSshInfo = (containerId) => {
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
+window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 
 const resizeContentWrapper = () => {
