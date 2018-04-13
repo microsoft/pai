@@ -28,6 +28,7 @@ import importlib
 import time
 import logging
 import logging.config
+from clusterObjectModel import objectModelFactory
 
 
 from maintainlib import common as pai_common
@@ -106,6 +107,14 @@ def load_yaml_file(path):
 def load_cluster_config(config_path):
 
     return load_yaml_file(config_path)
+
+
+
+def logClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+    return ret["k8s"]
 
 
 
@@ -333,16 +342,19 @@ def initial_bootstrap_cluster(cluster_config):
 
     if 'proxy' in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment']['proxy']['listname']
-        machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+        if listname in cluster_config:
+            machine_list = cluster_config[listname]
+            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
 
     listname = cluster_config['remote_deployment']['master']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
 
     listname = cluster_config['remote_deployment']['worker']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
 
 
 
@@ -350,8 +362,9 @@ def destory_whole_cluster(cluster_config):
 
     for role in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment'][role]['listname']
-        machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
+        if listname in cluster_config:
+            machine_list = cluster_config[listname]
+            kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
 
 
 
@@ -452,7 +465,7 @@ def main():
     logger.info("Pass option validation! ")
 
     config_path = args.path
-    cluster_config = load_cluster_config(config_path)
+    cluster_config = logClusterObjectModel(config_path)
 
     master_list = cluster_config['mastermachinelist']
     etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)

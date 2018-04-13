@@ -22,6 +22,14 @@ import sys
 import time
 from kubernetesTool import servicestatus
 import yaml
+import logging
+import logging.config
+
+
+
+
+logger = logging.getLogger(__name__)
+
 
 
 def load_yaml_config(config_path):
@@ -39,7 +47,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -52,7 +60,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -69,7 +77,22 @@ def clean_service(service_config, serv):
 
 
 
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = load_yaml_config(configuration_path)
+
+    logging.config.dictConfig(logging_configuration)
+
+
+
+
 def main():
+
+    setup_logging()
 
     service_config = load_yaml_config("service.yaml")
 
@@ -94,13 +117,13 @@ def main():
 
     while servicestatus.is_service_ready('cleaning-one-shot') != True:
 
-        print "The cleaning job not finish yet. Pleas wait for a moment!"
+        logger.info("The cleaning job not finish yet. Pleas wait for a moment!")
         time.sleep(5)
 
         timeout = timeout - 5
         if timeout < 0:
-            print "Failed cleaning your cluster. please check the cleaning job and delete it manually."
-            print "To delete the image, please run -- kubectl delete ds cleaning-one-shot"
+            logger.error("Failed cleaning your cluster. please check the cleaning job and delete it manually.")
+            logger.error("To delete the image, please run -- kubectl delete ds cleaning-one-shot")
             sys.exit(1)
 
 
@@ -110,7 +133,7 @@ def main():
 
     clean_service(service_config, 'cluster-configuration')
 
-    print "The cleaning job finished!"
+    logger.info("The cleaning job finished!")
 
 
 
