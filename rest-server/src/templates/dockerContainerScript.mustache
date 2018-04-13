@@ -81,18 +81,28 @@ export PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT
 task_role_no={{{ idx }}}
 
 
-# Get container host list from framework launcher webservice
-framework_status=$(curl -X GET -H "Accept: application/json" {{{ statusUri }}} | jq -r ".aggregatedFrameworkStatus")
-for taskrole in $(cat $framework_status |  jq -r ".aggregatedTaskRoleStatuses|keys[]"); do
-  host_list=''
-  for task in $(cat $framework_status |  jq -r ".aggregatedTaskRoleStatuses.${taskrole}.taskStatuses.taskStatusArray[]"); do
-    host_list+=$(echo $task | jq -r ".containerIp"):
-    host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
+function get_host_list()
+{
+  while true; do
+    taskrole_statuses=$(curl -X GET -H "Accept: application/json" {{{ statusUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+    jq -re ".[].taskStatuses.taskStatusArray[].containerIp") <<< $(cat $taskrole_statuses) > /dev/null
+    if [ $? -ne 0 ]; then
+      break
+    fi
   done
-  host_list=$(echo $host_list | sed "s/,$//g")
-  export PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list
-done
+  for taskrole in $(cat $taskrole_statuses |  jq -r ".|keys[]"); do
+    host_list=''
+    for task in $(cat $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[]"); do
+      host_list+=$(echo $task | jq -r ".containerIp"):
+      host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
+    done
+    host_list=$(echo $host_list | sed "s/,$//g")
+    export PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list
+  done
+}
 
+# Get container host list from framework launcher webservice
+get_host_list
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
