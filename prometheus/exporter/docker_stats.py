@@ -1,4 +1,21 @@
 #!/usr/bin/python
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import subprocess
 import json
 import sys
@@ -21,7 +38,7 @@ def parseUsageLimit(data):
 
 def convertToByte(data):
     data = data.lower()
-    number = float(re.findall(r"\d", data)[0])
+    number = float(re.findall(r"\d+", data)[0])
     if ("tb" in data) or ("tib" in data):
         return number * 1024 * 1024 * 1024 * 1024
     elif ("gb" in data) or ("gib" in data):
@@ -56,8 +73,8 @@ def parseDockerStats(stats):
     
 def stats():
     try:
-        dockerStatsCMD = "sudo docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
-        dockerDockerStats = subprocess.check_output([dockerStatsCMD])
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
     except subprocess.CalledProcessError as e:

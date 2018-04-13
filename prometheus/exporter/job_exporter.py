@@ -29,12 +29,14 @@ def parseFromLabels(labels):
     labelStr = ""
 
     for label in labels:
-        if "PAI_CURRENT_GPU_ID" in label:
+        print(label)
+        if "container_label_GPU_ID" in label:
             s1 = label.split("=")
             if len(s1) > 1:
                 s2 = s1[1].replace("\"", "").split(",")
                 for id in s2:
-                    gpuIds.append(id)
+                    if id:
+                        gpuIds.append(id)
         else: 
             labelStr += label + ","
         
@@ -60,6 +62,9 @@ def genJobMetrics(logDir, gpuMetrics):
         envStr = parseFromEnv(inspectInfo["env"])
         labelStr = labelStr + envStr
         for id in gpuIds:
+            print("gpu id")
+            print(id)
+            print(gpuMetrics)
             containerGpuUtilStr = 'container_GPUPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuUtil"])
             containerMemUtilStr = 'container_GPUMemPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuMemUtil"])
             outputFile.write(containerGpuUtilStr)
@@ -83,11 +88,14 @@ def genJobMetrics(logDir, gpuMetrics):
         outputFile.write(containerMemPerc)
 
 def main(argv):
+    logDir = argv[0]
+    timeSleep = int(argv[1])
+    iter = 0
     while(True):
-        logDir = argv[0]
-        timeSleep = int(argv[1])
+        print("job exporter running {0} iteration".format(str(iter)))
+        iter += 1
         # collect GPU metrics
-        gpuMetrics = gpu_exporter.genGpuMetricsFromSmi([logDir])
+        gpuMetrics = gpu_exporter.genGpuMetricsFromSmi(logDir)
         # join with docker stats metrics and docker inspect labels
         genJobMetrics(logDir, gpuMetrics)
         time.sleep(timeSleep)
