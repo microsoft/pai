@@ -78,7 +78,7 @@ imagelist:
     copy:
       - ../prometheus/exporter
     templatelist:
-      - dockerfile
+      - None
     prerequisite: None
     
   grafana:
