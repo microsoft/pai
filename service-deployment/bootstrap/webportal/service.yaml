@@ -21,7 +21,7 @@ prerequisite:
 
 templatelist:
   - node-label.sh
-  - webportal-ds.yaml
+  - webportal.yaml
   - cleanup.sh
 
 startscript: start.sh

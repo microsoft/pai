@@ -36,9 +36,6 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: true
-        volumeMounts:
-        - mountPath: /var/pai
-          name: pai-path
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
@@ -62,7 +59,3 @@ spec:
           hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
-      volumes:
-      - name: pai-path
-        hostPath:
-          path: {{ clusterinfo['paiPath'] }}
