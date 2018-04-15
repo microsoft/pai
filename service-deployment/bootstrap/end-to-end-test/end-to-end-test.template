@@ -1,0 +1,53 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: end-to-end-test-ds
+spec:
+  template:
+    metadata:
+      name: end-to-end-test
+      labels:
+        app: end-to-end-test
+    spec:
+      hostNetwork: false
+      hostPID: false
+      nodeSelector:
+        endtoendtest: "true"
+      containers:
+      - name: end-to-end-test
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}end-to-end-test:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        env:
+        - name: HADOOP_VIP
+          value: value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: HDFS_URI
+          value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+        - name: WEBSERVICE_URI
+          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+        - name: REST_SERVER_URI
+          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+        - name: TEST_USERNAME
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
+        - name: TEST_PASSWORD
+          value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
+      imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

@@ -48,4 +48,7 @@
     {% if 'webportal' in machinelist[host] -%}
     webportal: "{{ machinelist[host]['webportal'] }}"
     {% endif -%}
+    {% if 'endtoendtest' in machinelist[host] -%}
+    endtoendtest: "{{ machinelist[host]['endtoendtest'] }}"
+    {% endif -%}
 {% endfor %}
