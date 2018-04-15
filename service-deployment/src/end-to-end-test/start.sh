@@ -19,40 +19,40 @@
 
 
 account_file="./etc/account.config"
+token_file="./etc/token.config"
+expiration="$((7*24*60*60))"
 
-install_bats() {
-  git clone https://github.com/sstephenson/bats.git
-  cd bats
-  ./install.sh /usr/local
-  cd -
-}
+rest_server_uri=$REST_SERVER_URI
+echo "$TEST_USERNAME:$TEST_PASSWORD" > $account_file
 
-install_paifs() {
-  cp -r ../../../pai-fs ./
-  cd pai-fs
-  pip install -r requirements.txt
-  cd -
-}
 
-prepare_cntk_job() {
-  git clone https://github.com/Microsoft/CNTK.git
-}
-
-get_test_account() {
-  printf "\nPlease provide a test account:\n"
-  read -p "Username: " username
-  read -p "Password: " -s password
-  printf "\n"
-  echo "$username:$password" > $account_file
+get_auth_token() {
+  account="$(cat $account_file)"
+  account=(${account//:/ })
+  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/token | jq -r ".token" > $token_file
 }
 
 
-apt-get install -y jq dos2unix
+while true; do
+  printf "\nStarting end to end tests:\n"
 
-mkdir -p local
-cd local
-install_bats
-install_paifs
-prepare_cntk_job
-cd ..
-get_test_account
+  if [ ! -f $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
+    get_auth_token
+  fi
+
+  # printf "\nTesting service ...\n"
+  # bats test_service.sh
+
+  printf "\nTesting hdfs ...\n"
+  bats test_hdfs.sh
+
+  printf "\nTesting framework launcher ...\n"
+  bats test_launcher.sh
+
+  printf "\nTesting rest server ...\n"
+  bats test_rest_server.sh
+
+  printf "\n Sleeping ...\n"
+  sleep 1800
+
+done
