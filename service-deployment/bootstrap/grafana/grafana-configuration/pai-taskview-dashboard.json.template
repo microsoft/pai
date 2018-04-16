@@ -596,7 +596,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "percent",
               "logBase": 1,
               "max": null,
               "min": 0,
@@ -801,20 +801,18 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
-              "label": "",
+              "format": "percent",
               "logBase": 1,
               "max": null,
-              "min": "0",
+              "min": 0,
               "show": true
             },
             {
-              "decimals": null,
-              "format": "percent",
+              "format": "short",
               "logBase": 1,
-              "max": "100",
+              "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }

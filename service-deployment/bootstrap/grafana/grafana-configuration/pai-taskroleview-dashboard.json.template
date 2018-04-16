@@ -618,7 +618,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "percent",
               "logBase": 1,
               "max": null,
               "min": 0,
