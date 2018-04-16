@@ -227,6 +227,33 @@ Update TaskNumber for a Requested Framework
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
+#### <a name="PUT_ExecutionType">PUT ExecutionType</a>
+**Request**
+
+    PUT /v1/Frameworks/{FrameworkName}/ExecutionType
+
+Type: application/json
+
+Body: [UpdateExecutionTypeRequest](../src/main/java/com/microsoft/frameworklauncher/common/model/UpdateExecutionTypeRequest.java)
+
+**Description**
+
+Update ExecutionType for a Requested Framework
+
+Notes:
+1. It is ignored to change Framework ExecutionType from STOP to START, if previous STOP has already caused the Framework of current FrameworkVersion entered FINAL_STATES, i.e. FRAMEWORK_COMPLETED. So, to ensure starting the Framework again after STOP, just change the FrameworkVersion instead.
+
+**Response**
+
+| HttpStatusCode | Body | Description |
+|:---- |:---- |:---- |
+| Accepted(202) | NULL | Same as [PUT Framework](#PUT_Framework) |
+| BadRequest(400) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+| Forbidden(403) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+| NotFound(404) | ExceptionMessage | Same as [GET FrameworkStatus](#GET_FrameworkStatus) |
+| ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
+
+
 #### <a name="PUT_MigrateTask">PUT MigrateTask</a>
 **Request**
 
@@ -552,7 +579,8 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 | EnvironmentVariable | Description |
 |:---- |:---- |
 | CONTAINER_IP | Only set when generateInstanceHostList is enabled. |
-| CONTAINER_GPUS | Only set when gpuNumber is greater than 0. |
+| CONTAINER_GPUS | Only set when gpuNumber is greater than 0. It is a Number, each bit of this number represents a Gpu. for example, 3 represents gpu0 and gpu1  |
+| CONTAINER_PORTS | Only set when portDefinitions is set, the format is: portLabel1:port1,port2,port3;portLabel2:port4,port5,port6|
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>

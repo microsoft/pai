@@ -30,15 +30,16 @@ const logger = require('./logger');
 // get config from environment variables
 let launcherConfig = {
   hdfsUri: process.env.HDFS_URI,
+  webhdfsUri: process.env.WEBHDFS_URI,
   webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
   webserviceRequestHeaders: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   jobRootDir: './frameworklauncher',
   jobDirCleanUpIntervalSecond: 7200,
   jobConfigFileName: 'JobConfig.json',
-  frameworkDescriptionFilename: 'FrameworkDescription.json'
+  frameworkDescriptionFilename: 'FrameworkDescription.json',
 };
 
 launcherConfig.healthCheckPath = () => {
@@ -61,9 +62,16 @@ launcherConfig.frameworkRequestPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
 };
 
+launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
+};
+
 // define launcher config schema
 const launcherConfigSchema = Joi.object().keys({
   hdfsUri: Joi.string()
+    .uri()
+    .required(),
+  webhdfsUri: Joi.string()
     .uri()
     .required(),
   webserviceUri: Joi.string()
@@ -84,6 +92,9 @@ const launcherConfigSchema = Joi.object().keys({
   frameworkRequestPath: Joi.func()
     .arity(1)
     .required(),
+  frameworkExecutionTypePath: Joi.func()
+    .arity(1)
+    .required(),
   webserviceRequestHeaders: Joi.object()
     .required(),
   jobRootDir: Joi.string()
@@ -95,10 +106,10 @@ const launcherConfigSchema = Joi.object().keys({
   jobConfigFileName: Joi.string()
     .default('JobConfig.json'),
   frameworkDescriptionFilename: Joi.string()
-    .default('FrameworkDescription.json')
+    .default('FrameworkDescription.json'),
 }).required();
 
-const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema)
+const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema);
 if (error) {
   throw new Error(`launcher config error\n${error}`);
 }
@@ -107,12 +118,17 @@ launcherConfig = value;
 // prepare hdfs file path
 const prepareHdfsPath = () => {
   async.each(['Container', 'Output'], (hdfsPath, callback) => {
+    let cmd = '';
+    if (config.env !== 'test') {
+      cmd = `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
+          hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`;
+    }
     childProcess.exec(
-        `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
-        hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`,
-        (err, stdout, stderr) => {
-          callback(err);
-        });
+      cmd,
+      (err, stdout, stderr) => {
+        callback(err);
+      }
+    );
   }, (err) => {
     if (err) {
       throw err;
@@ -126,7 +142,7 @@ const prepareLocalPath = () => {
     if (err) {
       throw new Error(`make launcher job dir error\n${err}`);
     }
-    const jobDirCleanUpInterval = setInterval(() => {
+    setInterval(() => {
       fse.readdir(launcherConfig.jobRootDir, (readRootDirError, userDirs) => {
         if (readRootDirError) {
           logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readRootDirError.stack);
@@ -166,17 +182,19 @@ const prepareLocalPath = () => {
 };
 
 // framework launcher health check
-unirest.get(launcherConfig.healthCheckPath())
-    .timeout(2000)
-    .end((res) => {
-      if (res.status === 200) {
-        logger.info('connected to framework launcher successfully');
-        prepareHdfsPath();
-        prepareLocalPath();
-      } else {
-        throw new Error('cannot connect to framework launcher');
-      }
-    });
+if (config.env !== 'test') {
+  unirest.get(launcherConfig.healthCheckPath())
+      .timeout(2000)
+      .end((res) => {
+        if (res.status === 200) {
+          logger.info('connected to framework launcher successfully');
+          prepareHdfsPath();
+          prepareLocalPath();
+        } else {
+          throw new Error('cannot connect to framework launcher');
+        }
+      });
+}
 
 // module exports
 module.exports = launcherConfig;

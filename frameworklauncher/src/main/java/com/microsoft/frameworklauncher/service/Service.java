@@ -133,7 +133,7 @@ public class Service extends AbstractService {
     yarnClient.start();
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
     hdfsStore = new HdfsStore(conf.getHdfsRootDir());
 
     // Initialize other components
@@ -283,6 +283,7 @@ public class Service extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
+    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, conf.getAmRmHeartbeatIntervalSec().toString());
 
@@ -478,7 +479,7 @@ public class Service extends AbstractService {
         applicationId, exitCode, diagnostics, needToKill);
 
     if (!statusManager.isApplicationIdAssociated(applicationId)) {
-      LOGGER.logDebug("[NotAssociated]%s", logSuffix);
+      LOGGER.logWarning("[NotAssociated]%s", logSuffix);
       return;
     }
 
@@ -512,13 +513,20 @@ public class Service extends AbstractService {
         applicationId, diagnostics);
 
     if (!statusManager.isApplicationIdAssociated(applicationId)) {
-      LOGGER.logDebug("[NotAssociated]%s", logSuffix);
+      LOGGER.logWarning("[NotAssociated]%s", logSuffix);
       return;
     }
 
     FrameworkStatus frameworkStatus = statusManager.getFrameworkStatusWithAssociatedApplicationId(applicationId);
+    FrameworkState frameworkState = frameworkStatus.getFrameworkState();
     String frameworkName = frameworkStatus.getFrameworkName();
     Integer exitCode = frameworkStatus.getApplicationExitCode();
+
+    if (frameworkState != FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS) {
+      LOGGER.logWarning("[%s]%s. Current FrameworkState %s is not %s. Ignore it.",
+          frameworkName, logSuffix, frameworkState, FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS);
+      return;
+    }
 
     // RetrieveExitCode
     LOGGER.logDebug("[%s]%s", frameworkName, logSuffix);
@@ -593,34 +601,36 @@ public class Service extends AbstractService {
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_LAUNCHED);
   }
 
-  private void createApplication(FrameworkStatus frameworkStatus) throws Exception {
+  private void createApplication(FrameworkStatus frameworkStatus, boolean isPlaceholderApplication) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     ApplicationSubmissionContext applicationContext = yarnClient.createApplication().getApplicationSubmissionContext();
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_CREATED,
-        new FrameworkEvent().setApplicationContext(applicationContext));
+        new FrameworkEvent().setApplicationContext(applicationContext).setSkipToPersist(isPlaceholderApplication));
 
-    // Concurrently setupApplicationContext
-    FrameworkStatus frameworkStatusSnapshot = YamlUtils.deepCopy(frameworkStatus, FrameworkStatus.class);
-    new Thread(() -> {
-      try {
-        // Always Setup a brand new ApplicationContext to tolerate ApplicationContext corruption,
-        // such as HDFS data lost.
-        // Retry to setupApplicationContext due to the race condition with onFrameworkToRemove.
-        RetryUtils.executeWithRetry(() -> {
-              setupApplicationContext(frameworkStatusSnapshot, applicationContext);
-            },
-            conf.getApplicationSetupContextMaxRetryCount(),
-            conf.getApplicationSetupContextRetryIntervalSec(), null);
-      } catch (Exception e) {
-        onExceptionOccurred(e);
-      }
-    }).start();
+    if (!isPlaceholderApplication) {
+      // Concurrently setupApplicationContext
+      FrameworkStatus frameworkStatusSnapshot = YamlUtils.deepCopy(frameworkStatus, FrameworkStatus.class);
+      new Thread(() -> {
+        try {
+          // Always Setup a brand new ApplicationContext to tolerate ApplicationContext corruption,
+          // such as HDFS data lost.
+          // Retry to setupApplicationContext due to the race condition with onFrameworkToRemove.
+          RetryUtils.executeWithRetry(() -> {
+                setupApplicationContext(frameworkStatusSnapshot, applicationContext);
+              },
+              conf.getApplicationSetupContextMaxRetryCount(),
+              conf.getApplicationSetupContextRetryIntervalSec(), null);
+        } catch (Exception e) {
+          onExceptionOccurred(e);
+        }
+      }).start();
+    }
   }
 
   private void createApplication() throws Exception {
     for (FrameworkStatus frameworkStatus : statusManager.getFrameworkStatus(
         new HashSet<>(Collections.singletonList(FrameworkState.FRAMEWORK_WAITING)))) {
-      createApplication(frameworkStatus);
+      createApplication(frameworkStatus, false);
     }
   }
 
@@ -653,7 +663,7 @@ public class Service extends AbstractService {
 
     statusManager.transitionFrameworkState(frameworkName, FrameworkState.FRAMEWORK_WAITING,
         new FrameworkEvent().setNewRetryPolicyState(newRetryPolicyState));
-    createApplication(frameworkStatus);
+    createApplication(frameworkStatus, false);
   }
 
   // Implement FrameworkRetryPolicy
@@ -886,14 +896,14 @@ public class Service extends AbstractService {
     });
   }
 
-  // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework
+  // Cleanup Framework level external resource [HDFS, RM] before RemoveFramework.
+  // onFrameworkToRemove is already in queue, so queue it again will disorder
+  // the result of onFrameworkRequestsUpdated and other SystemTasks.
   public void onFrameworkToRemove(FrameworkStatus frameworkStatus, boolean usedToUpgrade) throws Exception {
     String frameworkName = frameworkStatus.getFrameworkName();
     String applicationId = frameworkStatus.getApplicationId();
     FrameworkState frameworkState = frameworkStatus.getFrameworkState();
 
-    // onFrameworkToRemove is already in queue, so queue it again will disorder
-    // the result of onFrameworkRequestsUpdated and other SystemTasks
     if (FrameworkStateDefinition.APPLICATION_LIVE_ASSOCIATED_STATES.contains(frameworkState)) {
       // No need to completeApplication, since it is to be Removed afterwards
       HadoopUtils.killApplication(applicationId);
@@ -915,6 +925,25 @@ public class Service extends AbstractService {
             "[%s]: onFrameworkToRemove: Failed to remove Framework in HDFS, will remove it later",
             frameworkName);
       }
+    }
+  }
+
+  // Prepare and kill the associated Application of the Framework before StopFramework.
+  // onFrameworkToStop is already in queue, so queue it again will disorder
+  // the result of onFrameworkRequestsUpdated and other SystemTasks.
+  public void onFrameworkToStop(FrameworkStatus frameworkStatus) throws Exception {
+    String applicationId = frameworkStatus.getApplicationId();
+    FrameworkState frameworkState = frameworkStatus.getFrameworkState();
+
+    if (!FrameworkStateDefinition.APPLICATION_ASSOCIATED_STATES.contains(frameworkState)) {
+      // Ensure a stopped Framework is always associated with an Application, so that the
+      // Application's exit status can always reflect the Framework's exit status.
+      createApplication(frameworkStatus, true);
+    }
+
+    if (FrameworkStateDefinition.APPLICATION_LIVE_ASSOCIATED_STATES.contains(frameworkState)) {
+      // No need to completeApplication, since it is to be Stopped afterwards
+      HadoopUtils.killApplication(applicationId);
     }
   }
 

@@ -22,6 +22,8 @@ import yaml
 import tarfile
 import shutil
 import sys
+import logging
+import logging.config
 
 import bootstrap
 
@@ -42,6 +44,15 @@ class TestBootstrap(unittest.TestCase):
 
             pass
 
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+
+            logging.config.dictConfig(logging_configuration)
+
+            logging.getLogger()
 
 
 
@@ -107,6 +118,13 @@ class TestBootstrap(unittest.TestCase):
         args.file = "testfile"
         self.assertTrue(bootstrap.option_validation(args))
 
+        # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a etcdfix
+        # Target: True
+        args.path = "testpath"
+        args.action = "etcdfix"
+        args.file = "testfile"
+        self.assertTrue(bootstrap.option_validation(args))
+
 
 
     # option_validation: Missing option
@@ -137,6 +155,14 @@ class TestBootstrap(unittest.TestCase):
         args.action = "repair"
         args.file = None
         self.assertFalse(bootstrap.option_validation(args))
+
+        # sudo ./bootstrap.py -p yourclusterconfig.yaml -a etcdfix
+        # Target: False
+        args.path = "testpath"
+        args.action = "etcdfix"
+        args.file = None
+        self.assertFalse(bootstrap.option_validation(args))
+
 
 
 

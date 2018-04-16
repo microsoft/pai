@@ -33,20 +33,35 @@ http {
   #       can be simply set to 127.0.0.1.
   resolver 127.0.0.1;
 
+  # Turn gzip on
+  map $request_uri $routing_accept_encoding {
+    default "";
+    ~*/static "gzip";
+  }
+
   server {
     listen      80;
     server_name localhost;
+    client_max_body_size 256M;
+    client_body_buffer_size 256M;
+    proxy_connect_timeout 60m;
+    proxy_send_timeout 60m;
+    proxy_read_timeout 60m;
+    send_timeout 60m;
 
+    #
     # General-purpose reverse proxy.
-    location ~ ^/r/(http|https)/([^/]+)/(\d*)(.*)$ {
-      set $target_scheme $1;
-      set $target_host   $2;
-      set $target_port   :$3;
-      set $target_path   $4$is_args$args;
+    # The proxy to WebHDFS API depends on it.
+    #
+
+    location ~ ^/a/([^/]+)/(\d*)(.*)$ {
+      set $target_host   $1;
+      set $target_port   :$2;
+      set $target_path   $3$is_args$args;
       if ($target_port = ":0") {
         set $target_port "";
       }
-      proxy_pass $target_scheme://$target_host$target_port$target_path;
+      proxy_pass http://$target_host$target_port$target_path;
     }
 
     #
@@ -66,6 +81,14 @@ http {
     # WebHDFS API server.
     location ~ ^/webhdfs/api(.*)$ {
       proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
+      proxy_intercept_errors on;
+      error_page 307 = @handle_webhdfs_api_redirect;
+
+    }
+    location @handle_webhdfs_api_redirect {
+      if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
+        return 307 $scheme://$http_host/a/$1/$2/$3;
+      }
     }
 
     # Prometheus API server.
@@ -74,12 +97,170 @@ http {
     }
 
     #
-    # PAI web portal
+    # YARN web portal
     #
 
-    location ~ ^(.*) {
-      proxy_pass {{WEBPORTAL_URI}}$1$is_args$args;
+    location ~ ^/yarn$ {
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/yarn/([^/]+)/(\d+)/(.*/)?([^/]*)$ {
+      set $target_host   $1;
+      set $target_port   $2;
+      set $target_path   $3$4$is_args$args;
+      set $condition     "";
+      #
+      proxy_pass http://$target_host:$target_port/$target_path;
+      proxy_set_header Accept-Encoding $routing_accept_encoding;
+      proxy_intercept_errors on;
+      error_page 301 302 307 = @handle_yarn_redirect;
+      #
+      set $base $scheme://$http_host/yarn/$target_host/$target_port/;
+      #
+      subs_filter
+        "<html>"
+        "<head><base href=\"$base\"></head><html>"
+        o;
+      subs_filter
+        " src=\"/static"
+        " src=\"static"
+        g;
+      subs_filter
+        href=(['"])/
+        href=$1
+        r;
+      #
+      subs_filter
+        href=(['"])/([^/]*):8042(['"])
+        href=$1$scheme://$http_host/yarn/$2/8042/node$3
+        r;
+      subs_filter
+        href=(['"])http://([^/]*):8042(['"])
+        href=$1$scheme://$http_host/yarn/$2/8042/node$3
+        r;
+      subs_filter
+        href=(['"])http://([^/]*):8042/(.*)(['"])
+        href=$1$scheme://$http_host/yarn/$2/8042/$3$4
+        r;
+      subs_filter
+        href=(['"])http://([^/]*):8088(['"])
+        href=$1$scheme://$http_host/yarn/$2/8088/cluster$3
+        r;
+      subs_filter
+        href=(['"])http://([^/]*):8088/(.*)(['"])
+        href=$1$scheme://$http_host/yarn/$2/8088/$3$4
+        r;
+      #
+      subs_filter
+        8088/proxy/application
+        8088/cluster/app/application
+        g;
+    }
+    location ~ ^/yarn(.*)$ {
+      set $target_path   $1$is_args$args;
+      set $yarn_root_url {{YARN_WEB_PORTAL_URI}};
+      if ($yarn_root_url ~ ^http://([^/]+):(\d+)$) {
+        return 301 $scheme://$http_host/yarn/$1/$2$target_path;
+      }
+    }
+    location @handle_yarn_redirect {
+      if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*/)?([^/]*)$) {
+        return 301 $scheme://$http_host/yarn/$1/$2/$3$4$is_args$args;
+      }
+    }
+
+    #
+    # Other web portals
+    #
+
+    # Kubernetes dashbaord
+    location ~ ^/kubernetes-dashboard$ {
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/kubernetes-dashboard(.*)$ {
+      proxy_pass {{K8S_DASHBOARD_URI}}$1$is_args$args;
+    }
+
+    # WebHDFS dashboard
+    location ~ ^/webhdfs$ {
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/webhdfs(.*)$ {
+      proxy_pass {{WEBHDFS_URI}}$1$is_args$args;
+      set $base $scheme://$http_host/webhdfs/;
+      sub_filter_types *;
+      sub_filter_once off;
+      sub_filter
+        "href=\"/"
+        "href=\"$base";
+      sub_filter
+        "src=\"/static"
+        "src=\"${base}static";
+      sub_filter
+        "/jmx?qry="
+        "${base}jmx?qry=";
+      sub_filter
+        "/webhdfs/v1"
+        "/webhdfs/api/v1";
+      sub_filter
+        "'url': '/conf'"
+        "'url': '${base}conf'";
+      sub_filter
+        "get('/startupProgress'"
+        "get('${base}startupProgress'";
+    }
+
+    # Grafana
+    location ~ ^/grafana$ {
+      # Add '/' to the end of the URL, otherwise there will be a 404 error.
+      return 301 $scheme://$http_host$request_uri/;
+    }
+    location ~ ^/grafana(.*)$$ {
+      proxy_pass {{GRAFANA_URI}}$1$is_args$args;
+      sub_filter_types *;
+      sub_filter_once off;
+      sub_filter
+        '<base href="/" />'
+        '<base href="$scheme://$http_host/grafana/" />';
+      sub_filter
+        '{{PROMETHEUS_URI}}'
+        '$scheme://$http_host/prometheus';
+      sub_filter
+        '{{GRAFANA_URI}}'
+        '$scheme://$http_host/grafana';
+    }
+
+    # PAI web portal
+    location ~ ^(.*)$ {
+      proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
+      #
+      # Disable compression. Without this line sub_filter won't work.
+      # Ref: https://serverfault.com/a/892447
+      proxy_set_header Accept-Encoding "";
+      #
+      # Enable all types of contents. Without this line javascript files
+      # won't be processed by sub_filter.
+      # Ref: http://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter_types
+      sub_filter_types *;
+      #
+      sub_filter_once off;
+      sub_filter
+        '{{REST_SERVER_URI}}'
+        '/rest-server';
+      sub_filter
+        '{{K8S_API_SERVER_URI}}'
+        '/kubernetes';
+      sub_filter
+        '{{PROMETHEUS_URI}}'
+        '/prometheus';
+      sub_filter
+        '{{K8S_DASHBOARD_URI}}'
+        '/kubernetes-dashboard';
+      sub_filter
+        '{{GRAFANA_URI}}'
+        '/grafana';
     }
   }
 }
-

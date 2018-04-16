@@ -1,0 +1,33 @@
+{
+  "jobName": "cntk-distributed-jobguid",
+  "image": "pai.run.cntk",
+
+  // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/data",
+  // make a new dir for output on hdfs
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/output",
+  // prepare g2p distributed training script cntk-distributed-example.sh and upload to hdfs
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/code",
+  "virtualCluster": "default",
+
+  "taskRoles": [
+    {
+      "name": "mpi",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 16384,
+      "gpuNumber": 0,
+      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-distributed-example.sh"
+    },
+    {
+      "name": "worker",
+      "taskNumber": 2,
+      "cpuNumber": 8,
+      "memoryMB": 16384,
+      "gpuNumber": 2,
+      "command": "/bin/bash"
+    }
+  ],
+  "killAllOnCompletedTaskNumber": 1,
+  "retryCount": 0
+}

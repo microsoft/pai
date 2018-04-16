@@ -24,11 +24,14 @@ const jobController = require('../controllers/job');
 const param = require('../middlewares/parameter');
 
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
-    .get(jobController.list);
+    .get(param.jobQuery, jobController.list)
+
+    /** POST /api/v1/jobs - Update job */
+    .post(tokenConfig.check, param.validate(jobConfig.schema), jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
@@ -39,6 +42,17 @@ router.route('/:jobName')
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(tokenConfig.check, jobController.remove);
+
+
+router.route('/:jobName/executionType')
+    .put(tokenConfig.check, jobController.execute);
+
+router.route('/:jobName/config')
+    .get(jobController.getConfig);
+
+router.route('/:jobName/ssh')
+    .get(jobController.getSshInfo);
+
 
 /** Load job when API with jobName route parameter is hit */
 router.param('jobName', jobController.load);

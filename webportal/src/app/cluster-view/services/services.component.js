@@ -23,7 +23,6 @@ const serviceTableComponent = require('./service-table.component.ejs');
 const serviceViewComponent = require('./services.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
-const userAuth = require('../../user/user-auth/user-auth.component');
 const service = require('./service-info.js');
 require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
@@ -36,7 +35,7 @@ require('./service-view.component.scss');
 const serviceViewHtml = serviceViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  serviceTable: serviceTableComponent
+  serviceTable: serviceTableComponent,
 });
 
 
@@ -48,16 +47,16 @@ const loadServices = () => {
       data,
       k8sUri: webportalConfig.k8sDashboardUri,
       grafanaUri: webportalConfig.grafanaUri,
-      exporterPort: webportalConfig.exporterPort
+      exporterPort: webportalConfig.exporterPort,
     }));
-    $('#service-datatable').DataTable({
-      "scrollY": (($(window).height() - 265)) + 'px',
-        "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
-        columnDefs: [
-          { orderDataType: 'dom-text', targets: [1, 2] },
-          { type: 'ip-address', targets: [0] }
-        ]
-    });
+    $('#service-datatable').dataTable({
+      'scrollY': (($(window).height() - 265)) + 'px',
+        'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
+        'columnDefs': [
+          {orderDataType: 'dom-text', targets: [1, 2]},
+          {type: 'ip-address', targets: [0]},
+        ],
+    }).api();
   });
 };
 
@@ -71,6 +70,6 @@ $(document).ready(() => {
   loadServices();
 });
 
-module.exports = { loadServices };
+module.exports = {loadServices};
 
 

@@ -22,40 +22,43 @@ const getServiceView = (kubeURL, namespace, callback) => {
     type: 'GET',
     url: kubeURL + '/api/v1/nodes',
     dataType: 'json',
-    success: function (data) {
-      var items = data.items;
-      var nodeList = [];
-      for (var item of items) {
+    success: function(data) {
+      let items = data.items;
+      let nodeList = [];
+      for (let item of items) {
         nodeList.push(item);
       }
       getNodePods(kubeURL, namespace, nodeList, callback);
-    }
+    },
   });
-}
+};
 
 const getNodePods = (kubeURL, namespace, nodeList, callback) => {
   $.ajax({
     type: 'GET',
     url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
     dataType: 'json',
-    success: function (pods) {
-      var podsItems = pods.items;
-      var nodeDic = new Array();
+    success: function(pods) {
+      let podsItems = pods.items;
+      let nodeDic = [];
 
-      for (var pod of podsItems) {
-        var nodeName = pod.spec.nodeName;
+      for (let pod of podsItems) {
+        let nodeName = pod.spec.nodeName;
         if (nodeDic[nodeName] == null) {
           nodeDic[nodeName] = [];
         }
         nodeDic[nodeName].push(pod);
       }
-      var resultDic = []
-      for (var node of nodeList) {
-        resultDic.push({ 'node': node, 'podList': nodeDic[node.metadata.name] });
+      let resultDic = [];
+      for (let node of nodeList) {
+        if (nodeDic[node.metadata.name] == undefined) {
+          nodeDic[node.metadata.name] = [];
+        }
+        resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
       }
       callback(resultDic);
-    }
+    },
   });
-}
+};
 
-module.exports = { getServiceView };
+module.exports = {getServiceView};

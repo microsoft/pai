@@ -23,12 +23,20 @@ import sys
 import subprocess
 import jinja2
 import argparse
-import paramiko
 import maintainlib
 import importlib
 import time
+import logging
+import logging.config
+from clusterObjectModel import objectModelFactory
+
 
 from maintainlib import common as pai_common
+
+
+
+logger = logging.getLogger(__name__)
+
 
 
 def execute_shell(shell_cmd, error_msg):
@@ -37,7 +45,8 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -48,7 +57,8 @@ def execute_shell_return(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         return False
 
     return True
@@ -100,13 +110,22 @@ def load_cluster_config(config_path):
 
 
 
+def logClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+    return ret["k8s"]
+
+
+
 def execute_shell_with_output(shell_cmd, error_msg):
 
     try:
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -323,16 +342,19 @@ def initial_bootstrap_cluster(cluster_config):
 
     if 'proxy' in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment']['proxy']['listname']
-        machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+        if listname in cluster_config:
+            machine_list = cluster_config[listname]
+            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
 
     listname = cluster_config['remote_deployment']['master']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
 
     listname = cluster_config['remote_deployment']['worker']['listname']
-    machine_list = cluster_config[listname]
-    kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
+    if listname in cluster_config:
+        machine_list = cluster_config[listname]
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
 
 
 
@@ -340,8 +362,9 @@ def destory_whole_cluster(cluster_config):
 
     for role in cluster_config['remote_deployment']:
         listname = cluster_config['remote_deployment'][role]['listname']
-        machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
+        if listname in cluster_config:
+            machine_list = cluster_config[listname]
+            kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
 
 
 
@@ -367,7 +390,7 @@ def remove_nodes(cluster_config, node_list_config):
 
 
 
-def maintain_one_node(cluster_config, maintain_config, node_config, job_name):
+def maintain_one_node(cluster_config, node_config, job_name):
 
     module_name = "maintainlib.{0}".format(job_name)
     module = importlib.import_module(module_name)
@@ -382,11 +405,11 @@ def maintain_one_node(cluster_config, maintain_config, node_config, job_name):
 def maintain_nodes(cluster_config, node_list_config, job_name):
 
     # Todo: load maintain from a DB such as etcd instead of a yaml file.
-    maintain_config = load_yaml_file("maintain.yaml")
+    #maintain_config = load_yaml_file("maintain.yaml")
 
     for host in node_list_config['machinelist']:
 
-        maintain_one_node(cluster_config, maintain_config, node_list_config['machinelist'][host], job_name)
+        maintain_one_node(cluster_config, node_list_config['machinelist'][host], job_name)
 
 
 
@@ -397,21 +420,34 @@ def option_validation(args):
     option_list_without_file = ['deploy', 'clean', 'install_kubectl']
     if args.action in option_list_without_file:
         if args.file != None:
-            print "[{0}] Error: Option -a [deploy, clean, install_kubectl] shouldn't combine with option -f".format(time.asctime())
+            logger.error("Option -a [deploy, clean, install_kubectl] shouldn't combine with option -f")
             return False
         ret = True
 
-    option_list_with_file = ['add', 'remove', 'repair']
+    option_list_with_file = ['add', 'remove', 'repair', 'etcdfix']
     if args.action in option_list_with_file:
         if args.file == None:
-            print "[{0}] Error: Option -a [add, remove, repair] should combine with option -f".format(time.asctime())
+            logger.error("Option -a [add, remove, repair, etcdfix] should combine with option -f")
             return False
         ret = True
 
     if ret == False:
-        print "[{0}] Error: {1} is non_existent".format(time.asctime(), args.action)
+        logger.error("{0} is non_existent".format(args.action))
+
 
     return ret
+
+
+
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = pai_common.load_yaml_file(configuration_path)
+    
+    logging.config.dictConfig(logging_configuration)
 
 
 
@@ -423,11 +459,13 @@ def main():
 
     args = parser.parse_args()
 
+    logger.info("Begin option validation! ")
     if option_validation(args) == False:
         return
+    logger.info("Pass option validation! ")
 
     config_path = args.path
-    cluster_config = load_cluster_config(config_path)
+    cluster_config = logClusterObjectModel(config_path)
 
     master_list = cluster_config['mastermachinelist']
     etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
@@ -436,43 +474,90 @@ def main():
     cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
     # Other service will write and read data through this address.
     cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
 
     if args.action == 'add':
+
+        logger.info("Begin to add new nodes to PAI cluster.")
+
         #Todo in the future we should finish the following two line
         #cluster_config = get_cluster_configuration()
         #node_list_config = get_node_list_config()
         node_list_config = load_yaml_file(args.file)
         add_new_nodes(cluster_config, node_list_config)
         #up_data_cluster_configuration()
+
+        logger.info("New nodes have been added.")
         return
 
     if args.action == 'remove':
+
+        logger.info("Begin to remove nodes from PAI cluster.")
+
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
         remove_nodes(cluster_config, node_list_config)
         # up_data_cluster_configuration()
+
+        logger.info("Nodes have been removed.")
         return
 
     if args.action == 'repair':
+
+        logger.info("Begin to repair the target nodes.")
+
         # Todo in the future we should finish the following two line
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
         maintain_nodes(cluster_config, node_list_config, args.action)
+
+        logger.info("The nodes have been repaired.")
         return
 
     if args.action == 'clean':
+
+        logger.info("Begin to clean up whole cluster.")
+
         destory_whole_cluster(cluster_config)
-        print "Clean Up Finished!"
+
+        logger.info("Clean up job finished")
+        return
+
+    if args.action == 'etcdfix':
+
+        logger.info("Begin to fix broken etcd server.")
+
+        node_list_config = load_yaml_file(args.file)
+
+        logger.debug("FIX ETCD on {0}".format(str(node_list_config)))
+
+        if len(node_list_config['machinelist']) != 1:
+
+            logger.error("etcdfix can't fix more than one machine everytime. Please fix them one by one!")
+            sys.exit(1)
+
+        maintain_nodes(cluster_config, node_list_config, args.action)
+
+        logger.info("Etcd has been fixed.")
         return
 
     if args.action == 'deploy':
+
+        logger.info("Begin to initialize PAI.")
+
         initial_bootstrap_cluster(cluster_config)
 
+
     if args.action == 'deploy' or args.action == 'install_kubectl':
+
+        logger.info("Begin to install kubectl.")
+
         kubectl_install(cluster_config[ 'clusterinfo' ])
+
+        logger.info("Kubectl has been installed.")
 
     if args.action == 'deploy':
         #step:  Kube-proxy
@@ -481,9 +566,15 @@ def main():
         #step : dashboard startup
         dashboard_startup(cluster_config[ 'clusterinfo' ])
 
-    print "Done !"
+        logger.info("Finish initializing PAI.")
+
+
+    logger.info("Maintenance Finished!")
 
 
 
 if __name__ == "__main__":
+
+    setup_logging()
+
     main()

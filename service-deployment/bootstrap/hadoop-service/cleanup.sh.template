@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl delete job batch-job-hadoop
 kubectl delete ds hadoop-jobhistory-service
 kubectl delete ds hadoop-node-manager-ds
 kubectl delete ds hadoop-resource-manager-ds

@@ -1,6 +1,6 @@
---- hadoop/yarn-site.xml	2017-11-13 02:36:07.769706914 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/nodemanager-yarn-site.xml	2017-11-13 02:37:59.741759733 -0500
-@@ -12,8 +12,112 @@
+--- yarn-site.xml	2018-04-04 07:06:34.494361873 -0400
++++ nodemanager-yarn-site.xml	2018-04-04 05:58:55.731371334 -0400
+@@ -12,8 +12,127 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -20,9 +20,9 @@
 +    </property>
 +
 +    <property>
-+        <name>yarn.nodemanager.resource.gpus</name>
-+        <value>4</value>
-+        <description>GPU Supported</description>
++        <name>yarn.resourcemanager.max-completed-applications</name>
++        <value>1000</value>
++        <description>maximum number of completed applications</description>
 +    </property>
 +
 +    <property>
@@ -111,6 +111,21 @@
 +    <property>
 +      <name>yarn.log.server.url</name>
 +      <value>http://{LOGSERVER_ADDRESS}:19888/jobhistory/logs</value>
++    </property>
++    
++    <property>
++      <name>yarn.nodemanager.recovery.enabled</name>
++      <value>true</value>
++    </property>
++    
++    <property>
++      <name>yarn.nodemanager.recovery.dir</name>
++      <value>/var/lib/yarn/yarn-nm-recovery</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.address</name>
++      <value>{{ host_config['ip'] }}:8041</value>
 +    </property>
  
  </configuration>

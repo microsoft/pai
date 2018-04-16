@@ -8,42 +8,46 @@ const idPrefixes = ["cpu", "mem", "gpu", "gpumem", "disk", "eth"];
 <section class='content'>
 <div class='box'>
   <div class='box-body'>
-    <table id='hardware-table' class='table table-bordered table-hover' style='vertical-align:middle'>
+    <table id='hardware-table' class='table table-bordered table-hover table-condensed' style='vertical-align:middle'>
       <thead>
         <tr>
           <th>IP Address</th>
           <th>Machine Name</th>
 <%
-for (let i = 0; i < metricNames.length; i++) {
+          for (let i = 0; i < metricNames.length; i++) {
 %>
-          <th class='metric-cell'><%= metricNames[i] %></th>
+            <th class='metric-cell'><%= metricNames[i] %></th>
 <%
-}
+          }
 %>
         </tr>
       </thead>
       <tbody>
 <%
-for (let i = 0; i < machineMetaData.data.result.length; i++) {
-  const metric = machineMetaData.data.result[i].metric;
-  const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
-  const machineName = metric.nodename;
-  const ipAddress = metric.instance.split(":")[0];
-  const idSuffix = ":" + metric.instance;
+        for (let i = 0; i < machineMetaData.data.result.length; i++) {
+          const metric = machineMetaData.data.result[i].metric;
+          const nodeViewUrl = "/cluster-view/hardware/detail.html?instance=" + metric.instance;
+          const machineName = metric.nodename;
+          const ipAddress = metric.instance.split(":")[0];
+          const idSuffix = ":" + metric.instance;
 %>
-        <tr>
-          <td><a href='<%= nodeViewUrl %>'><%= ipAddress %></a></td>
-          <td><%= machineName %></td>
+          <tr>
+            <td><a href='<%= nodeViewUrl %>'><%= ipAddress %></a></td>
+            <td><%= machineName %></td>
 <%
-  for (let j = 0; j < idPrefixes.length; j++) {
-    const id = idPrefixes[j] + idSuffix;
+            for (let j = 0; j < idPrefixes.length; j++) {
+              const id = idPrefixes[j] + idSuffix;
 %>
-          <td id='<%= id %>' class='metric-cell'>
-            <i class='fa fa-spinner fa-pulse fa-fw metric-icon-loading' title='0% (Loading)'></i>
-          </td>
+              <td id='<%= id %>' class='metric-cell'>
+                <span title=\"-1\"/>
+                <i class='fa fa-spinner fa-pulse fa-fw metric-icon-loading' title='Loading...'></i>
+              </td>
 <%
-  }
-}
+            }
+%>
+          </tr>
+<%
+        }
 %>
       </tbody>
     </table>

@@ -43,15 +43,15 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
 3. Submit a job
 
-    HTTP PUT the config file as json with access token in header to:
+    HTTP POST the config file as json with access token in header to:
     ```
-    http://restserver/api/v1/jobs/exampleJob
+    http://restserver/api/v1/jobs
     ```
     For example, you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X PUT http://restserver/api/v1/jobs/exampleJob \
+         -X POST http://restserver/api/v1/jobs \
          -d @exampleJob.json
     ```
 
@@ -65,7 +65,14 @@ REST Server exposes a set of interface that allows you to manage jobs.
     ```
     http://restserver/api/v1/jobs/exampleJob
     ```
-
+    Get the job config JSON content:
+    ```
+    http://restserver/api/v1/jobs/exampleJob/config
+    ```
+    Get the job's SSH info:
+    ```
+    http://restserver/api/v1/jobs/exampleJob/ssh
+    ```
 
 ## RestAPI
 
@@ -192,6 +199,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     GET /api/v1/jobs
     ```
 
+    *Parameters*
+    ```
+    {
+      "username": "filter jobs with username"
+    }
+    ```
+
     *Response if succeeded*
     ```
     {
@@ -255,13 +269,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `PUT jobs/:jobName`
+6. `POST jobs`
 
     Submit a job in the system.
 
     *Request*
     ```
-    PUT /api/v1/jobs/:jobName
+    POST /api/v1/jobs
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -332,5 +346,205 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     {
       "error": "JobNotFound",
       "message": "could not find job $jobName"
+    }
+    ```
+
+8. `GET jobs/:jobName/config`
+
+    Get job config JSON content.
+
+    *Request*
+    ```
+    GET /api/v1/jobs/:jobName/config
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "jobName": "test",
+      "image": "pai.run.tensorflow",
+      ...
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "<depends on the error>"
+    }
+    ```
+
+9. `GET jobs/:jobName/ssh`
+
+    Get job SSH info.
+
+    *Request*
+    ```
+    GET /api/v1/jobs/:jobName/ssh
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "containers": [
+        {
+          "id": "<container id>",
+          "sshIp": "<ip to access the container's ssh service>",
+          "sshPort": "<port to access the container's ssh service>"
+        },
+        ...
+      ],
+      "keyPair": {
+        "folderPath": "HDFS path to the job's ssh folder",
+        "publicKeyFileName": "file name of the public key file",
+        "privateKeyFileName": "file name of the private key file",
+        "privateKeyDirectDownloadLink": "HTTP URL to download the private key file"
+      }
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "JobNotFound",
+      "message": "could not find job $jobName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "<depends on the error>"
+    }
+    ```
+
+10. `PUT jobs/:jobName/executionType`
+
+    Start or stop a job.
+
+    *Request*
+    ```
+    PUT /api/v1/jobs/:jobName/executionType
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "value": "START" | "STOP"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      "message": "execute job $jobName successfully"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "JobExecuteError",
+      "message": "job execute error"
+    }
+
+11. `GET virtual-clusters/`
+
+    Get the list of virtual clusters.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "vc1": 
+      {
+      }
+      ...
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "GetVirtualClusterListError",
+      "message": "get virtual cluster list error"
+    }
+    ```
+    
+12. `GET virtual-clusters/:vcName`
+
+    Get virtual cluster status in the system.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters/:vcName
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      //capacity percentage this virtual cluster can use of entire cluster
+      "capacity":50,
+      //max capacity percentage this virtual cluster can use of entire cluster
+      "maxCapacity":100,
+      // used capacity percentage this virtual cluster can use of entire cluster
+      "usedCapacity":0,
+      "numActiveJobs":0,
+      "numJobs":0,
+      "numPendingJobs":0,
+      "resourcesUsed":{  
+       "memory":0,
+       "vCores":0,
+       "GPUs":0
+      },
+    }
+    ```
+
+    *Response if the virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "VirtualClusterNotFound",
+      "message": "could not find virtual cluster $vcName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "internal server error"
     }
     ```

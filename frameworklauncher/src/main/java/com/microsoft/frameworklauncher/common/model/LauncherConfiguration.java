@@ -26,6 +26,7 @@ public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
+  private Boolean zkCompressionEnable = true;
   private String hdfsRootDir = "/Launcher";
   private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
@@ -86,13 +87,25 @@ public class LauncherConfiguration implements Serializable {
   // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
   // ContainerRequest randomly.
   private Integer amContainerRequestMinTimeoutSec = 10;
-  private Integer amContainerRequestMaxTimeoutSec = 60;
+  private Integer amContainerRequestMaxTimeoutSec = 200;
 
   // If a Task's ContainerRequest is NotAvailable when SetupContainerRequest,
   // AM will SetupContainerRequest for the Task again after 
   // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
-  private Integer amSetupContainerRequestMaxRetryIntervalSec = 90;
+  private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
+
+  // Small ports usually reserved for system usage,  the minimum port a job can use.
+  private Integer amContainerMinPort = 2000;
+  // the factor to enlarge the candidate nodes compare with the request.
+  private Integer amSearchNodeBufferFactor = 2;
+
+  // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
+  private Boolean amSkipLocalTriedResource = false;
+
+  // true: AM will allocate a none Gpu job into a node with Gpu resource.
+  // false: AM will not allocate a none Gpu job a node with Gpu resource.
+  private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
@@ -115,6 +128,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setZkRootDir(String zkRootDir) {
     this.zkRootDir = zkRootDir;
+  }
+
+  public Boolean getZkCompressionEnable() {
+    return zkCompressionEnable;
+  }
+
+  public void setZkCompressionEnable(Boolean zkCompressionEnable) {
+    this.zkCompressionEnable = zkCompressionEnable;
   }
 
   public String getHdfsRootDir() {
@@ -323,6 +344,38 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
     this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
+  }
+
+  public Integer getAmContainerMinPort() {
+    return amContainerMinPort;
+  }
+
+  public void setAmContainerMinPort(Integer amContainerMinPort) {
+    this.amContainerMinPort = amContainerMinPort;
+  }
+
+  public Integer getAmSearchNodeBufferFactor() {
+    return amSearchNodeBufferFactor;
+  }
+
+  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
+    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
+  }
+
+  public Boolean getAmSkipLocalTriedResource() {
+    return amSkipLocalTriedResource;
+  }
+
+  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
+    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
+  }
+
+  public Boolean getAmAllowNoneGpuJobOnGpuNode() {
+    return amAllowNoneGpuJobOnGpuNode;
+  }
+
+  public void setAmAllowNoneGpuJobOnGpuNode(Boolean amAllowNoneGpuJobOnGpuNode) {
+    this.amAllowNoneGpuJobOnGpuNode = amAllowNoneGpuJobOnGpuNode;
   }
 
   public String getWebServerBindHost() {

@@ -25,12 +25,14 @@ public class MockConfiguration extends Configuration {
   private String frameworkName;
   private Integer frameworkVersion;
   private Integer amVersion;
+  private Boolean zkCompressionEnable;
 
   @Override
   public void initializeNoDependenceConfig() throws Exception {
-    frameworkName = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_NAME);
-    frameworkVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION));
-    amVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_VERSION));
+    frameworkName = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_NAME, "NAME");
+    frameworkVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION, "0"));
+    amVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_VERSION, "0"));
+    zkCompressionEnable = Boolean.parseBoolean(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, "false"));
   }
 
   @Override
@@ -41,6 +43,11 @@ public class MockConfiguration extends Configuration {
   @Override
   protected Integer getFrameworkVersion() {
     return frameworkVersion;
+  }
+
+  @Override
+  public Boolean getZkCompressionEnable() {
+    return zkCompressionEnable;
   }
 
   @Override

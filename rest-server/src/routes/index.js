@@ -22,8 +22,9 @@ const controller = require('../controllers/index');
 const tokenRouter = require('./token');
 const userRouter = require('./user');
 const jobRouter = require('./job');
+const vcRouter = require('./vc');
 
-const router = express.Router();
+const router = new express.Router();
 
 router.route('/')
     .all(controller.index);
@@ -31,6 +32,7 @@ router.route('/')
 router.use('/token', tokenRouter);
 router.use('/user', userRouter);
 router.use('/jobs', jobRouter);
+router.use('/virtual-clusters', vcRouter);
 
 // module exports
 module.exports = router;

@@ -36,6 +36,7 @@ public class GlobalConstants {
   public static final String ENV_VAR_FRAMEWORK_VERSION = "FRAMEWORK_VERSION";
   public static final String ENV_VAR_ZK_CONNECT_STRING = "ZK_CONNECT_STRING";
   public static final String ENV_VAR_ZK_ROOT_DIR = "ZK_ROOT_DIR";
+  public static final String ENV_VAR_ZK_COMPRESSION_ENABLE = "ZK_COMPRESSION_ENABLE";
   public static final String ENV_VAR_AM_VERSION = "AM_VERSION";
   public static final String ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC = "AM_RM_HEARTBEAT_INTERVAL_SEC";
   public static final String ENV_VAR_TASK_ROLE_NAME = "TASK_ROLE_NAME";
@@ -49,6 +50,7 @@ public class GlobalConstants {
   public static final String ENV_VAR_CONTAINER_ID = "CONTAINER_ID";
   public static final String ENV_VAR_CONTAINER_IP = "CONTAINER_IP";
   public static final String ENV_VAR_CONTAINER_GPUS = "CONTAINER_GPUS";
+  public static final String ENV_VAR_CONTAINER_PORTS = "CONTAINER_PORTS";
   public static final String ENV_VAR_AGENT_HEARTBEAT_INTERVAL_SEC = "AGENT_HEARTBEAT_INTERVAL_SEC";
   public static final String ENV_VAR_AGENT_EXPIRY_INTERVAL_SEC = "AGENT_EXPIRY_INTERVAL_SEC";
   public static final String ENV_VAR_AM_HOST_NAME = "AM_HOST_NAME";

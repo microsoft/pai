@@ -34,6 +34,10 @@ public class ParentFrameworkDescriptor implements Serializable {
   @NotNull
   private boolean deleteOnParentDeleted = false;
 
+  @Valid
+  @NotNull
+  private boolean stopOnParentStopped = false;
+
   public String getParentFrameworkName() {
     return parentFrameworkName;
   }
@@ -42,11 +46,19 @@ public class ParentFrameworkDescriptor implements Serializable {
     this.parentFrameworkName = parentFrameworkName;
   }
 
+  public boolean isDeleteOnParentDeleted() {
+    return deleteOnParentDeleted;
+  }
+
   public void setDeleteOnParentDeleted(boolean deleteOnParentDeleted) {
     this.deleteOnParentDeleted = deleteOnParentDeleted;
   }
 
-  public boolean isDeleteOnParentDeleted() {
-    return deleteOnParentDeleted;
+  public boolean isStopOnParentStopped() {
+    return stopOnParentStopped;
+  }
+
+  public void setStopOnParentStopped(boolean stopOnParentStopped) {
+    this.stopOnParentStopped = stopOnParentStopped;
   }
 }

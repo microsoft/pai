@@ -1,0 +1,57 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-job-hadoop
+spec:
+  template:
+    metadata:
+      name: one-time-job-hadoop
+      labels:
+        onetimejob: hadoop
+    spec:
+      restartPolicy: OnFailure
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name:  one-time-job-hadoop
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /hadoop-configuration
+          name: hadoop-config-volume
+        env:
+        - name: RESOURCEMANAGER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: ZOOKEEPER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: HDFS_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: LOGSERVER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: GENERATE_CONFIG
+          value: one-time-job-prepare.sh
+        - name: START_SERVICE
+          value: one-time-job-execute.sh
+      imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      volumes:
+      - name: hadoop-config-volume
+        configMap:
+          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}

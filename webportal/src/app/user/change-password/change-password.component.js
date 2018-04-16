@@ -20,12 +20,11 @@
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const changePasswordComponent = require('./change-password.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
-const userAuth = require('../user-auth/user-auth.component');
 require('./change-password.component.scss');
 
 
 const changePasswordHtml = changePasswordComponent({
-  breadcrumb: breadcrumbComponent
+  breadcrumb: breadcrumbComponent,
 });
 
 $('#content-wrapper').html(changePasswordHtml);
@@ -50,7 +49,7 @@ $(document).ready(() => {
         data: {
           username,
           password: oldPassword,
-          expiration: 60 * 60
+          expiration: 60 * 60,
         },
         dataType: 'json',
         success: (tokenData) => {
@@ -64,11 +63,11 @@ $(document).ready(() => {
                 username,
                 password: newPassword,
                 admin,
-                modify: true
+                modify: true,
               },
               type: 'PUT',
               headers: {
-                Authorization: `Bearer ${tokenData.token}`
+                Authorization: `Bearer ${tokenData.token}`,
               },
               dataType: 'json',
               success: (userData) => {
@@ -84,7 +83,7 @@ $(document).ready(() => {
                 $('#form-change-password').trigger('reset');
                 const res = JSON.parse(xhr.responseText);
                 alert(res.message);
-              }
+              },
             });
           }
         },
@@ -92,7 +91,7 @@ $(document).ready(() => {
           $('#form-change-password').trigger('reset');
           const res = JSON.parse(xhr.responseText);
           alert('Wrong old password!\n' + res.message);
-        }
+        },
       });
     }
   });

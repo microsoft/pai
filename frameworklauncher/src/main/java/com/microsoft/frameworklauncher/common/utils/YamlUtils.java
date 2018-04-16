@@ -44,28 +44,28 @@ public class YamlUtils {
     return yaml.loadAs(new FileReader(fileName), classRef);
   }
 
-  public static <T> byte[] toBytes(T yamlObject) {
+  public static <T> byte[] toBytes(T obj) {
     Yaml yaml = new Yaml();
-    return yaml.dump(yamlObject).getBytes();
+    return yaml.dump(obj).getBytes();
   }
 
-  public static <T> void toFile(T yamlObject, String fileName) throws IOException {
+  public static <T> void toFile(T obj, String fileName) throws IOException {
     Yaml yaml = new Yaml();
-    yaml.dump(yamlObject, new FileWriter(fileName));
+    yaml.dump(obj, new FileWriter(fileName));
   }
 
-  public static <T> T deepCopy(T yamlObject, Class<T> classRef) {
-    return toObject(toBytes(yamlObject), classRef);
+  public static <T> T deepCopy(T obj, Class<T> classRef) {
+    return toObject(toBytes(obj), classRef);
   }
 
-  public static <T> Boolean deepEquals(T yamlObject, T otherYamlObject) {
-    if (yamlObject == null && otherYamlObject == null) {
+  public static <T> Boolean deepEquals(T obj, T otherObj) {
+    if (obj == null && otherObj == null) {
       return true;
     }
-    if (yamlObject == null || otherYamlObject == null) {
+    if (obj == null || otherObj == null) {
       return false;
     }
-    return Arrays.equals(toBytes(yamlObject), toBytes(otherYamlObject));
+    return Arrays.equals(toBytes(obj), toBytes(otherObj));
   }
 
   public static <TKey, TValue> Boolean deepEquals(
@@ -81,12 +81,12 @@ public class YamlUtils {
     }
 
     for (Map.Entry<TKey, TValue> kvp : yamlDict.entrySet()) {
-      TValue Value = kvp.getValue();
+      TValue value = kvp.getValue();
       if (!otherYamlDict.containsKey(kvp.getKey())) {
         return false;
       }
       TValue otherValue = otherYamlDict.get(kvp.getKey());
-      if (!deepEquals(Value, otherValue)) {
+      if (!deepEquals(value, otherValue)) {
         return false;
       }
     }

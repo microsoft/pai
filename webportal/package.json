@@ -35,6 +35,8 @@
     "datatables.net-plugins": "1.10.15",
     "dotenv": "4.0.0",
     "ejs-loader": "0.3.0",
+    "eslint": "4.17.0",
+    "eslint-config-google": "0.9.1",
     "express": "4.16.2",
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "1.1.5",
@@ -68,12 +70,13 @@
     "build": "npm run clean && npm run preprocess && npm run webpack",
     "clean:dist": "npm run rimraf -- dist",
     "clean": "npm cache clean && npm run clean:dist",
+    "lint": "eslint src/**/*.js",
     "node": "node",
     "preprocess": "node config/preprocess.js",
     "rimraf": "rimraf",
     "server": "node server/index.js",
     "start": "npm run build && npm run server",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run lint",
     "webpack": "webpack --config webpack.config.js --progress --profile",
     "yarn": "yarn --ignore-engines"
   }
