@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,34 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-add-worker-node:
+scriptPath=$1
 
-    # List of the template
-    template-list:
-    # Generate kubelet.sh from template/kubelet.sh.template
-    # And save it to the path nodename/add-worker-node/kubelet.sh
-    - name: kubelet.sh
-      src: template/kubelet.sh.template
-      dst: add-worker-node
+# check etc/ exist or not.
+staticpod="$scriptPath/etc"
+if [ -d "$staticpod" ]; then
 
-    - name: kubeconfig
-      src: config
-      dst: add-worker-node/etc/kubernetes
+    cp -r $scriptPath/etc /
 
+fi
 
-    # List of the file
-    file-list:
-    # Copy repair-worker-node.sh from maintain-tool/add-worker-node.sh
-    # And save it to the path nodename/add-worker-node/add-worker-node.sh
-    - name: docker-ce-install.sh
-      src: maintaintool/docker-ce-install.sh
-      dst: add-worker-node
-    # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
-
-    - name: hosts-check.sh
-      src: maintaintool/hosts-check.sh
-      dst: add-worker-node
-
-    - name: kubelet-start.sh
-      src: maintaintool/kubelet-start.sh
-      dst: add-worker-node
+chmod u+x $scriptPath/kubelet.sh
+./$scriptPath/kubelet.sh

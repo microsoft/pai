@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,34 +18,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-add-worker-node:
+# Prepare docker for remote host
+if command -v docker >/dev/null 2>&1; then
+    echo docker has been installed. And skip docker install.
+else
+    apt-get update
+    apt-get -y install \
+               apt-transport-https \
+               ca-certificates \
+               curl \
+               software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    apt-key fingerprint 0EBFCD88
 
-    # List of the template
-    template-list:
-    # Generate kubelet.sh from template/kubelet.sh.template
-    # And save it to the path nodename/add-worker-node/kubelet.sh
-    - name: kubelet.sh
-      src: template/kubelet.sh.template
-      dst: add-worker-node
+    # Suppose your host is amd64.
+    add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
 
-    - name: kubeconfig
-      src: config
-      dst: add-worker-node/etc/kubernetes
+    apt-get update
 
+    apt-get -y install docker-ce
 
-    # List of the file
-    file-list:
-    # Copy repair-worker-node.sh from maintain-tool/add-worker-node.sh
-    # And save it to the path nodename/add-worker-node/add-worker-node.sh
-    - name: docker-ce-install.sh
-      src: maintaintool/docker-ce-install.sh
-      dst: add-worker-node
-    # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
+    sudo docker run hello-world
 
-    - name: hosts-check.sh
-      src: maintaintool/hosts-check.sh
-      dst: add-worker-node
-
-    - name: kubelet-start.sh
-      src: maintaintool/kubelet-start.sh
-      dst: add-worker-node
+    if command -v docker >/dev/null 2>&1; then
+        echo Successfully install docker
+    else
+        echo Failed install docker
+        exit 1
+    fi
+fi

@@ -24,6 +24,8 @@ import argparse
 import paramiko
 import common
 import time
+import logging
+import logging.config
 
 
 class add:
@@ -34,20 +36,19 @@ class add:
 
     def __init__(self, cluster_config, node_config, clean):
 
+        self.logger = logging.getLogger(__name__)
+
         self.cluster_config = cluster_config
         self.node_config = node_config
         self.maintain_config = common.load_yaml_file("maintainconf/add.yaml")
         self.clean_flag = clean
 
         if node_config['role'] == 'worker':
-
             self.jobname = "add-worker-node"
 
         else:
-
             self.jobname = "error"
-
-            print "[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['role'], node_config['nodename'])
+            self.logger.error("[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['role'], node_config['nodename']))
 
 
 
@@ -74,7 +75,7 @@ class add:
         if self.jobname == 'error':
             return
 
-        print "{0} job begins !".format(self.jobname)
+        self.logger.info("{0} job begins !".format(self.jobname))
 
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
@@ -84,12 +85,38 @@ class add:
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{0}.sh {1}".format(self.jobname, self.node_config['hostip'])
+        commandline = "tar -xvf {0}.tar".format(self.jobname, self.node_config['hostip'])
+        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+            self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
+            return
+
+        commandline = "sudo ./{0}/hosts-check.sh {1}".format(self.jobname, self.node_config['hostip'])
+        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+            self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
+            return
+
+        commandline = "sudo ./{0}/docker-ce-install.sh".format(self.jobname)
+        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+            self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
+            return
+
+        commandline = "sudo ./{0}/kubelet-start.sh {0}".format(self.jobname)
+        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+            self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
+            return
+
+        self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"]))
+
+
+
+    def remote_host_cleaner(self):
+
+        commandline = "sudo rm -rf {0}*".format(self.jobname)
 
         if common.ssh_shell_paramiko(self.node_config, commandline) == False:
             return
 
-        print "Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"])
+
 
 
 
@@ -98,14 +125,18 @@ class add:
         if self.jobname == 'error':
             return
 
-        print "---- package wrapper is working now! ----"
+        self.logger.info("---- package wrapper is working now! ----")
         self.prepare_package()
-        print "---- package wrapper's work finished ----"
+        self.logger.info("---- package wrapper's work finished ----")
 
         self.job_executer()
 
         if self.clean_flag == True:
-
-            print "---- package cleaner is working now! ----"
+            self.logger.info("---- package cleaner is working now! ----")
             self.delete_packege()
-            print "---- package cleaner's work finished! ----"
+            self.logger.info("---- package cleaner's work finished! ----")
+
+            self.logger.info("---- remote host cleaner is working now! ----")
+            self.remote_host_cleaner()
+            self.logger.info("---- remote host cleaning job finished! ")
+
