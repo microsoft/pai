@@ -26,7 +26,7 @@
       "height": 74,
       "panels": [
         {
-          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics)\n",
+          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics?var-job=$job)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics?var-job=$job)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics?var-job=$job)\n",
           "height": "30px",
           "id": 28,
           "links": [],
@@ -596,7 +596,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "percent",
               "logBase": 1,
               "max": null,
               "min": 0,
@@ -801,20 +801,18 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
-              "label": "",
+              "format": "percent",
               "logBase": 1,
               "max": null,
-              "min": "0",
+              "min": 0,
               "show": true
             },
             {
-              "decimals": null,
-              "format": "percent",
+              "format": "short",
               "logBase": 1,
-              "max": "100",
+              "max": null,
               "min": null,
-              "show": true
+              "show": false
             }
           ]
         }
@@ -836,16 +834,16 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "All",
+          "text": "",
           "value": [
             "$__all"
           ]
         },
         "datasource": "PM",
-        "hide": 0,
-        "includeAll": true,
+        "hide": 2,
+        "includeAll": false,
         "label": "",
-        "multi": true,
+        "multi": false,
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
@@ -867,7 +865,7 @@
           "value": "$__all"
         },
         "datasource": "PM",
-        "hide": 0,
+        "hide": 2,
         "includeAll": true,
         "label": "",
         "multi": true,
@@ -892,7 +890,7 @@
           "value": "$__all"
         },
         "datasource": "PM",
-        "hide": 0,
+        "hide": 2,
         "includeAll": true,
         "label": "",
         "multi": true,

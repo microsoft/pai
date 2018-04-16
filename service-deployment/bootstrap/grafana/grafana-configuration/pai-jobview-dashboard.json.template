@@ -26,7 +26,7 @@
       "height": 63,
       "panels": [
         {
-          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics)",
+          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics?var-job=$job)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics?var-job=$job)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics?var-job=$job)",
           "height": "30px",
           "id": 31,
           "links": [],
@@ -588,7 +588,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "percent",
               "logBase": 1,
               "max": null,
               "min": 0,
@@ -621,16 +621,16 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "All",
+          "text": "",
           "value": [
             "$__all"
           ]
         },
         "datasource": "PM",
-        "hide": 0,
-        "includeAll": true,
+        "hide": 2,
+        "includeAll": false,
         "label": "",
-        "multi": true,
+        "multi": false,
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
