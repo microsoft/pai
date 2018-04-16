@@ -16,10 +16,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: extensions/v1beta1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: end-to-end-test-ds
+  name: end-to-end-test-deployment
+  labels:
+    app: end-to-end-test
 spec:
+  replicas: 1
   template:
     metadata:
       name: end-to-end-test
@@ -28,8 +31,6 @@ spec:
     spec:
       hostNetwork: false
       hostPID: false
-      nodeSelector:
-        endtoendtest: "true"
       containers:
       - name: end-to-end-test
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}end-to-end-test:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

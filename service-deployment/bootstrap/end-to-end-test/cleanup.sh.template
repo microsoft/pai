@@ -19,12 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds end-to-end-test-ds
-
-{% for host in machinelist %}
-    {% if 'endtoendtest' in machinelist[ host ] and machinelist[ host ][ 'endtoendtest' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} endtoendtest-
-    {% endif %}
-{% endfor %}
+kubectl delete deployment end-to-end-test-deployment
 
 popd > /dev/null

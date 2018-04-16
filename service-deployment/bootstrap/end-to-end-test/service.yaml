@@ -21,7 +21,6 @@ prerequisite:
   - rest-server
 
 templatelist:
-  - node-label.sh
   - end-to-end-test.yaml
   - cleanup.sh
 
