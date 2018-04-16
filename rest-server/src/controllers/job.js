@@ -154,6 +154,7 @@ const remove = (req, res) => {
  */
 const execute = (req, res, next) => {
   req.body.username = req.user.username;
+  req.body.admin = req.user.admin;
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);

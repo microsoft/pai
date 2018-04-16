@@ -252,7 +252,7 @@ class Job {
             requestRes.body : JSON.parse(requestRes.body);
         if (!requestResJson.frameworkDescriptor) {
           next(new Error('unknown job'));
-        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .send({'executionType': data.value})
