@@ -102,9 +102,6 @@ class add:
 
     def run(self):
 
-        if self.jobname == 'error':
-            return
-
         self.logger.info("---- package wrapper is working now! ----")
         self.prepare_package()
         self.logger.info("---- package wrapper's work finished ----")
