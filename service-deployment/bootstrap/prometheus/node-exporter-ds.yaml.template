@@ -36,8 +36,6 @@ spec:
         resources:
           limits:
             memory: "1Gi"
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /datastorage
           name: collector-mount
