@@ -20,7 +20,7 @@
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
     <td><%= jobStatus.retries %></td>
-    <td><%= convertState(jobStatus.state) %></td>
+    <td><%= convertState(getHumanizedJobStateString(jobStatus)) %></td>
     <td>
       <% if (jobStatus.executionType === 'STOP' || jobStatus.subState === 'FRAMEWORK_COMPLETED') { %>
         <button class="btn btn-default btn-xs" disabled>Stop</button>
