@@ -26,8 +26,8 @@ add-worker-node:
       src: template/kubelet.sh.template
       dst: add-worker-node
 
-    - name: kubeconfig
-      src: config
+    - name: config
+      src: template/config.template
       dst: add-worker-node/etc/kubernetes
 
 
