@@ -36,24 +36,22 @@ spec:
         resources:
           limits:
             memory: "1Gi"
+        securityContext:
+          privileged: true
         volumeMounts:
-        - mountPath: /datastorage/prometheus
+        - mountPath: /datastorage
           name: collector-mount
-        - name: rootfs
-          mountPath: /rootfs
-          readOnly: true
-        - name: var-run
-          mountPath: /var/run
-          readOnly: false
-        - name: sys
-          mountPath: /sys
-          readOnly: true
-        - name: docker
-          mountPath: /var/lib/docker
-          readOnly: true
         name: node-exporter
         args:
           - '--collector.textfile.directory=/datastorage/prometheus'
+          - '--no-collector.arp'
+          - '--no-collector.edac'
+          - '--no-collector.entropy'
+          - '--no-collector.infiniband'
+          - '--no-collector.vmstat'
+          - '--no-collector.wifi'
+          - '--no-collector.xfs'
+          - '--no-collector.zfs'
         ports:
         - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
@@ -78,7 +76,7 @@ spec:
           name: device-mount
         - mountPath: /var/drivers
           name: driver-path
-        - mountPath: /datastorage/prometheus
+        - mountPath: /datastorage
           name: collector-mount
         name: gpu-exporter
       volumes:
@@ -99,7 +97,7 @@ spec:
             path: /var/drivers
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+            path: {{ clusterinfo[ 'dataPath' ] }}
         - name: rootfs
           hostPath:
             path: /
