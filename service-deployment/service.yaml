@@ -229,6 +229,10 @@ servicelist:
     stopscript: cleanup.sh
 
   end-to-end-test:
+    # The end-to-end test will run in the cluster by default to
+    # make sure PAI is built and deployed correctly and working normally.
+    # Comment this block to cancel end-to-end test or stop
+    # end-to-end-test-deployment pod to terminate the test.
     prerequisite:
       - cluster-configuration
       - frameworklauncher
