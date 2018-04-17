@@ -110,7 +110,7 @@ const convertState = (state) => {
       stateText = 'Succeeded';
       break;
     case 'STOPPED':
-      cls = 'label-warning';
+      cls = 'label-default';
       stateText = 'Stopped';
       break;
     case 'FAILED':
@@ -217,6 +217,7 @@ const stopJob = (jobName) => {
           Authorization: `Bearer ${token}`,
         },
         success: (data) => {
+          window.location.href = 'view.html?jobName=' + jobName;
           loadJobs();
         },
         error: (xhr, textStatus, error) => {
