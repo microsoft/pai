@@ -484,7 +484,7 @@ def main():
         #cluster_config = get_cluster_configuration()
         #node_list_config = get_node_list_config()
         node_list_config = load_yaml_file(args.file)
-        add_new_nodes(cluster_config, node_list_config)
+        maintain_nodes(cluster_config, node_list_config, args.action)
         #up_data_cluster_configuration()
 
         logger.info("New nodes have been added.")
