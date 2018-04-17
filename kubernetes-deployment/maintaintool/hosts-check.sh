@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,23 +18,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Now only support worker!
-remote_deployment_role: worker
+# Edit /etc/hosts file for remote host
 
-machinelist:
+# set host ip
+hostip=$1
 
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+# Change 127.0.0.1 line to "127.0.0.1 localhost $hostname"
+grep -q "127.0.0.1" /etc/hosts && \
+    sed -i "/127.0.0.1/c\127.0.0.1 localhost $(hostname)" /etc/hosts || \
+    sed -i "\$a127.0.0.1 localhost $(hostname)" /etc/hosts
 
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+# Comment 127.0.1.1 line
+sed -i "/127.0.1.1/s/^/# /" /etc/hosts
+
+# Comment hostip line
+sed -i "/$hostip/s/^/# /" /etc/hosts
