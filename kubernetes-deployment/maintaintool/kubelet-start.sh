@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,23 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Now only support worker!
-remote_deployment_role: worker
+scriptPath=$1
 
-machinelist:
+# check etc/ exist or not.
+staticpod="$scriptPath/etc"
+if [ -d "$staticpod" ]; then
 
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+    cp -r $scriptPath/etc /
 
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+fi
+
+chmod u+x $scriptPath/kubelet.sh
+./$scriptPath/kubelet.sh

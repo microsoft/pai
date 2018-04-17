@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,23 +18,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Now only support worker!
-remote_deployment_role: worker
+# Prepare docker for remote host
+if command -v docker >/dev/null 2>&1; then
+    echo docker has been installed. And skip docker install.
+else
+    apt-get update
+    apt-get -y install \
+               apt-transport-https \
+               ca-certificates \
+               curl \
+               software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    apt-key fingerprint 0EBFCD88
 
-machinelist:
+    # Suppose your host is amd64.
+    add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
 
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+    apt-get update
 
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    role: worker
+    apt-get -y install docker-ce
+
+    sudo docker run hello-world
+
+    if command -v docker >/dev/null 2>&1; then
+        echo Successfully install docker
+    else
+        echo Failed install docker
+        exit 1
+    fi
+fi
