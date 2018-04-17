@@ -28,7 +28,7 @@ import logging
 import logging.config
 
 
-class add:
+class remove:
 
     """
     An class to remove the node from current pai's k8s cluster.
