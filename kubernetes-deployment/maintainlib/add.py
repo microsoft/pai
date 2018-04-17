@@ -43,12 +43,12 @@ class add:
         self.maintain_config = common.load_yaml_file("maintainconf/add.yaml")
         self.clean_flag = clean
 
-        if node_config['role'] == 'worker':
+        if node_config['k8s-role'] == 'worker':
             self.jobname = "add-worker-node"
 
         else:
             self.jobname = "error"
-            self.logger.error("[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['role'], node_config['nodename']))
+            self.logger.error("[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['k8s-role'], node_config['nodename']))
 
 
 
