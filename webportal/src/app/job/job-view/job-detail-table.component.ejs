@@ -13,6 +13,7 @@
   <tr>
     <%
     const vcName = (jobStatus.virtualCluster) ? jobStatus.virtualCluster : 'default';
+    const hjss = getHumanizedJobStateString(jobStatus);
     %>
     <td><%= jobName %></td>
     <td><%= jobStatus.username %></td>
@@ -20,12 +21,12 @@
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
     <td><%= jobStatus.retries %></td>
-    <td><%= convertState(getHumanizedJobStateString(jobStatus)) %></td>
+    <td><%= convertState(hjss) %></td>
     <td>
-      <% if (jobStatus.executionType === 'STOP' || jobStatus.subState === 'FRAMEWORK_COMPLETED') { %>
-        <button class="btn btn-default btn-xs" disabled>Stop</button>
-      <% } else { %>
+      <% if (hjss === 'Waiting' || hjss === 'Running') { %>
         <button class="btn btn-default btn-xs" onclick="stopJob('<%= jobName %>')">Stop</button>
+      <% } else { %>
+        <button class="btn btn-default btn-xs" disabled>Stop</button>
       <% } %>
     </td>
   </tr>

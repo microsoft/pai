@@ -171,7 +171,12 @@ const loadJobs = (limit, specifiedVc) => {
           if (specifiedVc && vcName !== specifiedVc) {
             continue;
           }
-          let stopBtnStyle = (data[i].executionType === 'STOP' || data[i].subState === 'FRAMEWORK_COMPLETED') ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>';
+          let hjss = getHumanizedJobStateString(data[i]);
+          let stopBtnStyle =
+            (hjss === 'Waiting' || hjss === 'Running') ?
+            '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
+              data[i].name + '\')">Stop</button>':
+            '<button class="btn btn-default btn-sm" disabled>Stop</button>';
           displayDataSet.push({
             jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
             userName: data[i].username,
@@ -181,7 +186,7 @@ const loadJobs = (limit, specifiedVc) => {
             duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
               convertTime(true, data[i].createdTime, data[i].completedTime),
             retries: data[i].retries,
-            status: convertState(getHumanizedJobStateString(data[i])),
+            status: convertState(hjss),
             stop: stopBtnStyle,
           });
         }
