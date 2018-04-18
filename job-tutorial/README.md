@@ -108,13 +108,13 @@ Below please find the detailed explanation for each of the parameters in the con
 | `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
 | `virtualCluster`               | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
-| `taskRole.name`                | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the task role, need to be unique with other roles |
+| `taskRole.name`                | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.portList`            | List, optional             | List of `portType` to use                |
-| `taskRole.portType.label`      | String in `^[A-Za-z0-9\-._~]+$` format, required | Label name for the port type |
+| `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
 | `taskRole.portType.beginAt`    | Integer, required          | The port to begin with in the port type, 0 for random selection |
 | `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
