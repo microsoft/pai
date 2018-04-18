@@ -280,7 +280,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -291,7 +291,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -387,28 +387,28 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Write {{'{{container_label_PAI_JOB_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "B"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Disk Usage",
+          "title": "Disk Bandwidth",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -425,7 +425,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "Bps",
               "logBase": 1,
               "max": null,
               "min": 0,
