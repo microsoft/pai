@@ -132,7 +132,9 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
+  putJob(name, data, username, next) {
+    const originData = data;
+    data.username = username;
     if (!data.outputDir.trim()) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     } else {
@@ -184,7 +186,7 @@ class Job {
           (parallelCallback) => {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.jobConfigFileName),
-                data,
+                originData,
                 {'spaces': 2},
                 (err) => parallelCallback(err));
           },
