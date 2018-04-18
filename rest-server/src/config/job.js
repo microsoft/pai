@@ -40,7 +40,7 @@ const jobConfigSchema = Joi.object().keys({
   taskRoles: Joi.array()
     .items(Joi.object().keys({
         name: Joi.string()
-          .regex(/^[A-Za-z0-9\-._~]+$/)
+          .regex(/^[A-Za-z0-9._~]+$/)
           .required(),
         taskNumber: Joi.number()
           .integer()
@@ -57,7 +57,7 @@ const jobConfigSchema = Joi.object().keys({
         portList: Joi.array()
           .items(Joi.object().keys({
             label: Joi.string()
-              .regex(/^[A-Za-z0-9\-._~]+$/)
+              .regex(/^[A-Za-z0-9._~]+$/)
               .required(),
             beginAt: Joi.number()
               .integer()
