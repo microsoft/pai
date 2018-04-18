@@ -238,7 +238,7 @@ public class ValueRangeUtils {
   public static List<ValueRange> getSubRange(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
     List<ValueRange> resultList = new ArrayList<ValueRange>();
-    if(getValueNumber(availableRange) <= 0) {
+    if (getValueNumber(availableRange) <= 0) {
       return resultList;
     }
     Random random = new Random();
@@ -247,17 +247,17 @@ public class ValueRangeUtils {
     int randomBase = random.nextInt(maxValue) + 1;
 
     // try different randomBase to find enough request number. If still cannot find enough request
-    // number when randomBase reduce to 0, return null.
+    // number when randomBase reduce to 0, return empty set.
     while (randomBase > 0) {
       resultList.clear();
       int needNumber = requestNumber;
       randomBase = randomBase / 2;
-      int newbaseValue = baseValue + randomBase;
+      int newBaseValue = baseValue + randomBase;
       for (ValueRange range : availableRange) {
-        if (range.getEnd() < newbaseValue) {
+        if (range.getEnd() < newBaseValue) {
           continue;
         }
-        int start = Math.max(range.getBegin(), newbaseValue);
+        int start = Math.max(range.getBegin(), newBaseValue);
         if ((range.getEnd() - start + 1) >= needNumber) {
           resultList.add(ValueRange.newInstance(start, start + needNumber - 1));
           return resultList;
@@ -267,7 +267,38 @@ public class ValueRangeUtils {
         }
       }
     }
-    return null;
+    return resultList;
+  }
+
+  /*
+    get a random subRange list from the available range list, all the values in the subRange are bigger than baseValue.
+   */
+  public static List<ValueRange> getSubRangeSequence(List<ValueRange> availableRange, int requestNumber, int baseValue) {
+
+    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    if (getValueNumber(availableRange) <= 0) {
+      return resultList;
+    }
+
+    resultList.clear();
+    int needNumber = requestNumber;
+
+    int newBaseValue = baseValue;
+    for (ValueRange range : availableRange) {
+      if (range.getEnd() < newBaseValue) {
+        continue;
+      }
+      int start = Math.max(range.getBegin(), newBaseValue);
+      if ((range.getEnd() - start + 1) >= needNumber) {
+        resultList.add(ValueRange.newInstance(start, start + needNumber - 1));
+        return resultList;
+      } else {
+        resultList.add(ValueRange.newInstance(start, range.getEnd()));
+        needNumber -= (range.getEnd() - start + 1);
+      }
+    }
+
+    return resultList;
   }
 
   public static boolean isEqualRangeList(List<ValueRange> leftRangeList, List<ValueRange> rightRangeList) {
@@ -355,7 +386,7 @@ public class ValueRangeUtils {
           portsString.append(";");
         } else {
           //if user not specified ports, assign the allocated ContainerPorts to each port label.
-          List<ValueRange> assignPorts = ValueRangeUtils.getSubRange(portRanges, ports.getCount(), basePort);
+          List<ValueRange> assignPorts = ValueRangeUtils.getSubRangeSequence(portRanges, ports.getCount(), basePort);
           basePort = assignPorts.get(assignPorts.size() - 1).getEnd() + 1;
           portsString.append(key + ":" + assignPorts.get(0).toDetailString(","));
           for (int i = 1; i < assignPorts.size(); i++) {

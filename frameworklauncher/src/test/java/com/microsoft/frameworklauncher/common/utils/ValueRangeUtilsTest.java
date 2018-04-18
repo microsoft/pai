@@ -132,7 +132,7 @@ public class ValueRangeUtilsTest {
     Map<String, Ports> portDefinitions = new HashMap<String, Ports>();
     Ports ports1 = new Ports();
     ports1.setCount(2);
-    ports1.setStart(8000);
+    ports1.setStart(40);
     portDefinitions.put("http_Port", ports1);
     Ports ports2 = new Ports();
     ports2.setCount(4);
@@ -140,11 +140,11 @@ public class ValueRangeUtilsTest {
     portDefinitions.put("http_SSH", ports2);
 
     List<ValueRange> testValueRange = new ArrayList<ValueRange>();
-    testValueRange.add(ValueRange.newInstance(8000, 8001));
+    testValueRange.add(ValueRange.newInstance(40, 41));
     List<ValueRange> testValueRange2 = new ArrayList<ValueRange>();
     testValueRange.add(ValueRange.newInstance(9000, 9003));
     String environmentString = ValueRangeUtils.toEnviromentVariableString(testValueRange, portDefinitions);
-    Assert.assertEquals(environmentString, "http_SSH:9000,9001,9002,9003;http_Port:8000,8001;");
+    Assert.assertEquals(environmentString, "http_SSH:9000,9001,9002,9003;http_Port:40,41;");
 
     Map<String, Ports> portDefinitions2 = new HashMap<String, Ports>();
     Ports ports3 = new Ports();
@@ -156,7 +156,7 @@ public class ValueRangeUtilsTest {
     ports4.setStart(0);
     portDefinitions2.put("http_SSH", ports4);
 
-    environmentString = ValueRangeUtils.toEnviromentVariableString(testRangeList, portDefinitions2);
+    environmentString = ValueRangeUtils.toEnviromentVariableString(testValueRange, portDefinitions2);
 
     Assert.assertEquals(environmentString.split(";").length, 2);
     Assert.assertEquals(environmentString.split(",").length, 5);
