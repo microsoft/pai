@@ -42,13 +42,13 @@ def parseSmiXmlResult(smi, logDir):
         outPut[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
     return outPut
 
-def genGpuMetricsFromSmi(logDir): 
+def genGpuMetricsFromSmi(logDir):
     try:
         cmd = "nvidia-smi -q -x"
         smi_output = subprocess.check_output([cmd], shell=True)
         return parseSmiXmlResult(smi_output, logDir)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        print("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     logDir = argv[0]
