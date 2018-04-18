@@ -271,7 +271,7 @@ public class ValueRangeUtils {
   }
 
   /*
-    get a random subRange list from the available range list, all the values in the subRange are bigger than baseValue.
+    get a sequence subRange list from the available range list, all the values in the subRange are bigger than baseValue.
    */
   public static List<ValueRange> getSubRangeSequence(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
