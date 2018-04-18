@@ -70,9 +70,9 @@ const getHumanizedJobStateString = (jobInfo) => {
     }
   } else if (jobInfo.state === 'RUNNING') {
     if (jobInfo.executionType === 'STOP') {
-      hjss = 'Running';
+      hjss = 'Stopping';
     } else {
-      hjss = 'Waiting';
+      hjss = 'Running';
     }
   } else if (jobInfo.state === 'SUCCEEDED') {
     hjss = 'Succeeded';
