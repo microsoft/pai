@@ -132,7 +132,9 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
+  putJob(name, data, username, next) {
+    const originData = data;
+    data.username = username;
     if (!data.outputDir.trim()) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     } else {
@@ -184,7 +186,7 @@ class Job {
           (parallelCallback) => {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.jobConfigFileName),
-                data,
+                originData,
                 {'spaces': 2},
                 (err) => parallelCallback(err));
           },
@@ -448,6 +450,14 @@ class Job {
           'start': data.taskRoles[i].portList[j].beginAt,
           'count': data.taskRoles[i].portList[j].portNumber,
         };
+      }
+      for (let defaultPortLabel of ['http', 'ssh']) {
+        if (!(defaultPortLabel in portList)) {
+          portList[defaultPortLabel] = {
+            'start': 0,
+            'count': 1,
+          };
+        }
       }
       const taskRole = {
         'taskNumber': data.taskRoles[i].taskNumber,
