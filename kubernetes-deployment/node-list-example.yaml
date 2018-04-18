@@ -27,7 +27,7 @@ machinelist:
     sshport: PORT
     username: username
     password: password
-    role: worker
+    k8s-role: worker
 
   worker-07:
     nodename: IP
@@ -35,4 +35,4 @@ machinelist:
     sshport: PORT
     username: username
     password: password
-    role: worker
+    k8s-role: worker

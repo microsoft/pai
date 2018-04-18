@@ -297,7 +297,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetIn{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(container_NetIn{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\", container_label_PAI_JOB_NAME=~\"$job\"}[5m]))  ",
               "interval": "",
               "intervalFactor": 2,
               "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
@@ -307,7 +307,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_NetOut{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME,  container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(container_NetOut{ container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"}[5m]))  ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -403,28 +403,26 @@
           "steppedLine": false,
           "targets": [
               {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_BlockIn{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"})",
-              "format": "time_series",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(container_BlockIn{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Write {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (container_BlockOut{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"})",
-              "format": "time_series",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(container_BlockOut{container_label_PAI_CURRENT_TASK_ROLE_NAME=~\"$task_role\",container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
               "intervalFactor": 2,
-              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "refId": "B"
             }
           ],
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Disk Usage",
+          "title": "Disk Bandwidth",
           "tooltip": {
             "msResolution": true,
             "shared": true,
@@ -441,7 +439,7 @@
           },
           "yaxes": [
             {
-              "format": "bytes",
+              "format": "Bps",
               "logBase": 1,
               "max": null,
               "min": 0,

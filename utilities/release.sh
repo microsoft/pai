@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,23 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-configmap
-data:
-  prometheus.yml: |-
-    # Scrape config for cluster components.
-    scrape_configs: 
-    - job_name: 'node_exporter'
-      scrape_interval: 30s
-      kubernetes_sd_configs:
-      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
-        role: node
-      # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
-      # Prometheus will fetch data from target address. 
-      relabel_configs:
-      - source_labels: [__address__]
-        regex: '([^:]+)(:\d*)?'
-        replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
-        target_label: __address__ 
+
+# Script for release
+
+set -e
+
+master_branch=master
+
+read -p "Enter release tag: " version_tag
+
+# Pull latest master branch
+git checkout $master_branch
+git pull origin $master_branch
+
+# Create and push tag
+git tag -a $version_tag -m "release version $(sed 's/^v//g' <<< $version_tag)"
+git push origin $version_tag
+echo "tagged with $version_tag"
+
+# Create and push a corresponding branch
+git branch pai-$(sed -r 's/^v//g; s/\.([^\.]*)$/.y/g' <<< $version_tag) $version_tag
+git push origin pai-$(sed -r 's/^v//g; s/\.([^\.]*)$/.y/g' <<< $version_tag)
+echo "created branch pai-$(sed -r 's/^v//g; s/\.([^\.]*)$/.y/g' <<< $version_tag)"
