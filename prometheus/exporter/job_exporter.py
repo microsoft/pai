@@ -24,7 +24,7 @@ import docker_inspect
 import gpu_exporter
 import time
 
-def parseFromLabels(labels): 
+def parseFromLabels(labels):
     gpuIds = []
     labelStr = ""
 
@@ -37,13 +37,13 @@ def parseFromLabels(labels):
                 for id in s2:
                     if id:
                         gpuIds.append(id)
-        else: 
+        else:
             labelStr += label + ","
-        
+
 
     return gpuIds, labelStr
 
-def parseFromEnv(envs): 
+def parseFromEnv(envs):
     envStr = ""
 
     for env in envs:
@@ -64,11 +64,12 @@ def genJobMetrics(logDir, gpuMetrics):
         for id in gpuIds:
             print("gpu id")
             print(id)
-            print(gpuMetrics)
-            containerGpuUtilStr = 'container_GPUPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuUtil"])
-            containerMemUtilStr = 'container_GPUMemPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuMemUtil"])
-            outputFile.write(containerGpuUtilStr)
-            outputFile.write(containerMemUtilStr)
+            if gpuMetrics:
+                print(gpuMetrics)
+                containerGpuUtilStr = 'container_GPUPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuUtil"])
+                containerMemUtilStr = 'container_GPUMemPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuMemUtil"])
+                outputFile.write(containerGpuUtilStr)
+                outputFile.write(containerMemUtilStr)
 
         containerCPUPerc = 'container_CPUPerc{{{0}}} {1}\n'.format(labelStr, stats[container]["CPUPerc"])
         containerMemUsage = 'container_MemUsage{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["usage"])
