@@ -67,18 +67,7 @@ const jobConfigSchema = Joi.object().keys({
              .default(1),
           }))
           .optional()
-          .default([
-            {
-              label: 'http',
-              beginAt: 0,
-              portNumber: 1,
-            },
-            {
-              label: 'ssh',
-              beginAt: 0,
-              portNumber: 1,
-            },
-          ]),
+          .default([]),
         command: Joi.string()
           .required(),
       }))
