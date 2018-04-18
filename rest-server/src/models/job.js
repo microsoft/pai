@@ -450,6 +450,14 @@ class Job {
           'count': data.taskRoles[i].portList[j].portNumber,
         };
       }
+      for (let defaultPortLabel of ['http', 'ssh']) {
+        if (!(defaultPortLabel in portList)) {
+          portList[defaultPortLabel] = {
+            'start': 0,
+            'count': 1,
+          };
+        }
+      }
       const taskRole = {
         'taskNumber': data.taskRoles[i].taskNumber,
         'taskService': {
