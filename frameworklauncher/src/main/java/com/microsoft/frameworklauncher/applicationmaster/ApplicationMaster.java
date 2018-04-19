@@ -608,7 +608,13 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
 
     String containerPortsString = ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
-    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
+    if (portDefinitions != null && !portDefinitions.isEmpty()) {
+      if (containerPortsString.split(";").length == portDefinitions.size()) {
+        localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
+      } else {
+        throw new NotAvailableException("ENV_VAR_CONTAINER_PORTS:" + containerPortsString + " is not meet the request in portDefinitions");
+      }
+    }
 
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to
