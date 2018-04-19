@@ -6,7 +6,7 @@
  <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
  <!--
    Licensed under the Apache License, Version 2.0 (the "License");
-@@ -17,5 +17,19 @@
+@@ -17,5 +17,24 @@
  <!-- Put site-specific property overrides in this file. -->
  
  <configuration>
@@ -23,6 +23,11 @@
 +  <property>
 +    <name>mapreduce.jobhistory.webapp.address</name>
 +    <value>{LOGSERVER_ADDRESS}:19888</value>
++  </property>
++
++  <property>
++    <name>mapreduce.job.emit-timeline-data</name>
++    <value>true</value>
 +  </property>
 +  
  </configuration>

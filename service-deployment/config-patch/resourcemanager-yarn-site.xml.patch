@@ -121,7 +121,7 @@
 +
 +    <property>
 +        <name>yarn.log.server.url</name>
-+        <value>http://{LOGSERVER_ADDRESS}:19888/jobhistory/logs</value>
++        <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
 +    </property>
 +    
 +    <property>
