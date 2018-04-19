@@ -357,6 +357,7 @@ class Job {
         username: 'unknown',
         state: jobState,
         subState: frameworkStatus.frameworkState,
+        executionType: framework.summarizedFrameworkInfo.executionType,
         retries: jobRetryCount,
         createdTime: frameworkStatus.frameworkCreatedTimestamp,
         completedTime: frameworkStatus.frameworkCompletedTimestamp,
