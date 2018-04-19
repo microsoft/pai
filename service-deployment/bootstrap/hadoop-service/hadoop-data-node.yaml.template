@@ -40,6 +40,8 @@ spec:
           name: hadoop-config-volume
         - mountPath: /host-configuration
           name: host-confg-volume
+        - mountPath: /var/lib/hadoopdata
+          name: hadoop-tmp-storage
         readinessProbe:
           exec:
             command:
@@ -57,6 +59,9 @@ spec:
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
+      - name: hadoop-tmp-storage
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/datanode
       - name: hadoop-data-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data

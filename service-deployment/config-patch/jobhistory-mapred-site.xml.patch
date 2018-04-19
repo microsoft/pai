@@ -1,5 +1,5 @@
---- hadoop/mapred-site.xml.template	2017-11-13 02:17:42.673171586 -0500
-+++ bootstrap/hadoop-service/hadoop-configuration/jobhistory-mapred-site.xml	2017-11-13 02:32:50.129611837 -0500
+--- hadoop-2.7.2/etc/hadoop/mapred-site.xml.template	2016-01-25 19:20:20.000000000 -0500
++++ jobhistory-mapred-site.xml	2018-04-19 01:33:20.544102088 -0400
 @@ -1,4 +1,4 @@
 -<?xml version="1.0"?>
 +<?xml version="1.0" encoding="UTF-8"?>

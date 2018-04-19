@@ -1,6 +1,6 @@
---- yarn-site.xml	2018-04-11 07:48:01.466726234 -0400
-+++ resourcemanager-yarn-site.xml	2018-04-11 07:50:01.470686972 -0400
-@@ -12,8 +12,134 @@
+--- hadoop-2.7.2/etc/hadoop/yarn-site.xml	2016-01-25 19:20:20.000000000 -0500
++++ resourcemanager-yarn-site.xml	2018-04-19 01:26:36.903259019 -0400
+@@ -12,8 +12,194 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -132,6 +132,66 @@
 +    <property>
 +      <name>yarn.nodemanager.recovery.dir</name>
 +      <value>/var/lib/yarn/yarn-nm-recovery</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.log-dirs</name>
++      <value>/var/lib/yarn/userlogs</value>
++    </property>
++
++    <property>
++       <name>yarn.timeline-service.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++       <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.enabled</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.hostname</name>
++        <value>{TIMELINE_SERVER_ADDRESS}</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.bind-host</name>
++        <value>0.0.0.0</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.max-applications</name>
++        <value>1000</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.fs-history-store.uri</name>
++        <value>/yarn/timeline/generic-history</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.ttl-enable</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.ttl-ms</name>
++        <value>2419200000</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.handler-thread-count</name>
++        <value>16</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.http-cross-origin.enabled</name>
++        <value>true</value>
 +    </property>
  
  </configuration>

@@ -38,6 +38,8 @@ spec:
           name: hadoop-config-volume
         - mountPath: /var/lib/yarn
           name: yarn-resourcemanager-storage
+        - mountPath: /var/lib/hadoopdata
+          name: hadoop-tmp-storage
         readinessProbe:
           exec:
             command:
@@ -54,6 +56,8 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: TIMELINE_SERVER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
@@ -67,3 +71,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: hadoop-tmp-storage
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/resourcemanager
