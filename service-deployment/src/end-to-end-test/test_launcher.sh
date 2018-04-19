@@ -18,49 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-service_list="$(kubectl get pods)"
+launcher_uri=$WEBSERVICE_URI
 
 
-@test "check etcd server" {
-  [[ $service_list == *"etcd-server"!(*$'\n'*)"Running"* ]]
+@test "check framework launcher health check" {
+  result="$(curl $launcher_uri)"
+  [[ $result == *Active* ]]
 }
 
-@test "check drivers" {
-  [[ $service_list == *"drivers-one-shot"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check hadoop name node" {
-  [[ $service_list == *"hadoop-name-node-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check hadoop data node" {
-  [[ $service_list == *"hadoop-data-node-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check hadoop resource manager" {
-  [[ $service_list == *"hadoop-resource-manager-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check hadoop node manager" {
-  [[ $service_list == *"hadoop-node-manager-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check hadoop job history" {
-  [[ $service_list == *"hadoop-jobhistory-service"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check zookeeper" {
-  [[ $service_list == *"zookeeper-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check frameworklauncher" {
-  [[ $service_list == *"frameworklauncher-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check rest server" {
-  [[ $service_list == *"rest-server-ds"!(*$'\n'*)"Running"* ]]
-}
-
-@test "check webportal" {
-  [[ $service_list == *"webportal-ds"!(*$'\n'*)"Running"* ]]
+@test "submit framework launcher test job" {
+  job_name="launcher-test-$RANDOM-$RANDOM"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  [[ ! $result == *Error* ]]
 }

@@ -23,6 +23,6 @@ chmod u+x node-label.sh
 
 ./node-label.sh
 
-kubectl create -f webportal-ds.yaml
+kubectl create -f webportal.yaml
 
 popd > /dev/null

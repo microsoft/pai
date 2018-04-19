@@ -17,11 +17,11 @@
 
 prerequisite:
   - cluster-configuration
+  - frameworklauncher
   - rest-server
 
 templatelist:
-  - node-label.sh
-  - webportal.yaml
+  - end-to-end-test.yaml
   - cleanup.sh
 
 startscript: start.sh

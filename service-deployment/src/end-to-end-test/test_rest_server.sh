@@ -18,11 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-. utils.sh
-
-eval $(parse_yaml $cluster_config "pai_")
-hdfs_uri=$pai_clusterinfo_restserverinfo_hdfs_uri
-rest_server_uri=$pai_clusterinfo_webportalinfo_rest_server_uri
+hdfs_uri=$HDFS_URI
+rest_server_uri=$REST_SERVER_URI
 
 
 @test "check rest server health check" {
