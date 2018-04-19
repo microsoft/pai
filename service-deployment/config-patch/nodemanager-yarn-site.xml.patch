@@ -189,7 +189,7 @@
 +
 +   <property>
 +       <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
-+        <value>false</value>
++        <value>true</value>
 +   </property>
 +
 +    <property>
