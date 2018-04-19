@@ -1,6 +1,6 @@
 --- hadoop-2.7.2/etc/hadoop/yarn-site.xml	2016-01-25 19:20:20.000000000 -0500
 +++ nodemanager-yarn-site.xml	2018-04-19 01:26:36.675258539 -0400
-@@ -12,8 +12,188 @@
+@@ -12,8 +12,193 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -180,6 +180,11 @@
 +    <property>
 +        <name>yarn.timeline-service.handler-thread-count</name>
 +        <value>16</value>
++    </property>
++
++    <property>
++       <name>yarn.timeline-service.store-class</name>
++       <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
 +    </property>
 +
 +    <property>
