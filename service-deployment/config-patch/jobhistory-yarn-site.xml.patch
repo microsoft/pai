@@ -1,6 +1,6 @@
 --- hadoop-2.7.2/etc/hadoop/yarn-site.xml	2016-01-25 19:20:20.000000000 -0500
 +++ jobhistory-yarn-site.xml	2018-04-19 01:26:36.559258295 -0400
-@@ -12,8 +12,171 @@
+@@ -12,8 +12,176 @@
    See the License for the specific language governing permissions and
    limitations under the License. See accompanying LICENSE file.
  -->
@@ -165,6 +165,11 @@
 +       <name>yarn.timeline-service.generic-application-history.store-class</name>
 +       <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
 +    </property>
++
++   <property>
++       <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
++        <value>false</value>
++   </property>
 +
 +    <property>
 +        <name>yarn.timeline-service.http-cross-origin.enabled</name>
