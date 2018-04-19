@@ -34,5 +34,5 @@ window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
 if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--user-management').hide();
+  $('#sidebar-menu--cluster-view').hide();
 }
