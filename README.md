@@ -1,4 +1,6 @@
-# Open Platform for AI (PAI)
+# Open Platform for AI (PAI) ![alt text][logo]
+
+[logo]: ./pailogo.jpg "OpenPAI"
 
 [![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master)

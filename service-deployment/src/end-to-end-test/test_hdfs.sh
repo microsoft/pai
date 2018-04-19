@@ -18,40 +18,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-. utils.sh
-
-eval $(parse_yaml $cluster_config "pai_")
-hdfs_host=$pai_clusterinfo_hadoopinfo_hadoop_vip
+hdfs_host=$HADOOP_VIP
 paifs_arg="--host $hdfs_host --port 50070 --user root"
 
 
 @test "list hdfs root dir" {
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
   [[ $result == *Launcher* ]]
 }
 
 @test "make hdfs test root dir" {
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test)"
   [[ ! $result == *Error* ]]
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
   [[ $result == *Test* ]]
 }
 
 @test "make hdfs test sub dir" {
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/launcher)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/launcher)"
   [[ ! $result == *Error* ]]
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/cntk)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/cntk)"
   [[ ! $result == *Error* ]]
 }
 
 @test "upload cntk data to hdfs" {
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -r -f local/CNTK/Examples/SequenceToSequence/CMUDict/Data hdfs://Test/cntk/)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -r -f CNTK/Examples/SequenceToSequence/CMUDict/Data hdfs://Test/cntk/)"
   [[ ! $result == *Error* ]]
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -r -f local/CNTK/Examples/SequenceToSequence/CMUDict/BrainScript hdfs://Test/cntk/)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -r -f CNTK/Examples/SequenceToSequence/CMUDict/BrainScript hdfs://Test/cntk/)"
   [[ ! $result == *Error* ]]
 }
 
 @test "upload cntk start script to hdfs" {
-  result="$(python local/pai-fs/pai-fs.py $paifs_arg -cp -f etc/cntk.sh hdfs://Test/cntk/BrainScript/)"
+  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -f etc/cntk.sh hdfs://Test/cntk/BrainScript/)"
   [[ ! $result == *Error* ]]
 }

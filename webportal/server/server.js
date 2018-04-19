@@ -21,7 +21,6 @@ const config = require('./config/index');
 const logger = require('./config/logger');
 const app = require('./config/express');
 
-
 logger.info('config: %j', config);
 
 // start the server
