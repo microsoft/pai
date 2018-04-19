@@ -35,6 +35,7 @@ const validate = (schema) => {
           message: errorMessage,
         });
       } else {
+        req.original_body = req.body;
         req.body = value;
         next();
       }
