@@ -41,8 +41,8 @@ public class TaskStatus implements Serializable {
   private String containerHost;
   // containerIp is the assigned ipv4 address of the corresponding containerHost
   private String containerIp;
-  // containerGpus is the assigned GpuAttribute of the container
   private List<ValueRange> containerPorts;
+  // containerGpus is the assigned GpuAttribute of the container
   private Long containerGpus;
   private String containerLogHttpAddress;
   private Integer containerConnectionLostCount;
