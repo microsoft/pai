@@ -24,6 +24,18 @@ if [ -d "/mnt/hdfs" ]; then
 
 fi
 
+if [ -d "/mnt/yarn" ]; then
+
+    rm -rf /mnt/yarn
+
+fi
+
+if [ -d "/mnt/hadooptmp" ]; then
+
+    rm -rf /mnt/hadooptmp
+
+fi
+
 if [ -d "/mnt/launcherlogs" ]; then
 
     rm -rf /mnt/launcherlogs
