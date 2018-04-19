@@ -162,8 +162,8 @@
 +    </property>
 +
 +    <property>
-+       <name>yarn.timeline-service.store-class</name>
-+       <value>yarn.timeline-service.generic-application-history.store-class</value>
++       <name>yarn.timeline-service.generic-application-history.store-class</name>
++       <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
 +    </property>
 +
 +    <property>
