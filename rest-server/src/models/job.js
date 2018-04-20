@@ -267,6 +267,7 @@ class Job {
   }
 
   getJobConfig(userName, jobName, next) {
+    /*
     let url = launcherConfig.webhdfsUri +
       '/webhdfs/v1/Container/' + userName + '/' + jobName +
       '/JobConfig.json?op=OPEN';
@@ -288,6 +289,25 @@ class Job {
           next(null, error);
         }
       });
+    */
+    let url = launcherConfig.webhdfsUri +
+      '/webhdfs/v1/Output/core/hao-test-1/hello?user.name=core&op=MKDIRS';
+    unirest.put(url).end((requestRes) => {
+      try {
+        const requestResJson =
+          typeof requestRes.body === 'object' ?
+          requestRes.body :
+          JSON.parse(requestRes.body);
+        if (requestRes.status === 200) {
+          next(requestResJson, null);
+        } else {
+          console.log(requestResJson);
+          next(null, new Error('InternalServerError'));
+        }
+      } catch (error) {
+        next(null, error);
+      }
+    });
   }
 
   getJobSshInfo(userName, jobName, applicationId, next) {
