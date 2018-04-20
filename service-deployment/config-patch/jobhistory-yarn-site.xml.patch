@@ -143,7 +143,7 @@
 +
 +    <property>
 +        <name>yarn.timeline-service.generic-application-history.fs-history-store.uri</name>
-+        <value>/var/lib/yarn/timeline/generic-history</value>
++        <value>/yarn/timeline/generic-history</value>
 +    </property>
 +
 +    <property>
