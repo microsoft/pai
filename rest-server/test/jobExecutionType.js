@@ -21,6 +21,9 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
   // Mock launcher webservice
   beforeEach(() => {
     let frameworkDetail = {
+      'summarizedFrameworkInfo': {
+        'executionType': 'START',
+      },
       'aggregatedFrameworkStatus': {
         'frameworkStatus': {
           'name': 'test',

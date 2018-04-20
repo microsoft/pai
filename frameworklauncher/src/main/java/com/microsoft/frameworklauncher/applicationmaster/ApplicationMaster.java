@@ -607,8 +607,15 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
 
+    //The containerPortsString format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
     String containerPortsString = ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
-    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
+    if (portDefinitions != null && !portDefinitions.isEmpty()) {
+      if (containerPortsString.split(";").length == portDefinitions.size()) {
+        localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
+      } else {
+        LOGGER.logError("ENV_VAR_CONTAINER_PORTS:" + containerPortsString + " is not meet the request in portDefinitions");
+      }
+    }
 
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to

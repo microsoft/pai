@@ -30,6 +30,8 @@ const userRegisterHtml = userRegisterComponent({
 
 $('#content-wrapper').html(userRegisterHtml);
 $(document).ready(() => {
+  $('#sidebar-menu--cluster-view').addClass('active');
+  $('#sidebar-menu--cluster-view--user-management').addClass('active');
   $('#form-register').on('submit', (e) => {
     e.preventDefault();
     const username = $('#form-register :input[name=username]').val();

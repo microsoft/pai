@@ -16,46 +16,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: extensions/v1beta1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: rest-server-ds
+  name: end-to-end-test-deployment
+  labels:
+    app: end-to-end-test
 spec:
+  replicas: 1
   template:
     metadata:
-      name: rest-server
+      name: end-to-end-test
       labels:
-        app: rest-server
+        app: end-to-end-test
     spec:
       hostNetwork: false
       hostPID: false
-      nodeSelector:
-        restserver: "true"
       containers:
-      - name: rest-server
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - name: end-to-end-test
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}end-to-end-test:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         securityContext:
           privileged: true
         env:
-        - name: LAUNCHER_WEBSERVICE_URI
-          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+        - name: HADOOP_VIP
+          value: value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
-        - name: WEBHDFS_URI
-          value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
-        - name: YARN_URI
-          value: {{ clusterinfo['restserverinfo']['yarn_uri'] }}
-        - name: JWT_SECRET
-          value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
-        - name: DEFAULT_PAI_ADMIN_USERNAME
+        - name: WEBSERVICE_URI
+          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+        - name: REST_SERVER_URI
+          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+        - name: TEST_USERNAME
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
-        - name: DEFAULT_PAI_ADMIN_PASSWORD
+        - name: TEST_PASSWORD
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
-        - name: ETCD_URI
-          value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
-        ports:
-        - name: rest-server
-          containerPort: 8080
-          hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
