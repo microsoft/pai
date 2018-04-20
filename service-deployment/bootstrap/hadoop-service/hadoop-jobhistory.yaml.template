@@ -42,6 +42,8 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: TIMELINE_SERVER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
           value: jobhistory-generate-script.sh
         - name: START_SERVICE
@@ -49,6 +51,8 @@ spec:
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-config-volume
+        - mountPath: /var/lib/hadoopdata
+          name: hadoop-tmp-storage
         readinessProbe:
           exec:
             command:
@@ -62,3 +66,6 @@ spec:
       - name: hadoop-config-volume
         configMap:
           name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+      - name: hadoop-tmp-storage
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/jobhistory

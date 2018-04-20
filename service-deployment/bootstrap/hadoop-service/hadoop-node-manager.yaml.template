@@ -54,6 +54,8 @@ spec:
           name: host-confg-volume
         - mountPath: /root/.docker
           name: docker-cred-volume
+        - mountPath: /var/lib/hadoopdata
+          name: hadoop-tmp-storage
         readinessProbe:
           exec:
             command:
@@ -69,6 +71,8 @@ spec:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: TIMELINE_SERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
           value: nodemanager-generate-script.sh
@@ -105,5 +109,8 @@ spec:
       - name: docker-cred-volume
         configMap:
           name: docker-credentials
+      - name: hadoop-tmp-storage
+        hostPath:
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
 
 
