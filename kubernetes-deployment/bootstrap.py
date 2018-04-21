@@ -391,6 +391,18 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
 
 
+
+def maintain_cluster(cluster_config, job_name):
+    module_name = "maintainlib.{0}".format(job_name)
+    module = importlib.import_module(module_name)
+
+    job_class = getattr(module, job_name)
+    job_instance = job_class(cluster_config, clean = True)
+
+    job_instance.run()
+
+
+
 def option_validation(args):
 
     ret = False
@@ -499,7 +511,7 @@ def main():
 
         logger.info("Begin to clean up whole cluster.")
 
-        destory_whole_cluster(cluster_config)
+        maintain_cluster(cluster_config, args.action)
 
         logger.info("Clean up job finished")
         return
