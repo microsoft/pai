@@ -71,10 +71,10 @@ class clean:
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
         if common.ssh_shell_paramiko(node_config, commandline) == False:
-            self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(str(node_config['hostip'])))
+            self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(node_config['hostip']))
             return
 
-        self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, str(node_config["nodename"])))
+        self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, node_config["nodename"]))
 
 
 
@@ -98,17 +98,17 @@ class clean:
             listname = self.cluster_config["remote_deployment"][role]["listname"]
 
             for node_config in self.cluster_config[listname]:
-                self.logger.info("Begin to clean data on host [{0}]".format(str(node_config["hostip"])))
+                self.logger.info("Begin to clean data on host {0}".format(node_config["hostip"]))
                 self.prepare_package(node_config)
                 self.job_executer(node_config)
 
                 if self.clean_flag == True:
-                    self.logger.info(" package cleaner is working on the folder of [{0}]!".format(str(node_config["hostip"])))
+                    self.logger.info(" package cleaner is working on the folder of {0}!".format(node_config["hostip"]))
                     self.delete_packege(node_config)
                     self.logger.info(" package cleaner's work finished! ")
 
-                    self.logger.info(" remote host cleaner is working on the host of [{0}]!".format(str(node_config["hostip"])))
-                    self.remote_host_cleaner(node_config)
+                    self.logger.info(" remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
+                    self.remote_host_cleaner()
                     self.logger.info(" remote host cleaning job finished! ")
 
 
