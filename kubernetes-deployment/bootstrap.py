@@ -397,7 +397,7 @@ def maintain_cluster(cluster_config, **kwargs):
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, kwargs["job_name"])
-    job_instance = job_class(cluster_config, kwargs)
+    job_instance = job_class(cluster_config, **kwargs)
 
     job_instance.run()
 
