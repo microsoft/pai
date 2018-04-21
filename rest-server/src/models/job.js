@@ -136,95 +136,97 @@ class Job {
   putJob(name, data, username, next) {
     const originData = data;
     data.username = username;
-    if (!data.outputDir.trim()) {
-      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
-    }
+    //
+    // Hao's comment (4/21/2018):
+    // We have to let users use the standard output folder, otherwise using hdfs command
+    // in rest-server is not avoidable if we have to create the folder here.
+    // Another solution and TODO: Create the folder in docker script.
+    //
+    data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
-    if (data.outputDir.match(/^hdfs:\/\//)) {
-      childProcess.exec(
-          `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
-          (err, stdout, stderr) => {
-            if (err) {
-              logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
-            }
-          });
-    }
-    const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
-    fse.ensureDir(jobDir, (err) => {
-      if (err) {
-        return next(err);
-      } else {
-        let frameworkDescription;
-        async.parallel([
-          (parallelCallback) => {
-            async.each(['log', 'tmp', 'finished'], (file, eachCallback) => {
-              fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-              fse.outputFile(
-                  path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
-                  this.generateYarnContainerScript(data, idx),
-                  (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-              fse.outputFile(
-                  path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
-                  this.generateDockerContainerScript(data, idx),
-                  (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            fse.outputJson(
-                path.join(jobDir, launcherConfig.jobConfigFileName),
-                originData,
-                {'spaces': 2},
-                (err) => parallelCallback(err));
-          },
-          (parallelCallback) => {
-            frameworkDescription = this.generateFrameworkDescription(data);
-            fse.outputJson(
-                path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
-                frameworkDescription,
-                {'spaces': 2},
-                (err) => parallelCallback(err));
-          },
-        ], (parallelError) => {
-          if (parallelError) {
-            return next(parallelError);
-          } else {
-            let cmd = '';
-            if (config.env !== 'test') {
-              cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
-            }
-            childProcess.exec(
-              cmd,
-              (err, stdout, stderr) => {
-                logger.info('[stdout]\n%s', stdout);
-                logger.info('[stderr]\n%s', stderr);
-                if (err) {
-                  return next(err);
-                } else {
-                  unirest.put(launcherConfig.frameworkPath(name))
-                      .headers(launcherConfig.webserviceRequestHeaders)
-                      .send(frameworkDescription)
-                      .end((res) => next());
-                }
-              }
-            );
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    async.parallel([
+      (parallelCallback) => {
+        hdfs.createFolder(
+          `/Output/${data.username}/${name}`,
+          {'user.name': data.username, 'permission': '755'},
+          (responseBodyJson, error) => {
+            parallelCallback(error);
           }
+        );
+      },
+      (parallelCallback) => {
+        async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
+          hdfs.createFolder(
+            `/Container/${data.username}/${name}/` + x,
+            {'user.name': data.username, 'permission': '755'},
+            (responseBodyJson, error) => {
+              eachCallback(error);
+            }
+          );
+        }, (error) => {
+          parallelCallback(error);
+        });
+      },
+      (parallelCallback) => {
+        async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
+          hdfs.createFile(
+            `/Container/${data.username}/${name}/YarnContainerScripts/${x}.sh`,
+            this.generateYarnContainerScript(data, x),
+            {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+            (responseBodyJson, error) => {
+              eachCallback(error);
+            }
+          );
+        }, (error) => {
+          parallelCallback(error);
+        });
+      },
+      (parallelCallback) => {
+        async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
+          hdfs.createFile(
+            `/Container/${data.username}/${name}/DockerContainerScripts/${x}.sh`,
+            this.generateDockerContainerScript(data, x),
+            {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+            (responseBodyJson, error) => {
+              eachCallback(error);
+            }
+          );
+        }, (error) => {
+          parallelCallback(error);
+        });
+      },
+      (parallelCallback) => {
+        hdfs.createFile(
+          `/Container/${data.username}/${name}/${launcherConfig.jobConfigFileName}`,
+          JSON.stringify(originData, null, 2),
+          {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+          (responseBodyJson, error) => {
+            parallelCallback(error);
+          }
+        );
+      },
+      (parallelCallback) => {
+        hdfs.createFile(
+          `/Container/${data.username}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
+          JSON.stringify(this.generateFrameworkDescription(data), null, 2),
+          {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+          (responseBodyJson, error) => {
+            parallelCallback(error);
+          }
+        );
+      },
+    ], (parallelError) => {
+      if (parallelError) {
+        return next(parallelError);
+      } else {
+        unirest.put(launcherConfig.frameworkPath(name))
+        .headers(launcherConfig.webserviceRequestHeaders)
+        .send(this.generateFrameworkDescription(data))
+        .end((res) => {
+          next();
         });
       }
     });
@@ -268,7 +270,6 @@ class Job {
   }
 
   getJobConfig(userName, jobName, next) {
-    /*
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       '/Container/' + userName + '/' + jobName + '/JobConfig.json',
@@ -281,118 +282,6 @@ class Job {
         }
       }
     );
-    */
-    /*
-    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    hdfs.createFolder(
-      '/Output/core/hao-test-1/hello2',
-      {'user.name': 'core', 'permission': '755'},
-      (responseBodyJson, error) => {
-        if (error) {
-          next(responseBodyJson, error);
-        } else {
-          hdfs.createFile(
-            '/Output/core/hao-test-1/hello2/tmp/1.json',
-            JSON.stringify({name: 'alice', age: 19}),
-            {'user.name' : 'core', 'permission': '644', 'overwrite': 'true'},
-            (responseBodyJson, error) => {
-              if (error) {
-                next(responseBodyJson, error);
-              } else {
-                hdfs.readFile(
-                  '/Output/core/hao-test-1/hello2/tmp/1.json',
-                  {},
-                  next
-                );
-              }
-            }
-          );
-        }
-      }
-    );
-    */
-    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    let frameworkDescription;
-    async.parallel([
-      (parallelCallback) => {
-        async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
-          hdfs.createFolder(
-            '/Output/core/hao-test-1/hello2/' + x,
-            {'user.name': 'core', 'permission': '755'},
-            (responseBodyJson, error) => {
-              eachCallback(error);
-            }
-          )
-        }, (eachError) => {
-          parallelCallback(eachError);
-        });
-      },
-      /*
-      (parallelCallback) => {
-        async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-          fse.outputFile(
-              path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
-              this.generateYarnContainerScript(data, idx),
-              (err) => eachCallback(err));
-        }, (err) => {
-          parallelCallback(err);
-        });
-      },
-      (parallelCallback) => {
-        async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-          fse.outputFile(
-              path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
-              this.generateDockerContainerScript(data, idx),
-              (err) => eachCallback(err));
-        }, (err) => {
-          parallelCallback(err);
-        });
-      },
-      (parallelCallback) => {
-        fse.outputJson(
-            path.join(jobDir, launcherConfig.jobConfigFileName),
-            originData,
-            {'spaces': 2},
-            (err) => parallelCallback(err));
-      },
-      (parallelCallback) => {
-        frameworkDescription = this.generateFrameworkDescription(data);
-        fse.outputJson(
-            path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
-            frameworkDescription,
-            {'spaces': 2},
-            (err) => parallelCallback(err));
-      },
-      */
-    ], (parallelError) => {
-      if (parallelError) {
-        return next(parallelError);
-      } else {
-        console.log('yay!');
-        /*
-        let cmd = '';
-        if (config.env !== 'test') {
-          cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-            HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
-        }
-        childProcess.exec(
-          cmd,
-          (err, stdout, stderr) => {
-            logger.info('[stdout]\n%s', stdout);
-            logger.info('[stderr]\n%s', stderr);
-            if (err) {
-              return next(err);
-            } else {
-              unirest.put(launcherConfig.frameworkPath(name))
-                  .headers(launcherConfig.webserviceRequestHeaders)
-                  .send(frameworkDescription)
-                  .end((res) => next());
-            }
-          }
-        );
-        */
-      }
-    });
   }
 
   getJobSshInfo(userName, jobName, applicationId, next) {

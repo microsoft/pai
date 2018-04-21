@@ -24,9 +24,9 @@ class Hdfs {
   }
 
   createFolder(path, options, next/*(responseBodyJson, error)*/) {
-    let targetUrl = this.webHdfsRootUrl + '/webhdfs/v1' + path + '?op=MKDIRS';
+    let targetUrl = `${this.webHdfsRootUrl}/webhdfs/v1${path}?op=MKDIRS`;
     for (let key in options) {
-      targetUrl += '&' + key + '=' + options[key];
+      targetUrl += `&${key}=${options[key]}`;
     }
     try {
       unirest.put(targetUrl)
@@ -43,9 +43,9 @@ class Hdfs {
   }
 
   createFile(path, data, options, next/*(responseBodyJson, error)*/) {
-    let targetUrl = this.webHdfsRootUrl + '/webhdfs/v1' + path + '?op=CREATE';
+    let targetUrl = `${this.webHdfsRootUrl}/webhdfs/v1${path}?op=CREATE`;
     for (let key in options) {
-      targetUrl += '&' + key + '=' + options[key];
+      targetUrl += `&${key}=${options[key]}`;
     }
     try {
       unirest.put(targetUrl)
@@ -73,9 +73,9 @@ class Hdfs {
   }
 
   readFile(path, options, next) {
-    let targetUrl = this.webHdfsRootUrl + '/webhdfs/v1' + path + '?op=OPEN';
+    let targetUrl = `${this.webHdfsRootUrl}/webhdfs/v1${path}?op=OPEN`;
     for (let key in options) {
-      targetUrl += '&' + key + '=' + options[key];
+      targetUrl += `&${key}=${options[key]}`;
     }
     try {
       unirest.get(targetUrl)
