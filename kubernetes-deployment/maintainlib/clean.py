@@ -58,23 +58,23 @@ class clean:
 
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
-        src_local = "parcel-center/{0}".format(self.node_config["nodename"])
-        dst_remote = "/home/{0}".format(self.node_config["username"])
+        src_local = "parcel-center/{0}".format(node_config["nodename"])
+        dst_remote = "/home/{0}".format(node_config["username"])
 
-        if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
+        if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar".format(self.jobname, self.node_config['hostip'])
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        commandline = "tar -xvf {0}.tar".format(self.jobname, node_config['hostip'])
+        if common.ssh_shell_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
             return
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
-            self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
+        if common.ssh_shell_paramiko(node_config, commandline) == False:
+            self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(node_config['hostip']))
             return
 
-        self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"]))
+        self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, node_config["nodename"]))
 
 
 
@@ -98,7 +98,7 @@ class clean:
             listname = self.cluster_config["remote_deployment"][role]["listname"]
 
             for node_config in self.cluster_config[listname]:
-                self.logger.info("Begin to clean data on host [{0}]".format(node_config["hostip"]))
+                self.logger.info("Begin to clean data on host [{0}]".format(str(node_config["hostip"])))
                 self.prepare_package(node_config)
                 self.job_executer(node_config)
 
@@ -107,8 +107,8 @@ class clean:
                     self.delete_packege(node_config)
                     self.logger.info(" package cleaner's work finished! ")
 
-                    self.logger.info(" remote host cleaner is working on the host of [{0}]!".format(node_config["hostip"]))
-                    self.remote_host_cleaner()
+                    self.logger.info(" remote host cleaner is working on the host of [{0}]!".format(str(node_config["hostip"])))
+                    self.remote_host_cleaner(node_config)
                     self.logger.info(" remote host cleaning job finished! ")
 
 
