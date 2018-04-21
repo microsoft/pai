@@ -134,7 +134,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     stdin.write(password + '\n')
     stdin.flush()
     for response_msg in stdout:
-        logger.info(response_msg.strip('\n'))
+        print response_msg.strip('\n')
 
     ssh.close()
 
@@ -174,7 +174,7 @@ def ssh_shell_paramiko(host_config, commandline):
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
-        logger.info(response_msg.strip('\n'))
+        print response_msg.strip('\n')
 
     ssh.close()
     return True
