@@ -95,7 +95,7 @@ class clean:
 
 
         for role in self.cluster_config["remote_deployment"]:
-            listname = self.cluster_config["remote_deployment"]["role"]["listname"]
+            listname = self.cluster_config["remote_deployment"][role]["listname"]
 
             for node_config in self.cluster_config[listname]:
                 self.logger.info("Begin to clean data on host [{0}]".format(node_config["hostip"]))
