@@ -18,11 +18,8 @@
 
 // module dependencies
 const path = require('path');
-const fse = require('fs-extra');
 const Joi = require('joi');
-const async = require('async');
 const unirest = require('unirest');
-const childProcess = require('child_process');
 const config = require('./index');
 const logger = require('./logger');
 

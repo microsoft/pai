@@ -17,12 +17,9 @@
 
 
 // module dependencies
-const path = require('path');
-const fse = require('fs-extra');
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
-const childProcess = require('child_process');
 const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
