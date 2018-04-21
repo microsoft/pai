@@ -511,7 +511,7 @@ def main():
 
         logger.info("Begin to clean up whole cluster.")
 
-        maintain_cluster(cluster_config, jobname = args.action)
+        maintain_cluster(cluster_config, job_name = args.action)
 
         logger.info("Clean up job finished")
         return
