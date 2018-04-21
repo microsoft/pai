@@ -197,22 +197,6 @@ def remoteBootstrap(cluster_info, host_config):
 
 
 
-def remoteCleanUp(cluster_info, host_config):
-
-    srcipt = "cleanup.sh"
-    src_local = "./"
-    dst_remote = "/home/{0}".format(host_config["username"])
-
-    if pai_common.sftp_paramiko(src_local, dst_remote, srcipt, host_config) == False:
-        return
-
-    commandline = "sudo sh cleanup.sh"
-
-    if pai_common.ssh_shell_paramiko(host_config, commandline) == False:
-        return
-
-
-
 def generate_etcd_ip_list(master_list):
 
     etcd_cluster_ips_peer = ""
@@ -327,14 +311,11 @@ def kube_proxy_startup(cluster_config):
 
 
 
-def kubernetes_nodelist_deployment(cluster_config, machine_list, role, clean):
+def kubernetes_nodelist_deployment(cluster_config, machine_list, role):
 
     for hostname in machine_list:
-        if clean:
-            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-        else:
-            bootstrapScriptGenerate(cluster_config, machine_list[hostname], role)
-            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+        bootstrapScriptGenerate(cluster_config, machine_list[hostname], role)
+        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
 
@@ -344,27 +325,17 @@ def initial_bootstrap_cluster(cluster_config):
         listname = cluster_config['remote_deployment']['proxy']['listname']
         if listname in cluster_config:
             machine_list = cluster_config[listname]
-            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy")
 
     listname = cluster_config['remote_deployment']['master']['listname']
     if listname in cluster_config:
         machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "master")
 
     listname = cluster_config['remote_deployment']['worker']['listname']
     if listname in cluster_config:
         machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
-
-
-
-def destory_whole_cluster(cluster_config):
-
-    for role in cluster_config['remote_deployment']:
-        listname = cluster_config['remote_deployment'][role]['listname']
-        if listname in cluster_config:
-            machine_list = cluster_config[listname]
-            kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker")
 
 
 
