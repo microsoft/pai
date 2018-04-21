@@ -29,6 +29,7 @@ const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 
+const Hdfs = require('../util/hdfs');
 
 class Job {
   constructor(name, next) {
@@ -268,44 +269,128 @@ class Job {
 
   getJobConfig(userName, jobName, next) {
     /*
-    let url = launcherConfig.webhdfsUri +
-      '/webhdfs/v1/Container/' + userName + '/' + jobName +
-      '/JobConfig.json?op=OPEN';
-    unirest.get(url)
-      .end((requestRes) => {
-        try {
-          const requestResJson =
-            typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
-          if (requestRes.status === 200) {
-            next(requestResJson, null);
-          } else if (requestRes.status === 404) {
-            next(null, new Error('ConfigFileNotFound'));
-          } else {
-            next(null, new Error('InternalServerError'));
-          }
-        } catch (error) {
-          next(null, error);
-        }
-      });
-    */
-    let url = launcherConfig.webhdfsUri +
-      '/webhdfs/v1/Output/core/hao-test-1/hello?user.name=core&op=MKDIRS';
-    unirest.put(url).end((requestRes) => {
-      try {
-        const requestResJson =
-          typeof requestRes.body === 'object' ?
-          requestRes.body :
-          JSON.parse(requestRes.body);
-        if (requestRes.status === 200) {
-          next(requestResJson, null);
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    hdfs.readFile(
+      '/Container/' + userName + '/' + jobName + '/JobConfig.json',
+      null,
+      (responseBodyJson, error) => {
+        if (error) {
+          next(responseBodyJson, error);
         } else {
-          console.log(requestResJson);
-          next(null, new Error('InternalServerError'));
+          next(JSON.parse(responseBodyJson.content), null);
         }
-      } catch (error) {
-        next(null, error);
+      }
+    );
+    */
+    /*
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    hdfs.createFolder(
+      '/Output/core/hao-test-1/hello2',
+      {'user.name': 'core', 'permission': '755'},
+      (responseBodyJson, error) => {
+        if (error) {
+          next(responseBodyJson, error);
+        } else {
+          hdfs.createFile(
+            '/Output/core/hao-test-1/hello2/tmp/1.json',
+            JSON.stringify({name: 'alice', age: 19}),
+            {'user.name' : 'core', 'permission': '644', 'overwrite': 'true'},
+            (responseBodyJson, error) => {
+              if (error) {
+                next(responseBodyJson, error);
+              } else {
+                hdfs.readFile(
+                  '/Output/core/hao-test-1/hello2/tmp/1.json',
+                  {},
+                  next
+                );
+              }
+            }
+          );
+        }
+      }
+    );
+    */
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    let frameworkDescription;
+    async.parallel([
+      (parallelCallback) => {
+        async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
+          hdfs.createFolder(
+            '/Output/core/hao-test-1/hello2/' + x,
+            {'user.name': 'core', 'permission': '755'},
+            (responseBodyJson, error) => {
+              eachCallback(error);
+            }
+          )
+        }, (eachError) => {
+          parallelCallback(eachError);
+        });
+      },
+      /*
+      (parallelCallback) => {
+        async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
+          fse.outputFile(
+              path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
+              this.generateYarnContainerScript(data, idx),
+              (err) => eachCallback(err));
+        }, (err) => {
+          parallelCallback(err);
+        });
+      },
+      (parallelCallback) => {
+        async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
+          fse.outputFile(
+              path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
+              this.generateDockerContainerScript(data, idx),
+              (err) => eachCallback(err));
+        }, (err) => {
+          parallelCallback(err);
+        });
+      },
+      (parallelCallback) => {
+        fse.outputJson(
+            path.join(jobDir, launcherConfig.jobConfigFileName),
+            originData,
+            {'spaces': 2},
+            (err) => parallelCallback(err));
+      },
+      (parallelCallback) => {
+        frameworkDescription = this.generateFrameworkDescription(data);
+        fse.outputJson(
+            path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
+            frameworkDescription,
+            {'spaces': 2},
+            (err) => parallelCallback(err));
+      },
+      */
+    ], (parallelError) => {
+      if (parallelError) {
+        return next(parallelError);
+      } else {
+        console.log('yay!');
+        /*
+        let cmd = '';
+        if (config.env !== 'test') {
+          cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+            HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
+        }
+        childProcess.exec(
+          cmd,
+          (err, stdout, stderr) => {
+            logger.info('[stdout]\n%s', stdout);
+            logger.info('[stderr]\n%s', stderr);
+            if (err) {
+              return next(err);
+            } else {
+              unirest.put(launcherConfig.frameworkPath(name))
+                  .headers(launcherConfig.webserviceRequestHeaders)
+                  .send(frameworkDescription)
+                  .end((res) => next());
+            }
+          }
+        );
+        */
       }
     });
   }
