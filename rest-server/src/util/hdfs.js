@@ -25,68 +25,51 @@ class Hdfs {
 
   createFolder(path, options, next) {
     const targetUrl = this._constructTargetUrl(path, options, 'MKDIRS');
-    try {
-      unirest.put(targetUrl)
-      .end((response) => {
-        if (response.status === 200) {
-          next({status: 'succeeded'}, null);
-        } else {
-          next(null, new Error('InternalServerError'));
-        }
-      });
-    } catch (error) {
-      next(null, error);
-    }
+    unirest.put(targetUrl)
+    .end((response) => {
+      if (response.status === 200) {
+        next({status: 'succeeded'}, null);
+      } else {
+        next(null, new Error('InternalServerError'));
+      }
+    });
   }
 
   createFile(path, data, options, next) {
     const targetUrl = this._constructTargetUrl(path, options, 'CREATE');
-    try {
-      unirest.put(targetUrl)
-      .send(data)
-      .end((response1) => {
-        if (response1.status === 201) {
-          next({status: 'succeeded'}, null);
-        } else if (response1.status == 307) {
-          unirest.put(response1.headers.location)
-          .send(data)
-          .end((response2) => {
-            if (response2.status === 201) {
-              next({status: 'succeeded'}, null);
-            } else {
-              next(null, new Error('InternalServerError'));
-            }
-          });
-        } else {
-          next(null, new Error('InternalServerError'));
-        }
-      });
-    } catch (error) {
-      next(null, error);
-    }
+    unirest.put(targetUrl)
+    .send(data)
+    .end((response1) => {
+      if (response1.status === 201) {
+        next({status: 'succeeded'}, null);
+      } else if (response1.status == 307) {
+        unirest.put(response1.headers.location)
+        .send(data)
+        .end((response2) => {
+          if (response2.status === 201) {
+            next({status: 'succeeded'}, null);
+          } else {
+            next(null, new Error('InternalServerError'));
+          }
+        });
+      } else {
+        next(null, new Error('InternalServerError'));
+      }
+    });
   }
 
   readFile(path, options, next) {
-    console.log('hdfs.readFile() =>');
     const targetUrl = this._constructTargetUrl(path, options, 'OPEN');
-    console.log(targetUrl);
-    try {
-      unirest.get(targetUrl)
-      .end((response) => {
-        console.log(response.status);
-        console.log(JSON.stringify(response.headers));
-        console.log(JSON.stringify(response.body));
-        if (response.status === 200) {
-          next({status: 'succeeded', content: response.body}, null);
-        } else if (response.status === 404) {
-          next(null, new Error('FileNotFound'));
-        } else {
-          next(null, new Error('InternalServerError'));
-        }
-      });
-    } catch (error) {
-      next(null, error);
-    }
+    unirest.get(targetUrl)
+    .end((response) => {
+      if (response.status === 200) {
+        next({status: 'succeeded', content: response.body}, null);
+      } else if (response.status === 404) {
+        next(null, new Error('FileNotFound'));
+      } else {
+        next(null, new Error('InternalServerError'));
+      }
+    });
   }
 
   _constructTargetUrl(path, options, operation) {

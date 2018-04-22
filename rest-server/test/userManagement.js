@@ -36,6 +36,14 @@ const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false
 const invalidToken = '';
 
 describe('Add new user: put /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)
@@ -134,6 +142,14 @@ describe('Add new user: put /api/v1/user', () => {
 });
 
 describe('update user: put /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)
@@ -292,6 +308,14 @@ describe('update user: put /api/v1/user', () => {
 });
 
 describe('delete user : delete /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)

@@ -265,7 +265,6 @@ class Job {
   }
 
   getJobConfig(userName, jobName, next) {
-    console.log('getJobConfig() =>');
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       '/Container/' + userName + '/' + jobName + '/JobConfig.json',

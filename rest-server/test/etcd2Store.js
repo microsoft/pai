@@ -22,6 +22,13 @@ const db = dbUtility.getStorageObject('etcd2', {
   'hosts': etcdHosts,
 });
 describe('etcd2 get function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
 
   beforeEach(() => {
 
@@ -109,6 +116,13 @@ describe('etcd2 get function test', () => {
 
 
 describe('etcd2 set function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
 
   beforeEach(() => {
 
@@ -138,6 +152,13 @@ describe('etcd2 set function test', () => {
 });
 
 describe('etcd2 delete function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
 
   beforeEach(() => {
 
@@ -195,6 +216,13 @@ describe('etcd2 delete function test', () => {
 });
 
 describe('etcd2 has function test', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
 
   beforeEach(() => {
 

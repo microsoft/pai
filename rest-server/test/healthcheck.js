@@ -18,6 +18,13 @@
 
 // test
 describe('API endpoint /api/v1', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
 
   // GET /
   it('should return not found', (done) => {
