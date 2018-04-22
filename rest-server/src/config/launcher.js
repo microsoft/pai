@@ -17,7 +17,6 @@
 
 
 // module dependencies
-const path = require('path');
 const Joi = require('joi');
 const unirest = require('unirest');
 const config = require('./index');

@@ -20,8 +20,6 @@
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
-const config = require('../config/index');
-const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
@@ -270,7 +268,7 @@ class Job {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       '/Container/' + userName + '/' + jobName + '/JobConfig.json',
-      null,
+      {'a': 'b'},
       (responseBodyJson, error) => {
         if (error) {
           next(responseBodyJson, error);
