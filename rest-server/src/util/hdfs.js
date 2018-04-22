@@ -67,12 +67,19 @@ class Hdfs {
   }
 
   readFile(path, options, next) {
+    console.log('hdfs.readFile() =>');
     const targetUrl = this._constructTargetUrl(path, options, 'OPEN');
+    console.log(targetUrl);
     try {
       unirest.get(targetUrl)
       .end((response) => {
+        console.log(response.status);
+        console.log(JSON.stringify(response.headers));
+        console.log(JSON.stringify(response.body));
         if (response.status === 200) {
           next({status: 'succeeded', content: response.body}, null);
+        } else if (response.status === 404) {
+          next(null, new Error('FileNotFound'));
         } else {
           next(null, new Error('InternalServerError'));
         }

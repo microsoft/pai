@@ -177,7 +177,7 @@ const getConfig = (req, res) => {
     (configJsonString, error) => {
       if (error === null) {
         return res.status(200).json(configJsonString);
-      } else if (error.message === 'ConfigFileNotFound') {
+      } else if (error.message === 'FileNotFound') {
         return res.status(404).json({
           error: 'ConfigFileNotFound',
           message: error.message,
