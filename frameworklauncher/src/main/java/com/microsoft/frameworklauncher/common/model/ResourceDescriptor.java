@@ -51,8 +51,9 @@ public class ResourceDescriptor implements Serializable {
   @NotNull
   private Integer portNumber = 0;
 
-  @MapKeyNamingValidation
+  @Valid
   @NotNull
+  @MapKeyNamingValidation
   private Map<String, Ports> portDefinitions = new HashMap<>();
 
   @Valid
