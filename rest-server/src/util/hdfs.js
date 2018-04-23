@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
 const unirest = require('unirest');
 
 class Hdfs {
@@ -23,54 +22,25 @@ class Hdfs {
     this.webHdfsRootUrl = webHdfsRootUrl;
   }
 
+  //
+  // Public methods
+  //
+
   createFolder(path, options, next) {
-    const targetUrl = this._constructTargetUrl(path, options, 'MKDIRS');
-    unirest.put(targetUrl)
-    .end((response) => {
-      if (response.status === 200) {
-        next({status: 'succeeded'}, null);
-      } else {
-        next(null, new Error('InternalServerError'));
-      }
-    });
+    _createFolder(this._constructTargetUrl(path, options, 'MKDIRS'), next);
   }
 
   createFile(path, data, options, next) {
-    const targetUrl = this._constructTargetUrl(path, options, 'CREATE');
-    unirest.put(targetUrl)
-    .send(data)
-    .end((response1) => {
-      if (response1.status === 201) {
-        next({status: 'succeeded'}, null);
-      } else if (response1.status == 307) {
-        unirest.put(response1.headers.location)
-        .send(data)
-        .end((response2) => {
-          if (response2.status === 201) {
-            next({status: 'succeeded'}, null);
-          } else {
-            next(null, new Error('InternalServerError'));
-          }
-        });
-      } else {
-        next(null, new Error('InternalServerError'));
-      }
-    });
+    _createFile(this._constructTargetUrl(path, options, 'CREATE'), next);
   }
 
   readFile(path, options, next) {
-    const targetUrl = this._constructTargetUrl(path, options, 'OPEN');
-    unirest.get(targetUrl)
-    .end((response) => {
-      if (response.status === 200) {
-        next({status: 'succeeded', content: response.body}, null);
-      } else if (response.status === 404) {
-        next(null, new Error('FileNotFound'));
-      } else {
-        next(null, new Error('InternalServerError'));
-      }
-    });
+    _readFile(this._constructTargetUrl(path, options, 'OPEN'), next);
   }
+
+  //
+  // Private methods
+  //
 
   _constructTargetUrl(path, options, operation) {
     let targetUrl = `${this.webHdfsRootUrl}/webhdfs/v1${path}?op=${operation}`;
@@ -80,6 +50,49 @@ class Hdfs {
       }
     }
     return targetUrl;
+  }
+
+  _createFolder(targetUrl, next) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Make_a_Directory
+    unirest.put(targetUrl)
+      .end((response) => {
+        if (response.status === 200) {
+          next({status: 'succeeded'}, null);
+        } else {
+          next(null, new Error('InternalServerError'));
+        }
+      });
+  }
+
+  _createFile(targetUrl, next) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
+    unirest.put(targetUrl)
+      .send(data)
+      .end((response) => {
+        if (response.status === 201) {
+          next({status: 'succeeded'}, null);
+        } else if (response.status == 307) {
+          _createFile(response.header.location, next);
+        } else {
+          next(null, new Error('InternalServerError'));
+        }
+      });
+  }
+
+  _readFile(targetUrl, next) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Open_and_Read_a_File
+    unirest.get(targetUrl)
+      .end((response) => {
+        if (response.status === 200) {
+          next({status: 'succeeded', content: response.body}, null);
+        } else if (response.status === 307) {
+          _readFile(response.header.location, next);
+        } else if (response.status === 404) {
+          next(null, new Error('FileNotFound'));
+        } else {
+          next(null, new Error('InternalServerError'));
+        }
+      });
   }
 }
 
