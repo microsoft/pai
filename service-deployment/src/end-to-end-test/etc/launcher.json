@@ -15,7 +15,16 @@
         "resource": {
           "cpuNumber": 1,
           "memoryMB": 512,
-          "portRanges": [],
+          "portDefinitions": {
+            "http": {
+              "start": 0,
+              "count": 1
+            },
+            "ssh": {
+              "start": 0,
+              "count": 1
+            }
+          },
           "diskType": 0,
           "diskMB": 0
         }

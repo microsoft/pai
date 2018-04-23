@@ -15,14 +15,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - rest-server
 
-templatelist:
-  - node-label.sh
-  - webportal.yaml
-  - cleanup.sh
+remove-node:
 
-startscript: start.sh
-stopscript: cleanup.sh
+    file-list:
+    - name: kubernetes-cleanup.sh
+      src: maintaintool/kubernetes-cleanup.sh
+      dst: remove-node
+

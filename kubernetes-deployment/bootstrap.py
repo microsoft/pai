@@ -170,7 +170,7 @@ def bootstrapScriptGenerate(cluster_config, host_config, role):
 
     # packege all the script to sftp.
     execute_shell("cp start.sh {0}/src".format(dst), "Failed copy start.sh to {0}".format(dst))
-    execute_shell("cp cleanup.sh {0}/src".format(dst), "Failed copy cleanup.sh to {0}".format(dst))
+    execute_shell("cp maintaintool/kubernetes-cleanup.sh {0}/src/cleanup.sh".format(dst), "Failed copy cleanup.sh to {0}".format(dst))
     execute_shell("cp -r {0}/src .".format(dst), "Failed cp src")
     execute_shell(
                   "tar -cvf {0}/kubernetes.tar src".format(host_dir),
@@ -191,22 +191,6 @@ def remoteBootstrap(cluster_info, host_config):
         return
 
     commandline = "tar -xvf kubernetes.tar && sudo ./src/start.sh {0}:8080 {1} {2}".format(cluster_info['api-servers-ip'], host_config['username'], host_config['hostip'])
-
-    if pai_common.ssh_shell_paramiko(host_config, commandline) == False:
-        return
-
-
-
-def remoteCleanUp(cluster_info, host_config):
-
-    srcipt = "cleanup.sh"
-    src_local = "./"
-    dst_remote = "/home/{0}".format(host_config["username"])
-
-    if pai_common.sftp_paramiko(src_local, dst_remote, srcipt, host_config) == False:
-        return
-
-    commandline = "sudo sh cleanup.sh"
 
     if pai_common.ssh_shell_paramiko(host_config, commandline) == False:
         return
@@ -327,14 +311,11 @@ def kube_proxy_startup(cluster_config):
 
 
 
-def kubernetes_nodelist_deployment(cluster_config, machine_list, role, clean):
+def kubernetes_nodelist_deployment(cluster_config, machine_list, role):
 
     for hostname in machine_list:
-        if clean:
-            remoteCleanUp(cluster_config['clusterinfo'], machine_list[hostname])
-        else:
-            bootstrapScriptGenerate(cluster_config, machine_list[hostname], role)
-            remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
+        bootstrapScriptGenerate(cluster_config, machine_list[hostname], role)
+        remoteBootstrap(cluster_config['clusterinfo'], machine_list[hostname])
 
 
 
@@ -344,49 +325,17 @@ def initial_bootstrap_cluster(cluster_config):
         listname = cluster_config['remote_deployment']['proxy']['listname']
         if listname in cluster_config:
             machine_list = cluster_config[listname]
-            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy", False)
+            kubernetes_nodelist_deployment(cluster_config, machine_list, "proxy")
 
     listname = cluster_config['remote_deployment']['master']['listname']
     if listname in cluster_config:
         machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "master", False)
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "master")
 
     listname = cluster_config['remote_deployment']['worker']['listname']
     if listname in cluster_config:
         machine_list = cluster_config[listname]
-        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker", False)
-
-
-
-def destory_whole_cluster(cluster_config):
-
-    for role in cluster_config['remote_deployment']:
-        listname = cluster_config['remote_deployment'][role]['listname']
-        if listname in cluster_config:
-            machine_list = cluster_config[listname]
-            kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
-
-
-
-def add_new_nodes(cluster_config, node_list_config):
-    role = node_list_config['remote_deployment_role']
-    machine_list = node_list_config['machinelist']
-    #Todo: add validation here
-    kubernetes_nodelist_deployment(cluster_config, machine_list, role, False)
-
-
-
-def remove_nodes(cluster_config, node_list_config):
-    role = node_list_config['remote_deployment_role']
-    machine_list = node_list_config['machinelist']
-    for host in machine_list:
-        execute_shell(
-            "kubectl delete node {0}".format(machine_list[host]['nodename']),
-            "Failed to delete  node {0}".format(machine_list[host]['nodename'])
-        )
-
-    # Todo: add validation here
-    kubernetes_nodelist_deployment(cluster_config, machine_list, role, True)
+        kubernetes_nodelist_deployment(cluster_config, machine_list, "worker")
 
 
 
@@ -410,6 +359,18 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
     for host in node_list_config['machinelist']:
 
         maintain_one_node(cluster_config, node_list_config['machinelist'][host], job_name)
+
+
+
+
+def maintain_cluster(cluster_config, **kwargs):
+    module_name = "maintainlib.{0}".format(kwargs["job_name"])
+    module = importlib.import_module(module_name)
+
+    job_class = getattr(module, kwargs["job_name"])
+    job_instance = job_class(cluster_config, **kwargs)
+
+    job_instance.run()
 
 
 
@@ -498,7 +459,7 @@ def main():
         # cluster_config = get_cluster_configuration()
         # node_list_config = get_node_list()
         node_list_config = load_yaml_file(args.file)
-        remove_nodes(cluster_config, node_list_config)
+        maintain_nodes(cluster_config, node_list_config, args.action)
         # up_data_cluster_configuration()
 
         logger.info("Nodes have been removed.")
@@ -521,7 +482,7 @@ def main():
 
         logger.info("Begin to clean up whole cluster.")
 
-        destory_whole_cluster(cluster_config)
+        maintain_cluster(cluster_config, job_name = args.action, clean = True)
 
         logger.info("Clean up job finished")
         return

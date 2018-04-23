@@ -603,7 +603,6 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
-
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, taskStatus.getContainerPorts());
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to

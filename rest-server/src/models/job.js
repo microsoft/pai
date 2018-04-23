@@ -137,8 +137,9 @@ class Job {
     data.username = username;
     if (!data.outputDir.trim()) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
-    } else {
-      data.outputDir = data.outputDir.replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
+    }
+    for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
+      data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
     if (data.outputDir.match(/^hdfs:\/\//)) {
       childProcess.exec(
@@ -356,6 +357,7 @@ class Job {
         username: 'unknown',
         state: jobState,
         subState: frameworkStatus.frameworkState,
+        executionType: framework.summarizedFrameworkInfo.executionType,
         retries: jobRetryCount,
         createdTime: frameworkStatus.frameworkCreatedTimestamp,
         completedTime: frameworkStatus.frameworkCompletedTimestamp,

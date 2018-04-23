@@ -58,6 +58,34 @@ const getDurationInSeconds = (startTime, endTime) => {
   return Math.round(Math.max(0, endTime - startTime) / 1000);
 };
 
+const getHumanizedJobStateString = (jobInfo) => {
+  let hjss = '';
+  if (jobInfo.state === 'JOB_NOT_FOUND') {
+    hjss = 'N/A';
+  } else if (jobInfo.state === 'WAITING') {
+    if (jobInfo.executionType === 'STOP') {
+      hjss = 'Stopping';
+    } else {
+      hjss = 'Waiting';
+    }
+  } else if (jobInfo.state === 'RUNNING') {
+    if (jobInfo.executionType === 'STOP') {
+      hjss = 'Stopping';
+    } else {
+      hjss = 'Running';
+    }
+  } else if (jobInfo.state === 'SUCCEEDED') {
+    hjss = 'Succeeded';
+  } else if (jobInfo.state === 'FAILED') {
+    hjss = 'Failed';
+  } else if (jobInfo.state === 'STOPPED') {
+    hjss = 'Stopped';
+  } else {
+    hjss = 'Unknown';
+  }
+  return hjss;
+}
+
 const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
     if (elapsed) {
@@ -89,39 +117,26 @@ const convertTime = (elapsed, startTime, endTime) => {
   }
 };
 
-const convertState = (state) => {
-  let cls;
-  let stateText = '';
-  switch (state) {
-    case 'JOB_NOT_FOUND':
-      cls = 'label-default';
-      stateText = 'N/A';
-      break;
-    case 'WAITING':
-      cls = 'label-warning';
-      stateText = 'Waiting';
-      break;
-    case 'RUNNING':
-      cls = 'label-primary';
-      stateText = 'Running';
-      break;
-    case 'SUCCEEDED':
-      cls = 'label-success';
-      stateText = 'Succeeded';
-      break;
-    case 'STOPPED':
-      cls = 'label-warning';
-      stateText = 'Stopped';
-      break;
-    case 'FAILED':
-      cls = 'label-danger';
-      stateText = 'Failed';
-      break;
-    default:
-      cls = 'label-default';
-      stateText = 'Unknown';
+const convertState = (humanizedJobStateString) => {
+  let className = '';
+  if (humanizedJobStateString === 'N/A') {
+    className = 'label-default';
+  } else if (humanizedJobStateString === 'Waiting') {
+    className = 'label-warning';
+  } else if (humanizedJobStateString === 'Running') {
+    className = 'label-primary';
+  } else if (humanizedJobStateString === 'Stopping') {
+    className = 'label-warning';
+  } else if (humanizedJobStateString === 'Succeeded') {
+    className = 'label-success';
+  } else if (humanizedJobStateString === 'Failed') {
+    className = 'label-danger';
+  } else if (humanizedJobStateString === 'Stopped') {
+    className = 'label-default';
+  } else {
+    className = 'label-default';
   }
-  return `<span class="label ${cls}">${stateText}</span>`;
+  return `<span class="label ${className}">${humanizedJobStateString}</span>`;
 };
 
 const convertGpu = (gpuAttribute) => {
@@ -156,7 +171,12 @@ const loadJobs = (limit, specifiedVc) => {
           if (specifiedVc && vcName !== specifiedVc) {
             continue;
           }
-          let stopBtnStyle = (data[i].executionType === 'STOP' || data[i].subState === 'FRAMEWORK_COMPLETED') ? '<button class="btn btn-default btn-sm" disabled>Stop</button>' : '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + data[i].name + '\')">Stop</button>';
+          let hjss = getHumanizedJobStateString(data[i]);
+          let stopBtnStyle =
+            (hjss === 'Waiting' || hjss === 'Running') ?
+            '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
+              data[i].name + '\')">Stop</button>':
+            '<button class="btn btn-default btn-sm" disabled>Stop</button>';
           displayDataSet.push({
             jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
             userName: data[i].username,
@@ -166,7 +186,7 @@ const loadJobs = (limit, specifiedVc) => {
             duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
               convertTime(true, data[i].createdTime, data[i].completedTime),
             retries: data[i].retries,
-            status: convertState(data[i].state),
+            status: convertState(hjss),
             stop: stopBtnStyle,
           });
         }
@@ -217,6 +237,7 @@ const stopJob = (jobName) => {
           Authorization: `Bearer ${token}`,
         },
         success: (data) => {
+          window.location.href = 'view.html?jobName=' + jobName;
           loadJobs();
         },
         error: (xhr, textStatus, error) => {
@@ -245,6 +266,7 @@ const loadJobDetail = (jobName) => {
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
           grafanaUri: webportalConfig.grafanaUri,
+          getHumanizedJobStateString,
           convertTime,
           convertState,
           convertGpu,

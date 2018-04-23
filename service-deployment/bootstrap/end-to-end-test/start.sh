@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,14 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - rest-server
+pushd $(dirname "$0") > /dev/null
 
-templatelist:
-  - node-label.sh
-  - webportal.yaml
-  - cleanup.sh
+kubectl create -f end-to-end-test.yaml
 
-startscript: start.sh
-stopscript: cleanup.sh
+popd > /dev/null

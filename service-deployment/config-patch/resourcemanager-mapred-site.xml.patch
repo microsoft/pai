@@ -6,7 +6,7 @@
  <!--
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
-@@ -14,8 +13,20 @@
+@@ -14,8 +13,25 @@
    limitations under the License. See accompanying LICENSE file.
  -->
  
@@ -26,6 +26,11 @@
 +  <property>
 +    <name>mapreduce.jobhistory.webapp.address</name>
 +    <value>{LOGSERVER_ADDRESS}:19888</value>
++  </property>
++
++  <property>
++    <name>mapreduce.job.emit-timeline-data</name>
++    <value>true</value>
 +  </property>
 +  
  </configuration>
