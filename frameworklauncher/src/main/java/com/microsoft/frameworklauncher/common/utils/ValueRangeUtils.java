@@ -273,6 +273,37 @@ public class ValueRangeUtils {
     return resultList;
   }
 
+  /*
+  get a sequence subRange list from the available range list, all the values in the subRange are bigger than baseValue.
+ */
+  public static List<ValueRange> getSubRangeSequence(List<ValueRange> availableRange, int requestNumber, int baseValue) {
+
+    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    if (getValueNumber(availableRange) <= 0) {
+      return resultList;
+    }
+
+    resultList.clear();
+    int needNumber = requestNumber;
+
+    int newBaseValue = baseValue;
+    for (ValueRange range : availableRange) {
+      if (range.getEnd() < newBaseValue) {
+        continue;
+      }
+      int start = Math.max(range.getBegin(), newBaseValue);
+      if ((range.getEnd() - start + 1) >= needNumber) {
+        resultList.add(ValueRange.newInstance(start, start + needNumber - 1));
+        return resultList;
+      } else {
+        resultList.add(ValueRange.newInstance(start, range.getEnd()));
+        needNumber -= (range.getEnd() - start + 1);
+      }
+    }
+
+    return resultList;
+  }
+
   public static boolean isEqualRangeList(List<ValueRange> leftRangeList, List<ValueRange> rightRangeList) {
     List<ValueRange> leftRange = coalesceRangeList(leftRangeList);
     List<ValueRange> rightRange = coalesceRangeList(rightRangeList);
@@ -345,7 +376,7 @@ public class ValueRangeUtils {
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       Iterator iter = portsDefinitions.entrySet().iterator();
 
-      List<ValueRange> localPortRanges = portRanges;
+      List<ValueRange> localPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
       while (iter.hasNext()) {
         Map.Entry entry = (Map.Entry) iter.next();
         String key = (String) entry.getKey();
@@ -359,7 +390,7 @@ public class ValueRangeUtils {
           portsString.append(";");
         } else {
           //if user not specified ports, assign the allocated ContainerPorts to each port label.
-          List<ValueRange> assignPorts = ValueRangeUtils.getSubRange(localPortRanges, ports.getCount(), 0);
+          List<ValueRange> assignPorts = ValueRangeUtils.getSubRangeSequence(localPortRanges, ports.getCount(), 0);
           if (getValueNumber(assignPorts) == ports.getCount()) {
             localPortRanges = ValueRangeUtils.subtractRange(localPortRanges, assignPorts);
 
