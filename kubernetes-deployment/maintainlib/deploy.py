@@ -15,19 +15,46 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: haproxy
-spec:
-  hostNetwork: true
-  containers:
-  - image: haproxy:1.7
-    name: haproxy-container
-    volumeMounts:
-    - mountPath: /usr/local/etc/haproxy
-      name: haproxy-config
-  volumes:
-  - hostPath:
-      path: /etc/kubernetes/haproxy
-    name: haproxy-config
+import yaml
+import os
+import sys
+import subprocess
+import jinja2
+import argparse
+import paramiko
+import common
+import time
+import logging
+import logging.config
+
+
+class clean:
+
+    """
+
+       A class to deploy a new cluster.
+
+    """
+
+    def __init__(self, cluster_config, **kwargs):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.cluster_config = cluster_config
+        self.maintain_config = common.load_yaml_file("maintainconf/deploy.yaml")
+        self.clean_flag = kwargs["clean"]
+        self.jobname = "clean"
+
+
+
+
+    def deploy(self, role, node_config):
+
+        None
+
+
+
+
+    def run(self):
+
+        None
