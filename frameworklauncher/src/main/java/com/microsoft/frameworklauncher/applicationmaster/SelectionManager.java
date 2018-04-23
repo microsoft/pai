@@ -289,7 +289,7 @@ public class SelectionManager { // THREAD SAFE
   private synchronized List<ValueRange> selectPorts(SelectionResult selectionResult, ResourceDescriptor optimizedRequestResource) throws NotAvailableException {
     // If the ports were not selected and was not specified previously, need select the ports for this task.
     if (ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0 && optimizedRequestResource.getPortNumber() > 0) {
-      List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRange(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
+      List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRangeRandomly(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
 
       if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
@@ -309,7 +309,7 @@ public class SelectionManager { // THREAD SAFE
       for (int i = 1; i < filteredNodes.size(); i++) {
         overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(filteredNodes.get(i)).getAvailableResource().getPortRanges());
       }
-      return ValueRangeUtils.getSubRange(overlapPorts, optimizedRequestResource.getPortNumber(),
+      return ValueRangeUtils.getSubRangeRandomly(overlapPorts, optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
     }
     return new ArrayList<ValueRange>();

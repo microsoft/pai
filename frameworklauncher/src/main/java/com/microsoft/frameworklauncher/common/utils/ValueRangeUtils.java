@@ -238,7 +238,7 @@ public class ValueRangeUtils {
   /*
     get a random subRange list from the available range list, all the values in the subRange are bigger than baseValue.
    */
-  public static List<ValueRange> getSubRange(List<ValueRange> availableRange, int requestNumber, int baseValue) {
+  public static List<ValueRange> getSubRangeRandomly(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
     List<ValueRange> resultList = new ArrayList<ValueRange>();
     if (getValueNumber(availableRange) <= 0) {
@@ -276,7 +276,7 @@ public class ValueRangeUtils {
   /*
   get a sequence subRange list from the available range list, all the values in the subRange are bigger than baseValue.
  */
-  public static List<ValueRange> getSubRangeSequence(List<ValueRange> availableRange, int requestNumber, int baseValue) {
+  public static List<ValueRange> getSubRangeSequentially(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
     List<ValueRange> resultList = new ArrayList<ValueRange>();
     if (getValueNumber(availableRange) <= 0) {
@@ -390,7 +390,7 @@ public class ValueRangeUtils {
           portsString.append(";");
         } else {
           //if user not specified ports, assign the allocated ContainerPorts to each port label.
-          List<ValueRange> assignPorts = ValueRangeUtils.getSubRangeSequence(localPortRanges, ports.getCount(), 0);
+          List<ValueRange> assignPorts = ValueRangeUtils.getSubRangeSequentially(localPortRanges, ports.getCount(), 0);
           if (getValueNumber(assignPorts) == ports.getCount()) {
             localPortRanges = ValueRangeUtils.subtractRange(localPortRanges, assignPorts);
 

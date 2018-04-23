@@ -109,14 +109,14 @@ public class ValueRangeUtilsTest {
       testRangeList6.add(ValueRange.newInstance(9, 9));
       Assert.assertTrue(!ValueRangeUtils.fitInRange(testRangeList6, testRangeList3));
 
-      result = ValueRangeUtils.getSubRange(testRangeList3, 1, 0);
+      result = ValueRangeUtils.getSubRangeRandomly(testRangeList3, 1, 0);
       Assert.assertEquals(1, result.size());
       Assert.assertEquals(1, ValueRangeUtils.getValueNumber(result));
 
-      result = ValueRangeUtils.getSubRange(testRangeList3, 3, 0);
+      result = ValueRangeUtils.getSubRangeRandomly(testRangeList3, 3, 0);
       Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result));
 
-      result = ValueRangeUtils.getSubRange(testRangeList3, 3, 10);
+      result = ValueRangeUtils.getSubRangeRandomly(testRangeList3, 3, 10);
       Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result));
       Assert.assertTrue(result.get(0).getBegin() >= 10);
       Assert.assertTrue(result.get(0).getEnd() > 10);
