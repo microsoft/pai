@@ -26,6 +26,16 @@
   </property>
 
   <property>
+     <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+     <value>1</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.maximum-applications</name>
+     <value>10000</value>
+  </property>
+
+  <property>
     <name>yarn.scheduler.capacity.root.queues</name>
     <value>
       {{ clusterinfo.hadoopQueues|join(", ") }}
@@ -42,6 +52,16 @@
     <description>
       {{ clusterinfo.hadoopQueues[queueName]["description"] }}
     </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent</name>
+    <value>100</value>
   </property>
 {% endfor %}
 
