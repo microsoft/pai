@@ -41,6 +41,7 @@ public class TaskStatus implements Serializable {
   private String containerHost;
   // containerIp is the assigned ipv4 address of the corresponding containerHost
   private String containerIp;
+  // containerPorts is a string contains ports for each port label, such as "httpPort:80,81,82;sshPort:1021,1022,1023;"
   private String containerPorts;
   // containerGpus is the assigned GpuAttribute of the container
   private Long containerGpus;

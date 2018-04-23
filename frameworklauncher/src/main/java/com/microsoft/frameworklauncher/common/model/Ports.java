@@ -40,6 +40,7 @@ public class Ports implements Serializable {
     ports.setCount(count);
     return ports;
   }
+
   public Integer getStart() {
     return start;
   }

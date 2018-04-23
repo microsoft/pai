@@ -43,9 +43,7 @@ public class ValueRangeUtilsTest {
     testRangeList2.add(ValueRange.newInstance(7, 8));
     testRangeList2.add(ValueRange.newInstance(10, 20));
 
-    for(int j = 0; j < 20; j ++) {
-
-
+    for (int j = 0; j < 20; j++) {
       List<ValueRange> testRangeList3 = ValueRangeUtils.cloneList(testRangeList2);
 
       List<ValueRange> sortedResult = ValueRangeUtils.SortRangeList(testRangeList);
