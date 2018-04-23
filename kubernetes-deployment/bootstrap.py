@@ -170,7 +170,7 @@ def bootstrapScriptGenerate(cluster_config, host_config, role):
 
     # packege all the script to sftp.
     execute_shell("cp start.sh {0}/src".format(dst), "Failed copy start.sh to {0}".format(dst))
-    execute_shell("cp cleanup.sh {0}/src".format(dst), "Failed copy cleanup.sh to {0}".format(dst))
+    execute_shell("cp maintaintool/kubernetes-cleanup.sh {0}/src/cleanup.sh".format(dst), "Failed copy cleanup.sh to {0}".format(dst))
     execute_shell("cp -r {0}/src .".format(dst), "Failed cp src")
     execute_shell(
                   "tar -cvf {0}/kubernetes.tar src".format(host_dir),
