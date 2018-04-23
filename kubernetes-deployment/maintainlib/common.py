@@ -27,8 +27,10 @@ import tarfile
 import socket
 import logging
 import time
+import logging.config
 
 
+logger = logging.getLogger(__name__)
 
 
 def load_yaml_file(path):
@@ -46,7 +48,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -88,7 +90,7 @@ def ipv4_address_validation(ipv4_addr):
         ret = True
     except socket.error:
         ret = False
-        print "[{0}] Error: {1} is not a correct ipv4 address!".format(time.asctime(), ipv4_addr)
+        logger.error("{0} is not a correct ipv4 address!".format(ipv4_addr))
 
     return ret
 
@@ -103,7 +105,7 @@ def port_validation(port):
     else:
 
         ret = False
-        print "[{0}] Error: {1} is not a correct port. A port can only contain digits!".format(time.asctime(), str(port))
+        logger.error("{0} is not a correct port. A port can only contain digits!".format(str(port)))
 
     return ret
 
@@ -170,7 +172,7 @@ def ssh_shell_paramiko(host_config, commandline):
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     stdin.write(password + '\n')
     stdin.flush()
-    print "Executing the command on host [{0}]: {1}".format(hostip, commandline)
+    logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
         print response_msg.strip('\n')
 
