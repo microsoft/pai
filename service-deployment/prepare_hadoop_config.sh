@@ -28,7 +28,6 @@ rm -rf src/hadoop-run/hadoop-2.7.2
 rm -rf hadoop-2.7.2.tar.gz
 
 # prepare original config of hadoop for hadoop-run
-cp hadoop/capacity-scheduler.xml src/hadoop-run/capacity-scheduler.xml
 cp hadoop/hadoop-env.sh src/hadoop-run/hadoop-env.sh
 cp hadoop/mapred-site.xml.template src/hadoop-run/mapred-site.xml
 cp hadoop/yarn-env.sh src/hadoop-run/yarn-env.sh
@@ -57,9 +56,6 @@ cp hadoop/yarn-site.xml bootstrap/hadoop-service/hadoop-configuration/resourcema
 
 
 # patch for hadoop-run
-# It is not necessary to patch capacity-scheduler.xml here because this file
-# will be prepared by deploy.py during the process of service deployment.
-#patch src/hadoop-run/capacity-scheduler.xml config-patch/capacity-scheduler.xml.patch
 patch src/hadoop-run/hadoop-env.sh config-patch/hadoop-env.sh.patch
 patch src/hadoop-run/mapred-site.xml config-patch/mapred-site.xml.patch
 patch src/hadoop-run/yarn-env.sh config-patch/yarn-env.sh.patch
