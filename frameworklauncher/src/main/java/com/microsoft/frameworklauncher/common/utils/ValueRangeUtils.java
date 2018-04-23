@@ -339,7 +339,7 @@ public class ValueRangeUtils {
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
   // the Ports label defined in portsDefinitions
 
-  public static String convertPortRangeToPortsDefinitionsString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) throws Exception {
+  public static String convertPortRangeToPortDefinitionsString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) throws Exception {
     StringBuilder portsString = new StringBuilder();
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
@@ -378,13 +378,13 @@ public class ValueRangeUtils {
   }
 
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
-  public static List<ValueRange> convertPortsDefinitionsStringToPortRange(String portsDefinitions) {
+  public static List<ValueRange> convertPortDefinitionsStringToPortRange(String portDefinitions) {
 
-    if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
+    if (portDefinitions != null && !portDefinitions.isEmpty()) {
       Pattern pattern = Pattern.compile("[0-9]*$");
       List<ValueRange> resultList = new ArrayList<>();
 
-      String[] stringPortList = portsDefinitions.split(";|:|,");
+      String[] stringPortList = portDefinitions.split(";|:|,");
       for (int i = 0; i < stringPortList.length; i++) {
         Matcher isNum = pattern.matcher(stringPortList[i]);
         if (!isNum.matches()) {

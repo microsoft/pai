@@ -21,7 +21,6 @@ package com.microsoft.frameworklauncher.common.model;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 public class Ports implements Serializable {
   @Valid

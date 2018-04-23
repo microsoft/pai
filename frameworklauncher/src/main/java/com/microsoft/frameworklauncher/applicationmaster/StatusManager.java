@@ -308,7 +308,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerGpus(
         ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute());
 
-    String portString = ValueRangeUtils.convertPortRangeToPortsDefinitionsString(
+    String portString = ValueRangeUtils.convertPortRangeToPortDefinitionsString(
         ResourceDescriptor.fromResource(container.getResource()).getPortRanges(), portDefinitions);
     taskStatus.setContainerPorts(portString);
 
@@ -515,7 +515,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusList) {
       if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
-        return ValueRangeUtils.convertPortsDefinitionsStringToPortRange(taskStatus.getContainerPorts());
+        return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
       }
     }
     return null;
