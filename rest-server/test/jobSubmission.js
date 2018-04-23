@@ -53,7 +53,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     );
     global.nock(global.webhdfsUri)
     .put(/op=MKDIR/)
-    .times(3)
+    .times(4)
     .reply(
       200,
       {}

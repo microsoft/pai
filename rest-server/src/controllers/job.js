@@ -113,7 +113,7 @@ const get = (req, res) => {
  */
 const update = (req, res) => {
   Job.prototype.putJob(
-    req.job.name, req.body, req.original_body, req.user.username, (err) => {
+    req.job.name, req.body, req.originalBody, req.user.username, (err) => {
     if (err) {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({

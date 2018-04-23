@@ -56,8 +56,8 @@ global.yarnUri = process.env.YARN_URI;
 global.jobConfigTemplate = JSON.stringify({
   'jobName': '{{jobName}}',
   'image': 'aiplatform/pai.run.tensorflow',
-  'dataDir': 'hdfs://10.240.0.10:9000/test/script/test',
-  'codeDir': 'hdfs://10.240.0.10:9000/test/script/test',
+  'dataDir': 'hdfs://10.240.0.10:9000/test/data',
+  'codeDir': 'hdfs://10.240.0.10:9000/test/code',
   'virtualCluster': '{{virtualCluster}}',
   'taskRoles': [
     {
