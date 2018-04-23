@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class ResourceDescriptor implements Serializable {
   private static final DefaultLogger LOGGER = new DefaultLogger(ResourceDescriptor.class);
@@ -52,7 +53,7 @@ public class ResourceDescriptor implements Serializable {
 
   @MapKeyNamingValidation
   @NotNull
-  private Map<String, Ports> portDefinitions;
+  private Map<String, Ports> portDefinitions = new HashMap<>();
 
   @Valid
   @NotNull
