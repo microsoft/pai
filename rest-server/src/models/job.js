@@ -131,27 +131,12 @@ class Job {
   putJob(name, data, username, next) {
     const originData = data;
     data.username = username;
-    //
-    // Hao's comment (4/21/2018):
-    // We have to let users use the standard output folder, otherwise using hdfs command
-    // in rest-server is not avoidable if we have to create the folder here.
-    // Another solution and TODO: Create the folder in docker script.
-    //
     data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     async.parallel([
-      (parallelCallback) => {
-        hdfs.createFolder(
-          `/Output/${data.username}/${name}`,
-          {'user.name': data.username, 'permission': '755'},
-          (responseBodyJson, error) => {
-            parallelCallback(error);
-          }
-        );
-      },
       (parallelCallback) => {
         async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
           hdfs.createFolder(
