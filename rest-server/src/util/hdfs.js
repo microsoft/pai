@@ -27,15 +27,15 @@ class Hdfs {
   //
 
   createFolder(path, options, next) {
-    _createFolder(this._constructTargetUrl(path, options, 'MKDIRS'), next);
+    this._createFolder(this._constructTargetUrl(path, options, 'MKDIRS'), next);
   }
 
   createFile(path, data, options, next) {
-    _createFile(this._constructTargetUrl(path, options, 'CREATE'), next);
+    this._createFile(this._constructTargetUrl(path, options, 'CREATE'), data, next);
   }
 
   readFile(path, options, next) {
-    _readFile(this._constructTargetUrl(path, options, 'OPEN'), next);
+    this._readFile(this._constructTargetUrl(path, options, 'OPEN'), next);
   }
 
   //
@@ -52,6 +52,16 @@ class Hdfs {
     return targetUrl;
   }
 
+  _constructErrorObject(response) {
+    let message = 'WebHDFS error: ';
+    if (!response) {
+      message += 'Empty respond.';
+    } else {
+      message += `(${response.status}) ` + JSON.stringify(response.body);
+    }
+    return new Error(message);
+  }
+
   _createFolder(targetUrl, next) {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Make_a_Directory
     unirest.put(targetUrl)
@@ -59,12 +69,12 @@ class Hdfs {
         if (response.status === 200) {
           next({status: 'succeeded'}, null);
         } else {
-          next(null, new Error('InternalServerError'));
+          next(null, this._constructErrorObject(response));
         }
       });
   }
 
-  _createFile(targetUrl, next) {
+  _createFile(targetUrl, data, next) {
     // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Create_and_Write_to_a_File
     unirest.put(targetUrl)
       .send(data)
@@ -72,9 +82,9 @@ class Hdfs {
         if (response.status === 201) {
           next({status: 'succeeded'}, null);
         } else if (response.status == 307) {
-          _createFile(response.header.location, next);
+          this._createFile(response.header.location, data, next);
         } else {
-          next(null, new Error('InternalServerError'));
+          next(null, this._constructErrorObject(response));
         }
       });
   }
@@ -86,11 +96,11 @@ class Hdfs {
         if (response.status === 200) {
           next({status: 'succeeded', content: response.body}, null);
         } else if (response.status === 307) {
-          _readFile(response.header.location, next);
+          this._readFile(response.header.location, next);
         } else if (response.status === 404) {
           next(null, new Error('FileNotFound'));
         } else {
-          next(null, new Error('InternalServerError'));
+          next(null, this._constructErrorObject(response));
         }
       });
   }
