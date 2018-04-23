@@ -131,12 +131,27 @@ class Job {
   putJob(name, data, username, next) {
     const originData = data;
     data.username = username;
-    data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
+    if (!originData.outputDir) {
+      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
+    }
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     async.parallel([
+      (parallelCallback) => {
+        if (!originData.outputDir) {
+          hdfs.createFolder(
+            `/Output/${data.username}/${name}`,
+            {'user.name': data.username, 'permission': '755'},
+            (responseBodyJson, error) => {
+              parallelCallback(error);
+            }
+          );
+        } else {
+          parallelCallback(null);
+        }
+      },
       (parallelCallback) => {
         async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
           hdfs.createFolder(
