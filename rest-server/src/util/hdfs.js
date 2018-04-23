@@ -54,8 +54,8 @@ class Hdfs {
 
   _constructErrorObject(response) {
     let message = 'WebHDFS error: ';
-    if (!response) {
-      message += 'Empty respond.';
+    if (!response || !response.status) {
+      message += 'Empty response.';
     } else {
       message += `(${response.status}) ` + JSON.stringify(response.body);
     }
