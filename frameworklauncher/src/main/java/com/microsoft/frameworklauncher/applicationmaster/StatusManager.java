@@ -518,7 +518,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
       }
     }
-    return null;
+    return new ArrayList<>();
   }
 
   // Returned TaskStatus is readonly, caller should not modify it
