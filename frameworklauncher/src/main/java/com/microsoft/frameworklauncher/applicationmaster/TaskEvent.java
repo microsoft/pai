@@ -17,9 +17,12 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.model.Ports;
 import com.microsoft.frameworklauncher.common.model.RetryPolicyState;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
+
+import java.util.Map;
 
 public class TaskEvent {
   private ContainerRequest containerRequest;
@@ -27,6 +30,7 @@ public class TaskEvent {
   private Integer containerExitCode;
   private String containerExitDiagnostics;
   private RetryPolicyState newRetryPolicyState;
+  private Map<String, Ports> portDefinitions;
 
   public ContainerRequest getContainerRequest() {
     return containerRequest;
@@ -70,6 +74,15 @@ public class TaskEvent {
 
   public TaskEvent setNewRetryPolicyState(RetryPolicyState newRetryPolicyState) {
     this.newRetryPolicyState = newRetryPolicyState;
+    return this;
+  }
+
+  public Map<String, Ports> getPortDefinitions() {
+    return portDefinitions;
+  }
+
+  public TaskEvent setPortDefinitions(Map<String, Ports> portDefinitions) {
+    this.portDefinitions = portDefinitions;
     return this;
   }
 }

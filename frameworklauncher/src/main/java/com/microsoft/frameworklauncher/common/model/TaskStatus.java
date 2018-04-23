@@ -41,8 +41,8 @@ public class TaskStatus implements Serializable {
   private String containerHost;
   // containerIp is the assigned ipv4 address of the corresponding containerHost
   private String containerIp;
+  private String containerPorts;
   // containerGpus is the assigned GpuAttribute of the container
-  private List<ValueRange> containerPorts;
   private Long containerGpus;
   private String containerLogHttpAddress;
   private Integer containerConnectionLostCount;
@@ -133,11 +133,11 @@ public class TaskStatus implements Serializable {
     this.containerIp = containerIp;
   }
 
-  public List<ValueRange> getContainerPorts() {
+  public String getContainerPorts() {
     return containerPorts;
   }
 
-  public void setContainerPorts(List<ValueRange> containerPorts) {
+  public void setContainerPorts(String containerPorts) {
     this.containerPorts = containerPorts;
   }
 
