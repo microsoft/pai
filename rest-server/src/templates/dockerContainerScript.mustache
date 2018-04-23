@@ -172,11 +172,11 @@ if [ ${task_role_no} -eq 0 ] && [ ${PAI_TASK_INDEX} -eq 0 ] ; then
   echo "[INFO] Output directory ready."
 else
   # Waiting for the master container to create the output direcotry
+  echo "[INFO] Waiting for output directory: ${PAI_OUTPUT_DIR}"
   while ! hdfs dfs -test -d ${PAI_OUTPUT_DIR} ; do
-    echo "[INFO] Waiting for output directory: ${PAI_OUTPUT_DIR}"
     sleep 10
   done
-  echo "[INFO] Output direcotry ready."
+  echo "[INFO] Output directory ready."
 fi
 
 # Start sshd in docker container
