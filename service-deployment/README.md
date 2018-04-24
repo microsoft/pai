@@ -57,9 +57,9 @@ load-balance-ip: load-balance IP
 
 If your environment don't have a load-balance service. You could add proxy node to the kuebrnetes cluster. So you will have to add a node with the k8s-role as proxy. Now we only support single node proxy. If you want to deploy a proxy with ha, you could implement it by yourself.
 
-[The proxy component definition](https://github.com/Microsoft/pai/blob/master/kubernetes-deployment/k8sPaiLibrary/maintainconf/deploy.yaml)
+[The proxy component definition](k8sPaiLibrary/maintainconf/deploy.yaml)
 
-[The conponent templatefile path](https://github.com/Microsoft/pai/tree/master/kubernetes-deployment/k8sPaiLibrary/template)
+[The conponent templatefile path](k8sPaiLibrary/template)
 
 You should configuration you node role as following. (None-ha proxy)
 
