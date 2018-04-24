@@ -33,7 +33,7 @@ class clean:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("maintainconf/clean.yaml")
+        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/clean.yaml")
         self.clean_flag = kwargs["clean"]
         self.jobname = "clean"
 

@@ -41,7 +41,7 @@ class deploy:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("maintainconf/deploy.yaml")
+        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/deploy.yaml")
         self.clean_flag = kwargs["clean"]
 
 
@@ -104,7 +104,7 @@ class deploy:
 
         self.logger.info("Create kube-proxy daemon for kuberentes cluster.")
 
-        file_path = "template/kube-proxy.yaml.template"
+        file_path = "k8sPaiLibrary/template/kube-proxy.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
             "clusterconfig": self.cluster_config['clusterinfo']
@@ -127,7 +127,7 @@ class deploy:
 
 
         self.logger.info("Create dashboard service.")
-        file_path = "template/dashboard-service.yaml.template"
+        file_path = "k8sPaiLibrary/template/dashboard-service.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
             "clusterconfig": self.cluster_config['clusterinfo']
@@ -143,7 +143,7 @@ class deploy:
         os.remove("dashboard-service.yaml")
 
         self.logger.info("Create dashboard deployment.")
-        file_path = "template/dashboard-deployment.yaml.template"
+        file_path = "k8sPaiLibrary/template/dashboard-deployment.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
             "clusterconfig": self.cluster_config['clusterinfo']

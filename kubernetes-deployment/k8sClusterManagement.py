@@ -23,7 +23,7 @@ import sys
 import subprocess
 import jinja2
 import argparse
-import maintainlib
+from k8sPaiLibrary import maintainlib
 import importlib
 import time
 import logging
@@ -31,7 +31,7 @@ import logging.config
 from clusterObjectModel import objectModelFactory
 
 
-from maintainlib import common as pai_common
+from k8sPaiLibrary.maintainlib import common as pai_common
 
 
 
@@ -75,7 +75,7 @@ def generate_etcd_ip_list(master_list):
 
 def maintain_one_node(cluster_config, node_config, job_name):
 
-    module_name = "maintainlib.{0}".format(job_name)
+    module_name = "k8sPaiLibrary.maintainlib.{0}".format(job_name)
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, job_name)
@@ -97,7 +97,7 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
 
 def maintain_cluster(cluster_config, **kwargs):
-    module_name = "maintainlib.{0}".format(kwargs["job_name"])
+    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["job_name"])
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, kwargs["job_name"])

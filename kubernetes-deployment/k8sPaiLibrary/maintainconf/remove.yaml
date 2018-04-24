@@ -16,10 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-clean:
+remove-node:
 
     file-list:
     - name: kubernetes-cleanup.sh
-      src: maintaintool/kubernetes-cleanup.sh
-      dst: clean
+      src: k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
+      dst: remove-node
 

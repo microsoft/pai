@@ -168,38 +168,38 @@ cd /pai/kubernetes-deployment
 ## bootstrap
 
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -a deploy
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a deploy
 ```
 
 ## Destroy your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -a clean
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a clean
 ```
 
 ## Only install kubectl into your dev-box
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -a install_kubectl
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 ```
 
 ## Add new nodes to your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a add
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a add
 ```
 
 ## Remove nodes from your cluster
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a remove
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a remove
 ```
 
 
 ## Repair the worker node with the unhealthy states
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a repair
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a repair
 ```
 
 
 ## Repair the crashed etcd node (kubernetes failed to restart it) 
 ```bash
-sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a etcdfix
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a etcdfix
 ```
 

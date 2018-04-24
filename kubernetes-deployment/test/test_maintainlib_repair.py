@@ -22,7 +22,7 @@ import logging
 import logging.config
 import yaml
 
-from maintainlib import repair
+from k8sPaiLibrary.maintainlib import repair
 
 
 class TestMaintainlibRepair(unittest.TestCase):

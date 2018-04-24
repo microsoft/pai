@@ -25,7 +25,7 @@ import sys
 import logging
 import logging.config
 
-import bootstrap
+import k8sClusterManagement
 
 
 class TestBootstrap(unittest.TestCase):
@@ -81,49 +81,49 @@ class TestBootstrap(unittest.TestCase):
         args.path = "testpath"
         args.action = "deploy"
         args.file = None
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a clean
         # Target: True
         args.path = "testpath"
         args.action = "clean"
         args.file = None
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a install_kubectl
         # Target: True
         args.path = "testpath"
         args.action = "install_kubectl"
         args.file = None
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a add
         # Target: True
         args.path = "testpath"
         args.action = "add"
         args.file = "testfile"
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a remove
         # Target: True
         args.path = "testpath"
         args.action = "remove"
         args.file = "testfile"
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a repair
         # Target: True
         args.path = "testpath"
         args.action = "repair"
         args.file = "testfile"
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a etcdfix
         # Target: True
         args.path = "testpath"
         args.action = "etcdfix"
         args.file = "testfile"
-        self.assertTrue(bootstrap.option_validation(args))
+        self.assertTrue(k8sClusterManagement.option_validation(args))
 
 
 
@@ -140,28 +140,28 @@ class TestBootstrap(unittest.TestCase):
         args.path = "testpath"
         args.action = "add"
         args.file = None
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a remove
         # Target: False
         args.path = "testpath"
         args.action = "remove"
         args.file = None
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a repair
         # Target: False
         args.path = "testpath"
         args.action = "repair"
         args.file = None
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a etcdfix
         # Target: False
         args.path = "testpath"
         args.action = "etcdfix"
         args.file = None
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
 
 
@@ -179,21 +179,21 @@ class TestBootstrap(unittest.TestCase):
         args.path = "testpath"
         args.action = "deploy"
         args.file = "testfile"
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a clean
         # Target: False
         args.path = "testpath"
         args.action = "clean"
         args.file = "testfile"
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a install_kubectl
         # Target: False
         args.path = "testpath"
         args.action = "install_kubectl"
         args.file = "testfile"
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
 
 
@@ -210,14 +210,14 @@ class TestBootstrap(unittest.TestCase):
         args.path = "testpath"
         args.action = "false"
         args.file = "testfile"
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
         # sudo ./bootstrap.py -p yourclusterconfig.yaml -a false
         # Target: False
         args.path = "testpath"
         args.action = "false"
         args.file = None
-        self.assertFalse(bootstrap.option_validation(args))
+        self.assertFalse(k8sClusterManagement.option_validation(args))
 
 
 
