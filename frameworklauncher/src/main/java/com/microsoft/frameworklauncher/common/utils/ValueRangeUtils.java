@@ -410,15 +410,14 @@ public class ValueRangeUtils {
 
   // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
   public static List<ValueRange> convertPortDefinitionsStringToPortRange(String portDefinitions) {
-
     if (portDefinitions != null && !portDefinitions.isEmpty()) {
       Pattern pattern = Pattern.compile("[0-9]+");
       List<ValueRange> resultList = new ArrayList<>();
 
       Matcher portNum = pattern.matcher(portDefinitions);
       while(portNum.find()) {
-        resultList.add(ValueRange.newInstance(Integer.parseInt(portNum.group()),
-            Integer.parseInt(portNum.group())));
+        Integer port = Integer.parseInt(portNum.group());
+        resultList.add(ValueRange.newInstance(port, port));
       }
       return ValueRangeUtils.coalesceRangeList(resultList);
     } else {
