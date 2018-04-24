@@ -17,6 +17,210 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
+# Kubernetes Deployment in cluster
+
+We assume each node in the cluster has a statically assigned IP and runs Ubuntu 16.04 LTS.
+The following k8s components will be deployed in the designated nodes and run in host network:
+- kubelet
+- apiserver
+- controller-manager
+- etcd
+- scheduler
+- dashboard
+- kube-proxy
+
+Each k8s component runs in a Docker container. If Docker is missing in the OS, the script will install the latest Docker version.
+
+## Prepare your cluster configuration
+
+Configure the [cluster configuration](../cluster-configuration/). And the configuration file in this path
+illustrate such an example, where some detailed explanation is included.
+When deploying services to your cluster, please replace the specified fields with your own configuration.
+
+Note: Don't change the file name!!!!!!!!!!!!
+
+## Kubernetes high-availability
+
+#### solution 1
+
+Because cloud providers such as azure always have the load balance service. So when deploy pai to the cloud platform, you could chose the load-balance service to implement the high-availability.
+
+Before bootstrap your kubernetes cluster, you should configure your load-balance. please set the backend with your master. And set the following property with the ip of the load-balance in the [kubernetes-configuration.yaml](https://github.com/Microsoft/pai/blob/master/cluster-configuration/kubernetes-configuration.yaml).
+
+```yaml
+
+load-balance-ip: load-balance IP
+
+```
+
+#### solution 2
+
+If your environment don't have a load-balance service. You could add proxy node to the kuebrnetes cluster. So you will have to add a node with the k8s-role as proxy. Now we only support single node proxy. If you want to deploy a proxy with ha, you could implement it by yourself.
+
+[The proxy component definition](https://github.com/Microsoft/pai/blob/master/kubernetes-deployment/k8sPaiLibrary/maintainconf/deploy.yaml)
+
+[The conponent templatefile path](https://github.com/Microsoft/pai/tree/master/kubernetes-deployment/k8sPaiLibrary/template)
+
+You should configuration you node role as following. (None-ha proxy)
+
+```yaml
+   - hostname: hostname (echo `hostname`)
+      hostip: IP
+      machine-type: D8SV3
+      etcdid: etcdid1
+      k8s-role: master
+      dashboard: "true"
+
+
+    - hostname: hostname
+      hostip: IP
+      machine-type: D8SV3
+      etcdid: etcdid2
+      k8s-role: master
+
+
+    - hostname: hostname
+      hostip: IP
+      machine-type: D8SV3
+      etcdid: etcdid3
+      k8s-role: master
+
+
+    - hostname: hostname
+      hostip: IP
+      machine-type: NC24R
+      k8s-role: proxy
+
+```
+
+
+Set the following property with the ip of the load-balance in the [kubernetes-configuration.yaml](https://github.com/Microsoft/pai/blob/master/cluster-configuration/kubernetes-configuration.yaml).
+
+```yaml
+
+load-balance-ip: load-balance vip
+
+```
+
+#### solution 3
+
+Not enable kubernete-ha. And only set one node's k8s-role as master.
+
+For example.
+```
+    - hostname: hostname (echo `hostname`)
+      hostip: IP
+      machine-type: D8SV3
+      etcdid: etcdid1
+      k8s-role: master
+      dashboard: "true"
+
+
+    - hostname: hostname
+      hostip: IP
+      machine-type: D8SV3
+      k8s-role: worker
+
+
+    - hostname: hostname
+      hostip: IP
+      machine-type: D8SV3
+      k8s-role: worker
+
+```
+
+Set the following property with the ip of the load-balance in the [kubernetes-configuration.yaml](https://github.com/Microsoft/pai/blob/master/cluster-configuration/kubernetes-configuration.yaml).
+
+```yaml
+
+load-balance-ip: master ip
+
+```
+
+
+## Cluster maintenance
+
+Please refer to this [wiki](https://github.com/Microsoft/pai/wiki/Cluster-Maintenance)
+
+## Prepare your dev-box environment
+
+
+#### Host Environment
+Make sure your dev box has full network access to the cluster.
+
+Python(2.x) and lib install:
+```yaml
+sudo apt-get install python python-paramiko python-yaml python-jinja2
+sudo pip install python-etcd kubernetes
+```
+
+Note: kubectl will be installed on this dev-box. So it can access to your kubernetes cluster.
+
+#### In a docker container
+- Make sure your dev box has full network access to the cluster.
+- Make sure your dev box has been installed docker.
+```bash
+sudo docker build -t kubernetes-deployment .
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /path/to/configuration/directory:/cluster-configuration  \
+        -v /var/lib/docker:/varl/lib/docker \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=deployment \
+        kubernetes-deployment
+sudo docker exec -it deployment /bin/bash
+cd /pai/kubernetes-deployment
+
+```
+
+
+
+## bootstrap
+
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a deploy
+```
+
+## Destroy your cluster
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a clean
+```
+
+## Only install kubectl into your dev-box
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
+```
+
+## Add new nodes to your cluster
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a add
+```
+
+## Remove nodes from your cluster
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a remove
+```
+
+
+## Repair the worker node with the unhealthy states
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a repair
+```
+
+
+## Repair the crashed etcd node (kubernetes failed to restart it)
+```bash
+sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodelist.yaml -a etcdfix
+```
+
+
+
+
+
+
 # Deploying Services On Kubernetes
 
 This document explains how to use Kubernetes to deploy system services, including framework launcher, hadoop, rest server, and web portal. 
