@@ -16,9 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Now only support worker!
-remote_deployment_role: worker
-
 machinelist:
 
   worker-06:
