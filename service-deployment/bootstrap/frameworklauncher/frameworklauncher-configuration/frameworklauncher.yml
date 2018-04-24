@@ -33,7 +33,7 @@ applicationTransientConflictMaxDelaySec: 3600
 applicationTransientConflictMinDelaySec: 600
 
 # Framework Setup
-frameworkCompletedRetainSec: 2592000
+frameworkCompletedRetainSec: 1209600
 
 # ApplicationMaster Setup
 amVersion: 0
