@@ -52,8 +52,7 @@ def logClusterObjectModel(config_path):
     return ret["k8s"]
 
 
-
-
+  
 def generate_etcd_ip_list(master_list):
 
     etcd_cluster_ips_peer = ""
