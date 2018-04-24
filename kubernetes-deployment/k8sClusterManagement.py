@@ -97,7 +97,7 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
 
 def maintain_cluster(cluster_config, **kwargs):
-    module_name = "maintainlib.{0}".format(kwargs["job_name"])
+    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["job_name"])
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, kwargs["job_name"])
