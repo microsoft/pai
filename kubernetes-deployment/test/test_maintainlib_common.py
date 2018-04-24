@@ -101,6 +101,40 @@ class TestMaintainlibCommon(unittest.TestCase):
 
 
 
+    def test_template2generated_dict(self):
+
+        cluster_data = {
+            'clusterinfo' : {
+                'testkey2' : 'testkey2'
+            },
+            'testkey3': 'testkey3'
+        }
+
+        host_data = {
+            'testkey1': 'testkey1'
+        }
+
+        dict_map = {
+            "hostcofig": host_data,
+            "clusterconfig": cluster_data['clusterinfo'],
+            "cluster": cluster_data
+        }
+
+        template_data = common.read_template("data/data_maintainlib_common/test.yaml")
+        generated_data = common.generate_from_template(template_data, dict_map)
+        common.write_generated_file(generated_data, "data/data_maintainlib_common/output.yaml")
+
+        self.assertTrue(
+            filecmp.cmp(
+                "data/data_maintainlib_common/test.yaml",
+                "data/data_maintainlib_common/output.yaml"
+            )
+        )
+
+        os.remove("data/data_maintainlib_common/output.yaml")
+
+
+
     def test_package_common_1(self):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")

@@ -53,6 +53,22 @@ def execute_shell(shell_cmd, error_msg):
 
 
 
+
+def execute_shell_return(shell_cmd, error_msg):
+
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+
+        logger.error(error_msg)
+        return False
+
+    return True
+
+
+
+
 def read_template(template_path):
 
     with open(template_path, "r") as fin:
@@ -70,6 +86,16 @@ def generate_from_template(template_data, cluster_config, host_config):
             "clusterconfig": cluster_config['clusterinfo'],
             "cluster": cluster_config
         }
+    )
+
+    return generated_file
+
+
+
+def generate_from_template_dict(template_data, map_table):
+
+    generated_file = jinja2.Template(template_data).render(
+        map_table
     )
 
     return generated_file
