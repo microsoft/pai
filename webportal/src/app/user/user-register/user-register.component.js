@@ -53,8 +53,6 @@ $(document).ready(() => {
         },
         dataType: 'json',
         success: (data) => {
-          console.log('put user');
-          console.log(JSON.stringify(data));
           if (data.error) {
             alert(data.message);
           } else {
@@ -113,12 +111,10 @@ $(document).ready(() => {
         },
         dataType: 'json',
         success: (data) => {
-          console.log('put user');
-          console.log(JSON.stringify(data));
           if (data.error) {
             alert(data.message);
           } else {
-            if(admin) {
+            if (admin) {
               $.ajax({
                 url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
                 data: {
@@ -166,7 +162,7 @@ $(document).ready(() => {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
         data: {
-          virtualClusters:virtualCluster
+          virtualClusters: virtualCluster,
         },
         type: 'PATCH',
         headers: {
@@ -189,7 +185,6 @@ $(document).ready(() => {
       });
     });
   });
-
 
   $('#form-remove-user').on('submit', (e) => {
     e.preventDefault();
@@ -221,5 +216,4 @@ $(document).ready(() => {
       });
     });
   });
-
 });
