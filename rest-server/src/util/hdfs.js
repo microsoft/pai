@@ -53,13 +53,11 @@ class Hdfs {
   }
 
   _constructErrorObject(response) {
-    let message = 'WebHDFS error: ';
     if (!response || !response.status) {
-      message += 'Empty response.';
+      return new Error('[WebHDFS] Empty response.');
     } else {
-      message += `(${response.status}) ` + JSON.stringify(response.body);
+      return new Error('[WebHDFS] ' + response.status + ' ' + JSON.stringify(response.body));
     }
-    return new Error(message);
   }
 
   _createFolder(targetUrl, next) {
@@ -67,9 +65,9 @@ class Hdfs {
     unirest.put(targetUrl)
       .end((response) => {
         if (response.status === 200) {
-          next({status: 'succeeded'}, null);
+          next(null, {status: 'succeeded'});
         } else {
-          next(null, this._constructErrorObject(response));
+          next(this._constructErrorObject(response));
         }
       });
   }
@@ -80,11 +78,11 @@ class Hdfs {
       .send(data)
       .end((response) => {
         if (response.status === 201) {
-          next({status: 'succeeded'}, null);
-        } else if (response.status == 307) {
+          next(null, {status: 'succeeded'});
+        } else if (response.status === 307) {
           this._createFile(response.header.location, data, next);
         } else {
-          next(null, this._constructErrorObject(response));
+          next(this._constructErrorObject(response));
         }
       });
   }
@@ -94,13 +92,11 @@ class Hdfs {
     unirest.get(targetUrl)
       .end((response) => {
         if (response.status === 200) {
-          next({status: 'succeeded', content: response.body}, null);
+          next(null, {status: 'succeeded', content: response.body});
         } else if (response.status === 307) {
           this._readFile(response.header.location, next);
-        } else if (response.status === 404) {
-          next(null, new Error('FileNotFound'));
         } else {
-          next(null, this._constructErrorObject(response));
+          next(this._constructErrorObject(response));
         }
       });
   }

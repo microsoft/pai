@@ -118,7 +118,7 @@ const update = (req, res) => {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({
         error: 'JobUpdateError',
-        message: 'job update error',
+        message: err.message,
       });
     } else {
       return res.status(202).json({
@@ -175,10 +175,10 @@ const getConfig = (req, res) => {
   Job.prototype.getJobConfig(
     req.job.jobStatus.username,
     req.job.name,
-    (configJsonString, error) => {
+    (error, result) => {
       if (error === null) {
-        return res.status(200).json(configJsonString);
-      } else if (error.message === 'FileNotFound') {
+        return res.status(200).json(result);
+      } else if (error.message.startsWith('[WebHDFS] 404')) {
         return res.status(404).json({
           error: 'ConfigFileNotFound',
           message: error.message,

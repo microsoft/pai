@@ -143,7 +143,7 @@ class Job {
           hdfs.createFolder(
             `/Output/${data.username}/${name}`,
             {'user.name': data.username, 'permission': '755'},
-            (responseBodyJson, error) => {
+            (error, result) => {
               parallelCallback(error);
             }
           );
@@ -156,7 +156,7 @@ class Job {
           hdfs.createFolder(
             `/Container/${data.username}/${name}/` + x,
             {'user.name': data.username, 'permission': '755'},
-            (responseBodyJson, error) => {
+            (error, result) => {
               eachCallback(error);
             }
           );
@@ -170,7 +170,7 @@ class Job {
             `/Container/${data.username}/${name}/YarnContainerScripts/${x}.sh`,
             this.generateYarnContainerScript(data, x),
             {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
-            (responseBodyJson, error) => {
+            (error, result) => {
               eachCallback(error);
             }
           );
@@ -184,7 +184,7 @@ class Job {
             `/Container/${data.username}/${name}/DockerContainerScripts/${x}.sh`,
             this.generateDockerContainerScript(data, x),
             {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
-            (responseBodyJson, error) => {
+            (error, result) => {
               eachCallback(error);
             }
           );
@@ -197,7 +197,7 @@ class Job {
           `/Container/${data.username}/${name}/${launcherConfig.jobConfigFileName}`,
           JSON.stringify(originalData, null, 2),
           {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
-          (responseBodyJson, error) => {
+          (error, result) => {
             parallelCallback(error);
           }
         );
@@ -207,7 +207,7 @@ class Job {
           `/Container/${data.username}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
           JSON.stringify(this.generateFrameworkDescription(data), null, 2),
           {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
-          (responseBodyJson, error) => {
+          (error, result) => {
             parallelCallback(error);
           }
         );
@@ -217,11 +217,11 @@ class Job {
         return next(parallelError);
       } else {
         unirest.put(launcherConfig.frameworkPath(name))
-        .headers(launcherConfig.webserviceRequestHeaders)
-        .send(this.generateFrameworkDescription(data))
-        .end((res) => {
-          next();
-        });
+          .headers(launcherConfig.webserviceRequestHeaders)
+          .send(this.generateFrameworkDescription(data))
+          .end((res) => {
+            next();
+          });
       }
     });
   }
@@ -268,11 +268,11 @@ class Job {
     hdfs.readFile(
       '/Container/' + userName + '/' + jobName + '/JobConfig.json',
       null,
-      (responseBodyJson, error) => {
-        if (error) {
-          next(responseBodyJson, error);
+      (error, result) => {
+        if (!error) {
+          next(null, JSON.parse(result.content));
         } else {
-          next(JSON.parse(responseBodyJson.content), null);
+          next(error);
         }
       }
     );
