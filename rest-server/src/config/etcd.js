@@ -43,7 +43,7 @@ etcdConfig.userAdminPath = (username) => {
   return `${etcdConfig.userPath(username)}/admin`;
 };
 
-etcdConfig.userVirtuClusterPath = (username) => {
+etcdConfig.userVirtualClusterPath = (username) => {
   return `${etcdConfig.userPath(username)}/virtualClusters`;
 };
 
@@ -72,7 +72,7 @@ const etcdConfigSchema = Joi.object().keys({
   userAdminPath: Joi.func()
     .arity(1)
     .required(),
-  userVirtuClusterPath: Joi.func()
+  userVirtualClusterPath: Joi.func()
     .arity(1)
     .required(),
 }).required();

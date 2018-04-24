@@ -153,7 +153,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
             let addUserWithInvalidVc = false;
             for (let item of updateVcList) {
               if (!vcList.hasOwnProperty(item)) {
-                if (!res.has(etcdConfig.userVirtuClusterPath(username))) {
+                if (!res.has(etcdConfig.userVirtualClusterPath(username))) {
                   updateVcList.length = 0;
                   addUserWithInvalidVc = true;
                   break;
@@ -166,9 +166,9 @@ const updateUserVc = (username, virtualClusters, callback) => {
               updateVcList.push('default');
             }
             updateVcList.sort();
-            db.set(etcdConfig.userVirtuClusterPath(username), updateVcList.toString(), null, (errMsg, res) => {
+            db.set(etcdConfig.userVirtualClusterPath(username), updateVcList.toString(), null, (errMsg, res) => {
               if (errMsg) {
-                logger.warn('update %s virtual cluster: %s failed, error message:%s', etcdConfig.userVirtuClusterPath(username), errMsg);
+                logger.warn('update %s virtual cluster: %s failed, error message:%s', etcdConfig.userVirtualClusterPath(username), errMsg);
                 callback(errMsg, false);
               } else {
                 if (addUserWithInvalidVc) {
@@ -203,17 +203,17 @@ const checkUserVc = (username, virtualCluster, callback) => {
           if (!vcList.hasOwnProperty(virtualCluster)) {
             return callback(new Error('VirtualClusterNotFound'), false);
           }
-          db.get(etcdConfig.userVirtuClusterPath(username), null, (errMsg, res) => {
+          db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
             if (errMsg || !res) {
               callback(errMsg, false);
             } else {
-              let userVirtualClusters = res.get(etcdConfig.userVirtuClusterPath(username)).trim().split(',');
+              let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
               for (let item of userVirtualClusters) {
                 if (item === virtualCluster) {
                   return callback(null, true);
                 }
               }
-              callback(new Error('NotAuthorizedVirtualCluster'), false);
+              callback(new Error('NoRightAccessVirtualCluster'), false);
             }
           });
         }
