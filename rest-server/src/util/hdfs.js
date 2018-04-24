@@ -80,7 +80,13 @@ class Hdfs {
         if (response.status === 201) {
           next(null, {status: 'succeeded'});
         } else if (response.status === 307) {
-          this._createFile(response.header.location, data, next);
+          this._createFile(
+            response.headers['x-location'] // X-Location header is created in unit test only.
+            ? response.headers['x-location']
+            : response.headers['location'],
+            data,
+            next
+          );
         } else {
           next(this._constructErrorObject(response));
         }
@@ -94,7 +100,12 @@ class Hdfs {
         if (response.status === 200) {
           next(null, {status: 'succeeded', content: response.body});
         } else if (response.status === 307) {
-          this._readFile(response.header.location, next);
+          this._readFile(
+            response.headers['x-location'] // X-Location header is created in unit test only.
+            ? response.headers['x-location']
+            : response.headers['location'],
+            next
+          );
         } else {
           next(this._constructErrorObject(response));
         }
