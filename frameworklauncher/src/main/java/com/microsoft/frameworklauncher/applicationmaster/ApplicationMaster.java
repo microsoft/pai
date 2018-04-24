@@ -569,9 +569,6 @@ public class ApplicationMaster extends AbstractService {
     List<String> sourceLocations = requestManager.getTaskServices().get(taskRoleName).getSourceLocations();
     String entryPoint = requestManager.getTaskServices().get(taskRoleName).getEntryPoint();
 
-    Map<String, Ports> portDefinitions = requestManager.getTaskResources().get(taskRoleName).getPortDefinitions();
-    List<ValueRange> portRanges = taskStatus.getContainerPorts();
-
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
     try {
@@ -606,17 +603,7 @@ public class ApplicationMaster extends AbstractService {
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
-
-    //The containerPortsString format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
-    String containerPortsString = ValueRangeUtils.toEnviromentVariableString(portRanges, portDefinitions);
-    if (portDefinitions != null && !portDefinitions.isEmpty()) {
-      if (containerPortsString.split(";").length == portDefinitions.size()) {
-        localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, containerPortsString);
-      } else {
-        LOGGER.logError("ENV_VAR_CONTAINER_PORTS:" + containerPortsString + " is not meet the request in portDefinitions");
-      }
-    }
-
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, taskStatus.getContainerPorts());
     if (generateContainerIpList) {
       // Since one machine may have many external IPs, we assigned a specific one to
       // help the UserService to locate itself in CONTAINER_IP_LIST_FILE
@@ -1112,8 +1099,10 @@ public class ApplicationMaster extends AbstractService {
 
     // 3. allocateContainer
     try {
-      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED,
-          new TaskEvent().setContainer(container));
+      TaskEvent taskEvent = new TaskEvent();
+      taskEvent.setContainer(container);
+      taskEvent.setPortDefinitions(requestManager.getTaskResources().get(taskRoleName).getPortDefinitions());
+      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED, taskEvent);
       LOGGER.logInfo("%s[%s]: Succeeded to Allocate Container to Task", taskLocator, containerId);
 
       if (containerConnectionExceedCount.containsKey(containerId)) {
