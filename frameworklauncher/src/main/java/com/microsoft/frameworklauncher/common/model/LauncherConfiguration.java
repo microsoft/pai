@@ -95,6 +95,18 @@ public class LauncherConfiguration implements Serializable {
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
   private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
 
+  // Small ports usually reserved for system usage,  the minimum port a job can use.
+  private Integer amContainerMinPort = 2000;
+  // the factor to enlarge the candidate nodes compare with the request.
+  private Integer amSearchNodeBufferFactor = 2;
+
+  // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
+  private Boolean amSkipLocalTriedResource = false;
+
+  // true: AM will allocate a none Gpu job into a node with Gpu resource.
+  // false: AM will not allocate a none Gpu job a node with Gpu resource.
+  private Boolean amAllowNoneGpuJobOnGpuNode = true;
+
   // WebServer Setup
   private String webServerBindHost = "0.0.0.0";
   @Pattern(regexp = "^https?://[^:^/]+:\\d+$")
@@ -332,6 +344,38 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
     this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
+  }
+
+  public Integer getAmContainerMinPort() {
+    return amContainerMinPort;
+  }
+
+  public void setAmContainerMinPort(Integer amContainerMinPort) {
+    this.amContainerMinPort = amContainerMinPort;
+  }
+
+  public Integer getAmSearchNodeBufferFactor() {
+    return amSearchNodeBufferFactor;
+  }
+
+  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
+    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
+  }
+
+  public Boolean getAmSkipLocalTriedResource() {
+    return amSkipLocalTriedResource;
+  }
+
+  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
+    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
+  }
+
+  public Boolean getAmAllowNoneGpuJobOnGpuNode() {
+    return amAllowNoneGpuJobOnGpuNode;
+  }
+
+  public void setAmAllowNoneGpuJobOnGpuNode(Boolean amAllowNoneGpuJobOnGpuNode) {
+    this.amAllowNoneGpuJobOnGpuNode = amAllowNoneGpuJobOnGpuNode;
   }
 
   public String getWebServerBindHost() {

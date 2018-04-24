@@ -17,13 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 import yaml
 import os
 import sys
 import subprocess
 import jinja2
 import argparse
+import logging
+import logging.config
 
+from paiLibrary.clusterObjectModel import objectModelFactory
+
+
+logger = logging.getLogger(__name__)
 
 
 def write_generated_file(file_path, content_data):
@@ -39,6 +47,15 @@ def load_yaml_config(config_path):
         cluster_data = yaml.load(f)
 
     return cluster_data
+
+
+
+def loadClusterObjectModel(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+
+    return ret["service"]
 
 
 
@@ -71,7 +88,7 @@ def execute_shell_with_output(shell_cmd, error_msg):
         res = subprocess.check_output( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
     return res
@@ -84,7 +101,7 @@ def execute_shell(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-        print error_msg
+        logger.error(error_msg)
         sys.exit(1)
 
 
@@ -94,11 +111,11 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
     execute_shell(shell_cmd, error_msg)
-    print "docker registry login successfully"
+    logger.info("docker registry login successfully")
 
 
 
-def genenrate_docker_credential(docker_info):
+def generate_docker_credential(docker_info):
 
     username = str(docker_info[ "docker_username" ])
     passwd = str(docker_info[ "docker_password" ])
@@ -131,7 +148,7 @@ def generate_secret_base64code(docker_info):
             "Failed to base64 the docker's config.json"
         )
     else:
-        print "docker registry authentication not provided"
+        logger.info("docker registry authentication not provided")
 
         base64code = "{}".encode("base64")
 
@@ -169,7 +186,7 @@ def clean_up_generated_file(service_config):
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)
 
-    print "Successfully clean up the generated file"
+    logger.info("Successfully clean up the generated file")
 
 
 
@@ -288,8 +305,89 @@ def copy_arrangement(service_config):
         copy_arrangement_service(srv, service_config)
 
 
+def generate_configuration_of_hadoop_queues(cluster_config):
+    #
+    hadoop_queues_config = {}
+    #
+    total_weight = 0
+    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
+        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
+        weight = float(vc_config["capacity"])
+        hadoop_queues_config[vc_name] = {
+            "description": vc_config["description"],
+            "weight": weight
+        }
+        total_weight += weight
+    hadoop_queues_config["default"] = {
+        "description": "Default virtual cluster.",
+        "weight": max(0, 100 - total_weight)
+    }
+    if total_weight > 100:
+        logger.warning("Too many resources configured in virtual clusters.")
+        for hq_name in hadoop_queues_config:
+            hq_config = hadoop_queues_config[hq_name]
+            hq_config["weight"] /= (total_weight / 100)
+    #
+    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
+
+
+"""
+def generate_configuration_of_hadoop_queues_by_num_gpus(cluster_config):
+    #
+    hadoop_queues_config = {}
+    #
+    total_num_gpus = 0
+    for machine_name in cluster_config["machinelist"]:
+        machine_config = cluster_config["machinelist"][machine_name]
+        if "yarnrole" not in machine_config or machine_config["yarnrole"] != "worker":
+            continue
+        machine_type = machine_config["machinetype"]
+        machine_type_config = cluster_config["machineinfo"][machine_type]
+        num_gpus = 0
+        if "gpu" in machine_type_config:
+            num_gpus = machine_type_config["gpu"]["count"]
+        total_num_gpus += num_gpus
+    #
+    total_weight = 0
+    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
+        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
+        num_gpus_configured = vc_config["numGPUs"]
+        weight = float(num_gpus_configured) / float(total_num_gpus) * 100
+        hadoop_queues_config[vc_name] = {
+            "description": vc_config["description"],
+            "weight": weight
+        }
+        total_weight += weight
+    hadoop_queues_config["default"] = {
+        "description": "Default virtual cluster.",
+        "weight": max(0, 100 - total_weight)
+    }
+    if total_weight > 100:
+        print("WARNING: Too many GPUs configured in virtual clusters.")
+        for hq_name in hadoop_queues_config:
+            hq_config = hadoop_queues_config[hq_name]
+            hq_config["weight"] /= (total_weight / 100)
+    #
+    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
+"""
+
+
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    configuration_path = "sysconf/logging.yaml"
+
+    logging_configuration = load_yaml_config(configuration_path)
+
+    logging.config.dictConfig(logging_configuration)
+
+
 
 def main():
+
+    setup_logging()
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
@@ -302,13 +400,13 @@ def main():
     # step 1: load configuration from yaml file.
     config_path = args.path
 
-    cluster_config = load_yaml_config(config_path)
+    cluster_config = loadClusterObjectModel(config_path)
     service_config = load_yaml_config("service.yaml")
 
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
 
     generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    genenrate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     # step 3: generate image url prefix for yaml file.
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
@@ -316,7 +414,10 @@ def main():
     if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
         cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
 
-    # step 4: generate templatefile
+    # step 4: generate configuration of hadoop queues
+    generate_configuration_of_hadoop_queues(cluster_config)
+
+    # step 5: generate templatefile
     if args.service == 'all':
 
         copy_arrangement(service_config)
@@ -327,8 +428,7 @@ def main():
         copy_arrangement_service(args.service, service_config)
         generate_template_file_service(args.service, cluster_config, service_config)
 
-
-    # step 5: Bootstrap service.
+    # step 6: Bootstrap service.
     # Without flag -d, this deploy process will be skipped.
     if args.deploy:
         if args.service == 'all':
@@ -339,7 +439,7 @@ def main():
             single_service_bootstrap(args.service, service_config)
 
 
-    # Option : clean all the generated file.
+    # Optional : clean all the generated file.
     if args.clean:
         clean_up_generated_file(service_config)
 
@@ -347,3 +447,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

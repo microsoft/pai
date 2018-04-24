@@ -33,7 +33,11 @@ Each k8s component runs in a Docker container. If Docker is missing in the OS, t
 
 ## Prepare your cluster configuration
 
-Please specify the cluster configuration in a yaml file. The [cluster-config-example.yaml](./cluster-config-example.yaml) is an example, where some detailed explanation is included.
+Configure the [cluster configuration](../cluster-configuration/). And the configuration file in this path
+illustrate such an example, where some detailed explanation is included.
+When deploying services to your cluster, please replace the specified fields with your own configuration.
+
+Note: Don't change the file name!!!!!!!!!!!!
 
 ## Kubernetes high-availability 
 
@@ -146,7 +150,7 @@ Note: kubectl will be installed on this dev-box. So it can access to your kubern
 sudo docker build -t kubernetes-deployment .
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /path/to/your/cluster-configuration:/cluster-configuration  \
+        -v /path/to/configuration/directory:/cluster-configuration  \
         -v /var/lib/docker:/varl/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         --pid=host \
@@ -164,31 +168,38 @@ cd /pai/kubernetes-deployment
 ## bootstrap
 
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -a deploy
+sudo ./bootstrap.py -p /path/to/configuration/directory -a deploy
 ```
 
 ## Destroy your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -a clean
+sudo ./bootstrap.py -p /path/to/configuration/directory -a clean
 ```
 
 ## Only install kubectl into your dev-box
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -a install_kubectl
+sudo ./bootstrap.py -p /path/to/configuration/directory -a install_kubectl
 ```
 
 ## Add new nodes to your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a add
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a add
 ```
 
 ## Remove nodes from your cluster
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a remove
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a remove
 ```
 
 
 ## Repair the worker node with the unhealthy states
 ```bash
-sudo ./bootstrap.py -p yourclusterconfig.yaml -f yournodelist.yaml -a repair
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a repair
 ```
+
+
+## Repair the crashed etcd node (kubernetes failed to restart it) 
+```bash
+sudo ./bootstrap.py -p /path/to/configuration/directory -f yournodelist.yaml -a etcdfix
+```
+

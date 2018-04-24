@@ -74,7 +74,7 @@
             }
             //
             let btnClassString = "btn bg-" + colorString;
-            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/?namespace=' + pod.namespace;
+            let urlString = k8sUri + '/#!/log/' + pod.namespace + '/' + pod.name + '/pod?namespace=' + pod.namespace;
 %>
             <a class="<%= btnClassString %>" href="<%= urlString %>"><%= pod.name %></a>
 <%

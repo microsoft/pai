@@ -54,11 +54,35 @@ const load = (req, res, next, jobName) => {
   });
 };
 
+const init = (req, res, next) => {
+  const jobName = req.body.jobName;
+  new Job(jobName, (job, error) => {
+    if (error) {
+      if (error.message === 'JobNotFound') {
+        req.job = job;
+        next();
+      } else {
+        logger.warn('internal server error');
+        return res.status(500).json({
+          error: 'InternalServerError',
+          message: 'internal server error',
+        });
+      }
+    } else {
+      logger.warn('duplicate job %s', jobName);
+      return res.status(400).json({
+        error: 'DuplicateJobSubmission',
+        message: `job already exists: '${jobName}'`,
+      });
+    }
+  });
+};
+
 /**
  * Get list of jobs.
  */
 const list = (req, res) => {
-  Job.prototype.getJobList((jobList, err) => {
+  Job.prototype.getJobList(req._query, (jobList, err) => {
     if (err) {
       logger.warn('list jobs error\n%s', err.stack);
       return res.status(500).json({
@@ -88,8 +112,7 @@ const get = (req, res) => {
  * Submit or update job.
  */
 const update = (req, res) => {
-  req.body.username = req.user.username;
-  Job.prototype.putJob(req.job.name, req.body, (err) => {
+  Job.prototype.putJob(req.job.name, req.body, req.user.username, (err) => {
     if (err) {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
       return res.status(500).json({
@@ -118,7 +141,7 @@ const remove = (req, res) => {
         message: 'job deleted error, cannot delete other user\'s job',
       });
     } else {
-      return res.status(204).json({
+      return res.status(202).json({
         message: `deleted job ${req.job.name} successfully`,
       });
     }
@@ -130,10 +153,11 @@ const remove = (req, res) => {
  */
 const execute = (req, res, next) => {
   req.body.username = req.user.username;
+  req.body.admin = req.user.admin;
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);
-      err.message = 'job execute error';
+      err.message = err.message || 'job execute error';
       next(err);
     } else {
       return res.status(202).json({
@@ -197,6 +221,7 @@ const getSshInfo = (req, res) => {
 // module exports
 module.exports = {
   load,
+  init,
   list,
   get,
   update,

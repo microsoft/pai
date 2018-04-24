@@ -8,6 +8,7 @@
   "outputDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/output",
   // prepare g2p distributed training script cntk-distributed-example.sh and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/cntk-distributed-jobguid/code",
+  "virtualCluster": "default",
 
   "taskRoles": [
     {

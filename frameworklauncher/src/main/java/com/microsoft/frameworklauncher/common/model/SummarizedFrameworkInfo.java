@@ -26,6 +26,7 @@ public class SummarizedFrameworkInfo implements Serializable {
   private ExecutionType executionType;
   private String frameworkDescription;
   private String userName;
+  private String queue;
   private Long firstRequestTimestamp;
   private Long lastRequestTimestamp;
 
@@ -44,6 +45,7 @@ public class SummarizedFrameworkInfo implements Serializable {
     sFrameworkInfo.setExecutionType(frameworkDescriptor.getExecutionType());
     sFrameworkInfo.setFrameworkDescription(frameworkDescriptor.getDescription());
     sFrameworkInfo.setUserName(frameworkDescriptor.getUser().getName());
+    sFrameworkInfo.setQueue(frameworkDescriptor.getPlatformSpecificParameters().getQueue());
     sFrameworkInfo.setFirstRequestTimestamp(frameworkRequest.getFirstRequestTimestamp());
     sFrameworkInfo.setLastRequestTimestamp(frameworkRequest.getLastRequestTimestamp());
 
@@ -92,6 +94,14 @@ public class SummarizedFrameworkInfo implements Serializable {
 
   public void setUserName(String userName) {
     this.userName = userName;
+  }
+
+  public String getQueue() {
+    return queue;
+  }
+
+  public void setQueue(String queue) {
+    this.queue = queue;
   }
 
   public Long getFirstRequestTimestamp() {

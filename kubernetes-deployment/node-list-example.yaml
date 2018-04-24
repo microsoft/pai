@@ -20,12 +20,14 @@
 remote_deployment_role: worker
 
 machinelist:
+
   worker-06:
     nodename: IP
     hostip: IP
     sshport: PORT
     username: username
     password: password
+    k8s-role: worker
 
   worker-07:
     nodename: IP
@@ -33,3 +35,4 @@ machinelist:
     sshport: PORT
     username: username
     password: password
+    k8s-role: worker

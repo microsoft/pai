@@ -792,7 +792,7 @@ public class Service extends AbstractService {
         String frameworkName = frameworkStatus.getFrameworkName();
         FrameworkState frameworkState = frameworkStatus.getFrameworkState();
         if (frameworkState == FrameworkState.APPLICATION_CREATED) {
-          return;
+          continue;
         }
 
         // updateApplicationStatus
@@ -843,7 +843,7 @@ public class Service extends AbstractService {
 
         // APPLICATION_CREATED Application is not in the liveApplicationReports, but it is indeed live in RM.
         if (frameworkState == FrameworkState.APPLICATION_CREATED) {
-          return;
+          continue;
         }
 
         LOGGER.logWarning(

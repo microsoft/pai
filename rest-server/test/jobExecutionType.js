@@ -21,6 +21,9 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
   // Mock launcher webservice
   beforeEach(() => {
     let frameworkDetail = {
+      'summarizedFrameworkInfo': {
+        'executionType': 'START',
+      },
       'aggregatedFrameworkStatus': {
         'frameworkStatus': {
           'name': 'test',
@@ -102,7 +105,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       });
   });
 
-  it('should not stop other user\'s job', (done) => {
+  it('admin should stop other user\'s job successfully', (done) => {
     chai.request(server)
       .put('/api/v1/jobs/test2/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
@@ -110,9 +113,9 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         'value': 'STOP',
       })
       .end((err, res) => {
-        expect(res, 'status code').to.have.status(500);
+        expect(res, 'status code').to.have.status(202);
         expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('job execute error');
+        expect(res.body.message, 'response message').equal('execute job test2 successfully');
         done();
       });
   });

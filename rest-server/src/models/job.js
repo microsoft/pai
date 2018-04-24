@@ -72,8 +72,12 @@ class Job {
     return jobState;
   }
 
-  getJobList(next) {
-    unirest.get(launcherConfig.frameworksPath())
+  getJobList(query, next) {
+    let reqPath = launcherConfig.frameworksPath();
+    if (query.username) {
+      reqPath = `${reqPath}?UserName=${query.username}`;
+    }
+    unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((res) => {
         try {
@@ -95,6 +99,7 @@ class Job {
               createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
               completedTime: frameworkInfo.frameworkCompletedTimestamp,
               appExitCode: frameworkInfo.applicationExitCode,
+              virtualCluster: frameworkInfo.queue,
             };
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
@@ -127,11 +132,14 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
+  putJob(name, data, username, next) {
+    const originData = data;
+    data.username = username;
     if (!data.outputDir.trim()) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
-    } else {
-      data.outputDir = data.outputDir.replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
+    }
+    for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
+      data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
     if (data.outputDir.match(/^hdfs:\/\//)) {
       childProcess.exec(
@@ -179,7 +187,7 @@ class Job {
           (parallelCallback) => {
             fse.outputJson(
                 path.join(jobDir, launcherConfig.jobConfigFileName),
-                data,
+                originData,
                 {'spaces': 2},
                 (err) => parallelCallback(err));
           },
@@ -247,7 +255,7 @@ class Job {
             requestRes.body : JSON.parse(requestRes.body);
         if (!requestResJson.frameworkDescriptor) {
           next(new Error('unknown job'));
-        } else if (data.username === requestResJson.frameworkDescriptor.user.name) {
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .send({'executionType': data.value})
@@ -349,6 +357,7 @@ class Job {
         username: 'unknown',
         state: jobState,
         subState: frameworkStatus.frameworkState,
+        executionType: framework.summarizedFrameworkInfo.executionType,
         retries: jobRetryCount,
         createdTime: frameworkStatus.frameworkCreatedTimestamp,
         completedTime: frameworkStatus.frameworkCompletedTimestamp,
@@ -365,6 +374,10 @@ class Job {
     const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
     if (frameworkRequest.frameworkDescriptor) {
       jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+    }
+    const frameworkInfo = framework.summarizedFrameworkInfo;
+    if (frameworkInfo) {
+      jobDetail.jobStatus.virtualCluster = frameworkInfo.queue;
     }
     const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
     if (taskRoleStatuses) {
@@ -424,7 +437,7 @@ class Job {
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': 'default',
+        'queue': data.virtualCluster,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
@@ -432,6 +445,21 @@ class Job {
       },
     };
     for (let i = 0; i < data.taskRoles.length; i ++) {
+      const portList = {};
+      for (let j = 0; j < data.taskRoles[i].portList.length; j ++) {
+        portList[data.taskRoles[i].portList[j].label] = {
+          'start': data.taskRoles[i].portList[j].beginAt,
+          'count': data.taskRoles[i].portList[j].portNumber,
+        };
+      }
+      for (let defaultPortLabel of ['http', 'ssh']) {
+        if (!(defaultPortLabel in portList)) {
+          portList[defaultPortLabel] = {
+            'start': 0,
+            'count': 1,
+          };
+        }
+      }
       const taskRole = {
         'taskNumber': data.taskRoles[i].taskNumber,
         'taskService': {
@@ -442,7 +470,7 @@ class Job {
             'cpuNumber': data.taskRoles[i].cpuNumber,
             'memoryMB': data.taskRoles[i].memoryMB,
             'gpuNumber': data.taskRoles[i].gpuNumber,
-            'portRanges': [],
+            'portDefinitions': portList,
             'diskType': 0,
             'diskMB': 0,
           },

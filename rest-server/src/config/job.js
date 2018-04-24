@@ -40,7 +40,7 @@ const jobConfigSchema = Joi.object().keys({
   taskRoles: Joi.array()
     .items(Joi.object().keys({
         name: Joi.string()
-          .regex(/^[A-Za-z0-9\-._~]+$/)
+          .regex(/^[A-Za-z0-9._~]+$/)
           .required(),
         taskNumber: Joi.number()
           .integer()
@@ -54,6 +54,20 @@ const jobConfigSchema = Joi.object().keys({
         gpuNumber: Joi.number()
           .integer()
           .default(0),
+        portList: Joi.array()
+          .items(Joi.object().keys({
+            label: Joi.string()
+              .regex(/^[A-Za-z0-9._~]+$/)
+              .required(),
+            beginAt: Joi.number()
+              .integer()
+              .default(0),
+            portNumber: Joi.number()
+              .integer()
+             .default(1),
+          }))
+          .optional()
+          .default([]),
         command: Joi.string()
           .required(),
       }))
@@ -65,6 +79,9 @@ const jobConfigSchema = Joi.object().keys({
   killAllOnCompletedTaskNumber: Joi.number()
     .integer()
     .default(0),
+  virtualCluster: Joi.string()
+    .allow('')
+    .default('default'),
   retryCount: Joi.number()
     .integer()
     .default(0),

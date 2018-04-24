@@ -18,5 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 $HADOOP_YARN_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
-
-while true; do sleep 1000; done
+$HADOOP_YARN_HOME/bin/yarn timelineserver

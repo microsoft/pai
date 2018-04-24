@@ -19,6 +19,7 @@
 
 # Prepare for hadoop-config.
 
+cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/nodemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 cp  /hadoop-configuration/datanode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
@@ -28,6 +29,7 @@ sed  -i "s/{NODEMANAGER_ADDRESS}/${NODEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn
 sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
 

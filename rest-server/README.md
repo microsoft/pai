@@ -43,15 +43,15 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
 3. Submit a job
 
-    HTTP PUT the config file as json with access token in header to:
+    HTTP POST the config file as json with access token in header to:
     ```
-    http://restserver/api/v1/jobs/exampleJob
+    http://restserver/api/v1/jobs
     ```
     For example, you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X PUT http://restserver/api/v1/jobs/exampleJob \
+         -X POST http://restserver/api/v1/jobs \
          -d @exampleJob.json
     ```
 
@@ -199,6 +199,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     GET /api/v1/jobs
     ```
 
+    *Parameters*
+    ```
+    {
+      "username": "filter jobs with username"
+    }
+    ```
+
     *Response if succeeded*
     ```
     {
@@ -262,13 +269,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `PUT jobs/:jobName`
+6. `POST jobs`
 
     Submit a job in the system.
 
     *Request*
     ```
-    PUT /api/v1/jobs/:jobName
+    POST /api/v1/jobs
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -305,44 +312,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-7. `DELETE jobs/:jobName`
-
-    Remove a job from the system.
-
-    *Request*
-    ```
-    DELETE /api/v1/jobs/:jobName
-    Authorization: Bearer <ACCESS_TOKEN>
-    ```
-
-    *Response if succeeded*
-    ```
-    {
-      "message": "deleted job $jobName successfully"
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
-    }
-    ```
-
-8. `GET jobs/:jobName/config`
+7. `GET jobs/:jobName/config`
 
     Get job config JSON content.
 
@@ -380,7 +350,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-9. `GET jobs/:jobName/ssh`
+8. `GET jobs/:jobName/ssh`
 
     Get job SSH info.
 
@@ -429,7 +399,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-10. `PUT jobs/:jobName/executionType`
+9. `PUT jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -463,3 +433,81 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "error": "JobExecuteError",
       "message": "job execute error"
     }
+
+10. `GET virtual-clusters`
+
+    Get the list of virtual clusters.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      "vc1": 
+      {
+      }
+      ...
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "GetVirtualClusterListError",
+      "message": "get virtual cluster list error"
+    }
+    ```
+    
+11. `GET virtual-clusters/:vcName`
+
+    Get virtual cluster status in the system.
+
+    *Request*
+    ```
+    GET /api/v1/virtual-clusters/:vcName
+    ```
+
+    *Response if succeeded*
+    ```
+    {
+      //capacity percentage this virtual cluster can use of entire cluster
+      "capacity":50,
+      //max capacity percentage this virtual cluster can use of entire cluster
+      "maxCapacity":100,
+      // used capacity percentage this virtual cluster can use of entire cluster
+      "usedCapacity":0,
+      "numActiveJobs":0,
+      "numJobs":0,
+      "numPendingJobs":0,
+      "resourcesUsed":{  
+       "memory":0,
+       "vCores":0,
+       "GPUs":0
+      },
+    }
+    ```
+
+    *Response if the virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "error": "VirtualClusterNotFound",
+      "message": "could not find virtual cluster $vcName"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "InternalServerError",
+      "message": "internal server error"
+    }
+    ```

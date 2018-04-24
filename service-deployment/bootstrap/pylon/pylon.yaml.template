@@ -45,10 +45,12 @@ spec:
               value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
             - name: K8S_DASHBOARD_URI
               value: {{ clusterinfo['pyloninfo']['k8s_dashboard_uri'] }}
+            - name: YARN_WEB_PORTAL_URI
+              value: {{ clusterinfo['pyloninfo']['yarn_web_portal_uri'] }}
             - name: GRAFANA_URI
               value: {{ clusterinfo['pyloninfo']['grafana_uri'] }}
-            - name: WEBPORTAL_URI
-              value: {{ clusterinfo['pyloninfo']['webportal_uri'] }}
+            - name: PAI_WEB_PORTAL_URI
+              value: {{ clusterinfo['pyloninfo']['pai_web_portal_uri'] }}
           ports:
             - name: pylon
               containerPort: 80

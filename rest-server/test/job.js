@@ -17,51 +17,70 @@
 
 // test
 describe('Jobs API /api/v1/jobs', () => {
+  const frameworkInfos = {
+    'summarizedFrameworkInfos': [
+      {
+        'name': 'job1',
+        'username': 'test1',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'transientNormalRetriedCount': 0,
+          'transientConflictRetriedCount': 0,
+          'nonTransientRetriedCount': 0,
+          'unKnownRetriedCount': 0,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 0,
+        'queue': 'vc1',
+      },
+      {
+        'name': 'job2',
+        'username': 'test2',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'transientNormalRetriedCount': 1,
+          'transientConflictRetriedCount': 2,
+          'nonTransientRetriedCount': 3,
+          'unKnownRetriedCount': 4,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 1,
+        'queue': 'default',
+      },
+    ],
+  };
+
   // Mock launcher webservice
   beforeEach(() => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks')
-      .reply(200, {
-        'summarizedFrameworkInfos': [
-          {
-            'name': 'job1',
-            'username': 'test',
-            'frameworkState': 'FRAMEWORK_COMPLETED',
-            'frameworkRetryPolicyState': {
-              'transientNormalRetriedCount': 0,
-              'transientConflictRetriedCount': 0,
-              'nonTransientRetriedCount': 0,
-              'unKnownRetriedCount': 0,
-            },
-            'firstRequestTimestamp': new Date().getTime(),
-            'frameworkCompletedTimestamp': new Date().getTime(),
-            'applicationExitCode': 0,
-          },
-          {
-            'name': 'job2',
-            'username': 'test',
-            'frameworkState': 'FRAMEWORK_COMPLETED',
-            'frameworkRetryPolicyState': {
-              'transientNormalRetriedCount': 1,
-              'transientConflictRetriedCount': 2,
-              'nonTransientRetriedCount': 3,
-              'unKnownRetriedCount': 4,
-            },
-            'firstRequestTimestamp': new Date().getTime(),
-            'frameworkCompletedTimestamp': new Date().getTime(),
-            'applicationExitCode': 1,
-          },
-        ],
-      });
+      .reply(200, frameworkInfos)
+      .get('/v1/Frameworks')
+      .query({UserName: 'test1'})
+      .reply(200, {'summarizedFrameworkInfos': [frameworkInfos.summarizedFrameworkInfos[0]]});
   });
 
   // GET /api/v1/jobs
-  it('should return jobs list', (done) => {
+  it('should return job list', (done) => {
     chai.request(server)
       .get('/api/v1/jobs')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'json response').be.json;
+        expect(res.body.length, 'job list length').to.equal(2);
+        done();
+      });
+  });
+
+  it('should return job list of test1', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs?username=test1')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.length, 'test1 job list length').to.equal(1);
         done();
       });
   });

@@ -24,6 +24,7 @@ const compress = require('compression');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const appRoot = require('app-root-path');
+const favicon = require('serve-favicon')
 const config = require('./index');
 const logger = require('./logger');
 
@@ -38,8 +39,11 @@ app.use(cookieParser());
 // setup the logger for requests
 app.use(morgan('dev', { 'stream': logger.stream }));
 
+// setup the root path
 app.use(express.static(path.join(appRoot.path, 'dist')));
 
+// setup favicon
+app.use(favicon(path.join(appRoot.path, 'dist', 'assets', 'img', 'favicon.ico')));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

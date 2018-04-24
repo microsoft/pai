@@ -51,6 +51,8 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: TIMELINE_SERVER_ADDRESS
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
           value: frameworklauncher-generate-config.sh
         - name: FRAMEWORKLAUNCHER_VIP

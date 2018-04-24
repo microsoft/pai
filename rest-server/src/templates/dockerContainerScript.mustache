@@ -68,31 +68,14 @@ export PAI_JOB_TASK_ROLE_COUNT={{{ taskRolesNumber }}}
 export PAI_JOB_TASK_ROLE_LIST={{{ taskRoleList }}}
 export PAI_KILL_ALL_ON_COMPLETED_TASK_NUM={{{ jobData.killAllOnCompletedTaskNumber }}}
 
-# Determine the container host port
-while true ; do
-  PAI_CONTAINER_HOST_PORT=$(( (RANDOM % 55535) + 10001 ))
-  if ! lsof -i:${PAI_CONTAINER_HOST_PORT} ; then
-    break
-  else
-    sleep 1
-  fi
+port_list=(${PAI_CONTAINER_HOST_PORT_LIST//;/ })
+for ports in "${port_list[@]}"; do
+  port_label="$(cut -f 1 -d":" <<< $ports)"
+  export PAI_CONTAINER_HOST_${port_label}_PORT_LIST="$(cut -f 2 -d":" <<< $ports)"
 done
-printf "%s %s\n" \
-  "[INFO]" "PAI_CONTAINER_HOST_PORT is ${PAI_CONTAINER_HOST_PORT}"
-export PAI_CONTAINER_HOST_PORT=${PAI_CONTAINER_HOST_PORT}
 
-# Determine the container ssh port
-while true ; do
-  PAI_CONTAINER_SSH_PORT=$(( (RANDOM % 55535) + 10001 ))
-  if ! lsof -i:${PAI_CONTAINER_SSH_PORT} ; then
-    break
-  else
-    sleep 1
-  fi
-done
-printf "%s %s\n" \
-  "[INFO]" "PAI_CONTAINER_SSH_PORT is ${PAI_CONTAINER_SSH_PORT}"
-export PAI_CONTAINER_SSH_PORT=${PAI_CONTAINER_SSH_PORT}
+export PAI_CONTAINER_HOST_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)"
+export PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT_LIST)"
 
 task_role_no={{{ idx }}}
 # Touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_HOST_IP-CONTAINER_HOST_PORT" format on hdfs

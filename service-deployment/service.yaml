@@ -78,7 +78,7 @@ imagelist:
     copy:
       - ../prometheus/exporter
     templatelist:
-      - start.sh
+      - None
     prerequisite: None
     
   grafana:
@@ -94,6 +94,11 @@ imagelist:
     templatelist:
       - None
     prerequisite: None
+
+  end-to-end-test:
+    templatelist:
+      - dockerfile
+    prerequisite: hadoop-run
 
 # Before starting your service, ensure the kubectl has been installed on your host.
 # If you want to remove a certain service, comment it in the servicelist.
@@ -143,6 +148,10 @@ servicelist:
       - zookeeper.yaml
       - one-time-job-hadoop.yaml
       - cleanup.sh
+      # Step 3 of 4 to set up Hadoop queues.
+      # Tell deploy.py to instantiate capacity-scheduler.xml.content from
+      # capacity-scheduler.xml.content.template.
+      - hadoop-configuration/capacity-scheduler.xml.content
     startscript: start.sh
     stopscript: cleanup.sh
 
@@ -174,7 +183,7 @@ servicelist:
       - rest-server
     templatelist:
       - node-label.sh
-      - webportal-ds.yaml
+      - webportal.yaml
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
@@ -202,6 +211,9 @@ servicelist:
       - cleanup.sh
       - grafana-configuration/pai-clusterview-dashboard.json
       - grafana-configuration/pai-nodeview-dashboard.json
+      - grafana-configuration/pai-jobview-dashboard.json
+      - grafana-configuration/pai-taskroleview-dashboard.json
+      - grafana-configuration/pai-taskview-dashboard.json
       - grafana-configuration/prom-datasource.json
     startscript: start.sh
     stopscript: cleanup.sh
@@ -212,6 +224,21 @@ servicelist:
     templatelist:
       - node-label.sh
       - pylon.yaml
+      - cleanup.sh
+    startscript: start.sh
+    stopscript: cleanup.sh
+
+  end-to-end-test:
+    # The end-to-end test will run in the cluster by default to
+    # make sure PAI is built and deployed correctly and working normally.
+    # Comment this block to cancel end-to-end test or stop
+    # end-to-end-test-deployment pod to terminate the test.
+    prerequisite:
+      - cluster-configuration
+      - frameworklauncher
+      - rest-server
+    templatelist:
+      - end-to-end-test.yaml
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh

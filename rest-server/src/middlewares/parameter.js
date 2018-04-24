@@ -36,11 +36,20 @@ const validate = (schema) => {
         });
       } else {
         req.body = value;
-        return next();
+        next();
       }
     });
   };
 };
 
+const jobQuery = (req, res, next) => {
+  const query = {};
+  if (req.query.username) {
+    query.username = req.query.username;
+  }
+  req._query = query;
+  next();
+};
+
 // module exports
-module.exports = {validate};
+module.exports = {validate, jobQuery};

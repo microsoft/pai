@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
+describe('Submit job: POST /api/v1/jobs', () => {
   beforeEach(() => {
 
     //
@@ -53,6 +53,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 0,
+            'queue':'default',
           },
           {
             'name': 'job2',
@@ -67,6 +68,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
             'firstRequestTimestamp': new Date().getTime(),
             'frameworkCompletedTimestamp': new Date().getTime(),
             'applicationExitCode': 1,
+            'queue': 'default',
           },
         ],
       });
@@ -74,28 +76,46 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
     global.nock(global.launcherWebserviceUri)
       .get('/v1/Frameworks/new_job')
       .reply(404, {});
+
+    global.nock(global.launcherWebserviceUri)
+      .get('/v1/Frameworks/new_job_queue_vc1')
+      .reply(404, {});
+
   });
 
   //
   // Get a valid token that expires in 60 seconds.
   //
 
-  const validToken = global.jwt.sign({username: 'user1', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+  const validToken = global.jwt.sign({ username: 'user1', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
   const invalidToken = '';
 
   //
   // Positive cases
   //
 
-  it('Case 1 (Positive): Submit a job.', (done) => {
+  it('Case 1 (Positive): Submit a job to the default vc', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): Submit a job to vc1.', (done) => {
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(202);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update job new_job_queue_vc1 successfully');
         done();
       });
   });
@@ -106,7 +126,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 1 (Negative): Invalid token.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + invalidToken)
       .send({})
       .end((err, res) => {
@@ -119,7 +139,7 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 2 (Negative): Schema checking failed.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
@@ -132,9 +152,9 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 3 (Negative): Duplicated job name.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/job1')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -145,9 +165,9 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
 
   it('Case 4 (Negative): Cannot connect to Launcher.', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/jobs/another_new_job')
+      .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'another_new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
@@ -155,4 +175,5 @@ describe('Submit job: PUT /api/v1/jobs/:jobName', () => {
         done();
       });
   });
+
 });
