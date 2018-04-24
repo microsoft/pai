@@ -440,12 +440,13 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
+    const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
       'user': {'name': data.username},
       'taskRoles': {},
       'platformSpecificParameters': {
-        'queue': data.virtualCluster,
+        'queue': virtualCluster,
         'taskNodeGpuType': gpuType,
         'killAllOnAnyCompleted': killOnCompleted,
         'killAllOnAnyServiceCompleted': killOnCompleted,
