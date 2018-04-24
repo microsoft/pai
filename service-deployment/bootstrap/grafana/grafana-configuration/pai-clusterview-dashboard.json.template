@@ -476,6 +476,13 @@
               "intervalFactor": 2,
               "legendFormat": "free",
               "refId": "D"
+            },
+            {
+              "expr": "sum(node_memory_MemTotal)",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "total",
+              "refId": "B"
             }
           ],
           "thresholds": [],
