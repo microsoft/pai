@@ -415,7 +415,7 @@ public class ValueRangeUtils {
       List<ValueRange> resultList = new ArrayList<>();
 
       Matcher portNum = pattern.matcher(portDefinitions);
-      while(portNum.find()) {
+      while (portNum.find()) {
         Integer port = Integer.parseInt(portNum.group());
         resultList.add(ValueRange.newInstance(port, port));
       }
