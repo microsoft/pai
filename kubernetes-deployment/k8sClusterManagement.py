@@ -75,7 +75,7 @@ def generate_etcd_ip_list(master_list):
 
 def maintain_one_node(cluster_config, node_config, job_name):
 
-    module_name = "maintainlib.{0}".format(job_name)
+    module_name = "k8sPaiLibrary.maintainlib.{0}".format(job_name)
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, job_name)
