@@ -148,7 +148,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
   // Get a valid token that expires in 60 seconds.
   //
 
-  const validToken = global.jwt.sign({ username: 'user1', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const validToken = global.jwt.sign({username: 'user1', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
   const invalidToken = '';
 
   //
@@ -159,7 +159,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
@@ -172,7 +172,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
@@ -215,7 +215,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'job1' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
@@ -228,7 +228,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'another_new_job' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'another_new_job'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
@@ -241,7 +241,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
@@ -254,7 +254,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'vc2' })))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;

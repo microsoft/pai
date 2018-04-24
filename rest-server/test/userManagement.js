@@ -475,7 +475,7 @@ describe('delete user : delete /api/v1/user', () => {
   });
 });
 
-describe('update user virtual cluster : patch /api/v1/user/:username/virtualClusters', () => {
+describe('update user virtual cluster : put /api/v1/user/:username/virtualClusters', () => {
   afterEach(() => {
     if (!nock.isDone()) {
       //this.test.error(new Error('Not all nock interceptors were used!'));
@@ -691,7 +691,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/test_user/virtualClusters')
+      .put('/api/v1/user/test_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'vc1' })))
       .end((err, res) => {
@@ -704,7 +704,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 2 (Positive): should update admin user with all valid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/test_non_admin_user/virtualClusters')
+      .put('/api/v1/user/test_non_admin_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
       .end((err, res) => {
@@ -717,7 +717,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 3 (Positive): add new user with invalid virtual cluster should add default vc only and throw update vc error', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/test_user/virtualClusters')
+      .put('/api/v1/user/test_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
@@ -730,7 +730,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 4 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/test_delete_user/virtualClusters')
+      .put('/api/v1/user/test_delete_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': '' })))
       .end((err, res) => {
@@ -747,7 +747,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 1 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/test_invalid_vc_user/virtualClusters')
+      .put('/api/v1/user/test_invalid_vc_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
@@ -760,7 +760,7 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
 
   it('Case 2 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-      .patch('/api/v1/user/non_exist_user/virtualClusters')
+      .put('/api/v1/user/non_exist_user/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
       .end((err, res) => {
