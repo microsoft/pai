@@ -5,7 +5,7 @@ matrix:
     - language: python
       python: 2.7
       before_install:
-        - cd pai-management
+        - cd service-deployment
       install:
         - pip install paramiko pyyaml jinja2 python-etcd kubernetes
       script:
