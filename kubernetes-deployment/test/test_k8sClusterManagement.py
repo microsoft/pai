@@ -25,7 +25,7 @@ import sys
 import logging
 import logging.config
 
-import bootstrap
+import k8sClusterManagement
 
 
 class TestBootstrap(unittest.TestCase):
