@@ -28,7 +28,7 @@ import importlib
 import time
 import logging
 import logging.config
-from clusterObjectModel import objectModelFactory
+from paiLibrary.clusterObjectModel import objectModelFactory
 
 
 from k8sPaiLibrary.maintainlib import common as pai_common
