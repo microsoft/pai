@@ -274,7 +274,7 @@ public class ValueRangeUtils {
   }
 
   /*
-  get a sequence subRange list from the available range list, all the values in the subRange are bigger than baseValue.
+  get a sequential subRange list from the available range list, all the values in the subRange are bigger than baseValue.
  */
   public static List<ValueRange> getSubRangeSequentially(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
@@ -412,17 +412,13 @@ public class ValueRangeUtils {
   public static List<ValueRange> convertPortDefinitionsStringToPortRange(String portDefinitions) {
 
     if (portDefinitions != null && !portDefinitions.isEmpty()) {
-      Pattern pattern = Pattern.compile("[0-9]*$");
+      Pattern pattern = Pattern.compile("[0-9]+");
       List<ValueRange> resultList = new ArrayList<>();
 
-      String[] stringPortList = portDefinitions.split(";|:|,");
-      for (int i = 0; i < stringPortList.length; i++) {
-        Matcher isNum = pattern.matcher(stringPortList[i]);
-        if (!isNum.matches()) {
-          continue;
-        }
-        resultList.add(ValueRange.newInstance(Integer.parseInt(stringPortList[i]),
-            Integer.parseInt(stringPortList[i])));
+      Matcher portNum = pattern.matcher(portDefinitions);
+      while(portNum.find()) {
+        resultList.add(ValueRange.newInstance(Integer.parseInt(portNum.group()),
+            Integer.parseInt(portNum.group())));
       }
       return ValueRangeUtils.coalesceRangeList(resultList);
     } else {
