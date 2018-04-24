@@ -41,7 +41,7 @@ class kubectl_install:
     def kubectl_install(self):
 
         self.logger.info("Execute the script to install kubectl on your host!")
-        commandline = "sudo ./maintaintool/kubectl-install.sh"
+        commandline = "./maintaintool/kubectl-install.sh"
         common.execute_shell(
             commandline,
             "Failed to install kubectl on your dev-box"
