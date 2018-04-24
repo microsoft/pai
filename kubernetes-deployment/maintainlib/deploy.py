@@ -96,7 +96,7 @@ class deploy:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(node_config['hostip']))
             return
 
-        self.logger.info("Successfully running {0} job on node {1}！".format(job_name, node_config['hostip']))
+        self.logger.info("Successfully running {0} job on node {1}!".format(job_name, node_config['hostip']))
 
 
 
