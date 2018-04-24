@@ -67,7 +67,7 @@ class deploy:
 
 
 
-    def job_executer(self, role, node_config, job_name):
+    def job_executer(self, node_config, job_name):
 
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(job_name)
