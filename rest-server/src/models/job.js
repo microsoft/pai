@@ -26,6 +26,7 @@ const childProcess = require('child_process');
 const config = require('../config/index');
 const logger = require('../config/logger');
 const launcherConfig = require('../config/launcher');
+const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 
@@ -82,13 +83,13 @@ class Job {
       .end((res) => {
         try {
           const resJson = typeof res.body === 'object' ?
-              res.body : JSON.parse(res.body);
+            res.body : JSON.parse(res.body);
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['transientNormalRetriedCount', 'transientConflictRetriedCount',
-                'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
-              retries += frameworkInfo.frameworkRetryPolicyState[retry];
-            });
+              'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
+                retries += frameworkInfo.frameworkRetryPolicyState[retry];
+              });
             return {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
@@ -117,8 +118,8 @@ class Job {
         try {
           const requestResJson =
             typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
+              requestRes.body :
+              JSON.parse(requestRes.body);
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
@@ -143,86 +144,93 @@ class Job {
     }
     if (data.outputDir.match(/^hdfs:\/\//)) {
       childProcess.exec(
-          `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
-          (err, stdout, stderr) => {
-            if (err) {
-              logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
-            }
-          });
+        `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${data.outputDir}`,
+        (err, stdout, stderr) => {
+          if (err) {
+            logger.warn('mkdir %s error for job %s\n%s', data.outputDir, name, err.stack);
+          }
+        });
     }
-    const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
-    fse.ensureDir(jobDir, (err) => {
-      if (err) {
-        return next(err);
+    userModel.checkUserVc(data.username, data.virtualCluster, (errMsg, res) => {
+      if (errMsg || !res) {
+        logger.warn(errMsg.message);
+        next(errMsg);
       } else {
-        let frameworkDescription;
-        async.parallel([
-          (parallelCallback) => {
-            async.each(['log', 'tmp', 'finished'], (file, eachCallback) => {
-              fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-              fse.outputFile(
-                  path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
-                  this.generateYarnContainerScript(data, idx),
-                  (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
-              fse.outputFile(
-                  path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
-                  this.generateDockerContainerScript(data, idx),
-                  (err) => eachCallback(err));
-            }, (err) => {
-              parallelCallback(err);
-            });
-          },
-          (parallelCallback) => {
-            fse.outputJson(
-                path.join(jobDir, launcherConfig.jobConfigFileName),
-                originData,
-                {'spaces': 2},
-                (err) => parallelCallback(err));
-          },
-          (parallelCallback) => {
-            frameworkDescription = this.generateFrameworkDescription(data);
-            fse.outputJson(
-                path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
-                frameworkDescription,
-                {'spaces': 2},
-                (err) => parallelCallback(err));
-          },
-        ], (parallelError) => {
-          if (parallelError) {
-            return next(parallelError);
+        const jobDir = path.join(launcherConfig.jobRootDir, data.username, name);
+        fse.ensureDir(jobDir, (err) => {
+          if (err) {
+            return next(err);
           } else {
-            let cmd = '';
-            if (config.env !== 'test') {
-              cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
-                HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
-            }
-            childProcess.exec(
-              cmd,
-              (err, stdout, stderr) => {
-                logger.info('[stdout]\n%s', stdout);
-                logger.info('[stderr]\n%s', stderr);
-                if (err) {
-                  return next(err);
-                } else {
-                  unirest.put(launcherConfig.frameworkPath(name))
-                      .headers(launcherConfig.webserviceRequestHeaders)
-                      .send(frameworkDescription)
-                      .end((res) => next());
+            let frameworkDescription;
+            async.parallel([
+              (parallelCallback) => {
+                async.each(['log', 'tmp', 'finished'], (file, eachCallback) => {
+                  fse.ensureDir(path.join(jobDir, file), (err) => eachCallback(err));
+                }, (err) => {
+                  parallelCallback(err);
+                });
+              },
+              (parallelCallback) => {
+                async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
+                  fse.outputFile(
+                    path.join(jobDir, 'YarnContainerScripts', `${idx}.sh`),
+                    this.generateYarnContainerScript(data, idx),
+                    (err) => eachCallback(err));
+                }, (err) => {
+                  parallelCallback(err);
+                });
+              },
+              (parallelCallback) => {
+                async.each([...Array(data.taskRoles.length).keys()], (idx, eachCallback) => {
+                  fse.outputFile(
+                    path.join(jobDir, 'DockerContainerScripts', `${idx}.sh`),
+                    this.generateDockerContainerScript(data, idx),
+                    (err) => eachCallback(err));
+                }, (err) => {
+                  parallelCallback(err);
+                });
+              },
+              (parallelCallback) => {
+                fse.outputJson(
+                  path.join(jobDir, launcherConfig.jobConfigFileName),
+                  originData,
+                  {'spaces': 2},
+                  (err) => parallelCallback(err));
+              },
+              (parallelCallback) => {
+                frameworkDescription = this.generateFrameworkDescription(data);
+                fse.outputJson(
+                  path.join(jobDir, launcherConfig.frameworkDescriptionFilename),
+                  frameworkDescription,
+                  {'spaces': 2},
+                  (err) => parallelCallback(err));
+              },
+            ], (parallelError) => {
+              if (parallelError) {
+                return next(parallelError);
+              } else {
+                let cmd = '';
+                if (config.env !== 'test') {
+                  cmd = `HADOOP_USER_NAME=${data.username} hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/Container/${data.username} &&
+                    HADOOP_USER_NAME=${data.username} hdfs dfs -put -f ${jobDir} ${launcherConfig.hdfsUri}/Container/${data.username}/`;
                 }
+                childProcess.exec(
+                  cmd,
+                  (err, stdout, stderr) => {
+                    logger.info('[stdout]\n%s', stdout);
+                    logger.info('[stderr]\n%s', stderr);
+                    if (err) {
+                      return next(err);
+                    } else {
+                      unirest.put(launcherConfig.frameworkPath(name))
+                        .headers(launcherConfig.webserviceRequestHeaders)
+                        .send(frameworkDescription)
+                        .end((res) => next());
+                    }
+                  }
+                );
               }
-            );
+            });
           }
         });
       }
@@ -234,7 +242,7 @@ class Job {
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
-            requestRes.body : JSON.parse(requestRes.body);
+          requestRes.body : JSON.parse(requestRes.body);
         if (!requestResJson.frameworkDescriptor) {
           next(new Error('unknown job'));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
@@ -252,7 +260,7 @@ class Job {
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
-            requestRes.body : JSON.parse(requestRes.body);
+          requestRes.body : JSON.parse(requestRes.body);
         if (!requestResJson.frameworkDescriptor) {
           next(new Error('unknown job'));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
@@ -275,8 +283,8 @@ class Job {
         try {
           const requestResJson =
             typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
+              requestRes.body :
+              JSON.parse(requestRes.body);
           if (requestRes.status === 200) {
             next(requestResJson, null);
           } else if (requestRes.status === 404) {
@@ -299,8 +307,8 @@ class Job {
         try {
           const requestResJson =
             typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
+              requestRes.body :
+              JSON.parse(requestRes.body);
           if (requestRes.status === 200) {
             let result = {
               'containers': [],
@@ -343,8 +351,8 @@ class Job {
     const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
     if (frameworkStatus) {
       const jobState = this.convertJobState(
-          frameworkStatus.frameworkState,
-          frameworkStatus.applicationExitCode);
+        frameworkStatus.frameworkState,
+        frameworkStatus.applicationExitCode);
       let jobRetryCount = 0;
       const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
       jobRetryCount =
@@ -402,30 +410,30 @@ class Job {
 
   generateYarnContainerScript(data, idx) {
     const yarnContainerScript = mustache.render(
-        yarnContainerScriptTemplate, {
-          'idx': idx,
-          'hdfsUri': launcherConfig.hdfsUri,
-          'taskData': data.taskRoles[idx],
-          'jobData': data,
-        });
+      yarnContainerScriptTemplate, {
+        'idx': idx,
+        'hdfsUri': launcherConfig.hdfsUri,
+        'taskData': data.taskRoles[idx],
+        'jobData': data,
+      });
     return yarnContainerScript;
   }
 
   generateDockerContainerScript(data, idx) {
     let tasksNumber = 0;
-    for (let i = 0; i < data.taskRoles.length; i ++) {
+    for (let i = 0; i < data.taskRoles.length; i++) {
       tasksNumber += data.taskRoles[i].taskNumber;
     }
     const dockerContainerScript = mustache.render(
-        dockerContainerScriptTemplate, {
-          'idx': idx,
-          'tasksNumber': tasksNumber,
-          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
-          'taskRolesNumber': data.taskRoles.length,
-          'hdfsUri': launcherConfig.hdfsUri,
-          'taskData': data.taskRoles[idx],
-          'jobData': data,
-        });
+      dockerContainerScriptTemplate, {
+        'idx': idx,
+        'tasksNumber': tasksNumber,
+        'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
+        'taskRolesNumber': data.taskRoles.length,
+        'hdfsUri': launcherConfig.hdfsUri,
+        'taskData': data.taskRoles[idx],
+        'jobData': data,
+      });
     return dockerContainerScript;
   }
 
@@ -444,9 +452,9 @@ class Job {
         'generateContainerIpList': true,
       },
     };
-    for (let i = 0; i < data.taskRoles.length; i ++) {
+    for (let i = 0; i < data.taskRoles.length; i++) {
       const portList = {};
-      for (let j = 0; j < data.taskRoles[i].portList.length; j ++) {
+      for (let j = 0; j < data.taskRoles[i].portList.length; j++) {
         portList[data.taskRoles[i].portList[j].label] = {
           'start': data.taskRoles[i].portList[j].beginAt,
           'count': data.taskRoles[i].portList[j].portNumber,
