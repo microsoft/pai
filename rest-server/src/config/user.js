@@ -41,7 +41,7 @@ const userDeleteInputSchema = Joi.object().keys({
 const userVcUpdateInputSchema = Joi.object().keys({
   virtualClusters: Joi.string()
     .allow('')
-    .regex(/^[A-Za-z0-9\_,]+$/)
+    .regex(/^[A-Za-z0-9_,]+$/)
     .optional(),
 }).required();
 

@@ -190,7 +190,6 @@ const checkUserVc = (username, virtualCluster, callback) => {
     callback(new Error('user does not exist'), false);
   } else {
     virtualCluster = (!virtualCluster) ? 'default' : virtualCluster;
-    logger.warn( 'virtual cluster is '+ virtualCluster);
     if (virtualCluster === 'default') {
       callback(null, true); // all users have right access to 'default'
     } else {

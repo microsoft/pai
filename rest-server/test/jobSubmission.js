@@ -161,7 +161,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
       .end((err, res) => {
-        console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
@@ -244,7 +243,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc' })))
       .end((err, res) => {
-        //console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('job update error: could not find virtual cluster non-exist-vc');
@@ -258,7 +256,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'vc2' })))
       .end((err, res) => {
-        console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');

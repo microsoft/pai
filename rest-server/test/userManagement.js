@@ -721,7 +721,6 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
@@ -735,7 +734,6 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': '' })))
       .end((err, res) => {
-        console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
@@ -753,7 +751,6 @@ describe('update user virtual cluster : patch /api/v1/user/:username/virtualClus
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        console.log(res.body.message);
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find virtual cluster non_exist_vc');
