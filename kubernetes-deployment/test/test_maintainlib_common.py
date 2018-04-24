@@ -121,7 +121,7 @@ class TestMaintainlibCommon(unittest.TestCase):
         }
 
         template_data = common.read_template("data/data_maintainlib_common/test.yaml")
-        generated_data = common.generate_from_template(template_data, dict_map)
+        generated_data = common.generate_from_template_dict(template_data, dict_map)
         common.write_generated_file(generated_data, "data/data_maintainlib_common/output.yaml")
 
         self.assertTrue(
