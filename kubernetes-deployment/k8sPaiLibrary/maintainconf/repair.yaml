@@ -24,7 +24,7 @@ repair:
     # Generate kubelet.sh from template/kubelet.sh.template
     # And save it to the path nodename/repair/kubelet.sh
     - name: kubelet.sh
-      src: template/kubelet.sh.template
+      src: k8sPaiLibrary/template/kubelet.sh.template
       dst: repair
 
     # List of the file
@@ -32,7 +32,7 @@ repair:
     # Copy repair-worker-node.sh from maintain-tool/repair-worker-node.sh
     # And save it to the path nodename/repair/repair-worker-node.sh
     - name: repair-worker-node.sh
-      src: maintaintool/repair-worker-node.sh
+      src: k8sPaiLibrary/maintaintool/repair-worker-node.sh
       dst: repair
     # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
 

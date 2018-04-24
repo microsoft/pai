@@ -28,10 +28,10 @@ import logging
 import logging.config
 
 
-class add:
+class remove:
 
     """
-    An class to add new node
+    An class to remove the node from current pai's k8s cluster.
     """
 
     def __init__(self, cluster_config, node_config, clean):
@@ -40,22 +40,14 @@ class add:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        self.maintain_config = common.load_yaml_file("maintainconf/add.yaml")
+        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/remove.yaml")
         self.clean_flag = clean
+        self.jobname = "remove-node"
 
-        if node_config['k8s-role'] == 'worker':
-            self.jobname = "add-worker-node"
-
-        else:
-            self.jobname = "error"
-            self.logger.error("[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['k8s-role'], node_config['nodename']))
 
 
 
     def prepare_package(self):
-
-        if self.jobname == 'error':
-            return
 
         common.maintain_package_wrapper(self.cluster_config, self.maintain_config, self.node_config, self.jobname)
 
@@ -63,19 +55,19 @@ class add:
 
     def delete_packege(self):
 
-        if self.jobname == 'error':
-            return
-
         common.maintain_package_cleaner(self.node_config)
 
 
 
     def job_executer(self):
 
-        if self.jobname == 'error':
-            return
-
         self.logger.info("{0} job begins !".format(self.jobname))
+
+        commandline = "kubectl delete node {0}".format(self.node_config['nodename'])
+        common.execute_shell(
+            commandline,
+            "Failed to delete  node {0}".format(self.node_config['nodename'])
+        )
 
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
@@ -90,19 +82,9 @@ class add:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
             return
 
-        commandline = "sudo ./{0}/hosts-check.sh {1}".format(self.jobname, self.node_config['hostip'])
+        commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
         if common.ssh_shell_paramiko(self.node_config, commandline) == False:
-            self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
-            return
-
-        commandline = "sudo ./{0}/docker-ce-install.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
-            self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
-            return
-
-        commandline = "sudo ./{0}/kubelet-start.sh {0}".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
-            self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
+            self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
             return
 
         self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"]))
@@ -118,12 +100,7 @@ class add:
 
 
 
-
-
     def run(self):
-
-        if self.jobname == 'error':
-            return
 
         self.logger.info("---- package wrapper is working now! ----")
         self.prepare_package()

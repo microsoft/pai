@@ -23,7 +23,7 @@ import sys
 import subprocess
 import jinja2
 import argparse
-import maintainlib
+from k8sPaiLibrary import maintainlib
 import importlib
 import time
 import logging
@@ -31,7 +31,7 @@ import logging.config
 from clusterObjectModel import objectModelFactory
 
 
-from maintainlib import common as pai_common
+from k8sPaiLibrary.maintainlib import common as pai_common
 
 
 

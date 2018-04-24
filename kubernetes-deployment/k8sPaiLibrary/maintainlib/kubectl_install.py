@@ -41,7 +41,7 @@ class kubectl_install:
     def kubectl_install(self):
 
         self.logger.info("Execute the script to install kubectl on your host!")
-        commandline = "./maintaintool/kubectl-install.sh"
+        commandline = "./k8sPaiLibrary/maintaintool/kubectl-install.sh"
         common.execute_shell(
             commandline,
             "Failed to install kubectl on your dev-box"
@@ -53,7 +53,7 @@ class kubectl_install:
 
         self.logger.info("Generate the configuation file of kubectl.")
 
-        file_path = "template/config.template"
+        file_path = "k8sPaiLibrary/template/config.template"
         template_data = common.read_template(file_path)
         dict_map = {
             "clusterconfig": self.cluster_config['clusterinfo'],

@@ -181,7 +181,7 @@ class etcdfix:
 
         self.cluster_config = cluster_config
         self.bad_node_config = node_config
-        self.maintain_config = common.load_yaml_file("maintainconf/etcdfix.yaml")
+        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/etcdfix.yaml")
         self.clean_flag = clean
 
 
