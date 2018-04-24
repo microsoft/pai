@@ -176,7 +176,7 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    if(results.getNodeHosts().size() > 1) {
+    if (results.getNodeHosts().size() > 1) {
       // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
       ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
       String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));

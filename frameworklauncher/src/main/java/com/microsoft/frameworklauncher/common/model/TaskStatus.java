@@ -18,7 +18,6 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class TaskStatus implements Serializable {
   // Task static status
