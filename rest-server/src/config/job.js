@@ -78,7 +78,7 @@ const jobConfigSchema = Joi.object().keys({
     .default(''),
   killAllOnCompletedTaskNumber: Joi.number()
     .integer()
-    .default(0),
+    .default(1),
   virtualCluster: Joi.string()
     .allow('')
     .default('default'),
