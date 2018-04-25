@@ -464,7 +464,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree) - sum(node_memory_Buffers) - sum(node_memory_Cached)",
+              "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "usage",
