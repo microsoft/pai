@@ -21,6 +21,7 @@ const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
 const launcherConfig = require('../config/launcher');
+const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 
@@ -78,13 +79,13 @@ class Job {
       .end((res) => {
         try {
           const resJson = typeof res.body === 'object' ?
-              res.body : JSON.parse(res.body);
+            res.body : JSON.parse(res.body);
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['transientNormalRetriedCount', 'transientConflictRetriedCount',
-                'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
-              retries += frameworkInfo.frameworkRetryPolicyState[retry];
-            });
+              'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
+                retries += frameworkInfo.frameworkRetryPolicyState[retry];
+              });
             return {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
@@ -113,8 +114,8 @@ class Job {
         try {
           const requestResJson =
             typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
+              requestRes.body :
+              JSON.parse(requestRes.body);
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
@@ -135,6 +136,263 @@ class Job {
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
+    userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
+      if (!error) {
+        this._prepareJobContext(name, data, (error, result) => {
+          if (!error) {
+            unirest.put(launcherConfig.frameworkPath(name))
+              .headers(launcherConfig.webserviceRequestHeaders)
+              .send(this.generateFrameworkDescription(data))
+              .end((res) => {
+                next();
+              });
+          } else {
+            next(error);
+          }
+        });
+      } else {
+        next(error);
+      }
+    });
+  }
+
+  deleteJob(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+          requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
+          unirest.delete(launcherConfig.frameworkPath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .end(() => next());
+        } else {
+          next(new Error('can not delete other user\'s job'));
+        }
+      });
+  }
+
+  putJobExecutionType(name, data, next) {
+    unirest.get(launcherConfig.frameworkRequestPath(name))
+      .headers(launcherConfig.webserviceRequestHeaders)
+      .end((requestRes) => {
+        const requestResJson = typeof requestRes.body === 'object' ?
+          requestRes.body : JSON.parse(requestRes.body);
+        if (!requestResJson.frameworkDescriptor) {
+          next(new Error('unknown job'));
+        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
+          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send({'executionType': data.value})
+            .end((res) => next());
+        } else {
+          next(new Error('can not execute other user\'s job'));
+        }
+      });
+  }
+
+  getJobConfig(userName, jobName, next) {
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    hdfs.readFile(
+      `/Container/${userName}/${jobName}/JobConfig.json`,
+      null,
+      (error, result) => {
+        if (!error) {
+          next(null, JSON.parse(result.content));
+        } else {
+          next(error);
+        }
+      }
+    );
+  }
+
+  getJobSshInfo(userName, jobName, applicationId, next) {
+    const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    hdfs.list(
+      folderPathPrefix,
+      null,
+      (error, result) => {
+        if (!error) {
+          let sshInfo = {
+            'containers': [],
+            'keyPair': {
+              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/`,
+              'publicKeyFileName': `${applicationId}.pub`,
+              'privateKeyFileName': `${applicationId}`,
+              'privateKeyDirectDownloadLink':
+                `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}/.ssh/${applicationId}?op=OPEN`,
+            },
+          };
+          for (let x of result.content.FileStatuses.FileStatus) {
+            let pattern = /^container_(.*)-(.*)-(.*)$/g;
+            let arr = pattern.exec(x.pathSuffix);
+            if (arr !== null) {
+              sshInfo.containers.push({
+                'id': 'container_' + arr[1],
+                'sshIp': arr[2],
+                'sshPort': arr[3],
+              });
+            }
+          }
+          next(null, sshInfo);
+        } else {
+          next(error);
+        }
+      }
+    );
+  }
+
+  generateJobDetail(framework) {
+    let jobDetail = {
+      'jobStatus': {},
+      'taskRoles': {},
+    };
+    const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
+    if (frameworkStatus) {
+      const jobState = this.convertJobState(
+        frameworkStatus.frameworkState,
+        frameworkStatus.applicationExitCode);
+      let jobRetryCount = 0;
+      const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
+      jobRetryCount =
+        jobRetryCountInfo.transientNormalRetriedCount +
+        jobRetryCountInfo.transientConflictRetriedCount +
+        jobRetryCountInfo.nonTransientRetriedCount +
+        jobRetryCountInfo.unKnownRetriedCount;
+      jobDetail.jobStatus = {
+        name: framework.name,
+        username: 'unknown',
+        state: jobState,
+        subState: frameworkStatus.frameworkState,
+        executionType: framework.summarizedFrameworkInfo.executionType,
+        retries: jobRetryCount,
+        createdTime: frameworkStatus.frameworkCreatedTimestamp,
+        completedTime: frameworkStatus.frameworkCompletedTimestamp,
+        appId: frameworkStatus.applicationId,
+        appProgress: frameworkStatus.applicationProgress,
+        appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+        appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
+        appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
+        appExitCode: frameworkStatus.applicationExitCode,
+        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
+        appExitType: frameworkStatus.applicationExitType,
+      };
+    }
+    const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
+    if (frameworkRequest.frameworkDescriptor) {
+      jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
+    }
+    const frameworkInfo = framework.summarizedFrameworkInfo;
+    if (frameworkInfo) {
+      jobDetail.jobStatus.virtualCluster = frameworkInfo.queue;
+    }
+    const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
+    if (taskRoleStatuses) {
+      for (let taskRole of Object.keys(taskRoleStatuses)) {
+        jobDetail.taskRoles[taskRole] = {
+          taskRoleStatus: {name: taskRole},
+          taskStatuses: [],
+        };
+        for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+          jobDetail.taskRoles[taskRole].taskStatuses.push({
+            taskIndex: task.taskIndex,
+            containerId: task.containerId,
+            containerIp: task.containerIp,
+            containerGpus: task.containerGpus,
+            containerLog: task.containerLogHttpAddress,
+          });
+        }
+      }
+    }
+    return jobDetail;
+  }
+
+  generateYarnContainerScript(data, idx) {
+    const yarnContainerScript = mustache.render(
+      yarnContainerScriptTemplate, {
+        'idx': idx,
+        'hdfsUri': launcherConfig.hdfsUri,
+        'taskData': data.taskRoles[idx],
+        'jobData': data,
+      });
+    return yarnContainerScript;
+  }
+
+  generateDockerContainerScript(data, idx) {
+    let tasksNumber = 0;
+    for (let i = 0; i < data.taskRoles.length; i++) {
+      tasksNumber += data.taskRoles[i].taskNumber;
+    }
+    const dockerContainerScript = mustache.render(
+      dockerContainerScriptTemplate, {
+        'idx': idx,
+        'tasksNumber': tasksNumber,
+        'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
+        'taskRolesNumber': data.taskRoles.length,
+        'hdfsUri': launcherConfig.hdfsUri,
+        'taskData': data.taskRoles[idx],
+        'jobData': data,
+      });
+    return dockerContainerScript;
+  }
+
+  generateFrameworkDescription(data) {
+    const gpuType = data.gpuType || null;
+    const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
+    const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
+    const frameworkDescription = {
+      'version': 10,
+      'user': {'name': data.userName},
+      'taskRoles': {},
+      'platformSpecificParameters': {
+        'queue': virtualCluster,
+        'taskNodeGpuType': gpuType,
+        'killAllOnAnyCompleted': killOnCompleted,
+        'killAllOnAnyServiceCompleted': killOnCompleted,
+        'generateContainerIpList': true,
+      },
+    };
+    for (let i = 0; i < data.taskRoles.length; i++) {
+      const portList = {};
+      for (let j = 0; j < data.taskRoles[i].portList.length; j++) {
+        portList[data.taskRoles[i].portList[j].label] = {
+          'start': data.taskRoles[i].portList[j].beginAt,
+          'count': data.taskRoles[i].portList[j].portNumber,
+        };
+      }
+      for (let defaultPortLabel of ['http', 'ssh']) {
+        if (!(defaultPortLabel in portList)) {
+          portList[defaultPortLabel] = {
+            'start': 0,
+            'count': 1,
+          };
+        }
+      }
+      const taskRole = {
+        'taskNumber': data.taskRoles[i].taskNumber,
+        'taskService': {
+          'version': 0,
+          'entryPoint': `source YarnContainerScripts/${i}.sh`,
+          'sourceLocations': [`/Container/${data.userName}/${data.jobName}/YarnContainerScripts`],
+          'resource': {
+            'cpuNumber': data.taskRoles[i].cpuNumber,
+            'memoryMB': data.taskRoles[i].memoryMB,
+            'gpuNumber': data.taskRoles[i].gpuNumber,
+            'portDefinitions': portList,
+            'diskType': 0,
+            'diskMB': 0,
+          },
+        },
+      };
+      frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
+    }
+    return frameworkDescription;
+  }
+
+  _prepareJobContext(name, data, next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     async.parallel([
       (parallelCallback) => {
@@ -212,252 +470,8 @@ class Job {
         );
       },
     ], (parallelError) => {
-      if (parallelError) {
-        return next(parallelError);
-      } else {
-        unirest.put(launcherConfig.frameworkPath(name))
-          .headers(launcherConfig.webserviceRequestHeaders)
-          .send(this.generateFrameworkDescription(data))
-          .end((res) => {
-            next();
-          });
-      }
+      return next(parallelError);
     });
-  }
-
-  deleteJob(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
-      .end((requestRes) => {
-        const requestResJson = typeof requestRes.body === 'object' ?
-            requestRes.body : JSON.parse(requestRes.body);
-        if (!requestResJson.frameworkDescriptor) {
-          next(new Error('unknown job'));
-        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.delete(launcherConfig.frameworkPath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
-            .end(() => next());
-        } else {
-          next(new Error('can not delete other user\'s job'));
-        }
-      });
-  }
-
-  putJobExecutionType(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
-      .end((requestRes) => {
-        const requestResJson = typeof requestRes.body === 'object' ?
-            requestRes.body : JSON.parse(requestRes.body);
-        if (!requestResJson.frameworkDescriptor) {
-          next(new Error('unknown job'));
-        } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
-            .send({'executionType': data.value})
-            .end((res) => next());
-        } else {
-          next(new Error('can not execute other user\'s job'));
-        }
-      });
-  }
-
-  getJobConfig(userName, jobName, next) {
-    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    hdfs.readFile(
-      '/Container/' + userName + '/' + jobName + '/JobConfig.json',
-      null,
-      (error, result) => {
-        if (!error) {
-          next(null, JSON.parse(result.content));
-        } else {
-          next(error);
-        }
-      }
-    );
-  }
-
-  getJobSshInfo(userName, jobName, applicationId, next) {
-    const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
-    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    hdfs.list(
-      folderPathPrefix,
-      null,
-      (error, result) => {
-        if (!error) {
-          let sshInfo = {
-            'containers': [],
-            'keyPair': {
-              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/`,
-              'publicKeyFileName': `${applicationId}.pub`,
-              'privateKeyFileName': `${applicationId}`,
-              'privateKeyDirectDownloadLink':
-                `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}/.ssh/${applicationId}?op=OPEN`,
-            },
-          };
-          for (let x of result.content.FileStatuses.FileStatus) {
-            let pattern = /^container_(.*)-(.*)-(.*)$/g;
-            let arr = pattern.exec(x.pathSuffix);
-            if (arr !== null) {
-              sshInfo.containers.push({
-                'id': 'container_' + arr[1],
-                'sshIp': arr[2],
-                'sshPort': arr[3],
-              });
-            }
-          }
-          next(null, sshInfo);
-        } else {
-          next(error);
-        }
-      }
-    );
-  }
-
-  generateJobDetail(framework) {
-    let jobDetail = {
-      'jobStatus': {},
-      'taskRoles': {},
-    };
-    const frameworkStatus = framework.aggregatedFrameworkStatus.frameworkStatus;
-    if (frameworkStatus) {
-      const jobState = this.convertJobState(
-          frameworkStatus.frameworkState,
-          frameworkStatus.applicationExitCode);
-      let jobRetryCount = 0;
-      const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
-      jobRetryCount =
-        jobRetryCountInfo.transientNormalRetriedCount +
-        jobRetryCountInfo.transientConflictRetriedCount +
-        jobRetryCountInfo.nonTransientRetriedCount +
-        jobRetryCountInfo.unKnownRetriedCount;
-      jobDetail.jobStatus = {
-        name: framework.name,
-        username: 'unknown',
-        state: jobState,
-        subState: frameworkStatus.frameworkState,
-        executionType: framework.summarizedFrameworkInfo.executionType,
-        retries: jobRetryCount,
-        createdTime: frameworkStatus.frameworkCreatedTimestamp,
-        completedTime: frameworkStatus.frameworkCompletedTimestamp,
-        appId: frameworkStatus.applicationId,
-        appProgress: frameworkStatus.applicationProgress,
-        appTrackingUrl: frameworkStatus.applicationTrackingUrl,
-        appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
-        appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
-        appExitCode: frameworkStatus.applicationExitCode,
-        appExitDiagnostics: frameworkStatus.applicationExitDiagnostics,
-        appExitType: frameworkStatus.applicationExitType,
-      };
-    }
-    const frameworkRequest = framework.aggregatedFrameworkRequest.frameworkRequest;
-    if (frameworkRequest.frameworkDescriptor) {
-      jobDetail.jobStatus.username = frameworkRequest.frameworkDescriptor.user.name;
-    }
-    const frameworkInfo = framework.summarizedFrameworkInfo;
-    if (frameworkInfo) {
-      jobDetail.jobStatus.virtualCluster = frameworkInfo.queue;
-    }
-    const taskRoleStatuses = framework.aggregatedFrameworkStatus.aggregatedTaskRoleStatuses;
-    if (taskRoleStatuses) {
-      for (let taskRole of Object.keys(taskRoleStatuses)) {
-        jobDetail.taskRoles[taskRole] = {
-          taskRoleStatus: {name: taskRole},
-          taskStatuses: [],
-        };
-        for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
-          jobDetail.taskRoles[taskRole].taskStatuses.push({
-            taskIndex: task.taskIndex,
-            containerId: task.containerId,
-            containerIp: task.containerIp,
-            containerGpus: task.containerGpus,
-            containerLog: task.containerLogHttpAddress,
-          });
-        }
-      }
-    }
-    return jobDetail;
-  }
-
-  generateYarnContainerScript(data, idx) {
-    const yarnContainerScript = mustache.render(
-        yarnContainerScriptTemplate, {
-          'idx': idx,
-          'hdfsUri': launcherConfig.hdfsUri,
-          'taskData': data.taskRoles[idx],
-          'jobData': data,
-        });
-    return yarnContainerScript;
-  }
-
-  generateDockerContainerScript(data, idx) {
-    let tasksNumber = 0;
-    for (let i = 0; i < data.taskRoles.length; i ++) {
-      tasksNumber += data.taskRoles[i].taskNumber;
-    }
-    const dockerContainerScript = mustache.render(
-        dockerContainerScriptTemplate, {
-          'idx': idx,
-          'tasksNumber': tasksNumber,
-          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
-          'taskRolesNumber': data.taskRoles.length,
-          'hdfsUri': launcherConfig.hdfsUri,
-          'taskData': data.taskRoles[idx],
-          'jobData': data,
-        });
-    return dockerContainerScript;
-  }
-
-  generateFrameworkDescription(data) {
-    const gpuType = data.gpuType || null;
-    const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
-    const frameworkDescription = {
-      'version': 10,
-      'user': {'name': data.username},
-      'taskRoles': {},
-      'platformSpecificParameters': {
-        'queue': data.virtualCluster,
-        'taskNodeGpuType': gpuType,
-        'killAllOnAnyCompleted': killOnCompleted,
-        'killAllOnAnyServiceCompleted': killOnCompleted,
-        'generateContainerIpList': true,
-      },
-    };
-    for (let i = 0; i < data.taskRoles.length; i ++) {
-      const portList = {};
-      for (let j = 0; j < data.taskRoles[i].portList.length; j ++) {
-        portList[data.taskRoles[i].portList[j].label] = {
-          'start': data.taskRoles[i].portList[j].beginAt,
-          'count': data.taskRoles[i].portList[j].portNumber,
-        };
-      }
-      for (let defaultPortLabel of ['http', 'ssh']) {
-        if (!(defaultPortLabel in portList)) {
-          portList[defaultPortLabel] = {
-            'start': 0,
-            'count': 1,
-          };
-        }
-      }
-      const taskRole = {
-        'taskNumber': data.taskRoles[i].taskNumber,
-        'taskService': {
-          'version': 0,
-          'entryPoint': `source YarnContainerScripts/${i}.sh`,
-          'sourceLocations': [`/Container/${data.username}/${data.jobName}/YarnContainerScripts`],
-          'resource': {
-            'cpuNumber': data.taskRoles[i].cpuNumber,
-            'memoryMB': data.taskRoles[i].memoryMB,
-            'gpuNumber': data.taskRoles[i].gpuNumber,
-            'portDefinitions': portList,
-            'diskType': 0,
-            'diskMB': 0,
-          },
-        },
-      };
-      frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
-    }
-    return frameworkDescription;
   }
 }
 

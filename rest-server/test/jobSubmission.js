@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -93,10 +93,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
 
   it('[P-01] Submit a job to the default vc', (done) => {
     prepareNockForCaseP01('new_job');
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job'});
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job' })))
+      .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
@@ -105,16 +106,18 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   });
 
-  it('[P-02] Submit a job to vc1', (done) => {
-    prepareNockForCaseP02('new_job_queue_vc1');
+  it('[P-02] Submit a job to a valid virtual cluster', (done) => {
+    prepareNockForCaseP02('new_job_in_vc1');
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_in_vc1'});
+    jobConfig['virtualCluster'] = 'vc1';
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, { 'jobName': 'new_job_queue_vc1', 'virtualCluster': 'vc1' })))
+      .send(JSON.parse(jobConfig))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job_queue_vc1 successfully');
+        global.chai.expect(res.body.message, 'response message').equal('update job new_job_in_vc1 successfully');
         done();
       });
   });
@@ -189,4 +192,32 @@ describe('Submit job: POST /api/v1/jobs', () => {
         done();
       });
   });
+
+  /*
+  it('[N-05] Failed to submit a job to non-exist virtual cluster.', (done) => {
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('job update error: could not find virtual cluster non-exist-vc');
+        done();
+      });
+  });
+
+  it('[N-06] Failed to submit a job to no access right virtual cluster.', (done) => {
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'vc2'})))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');
+        done();
+      });
+  });
+  */
 });

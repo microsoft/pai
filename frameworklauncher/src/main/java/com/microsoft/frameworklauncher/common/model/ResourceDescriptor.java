@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.common.model;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
+import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
 import org.apache.hadoop.yarn.api.records.Resource;
 
 import javax.validation.Valid;
@@ -27,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +53,8 @@ public class ResourceDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  private Map<String, Ports> portDefinitions;
+  @MapKeyNamingValidation
+  private Map<String, Ports> portDefinitions = new HashMap<>();
 
   @Valid
   @NotNull

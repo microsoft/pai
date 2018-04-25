@@ -58,7 +58,6 @@ global.jobConfigTemplate = JSON.stringify({
   'image': 'aiplatform/pai.run.tensorflow',
   'dataDir': 'hdfs://10.240.0.10:9000/test/data',
   'codeDir': 'hdfs://10.240.0.10:9000/test/code',
-  'virtualCluster': '{{virtualCluster}}',
   'taskRoles': [
     {
       'name': 'role1',
@@ -76,7 +75,7 @@ global.jobConfigTemplate = JSON.stringify({
 global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {
     'frameworkName': '{{frameworkName}}',
-    'queue': '{{queueName}}'
+    'queue': '{{queueName}}',
   },
   'aggregatedFrameworkRequest': {
     'frameworkRequest': {

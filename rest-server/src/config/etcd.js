@@ -43,13 +43,17 @@ etcdConfig.userAdminPath = (username) => {
   return `${etcdConfig.userPath(username)}/admin`;
 };
 
+etcdConfig.userVirtualClusterPath = (username) => {
+  return `${etcdConfig.userPath(username)}/virtualClusters`;
+};
+
 const etcdConfigSchema = Joi.object().keys({
   etcdUri: Joi.string()
     .required(),
   etcdHosts: Joi.array().items(Joi.string()
     .uri()
     .required()
-    ).required(),
+  ).required(),
   adminName: Joi.string()
     .token()
     .required(),
@@ -66,6 +70,9 @@ const etcdConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   userAdminPath: Joi.func()
+    .arity(1)
+    .required(),
+  userVirtualClusterPath: Joi.func()
     .arity(1)
     .required(),
 }).required();

@@ -1,0 +1,118 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+master-deployment:
+
+    template-list:
+    - name: apiserver.yaml
+      src: k8sPaiLibrary/template/apiserver.yaml.template
+      dst: master-deployment/etc/kubernetes/manifests
+
+    - name: controller-manager.yaml
+      src: k8sPaiLibrary/template/controller-manager.yaml.template
+      dst: master-deployment/etc/kubernetes/manifests
+
+    - name: etcd.yaml
+      src: k8sPaiLibrary/template/etcd.yaml.template
+      dst: master-deployment/etc/kubernetes/manifests
+
+    - name: scheduler.yaml
+      src: k8sPaiLibrary/template/scheduler.yaml.template
+      dst: master-deployment/etc/kubernetes/manifests
+
+    - name: kubelet.sh
+      src: k8sPaiLibrary/template/kubelet.sh.template
+      dst: master-deployment
+
+    - name: config
+      src: k8sPaiLibrary/template/config.template
+      dst: master-deployment/etc/kubernetes
+
+
+    file-list:
+    - name: docker-ce-install.sh
+      src: k8sPaiLibrary/maintaintool/docker-ce-install.sh
+      dst: master-deployment
+
+    - name: hosts-check.sh
+      src: k8sPaiLibrary/maintaintool/hosts-check.sh
+      dst: master-deployment
+
+    - name: kubelet-start.sh
+      src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: master-deployment
+
+
+worker-deployment:
+
+    template-list:
+    - name: kubelet.sh
+      src: k8sPaiLibrary/template/kubelet.sh.template
+      dst: worker-deployment
+
+    - name: config
+      src: k8sPaiLibrary/template/config.template
+      dst: worker-deployment/etc/kubernetes
+
+
+    file-list:
+    - name: docker-ce-install.sh
+      src: k8sPaiLibrary/maintaintool/docker-ce-install.sh
+      dst: worker-deployment
+
+    - name: hosts-check.sh
+      src: k8sPaiLibrary/maintaintool/hosts-check.sh
+      dst: worker-deployment
+
+    - name: kubelet-start.sh
+      src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: worker-deployment
+
+
+proxy-deployment:
+
+    template-list:
+    - name: kubelet.sh
+      src: k8sPaiLibrary/template/kubelet.sh.template
+      dst: proxy-deployment
+
+    - name: config
+      src: k8sPaiLibrary/template/config.template
+      dst: proxy-deployment/etc/kubernetes
+
+    - name: haproxy.yaml
+      src: k8sPaiLibrary/template/haproxy.yaml.template
+      dst: proxy-deployment/etc/kubernetes/manifests
+
+    - name: haproxy.cfg
+      src: k8sPaiLibrary/template/haproxy.yaml.template
+      dst: proxy-deployment/etc/kubernetes/haproxy
+
+
+    file-list:
+    - name: docker-ce-install.sh
+      src: k8sPaiLibrary/maintaintool/docker-ce-install.sh
+      dst: proxy-deployment
+
+    - name: hosts-check.sh
+      src: k8sPaiLibrary/maintaintool/hosts-check.sh
+      dst: proxy-deployment
+
+    - name: kubelet-start.sh
+      src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: proxy-deployment

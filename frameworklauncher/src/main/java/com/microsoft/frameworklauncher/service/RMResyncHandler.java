@@ -55,9 +55,13 @@ public class RMResyncHandler { // THREAD SAFE
     List<ApplicationReport> reports = null;
 
     try {
+      LOGGER.logDebug("Started to getApplications");
+
       // Only Get LAUNCHER ApplicationReport
       reports = yarnClient.getApplications(new HashSet<>(
           Collections.singletonList(GlobalConstants.LAUNCHER_APPLICATION_TYPE)));
+
+      LOGGER.logDebug("Succeeded to getApplications");
     } catch (Exception e) {
       LOGGER.logWarning(e,
           "Exception occurred during GetApplications. It should be transient. " +

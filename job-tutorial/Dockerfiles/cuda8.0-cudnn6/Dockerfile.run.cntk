@@ -20,7 +20,7 @@
 #
 # Before building this image you need to build the base image first:
 #
-# docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+# docker build -f Dockerfile.build.mpi -t pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
 
 
 FROM pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
