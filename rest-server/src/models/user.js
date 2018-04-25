@@ -146,7 +146,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
         VirtualCluster.prototype.getVcList((vcList, err) => {
           if (err) {
             logger.warn('get virtual cluster list error\n%s', err.stack);
-          } else if (vcList === undefined) {
+          } else if (!vcList) {
             logger.warn('list virtual clusters error, no virtual cluster found');
           } else {
             let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true') ? Object.keys(vcList) : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
@@ -196,7 +196,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
       VirtualCluster.prototype.getVcList((vcList, err) => {
         if (err) {
           logger.warn('get virtual cluster list error\n%s', err.stack);
-        } else if (vcList === undefined) {
+        } else if (!vcList) {
           logger.warn('list virtual clusters error, no virtual cluster found');
         } else {
           if (!vcList.hasOwnProperty(virtualCluster)) {
