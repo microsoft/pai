@@ -115,10 +115,22 @@ const update = (req, res) => {
   Job.prototype.putJob(req.job.name, req.body, req.user.username, (err) => {
     if (err) {
       logger.warn('update job %s error\n%s', req.job.name, err.stack);
-      return res.status(500).json({
-        error: 'JobUpdateError',
-        message: 'job update error',
-      });
+      if (err.message === 'VirtualClusterNotFound') {
+        return res.status(500).json({
+          error: 'JobUpdateWithInvalidVirtualCluster',
+          message: `job update error: could not find virtual cluster ${req.body.virtualCluster}`,
+        });
+      } else if (err.message === 'NoRightAccessVirtualCluster') {
+        return res.status(401).json({
+          error: 'JobUpdateWithNoRightVirtualCluster',
+          message: `job update error: no virtual cluster right to access ${req.body.virtualCluster}`,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'JobUpdateError',
+          message: 'job update error',
+        });
+      }
     } else {
       return res.status(202).json({
         message: `update job ${req.job.name} successfully`,
