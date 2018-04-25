@@ -112,17 +112,20 @@ const get = (req, res) => {
  * Submit or update job.
  */
 const update = (req, res) => {
-  Job.prototype.putJob(
-    req.job.name, req.body, req.originalBody, req.user.username, (err) => {
+  let name = req.job.name;
+  let data = req.body;
+  data.originalData = req.originalBody;
+  data.userName = req.user.username;
+  Job.prototype.putJob(name, data, (err) => {
     if (err) {
-      logger.warn('update job %s error\n%s', req.job.name, err.stack);
+      logger.warn('update job %s error\n%s', name, err.stack);
       return res.status(500).json({
         error: 'JobUpdateError',
         message: err.message,
       });
     } else {
       return res.status(202).json({
-        message: `update job ${req.job.name} successfully`,
+        message: `update job ${name} successfully`,
       });
     }
   });

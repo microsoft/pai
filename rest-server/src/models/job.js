@@ -128,10 +128,9 @@ class Job {
       });
   }
 
-  putJob(name, data, originalData, username, next) {
-    data.username = username;
-    if (!originalData.outputDir) {
-      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.username}/${name}`;
+  putJob(name, data, next) {
+    if (!data.originalData.outputDir) {
+      data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     }
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
@@ -139,10 +138,10 @@ class Job {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     async.parallel([
       (parallelCallback) => {
-        if (!originalData.outputDir) {
+        if (!data.originalData.outputDir) {
           hdfs.createFolder(
-            `/Output/${data.username}/${name}`,
-            {'user.name': data.username, 'permission': '755'},
+            `/Output/${data.userName}/${name}`,
+            {'user.name': data.userName, 'permission': '755'},
             (error, result) => {
               parallelCallback(error);
             }
@@ -154,8 +153,8 @@ class Job {
       (parallelCallback) => {
         async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
           hdfs.createFolder(
-            `/Container/${data.username}/${name}/` + x,
-            {'user.name': data.username, 'permission': '755'},
+            `/Container/${data.userName}/${name}/` + x,
+            {'user.name': data.userName, 'permission': '755'},
             (error, result) => {
               eachCallback(error);
             }
@@ -167,9 +166,9 @@ class Job {
       (parallelCallback) => {
         async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
           hdfs.createFile(
-            `/Container/${data.username}/${name}/YarnContainerScripts/${x}.sh`,
+            `/Container/${data.userName}/${name}/YarnContainerScripts/${x}.sh`,
             this.generateYarnContainerScript(data, x),
-            {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
             (error, result) => {
               eachCallback(error);
             }
@@ -181,9 +180,9 @@ class Job {
       (parallelCallback) => {
         async.each([...Array(data.taskRoles.length).keys()], (x, eachCallback) => {
           hdfs.createFile(
-            `/Container/${data.username}/${name}/DockerContainerScripts/${x}.sh`,
+            `/Container/${data.userName}/${name}/DockerContainerScripts/${x}.sh`,
             this.generateDockerContainerScript(data, x),
-            {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
             (error, result) => {
               eachCallback(error);
             }
@@ -194,9 +193,9 @@ class Job {
       },
       (parallelCallback) => {
         hdfs.createFile(
-          `/Container/${data.username}/${name}/${launcherConfig.jobConfigFileName}`,
-          JSON.stringify(originalData, null, 2),
-          {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+          `/Container/${data.userName}/${name}/${launcherConfig.jobConfigFileName}`,
+          JSON.stringify(data.originalData, null, 2),
+          {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
           (error, result) => {
             parallelCallback(error);
           }
@@ -204,9 +203,9 @@ class Job {
       },
       (parallelCallback) => {
         hdfs.createFile(
-          `/Container/${data.username}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
+          `/Container/${data.userName}/${name}/${launcherConfig.frameworkDescriptionFilename}`,
           JSON.stringify(this.generateFrameworkDescription(data), null, 2),
-          {'user.name': data.username, 'permission': '644', 'overwrite': 'true'},
+          {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
           (error, result) => {
             parallelCallback(error);
           }
