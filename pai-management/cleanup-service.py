@@ -20,11 +20,12 @@
 import subprocess
 import sys
 import time
-from kubernetesTool import servicestatus
 import yaml
 import logging
 import logging.config
 
+from k8sPaiLibrary.monitorlib import servicestatus
+from paiLibrary.common import linux_shell
 
 
 
@@ -41,38 +42,15 @@ def load_yaml_config(config_path):
 
 
 
-def execute_shell_with_output(shell_cmd, error_msg):
-
-    try:
-        res = subprocess.check_output( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-    return res
-
-
-
-def execute_shell(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-
 def clean_service(service_config, serv):
 
     shell_cmd = 'chmod a+x ./bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
     error_msg = 'Failed make the {0} stop script executable'.format(serv)
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
     error_msg = 'Failed stop the service {0}'.format(serv)
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -111,7 +89,7 @@ def main():
 
     shell_cmd = "kubectl create -f ./bootstrap/cleaning/cleaning.yaml"
     error_msg = "failed to start clean up job to every node"
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
     timeout = 1800
 
@@ -129,7 +107,7 @@ def main():
 
     shell_cmd = "kubectl delete ds cleaning-one-shot"
     error_msg = "Successfully to delete cleaning-one-shot"
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
     clean_service(service_config, 'cluster-configuration')
 

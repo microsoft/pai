@@ -20,7 +20,7 @@
 import argparse
 import sys
 import time
-from kubernetesTool import servicestatus
+from k8sPaiLibrary.monitorlib import servicestatus
 
 
 # Designed for shell, so use the exit function to pass error code.
