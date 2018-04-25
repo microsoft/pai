@@ -166,14 +166,14 @@ sudo docker run -itd \
         -v /path/to/configuration/directory:/cluster-configuration  \
         -v /var/lib/docker:/varl/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        -v /hadoop/binary/path:/hadoop/binary/path
+        -v /hadoop/binary/path:/hadoop/binary/path \
         --pid=host \
         --privileged=true \
         --net=host \
         --name=deployment \
         kubernetes-deployment
 sudo docker exec -it deployment /bin/bash
-cd /pai/kubernetes-deployment
+cd /pai/pai-management
 
 ```
 
