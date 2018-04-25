@@ -28,6 +28,8 @@ import argparse
 import logging
 import logging.config
 
+
+from paiLibrary.common import linux_shell
 from paiLibrary.clusterObjectModel import objectModelFactory
 
 
@@ -82,35 +84,11 @@ def generate_from_template(template_data, cluster_config):
 
 
 
-def execute_shell_with_output(shell_cmd, error_msg):
-
-    try:
-        res = subprocess.check_output( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-    return res
-
-
-
-def execute_shell(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-
-
 def login_docker_registry(docker_registry, docker_username, docker_password):
 
     shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
     error_msg = "docker registry login error"
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
     logger.info("docker registry login successfully")
 
 
@@ -121,7 +99,7 @@ def generate_docker_credential(docker_info):
     passwd = str(docker_info[ "docker_password" ])
 
     if username and passwd:
-        credential = execute_shell_with_output(
+        credential = linux_shell.execute_shell_with_output(
             "cat ~/.docker/config.json",
             "Failed to get the docker's config.json"
         )
@@ -143,7 +121,7 @@ def generate_secret_base64code(docker_info):
     if username and passwd:
         login_docker_registry( domain, username, passwd )
 
-        base64code = execute_shell_with_output(
+        base64code = linux_shell.execute_shell_with_output(
             "cat ~/.docker/config.json | base64",
             "Failed to base64 the docker's config.json"
         )
@@ -184,7 +162,7 @@ def clean_up_generated_file(service_config):
             if os.path.exists(template):
                 shell_cmd = "rm -rf bootstrap/{0}/{1}".format(serv,template)
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
-                execute_shell(shell_cmd, error_msg)
+                linux_shell.execute_shell(shell_cmd, error_msg)
 
     logger.info("Successfully clean up the generated file")
 
@@ -225,20 +203,20 @@ def single_service_bootstrap(serv, service_config):
 
     shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
     error_msg = 'Failed to grant permission to stopscript'
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['stopscript'])
     error_msg = 'Failed stopscript the service {0}'.format(serv)
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
     if 'startscript' not in service_config['servicelist'][serv]:
         return
 
     shell_cmd = 'chmod u+x bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
     error_msg = 'Failed to grant permission to startscript'
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
     error_msg = 'Failed startscript the service {0}'.format(serv)
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -255,7 +233,7 @@ def dependency_bootstrap(serv, service_config, started_service):
     shell_cmd = './bootstrap/{0}/{1}'.format(serv, service_config['servicelist'][serv]['startscript'])
     error_msg = 'Failed start the service {0}'.format(serv)
 
-    execute_shell(shell_cmd, error_msg)
+    linux_shell.execute_shell(shell_cmd, error_msg)
 
     started_service[serv] = True
 
@@ -288,11 +266,11 @@ def copy_arrangement_service(serv, service_config):
         if os.path.exists(dst) == False:
             shell_cmd = "mkdir -p {0}".format(dst)
             error_msg = "failed to mkdir -p {0}".format(dst)
-            execute_shell(shell_cmd, error_msg)
+            linux_shell.execute_shell(shell_cmd, error_msg)
 
         shell_cmd = "cp -r {0} {1}".format(src, dst)
         error_msg = "failed to copy {0}".format(src)
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -303,6 +281,7 @@ def copy_arrangement(service_config):
     for srv in service_list:
 
         copy_arrangement_service(srv, service_config)
+
 
 
 def generate_configuration_of_hadoop_queues(cluster_config):
@@ -331,45 +310,6 @@ def generate_configuration_of_hadoop_queues(cluster_config):
     cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
 
-"""
-def generate_configuration_of_hadoop_queues_by_num_gpus(cluster_config):
-    #
-    hadoop_queues_config = {}
-    #
-    total_num_gpus = 0
-    for machine_name in cluster_config["machinelist"]:
-        machine_config = cluster_config["machinelist"][machine_name]
-        if "yarnrole" not in machine_config or machine_config["yarnrole"] != "worker":
-            continue
-        machine_type = machine_config["machinetype"]
-        machine_type_config = cluster_config["machineinfo"][machine_type]
-        num_gpus = 0
-        if "gpu" in machine_type_config:
-            num_gpus = machine_type_config["gpu"]["count"]
-        total_num_gpus += num_gpus
-    #
-    total_weight = 0
-    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
-        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
-        num_gpus_configured = vc_config["numGPUs"]
-        weight = float(num_gpus_configured) / float(total_num_gpus) * 100
-        hadoop_queues_config[vc_name] = {
-            "description": vc_config["description"],
-            "weight": weight
-        }
-        total_weight += weight
-    hadoop_queues_config["default"] = {
-        "description": "Default virtual cluster.",
-        "weight": max(0, 100 - total_weight)
-    }
-    if total_weight > 100:
-        print("WARNING: Too many GPUs configured in virtual clusters.")
-        for hq_name in hadoop_queues_config:
-            hq_config = hadoop_queues_config[hq_name]
-            hq_config["weight"] /= (total_weight / 100)
-    #
-    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
-"""
 
 
 def setup_logging():

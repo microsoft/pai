@@ -23,10 +23,12 @@ import os
 import argparse
 import yaml
 import jinja2
-from paiLibrary.clusterObjectModel import objectModelFactory
 import logging
 import logging.config
 
+
+from paiLibrary.common import linux_shell
+from paiLibrary.clusterObjectModel import objectModelFactory
 
 logger = logging.getLogger(__name__)
 
@@ -37,19 +39,6 @@ def loadClusterObjectModel(config_path):
     ret = objectModel.objectModelPipeLine()
 
     return ret["service"]
-
-
-
-
-
-def execute_shell(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        print error_msg
-        sys.exit(1)
 
 
 
@@ -95,7 +84,7 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     if docker_username and docker_password:
         shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
         error_msg = "docker registry login error"
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
         logger.info("docker registry login successfully")
     else:
         logger.info("docker registry authentication not provided")
@@ -125,7 +114,7 @@ def delete_generated_template_file_service(service_config, image_name):
         if os.path.exists(file_path):
             shell_cmd = "rm -rf {0}".format(file_path)
             error_msg = "failed to rm {0}".format(file_path)
-            execute_shell(shell_cmd, error_msg)
+            linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -139,12 +128,12 @@ def copy_arrangement_service(service_config, image_name):
     if os.path.exists(dst) == False:
         shell_cmd = "mkdir -p {0}".format(dst)
         error_msg = "failed to mkdir -p {0}".format(dst)
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
 
     for copy_item_path in service_config['imagelist'][image_name]['copy']:
         shell_cmd = "cp -r {0} {1}".format(copy_item_path, dst)
         error_msg = "failed to copy {0}".format(copy_item_path)
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -161,7 +150,7 @@ def copy_cleanup_service(service_config, image_name):
     for copy_item_path in service_config['imagelist'][image_name]['copy']:
         shell_cmd = "rm -rf {0}".format(dst)
         error_msg = "failed to rm {0}".format(copy_item_path)
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
 
 
 
@@ -298,7 +287,7 @@ def hadoop_binary_prepare(custom_hadoop_path, hadoop_version):
     if os.path.exists("src/hadoop-run/hadoop") != True:
         shell_cmd = "mkdir -p src/hadoop-run/hadoop"
         error_msg = "failed to create folder src/hadoop-run/hadoop"
-        execute_shell(shell_cmd, error_msg)
+        linux_shell.execute_shell(shell_cmd, error_msg)
 
     if custom_hadoop_path != "None":
         try:
