@@ -464,7 +464,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree) - sum(node_memory_Buffers) - sum(node_memory_Cached)",
+              "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "usage",
@@ -476,13 +476,6 @@
               "intervalFactor": 2,
               "legendFormat": "free",
               "refId": "D"
-            },
-            {
-              "expr": "sum(node_memory_MemTotal)",
-              "format": "time_series",
-              "intervalFactor": 2,
-              "legendFormat": "total",
-              "refId": "B"
             }
           ],
           "thresholds": [],
