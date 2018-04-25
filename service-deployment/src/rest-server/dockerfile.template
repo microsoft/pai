@@ -17,26 +17,26 @@
 
 FROM node:boron
 
-RUN echo "deb http://http.debian.net/debian jessie-backports main" > /etc/apt/sources.list.d/jessie-backports.list
-
-RUN apt-get update
-
-RUN apt-get install -y --no-install-recommends -t jessie-backports dos2unix
-
-RUN apt-get clean
-
-RUN rm -rf /var/lib/apt/lists/*
+RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
+    /etc/apt/sources.list.d/jessie-backports.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends -t
+      jessie-backports \
+      dos2unix \
+      && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production \
     SERVER_PORT=8080
 
-COPY copied_file/rest-server/package.json /usr/src/app/
+COPY copied_file/rest-server/package.json .
 
 RUN npm install
 
-COPY copied_file/rest-server/ /usr/src/app/
+COPY copied_file/rest-server/ .
 
 RUN dos2unix src/templates/*
 
