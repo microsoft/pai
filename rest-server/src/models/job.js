@@ -398,7 +398,7 @@ class Job {
             taskIndex: task.taskIndex,
             containerId: task.containerId,
             containerIp: task.containerIp,
-            containerPorts: containerPorts,
+            containerPorts,
             containerGpus: task.containerGpus,
             containerLog: task.containerLogHttpAddress,
           });
