@@ -175,7 +175,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_MemTotal{instance=~'$node'} - node_memory_MemFree{instance=~'$node'} - node_memory_Buffers{instance=~'$node'} - node_memory_Cached{instance=~'$node'}",
+              "expr": "node_memory_MemTotal{instance=~'$node'} - node_memory_MemFree{instance=~'$node'}",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
