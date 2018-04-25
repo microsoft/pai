@@ -30,25 +30,11 @@ import logging.config
 
 
 from paiLibrary.common import linux_shell
+from paiLibrary.common import file_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 
 
 logger = logging.getLogger(__name__)
-
-
-def write_generated_file(file_path, content_data):
-
-    with open(file_path, "w+") as fout:
-        fout.write(content_data)
-
-
-
-def load_yaml_config(config_path):
-
-    with open(config_path, "r") as f:
-        cluster_data = yaml.load(f)
-
-    return cluster_data
 
 
 
@@ -58,15 +44,6 @@ def loadClusterObjectModel(config_path):
     ret = objectModel.objectModelPipeLine()
 
     return ret["service"]
-
-
-
-def read_template(template_path):
-
-    with open(template_path, "r") as f:
-        template_data = f.read()
-
-    return template_data
 
 
 
@@ -177,9 +154,9 @@ def generate_template_file_service(serv, cluster_config, service_config):
         return
 
     for template in template_list:
-        template_data = read_template("bootstrap/{0}/{1}.template".format(serv, template))
+        template_data = file_handler.read_template("bootstrap/{0}/{1}.template".format(serv, template))
         generate_data = generate_from_template(template_data, cluster_config)
-        write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
+        file_handler.write_generated_file("bootstrap/{0}/{1}".format(serv, template), generate_data)
 
 
 
@@ -318,7 +295,7 @@ def setup_logging():
     """
     configuration_path = "sysconf/logging.yaml"
 
-    logging_configuration = load_yaml_config(configuration_path)
+    logging_configuration = file_handler.load_yaml_config(configuration_path)
 
     logging.config.dictConfig(logging_configuration)
 
@@ -341,7 +318,7 @@ def main():
     config_path = args.path
 
     cluster_config = loadClusterObjectModel(config_path)
-    service_config = load_yaml_config("service.yaml")
+    service_config = file_handler.load_yaml_config("service.yaml")
 
     # step 2: generate base64code for secret.yaml and get the config.json of docker after logining
 
