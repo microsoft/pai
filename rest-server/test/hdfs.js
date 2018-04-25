@@ -30,7 +30,25 @@ describe('The HDFS module', () => {
   // Positive cases
   //
 
-  it('[P-01] Create a folder', (done) => {
+  it('[P-01] List', (done) => {
+    const path = '/foo';
+    global.nock(global.webhdfsUri)
+      .get('/webhdfs/v1' + path + '?op=LISTSTATUS')
+      .reply(
+        200,
+        {}
+      );
+    hdfs.list(
+      path,
+      {},
+      (error, result) => {
+        expect(error).to.be.equal(null);
+        done();
+      }
+    );
+  });
+
+  it('[P-02] Create a folder', (done) => {
     const path = '/foo';
     global.nock(global.webhdfsUri)
       .put('/webhdfs/v1' + path + '?op=MKDIRS')
@@ -48,7 +66,7 @@ describe('The HDFS module', () => {
     );
   });
 
-  it('[P-02] Create a file', (done) => {
+  it('[P-03] Create a file', (done) => {
     const path = '/foo/bar.txt';
     global.nock(global.webhdfsUri)
       .put('/webhdfs/v1' + path + '?op=CREATE')
@@ -67,7 +85,7 @@ describe('The HDFS module', () => {
     );
   });
 
-  it('[P-03] Create a file (with 307 redirection)', (done) => {
+  it('[P-04] Create a file (with 307 redirection)', (done) => {
     const path = '/foo/bar.txt';
     global.nock(global.webhdfsUri)
       .put('/webhdfs/v1' + path + '?op=CREATE')
@@ -95,7 +113,7 @@ describe('The HDFS module', () => {
     );
   });
 
-  it('[P-04] Read a file', (done) => {
+  it('[P-05] Read a file', (done) => {
     const path = '/foo/bar.txt';
     global.nock(global.webhdfsUri)
       .get('/webhdfs/v1' + path + '?op=OPEN')
@@ -113,7 +131,7 @@ describe('The HDFS module', () => {
     );
   });
 
-  it('[P-05] Read a file (with 307 redirection)', (done) => {
+  it('[P-06] Read a file (with 307 redirection)', (done) => {
     const path = '/foo/bar.txt';
     global.nock(global.webhdfsUri)
       .get('/webhdfs/v1' + path + '?op=OPEN')

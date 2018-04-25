@@ -278,48 +278,40 @@ class Job {
   }
 
   getJobSshInfo(userName, jobName, applicationId, next) {
-    let folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}/`;
-    let webhdfsUrlPrefix = `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}`;
-    let webhdfsUrl = `${webhdfsUrlPrefix}?op=LISTSTATUS`;
-    unirest.get(webhdfsUrl)
-      .end((requestRes) => {
-        try {
-          const requestResJson =
-            typeof requestRes.body === 'object' ?
-            requestRes.body :
-            JSON.parse(requestRes.body);
-          if (requestRes.status === 200) {
-            let result = {
-              'containers': [],
-              'keyPair': {
-                'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}.ssh/`,
-                'publicKeyFileName': `${applicationId}.pub`,
-                'privateKeyFileName': `${applicationId}`,
-                'privateKeyDirectDownloadLink':
-                  `${webhdfsUrlPrefix}.ssh/${applicationId}?op=OPEN`,
-              },
-            };
-            for (let x of requestResJson.FileStatuses.FileStatus) {
-              let pattern = /^container_(.*)-(.*)-(.*)$/g;
-              let arr = pattern.exec(x.pathSuffix);
-              if (arr !== null) {
-                result.containers.push({
-                  'id': 'container_' + arr[1],
-                  'sshIp': arr[2],
-                  'sshPort': arr[3],
-                });
-              }
+    const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    hdfs.list(
+      folderPathPrefix,
+      null,
+      (error, result) => {
+        if (!error) {
+          let sshInfo = {
+            'containers': [],
+            'keyPair': {
+              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/`,
+              'publicKeyFileName': `${applicationId}.pub`,
+              'privateKeyFileName': `${applicationId}`,
+              'privateKeyDirectDownloadLink':
+                `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}/.ssh/${applicationId}?op=OPEN`,
+            },
+          };
+          for (let x of result.content.FileStatuses.FileStatus) {
+            let pattern = /^container_(.*)-(.*)-(.*)$/g;
+            let arr = pattern.exec(x.pathSuffix);
+            if (arr !== null) {
+              sshInfo.containers.push({
+                'id': 'container_' + arr[1],
+                'sshIp': arr[2],
+                'sshPort': arr[3],
+              });
             }
-            next(result, null);
-          } else if (requestRes.status === 404) {
-            next(null, new Error('SshInfoNotFound'));
-          } else {
-            next(null, new Error('InternalServerError'));
           }
-        } catch (error) {
-          next(null, error);
+          next(null, sshInfo);
+        } else {
+          next(error);
         }
-      });
+      }
+    );
   }
 
   generateJobDetail(framework) {

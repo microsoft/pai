@@ -26,6 +26,10 @@ class Hdfs {
   // Public methods
   //
 
+  list(path, options, next) {
+    this._list(this._constructTargetUrl(path, options, 'LISTSTATUS'), next);
+  }
+
   createFolder(path, options, next) {
     this._createFolder(this._constructTargetUrl(path, options, 'MKDIRS'), next);
   }
@@ -58,6 +62,18 @@ class Hdfs {
     } else {
       return new Error('[WebHDFS] ' + response.status + ' ' + JSON.stringify(response.body));
     }
+  }
+
+  _list(targetUrl, next) {
+    // Ref: http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#List_a_Directory
+    unirest.get(targetUrl)
+      .end((response) => {
+        if (response.status === 200) {
+          next(null, {status: 'succeeded', content: response.body});
+        } else {
+          next(this._constructErrorObject(response));
+        }
+      });
   }
 
   _createFolder(targetUrl, next) {

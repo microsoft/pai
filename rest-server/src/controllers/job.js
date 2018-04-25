@@ -179,7 +179,7 @@ const getConfig = (req, res) => {
     req.job.jobStatus.username,
     req.job.name,
     (error, result) => {
-      if (error === null) {
+      if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return res.status(404).json({
@@ -204,10 +204,10 @@ const getSshInfo = (req, res) => {
     req.job.jobStatus.username,
     req.job.name,
     req.job.jobStatus.appId,
-    (sshInfo, error) => {
-      if (error === null) {
-        return res.status(200).json(sshInfo);
-      } else if (error.message === 'SshInfoNotFound') {
+    (error, result) => {
+      if (!error) {
+        return res.status(200).json(result);
+      } else if (error.message.startsWith('[WebHDFS] 404')) {
         return res.status(404).json({
           error: 'SshInfoNotFound',
           message: error.message,
