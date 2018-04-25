@@ -19,7 +19,7 @@
 
 import argparse
 import sys
-from kubernetesTool import nodestatus
+from k8sPaiLibrary.monitorlib import nodestatus
 
 if __name__ == "__main__":
 

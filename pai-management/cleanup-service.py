@@ -20,7 +20,7 @@
 import subprocess
 import sys
 import time
-from kubernetesTool import servicestatus
+from k8sPaiLibrary.monitorlib import servicestatus
 import yaml
 import logging
 import logging.config
