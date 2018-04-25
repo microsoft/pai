@@ -61,7 +61,7 @@ $(document).ready(() => {
               data: {
                 virtualClusters: virtualClusters,
               },
-              type: 'PATCH',
+              type: 'PUT',
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -120,7 +120,7 @@ $(document).ready(() => {
                 data: {
                   virtualClusters: '',
                 },
-                type: 'PATCH',
+                type: 'PUT',
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -164,7 +164,7 @@ $(document).ready(() => {
         data: {
           virtualClusters: virtualCluster,
         },
-        type: 'PATCH',
+        type: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
         },
