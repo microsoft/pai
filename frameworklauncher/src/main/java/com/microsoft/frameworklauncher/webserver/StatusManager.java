@@ -86,12 +86,11 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     new Thread(() -> {
       while (true) {
         try {
-          Thread.sleep(conf.getWebServerStatusPullIntervalSec() * 1000);
-        } catch (InterruptedException e) {
-          handleException(e);
-        }
+          // No need to updateCompletedFrameworkStatuses when recover
+          updateCompletedFrameworkStatuses();
 
-        try {
+          Thread.sleep(conf.getWebServerStatusPullIntervalSec() * 1000);
+
           pullStatus();
         } catch (Exception e) {
           // Directly throw TransientException to WebServer, since it may not be recovered or make progress any more
@@ -123,8 +122,6 @@ public class StatusManager extends AbstractService { // THREAD SAFE
             frameworkName));
       }
     }
-
-    updateCompletedFrameworkStatuses();
   }
 
   private void updateCompletedFrameworkStatuses() throws Exception {

@@ -84,15 +84,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       while (true) {
         try {
           pullRequest();
+
+          Thread.sleep(conf.getServiceRequestPullIntervalSec() * 1000);
         } catch (Exception e) {
           // Directly throw TransientException to Service, since it may not be recovered or make progress any more
           handleException(e);
-        } finally {
-          try {
-            Thread.sleep(conf.getServiceRequestPullIntervalSec() * 1000);
-          } catch (InterruptedException e) {
-            handleException(e);
-          }
         }
       }
     }).start();

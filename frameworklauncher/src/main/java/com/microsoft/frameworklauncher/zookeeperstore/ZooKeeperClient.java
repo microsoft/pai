@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 // TODO: This is an incomplete porting, replace it with Apache Curator
@@ -257,7 +258,7 @@ public class ZooKeeperClient implements Watcher {
   private void gcOldVersions(
       String versionsRootPath,
       String currentVersion,
-      HashSet<String> excludeNodeNames) throws Exception {
+      Set<String> excludeNodeNames) throws Exception {
     Long currentVersionInt = Long.parseLong(currentVersion);
     for (String version : getChildren(versionsRootPath)) {
       if (excludeNodeNames != null && excludeNodeNames.contains(version)) {

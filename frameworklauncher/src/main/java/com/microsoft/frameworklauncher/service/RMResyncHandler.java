@@ -23,10 +23,7 @@ import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class RMResyncHandler { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(RMResyncHandler.class);
@@ -70,7 +67,7 @@ public class RMResyncHandler { // THREAD SAFE
 
     if (reports != null) {
       // ApplicationId -> ApplicationReport
-      HashMap<String, ApplicationReport> liveApplicationReports = new HashMap<>();
+      Map<String, ApplicationReport> liveApplicationReports = new HashMap<>();
       for (ApplicationReport report : reports) {
         liveApplicationReports.put(report.getApplicationId().toString(), report);
       }

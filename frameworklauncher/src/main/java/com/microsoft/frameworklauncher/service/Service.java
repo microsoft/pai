@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
@@ -168,7 +169,7 @@ public class Service extends AbstractService {
     webServer.start();
     gcLeftoverFrameworks();
 
-    // Run Service.RequestManager depend on WebServer and gcLeftoverFrameworks
+    // Run RequestManager depends on WebServer and gcLeftoverFrameworks
     requestManager = new RequestManager(this, conf, zkStore);
     requestManager.start();
   }
@@ -970,7 +971,7 @@ public class Service extends AbstractService {
   }
 
   // ApplicationId -> ApplicationReport
-  public void onLiveApplicationsUpdated(HashMap<String, ApplicationReport> liveApplicationReports) throws Exception {
+  public void onLiveApplicationsUpdated(Map<String, ApplicationReport> liveApplicationReports) throws Exception {
     LOGGER.logDebug("onLiveApplicationsUpdated: LiveApplications: [%s]", liveApplicationReports.size());
 
     // onLiveApplicationsUpdated is already in queue, so queue it again will disorder

@@ -22,6 +22,7 @@ import com.microsoft.frameworklauncher.common.model.*;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ZookeeperStore {
   private static final DefaultLogger LOGGER = new DefaultLogger(ZookeeperStore.class);
@@ -206,8 +207,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
-    HashMap<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
+  public Map<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
+    Map<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherRequestPath())) {
       try {
         allFrameworkRequests.put(frameworkName, getFrameworkRequest(frameworkName));
@@ -260,8 +261,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
-    HashMap<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
+  public Map<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
+    Map<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
       try {
         allFrameworkStatuses.put(frameworkName, getFrameworkStatus(frameworkName));
