@@ -78,7 +78,7 @@ const initCells = (idPrefix, instanceList, table) => {
 //
 
 const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '1m';
+  const metricGranularity = '5m';
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
@@ -201,7 +201,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
 //
 
 const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '1m';
+  const metricGranularity = '5m';
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
@@ -227,11 +227,13 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
             const cellId = getCellId('disk:' + item.metric.instance);
             const diskBytesRead = dictOfDiskBytesRead[item.metric.instance];
             const diskBytesWritten = item.values[0][1];
-            const p1 = Math.min(1, (diskBytesRead / 1024 / 1024) / 500) * 100;
-            const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
-            const percentage = Math.max(p1, p2);
-            const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml);
+            if (diskBytesRead && diskBytesWritten) {
+              const p1 = Math.min(1, (diskBytesRead / 1024 / 1024) / 500) * 100;
+              const p2 = Math.min(1, (diskBytesWritten / 1024 / 1024) / 500) * 100;
+              const percentage = Math.max(p1, p2);
+              const cellHtml = getCellHtml(percentage);
+              table.cell(cellId).data(cellHtml);
+            }
           }
         },
         error: function() {
@@ -250,7 +252,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
 //
 
 const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '1m';
+  const metricGranularity = '5m';
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
@@ -276,11 +278,13 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
             const cellId = getCellId('eth:' + item.metric.instance);
             const ethBytesReceived = dictOfEthBytesRecieved[item.metric.instance];
             const ethBytesSent = item.values[0][1];
-            const p1 = Math.min(1, (ethBytesReceived / 1024 / 1024) / 100) * 100;
-            const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
-            const percentage = Math.max(p1, p2);
-            const cellHtml = getCellHtml(percentage);
-            table.cell(cellId).data(cellHtml);
+            if (ethBytesReceived && ethBytesSent) {
+              const p1 = Math.min(1, (ethBytesReceived / 1024 / 1024) / 100) * 100;
+              const p2 = Math.min(1, (ethBytesSent / 1024 / 1024) / 100) * 100;
+              const percentage = Math.max(p1, p2);
+              const cellHtml = getCellHtml(percentage);
+              table.cell(cellId).data(cellHtml);
+            }
           }
         },
         error: function() {
