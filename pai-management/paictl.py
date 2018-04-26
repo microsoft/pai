@@ -191,7 +191,7 @@ def main():
 
         parser = argparse.ArgumentParser()
         parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
-        args = parser.parse_args(sys.argv)
+        args = parser.parse_args(sys.argv[1:])
 
         config_path = args.path
         cluster_object_model = load_cluster_objectModel_service(config_path)
