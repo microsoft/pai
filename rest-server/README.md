@@ -190,7 +190,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-3. `PUT user virtual clusters` (administrator only)
+4. `PUT user virtual clusters` (administrator only)
 
     Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
 
@@ -236,7 +236,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-4. `GET jobs`
+5. `GET jobs`
 
     Get the list of jobs.
 
@@ -269,7 +269,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-5. `GET jobs/:jobName`
+6. `GET jobs/:jobName`
 
     Get job status in the system.
 
@@ -315,7 +315,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `POST jobs`
+7. `POST jobs`
 
     Submit a job in the system.
 
@@ -358,7 +358,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-7. `GET jobs/:jobName/config`
+8. `GET jobs/:jobName/config`
 
     Get job config JSON content.
 
@@ -396,7 +396,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-8. `GET jobs/:jobName/ssh`
+9. `GET jobs/:jobName/ssh`
 
     Get job SSH info.
 
@@ -445,7 +445,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-9. `PUT jobs/:jobName/executionType`
+10. `PUT jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -480,7 +480,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "job execute error"
     }
 
-10. `GET virtual-clusters`
+11. `GET virtual-clusters`
 
     Get the list of virtual clusters.
 
@@ -509,7 +509,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
     
-11. `GET virtual-clusters/:vcName`
+12. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
 
