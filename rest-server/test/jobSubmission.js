@@ -37,9 +37,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       expiresIn: 60,
     }
   );
-  
+
   const invalidToken = '';
-  
+
   //
   // Define functions to prepare nock interceptors
   //
@@ -68,7 +68,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
   };
 
   const prepareNockForCaseP02 = prepareNockForCaseP01;
-  
+
   const prepareNockForCaseP03 = prepareNockForCaseP01;
 
   const prepareNockForCaseN03 = () => {
@@ -86,6 +86,99 @@ describe('Submit job: POST /api/v1/jobs', () => {
         )
       );
   };
+
+  const prepareNockForCaseN05 = (jobName) => {
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${jobName}`)
+      .reply(
+        404,
+        {}
+      );
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
+  }
+
+  const prepareNockForCaseN06 = (jobName) => {
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${jobName}`)
+      .reply(
+        404,
+        {}
+      );
+
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
+
+    //
+    // Mock etcd return result
+    //
+    nock(global.etcdHosts)
+      .get('/v2/keys/users/user1/virtualClusters')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/user1/virtualClusters',
+          'value': 'default,vc1',
+          'modifiedIndex': 246,
+          'createdIndex': 246
+        }
+      });
+  }
 
   //
   // Positive cases
@@ -193,8 +286,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   });
 
-  /*
+
   it('[N-05] Failed to submit a job to non-exist virtual cluster.', (done) => {
+    prepareNockForCaseN05('new_job_queue_vc_non_exist');
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -208,10 +302,11 @@ describe('Submit job: POST /api/v1/jobs', () => {
   });
 
   it('[N-06] Failed to submit a job to no access right virtual cluster.', (done) => {
+    prepareNockForCaseN06('new_job_vc_no_right')
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'vc2'})))
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
@@ -219,5 +314,5 @@ describe('Submit job: POST /api/v1/jobs', () => {
         done();
       });
   });
-  */
+
 });
