@@ -16,6 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     //
@@ -80,7 +88,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
     //
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job1/ssh/app1/?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/job1/ssh/app1?op=LISTSTATUS')
       .reply(
         200,
         {
@@ -101,7 +109,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       );
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job3/ssh/app3/?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/job3/ssh/app3?op=LISTSTATUS')
       .reply(
         404,
         {

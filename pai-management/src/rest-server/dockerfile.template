@@ -17,40 +17,27 @@
 
 FROM node:boron
 
-ENV HADOOP_VERSION={{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}
-
 RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
     /etc/apt/sources.list.d/jessie-backports.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends -t jessie-backports \
-    openjdk-8-jre-headless ca-certificates-java dos2unix && \
+    apt-get install -y --no-install-recommends -t \
+      jessie-backports \
+      dos2unix \
+      && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-COPY copied_file/hadoop/hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}.tar.gz .
-
-RUN tar -xzf hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}.tar.gz -C /usr/local && \
-    mv /usr/local/hadoop-${HADOOP_VERSION} /usr/local/hadoop
-
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
-    HADOOP_INSTALL=/usr/local/hadoop \
-    HADOOP_HDFS_HOME=${HADOOP_INSTALL} \
-    HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_INSTALL}/lib/native \
-    HADOOP_OPTS="-Djava.library.path=${HADOOP_INSTALL}/lib/native"
-
-ENV PATH=$PATH:${HADOOP_INSTALL}/bin
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${JAVA_HOME}/jre/lib/amd64/server
-
 
 WORKDIR /usr/src/app
 
 ENV NODE_ENV=production \
     SERVER_PORT=8080
 
-COPY copied_file/rest-server/package.json /usr/src/app/
+COPY copied_file/rest-server/package.json .
+
 RUN npm install
 
-COPY copied_file/rest-server/ /usr/src/app/
+COPY copied_file/rest-server/ .
+
 RUN dos2unix src/templates/*
 
 EXPOSE ${SERVER_PORT}

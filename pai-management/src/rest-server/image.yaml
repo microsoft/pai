@@ -16,8 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 copy:
-  # created by the prepare hadoop function on docker_build.py
-  - src/hadoop-run/hadoop
   - ../rest-server
 
 templatelist:
