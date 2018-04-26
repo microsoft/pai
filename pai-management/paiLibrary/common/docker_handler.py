@@ -33,7 +33,7 @@ import logging.config
 class docker_handler:
 
 
-    def __init__(self, docker_registry, docker_username, docker_password):
+    def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):
 
         self.logger = logging.getLogger(__name__)
 
@@ -41,11 +41,23 @@ class docker_handler:
             docker_registry = ""
 
         self.docker_registry = docker_registry
+        self.docker_namespace = docker_namespace
         self.docker_username = docker_username
         self.docker_password = docker_password
 
         self.docker_login()
         self.docker_client = self.client_initialization()
+
+
+
+    def image_name_resolve(self, image_name):
+
+        if self.docker_registry == "":
+            prefix = ""
+        else:
+            prefix = self.docker_registry + "/"
+
+        return "{0}{1}/{2}".format(prefix, self.docker_namespace, image_name)
 
 
 
@@ -67,6 +79,7 @@ class docker_handler:
 
     def image_build(self, image_name, path_to_dockerfile, image_tag = "latest"):
 
+
         target_tag = "{0}:{1}".format(image_name, image_tag)
         image_obj, build_log = self.docker_client.images.build(path=path_to_dockerfile, tag=target_tag, rm=True, pull=True)
         for line in build_log:
@@ -74,19 +87,21 @@ class docker_handler:
 
 
 
-    def image_retag(self, origin_image_name, target_image_name, image_tag):
+    def image_tag_to_registry(self, origin_image_name, image_tag):
 
         origin_tag = "{0}:{1}".format(origin_image_name, image_tag)
-
+        target_tag = "{0}:{1}".format(self.image_name_resolve(origin_image_name), image_tag)
         target_image = self.docker_client.images.get(origin_tag)
-        target_image.tag(target_image_name, image_tag)
+        target_image.tag(target_tag)
 
 
 
-    def image_push(self, image_name, image_tag):
+    def image_push_to_registry(self, image_name, image_tag):
 
-        target_tag = "{0}:{1}".format(image_name, image_tag)
-        target_image = self.docker_client.images.push(image_name, image_tag)
+        target_tag = "{0}:{1}".format(self.image_name_resolve(image_name), image_tag)
+        push_logs = self.docker_client.images.push(target_tag)
+        for line in push_logs:
+            self.logger.info(line)
 
 
 
