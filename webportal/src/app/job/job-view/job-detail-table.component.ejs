@@ -84,6 +84,7 @@
       <th>Task Index</th>
       <th>Container Name</th>
       <th>Container IP</th>
+      <th>Container Ports</th>
       <th>GPUs</th>
       <th>Actions</th>
     </tr>
@@ -98,6 +99,11 @@
           <td><%= taskRoles[taskRole].taskStatuses[i].taskIndex %></td>
           <td><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
           <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
+          <td>
+            <% for (let portLabel of Object.keys(taskRoles[taskRole].taskStatuses[i].containerPort)) { %>
+              <p><%= portLabel %>: <%= taskRoles[taskRole].taskStatuses[i].containerPort[portLabel] %></p>
+            <% } %>
+          </td>
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
           <td>
             <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
