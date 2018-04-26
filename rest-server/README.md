@@ -341,13 +341,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Response if there is a duplicated job submission*
     ```
     Status: 400
-
+    
     {
       "error": "JobUpdateError",
       "message": "job update error"
     }
     ```
-
+    
     *Response if a server error occured*
     ```
     Status: 500
@@ -492,7 +492,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Response if succeeded*
     ```
     {
-      "vc1":
+      "vc1": 
       {
       }
       ...
@@ -508,7 +508,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "get virtual cluster list error"
     }
     ```
-
+    
 11. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
@@ -530,7 +530,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "numActiveJobs":0,
       "numJobs":0,
       "numPendingJobs":0,
-      "resourcesUsed":{
+      "resourcesUsed":{  
        "memory":0,
        "vCores":0,
        "GPUs":0
