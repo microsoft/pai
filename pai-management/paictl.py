@@ -163,7 +163,14 @@ def cluster_object_model_generate_service(config_path):
 
 
 
-def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
+def hadoop_ai_build(os_type = "ubuntu16.04"):
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
+    args = parser.parse_args(sys.argv[1:])
+
+    config_path = args.path
+    cluster_object_model = load_cluster_objectModel_service(config_path)
 
     hadoop_path = cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
 
@@ -173,13 +180,31 @@ def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
 
 
 
-def pai_build(cluster_object_model):
+def pai_build():
 
     None
 
 
 
 
+
+def pai_control():
+
+    None
+
+
+
+
+def k8s_control():
+
+    None
+
+
+
+
+def easy_way_deploy():
+
+    None
 
 
 
@@ -195,13 +220,7 @@ def main():
 
     if module == "hadoop-build":
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
-        args = parser.parse_args(sys.argv[1:])
-
-        config_path = args.path
-        cluster_object_model = load_cluster_objectModel_service(config_path)
-        hadoop_ai_build(cluster_object_model)
+        hadoop_ai_build()
 
     elif module == "pai-build":
 

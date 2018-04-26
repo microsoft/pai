@@ -52,5 +52,5 @@ def write_generated_file(file_path, content_data):
 
 def file_exist_or_not(file_path):
 
-    try:
+    return os.path.isfile(file_path)
 
