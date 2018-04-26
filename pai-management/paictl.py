@@ -39,24 +39,27 @@ logger = logging.getLogger(__name__)
 
 
 def setup_logging():
-
     """
     Setup logging configuration.
     """
-
     configuration_path = "sysconf/logging.yaml"
     logging_configuration = file_handler.load_yaml_config(configuration_path)
     logging.config.dictConfig(logging_configuration)
 
 
 
-
 def main():
+
+
+
+
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument("module", "kubernetes, service")
     parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
+
+    args = parser.parse_args()
 
 
 
