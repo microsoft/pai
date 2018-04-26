@@ -194,6 +194,13 @@
               "legendFormat": "free",
               "refId": "E",
               "step": 600
+            },
+            {
+              "expr": "node_memory_Buffers{instance=~'$node'} + node_memory_Cached{instance=~'$node'}",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "buff/cache",
+              "refId": "B"
             }
           ],
           "thresholds": [],
