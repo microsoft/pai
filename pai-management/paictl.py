@@ -165,8 +165,6 @@ def cluster_object_model_generate_service(config_path):
 
 
 
-
-
 def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
 
     hadoop_path = cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
@@ -174,6 +172,15 @@ def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
     commandline = "./paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(os_type, hadoop_path)
     error_msg = "Failed to build hadoop-ai."
     linux_shell.execute_shell(commandline, error_msg)
+
+
+
+
+def pai_build(cluster_object_model):
+
+
+
+
 
 
 
@@ -197,9 +204,19 @@ def main():
         cluster_object_model = load_cluster_objectModel_service(config_path)
         hadoop_ai_build(cluster_object_model)
 
+    elif module == "pai-build":
+
+        None
+
+    elif module == "k8s-control":
+
+        None
+
+    elif module == "pai-control":
+
+        None
 
     else:
-
         logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
 
 
