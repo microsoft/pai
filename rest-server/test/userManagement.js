@@ -431,7 +431,7 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'status code').to.have.status(200);
         done();
       });
   });

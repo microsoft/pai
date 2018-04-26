@@ -65,7 +65,7 @@ const remove = (req, res) => {
           message: 'remove failed',
         });
       } else {
-        return res.status(201).json({
+        return res.status(200).json({
           message: 'remove successfully',
         });
       }
