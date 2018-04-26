@@ -48,18 +48,159 @@ def setup_logging():
 
 
 
+
+def load_cluster_objectModel_service(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+
+    return ret["service"]
+
+
+
+def login_docker_registry(docker_registry, docker_username, docker_password):
+
+    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
+    error_msg = "docker registry login error"
+    linux_shell.execute_shell(shell_cmd, error_msg)
+    logger.info("docker registry login successfully")
+
+
+
+def generate_secret_base64code(docker_info):
+
+    domain = str(docker_info[ "docker_registry_domain" ])
+    username = str(docker_info[ "docker_username" ])
+    passwd = str(docker_info[ "docker_password" ])
+
+    if domain == "public":
+        domain = ""
+
+    if username and passwd:
+        login_docker_registry( domain, username, passwd )
+
+        base64code = linux_shell.execute_shell_with_output(
+            "cat ~/.docker/config.json | base64",
+            "Failed to base64 the docker's config.json"
+        )
+    else:
+        logger.info("docker registry authentication not provided")
+
+        base64code = "{}".encode("base64")
+
+    docker_info["base64code"] = base64code.replace("\n", "")
+
+
+
+def generate_docker_credential(docker_info):
+
+    username = str(docker_info[ "docker_username" ])
+    passwd = str(docker_info[ "docker_password" ])
+
+    if username and passwd:
+        credential = linux_shell.execute_shell_with_output(
+            "cat ~/.docker/config.json",
+            "Failed to get the docker's config.json"
+        )
+    else:
+        credential = "{}"
+
+    docker_info["credential"] = credential
+
+
+
+def generate_image_url_prefix(docker_info):
+
+    domain = str(docker_info["docker_registry_domain"])
+    namespace = str(docker_info["docker_namespace"])
+
+    if domain != "public":
+        prefix = "{0}/{1}/".format(domain, namespace)
+    else:
+        prefix = "{0}/".format(namespace)
+
+    docker_info["prefix"] = prefix
+
+
+
+def generate_configuration_of_hadoop_queues(cluster_config):
+    #
+    hadoop_queues_config = {}
+    #
+    total_weight = 0
+    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
+        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
+        weight = float(vc_config["capacity"])
+        hadoop_queues_config[vc_name] = {
+            "description": vc_config["description"],
+            "weight": weight
+        }
+        total_weight += weight
+    hadoop_queues_config["default"] = {
+        "description": "Default virtual cluster.",
+        "weight": max(0, 100 - total_weight)
+    }
+    if total_weight > 100:
+        logger.warning("Too many resources configured in virtual clusters.")
+        for hq_name in hadoop_queues_config:
+            hq_config = hadoop_queues_config[hq_name]
+            hq_config["weight"] /= (total_weight / 100)
+    #
+    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
+
+
+
+def cluster_object_model_generate_service(config_path):
+
+    cluster_config = load_cluster_objectModel_service(config_path)
+
+    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+
+    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
+        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
+
+    generate_configuration_of_hadoop_queues(cluster_config)
+
+
+
+
+
+def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
+
+    hadoop_path = cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
+
+    commandline = "./paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(os_type, hadoop_path)
+    error_msg = "Failed to build hadoop-ai."
+    linux_shell.execute_shell(commandline, error_msg)
+
+
+
+
 def main():
 
+    if len(sys.argv) < 2:
+        logger.error("You should pass at least one argument")
+        return
+
+    module = sys.argv[1]
+    del sys.argv[1]
+
+    if module == "hadoop-build":
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
+        args = parser.parse_args(sys.argv)
+
+        config_path = args.path
+        cluster_object_model = load_cluster_objectModel_service(config_path)
+        hadoop_ai_build(cluster_object_model)
 
 
+    else:
 
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("module", "kubernetes, service")
-    parser.add_argument('-p', '--path', required=True, help="cluster configuration's path")
-
-    args = parser.parse_args()
+        logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
 
 
 
