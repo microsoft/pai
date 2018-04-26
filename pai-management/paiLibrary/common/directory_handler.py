@@ -15,51 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
 
-RUN apt-get -y update && \
-    apt-get -y install \
-      nano \
-      vim \
-      joe \
-      wget \
-      curl \
-      jq \
-      gawk \
-      psmisc \
-      python \
-      python-yaml \
-      python-jinja2 \
-      python-paramiko \
-      python-urllib3 \
-      python-tz \
-      python-nose \
-      python-prettytable \
-      python-netifaces \
-      python-dev \
-      python-pip \
-      python-mysqldb \
-      openjdk-8-jre \
-      openjdk-8-jdk \
-      openssh-server \
-      openssh-client \
-      git \
-      inotify-tools \
-      rsync \
-      realpath \
-      net-tools && \
-    mkdir -p /cluster-configuration &&\
-    git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes
+import os
 
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-# Only node manager need this.#
-#COPY docker-17.06.2-ce.tgz /usr/local
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-RUN cp docker-17.06.2-ce.tgz /usr/local
-RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
+def get_subdirectory_list(path):
 
-COPY container-setup.sh /
+    return next(os.walk(path))[1]
 
-CMD ["/container-setup.sh"]
+
+
+

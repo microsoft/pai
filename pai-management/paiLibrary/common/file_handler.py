@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import os
 import yaml
 import logging
 import logging.config
@@ -34,7 +34,6 @@ def load_yaml_config(config_path):
 
 
 
-
 def read_template(template_path):
 
     with open(template_path, "r") as f:
@@ -48,3 +47,10 @@ def write_generated_file(file_path, content_data):
 
     with open(file_path, "w+") as fout:
         fout.write(content_data)
+
+
+
+def file_exist_or_not(file_path):
+
+    try:
+

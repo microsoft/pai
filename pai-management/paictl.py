@@ -22,7 +22,6 @@ from __future__ import print_function
 import yaml
 import os
 import sys
-import subprocess
 import jinja2
 import argparse
 import logging
@@ -45,7 +44,6 @@ def setup_logging():
     configuration_path = "sysconf/logging.yaml"
     logging_configuration = file_handler.load_yaml_config(configuration_path)
     logging.config.dictConfig(logging_configuration)
-
 
 
 
@@ -175,8 +173,8 @@ def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
 
 
 
-
 def pai_build(cluster_object_model):
+
     None
 
 
@@ -217,7 +215,11 @@ def main():
 
         None
 
+    elif module == "easy-way-deploy":
+
+        None
     else:
+
         logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
 
 
