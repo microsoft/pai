@@ -190,6 +190,52 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
+3. `PUT user virtual clusters` (administrator only)
+
+    Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
+
+    *Request*
+    ```
+    PUT /api/v1/user/:username/virtualClusters
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "update user virtual clusters successfully"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "UpdateVcFailed",
+      "message": "update user virtual cluster failed"
+    }
+    ```
+
+    *Response if not authorized*
+    ```
+    Status: 401
+
+    {
+      "error": "NotAuthorized",
+      "message": "not authorized"
+    }
+    ```
+
 4. `GET jobs`
 
     Get the list of jobs.
@@ -295,13 +341,13 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Response if there is a duplicated job submission*
     ```
     Status: 400
-    
+
     {
       "error": "JobUpdateError",
       "message": "job update error"
     }
     ```
-    
+
     *Response if a server error occured*
     ```
     Status: 500
@@ -446,7 +492,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     *Response if succeeded*
     ```
     {
-      "vc1": 
+      "vc1":
       {
       }
       ...
@@ -462,7 +508,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "get virtual cluster list error"
     }
     ```
-    
+
 11. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
@@ -484,7 +530,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "numActiveJobs":0,
       "numJobs":0,
       "numPendingJobs":0,
-      "resourcesUsed":{  
+      "resourcesUsed":{
        "memory":0,
        "vCores":0,
        "GPUs":0
