@@ -177,6 +177,7 @@ def hadoop_ai_build(cluster_object_model, os_type = "ubuntu16.04"):
 
 
 def pai_build(cluster_object_model):
+    None
 
 
 
