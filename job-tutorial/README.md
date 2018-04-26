@@ -119,7 +119,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
 | `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 1 |
+| `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
 | `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
