@@ -1,6 +1,6 @@
 .form-register {
   max-width: 360px;
-  padding: 40px;
+  padding: 30px;
   margin: 0 auto;
 }
 
@@ -34,7 +34,25 @@
 }
 
 .form-register input[type="password"] {
+  margin-bottom: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.form-register input[type="virtualCluster"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+.form-register input[id="remove-user-input-username"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.user-management-nav{
+  border-bottom-color: #d2d6de !important;
+  border-right-color: #d2d6de !important;
+}
+
