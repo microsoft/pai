@@ -15,10 +15,44 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy:
-  - ../prometheus/exporter
 
-templatelist:
-  - None
 
-prerequisite: None
+from ..common import file_handler
+from ..common import directory_handler
+
+
+class build_center:
+
+
+    def __init__(self, cluster_object_model, build_target = None):
+
+        self.cluster_object_model = cluster_object_model
+        if build_target != None:
+            self.image_list = self.get_image_list()
+        else:
+            self.image_list = build_target
+
+
+
+    def get_image_list(self):
+
+        image_list = list()
+
+        subdir_list = directory_handler.get_subdirectory_list("src/")
+        for subdir in subdir_list:
+
+            image_conf_path =  "src/{0}/image.yaml".format(subdir)
+            if file_handler.file_exist_or_not(image_conf_path):
+                image_list.append(subdir)
+
+        return image_list
+
+
+
+    def
+
+
+
+
+
+

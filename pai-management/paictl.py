@@ -208,7 +208,6 @@ def easy_way_deploy():
 
 
 
-
 def main():
 
     if len(sys.argv) < 2:
@@ -237,6 +236,11 @@ def main():
     elif module == "easy-way-deploy":
 
         None
+
+    elif module == "have-a-try":
+
+        None
+
     else:
 
         logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
