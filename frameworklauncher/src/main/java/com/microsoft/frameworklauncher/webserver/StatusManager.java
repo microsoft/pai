@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.webserver;
 
+import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -25,6 +26,7 @@ import com.microsoft.frameworklauncher.common.service.AbstractService;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // Manage the CURD to ZK Status
@@ -106,11 +108,23 @@ public class StatusManager extends AbstractService { // THREAD SAFE
   private void pullStatus() throws Exception {
     LOGGER.logDebug("Pulling AggregatedLauncherStatus");
 
-    AggregatedLauncherStatus aggLauncherStatus = zkStore.getAggregatedLauncherStatus();
+    Map<String, AggregatedFrameworkStatus> reusableAggFrameworkStatuses =
+        getReusableAggregatedFrameworkStatuses();
+    AggregatedLauncherStatus aggLauncherStatus =
+        zkStore.getAggregatedLauncherStatus(reusableAggFrameworkStatuses.keySet());
     launcherStatus = aggLauncherStatus.getLauncherStatus();
-    aggFrameworkStatuses = CommonExts.asReadOnly(aggLauncherStatus.getAggregatedFrameworkStatuses());
+    Map<String, AggregatedFrameworkStatus> nonreusableAggFrameworkStatuses =
+        aggLauncherStatus.getAggregatedFrameworkStatuses();
 
-    LOGGER.logDebug("Pulled AggregatedLauncherStatus");
+    // Combine reusable and nonreusable AggregatedFrameworkStatuses
+    Map<String, AggregatedFrameworkStatus> newAggFrameworkStatuses = new HashMap<>();
+    newAggFrameworkStatuses.putAll(reusableAggFrameworkStatuses);
+    newAggFrameworkStatuses.putAll(nonreusableAggFrameworkStatuses);
+    aggFrameworkStatuses = CommonExts.asReadOnly(newAggFrameworkStatuses);
+
+    LOGGER.logDebug("Pulled AggregatedLauncherStatus: " +
+        "AggregatedFrameworkStatus Reused Percentage: [%s / %s]",
+        reusableAggFrameworkStatuses.size(), aggFrameworkStatuses.size());
 
     // Detect the corrupted AggregatedFrameworkStatus and lead Service.StatusManager.recover to clean
     for (Map.Entry<String, AggregatedFrameworkStatus> aggFrameworkStatusKV : aggFrameworkStatuses.entrySet()) {
@@ -122,6 +136,34 @@ public class StatusManager extends AbstractService { // THREAD SAFE
             frameworkName));
       }
     }
+  }
+
+  private Map<String, AggregatedFrameworkStatus> getReusableAggregatedFrameworkStatuses() throws Exception {
+    Map<String, AggregatedFrameworkStatus> reusableAggFrameworkStatuses = new HashMap<>();
+
+    if (aggFrameworkStatuses == null) {
+      return reusableAggFrameworkStatuses;
+    }
+
+    List<FrameworkRequest> allFrameworkRequests = webServer.getAllFrameworkRequests();
+    for (FrameworkRequest frameworkRequest : allFrameworkRequests) {
+      String frameworkName = frameworkRequest.getFrameworkName();
+      Integer frameworkVersion = frameworkRequest.getFrameworkDescriptor().getVersion();
+
+      // For a specific requested FrameworkName and FrameworkVersion, its
+      // AggregatedFrameworkStatus will be immutable after it is transitioned to FINAL_STATES,
+      // so it can be reused directly in next round pullStatus instead of pull from ZK.
+      if (aggFrameworkStatuses.containsKey(frameworkName)) {
+        AggregatedFrameworkStatus aggFrameworkStatus = aggFrameworkStatuses.get(frameworkName);
+        FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();
+        if (frameworkStatus.getFrameworkVersion().equals(frameworkVersion) &&
+            FrameworkStateDefinition.FINAL_STATES.contains(frameworkStatus.getFrameworkState())) {
+          reusableAggFrameworkStatuses.put(frameworkName, aggFrameworkStatus);
+        }
+      }
+    }
+
+    return reusableAggFrameworkStatuses;
   }
 
   private void updateCompletedFrameworkStatuses() throws Exception {

@@ -22,7 +22,9 @@ import com.microsoft.frameworklauncher.common.model.*;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ZookeeperStore {
   private static final DefaultLogger LOGGER = new DefaultLogger(ZookeeperStore.class);
@@ -241,10 +243,18 @@ public class ZookeeperStore {
   }
 
   public AggregatedLauncherStatus getAggregatedLauncherStatus() throws Exception {
+    return getAggregatedLauncherStatus(new HashSet<>());
+  }
+
+  public AggregatedLauncherStatus getAggregatedLauncherStatus(Set<String> excludedFrameworkNames) throws Exception {
     AggregatedLauncherStatus aggregatedLauncherStatus = new AggregatedLauncherStatus();
     aggregatedLauncherStatus.setLauncherStatus(getLauncherStatus());
     aggregatedLauncherStatus.setAggregatedFrameworkStatuses(new HashMap<>());
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
+      if (excludedFrameworkNames.contains(frameworkName)) {
+        continue;
+      }
+
       try {
         aggregatedLauncherStatus.getAggregatedFrameworkStatuses().put(frameworkName, getAggregatedFrameworkStatus(frameworkName));
       } catch (KeeperException.NoNodeException ignored) {
