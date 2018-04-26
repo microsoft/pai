@@ -101,8 +101,8 @@ class docker_handler:
 
         target_tag = "{0}:{1}".format(self.image_name_resolve(image_name), image_tag)
         push_logs = self.docker_client.images.push(target_tag)
-        print line
-        #self.logger.info(line)
+        print push_logs
+        #self.logger.info(push_logs)
 
 
 
