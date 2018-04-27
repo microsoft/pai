@@ -87,8 +87,15 @@ public class FeatureTestUtils {
 
   public static void initZK(ZookeeperStore zkStore, FrameworkRequest frameworkRequest, FrameworkStatus frameworkStatus)
       throws Exception {
-    String frameworkName = frameworkRequest.getFrameworkName();
+    initZK(zkStore);
 
+    String frameworkName = frameworkRequest.getFrameworkName();
+    zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
+    zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
+  }
+
+  public static void initZK(ZookeeperStore zkStore)
+      throws Exception {
     LauncherConfiguration launcherConfiguration = new LauncherConfiguration();
     launcherConfiguration.setHdfsRootDir(HDFS_BASE_DIR);
     launcherConfiguration.setAmStatusPushIntervalSec(10);
@@ -97,9 +104,7 @@ public class FeatureTestUtils {
     launcherStatus.setLauncherConfiguration(launcherConfiguration);
 
     zkStore.setLauncherStatus(launcherStatus);
-    zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
     zkStore.setLauncherRequest(new LauncherRequest());
-    zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
   }
 
   public static void initContainerList(List<Container> containerList, int length, Resource resource) {

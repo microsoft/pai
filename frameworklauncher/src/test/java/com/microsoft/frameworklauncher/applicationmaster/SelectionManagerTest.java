@@ -23,6 +23,8 @@ import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
+import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
+import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
@@ -61,6 +63,7 @@ public class SelectionManagerTest {
     Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
 
     MockApplicationMaster am = new MockApplicationMaster();
+    FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
     SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
@@ -284,6 +287,7 @@ public class SelectionManagerTest {
     Map<String, NodeConfiguration> gpuNodeConfig = createClusterTestNodes();
 
     MockApplicationMaster am = new MockApplicationMaster();
+    FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
     SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
