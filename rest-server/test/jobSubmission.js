@@ -51,6 +51,12 @@ describe('Submit job: POST /api/v1/jobs', () => {
         404,
         {}
       );
+    global.nock(global.launcherWebserviceUri)
+      .put(`/v1/Frameworks/${jobName}`)
+      .reply(
+        202,
+        {}
+      );
     global.nock(global.webhdfsUri)
       .put(/op=MKDIR/)
       .times(4)
