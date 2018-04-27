@@ -106,7 +106,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
    * REGION InternalUtils
    */
   private void pullStatus() throws Exception {
-    LOGGER.logDebug("Pulling AggregatedLauncherStatus");
+    LOGGER.logInfo("Pulling AggregatedLauncherStatus");
 
     Map<String, AggregatedFrameworkStatus> reusableAggFrameworkStatuses =
         getReusableAggregatedFrameworkStatuses();
@@ -122,8 +122,8 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     newAggFrameworkStatuses.putAll(nonreusableAggFrameworkStatuses);
     aggFrameworkStatuses = CommonExts.asReadOnly(newAggFrameworkStatuses);
 
-    LOGGER.logDebug("Pulled AggregatedLauncherStatus: " +
-        "AggregatedFrameworkStatus Reused Percentage: [%s / %s]",
+    LOGGER.logInfo("Pulled AggregatedLauncherStatus: " +
+            "AggregatedFrameworkStatus Reused Percentage: [%s / %s]",
         reusableAggFrameworkStatuses.size(), aggFrameworkStatuses.size());
 
     // Detect the corrupted AggregatedFrameworkStatus and lead Service.StatusManager.recover to clean
@@ -152,7 +152,8 @@ public class StatusManager extends AbstractService { // THREAD SAFE
 
       // For a specific requested FrameworkName and FrameworkVersion, its
       // AggregatedFrameworkStatus will be immutable after it is transitioned to FINAL_STATES,
-      // so it can be reused directly in next round pullStatus instead of pull from ZK.
+      // so it can be reused directly in next round pullStatus instead of pull from ZK,
+      // because it must be in ZK and must be the same as the corresponding data in ZK.
       if (aggFrameworkStatuses.containsKey(frameworkName)) {
         AggregatedFrameworkStatus aggFrameworkStatus = aggFrameworkStatuses.get(frameworkName);
         FrameworkStatus frameworkStatus = aggFrameworkStatus.getFrameworkStatus();

@@ -161,7 +161,7 @@ public class ZooKeeperClient implements Watcher {
     createNode(path, payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setSmallObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("setSmallObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
   }
 
@@ -172,7 +172,7 @@ public class ZooKeeperClient implements Watcher {
     byte[] serializedObj = CompressionUtils.decompress(getData(path));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getSmallObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("getSmallObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
 
     return YamlUtils.toObject(serializedObj, classRef);
@@ -246,7 +246,7 @@ public class ZooKeeperClient implements Watcher {
     gcOldVersions(path, payloadVersion, new HashSet<>(Collections.singletonList(READY_PAYLOAD_VERSIONS_NODE_NAME)));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setLargeObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("setLargeObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
   }
 
@@ -382,7 +382,7 @@ public class ZooKeeperClient implements Watcher {
     byte[] serializedObj = CompressionUtils.decompress(payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getLargeObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("getLargeObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
 
     return YamlUtils.toObject(serializedObj, classRef);

@@ -100,11 +100,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   private void pullRequest() throws Exception {
     Map<String, FrameworkRequest> newFrameworkRequests;
     try {
-      LOGGER.logDebug("Pulling AllFrameworkRequests");
+      LOGGER.logInfo("Pulling AllFrameworkRequests");
 
       newFrameworkRequests = zkStore.getAllFrameworkRequests();
 
-      LOGGER.logDebug("Pulled AllFrameworkRequests");
+      LOGGER.logInfo("Pulled AllFrameworkRequests");
     } catch (KeeperException.NoNodeException e) {
       LOGGER.logWarning(e,
           "Failed to getAllFrameworkRequests, LauncherRequest is deleted on ZK");

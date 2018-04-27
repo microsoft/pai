@@ -44,6 +44,12 @@ public class DefaultLogger {
     logger.log(level, GlobalConstants.LINE);
   }
 
+  public void logTrace(String format, Object... args) {
+    if (logger.isTraceEnabled()) {
+      logger.trace(CommonUtils.formatString(format, args));
+    }
+  }
+
   public void logDebug(String format, Object... args) {
     logger.debug(CommonUtils.formatString(format, args));
   }
@@ -71,6 +77,16 @@ public class DefaultLogger {
 
   public void log(Throwable e, Level level, String format, Object... args) {
     logger.log(level, CommonUtils.formatString(format, args), e);
+  }
+
+  public void logTrace(Throwable e, Object... args) {
+    logTrace(e, "", args);
+  }
+
+  public void logTrace(Throwable e, String format, Object... args) {
+    if (logger.isTraceEnabled()) {
+      logger.trace(CommonUtils.formatString(format, args), e);
+    }
   }
 
   public void logDebug(Throwable e, Object... args) {
