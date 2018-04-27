@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.service;
 
+import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -58,7 +59,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
   // Used to invert index FrameworkStatus by ApplicationId/FrameworkState instead of FrameworkName
   // FrameworkState -> FrameworkNames
-  private final Map<FrameworkState, HashSet<String>> frameworkStateLocators = new HashMap<>();
+  private final Map<FrameworkState, Set<String>> frameworkStateLocators = new HashMap<>();
   // Associated ApplicationId -> FrameworkName
   private final Map<String, String> associatedApplicationIdLocators = new HashMap<>();
   // Live Associated ApplicationId -> FrameworkName

@@ -39,7 +39,7 @@ public class CompressionUtils {
       byte[] compressedBytes = bos.toByteArray();
 
       long end = System.currentTimeMillis();
-      LOGGER.logDebug("Compressed from %s bytes to %s bytes in %sms.",
+      LOGGER.logTrace("Compressed from %s bytes to %s bytes in %sms.",
           bytes.length, compressedBytes.length, end - start);
       return compressedBytes;
     }
@@ -48,7 +48,7 @@ public class CompressionUtils {
   // Works for both decompressed and compressed bytes
   public static byte[] decompress(byte[] bytes) throws IOException {
     if (!isCompressed(bytes)) {
-      LOGGER.logDebug("Found already decompressed bytes. Ignore it.");
+      LOGGER.logTrace("Found already decompressed bytes. Ignore it.");
       return bytes;
     }
 
@@ -59,7 +59,7 @@ public class CompressionUtils {
         byte[] decompressedBytes = IOUtils.toByteArray(gis);
 
         long end = System.currentTimeMillis();
-        LOGGER.logDebug("Decompressed from %s bytes to %s bytes in %sms.",
+        LOGGER.logTrace("Decompressed from %s bytes to %s bytes in %sms.",
             bytes.length, decompressedBytes.length, end - start);
         return decompressedBytes;
       }

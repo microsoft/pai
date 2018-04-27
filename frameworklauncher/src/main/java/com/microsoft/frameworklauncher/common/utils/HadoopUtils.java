@@ -182,8 +182,8 @@ public class HadoopUtils {
     }
   }
 
-  public static HashSet<String> getLiveContainerIdsFromRM(String attemptId, String amContainerId) throws Exception {
-    HashSet<String> containerIds = new HashSet<>();
+  public static Set<String> getLiveContainerIdsFromRM(String attemptId, String amContainerId) throws Exception {
+    Set<String> containerIds = new HashSet<>();
 
     YarnClient yarnClient = YarnClient.createYarnClient();
     yarnClient.init(conf);

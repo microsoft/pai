@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.webserver;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.model.FrameworkRequest;
 import com.microsoft.frameworklauncher.common.model.FrameworkStatus;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
@@ -28,6 +29,7 @@ import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.webapp.WebApps;
 
+import java.util.List;
 import java.util.Map;
 
 // Forward Http Request to ZK Request and Return ZK Status.
@@ -79,6 +81,8 @@ public class WebServer extends AbstractService {
     super.recover();
     requestManager = new RequestManager(this, conf, zkStore);
     requestManager.start();
+
+    // Run StatusManager depends on RequestManager
     statusManager = new StatusManager(this, conf, zkStore);
     statusManager.start();
   }
@@ -129,5 +133,13 @@ public class WebServer extends AbstractService {
       Map<String, FrameworkStatus> completedFrameworkStatuses)
       throws Exception {
     requestManager.onCompletedFrameworkStatusesUpdated(completedFrameworkStatuses);
+  }
+
+
+  /**
+   * REGION ReadInterface
+   */
+  public List<FrameworkRequest> getAllFrameworkRequests() throws Exception {
+    return requestManager.getFrameworkRequests(null, null);
   }
 }

@@ -22,6 +22,9 @@ import com.microsoft.frameworklauncher.common.model.*;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ZookeeperStore {
   private static final DefaultLogger LOGGER = new DefaultLogger(ZookeeperStore.class);
@@ -206,8 +209,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
-    HashMap<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
+  public Map<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
+    Map<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherRequestPath())) {
       try {
         allFrameworkRequests.put(frameworkName, getFrameworkRequest(frameworkName));
@@ -240,10 +243,18 @@ public class ZookeeperStore {
   }
 
   public AggregatedLauncherStatus getAggregatedLauncherStatus() throws Exception {
+    return getAggregatedLauncherStatus(new HashSet<>());
+  }
+
+  public AggregatedLauncherStatus getAggregatedLauncherStatus(Set<String> excludedFrameworkNames) throws Exception {
     AggregatedLauncherStatus aggregatedLauncherStatus = new AggregatedLauncherStatus();
     aggregatedLauncherStatus.setLauncherStatus(getLauncherStatus());
     aggregatedLauncherStatus.setAggregatedFrameworkStatuses(new HashMap<>());
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
+      if (excludedFrameworkNames.contains(frameworkName)) {
+        continue;
+      }
+
       try {
         aggregatedLauncherStatus.getAggregatedFrameworkStatuses().put(frameworkName, getAggregatedFrameworkStatus(frameworkName));
       } catch (KeeperException.NoNodeException ignored) {
@@ -260,8 +271,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
-    HashMap<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
+  public Map<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
+    Map<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
       try {
         allFrameworkStatuses.put(frameworkName, getFrameworkStatus(frameworkName));

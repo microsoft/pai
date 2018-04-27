@@ -23,7 +23,7 @@ import java.util.List;
 
 public class AggregateException extends Exception {
 
-  private final ArrayList<Exception> exceptions;
+  private final List<Exception> exceptions;
 
   public AggregateException() {
     this("One or more exceptions occurred.");

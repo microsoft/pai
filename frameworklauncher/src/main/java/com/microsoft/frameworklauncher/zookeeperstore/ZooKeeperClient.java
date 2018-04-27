@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 // TODO: This is an incomplete porting, replace it with Apache Curator
@@ -160,7 +161,7 @@ public class ZooKeeperClient implements Watcher {
     createNode(path, payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setSmallObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("setSmallObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
   }
 
@@ -171,7 +172,7 @@ public class ZooKeeperClient implements Watcher {
     byte[] serializedObj = CompressionUtils.decompress(getData(path));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getSmallObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("getSmallObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
 
     return YamlUtils.toObject(serializedObj, classRef);
@@ -245,7 +246,7 @@ public class ZooKeeperClient implements Watcher {
     gcOldVersions(path, payloadVersion, new HashSet<>(Collections.singletonList(READY_PAYLOAD_VERSIONS_NODE_NAME)));
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("setLargeObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("setLargeObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
   }
 
@@ -257,7 +258,7 @@ public class ZooKeeperClient implements Watcher {
   private void gcOldVersions(
       String versionsRootPath,
       String currentVersion,
-      HashSet<String> excludeNodeNames) throws Exception {
+      Set<String> excludeNodeNames) throws Exception {
     Long currentVersionInt = Long.parseLong(currentVersion);
     for (String version : getChildren(versionsRootPath)) {
       if (excludeNodeNames != null && excludeNodeNames.contains(version)) {
@@ -381,7 +382,7 @@ public class ZooKeeperClient implements Watcher {
     byte[] serializedObj = CompressionUtils.decompress(payload);
 
     long end = System.currentTimeMillis();
-    LOGGER.logDebug("getLargeObject with %s bytes on path %s in %sms.",
+    LOGGER.logTrace("getLargeObject with %s bytes on path %s in %sms.",
         serializedObj.length, path, end - start);
 
     return YamlUtils.toObject(serializedObj, classRef);

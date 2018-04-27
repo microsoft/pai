@@ -120,15 +120,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         try {
           checkAmVersion();
           pullRequest();
+
+          Thread.sleep(conf.getLauncherConfig().getAmRequestPullIntervalSec() * 1000);
         } catch (Exception e) {
           // Directly throw TransientException to AM to actively migrate to another node
           handleException(e);
-        } finally {
-          try {
-            Thread.sleep(conf.getLauncherConfig().getAmRequestPullIntervalSec() * 1000);
-          } catch (InterruptedException e) {
-            handleException(e);
-          }
         }
       }
     }).start();

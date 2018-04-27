@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.client.LauncherClient;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
@@ -938,7 +939,7 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private Set<String> resyncTasksWithLiveContainers(HashSet<String> liveContainerIds) throws Exception {
+  private Set<String> resyncTasksWithLiveContainers(Set<String> liveContainerIds) throws Exception {
     String logScope = "resyncTasksWithLiveContainers";
     Set<String> retainContainerIds = new HashSet<String>();
 
@@ -1330,7 +1331,7 @@ public class ApplicationMaster extends AbstractService {
     }, delaySec * 1000);
   }
 
-  public void onLiveContainersUpdated(HashSet<String> liveContainerIds) throws Exception {
+  public void onLiveContainersUpdated(Set<String> liveContainerIds) throws Exception {
     // onLiveContainersUpdated is already in queue, so queue it again will disorder
     // the result of resyncWithRM and other SystemTasks
     resyncTasksWithLiveContainers(liveContainerIds);
