@@ -408,7 +408,7 @@ class Job {
           'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
           'taskRolesNumber': data.taskRoles.length,
           'hdfsUri': launcherConfig.hdfsUri,
-          'statusUri': launcherConfig.frameworkStatusPath(data.jobName),
+          'aggregatedStatusUri': launcherConfig.frameworkAggregatedStatusPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
         });

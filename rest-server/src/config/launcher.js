@@ -58,6 +58,10 @@ launcherConfig.frameworkStatusPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
 };
 
+launcherConfig.frameworkAggregatedStatusPath = (frameworkName) => {
+  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/AggregatedFrameworkStatus`;
+};
+
 launcherConfig.frameworkRequestPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
 };
@@ -87,6 +91,9 @@ const launcherConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   frameworkStatusPath: Joi.func()
+    .arity(1)
+    .required(),
+  frameworkAggregatedStatusPath: Joi.func()
     .arity(1)
     .required(),
   frameworkRequestPath: Joi.func()
