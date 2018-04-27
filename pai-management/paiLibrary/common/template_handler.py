@@ -15,6 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../grafana/dashboards
-    dst: src/grafana/copied_file
+import jinja2
+import logging
+import logging.config
+
+logger = logging.getLogger(__name__)
+
+
+def generate_from_template_dict(template_data, map_table):
+
+    generated_file = jinja2.Template(template_data).render(
+        map_table
+    )
+
+    return generated_file

@@ -16,10 +16,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # the copy will be placed in the path src/framworklauncher/copied_file
-copy:
-  - ../frameworklauncher
+copy-list:
+  - src: ../frameworklauncher
+    dst: src/frameworklauncher/copied_file
 
-templatelist:
+template-list:
   - dockerfile
 
 prerequisite: hadoop-run

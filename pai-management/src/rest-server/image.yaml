@@ -15,12 +15,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy:
+copy-list:
   # created by the prepare hadoop function on docker_build.py
-  - src/hadoop-run/hadoop
-  - ../rest-server
+  - src: src/hadoop-run/hadoop
+    dst: src/rest-server/copied_file
+  - src: ../rest-server
+    dst: src/rest-server/copied_file
 
-templatelist:
+template-list:
   - dockerfile
-
-prerequisite: None

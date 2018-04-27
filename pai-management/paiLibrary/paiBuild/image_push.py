@@ -15,6 +15,46 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../grafana/dashboards
-    dst: src/grafana/copied_file
+
+
+from ..common import linux_shell
+from ..common import file_handler
+from ..common import directory_handler
+from ..common import docker_handler
+from ..common import template_handler
+
+
+
+class image_push:
+
+
+    def __init__(self, image_name, cluster_object_model, docker_cli):
+
+        self.image_name = image_name
+        self.tag = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_tag']
+        self.docker_cli = docker_cli
+
+
+
+    def image_tag(self):
+
+        self.docker_cli.image_tag_to_registry(
+            self.image_name,
+            self.tag
+        )
+
+
+
+    def image_push(self):
+
+        self.docker_cli.image_push_to_registry(
+            self.image_name,
+            self.tag
+        )
+
+
+
+    def run(self):
+
+        self.image_tag()
+        self.image_push()

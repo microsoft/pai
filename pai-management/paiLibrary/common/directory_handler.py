@@ -15,13 +15,52 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import linux_shell
 import os
+
 
 
 def get_subdirectory_list(path):
 
     return next(os.walk(path))[1]
+
+
+
+def directory_create(path):
+
+    if os.path.exists(path) == False:
+        shell_cmd = "mkdir -p {0}".format(path)
+        error_msg = "failed to mkdir -p {0}".format(path)
+        linux_shell.execute_shell(shell_cmd, error_msg)
+
+
+
+def directory_copy(src_item, dst):
+
+    directory_create(dst)
+
+    shell_cmd = "cp -r {0} {1}".format(src_item, dst)
+    error_msg = "failed to copy {0}".format(src_item)
+    linux_shell.execute_shell(shell_cmd, error_msg)
+
+
+
+def directory_delete(path):
+
+    shell_cmd = "rm -rf {0}".format(path)
+    error_msg = "failed to delete {0}".format(path)
+    linux_shell.execute_shell(shell_cmd, error_msg)
+
+
+
+def directory_exist_or_not(path):
+
+    return os.path.isfile(path) != True and os.path.exists(path) == True
+
+
+
+
+
 
 
 

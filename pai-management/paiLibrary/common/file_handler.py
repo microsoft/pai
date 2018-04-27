@@ -20,6 +20,8 @@ import yaml
 import logging
 import logging.config
 
+import linux_shell
+
 
 logger = logging.getLogger(__name__)
 
@@ -53,4 +55,15 @@ def write_generated_file(file_path, content_data):
 def file_exist_or_not(file_path):
 
     return os.path.isfile(file_path)
+
+
+
+def file_delete(file_path):
+
+    if file_exist_or_not(file) == True:
+        shell_cmd = "rm -rf {0}".format(file_path)
+        error_msg = "failed to rm {0}".format(file_path)
+        linux_shell.execute_shell(shell_cmd, error_msg)
+
+
 
