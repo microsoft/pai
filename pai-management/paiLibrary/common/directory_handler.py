@@ -15,9 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+import logging
+import logging.config
 import linux_shell
 import os
 
+
+logger = logging.getLogger(__name__)
 
 
 def get_subdirectory_list(path):

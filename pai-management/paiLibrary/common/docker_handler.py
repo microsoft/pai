@@ -91,7 +91,12 @@ class docker_handler:
 
         cmd = "docker build -t {0} {1}".format(target_tag, path_to_dockerfile)
         err_msg = "An error occurs, when building your image [ {0} ]".format(image_name)
+
+        self.logger.info("Begin to execute the command: {0}".format(cmd))
+
         linux_shell.execute_shell(cmd, err_msg)
+
+        self.logger.info("Executing is successful.")
 
 
 
@@ -110,7 +115,12 @@ class docker_handler:
 
         cmd = "docker tag {0} {1}".format(origin_tag, target_tag)
         err_msg = "An error occurs, when taging your image [ {0} ] to the target registry".format(origin_image_name)
+
+        self.logger.info("Begin to execute the command: {0}".format(cmd))
+
         linux_shell.execute_shell(cmd, err_msg)
+
+        self.logger.info("Executing is successful.")
 
 
 
@@ -127,7 +137,12 @@ class docker_handler:
 
         cmd = "docker push {0}".format(target_tag)
         err_msg = "An error occurs, when pushing your image [ {0} ] to the target registry".format(image_name)
+
+        self.logger.info("Begin to execute the command: {0}".format(cmd))
+
         linux_shell.execute_shell(cmd, err_msg)
+
+        self.logger.info("Executing is successful.")
 
 
 

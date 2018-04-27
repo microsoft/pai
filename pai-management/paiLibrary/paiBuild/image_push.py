@@ -15,7 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import logging
+import logging.config
 
 from ..common import linux_shell
 from ..common import file_handler
@@ -30,6 +31,8 @@ class image_push:
 
     def __init__(self, image_name, cluster_object_model, docker_cli):
 
+        self.logger = logging.getLogger(__name__)
+
         self.image_name = image_name
         self.tag = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_tag']
         self.docker_cli = docker_cli
@@ -38,6 +41,7 @@ class image_push:
 
     def image_tag(self):
 
+        self.logger.info("Tag the {0} to the registry".format(self.image_name))
         self.docker_cli.image_tag_to_registry(
             self.image_name,
             self.tag
@@ -47,6 +51,7 @@ class image_push:
 
     def image_push(self):
 
+        self.logger.info("push the {0} to the registry".format(self.image_name))
         self.docker_cli.image_push_to_registry(
             self.image_name,
             self.tag

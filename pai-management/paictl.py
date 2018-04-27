@@ -30,6 +30,7 @@ import logging.config
 from paiLibrary.common import linux_shell
 from paiLibrary.common import file_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
+from paiLibrary.paiBuild import build_center
 
 
 
@@ -182,8 +183,20 @@ def hadoop_ai_build(os_type = "ubuntu16.04"):
 
 def pai_build():
 
-    None
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
+    parser.add_argument('-n', '--imagename', default='all', help="Build and push target image to the registry")
+    args = parser.parse_args(sys.argv[1:])
 
+    config_path = args.path
+    image_name = args.imagename
+    cluster_object_model = load_cluster_objectModel_service(config_path)
+
+    image_list = None
+    if image_name != "all":
+        image_list = [ image_name ]
+
+    center = build_center.build_center(cluster_object_model, image_list)
 
 
 
@@ -223,7 +236,7 @@ def main():
 
     elif module == "pai-build":
 
-        None
+        pai_build()
 
     elif module == "k8s-control":
 
