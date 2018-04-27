@@ -119,7 +119,7 @@ class docker_handler:
         target_tag = "{0}:{1}".format(self.image_name_resolve(image_name), image_tag)
 
         # Comment the code with the docker python lib. Because I think the shell command's log
-        # is more friendly.s
+        # is more friendly.
         """
         push_logs = self.docker_client.images.push(target_tag)
         self.logger.info(push_logs)
