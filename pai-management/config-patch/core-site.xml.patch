@@ -1,0 +1,25 @@
+--- hadoop-2.7.2/etc/hadoop/core-site.xml	2016-01-25 19:20:20.000000000 -0500
++++ core-site.xml	2018-04-19 01:26:36.331257815 -0400
+@@ -17,4 +17,22 @@
+ <!-- Put site-specific property overrides in this file. -->
+ 
+ <configuration>
++
++<property>
++  <name>fs.defaultFS</name>
++  <value>hdfs://{HDFS_ADDRESS}:9000</value>
++  <description>
++         Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
++         none is given. 
++  </description>
++</property>
++
++<property>
++  <name>hadoop.tmp.dir</name>
++  <value>/var/lib/hadoopdata</value>
++  <description>
++         A base for other temporary directories.
++  </description>
++</property>
++
+ </configuration>

@@ -112,17 +112,32 @@ const get = (req, res) => {
  * Submit or update job.
  */
 const update = (req, res) => {
-  req.body.username = req.user.username;
-  Job.prototype.putJob(req.job.name, req.body, (err) => {
+  let name = req.job.name;
+  let data = req.body;
+  data.originalData = req.originalBody;
+  data.userName = req.user.username;
+  Job.prototype.putJob(name, data, (err) => {
     if (err) {
-      logger.warn('update job %s error\n%s', req.job.name, err.stack);
-      return res.status(500).json({
-        error: 'JobUpdateError',
-        message: 'job update error',
-      });
+      logger.warn('update job %s error\n%s', name, err.stack);
+      if (err.message === 'VirtualClusterNotFound') {
+        return res.status(500).json({
+          error: 'JobUpdateWithInvalidVirtualCluster',
+          message: `job update error: could not find virtual cluster ${data.virtualCluster}`,
+        });
+      } else if (err.message === 'NoRightAccessVirtualCluster') {
+        return res.status(401).json({
+          error: 'JobUpdateWithNoRightVirtualCluster',
+          message: `job update error: no virtual cluster right to access ${data.virtualCluster}`,
+        });
+      } else {
+        return res.status(500).json({
+          error: 'JobUpdateError',
+          message: err.message,
+        });
+      }
     } else {
       return res.status(202).json({
-        message: `update job ${req.job.name} successfully`,
+        message: `update job ${name} successfully`,
       });
     }
   });
@@ -154,6 +169,7 @@ const remove = (req, res) => {
  */
 const execute = (req, res, next) => {
   req.body.username = req.user.username;
+  req.body.admin = req.user.admin;
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       logger.warn('execute job %s error\n%s', req.job.name, err.stack);
@@ -174,10 +190,10 @@ const getConfig = (req, res) => {
   Job.prototype.getJobConfig(
     req.job.jobStatus.username,
     req.job.name,
-    (configJsonString, error) => {
-      if (error === null) {
-        return res.status(200).json(configJsonString);
-      } else if (error.message === 'ConfigFileNotFound') {
+    (error, result) => {
+      if (!error) {
+        return res.status(200).json(result);
+      } else if (error.message.startsWith('[WebHDFS] 404')) {
         return res.status(404).json({
           error: 'ConfigFileNotFound',
           message: error.message,
@@ -200,10 +216,10 @@ const getSshInfo = (req, res) => {
     req.job.jobStatus.username,
     req.job.name,
     req.job.jobStatus.appId,
-    (sshInfo, error) => {
-      if (error === null) {
-        return res.status(200).json(sshInfo);
-      } else if (error.message === 'SshInfoNotFound') {
+    (error, result) => {
+      if (!error) {
+        return res.status(200).json(result);
+      } else if (error.message.startsWith('[WebHDFS] 404')) {
         return res.status(404).json({
           error: 'SshInfoNotFound',
           message: error.message,

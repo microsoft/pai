@@ -70,7 +70,11 @@ public class RMResyncHandler { // THREAD SAFE
     HashSet<String> liveContainerIds = null;
 
     try {
+      LOGGER.logDebug("Started to getLiveContainerIdsFromRM");
+
       liveContainerIds = HadoopUtils.getLiveContainerIdsFromRM(conf.getAttemptId(), conf.getAmContainerId());
+
+      LOGGER.logDebug("Succeeded to getLiveContainerIdsFromRM");
     } catch (Exception e) {
       LOGGER.logWarning(e,
           "Exception occurred during getLiveContainerIdsFromRM. It should be transient. " +

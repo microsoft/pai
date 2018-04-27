@@ -30,7 +30,7 @@ function exit_handler()
   set +x
   exec 17>&-
   hdfs dfs -put /tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log \
-    {{{ hdfsUri }}}/Container/{{{ jobData.username }}}/{{{ jobData.jobName }}}/log/
+    {{{ hdfsUri }}}/Container/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/log/
   kill 0
 }
 

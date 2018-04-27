@@ -72,6 +72,7 @@ A json file describe detailed configuration required for a job submission. The d
   "dataDir":   String,
   "outputDir": String,
   "codeDir":   String,
+  "virtualCluster": String,
   "taskRoles": [
     {
       "name":       String,
@@ -105,14 +106,15 @@ Below please find the detailed explanation for each of the parameters in the con
 | `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
 | `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
+| `virtualCluster`               | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
 | `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
-| `taskRole.name`                | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the task role, need to be unique with other roles |
+| `taskRole.name`                | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
 | `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.portList`            | List, optional             | List of `portType` to use                |
-| `taskRole.portType.label`      | String in `^[A-Za-z0-9\-._~]+$` format, required | Label name for the port type |
+| `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
 | `taskRole.portType.beginAt`    | Integer, required          | The port to begin with in the port type, 0 for random selection |
 | `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
@@ -147,6 +149,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
 | PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_JOB_VC_NAME                    | The virtual cluster in which the job is running     |
 | PAI_USER_NAME                      | User who submit the job                  |
 | PAI_DATA_DIR                       | `dataDir` in config file                 |
 | PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
@@ -182,6 +185,7 @@ A distributed TensorFlow job is listed below as an example:
   "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/output",
   // this example uses code from tensorflow benchmark https://git.io/vF4wT
   "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/code",
+  "virtualCluster": "your_virtual_cluster",
   "taskRoles": [
     {
       "name": "ps_server",
@@ -205,7 +209,7 @@ A distributed TensorFlow job is listed below as an example:
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     },
     {
       "name": "worker",
@@ -226,7 +230,7 @@ A distributed TensorFlow job is listed below as an example:
           "portNumber": 1
         }
       ],
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --num_gpus=4 --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     }
   ],
   // kill all 4 tasks when 2 worker tasks completed

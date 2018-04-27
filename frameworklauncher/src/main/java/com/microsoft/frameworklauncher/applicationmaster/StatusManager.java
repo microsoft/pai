@@ -27,6 +27,7 @@ import com.microsoft.frameworklauncher.common.service.AbstractService;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -293,7 +294,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   }
 
   // Should call disassociateTaskWithContainer if associateTaskWithContainer failed
-  private void associateTaskWithContainer(TaskStatusLocator locator, Container container) throws Exception {
+  private void associateTaskWithContainer(TaskStatusLocator locator, Container container, Map<String, Ports> portDefinitions) throws Exception {
     TaskStatus taskStatus = getTaskStatus(locator);
     String containerId = container.getId().toString();
 
@@ -306,7 +307,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerConnectionLostCount(0);
     taskStatus.setContainerGpus(
         ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute());
-    taskStatus.setContainerPorts(ResourceDescriptor.fromResource(container.getResource()).getPortRanges());
+
+    String portString = ValueRangeUtils.convertPortRangeToPortDefinitionsString(
+        ResourceDescriptor.fromResource(container.getResource()).getPortRanges(), portDefinitions);
+    taskStatus.setContainerPorts(portString);
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -511,10 +515,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusList) {
       if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
-        return taskStatus.getContainerPorts();
+        return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
       }
     }
-    return null;
+    return new ArrayList<>();
   }
 
   // Returned TaskStatus is readonly, caller should not modify it
@@ -707,7 +711,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
       String containerId = event.getContainer().getId().toString();
       try {
-        associateTaskWithContainer(locator, event.getContainer());
+        associateTaskWithContainer(locator, event.getContainer(), event.getPortDefinitions());
         LOGGER.logInfo("Associated Task %s with Container %s", locator, containerId);
       } catch (Exception e) {
         disassociateTaskWithContainer(locator);

@@ -34,6 +34,13 @@ public class Ports implements Serializable {
   // if start is 0, and count > 0, it means any ports are ok, and the number is count.
   private Integer count;
 
+  public static Ports newInstance(Integer start, Integer count) {
+    Ports ports = new Ports();
+    ports.setStart(start);
+    ports.setCount(count);
+    return ports;
+  }
+
   public Integer getStart() {
     return start;
   }

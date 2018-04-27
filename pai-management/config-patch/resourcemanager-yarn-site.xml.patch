@@ -1,0 +1,208 @@
+--- hadoop-2.7.2/etc/hadoop/yarn-site.xml	2016-01-25 19:20:20.000000000 -0500
++++ resourcemanager-yarn-site.xml	2018-04-19 01:26:36.903259019 -0400
+@@ -12,8 +12,204 @@
+   See the License for the specific language governing permissions and
+   limitations under the License. See accompanying LICENSE file.
+ -->
++
++
+ <configuration>
+ 
+-<!-- Site specific YARN configuration properties -->
++    <property>
++        <name>yarn.nodemanager.resource.cpu-vcores</name>
++        <value>24</value>
++        <description>Number of CPU cores that can be allocated for containers.</description>
++    </property>
++
++    <property>
++        <name>yarn.nodemanager.resource.memory-mb</name>
++        <value>204800</value>
++        <description>Number of memory that can be allocated for containers.</description>
++    </property>
++    
++    <property>
++        <name>yarn.resourcemanager.max-completed-applications</name>
++        <value>1000</value>
++        <description>maximum number of completed applications</description>
++    </property>
++
++    <property>
++        <name>yarn.scheduler.maximum-allocation-mb</name>
++        <value>1048576</value>
++        <description>default is 8GB, here we set 1024G</description>
++    </property>
++    
++    <property>
++      <name>yarn.resourcemanager.scheduler.class</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
++    </property>
++    
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.enable</name>
++      <value>true</value>
++    </property>
++    
++    <property>
++      <name>yarn.resourcemanager.scheduler.monitor.policies</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity.ProportionalCapacityPreemptionPolicy</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.store.class</name>
++      <value>org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore</value>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.hostname</name>
++        <value>{RESOURCEMANAGER_ADDRESS}</value>
++        <description>The hostname of the RM.</description>
++    </property>
++
++    <property>
++        <name>yarn.resourcemanager.webapp.address</name>
++        <value>{RESOURCEMANAGER_ADDRESS}:8088</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.zk-address</name>
++       <value>{ZOOKEEPER_ADDRESS}:2181</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.recovery.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.resourcemanager.connect.retry-interval.ms</name>
++       <value>1000</value>
++    </property>
++
++    <property>
++      <name>yarn.log-aggregation-enable</name>
++       <value>true</value>
++    </property>
++
++    <property>
++      <name>yarn.log-aggregation.retain-seconds</name>
++       <value>604800</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.remote-app-log-dir</name>
++       <value>/sys/logs</value>
++    </property>
++
++    <property>  
++        <name>yarn.nodemanager.aux-services</name>  
++        <value>mapreduce_shuffle</value>  
++    </property>
++
++    <property>
++        <name>yarn.nodemanager.delete.debug-delay-sec</name>
++        <value>86400</value>
++    </property>
++
++    <property>
++        <name>yarn.node-labels.fs-store.root-dir</name>
++        <value>hdfs://{HDFS_ADDRESS}:9000/yarn/node-labels</value>
++    </property>
++    
++    <property>
++        <name>yarn.node-labels.enabled</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.app.mapreduce.am.staging-dir</name>
++        <value>/tmp/hadoop-yarn/staging</value>
++    </property>
++
++    <property>
++        <name>yarn.log.server.url</name>
++        <value>http://{LOGSERVER_ADDRESS}:8188/applicationhistory/logs</value>
++    </property>
++    
++    <property>
++      <name>yarn.nodemanager.recovery.enabled</name>
++      <value>true</value>
++    </property>
++    
++    <property>
++      <name>yarn.nodemanager.recovery.dir</name>
++      <value>/var/lib/yarn/yarn-nm-recovery</value>
++    </property>
++
++    <property>
++      <name>yarn.nodemanager.log-dirs</name>
++      <value>/var/lib/yarn/userlogs</value>
++    </property>
++
++    <property>
++       <name>yarn.timeline-service.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++       <name>yarn.resourcemanager.system-metrics-publisher.enabled</name>
++       <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.enabled</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.hostname</name>
++        <value>{TIMELINE_SERVER_ADDRESS}</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.bind-host</name>
++        <value>0.0.0.0</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.max-applications</name>
++        <value>1000</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.generic-application-history.fs-history-store.uri</name>
++        <value>/yarn/timeline/generic-history</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.ttl-enable</name>
++        <value>true</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.ttl-ms</name>
++        <value>2419200000</value>
++    </property>
++
++    <property>
++        <name>yarn.timeline-service.handler-thread-count</name>
++        <value>16</value>
++    </property>
++
++    <property>
++       <name>yarn.timeline-service.generic-application-history.store-class</name>
++       <value>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore</value>
++    </property>
++
++   <property>
++       <name>yarn.timeline-service.generic-application-history.save-non-am-container-meta-info</name>
++        <value>true</value>
++   </property>
++
++    <property>
++        <name>yarn.timeline-service.http-cross-origin.enabled</name>
++        <value>true</value>
++    </property>
+ 
+ </configuration>
++

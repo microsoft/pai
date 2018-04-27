@@ -1,0 +1,37 @@
+--- hadoop/mapred-site.xml.template	2017-11-13 02:17:42.673171586 -0500
++++ bootstrap/hadoop-service/hadoop-configuration/nodemanager-mapred-site.xml	2017-11-13 02:37:45.785753184 -0500
+@@ -1,5 +1,4 @@
+ <?xml version="1.0"?>
+-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ <!--
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+@@ -14,8 +13,27 @@
+   limitations under the License. See accompanying LICENSE file.
+ -->
+ 
+-<!-- Put site-specific property overrides in this file. -->
+ 
+ <configuration>
++  <property>
++    <name>mapreduce.framework.name</name>
++    <value>yarn</value>
++  </property>
+ 
++  <property>
++    <name>mapreduce.jobhistory.address</name>
++    <value>{LOGSERVER_ADDRESS}:10020</value>
++  </property>
++
++  <property>
++    <name>mapreduce.jobhistory.webapp.address</name>
++    <value>{LOGSERVER_ADDRESS}:19888</value>
++  </property>
++
++  <property>
++    <name>mapreduce.job.emit-timeline-data</name>
++    <value>true</value>
++  </property>
++
++  
+ </configuration>

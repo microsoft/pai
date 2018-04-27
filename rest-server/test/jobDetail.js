@@ -17,6 +17,14 @@
 
 // test
 describe('JobDetail API /api/v1/jobs/:jobName', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   // Mock launcher webservice
   beforeEach(() => {
     nock(launcherWebserviceUri)
@@ -53,8 +61,8 @@ describe('JobDetail API /api/v1/jobs/:jobName', () => {
   //
   // Positive cases
   //
-  // GET /api/v1/jobs/test_job
-  it('Case 1 (Positive): should return test_job detail info', (done) => {
+
+  it('[P-01] Should return test_job detail info', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/test_job')
       .end((err, res) => {
@@ -69,8 +77,8 @@ describe('JobDetail API /api/v1/jobs/:jobName', () => {
   //
   // Negative cases
   //
-  // GET /api/v1/jobs/test_job
-  it('Case 1 (Negative): job does not exist should return error', (done) => {
+
+  it('[N-01] Job does not exist should return error', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/test_job2')
       .end((err, res) => {
@@ -80,7 +88,7 @@ describe('JobDetail API /api/v1/jobs/:jobName', () => {
       });
   });
 
-  it('Case 2 (Negative): can not connect to launcher', (done) => {
+  it('[N-02] Cannot connect to Launcher', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/test_job3')
       .end((err, res) => {

@@ -1,0 +1,68 @@
+<!--
+  Step 2 of 4 to set up Hadoop queues.
+  Rewrite the configurations of virtual clusters in cluster config yaml file
+  to the template file of the configuration of the capacity cluster.
+-->
+
+<configuration>
+
+  <property>
+    <name>yarn.scheduler.capacity.resource-calculator</name>
+    <!--
+      TODO: Change to GPU Resource Calculator after PAI has deployed Hadoop-AI
+      <value>org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator</value>
+      <description>
+        Calculate resources using GPU only. This is a feature of Hadoop-AI.
+      </description>
+    -->
+    <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+    <description>
+      The ResourceCalculator implementation to be used to compare
+      Resources in the scheduler.
+      The default i.e. DefaultResourceCalculator only uses Memory while
+      DominantResourceCalculator uses dominant-resource to compare
+      multi-dimensional resources such as Memory, CPU etc.
+    </description>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
+     <value>1</value>
+  </property>
+
+  <property>
+     <name>yarn.scheduler.capacity.maximum-applications</name>
+     <value>10000</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.queues</name>
+    <value>
+      {{ clusterinfo.hadoopQueues|join(", ") }}
+    </value>
+    <description>
+      The queues at the this level (root is the root queue).
+    </description>
+  </property>
+
+{% for queueName in clusterinfo.hadoopQueues %}
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.capacity</name>
+    <value>{{ clusterinfo.hadoopQueues[queueName]["weight"] }}</value>
+    <description>
+      {{ clusterinfo.hadoopQueues[queueName]["description"] }}
+    </description>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent</name>
+    <value>100</value>
+  </property>
+{% endfor %}
+
+</configuration>

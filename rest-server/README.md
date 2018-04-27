@@ -312,44 +312,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-7. `DELETE jobs/:jobName`
-
-    Remove a job from the system.
-
-    *Request*
-    ```
-    DELETE /api/v1/jobs/:jobName
-    Authorization: Bearer <ACCESS_TOKEN>
-    ```
-
-    *Response if succeeded*
-    ```
-    {
-      "message": "deleted job $jobName successfully"
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
-    }
-    ```
-
-8. `GET jobs/:jobName/config`
+7. `GET jobs/:jobName/config`
 
     Get job config JSON content.
 
@@ -387,7 +350,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-9. `GET jobs/:jobName/ssh`
+8. `GET jobs/:jobName/ssh`
 
     Get job SSH info.
 
@@ -436,7 +399,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-10. `PUT jobs/:jobName/executionType`
+9. `PUT jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -471,7 +434,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "job execute error"
     }
 
-11. `GET virtual-clusters/`
+10. `GET virtual-clusters`
 
     Get the list of virtual clusters.
 
@@ -500,7 +463,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
     
-12. `GET virtual-clusters/:vcName`
+11. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
 
