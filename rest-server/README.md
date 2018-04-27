@@ -190,7 +190,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-4. `PUT user virtual clusters` (administrator only)
+4. `PUT user/:username/virtualClusters` (administrator only)
 
     Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
 
