@@ -144,7 +144,11 @@ class Job {
               .headers(launcherConfig.webserviceRequestHeaders)
               .send(this.generateFrameworkDescription(data))
               .end((res) => {
-                next();
+                if (res.status === 202) {
+                  next();
+                } else {
+                  next(new Error('[Launcher] ' + res.status + ' ' + JSON.stringify(res.body)));
+                }
               });
           } else {
             next(error);
