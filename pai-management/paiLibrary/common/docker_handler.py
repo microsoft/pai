@@ -79,11 +79,20 @@ class docker_handler:
 
     def image_build(self, image_name, path_to_dockerfile, image_tag = "latest"):
 
-
         target_tag = "{0}:{1}".format(image_name, image_tag)
+
+        # Comment the code with the docker python lib. Because I think the shell command's log
+        # is more friendly.
+        """"
         image_obj, build_log = self.docker_client.images.build(path=path_to_dockerfile, tag=target_tag, rm=True, pull=True)
         for line in build_log:
             self.logger.info(line)
+        """
+
+        cmd = "docker build -t {0} {1}".format(target_tag, path_to_dockerfile)
+        err_msg = "An error occurs, when building your image [ {0} ]".format(image_name)
+        linux_shell.execute_shell(cmd, err_msg)
+
 
 
 
@@ -91,17 +100,34 @@ class docker_handler:
 
         origin_tag = "{0}:{1}".format(origin_image_name, image_tag)
         target_tag = "{0}:{1}".format(self.image_name_resolve(origin_image_name), image_tag)
+
+        # Comment the code with the docker python lib. Because I think the shell command's log
+        # is more friendly.
+        """
         target_image = self.docker_client.images.get(origin_tag)
         target_image.tag(target_tag)
+        """
+
+        cmd = "docker tag {0} {1}".format(origin_tag, target_tag)
+        err_msg = "An error occurs, when taging your image [ {0} ] to the target registry".format(origin_image_name)
+        linux_shell.execute_shell(cmd, err_msg)
 
 
 
     def image_push_to_registry(self, image_name, image_tag):
 
         target_tag = "{0}:{1}".format(self.image_name_resolve(image_name), image_tag)
+
+        # Comment the code with the docker python lib. Because I think the shell command's log
+        # is more friendly.s
+        """
         push_logs = self.docker_client.images.push(target_tag)
         self.logger.info(push_logs)
+        """
 
+        cmd = "docker push {0}".format(target_tag)
+        err_msg = "An error occurs, when pushing your image [ {0} ] to the target registry".format(image_name)
+        linux_shell.execute_shell(cmd, err_msg)
 
 
 
