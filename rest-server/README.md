@@ -175,6 +175,8 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Response if succeeded*
     ```
+	Status: 200
+	
     {
       "message": "remove successfully"
     }
@@ -187,6 +189,16 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     {
       "error": "RemoveFailed",
       "message": "remove failed"
+    }
+    ```
+	
+	*Response if not authorized*
+    ```
+    Status: 401
+
+    {
+      "error": "NotAuthorized",
+      "message": "not authorized"
     }
     ```
 
