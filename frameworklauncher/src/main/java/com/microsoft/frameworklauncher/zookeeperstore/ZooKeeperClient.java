@@ -23,65 +23,64 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.CompressionUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
-import org.apache.zookeeper.*;
-import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.BoundedExponentialBackoffRetry;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
-// TODO: This is an incomplete porting, replace it with Apache Curator
-public class ZooKeeperClient implements Watcher {
+public class ZooKeeperClient {
   private static final DefaultLogger LOGGER = new DefaultLogger(ZooKeeperClient.class);
 
   // Do not set to 1024 * 1024 in case java.io.IOException:
   // Len error 1048695 (org.apache.zookeeper.server.NIOServerCnxn)
   private static final int ZK_MAX_NODE_BYTES = 768 * 1024;
+  private static final int ZK_MIN_COMPRESSION_BYTES = 10 * 1024;
   private static final String READY_PAYLOAD_VERSIONS_NODE_NAME = "ReadyPayloadVersions";
-  private final CountDownLatch connectedSignal = new CountDownLatch(1);
-  private final ZooKeeper zk;
-  private final Boolean zkCompressionEnable;
+  private final CuratorFramework curator;
 
-  public ZooKeeperClient(String zkServers, Boolean compressionEnable) throws IOException, InterruptedException {
-    zk = new ZooKeeper(zkServers, 10000, this);
-    connectedSignal.await();
-    zkCompressionEnable = compressionEnable;
+  public ZooKeeperClient(String connectString) {
+    curator = CuratorFrameworkFactory.builder()
+        .connectString(connectString)
+        .connectionTimeoutMs(15000)
+        .sessionTimeoutMs(60000)
+        .retryPolicy(new BoundedExponentialBackoffRetry(1000, 60000, 10))
+        .build();
+    curator.start();
   }
 
   // ONLY for testing
   protected ZooKeeperClient() {
-    zk = null;
-    zkCompressionEnable = false;
+    curator = null;
   }
 
-  @Override
-  public void process(WatchedEvent event) {
-    if (event.getState() == Event.KeeperState.SyncConnected) {
-      connectedSignal.countDown();
-    }
+  public void stop() {
+    curator.close();
   }
 
   private String create(String path, byte[] data, CreateMode mode) throws Exception {
-    return zk.create(path, data, Ids.OPEN_ACL_UNSAFE, mode);
+    return curator.create().withMode(mode).forPath(path, data);
   }
 
   public Boolean exists(String path) throws Exception {
-    return zk.exists(path, false) != null;
+    return curator.checkExists().forPath(path) != null;
   }
 
   public List<String> getChildren(String path) throws Exception {
-    return zk.getChildren(path, false);
+    return curator.getChildren().forPath(path);
   }
 
   private byte[] getData(String path) throws Exception {
-    return zk.getData(path, true, null);
+    return curator.getData().forPath(path);
   }
 
-  private void setData(String path, byte[] value) throws Exception {
-    zk.setData(path, value, -1);
+  private void setData(String path, byte[] data) throws Exception {
+    curator.setData().forPath(path, data);
   }
 
   // Create given node in given path, no matter the given path exist or not.
@@ -139,7 +138,10 @@ public class ZooKeeperClient implements Watcher {
 
     if (!childrenOnly) {
       try {
-        zk.delete(path, -1);
+        curator.delete().forPath(path);
+      } catch (KeeperException.NotEmptyException e) {
+        // In case new children were created since getChildren
+        deleteRecursively(path, false);
       } catch (KeeperException.NoNodeException ignore) {
       }
     }
@@ -153,7 +155,7 @@ public class ZooKeeperClient implements Watcher {
     long start = System.currentTimeMillis();
 
     byte[] payload;
-    if (zkCompressionEnable) {
+    if (serializedObj.length >= ZK_MIN_COMPRESSION_BYTES) {
       payload = CompressionUtils.compress(serializedObj);
     } else {
       payload = serializedObj;
@@ -187,7 +189,7 @@ public class ZooKeeperClient implements Watcher {
     long start = System.currentTimeMillis();
 
     byte[] payload;
-    if (zkCompressionEnable) {
+    if (serializedObj.length >= ZK_MIN_COMPRESSION_BYTES) {
       payload = CompressionUtils.compress(serializedObj);
     } else {
       payload = serializedObj;
