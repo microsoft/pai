@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
+import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
@@ -134,7 +135,7 @@ public class Service extends AbstractService {
     yarnClient.start();
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
     hdfsStore = new HdfsStore(conf.getHdfsRootDir());
 
     // Initialize other components
@@ -179,13 +180,28 @@ public class Service extends AbstractService {
   public synchronized void stop(StopStatus stopStatus) {
     // Best Effort to stop Gracefully
     super.stop(stopStatus);
+
+    AggregateException ae = new AggregateException();
+
+    // Stop Service's SubServices
     try {
-      // Stop Service's SubServices
       if (yarnClient != null) {
         yarnClient.stop();
       }
     } catch (Exception e) {
-      LOGGER.logWarning(e, "Failed to stop %s gracefully", serviceName);
+      ae.addException(e);
+    }
+
+    try {
+      if (zkStore != null) {
+        zkStore.stop();
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
+    if (ae.getExceptions().size() > 0) {
+      LOGGER.logWarning(ae, "Failed to stop %s gracefully", serviceName);
     }
 
     LOGGER.logInfo("%s stopped", serviceName);
@@ -284,7 +300,6 @@ public class Service extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
-    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, conf.getAmRmHeartbeatIntervalSec().toString());
 
