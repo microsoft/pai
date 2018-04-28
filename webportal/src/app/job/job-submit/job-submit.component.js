@@ -23,7 +23,8 @@ const jobSubmitComponent = require('./job-submit.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-
+const jobSchema = require('./job-submit.schema.js');
+const jsonEditor = require('json-editor');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -70,10 +71,20 @@ const submitJob = (jobConfig) => {
   });
 };
 
+const loadEditor = () => {
+  console.log(123);
+  var element = document.getElementById('editor-holder');
+  var editor = new JSONEditor(element, {
+    schema: jobSchema
+  });
+  console.log(456);
+};
+
 $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
+  loadEditor();
   $(document).on('change', '#file', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {

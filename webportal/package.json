@@ -64,7 +64,8 @@
     "uglifyjs-webpack-plugin": "1.1.4",
     "util": "0.10.3",
     "webpack": "3.10.0",
-    "winston": "2.4.0"
+    "winston": "2.4.0",
+    "json-editor": "0.7.28"
   },
   "scripts": {
     "build:dev": "npm run clean && npm run preprocess && npm run webpack -- --watch",
@@ -79,6 +80,7 @@
     "start": "npm run build && npm run server",
     "test": "npm run lint",
     "webpack": "webpack --config webpack.config.js --progress --profile",
-    "yarn": "yarn --ignore-engines"
+    "yarn": "yarn --ignore-engines",
+    "debug": "node --nolazy --debug-brk=9229 server/index.js"
   }
 }
