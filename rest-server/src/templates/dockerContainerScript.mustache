@@ -226,6 +226,10 @@ done
 # Start ssh service
 start_ssh_service
 
+# Start jupyter notebook service
+#python3 -m pip install jupyter
+#nohup jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='pai' &
+
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
