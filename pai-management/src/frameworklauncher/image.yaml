@@ -20,7 +20,4 @@ copy-list:
   - src: ../frameworklauncher
     dst: src/frameworklauncher/copied_file
 
-template-list:
-  - dockerfile
-
 prerequisite: hadoop-run

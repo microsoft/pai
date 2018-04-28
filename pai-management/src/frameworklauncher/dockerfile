@@ -15,9 +15,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM {{ clusterconfig['clusterinfo']['dockerregistryinfo']['docker_namespace'] }}/base-image
+FROM hadoop-run
 
+RUN apt-get -y update && \
+    apt-get -y install maven
+
+COPY copied_file/ /usr/local/
+RUN chmod u+x /usr/local/frameworklauncher/build.sh
+RUN ./usr/local/frameworklauncher/build.sh && \
+    mkdir -p /usr/local/launcher && \
+    cp -r /usr/local/frameworklauncher/dist/* /usr/local/launcher
+RUN chmod u+x /usr/local/launcher/start.sh
 COPY start.sh /usr/local/start.sh
 RUN chmod a+x /usr/local/start.sh
+
 
 CMD ["/usr/local/start.sh"]

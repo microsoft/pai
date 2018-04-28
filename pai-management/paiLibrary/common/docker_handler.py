@@ -77,19 +77,17 @@ class docker_handler:
 
 
 
-    def image_build(self, image_name, path_to_dockerfile, image_tag = "latest"):
-
-        target_tag = "{0}:{1}".format(image_name, image_tag)
+    def image_build(self, image_name, path_to_dockerfile):
 
         # Comment the code with the docker python lib. Because I think the shell command's log
         # is more friendly.
         """"
-        image_obj, build_log = self.docker_client.images.build(path=path_to_dockerfile, tag=target_tag, rm=True, pull=True)
+        image_obj, build_log = self.docker_client.images.build(path=path_to_dockerfile, tag=image_name, rm=True, pull=True)
         for line in build_log:
             self.logger.info(line)
         """
 
-        cmd = "docker build -t {0} {1}".format(target_tag, path_to_dockerfile)
+        cmd = "docker build -t {0} {1}".format(image_name, path_to_dockerfile)
         err_msg = "An error occurs, when building your image [ {0} ]".format(image_name)
 
         self.logger.info("Begin to execute the command: {0}".format(cmd))
@@ -103,7 +101,7 @@ class docker_handler:
 
     def image_tag_to_registry(self, origin_image_name, image_tag):
 
-        origin_tag = "{0}:{1}".format(origin_image_name, image_tag)
+        origin_tag = origin_image_name
         target_tag = "{0}:{1}".format(self.image_name_resolve(origin_image_name), image_tag)
 
         # Comment the code with the docker python lib. Because I think the shell command's log

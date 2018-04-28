@@ -133,8 +133,7 @@ class image_build:
         self.logger.info("Begin to build {0}'s image".format(self.image_name))
         self.docker_cli.image_build(
             self.image_name,
-            "./src/{0}/".format(self.image_name),
-            image_tag = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_tag']
+            "./src/{0}/".format(self.image_name)
         )
         self.logger.info("The building of {0}'s image is successful.".format(self.image_name))
 
