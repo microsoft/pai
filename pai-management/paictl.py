@@ -197,6 +197,7 @@ def pai_build():
         image_list = [ image_name ]
 
     center = build_center.build_center(cluster_object_model, image_list)
+    center.run()
 
 
 

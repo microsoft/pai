@@ -73,7 +73,7 @@ class build_center:
         error_msg = "Failed to prepare hadoop configuration."
         linux_shell.execute_shell(commandline, error_msg)
 
-        self.logger.info("Prepare hadoop configuration is finished")
+        self.logger.info("Preparing hadoop configuration is finished")
 
 
 
@@ -138,6 +138,8 @@ class build_center:
 
 
     def run(self):
+
+        self.prepare_configuration_hadoop()
 
         self.hadoop_binary_remove()
         self.hadoop_binary_prepare()
