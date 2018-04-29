@@ -59,30 +59,30 @@ cp hadoop/yarn-site.xml ../../../bootstrap/hadoop-service/hadoop-configuration/r
 
 
 # patch for hadoop-run
-patch ../../../src/hadoop-run/hadoop-env.sh ../../../config-patch/hadoop-env.sh.patch
-patch ../../../src/hadoop-run/mapred-site.xml ../../../config-patch/mapred-site.xml.patch
-patch ../../../src/hadoop-run/yarn-env.sh ../../../config-patch/yarn-env.sh.patch
+patch ./../../../src/hadoop-run/hadoop-env.sh ../../../config-patch/hadoop-env.sh.patch
+patch ./../../../src/hadoop-run/mapred-site.xml ../../../config-patch/mapred-site.xml.patch
+patch ./../../../src/hadoop-run/yarn-env.sh ../../../config-patch/yarn-env.sh.patch
 
 
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/core-site.xml ../../../config-patch/core-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/core-site.xml ../../../config-patch/core-site.xml.patch
 
 # patch for data-node
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml ../../../config-patch/datanode-hdfs-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/datanode-hdfs-site.xml ../../../config-patch/datanode-hdfs-site.xml.patch
 
 # patch for jobhistory
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/jobhistory-mapred-site.xml ../../../config-patch/jobhistory-mapred-site.xml.patch
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/jobhistory-yarn-site.xml ../../../config-patch/jobhistory-yarn-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/jobhistory-mapred-site.xml ../../../config-patch/jobhistory-mapred-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/jobhistory-yarn-site.xml ../../../config-patch/jobhistory-yarn-site.xml.patch
 
 # patch for name-node
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/namenode-hdfs-site.xml ../../../config-patch/namenode-hdfs-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/namenode-hdfs-site.xml ../../../config-patch/namenode-hdfs-site.xml.patch
 
 # patch for node-manager
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/nodemanager-mapred-site.xml ../../../config-patch/nodemanager-mapred-site.xml.patch
-patch ../../../bootstrap/hadoop-service/hadoop-configuration/nodemanager-yarn-site.xml ../../../config-patch/nodemanager-yarn-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/nodemanager-mapred-site.xml ../../../config-patch/nodemanager-mapred-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/nodemanager-yarn-site.xml ../../../config-patch/nodemanager-yarn-site.xml.patch
 
 # patch for resource-manager
-patch bootstrap/hadoop-service/hadoop-configuration/resourcemanager-mapred-site.xml ../../../config-patch/resourcemanager-mapred-site.xml.patch
-patch bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml ../../../config-patch/resourcemanager-yarn-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/resourcemanager-mapred-site.xml ../../../config-patch/resourcemanager-mapred-site.xml.patch
+patch ./../../../bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml ../../../config-patch/resourcemanager-yarn-site.xml.patch
 
 rm -rf hadoop
 
