@@ -31,6 +31,7 @@ from paiLibrary.common import linux_shell
 from paiLibrary.common import file_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
+from paiLibrary.paiBuild import tag_push_center
 
 
 
@@ -164,28 +165,12 @@ def cluster_object_model_generate_service(config_path):
 
 
 
-def hadoop_ai_build(os_type = "ubuntu16.04"):
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.path
-    cluster_object_model = load_cluster_objectModel_service(config_path)
-
-    hadoop_path = cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
-
-    commandline = "./paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(os_type, hadoop_path)
-    error_msg = "Failed to build hadoop-ai."
-    linux_shell.execute_shell(commandline, error_msg)
-
-
-
 def pai_build():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--imagename', default='all', help="Build and push target image to the registry")
+    parser.add_argument('-n', '--imagename', default='all', help="Build and push the target image to the registry")
+    parser.add_argument('-a', '--action', default=None, help="Only build or push" )
     args = parser.parse_args(sys.argv[1:])
 
     config_path = args.path
@@ -196,8 +181,23 @@ def pai_build():
     if image_name != "all":
         image_list = [ image_name ]
 
-    center = build_center.build_center(cluster_object_model, image_list)
-    center.run()
+    if args.action != None and args.action not in ["build", "push"]:
+        logger.error("The option -a {0} is invalid.".format(args.action))
+        logger.error("Only build image please type   : paictl.py image -p /path/to/configuration/ -a build [ -n image-x ]")
+        logger.error("Only push image please type    : paictl.py image -p /path/to/configuration/ -a push [ -n image-x ]")
+        logger.error("Build & push image please type : paictl.py image -p /path/to/configuration/ [ -n image-x ]")
+        return
+
+    if args.action == None or args.action == "build":
+        center = build_center.build_center(cluster_object_model, image_list)
+        center.run()
+
+    if args.action == None or args.action == "push":
+        center = tag_push_center.tag_push_center(cluster_object_model, image_list)
+        center.run()
+
+
+
 
 
 
@@ -231,11 +231,7 @@ def main():
     module = sys.argv[1]
     del sys.argv[1]
 
-    if module == "hadoop-build":
-
-        hadoop_ai_build()
-
-    elif module == "pai-build":
+    if module == "image":
 
         pai_build()
 
