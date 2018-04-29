@@ -100,11 +100,11 @@ class build_center:
 
 
 
-    def hadoop_binary_remove(self, hadoop_version):
+    def hadoop_binary_remove(self):
 
         self.logger.info("Remove the hadoop binary.")
 
-        binary_path = "src/hadoop-run/hadoop".format(hadoop_version)
+        binary_path = "src/hadoop-run/hadoop"
         if os.path.exists(binary_path):
             directory_handler.directory_delete(binary_path)
 
