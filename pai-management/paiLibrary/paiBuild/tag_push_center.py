@@ -35,7 +35,7 @@ class tag_push_center:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = cluster_object_model
-        if tag_push_target != None:
+        if tag_push_target == None:
             self.image_list = self.get_image_list()
         else:
             self.image_list = tag_push_target

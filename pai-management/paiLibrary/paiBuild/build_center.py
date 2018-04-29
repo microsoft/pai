@@ -38,7 +38,7 @@ class build_center:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_object_model = cluster_object_model
-        if build_target != None:
+        if build_target == None:
             self.image_list = self.get_image_list()
         else:
             self.image_list = build_target
