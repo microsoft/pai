@@ -79,7 +79,10 @@ class build_center:
 
 
 
-    def hadoop_binary_prepare(self, custom_hadoop_path, hadoop_version):
+    def hadoop_binary_prepare(self):
+
+        custom_hadoop_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
+        hadoop_version = self.cluster_object_model['clusterinfo']['hadoopinfo']['hadoopversion']
 
         self.logger.info("Begin to prepare the hadoop binary for image building.")
 
