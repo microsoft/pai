@@ -20,6 +20,9 @@
 # Download an official hadoop binary, and get the original configuration of hadoop.
 # Then apply our patch to the configuration to get our environment configuration.
 # When deploying it to your cluster, you can directly mv your configuration to the destination file.
+
+pushd $(dirname "$0") > /dev/null
+
 wget http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
 
 tar -xvzf hadoop-2.7.2.tar.gz -C ../../../../src/hadoop-run/
@@ -82,3 +85,5 @@ patch bootstrap/hadoop-service/hadoop-configuration/resourcemanager-mapred-site.
 patch bootstrap/hadoop-service/hadoop-configuration/resourcemanager-yarn-site.xml ../../../../config-patch/resourcemanager-yarn-site.xml.patch
 
 rm -rf hadoop
+
+popd > /dev/null
