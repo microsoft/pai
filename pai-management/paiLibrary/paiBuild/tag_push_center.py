@@ -70,7 +70,7 @@ class tag_push_center:
         )
 
         for image_name in self.image_list:
-            if file_handler.file_exist_or_not("src/{0}/image.yaml".format()) == False:
+            if file_handler.file_exist_or_not("src/{0}/image.yaml".format(image_name)) == False:
                 self.logger.warning("image.yaml can't be found on the directory of {0}".format(image_name))
                 self.logger.warning("Please check your source code. The {0}'s image will be skipped")
                 continue
