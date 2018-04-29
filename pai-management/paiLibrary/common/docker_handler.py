@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import docker
+#import docker
 import file_handler
 import linux_shell
 import logging
@@ -46,7 +46,7 @@ class docker_handler:
         self.docker_password = docker_password
 
         self.docker_login()
-        self.docker_client = self.client_initialization()
+        #self.docker_client = self.client_initialization()
 
 
 
@@ -70,10 +70,10 @@ class docker_handler:
 
 
 
-    def client_initialization(self):
-
-        client = docker.from_env()
-        return client
+    #def client_initialization(self):
+    #
+    #    client = docker.from_env()
+    #    return client
 
 
 
