@@ -37,8 +37,17 @@ const userDeleteInputSchema = Joi.object().keys({
     .required(),
 }).required();
 
+// define the input schema for the 'update user virtual cluster' api
+const userVcUpdateInputSchema = Joi.object().keys({
+  virtualClusters: Joi.string()
+    .allow('')
+    .regex(/^[A-Za-z0-9_,]+$/)
+    .optional(),
+}).required();
+
 // module exports
 module.exports = {
   userPutInputSchema: userPutInputSchema,
   userDeleteInputSchema: userDeleteInputSchema,
+  userVcUpdateInputSchema: userVcUpdateInputSchema,
 };

@@ -26,6 +26,9 @@ deleteUserTemplate = JSON.stringify({
   'username': '{{username}}'
 });
 
+updateUserVcTemplate = JSON.stringify({
+  'virtualClusters': '{{virtualClusters}}'
+});
 
 //
 // Get a valid token that expires in 60 seconds.
@@ -36,6 +39,14 @@ const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false
 const invalidToken = '';
 
 describe('Add new user: put /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)
@@ -114,7 +125,7 @@ describe('Add new user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update failed');
+        global.chai.expect(res.body.message, 'response message').equal('update user failed');
         done();
       });
   });
@@ -134,6 +145,14 @@ describe('Add new user: put /api/v1/user', () => {
 });
 
 describe('update user: put /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)
@@ -262,7 +281,7 @@ describe('update user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update failed');
+        global.chai.expect(res.body.message, 'response message').equal('update user failed');
         done();
       });
   });
@@ -292,6 +311,14 @@ describe('update user: put /api/v1/user', () => {
 });
 
 describe('delete user : delete /api/v1/user', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)
@@ -404,7 +431,7 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(204);
+        global.chai.expect(res, 'status code').to.have.status(200);
         done();
       });
   });
@@ -449,6 +476,303 @@ describe('delete user : delete /api/v1/user', () => {
         done();
       });
   });
+});
 
+describe('update user virtual cluster : put /api/v1/user/:username/virtualClusters', () => {
+  afterEach(() => {
+    if (!nock.isDone()) {
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
+  beforeEach(() => {
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/test_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/test_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/test_user/admin',
+              'value': 'false',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/test_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
+    nock(etcdHosts)
+      .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
+      .reply(200, {
+        'action': 'update',
+        'node': {
+          'key': '/users/test_user/virtualClusters',
+          'value': 'default,vc1',
+          'modifiedIndex': 11,
+          'createdIndex': 11
+        },
+        'prevNode': {
+          'key': '/users/test_user/virtualClusters',
+          'value': 'default',
+          'modifiedIndex': 12,
+          'createdIndex': 12
+        }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/test_non_admin_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/test_non_admin_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/test_non_admin_user/admin',
+              'value': 'true',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/test_non_admin_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
+    nock(etcdHosts)
+      .put('/v2/keys/users/test_non_admin_user/virtualClusters', { 'value': 'default,vc1,vc2' })
+      .reply(200, {
+        'action': 'update',
+        'node': {
+          'key': '/users/test_non_admin_user/virtualClusters',
+          'value': 'default,vc1,vc2',
+          'modifiedIndex': 11,
+          'createdIndex': 11
+        },
+        'prevNode': {
+          'key': '/users/test_non_admin_user/virtualClusters',
+          'value': 'default',
+          'modifiedIndex': 12,
+          'createdIndex': 12
+        }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/test_invalid_vc_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/test_invalid_vc_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/test_invalid_vc_user/admin',
+              'value': 'false',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/test_invalid_vc_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }, {
+              'key': '/users/test_invalid_vc_user/virtualClusters',
+              'value': 'default,vc1',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
+      nock(etcdHosts)
+      .get('/v2/keys/users/test_delete_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/test_delete_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/test_delete_user/admin',
+              'value': 'false',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/test_delete_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }, {
+              'key': '/users/test_delete_user/virtualClusters',
+              'value': 'default,vc1,vc2',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
+      nock(etcdHosts)
+      .put('/v2/keys/users/test_delete_user/virtualClusters', { 'value': 'default' })
+      .reply(200, {
+        'action': 'update',
+        'node': {
+          'key': '/users/test_delete_user/virtualClusters',
+          'value': 'default',
+          'modifiedIndex': 11,
+          'createdIndex': 11
+        },
+        'prevNode': {
+          'key': '/users/test_delete_user/virtualClusters',
+          'value': 'default,vc1,vc2',
+          'modifiedIndex': 12,
+          'createdIndex': 12
+        }
+      });
+
+
+  });
+
+  //
+  // Get a valid token that expires in 60 seconds.
+  //
+
+  const validToken = global.jwt.sign({ username: 'admin_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const invalidToken = '';
+
+  // //
+  // // Positive cases
+  // //
+
+  it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'vc1' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): should update admin user with all valid virtual cluster', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_non_admin_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
+        done();
+      });
+  });
+
+  it('Case 3 (Positive): add new user with invalid virtual cluster should add default vc only and throw update vc error', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        done();
+      });
+  });
+
+  it('Case 4 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_delete_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': '' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update user virtual clusters successfully');
+        done();
+      });
+  });
+
+  //
+  // Negative cases
+  //
+
+  it('Case 1 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_invalid_vc_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find virtual cluster non_exist_vc');
+        done();
+      });
+  });
+
+  it('Case 2 (Negative): should fail to update non-exist user virtual cluster', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/non_exist_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        done();
+      });
+  });
 
 });
+

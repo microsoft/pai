@@ -39,7 +39,7 @@ spec:
           privileged: true
         env:
         - name: HADOOP_VIP
-          value: value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
         - name: WEBSERVICE_URI

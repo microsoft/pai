@@ -175,6 +175,8 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
 
     *Response if succeeded*
     ```
+	Status: 200
+	
     {
       "message": "remove successfully"
     }
@@ -189,8 +191,64 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "remove failed"
     }
     ```
+	
+	*Response if not authorized*
+    ```
+    Status: 401
 
-4. `GET jobs`
+    {
+      "error": "NotAuthorized",
+      "message": "not authorized"
+    }
+    ```
+
+4. `PUT user/:username/virtualClusters` (administrator only)
+
+    Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
+
+    *Request*
+    ```
+    PUT /api/v1/user/:username/virtualClusters
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "update user virtual clusters successfully"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "error": "UpdateVcFailed",
+      "message": "update user virtual cluster failed"
+    }
+    ```
+
+    *Response if not authorized*
+    ```
+    Status: 401
+
+    {
+      "error": "NotAuthorized",
+      "message": "not authorized"
+    }
+    ```
+
+5. `GET jobs`
 
     Get the list of jobs.
 
@@ -223,7 +281,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-5. `GET jobs/:jobName`
+6. `GET jobs/:jobName`
 
     Get job status in the system.
 
@@ -269,7 +327,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-6. `POST jobs`
+7. `POST jobs`
 
     Submit a job in the system.
 
@@ -312,7 +370,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-7. `GET jobs/:jobName/config`
+8. `GET jobs/:jobName/config`
 
     Get job config JSON content.
 
@@ -350,7 +408,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-8. `GET jobs/:jobName/ssh`
+9. `GET jobs/:jobName/ssh`
 
     Get job SSH info.
 
@@ -399,7 +457,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
 
-9. `PUT jobs/:jobName/executionType`
+10. `PUT jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -434,7 +492,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
       "message": "job execute error"
     }
 
-10. `GET virtual-clusters`
+11. `GET virtual-clusters`
 
     Get the list of virtual clusters.
 
@@ -463,7 +521,7 @@ Configure the rest server ip and port in [service-deployment/clusterconfig.yaml]
     }
     ```
     
-11. `GET virtual-clusters/:vcName`
+12. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
 

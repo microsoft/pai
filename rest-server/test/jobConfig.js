@@ -16,6 +16,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 describe('Get job config: GET /api/v1/jobs/:jobName/config', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     //
@@ -83,22 +91,22 @@ describe('Get job config: GET /api/v1/jobs/:jobName/config', () => {
       .get('/webhdfs/v1/Container/test/job1/JobConfig.json?op=OPEN')
       .reply(
         200,
-        {
+        JSON.stringify({
           'jobName': 'job1',
-        }
+        })
       );
 
     nock(webhdfsUri)
       .get('/webhdfs/v1/Container/test/job3/JobConfig.json?op=OPEN')
       .reply(
         404,
-        {
+        JSON.stringify({
           'RemoteException': {
             'exception': 'FileNotFoundException',
             'javaClassName': 'java.io.FileNotFoundException',
             'message': 'File not found.',
-            },
-        }
+          },
+        })
       );
   });
 

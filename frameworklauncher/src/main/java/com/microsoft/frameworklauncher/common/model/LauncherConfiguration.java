@@ -26,7 +26,6 @@ public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
-  private Boolean zkCompressionEnable = true;
   private String hdfsRootDir = "/Launcher";
   private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
@@ -128,14 +127,6 @@ public class LauncherConfiguration implements Serializable {
 
   public void setZkRootDir(String zkRootDir) {
     this.zkRootDir = zkRootDir;
-  }
-
-  public Boolean getZkCompressionEnable() {
-    return zkCompressionEnable;
-  }
-
-  public void setZkCompressionEnable(Boolean zkCompressionEnable) {
-    this.zkCompressionEnable = zkCompressionEnable;
   }
 
   public String getHdfsRootDir() {

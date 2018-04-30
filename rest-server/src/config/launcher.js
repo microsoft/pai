@@ -17,12 +17,8 @@
 
 
 // module dependencies
-const path = require('path');
-const fse = require('fs-extra');
 const Joi = require('joi');
-const async = require('async');
 const unirest = require('unirest');
-const childProcess = require('child_process');
 const config = require('./index');
 const logger = require('./logger');
 
@@ -115,85 +111,17 @@ if (error) {
 }
 launcherConfig = value;
 
-// prepare hdfs file path
-const prepareHdfsPath = () => {
-  async.each(['Container', 'Output'], (hdfsPath, callback) => {
-    let cmd = '';
-    if (config.env !== 'test') {
-      cmd = `hdfs dfs -mkdir -p ${launcherConfig.hdfsUri}/${hdfsPath} &&
-          hdfs dfs -chmod 777 ${launcherConfig.hdfsUri}/${hdfsPath}`;
-    }
-    childProcess.exec(
-      cmd,
-      (err, stdout, stderr) => {
-        callback(err);
-      }
-    );
-  }, (err) => {
-    if (err) {
-      throw err;
-    }
-  });
-};
-
-// prepare local file path
-const prepareLocalPath = () => {
-  fse.ensureDir(launcherConfig.jobRootDir, (err) => {
-    if (err) {
-      throw new Error(`make launcher job dir error\n${err}`);
-    }
-    setInterval(() => {
-      fse.readdir(launcherConfig.jobRootDir, (readRootDirError, userDirs) => {
-        if (readRootDirError) {
-          logger.warn('read %s error\n%s', launcherConfig.jobRootDir, readRootDirError.stack);
-        } else {
-          for (let i = 0; i < userDirs.length; i ++) {
-            const userDir = path.join(launcherConfig.jobRootDir, userDirs[i]);
-            fse.readdir(userDir, (readUserDirError, jobDirs) => {
-              if (readUserDirError) {
-                logger.warn('read %s error\n%s', userDir, readUserDirError.stack);
-              } else {
-                for (let i = 0; i < jobDirs.length; i ++) {
-                  const jobDir = path.join(userDir, jobDirs[i]);
-                  fse.stat(jobDir, (statError, stats) => {
-                    if (statError) {
-                      logger.warn('stat %s error\n%s', jobDir, statError.stack);
-                    } else {
-                      const timeDelta = (new Date().getTime() - stats.mtime) / 1000;
-                      if (timeDelta > launcherConfig.jobDirCleanUpIntervalSecond) {
-                        fse.remove(jobDir, (removeError) => {
-                          if (removeError) {
-                            logger.warn('remove %s error\n%s', jobDir, removeError.stack);
-                          } else {
-                            logger.verbose('removed %s successfully', jobDir);
-                          }
-                        });
-                      }
-                    }
-                  });
-                }
-              }
-            });
-          }
-        }
-      });
-    }, launcherConfig.jobDirCleanUpIntervalSecond * 1000);
-  });
-};
-
 // framework launcher health check
 if (config.env !== 'test') {
   unirest.get(launcherConfig.healthCheckPath())
-      .timeout(2000)
-      .end((res) => {
-        if (res.status === 200) {
-          logger.info('connected to framework launcher successfully');
-          prepareHdfsPath();
-          prepareLocalPath();
-        } else {
-          throw new Error('cannot connect to framework launcher');
-        }
-      });
+  .timeout(2000)
+  .end((res) => {
+    if (res.status === 200) {
+      logger.info('connected to framework launcher successfully');
+    } else {
+      throw new Error('cannot connect to framework launcher');
+    }
+  });
 }
 
 // module exports

@@ -61,7 +61,6 @@ public class FeatureTestUtils {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, config.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, config.getZkRootDir());
-    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, config.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, config.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, config.getAmRmHeartbeatIntervalSec().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_ID, "container_" + System.currentTimeMillis() + "_0001_000001_1");
@@ -87,8 +86,15 @@ public class FeatureTestUtils {
 
   public static void initZK(ZookeeperStore zkStore, FrameworkRequest frameworkRequest, FrameworkStatus frameworkStatus)
       throws Exception {
-    String frameworkName = frameworkRequest.getFrameworkName();
+    initZK(zkStore);
 
+    String frameworkName = frameworkRequest.getFrameworkName();
+    zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
+    zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
+  }
+
+  public static void initZK(ZookeeperStore zkStore)
+      throws Exception {
     LauncherConfiguration launcherConfiguration = new LauncherConfiguration();
     launcherConfiguration.setHdfsRootDir(HDFS_BASE_DIR);
     launcherConfiguration.setAmStatusPushIntervalSec(10);
@@ -97,9 +103,7 @@ public class FeatureTestUtils {
     launcherStatus.setLauncherConfiguration(launcherConfiguration);
 
     zkStore.setLauncherStatus(launcherStatus);
-    zkStore.setFrameworkStatus(frameworkName, frameworkStatus);
     zkStore.setLauncherRequest(new LauncherRequest());
-    zkStore.setFrameworkRequest(frameworkName, frameworkRequest);
   }
 
   public static void initContainerList(List<Container> containerList, int length, Resource resource) {

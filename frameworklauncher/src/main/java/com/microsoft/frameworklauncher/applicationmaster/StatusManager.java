@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
+import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
@@ -63,12 +64,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
   // Used to invert index TaskStatus by ContainerId/TaskState instead of TaskStatusLocator, i.e. TaskRoleName + TaskIndex
   // TaskState -> TaskStatusLocators
-  private Map<TaskState, HashSet<TaskStatusLocator>> taskStateLocators = new HashMap<>();
+  private Map<TaskState, Set<TaskStatusLocator>> taskStateLocators = new HashMap<>();
   // Live Associated ContainerId -> TaskStatusLocator
   private Map<String, TaskStatusLocator> liveAssociatedContainerIdLocators = new HashMap<>();
   // Live Associated HostNames
   // TODO: Using MachineName instead of HostName to avoid unstable HostName Resolution
-  private HashSet<String> liveAssociatedHostNames = new HashSet<>();
+  private Set<String> liveAssociatedHostNames = new HashSet<>();
 
   /**
    * REGION StateVariable
@@ -206,15 +207,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       while (true) {
         try {
           pushStatus();
+
+          Thread.sleep(conf.getLauncherConfig().getAmStatusPushIntervalSec() * 1000);
         } catch (Exception e) {
           // Directly throw TransientException to AM to actively migrate to another node
           handleException(e);
-        } finally {
-          try {
-            Thread.sleep(conf.getLauncherConfig().getAmStatusPushIntervalSec() * 1000);
-          } catch (InterruptedException e) {
-            handleException(e);
-          }
         }
       }
     }).start();
@@ -534,7 +531,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, Boolean contains) {
-    HashSet<TaskState> acceptableTaskStateSet = new HashSet<>();
+    Set<TaskState> acceptableTaskStateSet = new HashSet<>();
     if (contains) {
       acceptableTaskStateSet.addAll(taskStateSet);
     } else {
@@ -568,7 +565,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized List<TaskStatus> getFailedTaskStatus() {
-    ArrayList<TaskStatus> failedTaskStatuses = new ArrayList<>();
+    List<TaskStatus> failedTaskStatuses = new ArrayList<>();
     for (TaskStatus taskStatus : getTaskStatus(TaskStateDefinition.FINAL_STATES)) {
       if (taskStatus.getContainerExitCode() != ExitStatusKey.SUCCEEDED.toInt()) {
         failedTaskStatuses.add(taskStatus);

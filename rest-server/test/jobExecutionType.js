@@ -18,6 +18,14 @@
 
 // test
 describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   // Mock launcher webservice
   beforeEach(() => {
     let frameworkDetail = {

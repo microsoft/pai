@@ -1,5 +1,6 @@
 !!com.microsoft.frameworklauncher.common.model.SummarizedFrameworkInfo
 applicationExitCode: 0
+executionType: null
 firstRequestTimestamp: 0
 frameworkCompletedTimestamp: 0
 frameworkDescription: testString
@@ -9,4 +10,5 @@ frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transi
 frameworkState: null
 frameworkVersion: 0
 lastRequestTimestamp: 0
+queue: testString
 userName: testString
