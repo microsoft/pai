@@ -42,6 +42,10 @@ class image_build:
         self.copy_list = None
         self.template_list = None
 
+        # empty configuration. Such as cleaning image
+        if image_conf == None:
+            return
+
         if "prerequisite" in image_conf:
             self.base_image = image_conf["prerequisite"]
         if "template-list" in image_conf:
