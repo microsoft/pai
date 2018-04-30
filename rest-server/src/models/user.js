@@ -22,6 +22,7 @@ const config = require('../config/index');
 const dbUtility = require('../util/dbUtil');
 const etcdConfig = require('../config/etcd');
 const logger = require('../config/logger');
+const VirtualCluster = require('./vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -133,10 +134,103 @@ const remove = (username, callback) => {
   }
 };
 
+const updateUserVc = (username, virtualClusters, callback) => {
+  if (typeof username === 'undefined') {
+    callback(new Error('user does not exist'), false);
+  } else {
+    db.get(etcdConfig.userPath(username), null, (errMsg, res) => {
+      if (errMsg) {
+        logger.warn('user %s not exists', etcdConfig.userPath(username));
+        callback(errMsg, false);
+      } else {
+        VirtualCluster.prototype.getVcList((vcList, err) => {
+          if (err) {
+            logger.warn('get virtual cluster list error\n%s', err.stack);
+          } else if (!vcList) {
+            logger.warn('list virtual clusters error, no virtual cluster found');
+          } else {
+            let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true') ? Object.keys(vcList) : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
+            let addUserWithInvalidVc = false;
+            for (let item of updateVcList) {
+              if (!vcList.hasOwnProperty(item)) {
+                if (!res.has(etcdConfig.userVirtualClusterPath(username))) {
+                  updateVcList.length = 0;
+                  addUserWithInvalidVc = true;
+                  break;
+                } else {
+                  return callback(new Error('InvalidVirtualCluster'), false);
+                }
+              }
+            }
+            if (!updateVcList.includes('default')) { // always has 'default' queue
+              updateVcList.push('default');
+            }
+            updateVcList.sort();
+            db.set(etcdConfig.userVirtualClusterPath(username), updateVcList.toString(), null, (errMsg, res) => {
+              if (errMsg) {
+                logger.warn('update %s virtual cluster: %s failed, error message:%s', etcdConfig.userVirtualClusterPath(username), errMsg);
+                callback(errMsg, false);
+              } else {
+                if (addUserWithInvalidVc) {
+                  callback(new Error('InvalidVirtualCluster'), false);
+                } else {
+                  callback(null, true);
+                }
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+};
+
+const checkUserVc = (username, virtualCluster, callback) => {
+  if (typeof username === 'undefined') {
+    callback(new Error('user does not exist'), false);
+  } else {
+    virtualCluster = (!virtualCluster) ? 'default' : virtualCluster;
+    if (virtualCluster === 'default') {
+      callback(null, true); // all users have right access to 'default'
+    } else {
+      VirtualCluster.prototype.getVcList((vcList, err) => {
+        if (err) {
+          logger.warn('get virtual cluster list error\n%s', err.stack);
+        } else if (!vcList) {
+          logger.warn('list virtual clusters error, no virtual cluster found');
+        } else {
+          if (!vcList.hasOwnProperty(virtualCluster)) {
+            return callback(new Error('VirtualClusterNotFound'), false);
+          }
+          db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
+            if (errMsg || !res) {
+              callback(errMsg, false);
+            } else {
+              let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
+              for (let item of userVirtualClusters) {
+                if (item === virtualCluster) {
+                  return callback(null, true);
+                }
+              }
+              callback(new Error('NoRightAccessVirtualCluster'), false);
+            }
+          });
+        }
+      });
+    }
+  }
+};
+
 const setDefaultAdmin = (callback) => {
   update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
     if (!status) {
       throw new Error('unable to set default admin');
+    } else {
+      updateUserVc(etcdConfig.adminName, '', (errMsg, res) => {
+        if (errMsg || !res) {
+          throw new Error('unable to set default admin virtual cluster');
+        }
+      });
     }
   });
 };
@@ -162,4 +256,4 @@ if (config.env !== 'test') {
 }
 
 // module exports
-module.exports = {encrypt, db, update, remove};
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc};

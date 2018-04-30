@@ -29,6 +29,14 @@ const validToken = global.jwt.sign({ username: 'test_user', admin: true }, proce
 const invalidToken = '';
 
 describe('user token test: post /api/v1/token', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      //TODO: Revamp this file and enable the following error.
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
   beforeEach(() => {
 
     nock(etcdHosts)

@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-describe('Vcs API /api/v1/virtual-clusters', () => {
+describe('VC API /api/v1/virtual-clusters', () => {
   // Mock yarn rest api
   beforeEach(() => {
     nock(yarnUri)
