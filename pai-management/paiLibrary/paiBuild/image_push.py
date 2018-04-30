@@ -33,6 +33,7 @@ class image_push:
 
         self.logger = logging.getLogger(__name__)
 
+        self.cluster_object_model = cluster_object_model
         self.image_name = image_name
         self.tag = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_tag']
         self.docker_cli = docker_cli
