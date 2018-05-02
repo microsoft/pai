@@ -25,11 +25,15 @@ const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 const jsonEditor = require('json-editor');
+const jobExample = require('./job-submit.example');
+const ace_editor = require('ace-builds');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
+
+let editor;
 
 const isValidJson = (str) => {
   try {
@@ -42,6 +46,7 @@ const isValidJson = (str) => {
 };
 
 const submitJob = (jobConfig) => {
+  console.log('in submitjob');
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
@@ -74,8 +79,12 @@ const submitJob = (jobConfig) => {
 const loadEditor = () => {
   console.log(123);
   var element = document.getElementById('editor-holder');
-  var editor = new JSONEditor(element, {
-    schema: jobSchema
+  editor = new JSONEditor(element, {
+    schema: jobSchema,
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    startval: jobExample,
   });
   console.log(456);
 };
@@ -85,15 +94,18 @@ $('#sidebar-menu--submit-job').addClass('active');
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   loadEditor();
-  $(document).on('change', '#file', (event) => {
+  $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
-        submitJob(JSON.parse(jobConfig));
+        editor.setValue(JSON.parse(jobConfig));
       }
     };
     reader.readAsText(event.target.files[0]);
+  });
+  $(document).on('click', '#submitJob', () => {
+    submitJob(editor.getValue());
   });
 });
 
