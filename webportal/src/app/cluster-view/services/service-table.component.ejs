@@ -12,7 +12,7 @@
       let node = data[i].node.metadata;
 %>
       <tr>
-        <td><a href="hardware/detail.html?instance=<%= node.name + ':' + exporterPort %>"> <%= node.name %></a></td>
+        <td><a href="hardware/detail.html?instance=<%= node.name%>"> <%= node.name %></a></td>
         <td>   
 <%
           for (let x in data[i].node.metadata.labels) {
