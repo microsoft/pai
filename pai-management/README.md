@@ -273,7 +273,7 @@ sudo ./deploy.py -d -p /path/to/configuration/directory
 ## Cleanup your previous deployment
 
 ```
-sudo ./deploy.py -p /path/to/configuration/directory -c
+sudo ./deploy.py -p /path/to/configuration/directory
 sudo ./cleanup-service.py
 ```
 
