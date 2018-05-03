@@ -184,7 +184,7 @@ def pai_build():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["build", "push", "build-push"]:
+    if option not in ["build", "push"]:
         pai_build_info()
         return
 
@@ -201,11 +201,11 @@ def pai_build():
     if image_name != "all":
         image_list = [ image_name ]
 
-    if option == "build" or option == "build-push":
+    if option == "build":
         center = build_center.build_center(cluster_object_model, image_list)
         center.run()
 
-    if option == "push" or option == "build-push":
+    if option == "push":
         center = push_center.push_center(cluster_object_model, image_list)
         center.run()
 
