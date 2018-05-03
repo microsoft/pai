@@ -184,28 +184,28 @@ def pai_build():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["build", "push"]:
+    if option not in ["build", "push", "build-push"]:
         pai_build_info()
         return
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--config-path', dest = "config_path", required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--image-name', dest = "imagename", default='all', help="Build and push the target image to the registry")
+    parser.add_argument('-n', '--image-name', dest = "image_name", default='all', help="Build and push the target image to the registry")
     args = parser.parse_args(sys.argv[1:])
 
     config_path = args.config_path
-    image_name = args.imagename
+    image_name = args.image_name
     cluster_object_model = load_cluster_objectModel_service(config_path)
 
     image_list = None
     if image_name != "all":
         image_list = [ image_name ]
 
-    if option == "build" or option == "push":
+    if option == "build" or option == "build-push":
         center = build_center.build_center(cluster_object_model, image_list)
         center.run()
 
-    if option == "push":
+    if option == "push" or option == "build-push":
         center = tag_push_center.tag_push_center(cluster_object_model, image_list)
         center.run()
 
