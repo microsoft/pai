@@ -143,11 +143,11 @@ class build_center:
 
     def tag(self, image_name):
 
-        image_push_worker = image_push.image_push(
+        image_tag_worker = image_tag.image_tag(
             image_name,
             self.cluster_object_model,
             self.docker_cli)
-        image_push_worker.run()
+        image_tag_worker.run()
 
 
 
