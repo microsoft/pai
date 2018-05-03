@@ -189,11 +189,11 @@ def pai_build():
         return
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--image-name', default='all', help="Build and push the target image to the registry")
+    parser.add_argument('-p', '--config-path', dest = "config_path", required=True, help="The path of your configuration directory.")
+    parser.add_argument('-n', '--image-name', dest = "imagename", default='all', help="Build and push the target image to the registry")
     args = parser.parse_args(sys.argv[1:])
 
-    config_path = args.path
+    config_path = args.config_path
     image_name = args.imagename
     cluster_object_model = load_cluster_objectModel_service(config_path)
 
