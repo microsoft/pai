@@ -166,7 +166,7 @@ def cluster_object_model_generate_service(config_path):
 
 
 
-def pai_build_info()
+def pai_build_info():
 
     logger.error("The command is wrong.")
     logger.error("Build image: paictl.py image build -p /path/to/configuration/ [ -n image-x ]")
