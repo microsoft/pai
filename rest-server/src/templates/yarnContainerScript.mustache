@@ -79,20 +79,19 @@ function get_host_list()
 {
   delay_time=1
   while true; do
-    taskrole_statuses=$(curl -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
-    jq -re ".[].taskStatuses.taskStatusArray[].containerIp") <<< $(cat $taskrole_statuses) > /dev/null
-    if [ $? -ne 0 ]; then
+    taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
+    jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
+    if [ $? -eq 0 ]; then
       break
     fi
     sleep ${delay_time}m
     delay_time=$(( delay_time < 5 ? delay_time + 1 : 5))
   done
-  for taskrole in $(cat $taskrole_statuses |  jq -r ".|keys[]"); do
+  for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
     host_list=''
-    for task in $(cat $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[]"); do
-      host_list+=$(echo $task | jq -r ".containerIp"):
-      host_list+=$(echo $task | jq -r ".containerPorts" | grep -o "http:[^,]" | cut -f 2 -d":"),
-    done
+    while read container_ip && read container_ports; do
+      host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,]" | cut -f 2 -d":"),
+    done < $(echo $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts")
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
   done
