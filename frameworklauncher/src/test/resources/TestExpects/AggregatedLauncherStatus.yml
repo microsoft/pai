@@ -32,6 +32,7 @@ aggregatedFrameworkStatuses:
             containerIsDecommissioning: false
             containerLaunchedTimestamp: 0
             containerLogHttpAddress: testString
+            containerPorts: testString
             taskCompletedTimestamp: 0
             taskCreatedTimestamp: 0
             taskIndex: 0
@@ -58,8 +59,10 @@ aggregatedFrameworkStatuses:
       frameworkVersion: 0
 launcherStatus:
   launcherConfiguration:
+    amAllowNoneGpuJobOnGpuNode: false
     amAttemptFailuresValidityIntervalSec: 0
     amAttemptMaxCount: 0
+    amContainerMinPort: 0
     amContainerRequestMaxTimeoutSec: 0
     amContainerRequestMinTimeoutSec: 0
     amDefaultResource:
@@ -69,14 +72,19 @@ launcherStatus:
       gpuAttribute: 0
       gpuNumber: 0
       memoryMB: 0
+      portDefinitions:
+        testString: {count: 0, start: 0}
+      portNumber: 0
       portRanges:
       - {begin: 0, end: 0}
     amPriority: 0
     amRequestPullIntervalSec: 0
     amRmHeartbeatIntervalSec: 0
     amRmResyncFrequency: 0
+    amSearchNodeBufferFactor: 0
     amSetupContainerRequestMaxRetryIntervalSec: 0
     amSetupContainerRequestMinRetryIntervalSec: 0
+    amSkipLocalTriedResource: false
     amStatusPushIntervalSec: 0
     amVersion: 0
     applicationRetrieveDiagnosticsMaxRetryCount: 0
@@ -98,7 +106,6 @@ launcherStatus:
     webServerAddress: testString
     webServerBindHost: testString
     webServerStatusPullIntervalSec: 0
-    zkCompressionEnable: false
     zkConnectString: testString
     zkRootDir: testString
   loggedInUser: {name: testString}

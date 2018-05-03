@@ -11,6 +11,9 @@ amResource:
   gpuAttribute: 0
   gpuNumber: 0
   memoryMB: 0
+  portDefinitions:
+    testString: {count: 0, start: 0}
+  portNumber: 0
   portRanges:
   - {begin: 0, end: 0}
 amType: DEFAULT

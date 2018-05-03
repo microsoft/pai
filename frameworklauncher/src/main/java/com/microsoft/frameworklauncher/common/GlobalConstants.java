@@ -36,7 +36,6 @@ public class GlobalConstants {
   public static final String ENV_VAR_FRAMEWORK_VERSION = "FRAMEWORK_VERSION";
   public static final String ENV_VAR_ZK_CONNECT_STRING = "ZK_CONNECT_STRING";
   public static final String ENV_VAR_ZK_ROOT_DIR = "ZK_ROOT_DIR";
-  public static final String ENV_VAR_ZK_COMPRESSION_ENABLE = "ZK_COMPRESSION_ENABLE";
   public static final String ENV_VAR_AM_VERSION = "AM_VERSION";
   public static final String ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC = "AM_RM_HEARTBEAT_INTERVAL_SEC";
   public static final String ENV_VAR_TASK_ROLE_NAME = "TASK_ROLE_NAME";
