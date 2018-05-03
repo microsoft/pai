@@ -165,12 +165,32 @@ def cluster_object_model_generate_service(config_path):
 
 
 
+
+def pai_build_info()
+
+    logger.error("The command is wrong.")
+    logger.error("Build image: paictl.py image build -p /path/to/configuration/ [ -n image-x ]")
+    logger.error("Push image : paictl.py image push -p /path/to/configuration/ [ -n image-x ]")
+
+
+
+
 def pai_build():
 
+    if len(sys.argv) < 2:
+        pai_build_info()
+        return
+
+    option = sys.argv[1]
+    del sys.argv[1]
+
+    if option not in ["build", "push"]:
+        pai_build_info()
+        return
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--path', required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--imagename', default='all', help="Build and push the target image to the registry")
-    parser.add_argument('-a', '--action', default=None, help="Only build or push" )
+    parser.add_argument('-p', '--config-path', required=True, help="The path of your configuration directory.")
+    parser.add_argument('-n', '--image-name', default='all', help="Build and push the target image to the registry")
     args = parser.parse_args(sys.argv[1:])
 
     config_path = args.path
@@ -181,24 +201,13 @@ def pai_build():
     if image_name != "all":
         image_list = [ image_name ]
 
-    if args.action != None and args.action not in ["build", "push"]:
-        logger.error("The option -a {0} is invalid.".format(args.action))
-        logger.error("Only build image please type   : paictl.py image -p /path/to/configuration/ -a build [ -n image-x ]")
-        logger.error("Only push image please type    : paictl.py image -p /path/to/configuration/ -a push [ -n image-x ]")
-        logger.error("Build & push image please type : paictl.py image -p /path/to/configuration/ [ -n image-x ]")
-        return
-
-    if args.action == None or args.action == "build":
+    if option == "build" or option == "push":
         center = build_center.build_center(cluster_object_model, image_list)
         center.run()
 
-    if args.action == None or args.action == "push":
+    if option == "push":
         center = tag_push_center.tag_push_center(cluster_object_model, image_list)
         center.run()
-
-
-
-
 
 
 
