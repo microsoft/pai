@@ -31,7 +31,7 @@ from paiLibrary.common import linux_shell
 from paiLibrary.common import file_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
-from paiLibrary.paiBuild import tag_push_center
+from paiLibrary.paiBuild import push_center
 
 
 
@@ -206,7 +206,7 @@ def pai_build():
         center.run()
 
     if option == "push" or option == "build-push":
-        center = tag_push_center.tag_push_center(cluster_object_model, image_list)
+        center = push_center.push_center(cluster_object_model, image_list)
         center.run()
 
 

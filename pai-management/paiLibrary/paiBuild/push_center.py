@@ -28,7 +28,7 @@ from ..common import directory_handler
 from ..common import docker_handler
 
 
-class tag_push_center:
+class push_center:
 
     def __init__(self, cluster_object_model, tag_push_target = None, os_type="ubuntu16.04"):
 

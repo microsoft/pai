@@ -19,6 +19,7 @@ import os
 
 import image_push
 import image_build
+import image_tag
 import hadoop_ai_build
 import logging
 import logging.config
@@ -140,16 +141,22 @@ class build_center:
 
 
 
+    def tag(self, image_name):
+
+        image_push_worker = image_push.image_push(
+            image_name,
+            self.cluster_object_model,
+            self.docker_cli)
+        image_push_worker.run()
+
+
+
     def hadoop_ai_build(self):
 
         hadoop_version = self.cluster_object_model['clusterinfo']['hadoopinfo']['hadoopversion']
         hadoop_ai_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
         hadoop_ai_build_instance = hadoop_ai_build.hadoop_ai_build(self.os_type, hadoop_version, hadoop_ai_path)
         hadoop_ai_build_instance.build()
-
-
-
-
 
 
 
@@ -177,6 +184,7 @@ class build_center:
             if image_name in self.done_dict and self.done_dict[image_name] == True:
                 continue
             self.build(image_name)
+            self.tag(image_name)
 
         self.hadoop_binary_remove()
 

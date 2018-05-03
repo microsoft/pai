@@ -26,7 +26,7 @@ from ..common import template_handler
 
 
 
-class image_push:
+class image_tag:
 
 
     def __init__(self, image_name, cluster_object_model, docker_cli):
@@ -40,10 +40,10 @@ class image_push:
 
 
 
-    def image_push(self):
+    def image_tag(self):
 
-        self.logger.info("push the {0} to the registry".format(self.image_name))
-        self.docker_cli.image_push_to_registry(
+        self.logger.info("Tag the {0} to the registry".format(self.image_name))
+        self.docker_cli.image_tag_to_registry(
             self.image_name,
             self.tag
         )
@@ -52,4 +52,4 @@ class image_push:
 
     def run(self):
 
-        self.image_push()
+        self.image_tag()
