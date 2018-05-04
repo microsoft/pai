@@ -1,0 +1,8 @@
+{
+  "dataDir": "",
+  "outputDir": "",
+  "codeDir": "",
+  "virtualCluster": "default",
+  "killAllOnCompletedTaskNumber": 1,
+  "retryCount": 0
+}

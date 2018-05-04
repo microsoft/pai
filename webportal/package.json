@@ -65,7 +65,8 @@
     "util": "0.10.3",
     "webpack": "3.10.0",
     "winston": "2.4.0",
-    "json-editor": "0.7.28"
+    "json-editor": "0.7.28",
+    "deepmerge": "2.1.0"
   },
   "scripts": {
     "build:dev": "npm run clean && npm run preprocess && npm run webpack -- --watch",

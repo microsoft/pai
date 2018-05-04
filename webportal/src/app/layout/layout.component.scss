@@ -4,7 +4,7 @@
   padding: 0em 0.3em 0.3em 0em;
 }
 
-input[type=submit]#submitJob {
-  width: 30%;
+input[type=submit]#submitJob, #fileExport {
+  width: 100px;
   display: block;
 }
