@@ -342,7 +342,7 @@ public class ApplicationMaster extends AbstractService {
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
 
-    ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
+    ResourceDescriptor requestResource = ResourceDescriptor.formatResource(requestManager.getTaskResources().get(taskRoleName));
     ResourceDescriptor maxResource = conf.getMaxResource();
 
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {

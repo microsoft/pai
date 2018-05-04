@@ -174,7 +174,7 @@ public class SelectionManager { // THREAD SAFE
     return result;
   }
 
-  public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
+  public synchronized SelectionResult selectSingleNode(String taskRoleName) throws Exception {
     SelectionResult results = select(taskRoleName);
     if (results.getNodeHosts().size() > 1) {
       // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
@@ -192,8 +192,8 @@ public class SelectionManager { // THREAD SAFE
   }
 
   public synchronized SelectionResult select(String taskRoleName)
-      throws NotAvailableException {
-    ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
+      throws Exception {
+    ResourceDescriptor requestResource = ResourceDescriptor.formatResource(requestManager.getTaskResources().get(taskRoleName));
     LOGGER.logInfo(
         "Select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
@@ -232,7 +232,7 @@ public class SelectionManager { // THREAD SAFE
 
   @VisibleForTesting
   public synchronized SelectionResult select(ResourceDescriptor requestResource, String requestNodeLabel, String requestNodeGpuType,
-      int startStatesTaskCount, List<ValueRange> reusePorts, Map<String, NodeConfiguration> configuredNodes) throws NotAvailableException {
+      int startStatesTaskCount, List<ValueRange> reusePorts, Map<String, NodeConfiguration> configuredNodes) throws Exception {
 
     LOGGER.logInfo(
         "select: Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s], StartStatesTaskCount: [%d], ReusePorts: [%s]",

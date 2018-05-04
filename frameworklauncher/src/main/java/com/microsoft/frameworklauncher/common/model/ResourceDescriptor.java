@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.common.model;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
+import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
 import org.apache.hadoop.yarn.api.records.Resource;
 
@@ -288,6 +289,45 @@ public class ResourceDescriptor implements Serializable {
     }
     LOGGER.logDebug("Put LocalResource " + this.toString() + " to hadoop resource: " + res);
     return res;
+  }
+
+  // format user request resource to hadoop yarn support resource.
+  // ignore Ports and GPUs when hadoop yarn library doesn't support these two features.
+  public static ResourceDescriptor formatResource(ResourceDescriptor resourceDescriptor) throws Exception {
+    ResourceDescriptor formatedResource = YamlUtils.deepCopy(resourceDescriptor, ResourceDescriptor.class);
+
+    Class<?> clazz = Resource.newInstance(0, 0).getClass();
+
+    if (formatedResource.getGpuNumber() > 0 || formatedResource.getGpuAttribute() > 0) {
+      try {
+        clazz.getMethod("setGPUs", int.class);
+        clazz.getMethod("setGPUAttribute", long.class);
+      } catch (NoSuchMethodException e) {
+        LOGGER.logWarning(e, "YARN library doesn't support GPU, ingore the GPU related user input");
+        formatedResource.setGpuNumber(0);
+        formatedResource.setGpuAttribute(0L);
+      }
+    }
+    if (formatedResource.getPortNumber() > 0 || ValueRangeUtils.getValueNumber(formatedResource.getPortRanges()) > 0) {
+      try {
+
+        Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+        Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+
+        hadoopValueRangesClass.getMethod("newInstance").invoke(null);
+        hadoopValueRangesClass.getMethod("setRangesList", List.class);
+        clazz.getMethod("setPorts", hadoopValueRangesClass);
+      } catch (NoSuchMethodException e) {
+        LOGGER.logWarning(e, "YARN library doesn't support Port allocation, ignore port related user input");
+        formatedResource.setPortNumber(0);
+        formatedResource.setPortRanges(new ArrayList<>());
+      } catch (ClassNotFoundException e) {
+        LOGGER.logWarning(e, "YARN library doesn't support Port allocation, ignore port related user input");
+        formatedResource.setPortNumber(0);
+        formatedResource.setPortRanges(new ArrayList<>());
+      }
+    }
+    return formatedResource;
   }
 
   @Override
