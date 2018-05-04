@@ -15,55 +15,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
-import yaml
 import logging
 import logging.config
 
-import linux_shell
-
-
-logger = logging.getLogger(__name__)
+from ..common import linux_shell
 
 
 
-def load_yaml_config(config_path):
+class hadoop_ai_build:
 
-    with open(config_path, "r") as f:
-        cluster_data = yaml.load(f)
+    def __init__(self, os_type = "ubuntu16.04", hadoop_version = "2.7.2", hadoop_customize_path = None):
 
-    return cluster_data
+        self.logger = logging.getLogger(__name__)
 
-
-
-def read_template(template_path):
-
-    with open(template_path, "r") as f:
-        template_data = f.read()
-
-    return template_data
+        self.hadoop_version = hadoop_version
+        self.hadoop_customize_path = hadoop_customize_path
+        self.os_type = os_type
 
 
+    def build(self):
 
-def write_generated_file(file_path, content_data):
+        if self.hadoop_customize_path == "None":
+            self.logger.warning("Because  the property of custom_hadoop_binary_path in your service-configuration.yaml is None.")
+            self.logger.warning("The process of hadoop-ai build will be skipped.")
+            return
 
-    with open(file_path, "w+") as fout:
-        fout.write(content_data)
+        self.logger.info("Hadoop AI will be built soon.")
+        self.logger.info("The hadoop AI binary will be found at the path [ {0} ]".format(self.hadoop_customize_path))
 
+        commandline = "./paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(self.os_type, self.hadoop_customize_path)
+        error_msg = "Failed to build hadoop-ai."
+        linux_shell.execute_shell(commandline, error_msg)
 
-
-def file_exist_or_not(file_path):
-
-    return os.path.isfile(str(file_path))
-
-
-
-def file_delete(file_path):
-
-    if file_exist_or_not(file) == True:
-        shell_cmd = "rm -rf {0}".format(file_path)
-        error_msg = "failed to rm {0}".format(file_path)
-        linux_shell.execute_shell(shell_cmd, error_msg)
-
+        self.logger.info("Successfully. Hadoop AI build finished.")
 
 

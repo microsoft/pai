@@ -15,28 +15,41 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM {{ clusterconfig['clusterinfo']['dockerregistryinfo']['docker_namespace'] }}/hadoop-run
+import logging
+import logging.config
 
-RUN apt-get -y update && \
-    apt-get -y install python git jq && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /root/end-to-end-test
-
-COPY etc /root/end-to-end-test/etc/
-COPY *.sh /root/end-to-end-test/
+from ..common import linux_shell
+from ..common import file_handler
+from ..common import directory_handler
+from ..common import docker_handler
+from ..common import template_handler
 
 
-RUN git clone https://github.com/sstephenson/bats.git && \
-    cd bats && \
-    ./install.sh /usr/local
 
-RUN git clone https://github.com/Microsoft/pai.git && \
-    cd pai/pai-fs && \
-    pip install -r requirements.txt
-
-RUN git clone https://github.com/Microsoft/CNTK.git
+class image_tag:
 
 
-CMD ["/bin/bash", "/root/end-to-end-test/start.sh"]
+    def __init__(self, image_name, cluster_object_model, docker_cli):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.cluster_object_model = cluster_object_model
+        self.image_name = image_name
+        self.tag = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_tag']
+        self.docker_cli = docker_cli
+
+
+
+    def image_tag(self):
+
+        self.logger.info("Tag the {0} to the registry".format(self.image_name))
+        self.docker_cli.image_tag_to_registry(
+            self.image_name,
+            self.tag
+        )
+
+
+
+    def run(self):
+
+        self.image_tag()

@@ -15,10 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-templatelist:
-  - None
-
-copy:
-  - host-configure/
-
-prerequisite: None
+copy-list:
+  - src: host-configure/
+    # please crate a new directory in your image src code. Because this directory will be
+    # deleted after building image.
+    dst: src/base-image/copied_file
