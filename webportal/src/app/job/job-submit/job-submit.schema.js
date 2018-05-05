@@ -130,7 +130,7 @@ const jobSchema = {
       pattern: "^[A-Za-z0-9\-._~]+$",
       propertyOrder: 100,
       options: {
-        grid_columns: 2,
+        grid_columns: 4,
       },
       description: "Name for the job, need to be unique",
     },
@@ -138,7 +138,7 @@ const jobSchema = {
       type: "string",
       propertyOrder: 110,
       options: {
-        grid_columns: 2,
+        grid_columns: 4,
       },
       description: "URL pointing to the Docker image for all tasks in the job",
     },
@@ -146,7 +146,7 @@ const jobSchema = {
       type: "string",
       propertyOrder: 120,
       options: {
-        grid_columns: 2,
+        grid_columns: 4,
       },
       description: "Docker registry authentication file existing on HDFS",
     },
@@ -178,7 +178,7 @@ const jobSchema = {
       type: "string",
       propertyOrder: 125,
       options: {
-        grid_columns: 2,
+        grid_columns: 3,
       },
       description: "The virtual cluster job runs on. If omitted, the job will run on default virtual cluster",
     },
@@ -186,7 +186,7 @@ const jobSchema = {
       type: "string",
       propertyOrder: 126,
       options: {
-        grid_columns: 1,
+        grid_columns: 3,
       },
       description: "If omitted, the job will run on any gpu type",
     },
@@ -197,7 +197,7 @@ const jobSchema = {
       exclusiveMinimum: false,
       propertyOrder: 127,
       options: {
-        grid_columns: 2,
+        grid_columns: 3,
       },
       description: "Number of completed tasks to kill the entire job, no less than 0",
       default: 1,
@@ -209,7 +209,7 @@ const jobSchema = {
       exclusiveMinimum: false,
       propertyOrder: 128,
       options: {
-        grid_columns: 1,
+        grid_columns: 3,
       },
       description: "List of taskRole, one task role at least",
     },

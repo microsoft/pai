@@ -17,6 +17,7 @@
 
 
 // module dependencies
+require('./job-submit.component.scss');
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
