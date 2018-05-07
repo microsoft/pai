@@ -141,7 +141,7 @@ paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name
 2) Secondly, it will delete all service data which has been persistenced on the local host such as hdfs, yarn, zookeeper etc.
 3) If the option -n is set, only the target service will be stopped and deleted.
 
-#### Upgrade service in the cluster <a name="Service_Delete"></a>
+#### Upgrade service in the cluster <a name="Service_Upgrade"></a>
 
 ```
 paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-name ]
