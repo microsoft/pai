@@ -115,6 +115,12 @@ const loadEditor = () => {
   });
 };
 
+const resize = () => {
+    console.log('resize');
+    var heights = window.innerHeight;
+    document.getElementById("editor-holder").style.height = heights - 300 + "px";
+};
+
 $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(jobSubmitHtml);
@@ -138,6 +144,10 @@ $(document).ready(() => {
       (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json', 
       'application/json');
   });
+  resize();
+  window.onresize = function() {
+    resize();
+  };
 });
 
 module.exports = {submitJob};
