@@ -73,7 +73,7 @@ def parseDockerStats(stats):
     
 def stats():
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
