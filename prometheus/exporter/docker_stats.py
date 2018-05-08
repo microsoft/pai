@@ -20,6 +20,8 @@ import subprocess
 import json
 import sys
 import re
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 
 def parsePercentile(data):
     return data.replace("%", "")
@@ -78,7 +80,8 @@ def stats():
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
     except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     stats()

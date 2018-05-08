@@ -20,13 +20,15 @@ import subprocess
 import sys
 from xml.dom import minidom
 import os
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 
 def parseSmiXmlResult(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
-    print(len(gpuList))
+    logging.info(len(gpuList))
     gpu_count = len(gpuList)
-    print("gpu numbers" + str(gpu_count))
+    logging.info("gpu numbers" + str(gpu_count))
     nvidiasmi_attached_gpus = "nvidiasmi_attached_gpus {0}\n".format(gpu_count)
     outputFile = open(logDir + "/gpu_exporter.prom", "w")
     outputFile.write(nvidiasmi_attached_gpus)
@@ -44,14 +46,16 @@ def parseSmiXmlResult(smi, logDir):
 
 def genGpuMetricsFromSmi(logDir):
     try:
+        logger.info("genGpuMetricsFromSmi")  
         cmd = "nvidia-smi -q -x"
         smi_output = subprocess.check_output([cmd], shell=True)
         return parseSmiXmlResult(smi_output, logDir)
     except subprocess.CalledProcessError as e:
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         if e.returncode == 127:
-            print("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            logger.info("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         else:
-            print("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            logger.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     logDir = argv[0]

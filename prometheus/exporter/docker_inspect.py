@@ -19,7 +19,8 @@
 import subprocess
 import json
 import sys
-
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
 targetEnv = {"PAI_TASK_INDEX"}
 
@@ -48,10 +49,10 @@ def inspect(containerId):
         dockerInspectCMD = "docker inspect " + containerId
         dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
         inspectInfo = parseDockerInspect(dockerDockerInspect)
-        print(inspectInfo)
+        logging.info(inspectInfo)
         return inspectInfo
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     containerId = argv[0]
