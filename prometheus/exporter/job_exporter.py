@@ -28,17 +28,13 @@ from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger("gpu_expoter")  
 logger.setLevel(logging.INFO)  
-# create file handler which logs even debug messages  
 fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
 fh.setLevel(logging.INFO)  
-# create console handler with a higher log level  
 ch = logging.StreamHandler()  
 ch.setLevel(logging.INFO)  
-# create formatter and add it to the handlers  
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
 ch.setFormatter(formatter)  
 fh.setFormatter(formatter)  
-# add the handlers to logger  
 logger.addHandler(ch)  
 logger.addHandler(fh)  
 
