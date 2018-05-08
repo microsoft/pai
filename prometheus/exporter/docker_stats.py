@@ -81,7 +81,6 @@ def stats():
         return dockerStats
     except subprocess.CalledProcessError as e:
         logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     stats()

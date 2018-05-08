@@ -51,7 +51,6 @@ def genGpuMetricsFromSmi(logDir):
         smi_output = subprocess.check_output([cmd], shell=True)
         return parseSmiXmlResult(smi_output, logDir)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         if e.returncode == 127:
             logger.info("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         else:
