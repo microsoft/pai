@@ -20,7 +20,6 @@ package com.microsoft.frameworklauncher.common.model;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
-import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
 import org.apache.hadoop.yarn.api.records.Resource;
 
@@ -188,12 +187,9 @@ public class ResourceDescriptor implements Serializable {
     ResourceDescriptor rd = new ResourceDescriptor();
     rd.setMemoryMB(res.getMemory());
     rd.setCpuNumber(res.getVirtualCores());
-    rd.setGpuAttribute(0L);
-    rd.setGpuNumber(0);
     Class<?> clazz = res.getClass();
 
     try {
-
       Method getGpuNumber = clazz.getMethod("getGPUs");
       Method getGpuAttribute = clazz.getMethod("getGPUAttribute");
 
@@ -201,12 +197,9 @@ public class ResourceDescriptor implements Serializable {
       rd.setGpuAttribute((long) getGpuAttribute.invoke(res));
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Failed get GPU information, YARN library doesn't support gpu as resources");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get GPU information, illegal access function");
     }
 
     try {
-
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
       Method getPorts = clazz.getMethod("getPorts");
@@ -230,8 +223,6 @@ public class ResourceDescriptor implements Serializable {
       }
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support port");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
       LOGGER.logDebug(e, "Ignore: Failed to get the class name");
     }
@@ -253,8 +244,6 @@ public class ResourceDescriptor implements Serializable {
 
       } catch (NoSuchMethodException e) {
         LOGGER.logWarning(e, "Ignore: Failed to set GPU information, YARN library doesn't support");
-      } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Failed to set GPU information, illegal access function");
       }
     }
 
@@ -281,8 +270,6 @@ public class ResourceDescriptor implements Serializable {
 
       } catch (NoSuchMethodException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support Port");
-      } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get the class Name");
       }
@@ -291,43 +278,41 @@ public class ResourceDescriptor implements Serializable {
     return res;
   }
 
-  // format user request resource to hadoop yarn support resource.
-  // ignore Ports and GPUs when hadoop yarn library doesn't support these two features.
-  public static ResourceDescriptor formatResource(ResourceDescriptor resourceDescriptor) throws Exception {
-    ResourceDescriptor formatedResource = YamlUtils.deepCopy(resourceDescriptor, ResourceDescriptor.class);
 
+  //Check if the hadoop library support GPU
+  public static boolean checkIfHadoopLibrarySupportGPU() throws Exception {
     Class<?> clazz = Resource.newInstance(0, 0).getClass();
 
-    if (formatedResource.getGpuNumber() > 0 || formatedResource.getGpuAttribute() > 0) {
-      try {
-        clazz.getMethod("setGPUs", int.class);
-        clazz.getMethod("setGPUAttribute", long.class);
-      } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "YARN library doesn't support GPU, ingore the GPU related user input");
-        formatedResource.setGpuNumber(0);
-        formatedResource.setGpuAttribute(0L);
-      }
+    try {
+      clazz.getMethod("setGPUs", int.class);
+      clazz.getMethod("setGPUAttribute", long.class);
+    } catch (NoSuchMethodException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support GPU.");
+      return false;
     }
-    if (formatedResource.getPortNumber() > 0 || ValueRangeUtils.getValueNumber(formatedResource.getPortRanges()) > 0) {
-      try {
+    return true;
+  }
 
-        Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
-        Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+  //Check if the hadoop library support Port
+  public static boolean checkIfHadoopLibrarySupportPort() throws Exception {
 
-        hadoopValueRangesClass.getMethod("newInstance").invoke(null);
-        hadoopValueRangesClass.getMethod("setRangesList", List.class);
-        clazz.getMethod("setPorts", hadoopValueRangesClass);
-      } catch (NoSuchMethodException e) {
-        LOGGER.logWarning(e, "YARN library doesn't support Port allocation, ignore port related user input");
-        formatedResource.setPortNumber(0);
-        formatedResource.setPortRanges(new ArrayList<>());
-      } catch (ClassNotFoundException e) {
-        LOGGER.logWarning(e, "YARN library doesn't support Port allocation, ignore port related user input");
-        formatedResource.setPortNumber(0);
-        formatedResource.setPortRanges(new ArrayList<>());
-      }
+    Class<?> clazz = Resource.newInstance(0, 0).getClass();
+    try {
+      Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+      Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+
+      hadoopValueRangesClass.getMethod("newInstance").invoke(null);
+      hadoopValueRangeClass.getMethod("newInstance", int.class, int.class).invoke(null, 0, 1);
+      hadoopValueRangesClass.getMethod("setRangesList", List.class);
+      clazz.getMethod("setPorts", hadoopValueRangesClass);
+    } catch (NoSuchMethodException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support Port allocation");
+      return false;
+    } catch (ClassNotFoundException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support Port allocation");
+      return false;
     }
-    return formatedResource;
+    return true;
   }
 
   @Override

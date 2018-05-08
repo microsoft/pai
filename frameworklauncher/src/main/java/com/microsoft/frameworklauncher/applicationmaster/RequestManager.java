@@ -82,7 +82,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    */
   // -1: not available, 0: does not exist, 1: exists
   private volatile int existsLocalVersionFrameworkRequest = -1;
-
+  private volatile int hadoopLibrarySupportGPU = -1;
+  private volatile int hadoopLibrarySupportPort = -1;
 
   /**
    * REGION AbstractService
@@ -182,6 +183,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
+    checkHadoopLibrary();
   }
 
   private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
@@ -205,6 +207,33 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           conf.getFrameworkVersion(), newFrameworkDescriptor.getVersion()));
     } else {
       existsLocalVersionFrameworkRequest = 1;
+    }
+  }
+
+  private void checkHadoopLibrary() throws Exception {
+    if (this.getTotalGpuCount() > 0) {
+      if (hadoopLibrarySupportGPU == -1) {
+        if (ResourceDescriptor.checkIfHadoopLibrarySupportGPU()) {
+          hadoopLibrarySupportGPU = 1;
+        } else {
+          hadoopLibrarySupportGPU = 0;
+        }
+      }
+      if (hadoopLibrarySupportGPU == 0) {
+        throw new NonTransientException("this hadoop library doesn't support GPU scheduling, please use the hadoop-AI library");
+      }
+    }
+    if (this.getTasksPortCount() > 0) {
+      if (hadoopLibrarySupportPort == -1) {
+        if (ResourceDescriptor.checkIfHadoopLibrarySupportPort()) {
+          hadoopLibrarySupportPort = 1;
+        } else {
+          hadoopLibrarySupportPort = 0;
+        }
+      }
+      if (hadoopLibrarySupportPort == 0) {
+        throw new NonTransientException("this hadoop library doesn't support Port scheduling, please use the hadoop-AI library");
+      }
     }
   }
 
@@ -409,6 +438,15 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       gpuCount += taskRoleDescriptor.getTaskService().getResource().getGpuNumber() * taskRoleDescriptor.getTaskNumber();
     }
     return gpuCount;
+  }
+
+  public int getTasksPortCount() {
+    int portCount = 0;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = taskRoles;
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
+      portCount += taskRoleDescriptor.getTaskService().getResource().getPortNumber();
+    }
+    return portCount;
   }
 
   public Map<String, TaskRolePlatformSpecificParametersDescriptor> getTaskPlatParams() {
