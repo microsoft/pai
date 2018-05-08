@@ -108,7 +108,7 @@ spec:
             path: /var/drivers
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}
+            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
         - name: rootfs
           hostPath:
             path: /
