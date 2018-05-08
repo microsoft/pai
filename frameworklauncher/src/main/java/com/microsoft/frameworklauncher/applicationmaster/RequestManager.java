@@ -179,11 +179,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     // newFrameworkDescriptor is always not null
     FrameworkDescriptor newFrameworkDescriptor = aggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
     checkFrameworkVersion(newFrameworkDescriptor);
+    checkHadoopLibrary(newFrameworkDescriptor);
     flattenFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
-    checkHadoopLibrary();
   }
 
   private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
@@ -210,8 +210,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
   }
 
-  private void checkHadoopLibrary() throws Exception {
-    if (this.getTotalGpuCount() > 0) {
+  private void checkHadoopLibrary(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
+    if (getFrameworkDescriptorGpuCount(newFrameworkDescriptor) > 0) {
       if (hadoopLibrarySupportGPU == -1) {
         if (ResourceDescriptor.checkIfHadoopLibrarySupportGPU()) {
           hadoopLibrarySupportGPU = 1;
@@ -223,7 +223,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         throw new NonTransientException("this hadoop library doesn't support GPU scheduling, please use the hadoop-AI library");
       }
     }
-    if (this.getTasksPortCount() > 0) {
+    if (getFrameworkDescriptorPortCount(newFrameworkDescriptor) > 0) {
       if (hadoopLibrarySupportPort == -1) {
         if (ResourceDescriptor.checkIfHadoopLibrarySupportPort()) {
           hadoopLibrarySupportPort = 1;
@@ -440,15 +440,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return gpuCount;
   }
 
-  public int getTasksPortCount() {
-    int portCount = 0;
-    Map<String, TaskRoleDescriptor> taskRolesSnapshot = taskRoles;
-    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
-      portCount += taskRoleDescriptor.getTaskService().getResource().getPortNumber();
-    }
-    return portCount;
-  }
-
   public Map<String, TaskRolePlatformSpecificParametersDescriptor> getTaskPlatParams() {
     return taskPlatParams;
   }
@@ -486,5 +477,23 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       LOGGER.logWarning(e,
           "[%s]: Failed to deleteMigrateTask", containerId);
     }
+  }
+
+  public static int getFrameworkDescriptorGpuCount(FrameworkDescriptor frameworkDescriptor) {
+    int gpuCount = 0;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = frameworkDescriptor.getTaskRoles();
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
+      gpuCount += taskRoleDescriptor.getTaskService().getResource().getGpuNumber() * taskRoleDescriptor.getTaskNumber();
+    }
+    return gpuCount;
+  }
+
+  public static int getFrameworkDescriptorPortCount(FrameworkDescriptor frameworkDescriptor) {
+    int portCount = 0;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = frameworkDescriptor.getTaskRoles();
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
+      portCount += taskRoleDescriptor.getTaskService().getResource().getPortNumber();
+    }
+    return portCount;
   }
 }
