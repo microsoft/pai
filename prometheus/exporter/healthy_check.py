@@ -52,7 +52,7 @@ def main(argv):
         logging.info(err)
 
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
