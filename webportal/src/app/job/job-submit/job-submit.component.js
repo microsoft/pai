@@ -18,6 +18,7 @@
 
 // module dependencies
 require('./job-submit.component.scss');
+require('json-editor')
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
@@ -25,8 +26,6 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
-const jobDefault = require('./job-submit.default.json');
-const merge = require('deepmerge');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -34,6 +33,7 @@ const jobSubmitHtml = jobSubmitComponent({
 });
 
 let editor;
+let jobDefaultConfig;
 
 const isValidJson = (str) => {
   let valid = true;
@@ -113,10 +113,10 @@ const loadEditor = () => {
     //startval: jobExample,
     no_additional_properties: true,
   });
+  jobDefaultConfig = editor.getValue();
 };
 
 const resize = () => {
-    console.log('resize');
     var heights = window.innerHeight;
     document.getElementById("editor-holder").style.height = heights - 300 + "px";
 };
@@ -131,7 +131,7 @@ $(document).ready(() => {
     reader.onload = (event) => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
-        editor.setValue(merge(jobDefault, JSON.parse(jobConfig)));
+        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
       }
     };
     reader.readAsText(event.target.files[0]);

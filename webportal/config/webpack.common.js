@@ -55,7 +55,6 @@ const config = {
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
     download: './src/app/job/job-utils/download.component.js',
-    jsonEditor: './node_modules/json-editor/dist/jsonEditor.js'
   },
   output: {
     path: helpers.root('dist'),
@@ -219,7 +218,7 @@ const config = {
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'submit', 'jsonEditor']
+      chunks: ['layout', 'submit']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

@@ -149,6 +149,7 @@ const jobSchema = {
         grid_columns: 4,
       },
       description: "Docker registry authentication file existing on HDFS",
+      default: "",
     },
     dataDir: {
       type: "string",
@@ -157,6 +158,7 @@ const jobSchema = {
         grid_columns: 4,
       },
       description: "Data directory existing on HDFS",
+      default: "",
     },
     outputDir: {
       type: "string",
@@ -165,6 +167,7 @@ const jobSchema = {
         grid_columns: 4,
       },
       description: "Output directory on HDFS, $PAI_DEFAULT_FS_URI/Output/$jobName will be used if not specified",
+      default: "",
     },
     codeDir: {
       type: "string",
@@ -173,6 +176,7 @@ const jobSchema = {
         grid_columns: 4,
       },
       description: "Code directory existing on HDFS",
+      default: "",
     },
     virtualCluster: {
       type: "string",
@@ -181,6 +185,7 @@ const jobSchema = {
         grid_columns: 3,
       },
       description: "The virtual cluster job runs on. If omitted, the job will run on default virtual cluster",
+      default: "default",
     },
     gpuType: {
       type: "string",
@@ -189,6 +194,7 @@ const jobSchema = {
         grid_columns: 3,
       },
       description: "If omitted, the job will run on any gpu type",
+      default: "",
     },
     killAllOnCompletedTaskNumber: {
       type: "number",
@@ -212,6 +218,7 @@ const jobSchema = {
         grid_columns: 3,
       },
       description: "List of taskRole, one task role at least",
+      default: 0,
     },
     taskRoles: {
       type: "array",
