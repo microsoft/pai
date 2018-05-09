@@ -15,6 +15,18 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import subprocess
+import sys
+import logging  
+from logging.handlers import RotatingFileHandler
+
+logger = logging.getLogger("node_exporter probe")  
+logger.setLevel(logging.INFO)  
+fh = RotatingFileHandler("/datastorage/prometheus/node_exporter_probe.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
+fh.setLevel(logging.INFO)  
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
+fh.setFormatter(formatter)  
+logger.addHandler(fh)  
 
 def main(argv):
     runTimeException = []
@@ -27,7 +39,7 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logging.info(err)
+        logger.info(err)
 
     if gpuExists:
         try:
@@ -41,7 +53,7 @@ def main(argv):
         except subprocess.CalledProcessError as e:
             err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
             runTimeException.append(err)
-            logging.info(err)
+            logger.info(err)
 
     try:
         dockerInspectCMD = "docker inspect --help" 
@@ -49,7 +61,7 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logging.info(err)
+        logger.info(err)
 
     try:
         dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
@@ -57,17 +69,17 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logging.info(err)
+        logger.info(err)
 
     if not os.path.exists("/datastorage/prometheus/gpu_exporter.prom"):
         err = "/datastorage/prometheus/gpu_exporter.prom does not exists"
         runTimeException.append(err)
-        logging.info(err)
+        logger.info(err)
 
     if not os.path.exists("/datastorage/prometheus/job_exporter.prom"):
         err = "/datastorage/prometheus/job_exporter.prom does not exists"
         runTimeException.append(err)
-        logging.info(err)
+        logger.info(err)
 
     if len(runTimeException) > 0:
         raise RuntimeError("gpu-exporter readiness probe failed")
