@@ -225,6 +225,12 @@ const setDefaultAdmin = (callback) => {
   update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
     if (!status) {
       throw new Error('unable to set default admin');
+    } else {
+      updateUserVc(etcdConfig.adminName, '', (errMsg, res) => {
+        if (errMsg || !res) {
+          throw new Error('unable to set default admin virtual cluster');
+        }
+      });
     }
   });
 };

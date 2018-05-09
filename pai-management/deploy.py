@@ -181,7 +181,7 @@ def clean_up_generated_file(service_config):
 
         for template in template_list:
 
-            if os.path.exists(template):
+            if os.path.exists("bootstrap/{0}/{1}".format(serv,template)):
                 shell_cmd = "rm -rf bootstrap/{0}/{1}".format(serv,template)
                 error_msg = "failed to rm bootstrap/{0}/{1}".format(serv,template)
                 execute_shell(shell_cmd, error_msg)

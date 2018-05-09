@@ -1,6 +1,7 @@
 !!com.microsoft.frameworklauncher.common.model.SummarizedFrameworkInfos
 summarizedFrameworkInfos:
 - applicationExitCode: 0
+  executionType: null
   firstRequestTimestamp: 0
   frameworkCompletedTimestamp: 0
   frameworkDescription: testString
@@ -10,4 +11,5 @@ summarizedFrameworkInfos:
   frameworkState: null
   frameworkVersion: 0
   lastRequestTimestamp: 0
+  queue: testString
   userName: testString

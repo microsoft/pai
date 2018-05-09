@@ -11,6 +11,7 @@ containerIp: testString
 containerIsDecommissioning: false
 containerLaunchedTimestamp: 0
 containerLogHttpAddress: testString
+containerPorts: testString
 taskCompletedTimestamp: 0
 taskCreatedTimestamp: 0
 taskIndex: 0

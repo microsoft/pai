@@ -22,6 +22,9 @@ import com.microsoft.frameworklauncher.common.model.*;
 import org.apache.zookeeper.KeeperException;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ZookeeperStore {
   private static final DefaultLogger LOGGER = new DefaultLogger(ZookeeperStore.class);
@@ -29,12 +32,12 @@ public class ZookeeperStore {
   protected final ZooKeeperClient zkClient;
   protected final ZookeeperStoreStructure zkStruct;
 
-  public ZookeeperStore(String connectString, String launcherRootPath, Boolean compressionEnable) throws Exception {
+  public ZookeeperStore(String connectString, String launcherRootPath) throws Exception {
     LOGGER.logInfo(
-        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s], [CompressionEnable] = [%s]",
-        connectString, launcherRootPath, compressionEnable);
+        "Initializing ZookeeperStore: [ConnectString] = [%s], [LauncherRootPath] = [%s]",
+        connectString, launcherRootPath);
 
-    zkClient = new ZooKeeperClient(connectString, compressionEnable);
+    zkClient = new ZooKeeperClient(connectString);
     zkStruct = new ZookeeperStoreStructure(launcherRootPath);
 
     setupZKStructure();
@@ -44,6 +47,10 @@ public class ZookeeperStore {
   protected ZookeeperStore(ZooKeeperClient zkClient, ZookeeperStoreStructure zkStruct) {
     this.zkClient = zkClient;
     this.zkStruct = zkStruct;
+  }
+
+  public void stop() {
+    zkClient.stop();
   }
 
   // Setup Basic ZookeeperStoreStructure
@@ -206,8 +213,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
-    HashMap<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
+  public Map<String, FrameworkRequest> getAllFrameworkRequests() throws Exception {
+    Map<String, FrameworkRequest> allFrameworkRequests = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherRequestPath())) {
       try {
         allFrameworkRequests.put(frameworkName, getFrameworkRequest(frameworkName));
@@ -240,10 +247,18 @@ public class ZookeeperStore {
   }
 
   public AggregatedLauncherStatus getAggregatedLauncherStatus() throws Exception {
+    return getAggregatedLauncherStatus(new HashSet<>());
+  }
+
+  public AggregatedLauncherStatus getAggregatedLauncherStatus(Set<String> excludedFrameworkNames) throws Exception {
     AggregatedLauncherStatus aggregatedLauncherStatus = new AggregatedLauncherStatus();
     aggregatedLauncherStatus.setLauncherStatus(getLauncherStatus());
     aggregatedLauncherStatus.setAggregatedFrameworkStatuses(new HashMap<>());
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
+      if (excludedFrameworkNames.contains(frameworkName)) {
+        continue;
+      }
+
       try {
         aggregatedLauncherStatus.getAggregatedFrameworkStatuses().put(frameworkName, getAggregatedFrameworkStatus(frameworkName));
       } catch (KeeperException.NoNodeException ignored) {
@@ -260,8 +275,8 @@ public class ZookeeperStore {
   }
 
   // Specialization for performance
-  public HashMap<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
-    HashMap<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
+  public Map<String, FrameworkStatus> getAllFrameworkStatuses() throws Exception {
+    Map<String, FrameworkStatus> allFrameworkStatuses = new HashMap<>();
     for (String frameworkName : zkClient.getChildren(zkStruct.getLauncherStatusPath())) {
       try {
         allFrameworkStatuses.put(frameworkName, getFrameworkStatus(frameworkName));

@@ -144,7 +144,11 @@ class Job {
               .headers(launcherConfig.webserviceRequestHeaders)
               .send(this.generateFrameworkDescription(data))
               .end((res) => {
-                next();
+                if (res.status === 202) {
+                  next();
+                } else {
+                  next(new Error('[Launcher] ' + res.status + ' ' + JSON.stringify(res.body)));
+                }
               });
           } else {
             next(error);
@@ -297,10 +301,20 @@ class Job {
           taskStatuses: [],
         };
         for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
+          const containerPorts = {};
+          if (task.containerPorts) {
+            for (let portStr of task.containerPorts.split(';')) {
+              if (portStr.length > 0) {
+                const port = portStr.split(':');
+                containerPorts[port[0]] = port[1];
+              }
+            }
+          }
           jobDetail.taskRoles[taskRole].taskStatuses.push({
             taskIndex: task.taskIndex,
             containerId: task.containerId,
             containerIp: task.containerIp,
+            containerPorts,
             containerGpus: task.containerGpus,
             containerLog: task.containerLogHttpAddress,
           });

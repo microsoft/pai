@@ -21,7 +21,7 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
-import java.util.HashSet;
+import java.util.Set;
 
 public class RMResyncHandler { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(RMResyncHandler.class);
@@ -67,7 +67,7 @@ public class RMResyncHandler { // THREAD SAFE
   }
 
   public void resyncWithRM() throws Exception {
-    HashSet<String> liveContainerIds = null;
+    Set<String> liveContainerIds = null;
 
     try {
       LOGGER.logDebug("Started to getLiveContainerIdsFromRM");
