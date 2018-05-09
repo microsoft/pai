@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 # Microsoft FrameworkLauncher
-FrameworkLauncher（以下简称Launcher）可以支持大规模[YARN](http://hadoop.apache.org/)容器中的Service能长期运行而不需要改变Service本身，同时也支持批量任务（Batch Jobs），如CNTK、Tensorflow等深度学习任务。
+FrameworkLauncher（简称Launcher）支持在[YARN](http://hadoop.apache.org/)容器中运行大规模 Long-Running Services，而不需要改变Service本身，同时也支持Batch Jobs，如CNTK、Tensorflow等深度学习任务。
 
 ## 功能
 * **高可用性**
