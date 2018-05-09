@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -26,9 +27,9 @@ logger = logging.getLogger("gpu_expoter")
 def parseSmiXmlResult(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
-    logging.info(len(gpuList))
+    logger.info(len(gpuList))
     gpu_count = len(gpuList)
-    logging.info("gpu numbers" + str(gpu_count))
+    logger.info("gpu numbers" + str(gpu_count))
     nvidiasmi_attached_gpus = "nvidiasmi_attached_gpus {0}\n".format(gpu_count)
     outputFile = open(logDir + "/gpu_exporter.prom", "w")
     outputFile.write(nvidiasmi_attached_gpus)

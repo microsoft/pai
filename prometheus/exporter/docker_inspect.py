@@ -49,10 +49,10 @@ def inspect(containerId):
         dockerInspectCMD = "docker inspect " + containerId
         dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
         inspectInfo = parseDockerInspect(dockerDockerInspect)
-        logging.info(inspectInfo)
+        logger.info(inspectInfo)
         return inspectInfo
     except subprocess.CalledProcessError as e:
-        logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logger.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     containerId = argv[0]

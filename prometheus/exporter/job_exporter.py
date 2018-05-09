@@ -43,7 +43,7 @@ def parseFromLabels(labels):
     labelStr = ""
 
     for label in labels:
-        logging.info(label)
+        logger.info(label)
         if "container_label_GPU_ID" in label:
             s1 = label.split("=")
             if len(s1) > 1:
@@ -77,7 +77,7 @@ def genJobMetrics(logDir, gpuMetrics):
         labelStr = labelStr + envStr
         for id in gpuIds:
             if gpuMetrics:
-                logging.info(gpuMetrics)
+                logger.info(gpuMetrics)
                 containerGpuUtilStr = 'container_GPUPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuUtil"])
                 containerMemUtilStr = 'container_GPUMemPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuMemUtil"])
                 outputFile.write(containerGpuUtilStr)

@@ -80,7 +80,7 @@ def stats():
         dockerStats = parseDockerStats(dockerDockerStats)
         return dockerStats
     except subprocess.CalledProcessError as e:
-        logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logger.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     stats()
