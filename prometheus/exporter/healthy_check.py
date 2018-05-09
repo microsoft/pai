@@ -19,6 +19,7 @@ import subprocess
 import sys
 import logging  
 from logging.handlers import RotatingFileHandler
+import os
 
 logger = logging.getLogger("node_exporter probe")  
 logger.setLevel(logging.INFO)  
