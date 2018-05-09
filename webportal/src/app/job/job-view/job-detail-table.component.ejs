@@ -117,7 +117,16 @@
             </div>
             <div style='float:left'>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
             <div style='float:left'>
-              <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Go to Tracking Page</a>
+              <a href="http://<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Go to Tracking Page</a>
+            </div>
+            <div style='float:left'>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+            <div style='float:left'>
+              <%
+                let ip = taskRoles[taskRole].taskStatuses[i].containerIp;
+                let port = taskRoles[taskRole].taskStatuses[i].containerPorts['jupyter'];
+                let jupyterUrl = 'http://' + ip + ':' + port + '/jupyter/' + ip + '/' + port;
+              %>
+              <a href="<%= jupyterUrl %>" target="_blank">Go to Jupyter Notebook</a>
             </div>
           </td>
         </tr>
