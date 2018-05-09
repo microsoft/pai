@@ -53,14 +53,6 @@ def create_parser():
 
 #
 
-def run(args, dry=False):
-    cmd = " ".join(args).strip()
-    print("RUN " + cmd)
-    if not dry:
-        os.system(cmd)
-
-#
-
 if __name__ == "__main__":
     #
     parser = create_parser()

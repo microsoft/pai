@@ -27,25 +27,31 @@ default-machine-properties:
 machine-sku:
 
   GENERIC:
-    mem: 32
+    mem: 1
     gpu:
       type: generic
       count: 1
     cpu:
       vcore: 1
-    os: generic-linux
+    os: ubuntu16.04
 
 machine-list:
+
 {%- for m in machines %}
 
   - hostname: {{ m }}
     hostip: {{ m }}
     machine-type: GENERIC
-    etcdid: etcdid1
+  {%- if loop.index == 1 %}
     k8s-role: master
-    dashboard: "true"
+    etcdid: etcdid1
     zkid: "1"
+    dashboard: "true"
     pai-master: "true"
-    node-exporter: "true"
+  {%- else %}
+    k8s-role: worker
     pai-worker: "true"
+  {%- endif %}
+    node-exporter: "true"
+
 {%- endfor %}
