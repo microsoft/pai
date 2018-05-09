@@ -233,9 +233,9 @@ nohup jupyter notebook \
   --port=$PAI_CONTAINER_JUPYTER_PORT \
   --allow-root \
   --no-browser \
-  --NotebookApp.token='' \
-  --NotebookApp.allow_origin='*' \
-  --NotebookApp.base_url='/jupyter/$PAI_CONTAINER_HOST_IP/$PAI_CONTAINER_JUPYTER_PORT/' \
+  --NotebookApp.token="" \
+  --NotebookApp.allow_origin="*" \
+  --NotebookApp.base_url="/jupyter/${PAI_CONTAINER_HOST_IP}/${PAI_CONTAINER_JUPYTER_PORT}/" \
   &
 
 # Write env to system-wide environment
