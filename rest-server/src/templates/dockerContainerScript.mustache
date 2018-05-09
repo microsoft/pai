@@ -228,7 +228,15 @@ done
 start_ssh_service
 
 # Start jupyter notebook service
-nohup jupyter notebook --no-browser --ip=0.0.0.0 --port=$PAI_CONTAINER_JUPYTER_PORT --allow-root --NotebookApp.token='pai' &
+nohup jupyter notebook \
+  --ip=0.0.0.0 \
+  --port=$PAI_CONTAINER_JUPYTER_PORT \
+  --allow-root \
+  --no-browser \
+  --NotebookApp.token='' \
+  --NotebookApp.allow_origin='*' \
+  --NotebookApp.base_url='/jupyter/$PAI_CONTAINER_HOST_IP/$PAI_CONTAINER_JUPYTER_PORT/' \
+  &
 
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
