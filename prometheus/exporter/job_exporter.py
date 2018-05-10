@@ -38,7 +38,7 @@ fh.setFormatter(formatter)
 logger.addHandler(ch)  
 logger.addHandler(fh)  
 
-def parseFromLabels(labels):
+def parse_from_labels(labels):
     gpuIds = []
     labelStr = ""
 
@@ -57,7 +57,7 @@ def parseFromLabels(labels):
 
     return gpuIds, labelStr
 
-def parseFromEnv(envs):
+def parse_from_env(envs):
     envStr = ""
 
     for env in envs:
@@ -65,7 +65,7 @@ def parseFromEnv(envs):
 
     return envStr
 
-def genJobMetrics(logDir, gpuMetrics):
+def gen_job_metrics(logDir, gpuMetrics):
     stats = docker_stats.stats()
     outputFile = open(logDir + "/job_exporter.prom", "w")
     for container in stats:
@@ -109,9 +109,9 @@ def main(argv):
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
             # collect GPU metrics
-            gpuMetrics = gpu_exporter.genGpuMetricsFromSmi(logDir)
+            gpuMetrics = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
             # join with docker stats metrics and docker inspect labels
-            genJobMetrics(logDir, gpuMetrics)
+            gen_job_metrics(logDir, gpuMetrics)
         except:
             exception = sys.exc_info()
             for e in exception:

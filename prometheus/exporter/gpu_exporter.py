@@ -24,7 +24,7 @@ import os
 import logging  
 logger = logging.getLogger("gpu_expoter")  
 
-def parseSmiXmlResult(smi, logDir):
+def parse_smi_xml_result(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
     logger.info(len(gpuList))
@@ -45,12 +45,12 @@ def parseSmiXmlResult(smi, logDir):
         outPut[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
     return outPut
 
-def genGpuMetricsFromSmi(logDir):
+def gen_gpu_metrics_from_smi(logDir):
     try:
-        logger.info("genGpuMetricsFromSmi")  
+        logger.info("gen_gpu_metrics_from_smi")  
         cmd = "nvidia-smi -q -x"
         smi_output = subprocess.check_output([cmd], shell=True)
-        return parseSmiXmlResult(smi_output, logDir)
+        return parse_smi_xml_result(smi_output, logDir)
     except subprocess.CalledProcessError as e:
         if e.returncode == 127:
             logger.error("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
@@ -59,7 +59,7 @@ def genGpuMetricsFromSmi(logDir):
 
 def main(argv):
     logDir = argv[0]
-    genGpuMetricsFromSmi(logDir)
+    gen_gpu_metrics_fromSmi(logDir)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
