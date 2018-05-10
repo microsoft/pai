@@ -23,19 +23,19 @@ import os
 
 logger = logging.getLogger("node_exporter probe")  
 logger.setLevel(logging.INFO)  
-fh = RotatingFileHandler("/datastorage/prometheus/node_exporter_probe.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
-fh.setLevel(logging.INFO)  
+fileHandler = RotatingFileHandler("/datastorage/prometheus/node_exporter_probe.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
+fileHandler.setLevel(logging.INFO)  
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-fh.setFormatter(formatter)  
-logger.addHandler(fh)  
+fileHandler.setFormatter(formatter)  
+logger.addHandler(fileHandler)  
 
 def main():
     runTimeException = []
     gpuExists = False
     try:
         gpuCheckCMD = "lspci | grep -E \"[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation*\""
-        gpu_output = subprocess.check_output([gpuCheckCMD], shell=True)
-        if gpu_output:
+        gpuOutput = subprocess.check_output([gpuCheckCMD], shell=True)
+        if gpuOutput:
             gpuExists = True
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
@@ -48,7 +48,7 @@ def main():
             env =  os.getenv("NV_DRIVER")
             if not env:
                 nvidiaCMD= "nvidia-smi -q -x"
-                smi_output = subprocess.check_output([nvidiaCMD], shell=True)
+                smiOutput = subprocess.check_output([nvidiaCMD], shell=True)
             else:
                 err = "nvidia env is null"
                 runTimeException.append(err)
