@@ -29,7 +29,7 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)  
 logger.addHandler(fh)  
 
-def main(argv):
+def main():
     runTimeException = []
     gpuExists = False
     try:
@@ -40,13 +40,13 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logger.info(err)
+        logger.error(err)
 
     if gpuExists:
         try:
             env =  os.getenv("NV_DRIVER")
             if not env:
-                nvidiaCMD= "/bin/nvidia-smi -q -x"
+                nvidiaCMD= "nvidia-smi -q -x"
                 smi_output = subprocess.check_output([nvidiaCMD], shell=True)
             else:
                 err = "nvidia env is null"
@@ -54,7 +54,7 @@ def main(argv):
         except subprocess.CalledProcessError as e:
             err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
             runTimeException.append(err)
-            logger.info(err)
+            logger.error(err)
 
     try:
         dockerInspectCMD = "docker inspect --help" 
@@ -62,7 +62,7 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logger.info(err)
+        logger.error(err)
 
     try:
         dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
@@ -70,20 +70,20 @@ def main(argv):
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         runTimeException.append(err)
-        logger.info(err)
+        logger.error(err)
 
     if not os.path.exists("/datastorage/prometheus/gpu_exporter.prom"):
         err = "/datastorage/prometheus/gpu_exporter.prom does not exists"
         runTimeException.append(err)
-        logger.info(err)
+        logger.error(err)
 
     if not os.path.exists("/datastorage/prometheus/job_exporter.prom"):
         err = "/datastorage/prometheus/job_exporter.prom does not exists"
         runTimeException.append(err)
-        logger.info(err)
+        logger.error(err)
 
     if len(runTimeException) > 0:
         raise RuntimeError("gpu-exporter readiness probe failed")
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
