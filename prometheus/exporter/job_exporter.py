@@ -115,7 +115,7 @@ def main(argv):
         except:
             exception = sys.exc_info()
             for e in exception:
-                logger.info("job exporter error {}".format(e))
+                logger.error("job exporter error {}".format(e))
         time.sleep(timeSleep)
 
 

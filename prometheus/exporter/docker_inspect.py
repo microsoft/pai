@@ -52,7 +52,7 @@ def inspect(containerId):
         logger.info(inspectInfo)
         return inspectInfo
     except subprocess.CalledProcessError as e:
-        logger.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     containerId = argv[0]
