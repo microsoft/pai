@@ -23,8 +23,8 @@ zkRootDir: /Launcher
 hdfsRootDir: /Launcher
 
 # Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 60
+serviceRMResyncIntervalSec: 20
+serviceRequestPullIntervalSec: 20
 
 # Application Setup
 applicationRetrieveDiagnosticsRetryIntervalSec: 60
@@ -38,9 +38,9 @@ frameworkCompletedRetainSec: 604800
 # ApplicationMaster Setup
 amVersion: 0
 amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
+amRequestPullIntervalSec: 20
+amStatusPushIntervalSec: 20
 
 # WebServer Setup
 webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 60
+webServerStatusPullIntervalSec: 20
