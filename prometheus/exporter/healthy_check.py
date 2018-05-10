@@ -39,7 +39,8 @@ def main():
             gpuExists = True
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
-        runTimeException.append(err)
+        shortErr = "lspci"
+        runTimeException.append(shortErr)
         logger.error(err)
 
     if gpuExists:
@@ -53,7 +54,8 @@ def main():
                 runTimeException.append(err)
         except subprocess.CalledProcessError as e:
             err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
-            runTimeException.append(err)
+            shortErr = "nvidiasmi"
+            runTimeException.append(shortErr)
             logger.error(err)
 
     try:
@@ -61,7 +63,8 @@ def main():
         dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
-        runTimeException.append(err)
+        shortErr = "dockerinspect"
+        runTimeException.append(shortErr)
         logger.error(err)
 
     try:
@@ -69,21 +72,27 @@ def main():
         dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
-        runTimeException.append(err)
+        shortErr = "dockerstats"
+        runTimeException.append(shortErr)
         logger.error(err)
 
     if not os.path.exists("/datastorage/prometheus/gpu_exporter.prom"):
         err = "/datastorage/prometheus/gpu_exporter.prom does not exists"
-        runTimeException.append(err)
+        shortErr = "gpulogfile"
+        runTimeException.append(shortErr)
         logger.error(err)
 
     if not os.path.exists("/datastorage/prometheus/job_exporter.prom"):
         err = "/datastorage/prometheus/job_exporter.prom does not exists"
-        runTimeException.append(err)
+        shortErr = "joblogfile"
+        runTimeException.append(shortErr)
         logger.error(err)
 
     if len(runTimeException) > 0:
-        raise RuntimeError("gpu-exporter readiness probe failed")
+        exception = ""
+        for e in runTimeException:
+            exception += "| " + e
+        raise RuntimeError("gpu-exporter readiness probe failed, error component:" + exception)
 
 if __name__ == "__main__":
     main()
