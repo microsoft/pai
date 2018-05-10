@@ -275,8 +275,11 @@ http {
         '{{GRAFANA_URI}}'
         '/grafana';
       #
+      # Enable all types of contents.
+      subs_filter_types *;
+      #
       subs_filter
-        href=(['"])http://([^/]*)/jupyter/
+        href=(['"])http://[^/]*/jupyter/
         href=$1$scheme://$http_host/jupyter/
         r;
     }
