@@ -76,6 +76,7 @@ done
 
 export PAI_CONTAINER_HOST_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)"
 export PAI_CONTAINER_SSH_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_ssh_PORT_LIST)"
+export PAI_CONTAINER_JUPYTER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_jupyter_PORT_LIST)"
 
 task_role_no={{{ idx }}}
 # Touch a container id file in "APP_ID-TASK_ROLE_NO-TASK_INDEX-CONTAINER_HOST_IP-CONTAINER_HOST_PORT" format on hdfs
@@ -225,6 +226,17 @@ done
 
 # Start ssh service
 start_ssh_service
+
+# Start jupyter notebook service
+nohup jupyter notebook \
+  --ip=0.0.0.0 \
+  --port=$PAI_CONTAINER_JUPYTER_PORT \
+  --allow-root \
+  --no-browser \
+  --NotebookApp.token="" \
+  --NotebookApp.allow_origin="*" \
+  --NotebookApp.base_url="/jupyter/${PAI_CONTAINER_HOST_IP}/${PAI_CONTAINER_JUPYTER_PORT}/" \
+  &
 
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment

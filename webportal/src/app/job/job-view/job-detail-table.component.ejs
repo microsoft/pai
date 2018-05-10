@@ -82,9 +82,7 @@
     <tr style='background-color:whitesmoke'>
       <th>Task Role</th>
       <th>Task Index</th>
-      <th>Container Name</th>
-      <th>IP</th>
-      <th>Ports</th>
+      <th>Container Info</th>
       <th>GPUs</th>
       <th>Actions</th>
     </tr>
@@ -97,27 +95,40 @@
             <td rowspan="<%= taskRoles[taskRole].taskStatuses.length %>"><%= taskRole %></td>
           <% } %>
           <td><%= taskRoles[taskRole].taskStatuses[i].taskIndex %></td>
-          <td><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
-          <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
           <td>
-            <% if (taskRoles[taskRole].taskStatuses[i].containerPorts) { %>
-              <% for (let portLabel of Object.keys(taskRoles[taskRole].taskStatuses[i].containerPorts)) { %>
-                <p><%= portLabel %>: <%= taskRoles[taskRole].taskStatuses[i].containerPorts[portLabel] %></p>
-              <% } %>
-            <% } else { %>
-              N/A
-            <% } %>
+            <p><b>Name:</b> <%= taskRoles[taskRole].taskStatuses[i].containerId %></p>
+            <%
+              let portListString = "";
+              let keys = Object.keys(taskRoles[taskRole].taskStatuses[i].containerPorts);
+              for (let j = 0; j < keys.length; j++) {
+                portListString += taskRoles[taskRole].taskStatuses[i].containerPorts[keys[j]] + '(' + keys[j] + ')';
+                if (j < keys.length - 1) {
+                  portListString += ', ';
+                }
+              }
+            %>
+            <p><b>IP / Ports:</b> <%= taskRoles[taskRole].taskStatuses[i].containerIp %> / <%= portListString %></p>
           </td>
           <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
           <td>
+            <div style='float:left'>
+              <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Go to Tracking Page</a>
+            </div>
+            <div style='float:left'>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
             <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
               <a name='sshInfoLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
                 onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
                 href='javascript:void(0);'>View SSH Info</a>
             </div>
             <div style='float:left'>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
-            <div style='float:left'>
-              <a href="<%= taskRoles[taskRole].taskStatuses[i].containerLog %>" target="_blank">Go to Tracking Page</a>
+            <div name='jupyterDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
+              <%
+                let ip = taskRoles[taskRole].taskStatuses[i].containerIp;
+                let port = taskRoles[taskRole].taskStatuses[i].containerPorts['jupyter'];
+                let jupyterUrl = 'http://' + ip + ':' + port + '/jupyter/' + ip + '/' + port;
+              %>
+              <a name='jupyterLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
+                href="<%= jupyterUrl %>" target="_blank">Go to Jupyter Notebook</a>
             </div>
           </td>
         </tr>

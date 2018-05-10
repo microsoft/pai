@@ -377,7 +377,7 @@ class Job {
           'count': data.taskRoles[i].portList[j].portNumber,
         };
       }
-      for (let defaultPortLabel of ['http', 'ssh']) {
+      for (let defaultPortLabel of ['http', 'ssh', 'jupyter']) {
         if (!(defaultPortLabel in portList)) {
           portList[defaultPortLabel] = {
             'start': 0,

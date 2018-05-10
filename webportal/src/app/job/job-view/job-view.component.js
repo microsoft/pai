@@ -313,6 +313,14 @@ const loadJobDetail = (jobName) => {
             },
           });
         }
+        //
+        $('a[name^=jupyterLink]').addClass('disabled');
+        if (data.jobStatus.state !== 'RUNNING') {
+          $('div[name^=jupyterDiv]').attr('title', 'Job is not running.');
+        } else {
+          $('a[name^=jupyterLink]').removeClass('disabled');
+          $('div[name^=jupyterDiv]').attr('title', '');
+        }
       }
     },
     error: (xhr, textStatus, error) => {

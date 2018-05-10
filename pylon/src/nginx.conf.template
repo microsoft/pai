@@ -232,6 +232,19 @@ http {
         '$scheme://$http_host/grafana';
     }
 
+    # Jupyter notebook
+    location ~ ^/jupyter/([^/]+)/(\d*) {
+      set $target_host      $1;
+      set $target_port      :$2;
+      proxy_pass            http://$target_host$target_port;
+      proxy_set_header      Host $host;
+      # websocket support
+      proxy_http_version    1.1;
+      proxy_set_header      Upgrade "websocket";
+      proxy_set_header      Connection "Upgrade";
+      proxy_read_timeout    86400;
+    }
+
     # PAI web portal
     location ~ ^(.*)$ {
       proxy_pass {{PAI_WEB_PORTAL_URI}}$1$is_args$args;
@@ -261,6 +274,14 @@ http {
       sub_filter
         '{{GRAFANA_URI}}'
         '/grafana';
+      #
+      # Enable all types of contents.
+      subs_filter_types *;
+      #
+      subs_filter
+        href=(['"])http://[^/]*/jupyter/
+        href=$1$scheme://$http_host/jupyter/
+        r;
     }
   }
 }
