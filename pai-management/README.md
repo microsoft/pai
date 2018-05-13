@@ -61,7 +61,7 @@ If your environment don't have a load-balance service. You could add proxy node 
 
 [The conponent templatefile path](k8sPaiLibrary/template)
 
-You should configuration you node role as following. (None-ha proxy)
+You should configuration your node role as following. (None-ha proxy)
 
 ```yaml
    - hostname: hostname (echo `hostname`)
@@ -224,7 +224,7 @@ sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodeli
 
 # Deploying Services On Kubernetes
 
-This document explains how to use Kubernetes to deploy system services, including framework launcher, hadoop, rest server, and web portal. 
+This document explains how to use Kubernetes to deploy system services, including framework launcher, hadoop, rest server and web portal. 
 
 ## Prerequisite
 
