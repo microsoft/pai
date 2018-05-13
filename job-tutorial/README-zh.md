@@ -110,7 +110,7 @@ docker push your_docker_registry/pai.run.tensorflow
 | `taskRole.portType.portNumber` | Integer, required          | 端口类型中的端口数量  |
 | `taskRole.command`             | String, required           | task role 中给 task 的可执行命令，不能为空 |
 | `gpuType`                      | String, optional           | 指定 tasks 使用的 GPU 类型，若为空则 tasks 将使用任意类型的 GPU |
-| `killAllOnCompletedTaskNumber` | Integer, optional          | 要结束的已完成的tasks数量，大于等于 0 |
+| `killAllOnCompletedTaskNumber` | Integer, optional          |  完成多少个tasks结束全部的tasks，大于等于 0 |
 | `retryCount`                   | Integer, optional          | job 重试次数，大于等于 0          |
 
 如果你使用的是私有 Docker registry，pull 镜像时需要认证，则你需要新建一个认证文件上传至 HDFS，并且在配置文件的 `authFile`  字段指明该文件位置。该认证文件的格式如下：
@@ -160,13 +160,12 @@ Docker容器中可访问的环境变量的完整列表如下：
 ```js
 {
   "jobName": "tensorflow-distributed-jobguid",
-  //  tensorflow docker image with hdfs, cuda and cudnn support
+  // 你自定义的带 HDFS、CUDA 和 cuDNN 支持的 tensorflow Docker 镜像
   "image": "your_docker_registry/pai.run.tensorflow",
-  // this example uses cifar10 dataset, which is available from
-  // http://www.cs.toronto.edu/~kriz/cifar.html
+  // 本示例使用 cifar10 数据集，获取地址：http://www.cs.toronto.edu/~kriz/cifar.html
   "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/data",
   "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/output",
-  // this example uses code from tensorflow benchmark https://git.io/vF4wT
+  // 本示例代码使用的是 tensorflow 基准程序：https://git.io/vF4wT
   "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-distributed-jobguid/code",
   "virtualCluster": "your_virtual_cluster",
   "taskRoles": [
@@ -189,9 +188,9 @@ Docker容器中可访问的环境变量的完整列表如下：
           "portNumber": 1
         }
       ],
-      // run tf_cnn_benchmarks.py in code directory
-      // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
-      // if there's no `scipy` in the docker image, need to install it first
+      // 在代码目录中运行 tf_cnn_benchmarks.py
+      // 参数释义请参考 https://www.tensorflow.org/performance/performance_models#executing_the_script 
+      // 如果你的 Docker 镜像里不含 `scipy`，需要在下面的命令中安装
       "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     },
     {
@@ -216,7 +215,7 @@ Docker容器中可访问的环境变量的完整列表如下：
       "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     }
   ],
-  // kill all 4 tasks when 2 worker tasks completed
+  // 当 2 个 worker tasks 完成时，结束全部的 4 个 tasks
   "killAllOnCompletedTaskNumber": 2,
   "retryCount": 0
 }
