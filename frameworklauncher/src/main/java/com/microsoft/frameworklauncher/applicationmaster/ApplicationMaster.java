@@ -83,8 +83,10 @@ public class ApplicationMaster extends AbstractService {
   protected NMClientAsync nmClient;
   protected StatusManager statusManager;
   protected RequestManager requestManager;
+  protected FrameworkInfoPublisher frameworkInfoPublisher;
   protected SelectionManager selectionManager;
   private RMResyncHandler rmResyncHandler;
+
   /**
    * REGION StateVariable
    */
@@ -165,6 +167,7 @@ public class ApplicationMaster extends AbstractService {
     conf.initializeDependOnZKStoreConfig(zkStore);
     hdfsStore = new HdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
+    hdfsStore.makeUserStoreRootDir(conf.getFrameworkName());
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
 
     // Initialize other components
@@ -174,7 +177,8 @@ public class ApplicationMaster extends AbstractService {
 
     statusManager = new StatusManager(this, conf, zkStore);
     requestManager = new RequestManager(this, conf, zkStore, launcherClient);
-    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager);
+    frameworkInfoPublisher = new FrameworkInfoPublisher(this, conf, zkStore, hdfsStore, statusManager, requestManager);
+    selectionManager = new SelectionManager(this, conf, statusManager, requestManager);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -186,12 +190,14 @@ public class ApplicationMaster extends AbstractService {
     // Here StatusManager recover completed
     reviseCorruptedTaskStates();
     recoverTransitionTaskStateQueue();
+
+    requestManager.start();
   }
 
   @Override
   protected void run() throws Exception {
     super.run();
-    requestManager.start();
+    frameworkInfoPublisher.start();
   }
 
   // THREAD SAFE
@@ -224,6 +230,14 @@ public class ApplicationMaster extends AbstractService {
     try {
       if (requestManager != null) {
         requestManager.stop(stopStatus);
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
+    try {
+      if (frameworkInfoPublisher != null) {
+        frameworkInfoPublisher.stop(stopStatus);
       }
     } catch (Exception e) {
       ae.addException(e);
@@ -1182,10 +1196,9 @@ public class ApplicationMaster extends AbstractService {
         fileContent.append(taskStatus.getContainerIp());
         fileContent.append("\n");
       }
-      CommonUtils.writeFile(GlobalConstants.CONTAINER_IP_LIST_FILE, fileContent.toString());
 
       try {
-        hdfsStore.uploadContainerIpListFile(conf.getFrameworkName());
+        hdfsStore.uploadContainerIpListFile(conf.getFrameworkName(), fileContent.toString());
         HadoopUtils.invalidateLocalResourcesCache();
       } catch (Exception e) {
         // It contains HDFS OP, so handle the corresponding Exception ASAP
@@ -1466,11 +1479,7 @@ public class ApplicationMaster extends AbstractService {
     return requestManager.getServiceVersion(taskRoleName);
   }
 
-  public boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
-    if (requestManager == null) {
-      throw new NotAvailableException("FrameworkRequest for local FrameworkVersion is not available");
-    } else {
-      return requestManager.existsLocalVersionFrameworkRequest();
-    }
+  public Boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
+    return requestManager == null ? null : requestManager.existsLocalVersionFrameworkRequest();
   }
 }

@@ -27,19 +27,19 @@ serviceRMResyncIntervalSec: 20
 serviceRequestPullIntervalSec: 20
 
 # Application Setup
-applicationRetrieveDiagnosticsRetryIntervalSec: 60
+applicationRetrieveDiagnosticsRetryIntervalSec: 20
 applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
 applicationTransientConflictMinDelaySec: 600
+applicationTransientConflictMaxDelaySec: 3600
 
 # Framework Setup
 frameworkCompletedRetainSec: 604800
 
 # ApplicationMaster Setup
-amVersion: 0
 amRmResyncFrequency: 6
 amRequestPullIntervalSec: 20
 amStatusPushIntervalSec: 20
+amFrameworkInfoPublishIntervalSec: 20
 
 # WebServer Setup
 webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}

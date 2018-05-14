@@ -46,18 +46,26 @@ import java.util.*;
  */
 public class SelectionManager { // THREAD SAFE
   private static final DefaultLogger LOGGER = new DefaultLogger(SelectionManager.class);
+
+  private final ApplicationMaster am;
+  private final LauncherConfiguration conf;
+  private final StatusManager statusManager;
+  private final RequestManager requestManager;
+
+  /**
+   * REGION StateVariable
+   */
   private final Map<String, Node> allNodes = new HashMap<>();
   private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
   private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
   private final List<String> filteredNodes = new ArrayList<String>();
-  private LauncherConfiguration conf = null;
-  private StatusManager statusManager = null;
-  private RequestManager requestManager = null;
-
   private int reusePortsTimes = 0;
 
-  public SelectionManager(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager) {
-    this.conf = conf;
+  public SelectionManager(
+      ApplicationMaster am, Configuration conf,
+      StatusManager statusManager, RequestManager requestManager) {
+    this.am = am;
+    this.conf = conf.getLauncherConfig();
     this.statusManager = statusManager;
     this.requestManager = requestManager;
   }

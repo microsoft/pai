@@ -66,7 +66,7 @@ public class SelectionManagerTest {
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
-    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
     long candidateGPU = sm.selectCandidateGpuAttribute(node1, 1);
     Assert.assertEquals(1L, candidateGPU);
@@ -160,7 +160,7 @@ public class SelectionManagerTest {
     node4 = new Node("node4", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 8, 0xFFL));
     node6 = new Node("node6", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
 
-    SelectionManager sm2 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm2 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
     sm2.addNode(node3);
     sm2.addNode(node4);
@@ -209,7 +209,7 @@ public class SelectionManagerTest {
 
 
     Map<String, NodeConfiguration> gpuNodeConfig = createClusterTestNodes();
-    SelectionManager sm3 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm3 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
     sm3.addNode(node3);
     sm3.addNode(node4);
 
@@ -234,7 +234,7 @@ public class SelectionManagerTest {
     Assert.assertEquals("node3", result.getNodeHosts().get(0));
     Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
 
-    SelectionManager sm4 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm4 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
     node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
@@ -290,7 +290,7 @@ public class SelectionManagerTest {
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
-    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
     sm.addNode(node1);
     sm.addNode(node2);
 
