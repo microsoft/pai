@@ -30,11 +30,11 @@ public class LauncherConfiguration implements Serializable {
   private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
   // Service Setup
-  private Integer serviceRMResyncIntervalSec = 60;
+  private Integer serviceRMResyncIntervalSec = 30;
   private Integer serviceRequestPullIntervalSec = 30;
 
   // Application Setup
-  private Integer applicationRetrieveDiagnosticsRetryIntervalSec = 60;
+  private Integer applicationRetrieveDiagnosticsRetryIntervalSec = 30;
   private Integer applicationRetrieveDiagnosticsMaxRetryCount = 15;
   private Integer applicationTransientConflictMinDelaySec = 600;
   private Integer applicationTransientConflictMaxDelaySec = 3600;
@@ -77,6 +77,7 @@ public class LauncherConfiguration implements Serializable {
   private Integer amRmResyncFrequency = 6;
   private Integer amRequestPullIntervalSec = 30;
   private Integer amStatusPushIntervalSec = 30;
+  private Integer amFrameworkInfoPublishIntervalSec = 30;
 
   // If a Task's ContainerRequest cannot be satisfied within
   // Random(amContainerRequestMinTimeoutSec, amContainerRequestMaxTimeoutSec), another
@@ -303,6 +304,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmStatusPushIntervalSec(Integer amStatusPushIntervalSec) {
     this.amStatusPushIntervalSec = amStatusPushIntervalSec;
+  }
+
+  public Integer getAmFrameworkInfoPublishIntervalSec() {
+    return amFrameworkInfoPublishIntervalSec;
+  }
+
+  public void setAmFrameworkInfoPublishIntervalSec(Integer amFrameworkInfoPublishIntervalSec) {
+    this.amFrameworkInfoPublishIntervalSec = amFrameworkInfoPublishIntervalSec;
   }
 
   public Integer getAmContainerRequestMinTimeoutSec() {

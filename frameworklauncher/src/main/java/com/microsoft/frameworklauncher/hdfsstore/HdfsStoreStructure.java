@@ -37,6 +37,10 @@ public class HdfsStoreStructure {
     return HadoopUtils.getHdfsNodePath(launcherRootPath, frameworkName);
   }
 
+  public String getUserStoreRootPath(String frameworkName) {
+    return HadoopUtils.getHdfsNodePath(getFrameworkRootPath(frameworkName), "UserStore");
+  }
+
   public String getAMPackageFilePath(String frameworkName) {
     return HadoopUtils.getHdfsNodePath(getFrameworkRootPath(frameworkName),
         FilenameUtils.getName(GlobalConstants.PACKAGE_APPLICATION_MASTER_FILE));
@@ -54,5 +58,14 @@ public class HdfsStoreStructure {
   public String getContainerIpListFilePath(String frameworkName) {
     return HadoopUtils.getHdfsNodePath(getAMStoreRootPath(frameworkName),
         FilenameUtils.getName(GlobalConstants.CONTAINER_IP_LIST_FILE));
+  }
+
+  public String getFrameworkInfoFilePath(String frameworkName) {
+    return HadoopUtils.getHdfsNodePath(getFrameworkRootPath(frameworkName),
+        FilenameUtils.getName(GlobalConstants.FRAMEWORK_INFO_FILE));
+  }
+
+  public String getFrameworkInfoFileTempPath(String frameworkName) {
+    return getFrameworkInfoFilePath(frameworkName) + "_TEMP";
   }
 }

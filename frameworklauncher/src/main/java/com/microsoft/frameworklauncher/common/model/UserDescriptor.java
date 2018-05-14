@@ -64,7 +64,7 @@ public class UserDescriptor implements Serializable {
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return name == null ? 0 : name.hashCode();
   }
 
   @Override

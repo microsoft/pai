@@ -53,6 +53,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
    */
   // AM only need to retrieve LauncherRequest and AggregatedFrameworkRequest
   private volatile LauncherRequest launcherRequest = null;
+  private volatile AggregatedFrameworkRequest aggFrameworkRequest = null;
   private volatile FrameworkDescriptor frameworkDescriptor = null;
   private volatile OverrideApplicationProgressRequest overrideApplicationProgressRequest = null;
   // ContainerId -> MigrateTaskRequest
@@ -80,8 +81,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION StateVariable
    */
-  // -1: not available, 0: does not exist, 1: exists
-  private volatile int existsLocalVersionFrameworkRequest = -1;
+  private volatile Boolean existsLocalVersionFrameworkRequest;
 
 
   /**
@@ -109,7 +109,16 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   // No need to initialize for RequestManager
-  // No need to recover for RequestManager
+  @Override
+  protected void recover() throws Exception {
+    super.recover();
+
+    checkAmVersion();
+    pullRequest();
+
+    LOGGER.logInfo("Succeeded to recover %s.", serviceName);
+  }
+
   // No need to stop ongoing Thread, since zkStore is Atomic
   @Override
   protected void run() throws Exception {
@@ -118,10 +127,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     new Thread(() -> {
       while (true) {
         try {
+          Thread.sleep(conf.getLauncherConfig().getAmRequestPullIntervalSec() * 1000);
+
           checkAmVersion();
           pullRequest();
-
-          Thread.sleep(conf.getLauncherConfig().getAmRequestPullIntervalSec() * 1000);
         } catch (Exception e) {
           // Directly throw TransientException to AM to actively migrate to another node
           handleException(e);
@@ -164,24 +173,25 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     updateLauncherRequest(newLauncherRequest);
 
     // Pull AggregatedFrameworkRequest
-    AggregatedFrameworkRequest aggFrameworkRequest;
+    AggregatedFrameworkRequest newAggFrameworkRequest;
     try {
       LOGGER.logDebug("Pulling AggregatedFrameworkRequest");
-      aggFrameworkRequest = zkStore.getAggregatedFrameworkRequest(conf.getFrameworkName());
+      newAggFrameworkRequest = zkStore.getAggregatedFrameworkRequest(conf.getFrameworkName());
       LOGGER.logDebug("Pulled AggregatedFrameworkRequest");
     } catch (NoNodeException e) {
-      existsLocalVersionFrameworkRequest = 0;
+      existsLocalVersionFrameworkRequest = false;
       throw new NonTransientException(
           "Failed to getAggregatedFrameworkRequest, FrameworkRequest is already deleted on ZK", e);
     }
 
     // newFrameworkDescriptor is always not null
-    FrameworkDescriptor newFrameworkDescriptor = aggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
+    FrameworkDescriptor newFrameworkDescriptor = newAggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
     checkFrameworkVersion(newFrameworkDescriptor);
     flattenFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
-    updateOverrideApplicationProgressRequest(aggFrameworkRequest.getOverrideApplicationProgressRequest());
-    updateMigrateTaskRequests(aggFrameworkRequest.getMigrateTaskRequests());
+    updateOverrideApplicationProgressRequest(newAggFrameworkRequest.getOverrideApplicationProgressRequest());
+    updateMigrateTaskRequests(newAggFrameworkRequest.getMigrateTaskRequests());
+    aggFrameworkRequest = newAggFrameworkRequest;
   }
 
   private void updateLauncherRequest(LauncherRequest newLauncherRequest) throws Exception {
@@ -199,12 +209,12 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   private void checkFrameworkVersion(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
     if (!newFrameworkDescriptor.getVersion().equals(conf.getFrameworkVersion())) {
-      existsLocalVersionFrameworkRequest = 0;
+      existsLocalVersionFrameworkRequest = false;
       throw new NonTransientException(String.format(
           "FrameworkVersion mismatch: Local Version %s, Latest Version %s",
           conf.getFrameworkVersion(), newFrameworkDescriptor.getVersion()));
     } else {
-      existsLocalVersionFrameworkRequest = 1;
+      existsLocalVersionFrameworkRequest = true;
     }
   }
 
@@ -378,6 +388,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return clusterConfiguration;
   }
 
+  public AggregatedFrameworkRequest getAggregatedFrameworkRequest() {
+    return aggFrameworkRequest;
+  }
+
   public UserDescriptor getUser() {
     return user;
   }
@@ -429,11 +443,8 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
   }
 
-  public boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
-    if (existsLocalVersionFrameworkRequest == -1) {
-      throw new NotAvailableException("FrameworkRequest for local FrameworkVersion is not available");
-    }
-    return existsLocalVersionFrameworkRequest == 1;
+  public Boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
+    return existsLocalVersionFrameworkRequest;
   }
 
   /**
