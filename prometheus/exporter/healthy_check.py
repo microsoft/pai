@@ -45,13 +45,8 @@ def main():
 
     if gpuExists:
         try:
-            env =  os.getenv("NV_DRIVER")
-            if not env:
-                nvidiaCMD= "nvidia-smi -q -x"
-                smiOutput = subprocess.check_output([nvidiaCMD], shell=True)
-            else:
-                err = "nvidia env is null"
-                runTimeException.append(err)
+            nvidiaCMD= "nvidia-smi -q -x"
+            smiOutput = subprocess.check_output([nvidiaCMD], shell=True)
         except subprocess.CalledProcessError as e:
             err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
             shortErr = "nvidiasmi"
