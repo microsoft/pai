@@ -248,12 +248,7 @@ public class Service extends AbstractService {
       FrameworkStatus frameworkStatus,
       FrameworkRequest frameworkRequest,
       Resource amResource) throws Exception {
-    String frameworkName = frameworkStatus.getFrameworkName();
     AMType amType = frameworkRequest.getFrameworkDescriptor().getPlatformSpecificParameters().getAmType();
-
-    hdfsStore.makeFrameworkRootDir(frameworkName);
-    HadoopUtils.invalidateLocalResourcesCache();
-
     switch (amType) {
       case DEFAULT:
       default: {
@@ -276,6 +271,8 @@ public class Service extends AbstractService {
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
     hdfsStore.makeFrameworkRootDir(frameworkName);
+    hdfsStore.makeUserStoreRootDir(frameworkName);
+    HadoopUtils.invalidateLocalResourcesCache();
     HadoopUtils.addToLocalResources(localResources, hdfsStore.uploadAMPackageFile(frameworkName));
 
     // SetupLocalEnvironment

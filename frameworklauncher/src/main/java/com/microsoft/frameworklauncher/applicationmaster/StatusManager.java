@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -79,6 +78,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
   // TaskRoleName -> TaskStatusesChanged
   private Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
+
+  // Latest Persisted Status
+  // TaskRoleName -> AggregatedTaskRoleStatus
+  private Map<String, AggregatedTaskRoleStatus> persistedAggTaskRoleStatuses = new HashMap<>();
 
   // No need to persistent ContainerRequest since it is only valid within one application attempt.
   // Used to generate an unique Priority for each ContainerRequest in current application attempt.
@@ -194,6 +197,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       LOGGER.logInfo("Succeeded to recover %s.", serviceName);
     }
 
+    // Update Latest Persisted Status
+    updatePersistedAggTaskRoleStatuses();
+
     // Here ZK and Mem Status is the same.
     // Since Request may be ahead of Status even when Running,
     // so here the Recovery of AM StatusManager is completed.
@@ -252,13 +258,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // TODO: Store AttemptId in AMStatus, and double check it before pushStatus
 
     // Best Effort to avoid pushStatus, if the FrameworkRequest for local FrameworkVersion does not exist
-    try {
-      if (!am.existsLocalVersionFrameworkRequest()) {
-        LOGGER.logInfo("FrameworkRequest for local FrameworkVersion does not exist, skip to pushStatus");
-        return;
-      }
-    } catch (NotAvailableException e) {
-      LOGGER.logInfo(e, "FrameworkRequest for local FrameworkVersion is not available, skip to pushStatus");
+    Boolean existsLocalVersionFrameworkRequest = am.existsLocalVersionFrameworkRequest();
+    if (existsLocalVersionFrameworkRequest == null) {
+      LOGGER.logInfo("FrameworkRequest for local FrameworkVersion is not available, skip to pushStatus");
+      return;
+    } else if (!existsLocalVersionFrameworkRequest) {
+      LOGGER.logInfo("FrameworkRequest for local FrameworkVersion does not exist, skip to pushStatus");
       return;
     }
 
@@ -288,6 +293,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         LOGGER.logInfo("[%s]: Pushed TaskStatuses", taskRoleName);
       }
     }
+
+    // Update Latest Persisted Status
+    updatePersistedAggTaskRoleStatuses();
   }
 
   // Should call disassociateTaskWithContainer if associateTaskWithContainer failed
@@ -493,10 +501,24 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return taskStateCounters;
   }
 
+  private void updatePersistedAggTaskRoleStatuses() throws Exception {
+    Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = new HashMap<>();
+    for (TaskRoleStatus taskRoleStatus : taskRoleStatuses.values()) {
+      String taskRoleName = taskRoleStatus.getTaskRoleName();
+      TaskStatuses taskStatuses = taskStatuseses.get(taskRoleName);
+
+      AggregatedTaskRoleStatus aggTaskRoleStatus = new AggregatedTaskRoleStatus();
+      aggTaskRoleStatus.setTaskRoleStatus(YamlUtils.deepCopy(taskRoleStatus, TaskRoleStatus.class));
+      aggTaskRoleStatus.setTaskStatuses(YamlUtils.deepCopy(taskStatuses, TaskStatuses.class));
+      aggTaskRoleStatuses.put(taskRoleName, aggTaskRoleStatus);
+    }
+
+    persistedAggTaskRoleStatuses = aggTaskRoleStatuses;
+  }
+
   /**
    * REGION ReadInterface
    */
-
   public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
     int startStatesTaskCount = 0;
     List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
@@ -665,6 +687,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   public synchronized Priority getNextContainerRequestPriority() {
     return nextContainerRequestPriority;
+  }
+
+  public synchronized Map<String, AggregatedTaskRoleStatus> getPersistedAggTaskRoleStatuses() {
+    return persistedAggTaskRoleStatuses;
   }
 
   /**

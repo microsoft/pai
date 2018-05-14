@@ -120,7 +120,6 @@
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
       <version>${zookeeper.version}</version>
-      <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
