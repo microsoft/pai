@@ -54,7 +54,7 @@ const config = {
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
-    download: './src/app/job/job-utils/download.component.js'
+    download: './src/app/job/job-utils/download.component.js',
   },
   output: {
     path: helpers.root('dist'),
@@ -62,7 +62,10 @@ const config = {
   },
   resolve: {
     extensions: ['.js', '.json'],
-    modules: [helpers.root('node_modules'), helpers.root('src')]
+    modules: [helpers.root('node_modules'), helpers.root('src')],
+    alias: {
+      deepmerge$: path.resolve(helpers.root('node_modules/deepmerge/dist/umd.js')),
+    }
   },
   module: {
     rules: [
