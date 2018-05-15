@@ -17,11 +17,10 @@
 
 package com.microsoft.frameworklauncher.common.web;
 
-import org.apache.commons.lang.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hadoop.net.NetUtils;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,6 +29,12 @@ public class WebCommon {
   public final static String REQUEST_HEADER_LAUNCH_CLIENT_TYPE = "LaunchClientType";
   public final static String REQUEST_HEADER_USER_NAME = "UserName";
   public final static int SC_TOO_MANY_REQUESTS = 429;
+  private static ObjectMapper objectMapper;
+
+  static {
+    objectMapper = new ObjectMapper();
+    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+  }
 
   public static String getURI(String baseURI, String relativeURI) {
     return getURI(baseURI, relativeURI, null);
@@ -61,69 +66,20 @@ public class WebCommon {
 
   // Object <-> Json
   // obj can be null, but cannot be Exception
-  public static String toJson(Object obj) throws IOException {
-    ObjectWriter ow = new ObjectMapper().writer();
-    return toFormatedJson(ow.writeValueAsString(obj));
+  public static String toJson(Object obj) throws JsonProcessingException {
+    return toJson(obj, true);
+  }
+
+  public static String toJson(Object obj, Boolean pretty) throws JsonProcessingException {
+    if (pretty) {
+      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+    } else {
+      return objectMapper.writeValueAsString(obj);
+    }
   }
 
   // json can be "null"
-  public static <T> T toObject(String json, Class<T> targetType) throws Exception {
-    ObjectMapper om = new ObjectMapper();
-    om.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    return om.readValue(json, targetType);
-  }
-
-  // Internal utils
-  private static String toFormatedJson(String json) {
-    final String indentStr = "  ";
-    int indent = 0;
-    Boolean quoted = false;
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < json.length(); i++) {
-      char ch = json.charAt(i);
-      switch (ch) {
-        case '{':
-        case '[':
-          sb.append(ch);
-          if (!quoted) {
-            sb.append("\n");
-            sb.append(StringUtils.repeat(indentStr, ++indent));
-          }
-          break;
-        case '}':
-        case ']':
-          if (!quoted) {
-            sb.append("\n");
-            sb.append(StringUtils.repeat(indentStr, --indent));
-          }
-          sb.append(ch);
-          break;
-        case '"':
-          sb.append(ch);
-          Boolean escaped = false;
-          int index = i;
-          while (index > 0 && json.charAt(--index) == '\\')
-            escaped = !escaped;
-          if (!escaped)
-            quoted = !quoted;
-          break;
-        case ',':
-          sb.append(ch);
-          if (!quoted) {
-            sb.append("\n");
-            sb.append(StringUtils.repeat(indentStr, indent));
-          }
-          break;
-        case ':':
-          sb.append(ch);
-          if (!quoted)
-            sb.append(" ");
-          break;
-        default:
-          sb.append(ch);
-          break;
-      }
-    }
-    return sb.toString();
+  public static <T> T toObject(String json, Class<T> targetType) throws IOException {
+    return objectMapper.readValue(json, targetType);
   }
 }

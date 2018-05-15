@@ -81,6 +81,20 @@ public class HadoopUtils {
     }
   }
 
+  // Should success when the srcHdfsPath exists and the dstHdfsPath's parent paths are exists directories
+  // Note renameFileInHdfs is guaranteed to be atomic
+  public static void renameFileInHdfs(String srcHdfsPath, String dstHdfsPath) throws Exception {
+    try {
+      FileContext fc = FileContext.getFileContext(conf);
+      LOGGER.logInfo("[hadoop fs -mv -f %s %s]", srcHdfsPath, dstHdfsPath);
+      fc.rename(new Path(srcHdfsPath), new Path(dstHdfsPath), Options.Rename.OVERWRITE);
+    } catch (FileNotFoundException e) {
+      throw new NonTransientException("Path does not exist", e);
+    } catch (ParentNotDirectoryException e) {
+      throw new NonTransientException("Path is not a directory", e);
+    }
+  }
+
   // Should always success
   public static void removeDirInHdfs(String hdfsPath) throws Exception {
     try {
@@ -108,14 +122,14 @@ public class HadoopUtils {
   }
 
   // Should always success
+  // Note the files/directories in subdirectories will not be included
   public static Set<String> listDirInHdfs(String hdfsPath) throws Exception {
     Set<String> nodeNames = new HashSet<>();
     try {
       FileSystem fs = FileSystem.get(conf);
       LOGGER.logInfo("[hadoop fs -ls %s]", hdfsPath);
-      RemoteIterator<LocatedFileStatus> files = fs.listFiles(new Path(hdfsPath), false);
-      while (files.hasNext()) {
-        nodeNames.add(files.next().getPath().getName());
+      for (FileStatus fileStatus : fs.listStatus(new Path(hdfsPath))) {
+        nodeNames.add(fileStatus.getPath().getName());
       }
     } catch (FileNotFoundException ignored) {
     }
@@ -127,8 +141,7 @@ public class HadoopUtils {
     try {
       FileSystem fs = FileSystem.get(conf);
       LOGGER.logInfo("[hadoop fs -stat %%Y %s]", hdfsPath);
-      FileStatus fileStatus = fs.getFileStatus(new Path(hdfsPath));
-      return fileStatus;
+      return fs.getFileStatus(new Path(hdfsPath));
     } catch (PathNotFoundException | FileNotFoundException e) {
       throw new NonTransientException("Path does not exist", e);
     }

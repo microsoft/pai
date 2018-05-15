@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Path("/")
+@Path(WebStructure.ROOT_PATH)
 public class LauncherModule {
   private static final DefaultLogger LOGGER = new DefaultLogger(LauncherModule.class);
   private final LauncherConfiguration conf;
@@ -179,7 +179,7 @@ public class LauncherModule {
   }
 
   @GET
-  @Path(WebStructure.ROOT_PATH)
+  // Default to WebStructure.ROOT_PATH
   @Produces({MediaType.TEXT_PLAIN})
   public String getRootActiveMessage() {
     return "Active at " + GlobalConstants.LOCAL_HOST_NAME;

@@ -23,13 +23,27 @@ import docker_stats
 import docker_inspect
 import gpu_exporter
 import time
+import logging  
+from logging.handlers import RotatingFileHandler
 
-def parseFromLabels(labels):
+logger = logging.getLogger("gpu_expoter")  
+logger.setLevel(logging.INFO)  
+fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
+fh.setLevel(logging.INFO)  
+ch = logging.StreamHandler()  
+ch.setLevel(logging.INFO)  
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
+ch.setFormatter(formatter)  
+fh.setFormatter(formatter)  
+logger.addHandler(ch)  
+logger.addHandler(fh)  
+
+def parse_from_labels(labels):
     gpuIds = []
     labelStr = ""
 
     for label in labels:
-        print(label)
+        logger.info(label)
         if "container_label_GPU_ID" in label:
             s1 = label.split("=")
             if len(s1) > 1:
@@ -43,7 +57,7 @@ def parseFromLabels(labels):
 
     return gpuIds, labelStr
 
-def parseFromEnv(envs):
+def parse_from_env(envs):
     envStr = ""
 
     for env in envs:
@@ -51,7 +65,7 @@ def parseFromEnv(envs):
 
     return envStr
 
-def genJobMetrics(logDir, gpuMetrics):
+def gen_job_metrics(logDir, gpuMetrics):
     stats = docker_stats.stats()
     outputFile = open(logDir + "/job_exporter.prom", "w")
     for container in stats:
@@ -62,10 +76,8 @@ def genJobMetrics(logDir, gpuMetrics):
         envStr = parseFromEnv(inspectInfo["env"])
         labelStr = labelStr + envStr
         for id in gpuIds:
-            print("gpu id")
-            print(id)
             if gpuMetrics:
-                print(gpuMetrics)
+                logger.info(gpuMetrics)
                 containerGpuUtilStr = 'container_GPUPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuUtil"])
                 containerMemUtilStr = 'container_GPUMemPerc{{{0}minor_number=\"{1}\"}} {2}\n'.format(labelStr, id, gpuMetrics[id]["gpuMemUtil"])
                 outputFile.write(containerGpuUtilStr)
@@ -93,13 +105,19 @@ def main(argv):
     timeSleep = int(argv[1])
     iter = 0
     while(True):
-        print("job exporter running {0} iteration".format(str(iter)))
-        iter += 1
-        # collect GPU metrics
-        gpuMetrics = gpu_exporter.genGpuMetricsFromSmi(logDir)
-        # join with docker stats metrics and docker inspect labels
-        genJobMetrics(logDir, gpuMetrics)
+        try:
+            logger.info("job exporter running {0} iteration".format(str(iter)))
+            iter += 1
+            # collect GPU metrics
+            gpuMetrics = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
+            # join with docker stats metrics and docker inspect labels
+            gen_job_metrics(logDir, gpuMetrics)
+        except:
+            exception = sys.exc_info()
+            for e in exception:
+                logger.error("job exporter error {}".format(e))
         time.sleep(timeSleep)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -74,11 +73,15 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION StateVariable
    */
-  // Whether Mem Status is changed since previous zkStore update
+  // Whether Mem Status is changed since Latest Persisted Status
   // TaskRoleName -> TaskRoleStatusChanged
   private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
   // TaskRoleName -> TaskStatusesChanged
   private Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
+
+  // Latest Persisted Status
+  // TaskRoleName -> AggregatedTaskRoleStatus
+  private Map<String, AggregatedTaskRoleStatus> persistedAggTaskRoleStatuses = new HashMap<>();
 
   // No need to persistent ContainerRequest since it is only valid within one application attempt.
   // Used to generate an unique Priority for each ContainerRequest in current application attempt.
@@ -194,6 +197,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       LOGGER.logInfo("Succeeded to recover %s.", serviceName);
     }
 
+    // Update Latest Persisted Status
+    updatePersistedAggTaskRoleStatuses();
+
     // Here ZK and Mem Status is the same.
     // Since Request may be ahead of Status even when Running,
     // so here the Recovery of AM StatusManager is completed.
@@ -227,8 +233,15 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       pushStatus();
 
       // No need to stop ongoing Thread, since zkStore is Atomic
-    } catch (Exception e) {
-      LOGGER.logWarning(e, "Failed to stop %s gracefully", serviceName);
+    } catch (Exception pe) {
+      LOGGER.logWarning(pe, "Failed to stop %s gracefully, rollback to latest persisted status.", serviceName);
+
+      // Best Effort to rollback to latest persisted status
+      try {
+        rollbackStatus();
+      } catch (Exception re) {
+        LOGGER.logWarning(re, "Failed to rollback to latest persisted status before stop %s.", serviceName);
+      }
     }
   }
 
@@ -252,13 +265,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // TODO: Store AttemptId in AMStatus, and double check it before pushStatus
 
     // Best Effort to avoid pushStatus, if the FrameworkRequest for local FrameworkVersion does not exist
-    try {
-      if (!am.existsLocalVersionFrameworkRequest()) {
-        LOGGER.logInfo("FrameworkRequest for local FrameworkVersion does not exist, skip to pushStatus");
-        return;
-      }
-    } catch (NotAvailableException e) {
-      LOGGER.logInfo(e, "FrameworkRequest for local FrameworkVersion is not available, skip to pushStatus");
+    Boolean existsLocalVersionFrameworkRequest = am.existsLocalVersionFrameworkRequest();
+    if (existsLocalVersionFrameworkRequest == null) {
+      LOGGER.logInfo("FrameworkRequest for local FrameworkVersion is not available, skip to pushStatus");
+      return;
+    } else if (!existsLocalVersionFrameworkRequest) {
+      LOGGER.logInfo("FrameworkRequest for local FrameworkVersion does not exist, skip to pushStatus");
       return;
     }
 
@@ -268,7 +280,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       if (taskRoleStatusesChanged.get(taskRoleName)) {
         LOGGER.logInfo("[%s]: Pushing TaskRoleStatus", taskRoleName);
 
-        zkStore.setTaskRoleStatus(conf.getFrameworkName(), taskRoleName, taskRoleStatuses.get(taskRoleName));
+        zkStore.setTaskRoleStatus(conf.getFrameworkName(), taskRoleName, taskRoleStatus);
         taskRoleStatusesChanged.put(taskRoleName, false);
 
         LOGGER.logInfo("[%s]: Pushed TaskRoleStatus", taskRoleName);
@@ -281,11 +293,53 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       if (taskStatusesesChanged.get(taskRoleName)) {
         LOGGER.logInfo("[%s]: Pushing TaskStatuses", taskRoleName);
 
-        zkStore.setTaskStatuses(conf.getFrameworkName(), taskRoleName, taskStatuseses.get(taskRoleName));
+        zkStore.setTaskStatuses(conf.getFrameworkName(), taskRoleName, taskStatuses);
         taskStatusesesChanged.put(taskRoleName, false);
         logTaskStateCounters(taskRoleName);
 
         LOGGER.logInfo("[%s]: Pushed TaskStatuses", taskRoleName);
+      }
+    }
+
+    // Update Latest Persisted Status
+    updatePersistedAggTaskRoleStatuses();
+  }
+
+  // Rollback to latest persisted status in case failed to stop gracefully
+  private synchronized void rollbackStatus() {
+    // Rollback TaskStatuseses
+    for (TaskStatuses taskStatuses : taskStatuseses.values()) {
+      String taskRoleName = taskStatuses.getTaskRoleName();
+      if (taskStatusesesChanged.get(taskRoleName)) {
+        LOGGER.logInfo("[%s]: Rolling back TaskStatuses", taskRoleName);
+
+        List<TaskStatus> taskStatusArray = taskStatuses.getTaskStatusArray();
+        for (TaskStatus taskStatus : taskStatusArray) {
+          Integer taskIndex = taskStatus.getTaskIndex();
+          TaskState taskState = taskStatus.getTaskState();
+
+          // Release Container for not yet persisted CONTAINER_LIVE_ASSOCIATED_STATES Task.
+          // This can help to avoid CONTAINER_RM_RESYNC_EXCEED.
+          if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
+            if (!persistedAggTaskRoleStatuses.containsKey(taskRoleName)) {
+              am.onTaskToReleaseContainer(taskStatus);
+            } else {
+              List<TaskStatus> persistedTaskStatusArray =
+                  persistedAggTaskRoleStatuses.get(taskRoleName).getTaskStatuses().getTaskStatusArray();
+              if (persistedTaskStatusArray.size() <= taskIndex) {
+                am.onTaskToReleaseContainer(taskStatus);
+              } else {
+                TaskStatus persistedTaskStatus = persistedTaskStatusArray.get(taskIndex);
+                TaskState persistedTaskState = persistedTaskStatus.getTaskState();
+                if (!TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(persistedTaskState)) {
+                  am.onTaskToReleaseContainer(taskStatus);
+                }
+              }
+            }
+          }
+        }
+
+        LOGGER.logInfo("[%s]: Rolled back TaskStatuses", taskRoleName);
       }
     }
   }
@@ -493,14 +547,28 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return taskStateCounters;
   }
 
+  private void updatePersistedAggTaskRoleStatuses() throws Exception {
+    Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = new HashMap<>();
+    for (TaskRoleStatus taskRoleStatus : taskRoleStatuses.values()) {
+      String taskRoleName = taskRoleStatus.getTaskRoleName();
+      TaskStatuses taskStatuses = taskStatuseses.get(taskRoleName);
+
+      AggregatedTaskRoleStatus aggTaskRoleStatus = new AggregatedTaskRoleStatus();
+      aggTaskRoleStatus.setTaskRoleStatus(YamlUtils.deepCopy(taskRoleStatus, TaskRoleStatus.class));
+      aggTaskRoleStatus.setTaskStatuses(YamlUtils.deepCopy(taskStatuses, TaskStatuses.class));
+      aggTaskRoleStatuses.put(taskRoleName, aggTaskRoleStatus);
+    }
+
+    persistedAggTaskRoleStatuses = aggTaskRoleStatuses;
+  }
+
   /**
    * REGION ReadInterface
    */
-
   public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
     int startStatesTaskCount = 0;
-    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusList) {
+    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusArray) {
       if (TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
         startStatesTaskCount++;
       }
@@ -509,8 +577,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   }
 
   public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
-    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusList) {
+    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusArray) {
       if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
         return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
       }
@@ -667,6 +735,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return nextContainerRequestPriority;
   }
 
+  public synchronized Map<String, AggregatedTaskRoleStatus> getPersistedAggTaskRoleStatuses() {
+    return persistedAggTaskRoleStatuses;
+  }
+
   /**
    * REGION ModifyInterface
    * Note to avoid update partially modified Status on ZK
@@ -712,10 +784,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         LOGGER.logInfo("Associated Task %s with Container %s", locator, containerId);
       } catch (Exception e) {
         disassociateTaskWithContainer(locator);
-
-        // Mark as unchanged
-        taskStatusesesChanged.put(locator.getTaskRoleName(), false);
-
         throw new Exception(
             String.format("Failed to associate Container %s to Task %s",
                 containerId, locator), e);
