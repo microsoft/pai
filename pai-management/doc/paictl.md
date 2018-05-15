@@ -115,9 +115,9 @@ paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-nam
 - If the option `-n` is set, only the specified service will be upgrade.
 
 
-## Bootstrap your cluster <a name="Cluster"></a>
+## Maintain your cluster <a name="Cluster"></a>
 
-### Bootstrap your cluster (K8S + Service) with cluster-configuration <a name="Cluster_Boot"></a>
+### Bootstrap the whole cluster (K8S + Service) with cluster-configuration <a name="Cluster_Boot"></a>
 
 ```
 paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
@@ -130,7 +130,7 @@ paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
 ### Bootstrap Kubernetes <a name="Cluster_K8s_Boot"></a>
 
 ```
-paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir
+paictl.py cluster start-kubernetes -p /path/to/cluster-configuraiton/dir
 ```
 
 - Install kubectl in the deployment box.
@@ -139,7 +139,7 @@ paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir
 ### Bootstrap infrastructure services <a name="Cluster_Service_Boot"></a>
 
 ```
-paictl.py cluster service-bootstrap -p /path/to/cluster-configuration/dir
+paictl.py cluster start-all-services -p /path/to/cluster-configuration/dir
 ```
 
 - Install kubectl in the deployment box.
@@ -148,7 +148,7 @@ paictl.py cluster service-bootstrap -p /path/to/cluster-configuration/dir
 ### Stop Kubernetes <a name="Cluster_K8s_Stop"></a>
 
 ```
-paictl.py cluster k8s-stop -p /path/to/cluster-configuration/dir
+paictl.py cluster stop-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
 - Stop Kubernetes in the specified cluster.
@@ -156,7 +156,7 @@ paictl.py cluster k8s-stop -p /path/to/cluster-configuration/dir
 ### Stop infrastructure services <a name="Cluster_Service_Stop"></a>
 
 ```
-paictl.py cluster servcice-stop -p /path/to/cluster-configuration/dir
+paictl.py cluster stop-all-services -p /path/to/cluster-configuration/dir
 ```
 
 - Stop all infrastructure services in the specified cluster.
@@ -164,7 +164,7 @@ paictl.py cluster servcice-stop -p /path/to/cluster-configuration/dir
 ### Upgrade Kubernetes <a name="Cluster_K8s_upgrade"></a>
 
 ```
-paictl.py cluster k8s-upgrade -p /path/to/cluster-configuration/dir
+paictl.py cluster upgrade-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
 - Stop all infrasturcture services in the specified cluster.
@@ -173,7 +173,7 @@ paictl.py cluster k8s-upgrade -p /path/to/cluster-configuration/dir
 ### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
 
 ```
-paictl.py cluster conf-generate -p /path/to/machinelist.csv
+paictl.py cluster generate-configuration -p /path/to/machinelist.csv
 ```
 
 - The machine list should be provided in CSV format.
@@ -184,7 +184,7 @@ paictl.py cluster conf-generate -p /path/to/machinelist.csv
 ## Install kubectl <a name="Kubectl"></a>
 
 ```
-paictl.py install-kubectl -p /path/to/cluster-configuration/dir
+paictl.py utility install-kubectl -p /path/to/cluster-configuration/dir
 ```
 
 - The `kubectl` is a prerequisite to do all maintenance operations. If you find that `kubectl` has not been installed or correctly configured in your maintenance box, you have to install it first.
