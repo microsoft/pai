@@ -24,5 +24,9 @@ templatelist:
   - cleanup.sh
   # Note： your script should start all your service dependency. Make sure service has completed the starting process.
 
+
 startscript: start.sh
-stopscript: cleanup.sh
+stopscript: stop.sh
+deletescript: delete.sh
+refrashscript: refrash.sh
+upgradedscript: upgraded.sh

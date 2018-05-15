@@ -24,4 +24,7 @@ templatelist:
   - cleanup.sh
 
 startscript: start.sh
-stopscript: cleanup.sh
+stopscript: stop.sh
+deletescript: delete.sh
+refrashscript: refrash.sh
+upgradedscript: upgraded.sh
