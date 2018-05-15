@@ -20,16 +20,16 @@ kind: DaemonSet
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
-  name: node-exporter
+  name: watchdog
 spec:
   template:
     metadata:
       labels:
-        app: node-exporter
-      name: node-exporter
+        app: watchdog
+      name: watchdog
     spec:
       nodeSelector:
-        node-exporter: "true"
+        watchdog: "true"
       containers:
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}watchdog:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
@@ -39,54 +39,14 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /root/.docker
-          name: docker-cred-volume
-        - mountPath: /bin/docker
-          name: docker-bin
-        - mountPath: /var/run/docker.sock
-          name: docker-socket
-        - name: docker
-          mountPath: /var/lib/docker
-        - mountPath: /dev
-          name: device-mount
-        - mountPath: /var/drivers
-          name: driver-path
         - mountPath: /datastorage/prometheus
           name: collector-mount
         name: watchdog
       volumes:
-        - name: docker-bin
-          hostPath:
-            path: /bin/docker
-        - name: docker-socket
-          hostPath:
-            path: /var/run/docker.sock
-        - name: docker-cred-volume
-          configMap:
-            name: docker-credentials
-        - name: device-mount
-          hostPath:
-            path: /dev
-        - name: driver-path
-          hostPath:
-            path: /var/drivers
         - name: collector-mount
           hostPath:
             path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
-        - name: rootfs
-          hostPath:
-            path: /
-        - name: var-run
-          hostPath:
-            path: /var/run
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: docker
-          hostPath:
-            path: /var/lib/docker
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true
       hostPID: true
-

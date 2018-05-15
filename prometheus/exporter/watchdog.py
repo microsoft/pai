@@ -100,10 +100,9 @@ def parse_pods_status(podsJsonObject, outputFile):
 
     return
 
-def check_k8s_componentStaus(ip, port, nodesJsonObject, outputFile):
+def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
     # check api server
-    apiServerhealty = requests.get("http://{}:{}/healthz".format(ip, port)).text
-    logger.info(apiServerhealty)
+    apiServerhealty = requests.get("{}/healthz".format(address)).text
     status = 1
     if apiServerhealty != "ok":
         logger.info("apiserver status error, status code{}".format(apiServerhealty))
@@ -113,7 +112,7 @@ def check_k8s_componentStaus(ip, port, nodesJsonObject, outputFile):
     outputFile.write(status)
 
     # check etcd
-    etcdhealty = requests.get("http://{}:{}/healthz/etcd".format(ip, port)).text
+    etcdhealty = requests.get("{}/healthz/etcd".format(address)).text
     status = 1
     if etcdhealty != "ok":
         logger.info("etcd status error, status code{}".format( etcdhealty))
@@ -179,32 +178,31 @@ def parse_nodes_status(nodesJsonObject, outputFile):
 def main(argv):
     logDir = argv[0]
     timeSleep = int(argv[1])
-    ip = argv[2]
-    port = argv[3]
+    address = argv[2]
 
+    logger.setLevel(logging.INFO)  
+    logger.propagate = False
+    fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
+    fileHandler.setLevel(logging.INFO)  
+    consoleHandler = logging.StreamHandler()  
+    consoleHandler.setLevel(logging.INFO)  
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
+    consoleHandler.setFormatter(formatter)  
+    fileHandler.setFormatter(formatter)  
+    logger.addHandler(consoleHandler)  
+    logger.addHandler(fileHandler)  
+    outputFile = open(logDir + "/watchdog.prom", "w")
     while(True):
-        logger.setLevel(logging.INFO)  
-        fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
-        fileHandler.setLevel(logging.INFO)  
-        consoleHandler = logging.StreamHandler()  
-        consoleHandler.setLevel(logging.INFO)  
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-        consoleHandler.setFormatter(formatter)  
-        fileHandler.setFormatter(formatter)  
-        logger.addHandler(consoleHandler)  
-        logger.addHandler(fileHandler)  
-        outputFile = open(logDir + "/watchdog.prom", "w")
-  
         # 1. check service level status
-        podsStatus = requests.get("http://{}:{}/api/v1/namespaces/default/pods/".format(ip, port)).json()
+        podsStatus = requests.get("{}/api/v1/namespaces/default/pods/".format(address)).json()
         parse_pods_status(podsStatus, outputFile)
 
         # 2. check nodes level status
-        nodesStatus = requests.get("http://{}:{}/api/v1/nodes/".format(ip, port)).json()
+        nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
         parse_nodes_status(nodesStatus, outputFile)
 
         # 3. check k8s level status
-        check_k8s_componentStaus(ip, port, nodesStatus, outputFile)
+        check_k8s_componentStaus(address, nodesStatus, outputFile)
         
         time.sleep(timeSleep)
 

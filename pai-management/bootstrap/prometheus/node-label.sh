@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,15 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-chmod u+x node-label.sh
+    
+    
+kubectl label nodes 10.151.40.131 node-exporter=true
+    
+    
 
-./node-label.sh
+    
+    
+kubectl label nodes 10.151.40.132 node-exporter=true
+    
+    
 
-kubectl create -f prometheus-configmap.yaml
-kubectl create -f node-exporter-ds.yaml
-kubectl create -f prometheus-deployment.yaml
-kubectl create -f watchdog-ds.yaml
-
-popd > /dev/null
+    
+kubectl label nodes 10.151.40.133 prometheus=true
+    
+    
+kubectl label nodes 10.151.40.133 node-exporter=true
+    
+    
+kubectl label nodes 10.151.40.133 watchdog=true
+    
