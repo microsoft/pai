@@ -73,7 +73,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION StateVariable
    */
-  // Whether Mem Status is changed since previous zkStore update
+  // Whether Mem Status is changed since Latest Persisted Status
   // TaskRoleName -> TaskRoleStatusChanged
   private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
   // TaskRoleName -> TaskStatusesChanged
@@ -233,8 +233,15 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       pushStatus();
 
       // No need to stop ongoing Thread, since zkStore is Atomic
-    } catch (Exception e) {
-      LOGGER.logWarning(e, "Failed to stop %s gracefully", serviceName);
+    } catch (Exception pe) {
+      LOGGER.logWarning(pe, "Failed to stop %s gracefully, rollback to latest persisted status.", serviceName);
+
+      // Best Effort to rollback to latest persisted status
+      try {
+        rollbackStatus();
+      } catch (Exception re) {
+        LOGGER.logWarning(re, "Failed to rollback to latest persisted status before stop %s.", serviceName);
+      }
     }
   }
 
@@ -273,7 +280,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       if (taskRoleStatusesChanged.get(taskRoleName)) {
         LOGGER.logInfo("[%s]: Pushing TaskRoleStatus", taskRoleName);
 
-        zkStore.setTaskRoleStatus(conf.getFrameworkName(), taskRoleName, taskRoleStatuses.get(taskRoleName));
+        zkStore.setTaskRoleStatus(conf.getFrameworkName(), taskRoleName, taskRoleStatus);
         taskRoleStatusesChanged.put(taskRoleName, false);
 
         LOGGER.logInfo("[%s]: Pushed TaskRoleStatus", taskRoleName);
@@ -286,7 +293,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       if (taskStatusesesChanged.get(taskRoleName)) {
         LOGGER.logInfo("[%s]: Pushing TaskStatuses", taskRoleName);
 
-        zkStore.setTaskStatuses(conf.getFrameworkName(), taskRoleName, taskStatuseses.get(taskRoleName));
+        zkStore.setTaskStatuses(conf.getFrameworkName(), taskRoleName, taskStatuses);
         taskStatusesesChanged.put(taskRoleName, false);
         logTaskStateCounters(taskRoleName);
 
@@ -296,6 +303,45 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     // Update Latest Persisted Status
     updatePersistedAggTaskRoleStatuses();
+  }
+
+  // Rollback to latest persisted status in case failed to stop gracefully
+  private synchronized void rollbackStatus() {
+    // Rollback TaskStatuseses
+    for (TaskStatuses taskStatuses : taskStatuseses.values()) {
+      String taskRoleName = taskStatuses.getTaskRoleName();
+      if (taskStatusesesChanged.get(taskRoleName)) {
+        LOGGER.logInfo("[%s]: Rolling back TaskStatuses", taskRoleName);
+
+        List<TaskStatus> taskStatusArray = taskStatuses.getTaskStatusArray();
+        for (TaskStatus taskStatus : taskStatusArray) {
+          Integer taskIndex = taskStatus.getTaskIndex();
+          TaskState taskState = taskStatus.getTaskState();
+
+          // Release Container for not yet persisted CONTAINER_LIVE_ASSOCIATED_STATES Task.
+          // This can help to avoid CONTAINER_RM_RESYNC_EXCEED.
+          if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
+            if (!persistedAggTaskRoleStatuses.containsKey(taskRoleName)) {
+              am.onTaskToReleaseContainer(taskStatus);
+            } else {
+              List<TaskStatus> persistedTaskStatusArray =
+                  persistedAggTaskRoleStatuses.get(taskRoleName).getTaskStatuses().getTaskStatusArray();
+              if (persistedTaskStatusArray.size() <= taskIndex) {
+                am.onTaskToReleaseContainer(taskStatus);
+              } else {
+                TaskStatus persistedTaskStatus = persistedTaskStatusArray.get(taskIndex);
+                TaskState persistedTaskState = persistedTaskStatus.getTaskState();
+                if (!TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(persistedTaskState)) {
+                  am.onTaskToReleaseContainer(taskStatus);
+                }
+              }
+            }
+          }
+        }
+
+        LOGGER.logInfo("[%s]: Rolled back TaskStatuses", taskRoleName);
+      }
+    }
   }
 
   // Should call disassociateTaskWithContainer if associateTaskWithContainer failed
@@ -521,8 +567,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
   public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
     int startStatesTaskCount = 0;
-    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusList) {
+    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusArray) {
       if (TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
         startStatesTaskCount++;
       }
@@ -531,8 +577,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   }
 
   public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
-    List<TaskStatus> taskStatusList = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusList) {
+    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
+    for (TaskStatus taskStatus : taskStatusArray) {
       if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
         return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
       }
@@ -738,10 +784,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         LOGGER.logInfo("Associated Task %s with Container %s", locator, containerId);
       } catch (Exception e) {
         disassociateTaskWithContainer(locator);
-
-        // Mark as unchanged
-        taskStatusesesChanged.put(locator.getTaskRoleName(), false);
-
         throw new Exception(
             String.format("Failed to associate Container %s to Task %s",
                 containerId, locator), e);

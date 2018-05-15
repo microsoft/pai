@@ -1307,16 +1307,19 @@ public class ApplicationMaster extends AbstractService {
     });
   }
 
-  // Cleanup Task level external resource [RM] before RemoveTask by DecreaseTaskNumber
-  public void onTaskToRemove(TaskStatus taskStatus) {
+  public void onTaskToReleaseContainer(TaskStatus taskStatus) {
     String containerId = taskStatus.getContainerId();
     TaskState taskState = taskStatus.getTaskState();
 
     if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
-      // No need to completeContainer, since it is to be Removed afterwards
       tryToReleaseContainer(containerId);
     }
+  }
 
+  // Cleanup Task level external resource [RM] before RemoveTask by DecreaseTaskNumber
+  public void onTaskToRemove(TaskStatus taskStatus) {
+    // No need to completeContainer, since it is to be Removed afterwards
+    onTaskToReleaseContainer(taskStatus);
     removeContainerRequest(taskStatus);
   }
 
