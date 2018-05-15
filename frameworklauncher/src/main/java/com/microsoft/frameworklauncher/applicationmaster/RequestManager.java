@@ -81,6 +81,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION StateVariable
    */
+
+  // -1: not available, 0: does not exist, 1: exists
+  private volatile int hadoopLibrarySupportGPU = -1;
+  private volatile int hadoopLibrarySupportPort = -1;
+
   private volatile Boolean existsLocalVersionFrameworkRequest;
 
 
@@ -187,6 +192,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     // newFrameworkDescriptor is always not null
     FrameworkDescriptor newFrameworkDescriptor = newAggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
     checkFrameworkVersion(newFrameworkDescriptor);
+    checkHadoopLibrary(newFrameworkDescriptor);
     flattenFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(newAggFrameworkRequest.getOverrideApplicationProgressRequest());
@@ -215,6 +221,33 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           conf.getFrameworkVersion(), newFrameworkDescriptor.getVersion()));
     } else {
       existsLocalVersionFrameworkRequest = true;
+    }
+  }
+
+  private void checkHadoopLibrary(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
+    if (getFrameworkDescriptorGpuCount(newFrameworkDescriptor) > 0) {
+      if (hadoopLibrarySupportGPU == -1) {
+        if (ResourceDescriptor.checkIfHadoopLibrarySupportGPU()) {
+          hadoopLibrarySupportGPU = 1;
+        } else {
+          hadoopLibrarySupportGPU = 0;
+        }
+      }
+      if (hadoopLibrarySupportGPU == 0) {
+        throw new NonTransientException("this hadoop library doesn't support GPU scheduling, please use the hadoop-AI library");
+      }
+    }
+    if (getFrameworkDescriptorPortCount(newFrameworkDescriptor) > 0) {
+      if (hadoopLibrarySupportPort == -1) {
+        if (ResourceDescriptor.checkIfHadoopLibrarySupportPort()) {
+          hadoopLibrarySupportPort = 1;
+        } else {
+          hadoopLibrarySupportPort = 0;
+        }
+      }
+      if (hadoopLibrarySupportPort == 0) {
+        throw new NonTransientException("this hadoop library doesn't support Port scheduling, please use the hadoop-AI library");
+      }
     }
   }
 
@@ -459,5 +492,23 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       LOGGER.logWarning(e,
           "[%s]: Failed to deleteMigrateTask", containerId);
     }
+  }
+
+  public static int getFrameworkDescriptorGpuCount(FrameworkDescriptor frameworkDescriptor) {
+    int gpuCount = 0;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = frameworkDescriptor.getTaskRoles();
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
+      gpuCount += taskRoleDescriptor.getTaskService().getResource().getGpuNumber() * taskRoleDescriptor.getTaskNumber();
+    }
+    return gpuCount;
+  }
+
+  public static int getFrameworkDescriptorPortCount(FrameworkDescriptor frameworkDescriptor) {
+    int portCount = 0;
+    Map<String, TaskRoleDescriptor> taskRolesSnapshot = frameworkDescriptor.getTaskRoles();
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
+      portCount += taskRoleDescriptor.getTaskService().getResource().getPortNumber();
+    }
+    return portCount;
   }
 }

@@ -187,12 +187,9 @@ public class ResourceDescriptor implements Serializable {
     ResourceDescriptor rd = new ResourceDescriptor();
     rd.setMemoryMB(res.getMemory());
     rd.setCpuNumber(res.getVirtualCores());
-    rd.setGpuAttribute(0L);
-    rd.setGpuNumber(0);
     Class<?> clazz = res.getClass();
 
     try {
-
       Method getGpuNumber = clazz.getMethod("getGPUs");
       Method getGpuAttribute = clazz.getMethod("getGPUAttribute");
 
@@ -200,12 +197,9 @@ public class ResourceDescriptor implements Serializable {
       rd.setGpuAttribute((long) getGpuAttribute.invoke(res));
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Failed get GPU information, YARN library doesn't support gpu as resources");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get GPU information, illegal access function");
     }
 
     try {
-
       Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
       Method getPorts = clazz.getMethod("getPorts");
@@ -229,8 +223,6 @@ public class ResourceDescriptor implements Serializable {
       }
     } catch (NoSuchMethodException e) {
       LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support port");
-    } catch (IllegalAccessException e) {
-      LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
     } catch (ClassNotFoundException e) {
       LOGGER.logDebug(e, "Ignore: Failed to get the class name");
     }
@@ -252,8 +244,6 @@ public class ResourceDescriptor implements Serializable {
 
       } catch (NoSuchMethodException e) {
         LOGGER.logWarning(e, "Ignore: Failed to set GPU information, YARN library doesn't support");
-      } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Failed to set GPU information, illegal access function");
       }
     }
 
@@ -280,14 +270,49 @@ public class ResourceDescriptor implements Serializable {
 
       } catch (NoSuchMethodException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get Ports information, YARN library doesn't support Port");
-      } catch (IllegalAccessException e) {
-        LOGGER.logError(e, "Ignore: Failed to get Ports information, illegal access function");
       } catch (ClassNotFoundException e) {
         LOGGER.logDebug(e, "Ignore: Failed to get the class Name");
       }
     }
     LOGGER.logDebug("Put LocalResource " + this.toString() + " to hadoop resource: " + res);
     return res;
+  }
+
+
+  //Check if the hadoop library support GPU
+  public static boolean checkIfHadoopLibrarySupportGPU() throws Exception {
+    Class<?> clazz = Resource.newInstance(0, 0).getClass();
+
+    try {
+      clazz.getMethod("setGPUs", int.class);
+      clazz.getMethod("setGPUAttribute", long.class);
+    } catch (NoSuchMethodException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support GPU.");
+      return false;
+    }
+    return true;
+  }
+
+  //Check if the hadoop library support Port
+  public static boolean checkIfHadoopLibrarySupportPort() throws Exception {
+
+    Class<?> clazz = Resource.newInstance(0, 0).getClass();
+    try {
+      Class hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
+      Class hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
+
+      hadoopValueRangesClass.getMethod("newInstance").invoke(null);
+      hadoopValueRangeClass.getMethod("newInstance", int.class, int.class).invoke(null, 0, 1);
+      hadoopValueRangesClass.getMethod("setRangesList", List.class);
+      clazz.getMethod("setPorts", hadoopValueRangesClass);
+    } catch (NoSuchMethodException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support Port allocation");
+      return false;
+    } catch (ClassNotFoundException e) {
+      LOGGER.logWarning(e, "YARN library doesn't support Port allocation");
+      return false;
+    }
+    return true;
   }
 
   @Override
