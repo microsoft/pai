@@ -1,0 +1,92 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: node-exporter
+spec:
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      name: node-exporter
+    spec:
+      nodeSelector:
+        node-exporter: "true"
+      containers:
+      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}watchdog:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1Gi"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /root/.docker
+          name: docker-cred-volume
+        - mountPath: /bin/docker
+          name: docker-bin
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        - name: docker
+          mountPath: /var/lib/docker
+        - mountPath: /dev
+          name: device-mount
+        - mountPath: /var/drivers
+          name: driver-path
+        - mountPath: /datastorage/prometheus
+          name: collector-mount
+        name: watchdog
+      volumes:
+        - name: docker-bin
+          hostPath:
+            path: /bin/docker
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: docker-cred-volume
+          configMap:
+            name: docker-credentials
+        - name: device-mount
+          hostPath:
+            path: /dev
+        - name: driver-path
+          hostPath:
+            path: /var/drivers
+        - name: collector-mount
+          hostPath:
+            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: var-run
+          hostPath:
+            path: /var/run
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: docker
+          hostPath:
+            path: /var/lib/docker
+      imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      hostNetwork: true
+      hostPID: true
+
