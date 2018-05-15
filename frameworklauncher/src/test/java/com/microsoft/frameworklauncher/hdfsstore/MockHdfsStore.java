@@ -17,8 +17,9 @@
 
 package com.microsoft.frameworklauncher.hdfsstore;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
+import com.microsoft.frameworklauncher.common.model.FrameworkInfo;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,11 @@ public class MockHdfsStore extends HdfsStore {
   @Override
   public void makeFrameworkRootDir(String frameworkName) throws Exception {
     createDir(getHdfsStruct().getFrameworkRootPath(frameworkName));
+  }
+
+  @Override
+  public void makeUserStoreRootDir(String frameworkName) throws Exception {
+    createDir(getHdfsStruct().getUserStoreRootPath(frameworkName));
   }
 
   @Override
@@ -70,10 +76,16 @@ public class MockHdfsStore extends HdfsStore {
   }
 
   @Override
-  public String uploadContainerIpListFile(String frameworkName) throws Exception {
+  public String uploadContainerIpListFile(String frameworkName, String containerIpList) throws Exception {
     String hdfsPath = getHdfsStruct().getContainerIpListFilePath(frameworkName);
-    CommonUtils.writeFile(hdfsPath, CommonUtils.readFile(GlobalConstants.CONTAINER_IP_LIST_FILE));
+    CommonUtils.writeFile(hdfsPath, containerIpList);
     return hdfsPath;
   }
 
+  @Override
+  public String uploadFrameworkInfoFile(String frameworkName, FrameworkInfo frameworkInfo) throws Exception {
+    String hdfsPath = getHdfsStruct().getFrameworkInfoFilePath(frameworkName);
+    CommonUtils.writeFile(hdfsPath, WebCommon.toJson(frameworkInfo));
+    return hdfsPath;
+  }
 }

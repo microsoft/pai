@@ -71,9 +71,6 @@ public class GenerateContainerIpListTest {
     amThread.start();
     amThread.join();
 
-    // Clean up local file
-    new File(GlobalConstants.CONTAINER_IP_LIST_FILE).deleteOnExit();
-
     AggregatedTaskRoleStatus aggregatedTaskRoleStatus =
         zkStore.getAggregatedTaskRoleStatus(frameworkName, taskRoleName);
     List<TaskStatus> taskStatusArray = aggregatedTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
