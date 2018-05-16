@@ -43,10 +43,7 @@ class service_template_generate:
             "machinelist": self.cluster_object_mode["machinelist"]
         }
 
-
         return servce_conf_dict
-
-
 
 
 
@@ -59,8 +56,11 @@ class service_template_generate:
 
         for template_file in self.service_conf["template-list"]:
             template_path = "bootstrap/{0}/{1}.template".format(self.service_name, template_file)
+            target_path = "bootstrap/{0}/{1}".format(self.service_name, template_file)
+
             template_data = file_handler.read_template(template_path)
             generated_template = template_handler.generate_from_template_dict(template_data, service_conf_dict)
+            file_handler.write_generated_file(target_path,  generated_template)
 
 
 

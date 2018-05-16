@@ -16,4 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from ..common import template_handler
+import service_template_generate
+
+
+
+class service_start:
+
+    def __init__(self, cluster_object_model, ):
