@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,25 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - node-label.sh
-  - configmap-create.sh
-  - hadoop-name-node.yaml
-  - hadoop-data-node.yaml
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - zookeeper.yaml
-  - one-time-job-hadoop.yaml
-  - stop.sh
-  - refrash.sh
+kubectl apply -f secret.yaml
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refrash-script: refrash.sh
-upgraded-script: upgraded.sh
+kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f -
+
+popd > /dev/null
