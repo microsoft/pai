@@ -163,8 +163,11 @@ def parse_nodes_status(nodesJsonObject, outputFile):
                     readyNodeCount += 1
 
         # check docker deamon
+        cadvisorHealthy = requests.get("http://{}:{}".format(name["metadata"]["name"], 4194)).status_code
         dockerHealthy = requests.get("http://{}:{}/api/v2.1/ps".format(name["metadata"]["name"], 4194)).status_code
-        if dockerHealthy != 200:
+        if cadvisorHealthy != 200:
+            logger.info("cadvisor {} status error, status code{}".format(name["metadata"]["name"], dockerHealthy))
+        if cadvisorHealthy == 200 and dockerHealthy != 200:
             logger.info("docker {} status error, status code{}".format(name["metadata"]["name"], dockerHealthy))
             dockerError += 1
 
@@ -202,17 +205,21 @@ def main(argv):
     logger.addHandler(fileHandler)  
     outputFile = open(logDir + "/watchdog.prom", "w")
     while(True):
-        # 1. check service level status
-        podsStatus = requests.get("{}/api/v1/namespaces/default/pods/".format(address)).json()
-        parse_pods_status(podsStatus, outputFile)
+        try:
+            # 1. check service level status
+            podsStatus = requests.get("{}/api/v1/namespaces/default/pods/".format(address)).json()
+            parse_pods_status(podsStatus, outputFile)
 
-        # 2. check nodes level status
-        nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
-        parse_nodes_status(nodesStatus, outputFile)
+            # 2. check nodes level status
+            nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
+            parse_nodes_status(nodesStatus, outputFile)
 
-        # 3. check k8s level status
-        check_k8s_componentStaus(address, nodesStatus, outputFile)
-        
+            # 3. check k8s level status
+            check_k8s_componentStaus(address, nodesStatus, outputFile)
+        except:
+            exception = sys.exc_info()
+            for e in exception:
+                logger.error("watchdog error {}".format(e))
         time.sleep(timeSleep)
 
 # python watch_dog.py /data/prometheus 10 10.151.40.234 8080
