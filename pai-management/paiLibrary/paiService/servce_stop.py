@@ -15,19 +15,43 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
 
-template-list:
-  - node-label.sh
-  - node-exporter-ds.yaml
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - stop.sh
+import logging
+import logging.config
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refrash-script: refrash.sh
-upgraded-script: upgraded.sh
+from ..common import linux_shell
+
+
+class service_stop:
+
+
+    def __init__(self, service_conf, service_name):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.service_conf = service_conf
+        self.service_name = service_name
+
+
+
+    def stop(self):
+
+        stop_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["stop-script"])
+
+        cmd = "chmod +x {0}".format(stop_script)
+        err_msg = "Failed to run command [{0}] to grant execution permission to file {1}".format(cmd, stop_script)
+        self.logger.info("Change the permission of the script in path {0}.".format(stop_script))
+        self.logger.info("Begin to execute the cmd [ {0} ]".format(cmd))
+        linux_shell.execute_shell(cmd, err_msg)
+
+        cmd = "./{0}".format(stop_script)
+        err_msg = "Failed to execute the stop script of service {0}".format(self.service_name)
+        self.logger.info("Begin to execute service {0}'s stop script.".format(self.service_name))
+        linux_shell.execute_shell(cmd, err_msg)
+
+
+
+    def run(self):
+
+        self.stop()
+

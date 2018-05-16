@@ -19,7 +19,7 @@ prerequisite:
   - cluster-configuration
   - drivers
 
-templatelist:
+template-list:
   - node-label.sh
   - configmap-create.sh
   - hadoop-name-node.yaml
@@ -29,10 +29,10 @@ templatelist:
   - hadoop-jobhistory.yaml
   - zookeeper.yaml
   - one-time-job-hadoop.yaml
-  - cleanup.sh
+  - stop.sh
 
-startscript: start.sh
-stopscript: stop.sh
-deletescript: delete.sh
-refrashscript: refrash.sh
-upgradedscript: upgraded.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

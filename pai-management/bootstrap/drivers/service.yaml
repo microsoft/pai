@@ -18,15 +18,15 @@
 prerequisite:
   - cluster-configuration
 
-templatelist:
+template-list:
   - node-label.sh
   - drivers.yaml
-  - cleanup.sh
+  - stop.sh
   # Note： your script should start all your service dependency. Make sure service has completed the starting process.
 
 
-startscript: start.sh
-stopscript: stop.sh
-deletescript: delete.sh
-refrashscript: refrash.sh
-upgradedscript: upgraded.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

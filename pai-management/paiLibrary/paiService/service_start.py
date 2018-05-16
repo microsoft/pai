@@ -16,10 +16,47 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import service_template_generate
+import logging
+import logging.config
+
+from ..common import linux_shell
 
 
 
 class service_start:
 
-    def __init__(self, cluster_object_model, ):
+
+    def __init__(self, service_conf, serivce_name):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.service_conf = service_conf
+        self.service_name = serivce_name
+
+
+
+    def start(self):
+
+        start_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["start-script"])
+
+        cmd = "chmod +x {0}".format(start_script)
+        err_msg = "Failed to run command [{0}] to grant execution permission to file {1}".format(cmd, start_script)
+        self.logger.info("Change the permission of the script in path {0}.".format(start_script))
+        self.logger.info("Begin to execute the cmd [ {0} ]".format(cmd))
+        linux_shell.execute_shell(cmd, err_msg)
+
+        cmd = "./{0}".format(start_script)
+        err_msg = "Failed to execute the start script of service {0}".format(self.service_name)
+        self.logger.info("Begin to execute service {0}'s start script.".format(self.service_name))
+        linux_shell.execute_shell(cmd, err_msg)
+
+
+
+    def run(self):
+
+        self.run()
+
+
+
+
+

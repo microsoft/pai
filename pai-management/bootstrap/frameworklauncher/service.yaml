@@ -23,7 +23,7 @@ prerequisite:
 template-list:
   - node-label.sh
   - frameworklauncher.yaml
-  - cleanup.sh
+  - stop.sh
 
 start-script: start.sh
 stop-script: stop.sh

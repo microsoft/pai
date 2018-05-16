@@ -19,16 +19,16 @@ prerequisite:
   - cluster-configuration
   - prometheus
 
-templatelist:
+template-list:
   - node-label.sh
   - grafana.yaml
-  - cleanup.sh
+  - stop.sh
   - grafana-configuration/pai-clusterview-dashboard.json
   - grafana-configuration/pai-nodeview-dashboard.json
   - grafana-configuration/prom-datasource.json
 
-startscript: start.sh
-stopscript: stop.sh
-deletescript: delete.sh
-refrashscript: refrash.sh
-upgradedscript: upgraded.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

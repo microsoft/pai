@@ -18,16 +18,16 @@
 prerequisite:
   - None
 
-templatelist:
+template-list:
   - secret.yaml
   - host-configuration/host-configuration.yaml
   - gpu-configuration/gpu-configuration.yml
   - gpu-configuration/gpu-configuration.json
   - docker-credentials/config.json
-  - cleanup.sh
+  - stop.sh
 
-startscript: start.sh
-stopscript: stop.sh
-deletescript: delete.sh
-refrashscript: refrash.sh
-upgradedscript: upgraded.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh
