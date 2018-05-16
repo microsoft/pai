@@ -164,10 +164,10 @@ def parse_nodes_status(nodesJsonObject, outputFile):
 
         # check docker deamon
         cadvisorHealthy = requests.get("http://{}:{}".format(name["metadata"]["name"], 4194)).status_code
-        dockerHealthy = requests.get("http://{}:{}/api/v2.1/ps".format(name["metadata"]["name"], 4194)).status_code
+        dockerHealthy = requests.get("http://{}:{}/api/v2.1/ps".format(name["metadata"]["name"], 4194)).json()
         if cadvisorHealthy != 200:
-            logger.info("cadvisor {} status error, status code{}".format(name["metadata"]["name"], dockerHealthy))
-        if cadvisorHealthy == 200 and dockerHealthy != 200:
+            logger.info("cadvisor {} status error, status code{}".format(name["metadata"]["name"], cadvisorHealthy))
+        if cadvisorHealthy == 200 and len(dockerHealthy) == 0:
             logger.info("docker {} status error, status code{}".format(name["metadata"]["name"], dockerHealthy))
             dockerError += 1
 
