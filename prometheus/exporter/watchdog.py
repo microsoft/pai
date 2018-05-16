@@ -98,6 +98,13 @@ def parse_pods_status(podsJsonObject, outputFile):
     outputFile.write("pod_container_status_waiting {}\n".format(pod_container_status_waiting))
     outputFile.write("pod_container_status_restarted_pod_count {}\n".format(pod_container_status_restarted_pod_count))
 
+    logger.info("kube_pod_status_probe_not_ready {}\n".format(kube_pod_status_probe_not_ready))
+    logger.info("kube_pod_status_phase_failed {}\n".format(kube_pod_status_phase_failed))
+    logger.info("kube_pod_status_phase_unknown {}\n".format(kube_pod_status_phase_unknown))
+    logger.info("pod_container_status_not_ready {}\n".format(pod_container_status_not_ready))
+    logger.info("pod_container_status_terminated {}\n".format(pod_container_status_terminated))
+    logger.info("pod_container_status_waiting {}\n".format(pod_container_status_waiting))
+    logger.info("pod_container_status_restarted_pod_count {}\n".format(pod_container_status_restarted_pod_count))
     return
 
 def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
@@ -110,6 +117,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
         
     status = 'watchdog_apiserver_status {0}\n'.format(status)
     outputFile.write(status)
+    logger.info(status)
 
     # check etcd
     etcdhealty = requests.get("{}/healthz/etcd".format(address)).text
@@ -120,7 +128,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
         
     status = 'watchdog_etcd_status {0}\n'.format(status)
     outputFile.write(status)
-
+    logger.info(status)
     # check kubelet
     nodeItems = nodesJsonObject["items"]
     kubeletErrorCount = 0
@@ -136,6 +144,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
     status = 'watchdog_kubelet_status_ok {0}\n'.format(len(nodeItems) - kubeletErrorCount)
     status = 'watchdog_kubelet_status_error {0}\n'.format(kubeletErrorCount)
     outputFile.write(status)
+    logger.info(status)
     return 
 
 def parse_nodes_status(nodesJsonObject, outputFile):
