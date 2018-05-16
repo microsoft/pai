@@ -98,7 +98,7 @@ const taskRoleSchema = {
       format: "textarea",
       propertyOrder: 1001,
       options: {
-        expand_height: true,
+        // expand_height: true,
       },
       description: "Executable command for tasks in the task role, can not be empty",
     },

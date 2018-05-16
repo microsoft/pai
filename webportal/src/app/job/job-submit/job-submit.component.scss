@@ -11,3 +11,7 @@ input[type=submit]#submitJob {
 div#editor-holder {
     overflow: auto;
 }
+
+textarea {
+    resize: both;
+}

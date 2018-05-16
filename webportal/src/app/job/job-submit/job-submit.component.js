@@ -96,6 +96,7 @@ const submitJob = (jobConfig) => {
         window.location.replace('/view.html');
       },
       error: (xhr, textStatus, error) => {
+        loading.hideLoading();
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },
