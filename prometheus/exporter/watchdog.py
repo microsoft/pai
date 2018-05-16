@@ -162,29 +162,12 @@ def parse_nodes_status(nodesJsonObject, outputFile):
                 else: 
                     readyNodeCount += 1
 
-        # check docker deamon
-        cadvisorHealthy = requests.get("http://{}:{}".format(name["metadata"]["name"], 4194)).status_code
-        dockerHealthy = requests.get("http://{}:{}/api/v2.1/ps".format(name["metadata"]["name"], 4194)).json()
-        if cadvisorHealthy != 200:
-            logger.info("cadvisor {} status error, status code{}".format(name["metadata"]["name"], cadvisorHealthy))
-        if cadvisorHealthy == 200 and len(dockerHealthy) == 0:
-            logger.info("docker {} status error, status code{}".format(name["metadata"]["name"], dockerHealthy))
-            dockerError += 1
-
-
     nodeReadyCount = 'watchdog_node_ready_count {0}\n'.format(readyNodeCount)
     nodeNotReadyCount = 'watchdog_node_notready_count {0}\n'.format(len(nodeItems) - readyNodeCount)
     logger.info("{}".format(nodeReadyCount))
     logger.info("{}".format(nodeNotReadyCount))
     outputFile.write(nodeReadyCount)
     outputFile.write(nodeNotReadyCount)
-
-    dockerStatusError = 'watchdog_docker_status_error_count {0}\n'.format(dockerError)
-    dockerStatusReady = 'watchdog_docker_status_ready_count {0}\n'.format(len(nodeItems) - dockerError)
-    outputFile.write(dockerStatusError)
-    outputFile.write(dockerStatusReady)
-    logger.info("{}".format(dockerStatusError))
-    logger.info("{}".format(dockerStatusReady))
     return
 
 def main(argv):
