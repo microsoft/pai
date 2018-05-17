@@ -1,0 +1,14 @@
+{
+  "jobName": "pytorch-mnist",
+  "image": "paiexample/pai.example.pytorch",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "cd examples/mnist && python main.py"
+    }
+  ]
+}
