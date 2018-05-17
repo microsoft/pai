@@ -36,6 +36,16 @@ class Service:
     pod_container_status_not_ready = 0
     pod_container_status_restart_total = 0
 
+class Pod: 
+    name = ""
+    kube_pod_status_probe_not_ready = 0
+    kube_pod_status_phase_failed = 0
+    kube_pod_status_phase_unknown = 0
+    pod_container_status_waiting = 0
+    pod_container_status_terminated = 0
+    pod_container_status_not_ready = 0
+    pod_container_status_restart_total = 0
+
 def parse_pods_status(podsJsonObject, outputFile):
     # metrics 
     kube_pod_status_probe_not_ready = 0
@@ -47,7 +57,7 @@ def parse_pods_status(podsJsonObject, outputFile):
     pod_container_status_restarted_pod_count = 0 # if one pod restarts > 1, add 1 to this metrics
     podItems = podsJsonObject["items"]    
     serviceMetrics = []
-
+    existServiceKey = {}
     for pod in podItems:
         # all / per pod phase failed/unkown/Not ready (condition)
         serviceName = ""
@@ -57,8 +67,16 @@ def parse_pods_status(podsJsonObject, outputFile):
         else:
             serviceName = pod["metadata"]["name"]
 
-        service = Service()
-        service.name = serviceName
+        if serviceName not in existServiceKey:
+            service = Service()
+            service.name = serviceName
+            existServiceKey[serviceName] = 1
+        else:
+            for sr in serviceMetrics:
+                if sr.name == serviceName:
+                    service = sr
+                    break
+
         serviceMetrics.append(service)
         status = pod["status"]
         phase = status["phase"]
