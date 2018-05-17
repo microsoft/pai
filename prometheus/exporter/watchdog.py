@@ -71,13 +71,13 @@ def parse_pods_status(podsJsonObject, outputFile):
             service = Service()
             service.name = serviceName
             existServiceKey[serviceName] = 1
+            serviceMetrics.append(service)
         else:
             for sr in serviceMetrics:
                 if sr.name == serviceName:
                     service = sr
                     break
 
-        serviceMetrics.append(service)
         status = pod["status"]
         phase = status["phase"]
         conditions = status["conditions"]
