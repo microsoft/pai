@@ -21,7 +21,7 @@
 # PyTorch on PAI
 
 This guide introduces how to run [PyTorch](http://pytorch.org/) workload on PAI.
-The following contents show some basic PyTorch examples, other custom PyTorch code can be run similarly.
+The following contents show some basic PyTorch examples, other customized PyTorch code can be run similarly.
 
 
 ## Contents
@@ -34,46 +34,53 @@ The following contents show some basic PyTorch examples, other custom PyTorch co
 
 ## Basic environment
 
-First of all, PAI runs all jobs in Docker container. [Install Docker-CE] (https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't.
+First of all, PAI runs all jobs in Docker container.
+[Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
 We need to build a PyTorch image with GPU support to run PyTorch workload on PAI, this can be done in two steps:
 
 1. Build a base Docker image for PAI. We prepared a [Dockerfile](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
 
-  ```bash
-  $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
-  $ sudo docker build -f Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-  $ cd -
-  ```
+    ```bash
+    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
+    $ sudo docker build -f Dockerfile.build.base \
+    >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+    $ cd -
+    ```
 
-2. Prepare PyTorch envoriments in a Dockerfile using the base image.
+2. Prepare PyTorch envoriment in a Dockerfile using the base image.
 
-  Write a PyTorch Dockerfile and save it to `Dockerfile.run.pytorch`:
-  ```
-  FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
+    Write a PyTorch Dockerfile and save it to `Dockerfile.example.pytorch`:
 
-  # install PyTorch dependeces using pip
-  RUN pip install torch torchvision
+    ```dockerfile
+    FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
-  # clone PyTorch examples
-  RUN git clone https://github.com/pytorch/examples.git
-  ```
+    # install PyTorch dependeces using pip
+    RUN pip install torch torchvision
 
-  Build the Docker image from `Dockerfile.run.pytorch`:
-  ```bash
-  $ sudo docker build -f Dockerfile.run.pytorch -t USER/pai.run.pytorch .
-  ```
+    # clone PyTorch examples
+    RUN git clone https://github.com/pytorch/examples.git
+    ```
 
-  Push the Docker image to a Docker registry:
-  ```bash
-  $ sudo docker push USER/pai.run.pytorch
-  ```
+    Build the Docker image from `Dockerfile.example.pytorch`:
+
+    ```bash
+    $ sudo docker build -f Dockerfile.example.pytorch -t USER/pai.example.pytorch .
+    ```
+
+    Push the Docker image to a Docker registry:
+
+    ```bash
+    $ sudo docker push USER/pai.example.pytorch
+    ```
+    *Note: Replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.*
 
 
 ## Advanced environment
 
-You can customize runtime PyTorch environment in `Dockerfile.run.pytorch`, for example, adding other dependeces in Dockerfile:
-```
+You can customize runtime PyTorch environment in `Dockerfile.example.pytorch`, for example, adding other dependeces in Dockerfile:
+
+```dockerfile
 FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
 # install other packages using apt-get
@@ -96,7 +103,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "pytorch-mnist",
-  "image": "USER/pai.run.pytorch",
+  "image": "USER/pai.example.pytorch",
   "taskRoles": [
     {
       "name": "main",
@@ -114,7 +121,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "pytorch-regression",
-  "image": "USER/pai.run.pytorch",
+  "image": "USER/pai.example.pytorch",
   "taskRoles": [
     {
       "name": "main",
