@@ -86,20 +86,20 @@ def parse_pods_status(podsJsonObject, outputFile):
         if ready != "True" and init == "True" and scheduled == "True":
             kube_pod_status_probe_not_ready += 1
             # specific pod occurs readiness probe failed error, condition is not ready
-            logger.error("kube_pod_status_probe_not_ready{{pod=\"{}\"}} {}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_probe_not_ready{{pod=\"{}\"}} {}\n".format(pod["metadata"]["name"], 1))
             service.kube_pod_status_probe_not_ready += 1
         # 2. check failed phase pods
         if phase == "Failed":
             kube_pod_status_phase_failed += 1
             # specific pod phase become faile
-            logger.error("kube_pod_status_phase_failed{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_phase_failed{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
             service.kube_pod_status_phase_failed += 1
 
         # 3. check unknown phase pods 
         if phase == "Unknown":
             kube_pod_status_phase_unknown += 1
             # specific pod phase become unknown
-            logger.error("kube_pod_status_phase_unknown{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_phase_unknown{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
             service.kube_pod_status_phase_unknown += 1
 
         containerStatus = status["containerStatuses"]
@@ -111,68 +111,68 @@ def parse_pods_status(podsJsonObject, outputFile):
             if not containerReady:
                 pod_container_status_not_ready +=1 
                 # specific pod contains container status is not ready
-                logger.error("pod_container_status_not_ready{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_not_ready{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
                 service.pod_container_status_not_ready += 1
 
             state = perContainerStatus["state"]
             if "terminated" in state:
                 pod_container_status_terminated += 1
                 # specific pod container status is terminated total count
-                logger.error("pod_container_status_terminated{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_terminated{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
                 service.pod_container_status_terminated += 1
 
             if "waiting" in state:
                 pod_container_status_waiting += 1
                 # specific pod container status is waiting  total count
-                logger.error("pod_container_status_waiting{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_waiting{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
                 service.pod_container_status_waiting += 1
 
             if restartCount > 0:
                 pod_container_status_restarted_pod_count += 1
                 # specific pod's container restart total count
-                logger.error("pod_container_status_restart_total{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], restartCount))
+                logger.error("container_status_restart_total{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], restartCount))
                 service.pod_container_status_restart_total += 1
 
     # service level aggregation metrics
     for service in serviceMetrics:
         # each service occurs readiness probe failed error, condition is not ready, total count
-        logger.error("kube_service_status_probe_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_probe_not_ready))
+        logger.error("service_pod_status_probe_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_probe_not_ready))
         # all pods' phase become faile total count
-        logger.error("kube_service_status_phase_failed{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_failed))
+        logger.error("service_pod_status_phase_failed{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_failed))
         # all pods' phase become unknown total count
-        logger.error("kube_service_status_phase_unknown{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_unknown))
+        logger.error("service_pod_status_phase_unknown{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_unknown))
         # all pods' contains container status is not ready total count
-        logger.error("service_container_status_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_waiting))
+        logger.error("service_pod_container_status_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_waiting))
         # all pods' container status is terminated total count
-        logger.error("service_container_status_terminated{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_terminated))
+        logger.error("service_pod_container_status_terminated{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_terminated))
         # all pods' container status is waiting  total count
-        logger.error("service_container_status_waiting{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_not_ready))
+        logger.error("service_pod_container_status_waiting{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_not_ready))
         # all pods' container restart total count
-        logger.error("service_container_status_restart_total{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_restart_total))
+        logger.error("service_pod_container_status_restart_total{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_restart_total))
     
     # aggregate whole cluster level service metrics
     # all pods' occurs readiness probe failed error, condition is not ready, total count
-    outputFile.write("kube_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
+    outputFile.write("cluster_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
     # all pods' phase become faile total count
-    outputFile.write("kube_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
+    outputFile.write("cluster_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
     # all pods' phase become unknown total count
-    outputFile.write("kube_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
+    outputFile.write("cluster_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
     # all pods' contains container status is not ready total count
-    outputFile.write("pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
+    outputFile.write("cluster_pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
     # all pods' container status is terminated total count
-    outputFile.write("pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
+    outputFile.write("cluster_pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
     # all pods' container status is waiting  total count
-    outputFile.write("pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
+    outputFile.write("cluster_pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
     # all pods' container restart total count
-    outputFile.write("pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
+    outputFile.write("cluster_pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
 
-    logger.info("kube_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
-    logger.info("kube_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
-    logger.info("kube_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
-    logger.info("pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
-    logger.info("pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
-    logger.info("pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
-    logger.info("pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
+    logger.info("cluster_kube_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
+    logger.info("cluster_kube_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
+    logger.info("cluster_kube_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
+    logger.info("cluster_pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
+    logger.info("cluster_pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
+    logger.info("cluster_pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
+    logger.info("cluster_pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
     return
 
 def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
