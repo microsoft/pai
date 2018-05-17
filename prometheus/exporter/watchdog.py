@@ -36,16 +36,6 @@ class Service:
     pod_container_status_not_ready = 0
     pod_container_status_restart_total = 0
 
-class Pod: 
-    name = ""
-    kube_pod_status_probe_not_ready = 0
-    kube_pod_status_phase_failed = 0
-    kube_pod_status_phase_unknown = 0
-    pod_container_status_waiting = 0
-    pod_container_status_terminated = 0
-    pod_container_status_not_ready = 0
-    pod_container_status_restart_total = 0
-
 def parse_pods_status(podsJsonObject, outputFile):
     # metrics 
     kube_pod_status_probe_not_ready = 0
