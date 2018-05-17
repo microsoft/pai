@@ -25,6 +25,7 @@ template-list:
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
   - stop.sh
+  - refrash.sh
 
 start-script: start.sh
 stop-script: stop.sh

@@ -22,6 +22,7 @@ template-list:
   - node-label.sh
   - drivers.yaml
   - stop.sh
+  - refrash.sh
   # Note： your script should start all your service dependency. Make sure service has completed the starting process.
 
 

@@ -19,10 +19,14 @@
 
 pushd $(dirname "$0") > /dev/null
 
+echo "refrash secret for k8s cluster"
 kubectl apply -f secret.yaml
 
+echo "refrash host-configuration"
 kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f -
+echo "refrash docker-credentials"
 kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f -
+echo "refrash gpu-configuration"
 kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 popd > /dev/null

@@ -23,6 +23,7 @@ template-list:
   - node-label.sh
   - webportal.yaml
   - stop.sh
+  - refrash.sh
 
 start-script: start.sh
 stop-script: stop.sh

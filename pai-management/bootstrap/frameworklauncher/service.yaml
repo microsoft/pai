@@ -24,6 +24,7 @@ template-list:
   - node-label.sh
   - frameworklauncher.yaml
   - stop.sh
+  - refrash.sh
 
 start-script: start.sh
 stop-script: stop.sh

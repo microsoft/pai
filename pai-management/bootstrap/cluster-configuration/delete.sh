@@ -19,7 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run -o yaml | kubectl apply -f -
-sh node-label.sh
+sh stop.sh
 
 popd > /dev/null

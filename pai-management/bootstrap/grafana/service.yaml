@@ -26,6 +26,7 @@ template-list:
   - grafana-configuration/pai-clusterview-dashboard.json
   - grafana-configuration/pai-nodeview-dashboard.json
   - grafana-configuration/prom-datasource.json
+  - refrash.template
 
 start-script: start.sh
 stop-script: stop.sh
