@@ -38,11 +38,11 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [PyTorch examples](#pytorch-examples) using pre-built images on Docker Hub.
+You can also jump to [PyTorch examples](#pytorch-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.pytorch/) on Docker Hub.
 
 We need to build a PyTorch image with GPU support to run PyTorch workload on PAI, this can be done in two steps:
 
-1. Build a base Docker image for PAI. We prepared a [Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
 
     ```bash
     $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
@@ -51,7 +51,7 @@ We need to build a PyTorch image with GPU support to run PyTorch workload on PAI
     $ cd -
     ```
 
-2. Prepare PyTorch envoriment in a Dockerfile using the base image.
+2. Prepare PyTorch envoriment in a [Dockerfile](./Dockerfile.example.pytorch) using the base image.
 
     Write a PyTorch Dockerfile and save it to `Dockerfile.example.pytorch`:
 
@@ -85,7 +85,9 @@ We need to build a PyTorch image with GPU support to run PyTorch workload on PAI
 
 ## Advanced environment
 
-You can customize runtime PyTorch environment in `Dockerfile.example.pytorch`, for example, adding other dependeces in Dockerfile:
+You can skip this section if you do not need to prepare other dependencies.
+
+You can customize runtime PyTorch environment in [Dockerfile.example.pytorch](./Dockerfile.example.pytorch), for example, adding other dependeces in Dockerfile:
 
 ```dockerfile
 FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
@@ -144,6 +146,8 @@ Here're some configuration file examples:
   ]
 }
 ```
+
+For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
 
 
 ## FAQ
