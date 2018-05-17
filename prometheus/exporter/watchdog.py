@@ -26,6 +26,16 @@ import time
 
 logger = logging.getLogger("watchdog")  
 
+class Service:
+    name = ""
+    kube_pod_status_probe_not_ready = 0
+    kube_pod_status_phase_failed = 0
+    kube_pod_status_phase_unknown = 0
+    pod_container_status_waiting = 0
+    pod_container_status_terminated = 0
+    pod_container_status_not_ready = 0
+    pod_container_status_restart_total = 0
+
 def parse_pods_status(podsJsonObject, outputFile):
     # metrics 
     kube_pod_status_probe_not_ready = 0
@@ -35,11 +45,21 @@ def parse_pods_status(podsJsonObject, outputFile):
     pod_container_status_terminated = 0
     pod_container_status_not_ready = 0
     pod_container_status_restarted_pod_count = 0 # if one pod restarts > 1, add 1 to this metrics
-
     podItems = podsJsonObject["items"]    
-    podTotalCount = podsJsonObject["items"]  
+    serviceMetrics = []
+
     for pod in podItems:
-        # all / per pod phase failed/unkown/Not ready (condition) 
+        # all / per pod phase failed/unkown/Not ready (condition)
+        serviceName = ""
+        
+        if "generateName" in pod["metadata"]: 
+            serviceName = pod["metadata"]["generateName"]
+        else:
+            serviceName = pod["metadata"]["name"]
+
+        service = Service()
+        service.name = serviceName
+        serviceMetrics.append(service)
         status = pod["status"]
         phase = status["phase"]
         conditions = status["conditions"]
@@ -58,17 +78,22 @@ def parse_pods_status(podsJsonObject, outputFile):
         if ready != "True" and init == "True" and scheduled == "True":
             kube_pod_status_probe_not_ready += 1
             # specific pod occurs readiness probe failed error, condition is not ready
-            logger.error("kube_pod_status_probe_not_ready{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            logger.error("kube_pod_status_probe_not_ready{{pod=\"{}\"}} {}\n".format(pod["metadata"]["name"], 1))
+            service.kube_pod_status_probe_not_ready += 1
         # 2. check failed phase pods
         if phase == "Failed":
             kube_pod_status_phase_failed += 1
             # specific pod phase become faile
             logger.error("kube_pod_status_phase_failed{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            service.kube_pod_status_phase_failed += 1
+
         # 3. check unknown phase pods 
         if phase == "Unknown":
             kube_pod_status_phase_unknown += 1
             # specific pod phase become unknown
             logger.error("kube_pod_status_phase_unknown{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            service.kube_pod_status_phase_unknown += 1
+
         containerStatus = status["containerStatuses"]
 
         # 4. check pod containers running/waiting/terminated status
@@ -79,23 +104,27 @@ def parse_pods_status(podsJsonObject, outputFile):
                 pod_container_status_not_ready +=1 
                 # specific pod contains container status is not ready
                 logger.error("pod_container_status_not_ready{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                service.pod_container_status_not_ready += 1
 
             state = perContainerStatus["state"]
             if "terminated" in state:
                 pod_container_status_terminated += 1
                 # specific pod container status is terminated total count
                 logger.error("pod_container_status_terminated{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                service.pod_container_status_terminated += 1
 
             if "waiting" in state:
                 pod_container_status_waiting += 1
                 # specific pod container status is waiting  total count
                 logger.error("pod_container_status_waiting{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
-            
+                service.pod_container_status_waiting += 1
+
             if restartCount > 0:
                 pod_container_status_restarted_pod_count += 1
                 # specific pod's container restart total count
                 logger.error("pod_container_status_restart_total{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], restartCount))
-            
+                service.pod_container_status_restart_total += 1
+
     # all pods' occurs readiness probe failed error, condition is not ready, total count
     outputFile.write("kube_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
     # all pods' phase become faile total count
@@ -118,6 +147,15 @@ def parse_pods_status(podsJsonObject, outputFile):
     logger.info("pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
     logger.info("pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
     logger.info("pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
+
+    for service in serviceMetrics:
+        logger.error("kube_service_status_probe_not_ready{{service=\"{}\"}} {}\n".format(service.name, service. kube_pod_status_probe_not_ready))
+        logger.error("kube_service_status_phase_failed{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_failed))
+        logger.error("kube_service_status_phase_unknown{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_unknown))
+        logger.error("service_container_status_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_waiting))
+        logger.error("service_container_status_terminated{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_terminated))
+        logger.error("service_container_status_waiting{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_not_ready))
+        logger.error("service_container_status_restart_total{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_restart_total))
     return
 
 def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
