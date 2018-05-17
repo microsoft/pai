@@ -81,15 +81,15 @@ http {
     # WebHDFS API server.
     location ~ ^/webhdfs/api(.*)$ {
       proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
-      proxy_intercept_errors on;
-      error_page 307 = @handle_webhdfs_api_redirect;
+      #proxy_intercept_errors on;
+      #error_page 307 = @handle_webhdfs_api_redirect;
 
     }
-    location @handle_webhdfs_api_redirect {
-      if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
-        return 307 $scheme://$http_host/a/$1/$2/$3;
-      }
-    }
+    #location @handle_webhdfs_api_redirect {
+    #  if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
+    #    return 307 $scheme://$http_host/a/$1/$2/$3;
+    #  }
+    #}
 
     # Prometheus API server.
     location ~ ^/prometheus/api(.*)$ {
