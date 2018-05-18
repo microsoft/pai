@@ -113,13 +113,14 @@ const loadEditor = () => {
     disable_array_reorder: true,
     //startval: jobExample,
     no_additional_properties: true,
+    show_errors: 'always',
   });
   jobDefaultConfig = editor.getValue();
 };
 
 const resize = () => {
-    var heights = window.innerHeight;
-    document.getElementById("editor-holder").style.height = heights - 300 + "px";
+  var heights = window.innerHeight;
+  document.getElementById("editor-holder").style.height = heights - 300 + "px";
 };
 
 $('#sidebar-menu--submit-job').addClass('active');
@@ -127,6 +128,9 @@ $('#sidebar-menu--submit-job').addClass('active');
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   loadEditor();
+  editor.on('change', () => {
+    document.getElementById('submitJob').disabled = (editor.validate().length != 0);
+  });
   $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
