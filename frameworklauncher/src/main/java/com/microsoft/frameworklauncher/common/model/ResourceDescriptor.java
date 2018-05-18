@@ -135,6 +135,7 @@ public class ResourceDescriptor implements Serializable {
 
     // Convert outside exposed portDefinitions to internal portRanges and portNumber
     // to facilitate internal usage.
+    // Note setPortDefinitions may be called before validation, so need to check preconditions
     if (portDefinitions == null) {
       return;
     }
@@ -233,23 +234,23 @@ public class ResourceDescriptor implements Serializable {
   }
 
   public Resource toResource() throws Exception {
-    Resource res = Resource.newInstance(memoryMB, cpuNumber);
+    Resource res = Resource.newInstance(getMemoryMB(), getCpuNumber());
     Class<?> clazz = res.getClass();
 
-    if (HADOOP_LIBRARY_SUPPORTS_GPU && gpuNumber > 0) {
+    if (HADOOP_LIBRARY_SUPPORTS_GPU && getGpuNumber() > 0) {
       Method setGpuNumber = clazz.getMethod("setGPUs", int.class);
       Method setGpuAttribute = clazz.getMethod("setGPUAttribute", long.class);
 
-      setGpuNumber.invoke(res, gpuNumber);
-      setGpuAttribute.invoke(res, gpuAttribute);
+      setGpuNumber.invoke(res, getGpuNumber());
+      setGpuAttribute.invoke(res, getGpuAttribute());
     }
 
-    if (HADOOP_LIBRARY_SUPPORTS_PORT && portRanges != null && portRanges.size() > 0) {
+    if (HADOOP_LIBRARY_SUPPORTS_PORT && getPortRanges().size() > 0) {
       Class<?> hadoopValueRangesClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRanges");
       Class<?> hadoopValueRangeClass = Class.forName("org.apache.hadoop.yarn.api.records.ValueRange");
 
       List<Object> hadoopValueRangeList = new ArrayList<>();
-      for (ValueRange range : portRanges) {
+      for (ValueRange range : getPortRanges()) {
         Object valueRangeObj = hadoopValueRangeClass.getMethod("newInstance", int.class, int.class)
             .invoke(null, range.getBegin(), range.getEnd());
         hadoopValueRangeList.add(valueRangeObj);
@@ -349,6 +350,6 @@ public class ResourceDescriptor implements Serializable {
         String.format("GpuNumber: [%s]", getGpuNumber()) + " " +
         String.format("GpuAttribute: [%s]", CommonExts.toStringWithBits(getGpuAttribute())) + " " +
         String.format("PortNumber: [%s]", getPortNumber()) + " " +
-        String.format("PortRanges: [%s]]", CommonExts.toString(portRanges));
+        String.format("PortRanges: [%s]]", CommonExts.toString(getPortRanges()));
   }
 }

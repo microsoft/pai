@@ -88,7 +88,7 @@ public class GenerateContainerIpListTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitStatus),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitStatus),
         exitStatus == ExitStatusKey.CONTAINER_START_FAILED.toInt());
 
     String containerIpListFilePath =

@@ -292,7 +292,7 @@ public class SelectionManagerTest {
     sm.addNode(node1);
     sm.addNode(node2);
 
-    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, null), null, null, 2, null, gpuNodeConfig);
+    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, new ArrayList<>()), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());

@@ -70,7 +70,7 @@ public class MockConfiguration extends Configuration {
 
   @Override
   protected ResourceDescriptor getMaxResource() {
-    return ResourceDescriptor.newInstance(2048, 1, 0, 0L);
+    return ResourceDescriptor.newInstance(2048, 1);
   }
 
   @Override

@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PortUtils {
-  // PortString is in format: "portLabel1:port1,port2;portLabel2:port4,port5;"
+  // PortString is in format: "portLabel1:port1,port2;portLabel2:port3,port4;"
   // The dynamic ports in portsDefinitions should be able to be filled up by portRanges.
   public static String toPortString(
       List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) throws Exception {
@@ -48,6 +48,7 @@ public class PortUtils {
             portString.append(";");
           } else {
             // If defined dynamic ports, assign portRanges for it.
+            // Note to assign in a fixed way, such as sequentially, in case samePortsAllocation specified.
             List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
                 coalescedPortRanges, ports.getCount(), 0);
             coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
@@ -66,7 +67,7 @@ public class PortUtils {
     return portString.toString();
   }
 
-  // PortString is in format: "portLabel1:port1,port2;portLabel2:port4,port5;"
+  // PortString is in format: "portLabel1:port1,port2;portLabel2:port3,port4;"
   public static List<ValueRange> toPortRanges(String portString) {
     List<ValueRange> portRanges = new ArrayList<>();
     if (portString != null && !portString.isEmpty()) {

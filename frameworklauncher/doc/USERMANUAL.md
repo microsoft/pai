@@ -587,7 +587,7 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 | EnvironmentVariable | Description |
 |:---- |:---- |
 | CONTAINER_GPUS | Only valid when gpuNumber is greater than 0. It is a number, each bit of this number represents a Gpu, for example, 3 represents gpu0 and gpu1. |
-| CONTAINER_PORTS | Only valid when portDefinitions is not empty. It is a string, a format example is: "portLabel1:port1,port2;portLabel2:port4,port5;". |
+| CONTAINER_PORTS | Only valid when portDefinitions is not empty. It is a string, a format example is: "portLabel1:port1,port2;portLabel2:port3,port4;". |
 
 
 ## <a name="HDFS_Published_Informations">HDFS Published Informations</a>
