@@ -18,6 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # clean all the data in the cluster.
+
+
+
+cp /${DELETE_CONFIG}/${WORKER_CONFIG}  delete_worker.sh
+chmod u+x delete_worker.sh
+
+./delete_worker.sh
+
+# Because Kuberetnes can't run the job to every node such as daemonset.
+# So we will use readiness probes to judge whether the batch job finish or not.
+# And then with the help of loop, we will prevent the pod to restart.
+# After the /jobstatus/jobok is touched, we will find the status of pod is ready with kubectl.
+# If all pod is ready, the "daemon job" is finished. We can run kubectl delete to delete all the pod.
+mkdir -p /jobstatus
+touch /jobstatus/jobok
+
+while true; do sleep 1000; done
+
+
+
+
 if [ -d "/mnt/hdfs" ]; then
 
     rm -rf /mnt/hdfs
@@ -36,11 +57,6 @@ if [ -d "/mnt/hadooptmp" ]; then
 
 fi
 
-if [ -d "/mnt/launcherlogs" ]; then
-
-    rm -rf /mnt/launcherlogs
-
-fi
 
 if [ -d "/mnt/zoodata" ]; then
 

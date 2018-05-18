@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,8 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-prerequisite:
-  - None
+echo "Clean the hadoop and zookeeper's data on the disk"
 
-templatelist:
-  - cleaning.yaml
+if [ -d "/mnt/hdfs" ]; then
+
+    rm -rf /mnt/hdfs
+
+fi
+
+if [ -d "/mnt/yarn" ]; then
+
+    rm -rf /mnt/yarn
+
+fi
+
+if [ -d "/mnt/hadooptmp" ]; then
+
+    rm -rf /mnt/hadooptmp
+
+fi
+
+
+if [ -d "/mnt/zoodata" ]; then
+
+    rm -rf /mnt/zoodata
+
+fi

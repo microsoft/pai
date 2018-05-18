@@ -18,12 +18,12 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: cleaning-one-shot
+  name: Delete-Batch-Job-Frameworker-Launcher
 spec:
   template:
     metadata:
       labels:
-        app: cleaning-one-shot
+        app: Delete-Batch-Job-Frameworker-Launcher
     spec:
       hostNetwork: true
       hostPID: true
@@ -34,6 +34,13 @@ spec:
         volumeMounts:
         - mountPath: /mnt
           name: data-path
+        - mountPath: /frameworklauncher-delete
+          name: frameworklauncher-delete-config
+        env:
+        - name: DELETE_CONFIG
+          value: frameworklauncher-delete
+        - name: WORKER_CONFIG
+          value: delete-data.sh
         readinessProbe:
           exec:
             command:
@@ -47,4 +54,6 @@ spec:
       - name: data-path
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}
-
+      - name: frameworklauncher-delete-config
+        configMap:
+          name: frameworklauncher-delete

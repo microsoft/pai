@@ -19,6 +19,23 @@
 
 pushd $(dirname "$0") > /dev/null
 
+
+echo "Call stop script to stop all service first"
 sh stop.sh
+
+echo "Create frameworklauncher-delete configmap for deleting data on the host"
+kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/
+
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v Delete-Batch-Job-Frameworker-Launcher
+
+echo "Frameworklauncher clean job is done"
+echo "Delete cleaner daemon and configmap"
+kubectl delete ds Delete-Batch-Job-Frameworker-Launcher
+kubectl delete configmap frameworklauncher-delete
+sleep 5
 
 popd > /dev/null

@@ -19,6 +19,22 @@
 
 pushd $(dirname "$0") > /dev/null
 
+echo "Call stop to stop all hadoop service first"
 sh stop.sh
+
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-delete --from-file=hadoop-delete/
+
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v Delete-Batch-Job-Hadoop-Service
+
+echo "Hadoop Service clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+kubectl delete ds Delete-Batch-Job-Hadoop-Service
+kubectl delete configmap hadoop-delete
+sleep 5
 
 popd > /dev/null

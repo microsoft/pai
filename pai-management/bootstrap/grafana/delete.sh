@@ -19,6 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
+echo "Call stop script to stop all service first"
 sh stop.sh
+
 
 popd > /dev/null

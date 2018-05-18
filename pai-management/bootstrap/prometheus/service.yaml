@@ -26,6 +26,7 @@ template-list:
   - prometheus-deployment.yaml
   - stop.sh
   - refrash.sh
+  - delete.yaml
 
 start-script: start.sh
 stop-script: stop.sh
