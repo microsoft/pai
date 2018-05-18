@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
@@ -31,6 +32,11 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
   @Valid
   @Pattern(regexp = "^[^\\s]{1,256}$")
   private String taskNodeGpuType;
+
+  @Valid
+  @NotNull
+  // If this feature enabled, different Tasks is ensured to allocate the same ports.
+  private Boolean samePortsAllocation = true;
 
   public String getTaskNodeLabel() {
     return taskNodeLabel;
@@ -46,5 +52,13 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
 
   public void setTaskNodeGpuType(String taskNodeGpuType) {
     this.taskNodeGpuType = taskNodeGpuType;
+  }
+
+  public Boolean getSamePortsAllocation() {
+    return samePortsAllocation;
+  }
+
+  public void setSamePortsAllocation(Boolean samePortsAllocation) {
+    this.samePortsAllocation = samePortsAllocation;
   }
 }

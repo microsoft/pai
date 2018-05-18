@@ -25,6 +25,8 @@ import com.microsoft.frameworklauncher.testutils.YamlTestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,6 +45,23 @@ public class FrameworkDescriptorTest {
       String inputJsonFilePath = INPUTS_DIR + configFileName + ".json";
       String descriptionContent = CommonUtils.readFile(inputJsonFilePath);
       FrameworkDescriptor frameworkDescriptor = WebCommon.toObject(descriptionContent, FrameworkDescriptor.class);
+      try {
+        CommonValidation.validate(frameworkDescriptor);
+      } catch (BadRequestException e) {
+        String m = e.getMessage();
+        System.out.println(m);
+
+        if (e.getCause() != null && e.getCause() instanceof ConstraintViolationException) {
+          ConstraintViolationException cve = (ConstraintViolationException) e.getCause();
+          for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
+            if (!cv.getMessage().contains("local hadoop library doesn't support")) {
+              throw e;
+            }
+          }
+        } else {
+          throw e;
+        }
+      }
       YamlTestUtils.testObjectToYaml(frameworkDescriptor, configFileName, FrameworkDescriptor.class);
     }
   }
@@ -53,13 +72,43 @@ public class FrameworkDescriptorTest {
     List<String> configFileNames = Arrays.asList("WrongFrameworkDescription");
     for (String configFileName : configFileNames) {
       String inputJsonFilePath = INPUTS_DIR + configFileName + ".json";
+      String descriptionContent = CommonUtils.readFile(inputJsonFilePath);
+      FrameworkDescriptor frameworkDescriptor = WebCommon.toObject(descriptionContent, FrameworkDescriptor.class);
 
       try {
-        String descriptionContent = CommonUtils.readFile(inputJsonFilePath);
-        FrameworkDescriptor frameworkDescriptor = WebCommon.toObject(descriptionContent, FrameworkDescriptor.class);
         CommonValidation.validate(frameworkDescriptor);
         Assert.fail("Wrong json file validate success");
-      } catch (BadRequestException ignored) {
+      } catch (BadRequestException e) {
+        String m = e.getMessage();
+        System.out.println(m);
+
+        // Built-in validations
+        Assert.assertTrue(m.contains("taskRoles[HBaseMaster].taskNumber: " +
+            "must be less than or equal to"));
+        Assert.assertTrue(m.contains("taskRoles[HBaseMaster].taskService.resource.portDefinitions: " +
+            "may not be null"));
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions[tcp].start: " +
+            "may not be null"));
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions[tcp].count: " +
+            "may not be null"));
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions[tcp2].count: " +
+            "may not be null"));
+
+        // GpuValidation
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource: " +
+            "GpuNumber [2] is not consistent with GpuAttribute [1(1)]"));
+
+        // MapKeyNamingValidation
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions: " +
+            "Name [ht%%tp] is not matched with naming convention regex"));
+
+        // MapValueNotNullValidation
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions: " +
+            "Map value is null for Map key: [ht%%tp]"));
+
+        // PortValidation
+        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource: " +
+            "Illegal PortDefinitions: All start fields should be nonzero or zero"));
       }
     }
   }

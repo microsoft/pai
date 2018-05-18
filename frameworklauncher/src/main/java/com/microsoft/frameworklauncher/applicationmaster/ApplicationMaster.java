@@ -550,6 +550,7 @@ public class ApplicationMaster extends AbstractService {
   // To keep all tasks have the same ports in a task role.
   // Will reject this container if the ports are not the same.
   private Boolean testContainerPorts(Container container, String taskRoleName) throws Exception {
+    Boolean samePortsAllocation = requestManager.getTaskPlatParams().get(taskRoleName).getSamePortsAllocation();
     List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
     List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
 
@@ -557,8 +558,7 @@ public class ApplicationMaster extends AbstractService {
     String rejectedLogPrefix = logPrefix + "Rejected: ";
     String acceptedLogPrefix = logPrefix + "Accepted: ";
 
-    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
-    if (useTheSamePorts) {
+    if (samePortsAllocation) {
       if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
         if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
           LOGGER.logWarning(rejectedLogPrefix + "Container ports are not the same as previous allocated ports.");

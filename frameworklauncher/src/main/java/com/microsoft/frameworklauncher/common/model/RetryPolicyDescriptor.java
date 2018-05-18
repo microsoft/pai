@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -34,6 +35,7 @@ import java.io.Serializable;
 public class RetryPolicyDescriptor implements Serializable {
   @Valid
   @NotNull
+  @Min(-1)
   private Integer maxRetryCount = 0;
 
   @Valid

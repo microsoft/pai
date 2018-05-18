@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
@@ -207,11 +208,12 @@ public class SelectionManager { // THREAD SAFE
     String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
     String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
     Map<String, NodeConfiguration> configuredNodes = requestManager.getClusterConfiguration().getNodes();
+    Boolean samePortsAllocation = requestManager.getTaskPlatParams().get(taskRoleName).getSamePortsAllocation();
     int startStatesTaskCount = statusManager.getStartStatesTaskCount(taskRoleName);
     List<ValueRange> reusePorts = null;
 
     // Prefer to use previous successfully associated ports. if no associated ports, try to reuse the "Requesting" ports.
-    if (requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
+    if (samePortsAllocation) {
       reusePorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
       if (ValueRangeUtils.getValueNumber(reusePorts) <= 0 && previousRequestedPorts.containsKey(taskRoleName)) {
         reusePorts = previousRequestedPorts.get(taskRoleName);
@@ -221,7 +223,7 @@ public class SelectionManager { // THREAD SAFE
     }
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, startStatesTaskCount, reusePorts, configuredNodes);
 
-    if (requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts()) {
+    if (samePortsAllocation) {
       // This startStatesTaskCount also count current task. StartStatesTaskCount == 1 means current task is the last task.
       // reusePortsTimes time is used to avoid startStatesTaskCount not decrease in the situation of timeout tasks back to startStates.
       if (startStatesTaskCount > 1) {
@@ -244,7 +246,7 @@ public class SelectionManager { // THREAD SAFE
 
     LOGGER.logInfo(
         "select: Request: Resource: [%s], NodeLabel: [%s], NodeGpuType: [%s], StartStatesTaskCount: [%d], ReusePorts: [%s]",
-        requestResource, requestNodeLabel, requestNodeGpuType, startStatesTaskCount, ValueRangeUtils.toString(reusePorts));
+        requestResource, requestNodeLabel, requestNodeGpuType, startStatesTaskCount, CommonExts.toString(reusePorts));
 
     initFilteredNodes();
     filterNodesByNodeLabel(requestNodeLabel);
@@ -257,14 +259,14 @@ public class SelectionManager { // THREAD SAFE
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
     if (ValueRangeUtils.getValueNumber(reusePorts) > 0) {
       LOGGER.logInfo(
-          "select: reuse pre-selected ports: [%s]", ValueRangeUtils.toString(reusePorts));
+          "select: reuse pre-selected ports: [%s]", CommonExts.toString(reusePorts));
       optimizedRequestResource.setPortRanges(reusePorts);
     }
     if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
       //If port is required and the portRange is not set in previous steps, allocate port ranges from all candidate nodes.
       List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
       LOGGER.logInfo(
-          "select: select ports from all filteredNodes  :  [%s]", ValueRangeUtils.toString(portRanges));
+          "select: select ports from all filteredNodes  :  [%s]", CommonExts.toString(portRanges));
       if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
         optimizedRequestResource.setPortRanges(portRanges);
       }

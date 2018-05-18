@@ -60,7 +60,7 @@ public class LauncherConfiguration implements Serializable {
 
   // ApplicationMaster Setup
   private Integer amVersion = 0;
-  //AM Default Resource which can support max to 10000 total Tasks in one Framework
+  // AM Default Resource which can support max to 10000 total Tasks in one Framework
   private ResourceDescriptor amDefaultResource = ResourceDescriptor.newInstance(4096, 1, 0, 0L);
   private Integer amPriority = 1;
   // Just in case AM cannot be gracefully Stopped and RM cannot judge its exit as transient,

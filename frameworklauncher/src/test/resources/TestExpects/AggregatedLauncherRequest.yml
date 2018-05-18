@@ -42,7 +42,8 @@ aggregatedFrameworkRequests:
         retryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
         taskRoles:
           testString:
-            platformSpecificParameters: {taskNodeGpuType: testString, taskNodeLabel: testString}
+            platformSpecificParameters: {samePortsAllocation: false, taskNodeGpuType: testString,
+              taskNodeLabel: testString}
             scaleUnitNumber: 0
             scaleUnitTimeoutSec: 0
             taskNumber: 0
@@ -63,7 +64,6 @@ aggregatedFrameworkRequests:
                 - {begin: 0, end: 0}
               sourceLocations: [testString]
               version: 0
-            useTheSamePorts: false
         user: {name: testString}
         version: 0
       frameworkName: testString
