@@ -80,6 +80,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
 ### API
 
 1. `POST token`
+
     在系统中进行身份验证并获取访问令牌。
 
     *请求*
@@ -115,6 +116,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
 2. `PUT user`
+
     更新系统中的用户。
     管理员可以添加或更改其他用户的密码；用户可以更改自己的密码。
 
@@ -152,7 +154,9 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
 3. `DELETE user` （需管理员权限）
+    
     从系统中删除用户。
+
     *请求*
     ```
     DELETE /api/v1/user
@@ -167,8 +171,9 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
     *成功响应*
+
     ```
-  Status: 200
+    Status: 200
   
     {
       "message": "remove successfully"
@@ -176,6 +181,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
     *失败响应*
+
     ```
     Status: 500
 
@@ -186,6 +192,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
   
     *未经授权时响应*
+
     ```
     Status: 401
 
@@ -196,6 +203,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
 4. `PUT user/:username/virtualClusters` （需管理员权限）
+
     管理员可以更新其他用户的虚拟集群。管理员可以访问所有的虚拟集群，普通用户能访问默认虚拟集群。
 
     *请求*
@@ -257,6 +265,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
     *成功响应*
+    
     得到 jobs 列表，格式如下：
     ```
     {
@@ -364,7 +373,8 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
 8. `GET jobs/:jobName/config`
-    获取 JSON 格式的 job 配置信息。
+   
+     获取 JSON 格式的 job 配置信息。
 
     *请求*
     ```
@@ -450,6 +460,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     ```
 
 10. `PUT jobs/:jobName/executionType`
+    
     启动或停止 job。
 
     *请求*
@@ -484,6 +495,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     }
 
 11. `GET virtual-clusters`
+    
     获取虚拟集群列表。
 
     *请求*
@@ -525,9 +537,9 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
     {
       // 该虚拟集群的可用容量占整个集群的百分比
       "capacity":50,
-    // 该虚拟群的最大容量占整个集群的百分比      
+      // 该虚拟群的最大容量占整个集群的百分比      
       "maxCapacity":100,
-     // 该虚拟集群已使用容量占整个集群的百分比
+      // 该虚拟集群已使用容量占整个集群的百分比
       "usedCapacity":0,
       "numActiveJobs":0,
       "numJobs":0,
