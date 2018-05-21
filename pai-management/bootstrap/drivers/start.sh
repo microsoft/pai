@@ -24,7 +24,7 @@ chmod u+x node-label.sh
 
 kubectl create -f drivers.yaml
 
-python ../../node_label_check.py -k machinetype -v gpu
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k machinetype -v gpu
 ret=$?
 
 if [ $ret -ne 0 ]; then

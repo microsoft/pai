@@ -31,7 +31,8 @@ chmod u+x configmap-create.sh
 # Zookeeper
 kubectl create -f zookeeper.yaml
 
-python ../../node_label_check.py -k zookeeper -v "true"
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k zookeeper -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -45,7 +46,7 @@ fi
 # Hadoop name node
 kubectl create -f hadoop-name-node.yaml
 
-python ../../node_label_check.py -k hdfsrole -v master
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hdfsrole -v master
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -59,7 +60,7 @@ fi
 # Hadoop data node
 kubectl create -f hadoop-data-node.yaml
 
-python ../../node_label_check.py -k hdfsrole -v worker
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hdfsrole -v worker
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -73,7 +74,7 @@ fi
 # Hadoop resource manager
 kubectl create -f hadoop-resource-manager.yaml
 
-python ../../node_label_check.py -k yarnrole -v master
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k yarnrole -v master
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -87,7 +88,7 @@ fi
 # Hadoop node manager
 kubectl create -f hadoop-node-manager.yaml
 
-python ../../node_label_check.py -k yarnrole -v worker
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k yarnrole -v worker
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -101,7 +102,7 @@ fi
 # Hadoop jobhistory
 kubectl create -f hadoop-jobhistory.yaml
 
-python ../../node_label_check.py -k jobhistory -v "true"
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k jobhistory -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then

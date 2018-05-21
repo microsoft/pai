@@ -19,20 +19,23 @@
 
 import argparse
 import sys
-from k8sPaiLibrary.monitorlib import nodestatus
+import time
 
-if __name__ == "__main__":
+from ..monitorlib import nodestatus
 
+
+
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-k', '--key', required=True, help="key of the label")
-    parser.add_argument('-v', '--value', required=True, help="value of the label")
+    parser.add_argument('-k', '--label-key', dest="label_key", required=True, help="the data of app label-key in your service")
+    parser.add_argument('-v', '--label-value', dest="label_value", required=True, help="the data of app label-value in your service")
 
     args = parser.parse_args()
 
-    if nodestatus.is_label_exist(args.key, args.value) != True:
+    if nodestatus.is_label_exist(args.label_key, args.label_value) != True:
         sys.exit(1)
 
-    sys.exit(0)
 
 
-
+if __name__ == "__main__":
+    main()
