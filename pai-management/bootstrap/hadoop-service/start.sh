@@ -38,7 +38,7 @@ if [ $ret -ne 0 ]; then
     echo "No Zookeeper Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s zookeeper
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper
 fi
 
 
@@ -52,7 +52,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-name-node Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s hadoop-name-node
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node
 fi
 
 
@@ -66,7 +66,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-data-node Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s hadoop-data-node
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-data-node
 fi
 
 
@@ -80,7 +80,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-resource-manager Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s hadoop-resource-manager
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager
 fi
 
 
@@ -94,7 +94,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-node-manager Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s hadoop-node-manager
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
 fi
 
 
@@ -108,7 +108,7 @@ if [ $ret -ne 0 ]; then
     echo "No jobhistory Pod in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s hadoop-jobhistory-service
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-jobhistory-service
 fi
 
 kubectl create -f one-time-job-hadoop.yaml

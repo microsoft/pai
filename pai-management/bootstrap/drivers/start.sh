@@ -31,7 +31,7 @@ if [ $ret -ne 0 ]; then
     echo "No GPU machine in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s drivers-one-shot
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot
 fi
 
 popd > /dev/null
