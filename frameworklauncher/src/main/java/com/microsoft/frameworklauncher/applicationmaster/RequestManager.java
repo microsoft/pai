@@ -19,7 +19,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.client.LauncherClient;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
-import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.exceptions.TransientException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -458,7 +457,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     }
   }
 
-  public Boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
+  public Boolean existsLocalVersionFrameworkRequest() {
     return existsLocalVersionFrameworkRequest;
   }
 

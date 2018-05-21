@@ -31,8 +31,8 @@ public class ChangeAwareLogger {
   // Limit to 100MB (around 1000000 records each with 100B size)
   private static final long LAST_LOGS_MAX_SIZE_BYTES = 100 * 1024 * 1024;
   private final Logger logger;
-  private final Map<String, Level> changeLogLevels = new HashMap<>();
-  private final Map<String, Level> unchangeLogLevels = new HashMap<>();
+  private final Map<String, Level> changedLogLevels = new HashMap<>();
+  private final Map<String, Level> unchangedLogLevels = new HashMap<>();
   private final Map<String, String> lastLogs = new HashMap<>();
   private long lastLogsCurrentSizeBytes = 0;
 
@@ -40,26 +40,26 @@ public class ChangeAwareLogger {
     logger = Logger.getLogger(clazz.getName());
   }
 
-  public synchronized void initializeScope(String scope, Level changeLogLevel) {
-    changeLogLevels.put(scope, changeLogLevel);
+  public synchronized void initializeScope(String scope, Level changedLogLevel) {
+    changedLogLevels.put(scope, changedLogLevel);
   }
 
-  public synchronized void initializeScope(String scope, Level changeLogLevel, Level unchangeLogLevel) {
-    initializeScope(scope, changeLogLevel);
-    unchangeLogLevels.put(scope, unchangeLogLevel);
+  public synchronized void initializeScope(String scope, Level changedLogLevel, Level unchangedLogLevel) {
+    initializeScope(scope, changedLogLevel);
+    unchangedLogLevels.put(scope, unchangedLogLevel);
   }
 
   public synchronized void log(String scope, String format, Object... args) throws Exception {
     String msg = CommonUtils.formatString(format, args);
 
-    if (!changeLogLevels.containsKey(scope)) {
+    if (!changedLogLevels.containsKey(scope)) {
       throw new Exception(String.format(
           "Scope [%1$s] is not initialized for before log it.", scope));
     }
 
     if (lastLogs.containsKey(scope) && lastLogs.get(scope).equals(msg)) {
-      if (unchangeLogLevels.containsKey(scope)) {
-        logger.log(unchangeLogLevels.get(scope), msg);
+      if (unchangedLogLevels.containsKey(scope)) {
+        logger.log(unchangedLogLevels.get(scope), msg);
       }
     } else {
       if (lastLogs.containsKey(scope)) {
@@ -71,7 +71,7 @@ public class ChangeAwareLogger {
       }
 
       lastLogs.put(scope, msg);
-      logger.log(changeLogLevels.get(scope), msg);
+      logger.log(changedLogLevels.get(scope), msg);
     }
 
     if (lastLogsCurrentSizeBytes > LAST_LOGS_MAX_SIZE_BYTES) {

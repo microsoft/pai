@@ -33,10 +33,10 @@ public class SystemTaskQueue {
   private static final DefaultLogger LOGGER = new DefaultLogger(SystemTaskQueue.class);
   private static final int QUEUE_LENGTH_WARNING_THRESHOLD = 5000;
 
-  public Function<Exception, Boolean> exceptionHandler;
-  private ScheduledExecutorService executorService;
-  private Lock lock = new ReentrantLock();
-  private Condition condition = lock.newCondition();
+  private final Function<Exception, Boolean> exceptionHandler;
+  private final ScheduledExecutorService executorService;
+  private final Lock lock = new ReentrantLock();
+  private final Condition condition = lock.newCondition();
 
   public SystemTaskQueue(Function<Exception, Boolean> handler) {
     executorService = Executors.newScheduledThreadPool(1);

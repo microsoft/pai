@@ -67,7 +67,7 @@ public class CompressionUtils {
   }
 
   public static boolean isCompressed(byte[] bytes) {
-    // It can judge serialized YAML string correctly, since the YARM string
+    // It can judge serialized YAML string correctly, since the YAML string
     // header !!(0x2121) always does not equal to GZIP_MAGIC(0x8b1f).
     return CommonUtils.bytesToShort(bytes) == GZIPInputStream.GZIP_MAGIC;
   }

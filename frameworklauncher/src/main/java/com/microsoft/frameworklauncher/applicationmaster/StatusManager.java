@@ -53,9 +53,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
   // AM only need to maintain TaskRoleStatus and TaskStatuses, and it is the only maintainer.
   // TaskRoleName -> TaskRoleStatus
-  private Map<String, TaskRoleStatus> taskRoleStatuses = new HashMap<>();
+  private final Map<String, TaskRoleStatus> taskRoleStatuses = new HashMap<>();
   // TaskRoleName -> TaskStatuses
-  private Map<String, TaskStatuses> taskStatuseses = new HashMap<>();
+  private final Map<String, TaskStatuses> taskStatuseses = new HashMap<>();
 
   /**
    * REGION ExtensionStatus
@@ -63,21 +63,21 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
    */
   // Used to invert index TaskStatus by ContainerId/TaskState instead of TaskStatusLocator, i.e. TaskRoleName + TaskIndex
   // TaskState -> TaskStatusLocators
-  private Map<TaskState, Set<TaskStatusLocator>> taskStateLocators = new HashMap<>();
+  private final Map<TaskState, Set<TaskStatusLocator>> taskStateLocators = new HashMap<>();
   // Live Associated ContainerId -> TaskStatusLocator
-  private Map<String, TaskStatusLocator> liveAssociatedContainerIdLocators = new HashMap<>();
+  private final Map<String, TaskStatusLocator> liveAssociatedContainerIdLocators = new HashMap<>();
   // Live Associated HostNames
   // TODO: Using MachineName instead of HostName to avoid unstable HostName Resolution
-  private Set<String> liveAssociatedHostNames = new HashSet<>();
+  private final Set<String> liveAssociatedHostNames = new HashSet<>();
 
   /**
    * REGION StateVariable
    */
   // Whether Mem Status is changed since Latest Persisted Status
   // TaskRoleName -> TaskRoleStatusChanged
-  private Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
+  private final Map<String, Boolean> taskRoleStatusesChanged = new HashMap<>();
   // TaskRoleName -> TaskStatusesChanged
-  private Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
+  private final Map<String, Boolean> taskStatusesesChanged = new HashMap<>();
 
   // Latest Persisted Status
   // TaskRoleName -> AggregatedTaskRoleStatus
@@ -90,10 +90,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   private Priority nextContainerRequestPriority = Priority.newInstance(0);
   // Used to track current ContainerRequest for Tasks in CONTAINER_REQUESTED state
   // TaskStatusLocator -> ContainerRequest
-  private Map<TaskStatusLocator, ContainerRequest> taskContainerRequests = new HashMap<>();
+  private final Map<TaskStatusLocator, ContainerRequest> taskContainerRequests = new HashMap<>();
   // Used to invert index TaskStatusLocator by ContainerRequest.Priority
   // Priority -> TaskStatusLocator
-  private Map<Priority, TaskStatusLocator> priorityLocators = new HashMap<>();
+  private final Map<Priority, TaskStatusLocator> priorityLocators = new HashMap<>();
 
   /**
    * REGION AbstractService
@@ -546,7 +546,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return taskStateCounters;
   }
 
-  private void updatePersistedAggTaskRoleStatuses() throws Exception {
+  private void updatePersistedAggTaskRoleStatuses() {
     Map<String, AggregatedTaskRoleStatus> aggTaskRoleStatuses = new HashMap<>();
     for (TaskRoleStatus taskRoleStatus : taskRoleStatuses.values()) {
       String taskRoleName = taskRoleStatus.getTaskRoleName();

@@ -59,11 +59,12 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     if (other == null) {
       return -1;
     }
-    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
+
+    if (getBegin().equals(other.getBegin()) && getEnd().equals(other.getEnd())) {
       return 0;
-    } else if (getBegin().intValue() < other.getBegin().intValue()) {
+    } else if (getBegin() < other.getBegin()) {
       return -1;
-    } else if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() < other.getEnd().intValue()) {
+    } else if (getBegin().equals(other.getBegin()) && getEnd() < other.getEnd()) {
       return -1;
     } else {
       return 1;
@@ -83,7 +84,7 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     if (!(obj instanceof ValueRange))
       return false;
     ValueRange other = (ValueRange) obj;
-    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
+    if (getBegin().equals(other.getBegin()) && getEnd().equals(other.getEnd())) {
       return true;
     } else {
       return false;

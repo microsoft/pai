@@ -368,7 +368,7 @@ Get the AggregatedFrameworkStatus of a Requested Framework
 AggregatedFrameworkStatus = FrameworkStatus + all TaskRoles' (TaskRoleStatus + TaskStatuses)
 
 TaskStatuses Recipes:
-1. ServiceDecovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
+1. ServiceDiscovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
 2. TaskLogForwarding (Based on ContainerLogHttpAddress)
 3. MasterSlave and MigrateTask (Based on ContainerId)
 4. DataPartition (Based on TaskIndex) (Note TaskIndex will not change after Task Restart, Migrated or Upgraded)

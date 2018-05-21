@@ -30,7 +30,7 @@ public class PortUtils {
   // PortString is in format: "portLabel1:port1,port2;portLabel2:port3,port4;"
   // The dynamic ports in portsDefinitions should be able to be filled up by portRanges.
   public static String toPortString(
-      List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) throws Exception {
+      List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) {
     StringBuilder portString = new StringBuilder();
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {

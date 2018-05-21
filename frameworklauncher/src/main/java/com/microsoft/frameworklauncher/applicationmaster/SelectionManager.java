@@ -59,7 +59,7 @@ public class SelectionManager { // THREAD SAFE
   private final Map<String, Node> allNodes = new HashMap<>();
   private final Map<String, ResourceDescriptor> localTriedResource = new HashMap<>();
   private final Map<String, List<ValueRange>> previousRequestedPorts = new HashMap<>();
-  private final List<String> filteredNodes = new ArrayList<String>();
+  private final List<String> filteredNodes = new ArrayList<>();
   private int reusedPortsTimes = 0;
 
   public SelectionManager(
@@ -77,9 +77,7 @@ public class SelectionManager { // THREAD SAFE
 
   private void initFilteredNodes() {
     filteredNodes.clear();
-    for (String nodeName : allNodes.keySet()) {
-      filteredNodes.add(nodeName);
-    }
+    filteredNodes.addAll(allNodes.keySet());
     Collections.shuffle(filteredNodes);
   }
 
@@ -154,7 +152,7 @@ public class SelectionManager { // THREAD SAFE
   }
 
   private void filterNodesByRackSelectionPolicy(ResourceDescriptor requestResource, int startStatesTaskCount) {
-    //TODO: Node GPU policy filter the nodes;
+    //TODO: Node Gpu policy filter the nodes;
   }
 
   private SelectionResult selectNodes(ResourceDescriptor requestResource, int startStatesTaskCount) {
@@ -165,7 +163,7 @@ public class SelectionManager { // THREAD SAFE
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int startStatesTaskCount) {
     int requestNumber = startStatesTaskCount * conf.getAmSearchNodeBufferFactor();
-    List<Node> candidateNodes = new ArrayList<Node>();
+    List<Node> candidateNodes = new ArrayList<>();
     SelectionResult result = new SelectionResult();
 
     for (String nodeName : filteredNodes) {
@@ -279,12 +277,14 @@ public class SelectionManager { // THREAD SAFE
       // Don't have candidate nodes for this request.
       if (requestNodeGpuType != null) {
         // GpuType relax is not supported in yarn, the gpuType is specified, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to meet GpuType request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+        throw new NotAvailableException(String.format(
+            "Don't have enough nodes to meet GpuType request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
       if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
         // Port relax is not supported in yarn, The portNumber is specified, but the port range is not selected, abort this request and try later.
-        throw new NotAvailableException(String.format("Don't have enough nodes to meet Port request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
+        throw new NotAvailableException(String.format(
+            "Don't have enough nodes to meet Port request: optimizedRequestResource: [%s], NodeGpuType: [%s], NodeLabel: [%s]",
             optimizedRequestResource, requestNodeGpuType, requestNodeLabel));
       }
     }
@@ -322,7 +322,7 @@ public class SelectionManager { // THREAD SAFE
       return ValueRangeUtils.getSubRangeRandomly(overlapPorts, optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
     }
-    return new ArrayList<ValueRange>();
+    return new ArrayList<>();
   }
 
   @VisibleForTesting
