@@ -79,7 +79,6 @@ class build_center:
 
 
 
-
     def hadoop_binary_prepare(self):
 
         custom_hadoop_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']

@@ -54,7 +54,7 @@ class service_delete:
 
     def run(self):
 
-        self.run()
+        self.start()
 
 
 

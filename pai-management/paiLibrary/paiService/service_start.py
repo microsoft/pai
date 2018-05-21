@@ -52,9 +52,16 @@ class service_start:
 
 
 
+    def get_dependency(self):
+
+        if "prerequisite" not in self.service_conf:
+            return None
+        return self.service_conf["prerequisite"]
+
+
     def run(self):
 
-        self.run()
+        self.start()
 
 
 

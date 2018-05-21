@@ -19,39 +19,44 @@
 import logging
 import logging.config
 
-from ..common import linux_shell
+from ..common import file_handler
 
 
-class service_stop:
 
 
-    def __init__(self, service_conf, service_name):
+class service_template_clean:
+
+
+    def __init__(self, service_name, service_conf):
 
         self.logger = logging.getLogger(__name__)
 
-        self.service_conf = service_conf
         self.service_name = service_name
+        self.service_conf = service_conf
+
+        self.template_list = None
+        if "template-list" in self.service_conf:
+            self.template_list = self.service_conf["template-list"]
 
 
 
-    def stop(self):
+    def template_cleaner(self):
 
-        stop_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["stop-script"])
+        self.logger.info("Begin to delete the generated template of {0}'s service.".format(self.service_name))
 
-        cmd = "chmod +x {0}".format(stop_script)
-        err_msg = "Failed to run command [{0}] to grant execution permission to file {1}".format(cmd, stop_script)
-        self.logger.info("Change the permission of the script in path {0}.".format(stop_script))
-        self.logger.info("Begin to execute the cmd [ {0} ]".format(cmd))
-        linux_shell.execute_shell(cmd, err_msg)
+        if self.template_list == None:
+            self.logger.info("There is no generated template of {0}'s service to be deleted.".format(self.service_name))
+            return
 
-        cmd = "./{0}".format(stop_script)
-        err_msg = "Failed to execute the stop script of service {0}".format(self.service_name)
-        self.logger.info("Begin to execute service {0}'s stop script.".format(self.service_name))
-        linux_shell.execute_shell(cmd, err_msg)
+        for template_file in self.template_list:
+            file_path = "bootstrap/{0}/{1}".format(self.service_name, template_file)
+            if file_handler.file_exist_or_not(file_path) == True:
+                file_handler.file_delete(file_path)
+
+        self.logger.info("The generated template files of {0}'s  service have been cleaned up.".format(self.service_name))
 
 
 
     def run(self):
 
-        self.stop()
-
+        self.template_cleaner()
