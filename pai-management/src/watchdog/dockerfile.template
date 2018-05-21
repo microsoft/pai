@@ -24,13 +24,16 @@ FROM ubuntu:16.04
 WORKDIR /root/
 
 RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip git && \
-    pip install requests
+    apt-get -y install wget build-essential python python-pip git python-yaml python-jinja2 && \
+    pip install requests && \
+    pip install paramiko 
 
 COPY copied_file/exporter/watchdog.py /usr/local/
+COPY copied_file/common.py /usr/local
+COPY copied_file/cluster-configuration.yaml /usr/local
 
 #
 # start
 #
 
-CMD python /usr/local/watchdog.py /datastorage/prometheus 30 {{ clusterconfig['clusterinfo']['webportalinfo']['k8s_api_server_uri'] }}
+CMD python /usr/local/watchdog.py /datastorage/prometheus /usr/local/cluster-configuration.yaml 30 {{ clusterconfig['clusterinfo']['webportalinfo']['k8s_api_server_uri'] }}

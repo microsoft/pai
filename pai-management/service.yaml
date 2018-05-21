@@ -84,6 +84,8 @@ imagelist:
   watchdog:
     copy:
       - ../prometheus/exporter
+      - ../pai-management/k8sPaiLibrary/maintainlib/common.py
+      - ../cluster-configuration/cluster-configuration.yaml
     templatelist:
       - dockerfile
     prerequisite: None

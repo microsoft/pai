@@ -1,6 +1,6 @@
 # Service Health Metrics
 
-| Metric name| Labels/tags |
+| Metric name| Note |
 | ---------- |  ----------- |
 | cluster_pod_status_probe_not_ready_total | cluster pods' occurs readiness probe failed error, condition is not ready, total count |
 | cluster_pod_status_phase_failed_total | cluster pods' phase become failed total count |
@@ -36,3 +36,5 @@
 | ---------- |  ----------- |
 | node_notready | node status, value 1 is error|
 | node_notready_count | all nodes not ready count|
+| node_docker_error | per node docker daemon occurs error, 1 is error |
+| node_docker_error_total_count | all nodes docker occurs error node count |
