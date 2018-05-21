@@ -1,0 +1,14 @@
+{
+  "jobName": "mxnet-autoencoder",
+  "image": "paiexample/pai.example.mxnet",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "pip install scikit-learn && cd example/autoencoder && python mnist_sae.py --gpu"
+    }
+  ]
+}
