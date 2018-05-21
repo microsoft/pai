@@ -8,7 +8,7 @@
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 1,
-      "command": "cd example/image-classification && python train_mnist.py --network mlp"
+      "command": "cd incubator-mxnet/example/image-classification && python train_mnist.py --network mlp"
     }
   ]
 }
