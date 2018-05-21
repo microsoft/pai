@@ -25,32 +25,30 @@ import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
-import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class SelectionManagerTest {
   @Test
   public void testResourceConverter() throws Exception {
-    ResourceDescriptor rd = ResourceDescriptor.newInstance(2, 2, 2, 3L);
-    Resource res = rd.toResource();
+    List<ValueRange> ports = new ArrayList<>();
+    ports.add(ValueRange.newInstance(2005, 2005));
+    ResourceDescriptor rd = ResourceDescriptor.newInstance(1, 2, 3, 4L, 1, ports);
+    ResourceDescriptor rd2 = ResourceDescriptor.fromResource(rd.toResource());
 
-    ResourceDescriptor rd2 = ResourceDescriptor.fromResource(res);
+    Assert.assertEquals(rd.getCpuNumber(), rd2.getCpuNumber());
+    Assert.assertEquals(rd.getMemoryMB(), rd2.getMemoryMB());
 
-    Assert.assertEquals(2, (int) rd2.getCpuNumber());
-    Assert.assertEquals(2, (int) rd2.getMemoryMB());
+    if (ResourceDescriptor.checkHadoopLibrarySupportsGpu()) {
+      Assert.assertEquals(rd.getGpuNumber(), rd2.getGpuNumber());
+      Assert.assertEquals(rd.getGpuAttribute(), rd2.getGpuAttribute());
+    }
 
-    try {
-      Class<?> clazz = rd2.getClass();
-      Method getGpuNumber = clazz.getMethod("getGPUs", int.class);
-      Method getGpuAtrribute = clazz.getMethod("getGPUAttribute", long.class);
-
-      Assert.assertEquals(3, (long) getGpuAtrribute.invoke(rd2));
-      Assert.assertEquals(2, (int) getGpuNumber.invoke(rd2));
-    } catch (NoSuchMethodException | IllegalAccessException ignored) {
+    if (ResourceDescriptor.checkHadoopLibrarySupportsPort()) {
+      Assert.assertEquals(rd.getPortNumber(), rd2.getPortNumber());
+      Assert.assertEquals(rd.getPortRanges(), rd2.getPortRanges());
     }
   }
 
@@ -294,7 +292,7 @@ public class SelectionManagerTest {
     sm.addNode(node1);
     sm.addNode(node2);
 
-    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, null), null, null, 2, null, gpuNodeConfig);
+    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, new ArrayList<>()), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());

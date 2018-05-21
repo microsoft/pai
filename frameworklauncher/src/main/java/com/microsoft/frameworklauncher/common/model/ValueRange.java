@@ -96,11 +96,11 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
   }
 
   // Unfold the Range value to number value. i.e. Change 1-5 to format 1,2,3,4,5
-  public String toDetailString(String delimiter) {
+  public String toDetailedString(String delimiter) {
     StringBuilder sb = new StringBuilder();
     sb.append(getBegin().toString());
     for (int i = getBegin() + 1; i <= getEnd(); i++) {
-      sb.append(delimiter + i);
+      sb.append(delimiter).append(i);
     }
     return sb.toString();
   }

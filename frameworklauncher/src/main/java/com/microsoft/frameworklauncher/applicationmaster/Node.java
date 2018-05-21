@@ -37,7 +37,7 @@ public class Node implements Comparable<Node> {
     this.labels = labels;
     this.totalResource = totalResource;
     this.usedResource = usedResource;
-    this.requestedResource = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    this.requestedResource = ResourceDescriptor.newInstance(0, 0);
   }
 
   public static Node fromNodeReport(NodeReport nodeReport) throws Exception {

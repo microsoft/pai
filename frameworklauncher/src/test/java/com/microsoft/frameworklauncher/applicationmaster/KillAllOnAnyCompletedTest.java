@@ -84,7 +84,7 @@ public class KillAllOnAnyCompletedTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitCode),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitCode),
         exitCode == ExitStatusKey.SUCCEEDED.toInt());
   }
 

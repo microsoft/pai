@@ -27,7 +27,7 @@ import com.microsoft.frameworklauncher.common.service.AbstractService;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
-import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
+import com.microsoft.frameworklauncher.common.utils.PortUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -358,10 +358,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     taskStatus.setContainerConnectionLostCount(0);
     taskStatus.setContainerGpus(
         ResourceDescriptor.fromResource(container.getResource()).getGpuAttribute());
-
-    String portString = ValueRangeUtils.convertPortRangeToPortDefinitionsString(
-        ResourceDescriptor.fromResource(container.getResource()).getPortRanges(), portDefinitions);
-    taskStatus.setContainerPorts(portString);
+    taskStatus.setContainerPorts(PortUtils.toPortString(
+        ResourceDescriptor.fromResource(container.getResource()).getPortRanges(),
+        portDefinitions));
 
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
   }
@@ -580,7 +579,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
     for (TaskStatus taskStatus : taskStatusArray) {
       if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
-        return ValueRangeUtils.convertPortDefinitionsStringToPortRange(taskStatus.getContainerPorts());
+        return PortUtils.toPortRanges(taskStatus.getContainerPorts());
       }
     }
     return new ArrayList<>();
