@@ -50,7 +50,7 @@ public class CommonExts {
         if (str.length() != 0) {
           str.append(", ");
         }
-        str.append("<" + e.getKey() + " = " + e.getValue() + ">");
+        str.append("<").append(e.getKey()).append(" = ").append(e.getValue()).append(">");
       }
     }
     return "{" + str.toString() + "}";

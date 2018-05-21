@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class GenerateContainerIpListTest {
   private static final DefaultLogger LOG = new DefaultLogger(GenerateContainerIpListTest.class);
 
-  private String frameworkName = "TestGenerateContainerIpList";
+  private final String frameworkName = "TestGenerateContainerIpList";
   private String taskRoleName;
   private int taskNum;
 
@@ -143,7 +143,7 @@ public class GenerateContainerIpListTest {
 
   private class AMForTest extends MockApplicationMaster {
     private final DefaultLogger LOGGER = new DefaultLogger(AMForTest.class);
-    private CountDownLatch signal;
+    private final CountDownLatch signal;
 
     public AMForTest(CountDownLatch signal) {
       this.signal = signal;

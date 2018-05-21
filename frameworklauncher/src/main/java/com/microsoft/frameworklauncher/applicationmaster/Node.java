@@ -51,6 +51,10 @@ public class Node implements Comparable<Node> {
   // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
   @Override
   public int compareTo(Node other) {
+    if (other == null) {
+      return -1;
+    }
+
     ResourceDescriptor thisAvailableResource = this.getAvailableResource();
     ResourceDescriptor otherAvailableResource = other.getAvailableResource();
 

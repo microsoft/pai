@@ -66,20 +66,20 @@ public class SelectionManagerTest {
 
     SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
-    long candidateGPU = sm.selectCandidateGpuAttribute(node1, 1);
-    Assert.assertEquals(1L, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node1, 2);
-    Assert.assertEquals(3L, candidateGPU);
+    long candidateGpu = sm.selectCandidateGpuAttribute(node1, 1);
+    Assert.assertEquals(1L, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node1, 2);
+    Assert.assertEquals(3L, candidateGpu);
 
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 2);
-    Assert.assertEquals(3L, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 4);
-    Assert.assertEquals(0xFL, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 8);
-    Assert.assertEquals(0xFFL, candidateGPU);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 2);
+    Assert.assertEquals(3L, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 4);
+    Assert.assertEquals(0xFL, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 8);
+    Assert.assertEquals(0xFFL, candidateGpu);
 
-    candidateGPU = sm.selectCandidateGpuAttribute(node4, 2);
-    Assert.assertEquals(0x30L, candidateGPU);
+    candidateGpu = sm.selectCandidateGpuAttribute(node4, 2);
+    Assert.assertEquals(0x30L, candidateGpu);
 
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
 
@@ -174,7 +174,7 @@ public class SelectionManagerTest {
       Assert.assertEquals(15, result.getGpuAttribute(result.getNodeHosts().get(0)).longValue());
       Assert.assertEquals(240, result.getGpuAttribute(result.getNodeHosts().get(1)).longValue());
     }
-    List<String> nodeList = new ArrayList<String>();
+    List<String> nodeList = new ArrayList<>();
 
     nodeList.add(result.getNodeHosts().get(0));
     sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), nodeList);
@@ -226,7 +226,7 @@ public class SelectionManagerTest {
     try {
       result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40", 1, null, gpuNodeConfig);
       Assert.fail("NodeGpuType should not be relaxed to RM");
-    } catch (NotAvailableException e) {
+    } catch (NotAvailableException ignored) {
     }
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40", 1, null, gpuNodeConfig);
     Assert.assertEquals("node3", result.getNodeHosts().get(0));
@@ -263,20 +263,20 @@ public class SelectionManagerTest {
 
   @Test
   public void testSelectionManagerWithPorts() throws Exception {
-    List<ValueRange> ports = new ArrayList<ValueRange>();
+    List<ValueRange> ports = new ArrayList<>();
     ports.add(ValueRange.newInstance(2005, 2010));
 
-    List<ValueRange> ports1 = new ArrayList<ValueRange>();
+    List<ValueRange> ports1 = new ArrayList<>();
     ports1.add(ValueRange.newInstance(2003, 2005));
     ports1.add(ValueRange.newInstance(2007, 2010));
 
-    List<ValueRange> ports2 = new ArrayList<ValueRange>();
+    List<ValueRange> ports2 = new ArrayList<>();
     ports2.add(ValueRange.newInstance(2003, 2005));
 
-    List<ValueRange> ports3 = new ArrayList<ValueRange>();
+    List<ValueRange> ports3 = new ArrayList<>();
     ports3.add(ValueRange.newInstance(2010, 2010));
 
-    List<ValueRange> ports4 = new ArrayList<ValueRange>();
+    List<ValueRange> ports4 = new ArrayList<>();
     ports4.add(ValueRange.newInstance(2005, 2006));
 
     Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(2, 2, 2, 3L, 6, ports), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -307,7 +307,7 @@ public class SelectionManagerTest {
 
   }
 
-  public Map<String, NodeConfiguration> createClusterTestNodes() throws Exception {
+  private Map<String, NodeConfiguration> createClusterTestNodes() {
     Map<String, NodeConfiguration> map = new HashMap<>();
     NodeConfiguration nodeConfig = new NodeConfiguration();
     nodeConfig.setGpuType("K40");

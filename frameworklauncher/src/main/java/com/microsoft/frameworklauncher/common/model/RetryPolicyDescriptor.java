@@ -23,8 +23,8 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // If fancyRetryPolicy is enabled,
-//  will Retry for TrainsientFailure,
-//  will Not Retry for NonTrainsientFailure,
+//  will Retry for TransientFailure,
+//  will Not Retry for NonTransientFailure,
 //  will apply NormalRetryPolicy for UnKnownFailure.
 //
 // If fancyRetryPolicy is not enabled, will apply NormalRetryPolicy for all kinds of failures.

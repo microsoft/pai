@@ -99,9 +99,9 @@ public class ApplicationMaster extends AbstractService {
   //  before launchContainersTogether and will be Transitioned to Completed due
   //  to expire. So the only impact is longer time to launchContainersTogether.
   // ContainerId -> Container
-  private Map<String, Container> allocatedContainers = new HashMap<>();
+  private final Map<String, Container> allocatedContainers = new HashMap<>();
   // ContainerId -> ContainerConnectionExceedCount
-  private Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
+  private final Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
 
   /**
    * REGION AbstractService
@@ -520,7 +520,7 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private TaskStatus findTask(Container container) throws Exception {
+  private TaskStatus findTask(Container container) {
     Priority priority = container.getPriority();
     if (statusManager.containsTask(priority)) {
       TaskStatus taskStatus = statusManager.getTaskStatus(priority);
@@ -690,7 +690,7 @@ public class ApplicationMaster extends AbstractService {
       // Previous Launched Container may not receive onContainerStarted after AM Restart
       // Because misjudge a ground truth Running Container to be TASK_WAITING (lose Task) is more serious than
       // misjudge a ground truth not Running Container to Running. (The misjudged Container will be expired
-      // by RM eventually, so the only impact is longger time to run all Tasks)
+      // by RM eventually, so the only impact is longer time to run all Tasks)
       if (taskState == TaskState.CONTAINER_ALLOCATED ||
           taskState == TaskState.CONTAINER_LAUNCHED) {
         statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_RUNNING);
@@ -965,7 +965,7 @@ public class ApplicationMaster extends AbstractService {
 
   private Set<String> resyncTasksWithLiveContainers(Set<String> liveContainerIds) throws Exception {
     String logScope = "resyncTasksWithLiveContainers";
-    Set<String> retainContainerIds = new HashSet<String>();
+    Set<String> retainContainerIds = new HashSet<>();
 
     if (liveContainerIds == null) {
       LOGGER.logInfo(
@@ -1485,7 +1485,7 @@ public class ApplicationMaster extends AbstractService {
     return requestManager.getServiceVersion(taskRoleName);
   }
 
-  public Boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
+  public Boolean existsLocalVersionFrameworkRequest() {
     return requestManager == null ? null : requestManager.existsLocalVersionFrameworkRequest();
   }
 }

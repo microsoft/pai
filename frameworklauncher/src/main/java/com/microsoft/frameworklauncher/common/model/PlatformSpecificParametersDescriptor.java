@@ -51,14 +51,14 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   @NotNull
   @Min(-2)
-  // -1 means unlimit.
+  // -1 means unlimited.
   // -2 means using default value: LauncherConfiguration.RMResyncFrequency.
   private Integer containerConnectionMaxLostCount = -2;
 
   @Valid
   @NotNull
   @Min(0)
-  // No unlimit option, since exceed Container must be released eventually.
+  // No unlimited option, since exceed Container must be released eventually.
   private Integer containerConnectionMaxExceedCount = 2;
 
   @Valid
@@ -99,7 +99,7 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   @NotNull
   // The following will take effect only if amType is "AGENT" and AgentUseAgent flag is true.
-  // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHearbeatsIntervalSec
+  // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHeartbeatsIntervalSec
   private Integer agentHeartbeatIntervalSec = 30;
 
   @Valid

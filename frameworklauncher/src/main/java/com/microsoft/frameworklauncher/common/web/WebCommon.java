@@ -26,14 +26,14 @@ import java.io.IOException;
 import java.util.Map;
 
 public class WebCommon {
-  public final static String REQUEST_HEADER_LAUNCH_CLIENT_TYPE = "LaunchClientType";
-  public final static String REQUEST_HEADER_USER_NAME = "UserName";
-  public final static int SC_TOO_MANY_REQUESTS = 429;
-  private static ObjectMapper objectMapper;
+  public static final String REQUEST_HEADER_LAUNCH_CLIENT_TYPE = "LaunchClientType";
+  public static final String REQUEST_HEADER_USER_NAME = "UserName";
+  public static final int SC_TOO_MANY_REQUESTS = 429;
+  private static final ObjectMapper OBJECT_MAPPER;
 
   static {
-    objectMapper = new ObjectMapper();
-    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    OBJECT_MAPPER = new ObjectMapper();
+    OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
   public static String getURI(String baseURI, String relativeURI) {
@@ -43,17 +43,17 @@ public class WebCommon {
   public static String getURI(String baseURI, String relativeURI, Map<String, String> parameters) {
     String path = WebStructure.getNodePath(baseURI, relativeURI);
 
-    String paramsStr = "";
+    StringBuilder paramsStr = new StringBuilder();
     if (parameters != null) {
       for (Map.Entry<String, String> param : parameters.entrySet()) {
-        if (!paramsStr.trim().isEmpty()) {
-          paramsStr += "&";
+        if (!paramsStr.toString().trim().isEmpty()) {
+          paramsStr.append("&");
         }
-        paramsStr += (param.getKey().trim() + "=" + param.getValue().trim());
+        paramsStr.append(param.getKey().trim()).append("=").append(param.getValue().trim());
       }
     }
 
-    if (!paramsStr.trim().isEmpty()) {
+    if (!paramsStr.toString().trim().isEmpty()) {
       return path + "?" + paramsStr;
     } else {
       return path;
@@ -72,14 +72,14 @@ public class WebCommon {
 
   public static String toJson(Object obj, Boolean pretty) throws JsonProcessingException {
     if (pretty) {
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+      return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
     } else {
-      return objectMapper.writeValueAsString(obj);
+      return OBJECT_MAPPER.writeValueAsString(obj);
     }
   }
 
   // json can be "null"
   public static <T> T toObject(String json, Class<T> targetType) throws IOException {
-    return objectMapper.readValue(json, targetType);
+    return OBJECT_MAPPER.readValue(json, targetType);
   }
 }

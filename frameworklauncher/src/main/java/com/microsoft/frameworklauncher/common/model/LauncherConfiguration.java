@@ -82,7 +82,7 @@ public class LauncherConfiguration implements Serializable {
   // If a Task's ContainerRequest cannot be satisfied within
   // Random(amContainerRequestMinTimeoutSec, amContainerRequestMaxTimeoutSec), another
   // ContainerRequest (maybe different from previous one) will be made for this Task.
-  // This is useful for GPU scheduling and multiple TaskRoles.
+  // This is useful for Gpu scheduling and multiple TaskRoles.
   // Note, before YARN-3983, high Priority ContainerRequest must be satisfied before low Priority ContainerRequest.
   // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
   // ContainerRequest randomly.

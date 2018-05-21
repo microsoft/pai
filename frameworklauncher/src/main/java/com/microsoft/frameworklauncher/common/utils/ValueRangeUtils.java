@@ -60,7 +60,7 @@ public class ValueRangeUtils {
     }
 
     List<ValueRange> sortedList = SortRangeList(rangeList);
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
 
     ValueRange current = sortedList.get(0).clone();
     resultList.add(current);
@@ -102,7 +102,7 @@ public class ValueRangeUtils {
     List<ValueRange> leftList = coalesceRangeList(leftRange);
     List<ValueRange> rightList = coalesceRangeList(rightRange);
 
-    List<ValueRange> result = new ArrayList<ValueRange>();
+    List<ValueRange> result = new ArrayList<>();
     int i = 0;
     int j = 0;
     while (i < leftList.size() && j < rightList.size()) {
@@ -182,7 +182,7 @@ public class ValueRangeUtils {
   }
 
   /*
-    add rightRange to leftRange, will ingore the overlap range.
+    add rightRange to leftRange, will ignore the overlap range.
    */
   public static List<ValueRange> addRange(List<ValueRange> leftRange, List<ValueRange> rightRange) {
 
@@ -239,7 +239,7 @@ public class ValueRangeUtils {
    */
   public static List<ValueRange> getSubRangeRandomly(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
     if (getValueNumber(availableRange) <= 0) {
       return resultList;
     }
@@ -277,7 +277,7 @@ public class ValueRangeUtils {
   */
   public static List<ValueRange> getSubRangeSequentially(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
     if (getValueNumber(availableRange) <= 0) {
       return resultList;
     }
@@ -327,7 +327,7 @@ public class ValueRangeUtils {
   }
 
   public static List<ValueRange> cloneList(List<ValueRange> list) {
-    List<ValueRange> newList = new ArrayList<ValueRange>();
+    List<ValueRange> newList = new ArrayList<>();
     for (ValueRange range : list) {
       newList.add(range.clone());
     }
