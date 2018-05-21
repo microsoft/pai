@@ -266,7 +266,7 @@ public class SelectionManager { // THREAD SAFE
         List<ValueRange> portRanges = selectPortsFromFilteredNodes(optimizedRequestResource);
         LOGGER.logInfo(
             "select: select ports from all filteredNodes: %s", CommonExts.toString(portRanges));
-        if (ValueRangeUtils.getValueNumber(portRanges) >= optimizedRequestResource.getPortNumber()) {
+        if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
           optimizedRequestResource.setPortRanges(portRanges);
         }
       }
@@ -302,7 +302,7 @@ public class SelectionManager { // THREAD SAFE
       List<ValueRange> newCandidatePorts = ValueRangeUtils.getSubRangeRandomly(selectionResult.getOverlapPorts(), optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
 
-      if (ValueRangeUtils.getValueNumber(newCandidatePorts) >= optimizedRequestResource.getPortNumber()) {
+      if (ValueRangeUtils.getValueNumber(newCandidatePorts) == optimizedRequestResource.getPortNumber()) {
         LOGGER.logDebug("SelectPorts: optimizedRequestResource: [%s]", optimizedRequestResource);
         return newCandidatePorts;
       } else {
