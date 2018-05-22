@@ -28,15 +28,11 @@ from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger("gpu_expoter")  
 logger.setLevel(logging.INFO)  
-fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
-fh.setLevel(logging.INFO)  
 ch = logging.StreamHandler()  
 ch.setLevel(logging.INFO)  
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
 ch.setFormatter(formatter)  
-fh.setFormatter(formatter)  
 logger.addHandler(ch)  
-logger.addHandler(fh)  
 
 def parse_from_labels(labels):
     gpuIds = []
