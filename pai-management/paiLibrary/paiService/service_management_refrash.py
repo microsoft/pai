@@ -26,7 +26,7 @@ from ..common import directory_handler
 from ..common import file_handler
 
 
-class serivce_management_refrash:
+class service_management_refrash:
 
 
     def __init__(self, cluster_object_model, service_list = None, **kwargs):
