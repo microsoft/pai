@@ -10,7 +10,7 @@
 | cluster_pod_container_status_waiting_total | cluster pods' container status is waiting  total count |
 | cluster_pod_container_status_restarted_pod_count_total | cluster pods' container restart total count |
 | service_pod_status_probe_not_ready | specific pod occurs readiness probe failed error, condition is not ready, value is 1 |
-| service_pod_status_phase_failed | specific pod phase become faile, value is 1 |
+| service_pod_status_phase_failed | specific pod phase is failed, value is 1 |
 | service_pod_status_phase_unknown | specific pod phase become unknown, value is 1 |
 | service_pod_container_status_not_ready | specific pod contains container status is not ready, value is 1 |
 | service_pod_container_status_terminated | pecific pod container status is terminated total count, value is 1 |
