@@ -9,7 +9,7 @@
 
 我们增加了一个 64 位的 Bit-map 作为 YARN 资源，该 Bit-map 能够表示每个节点的 GPU 使用率及位置信息。每个节点共 64 个 GPU 位置，当该位置有 GPU 时对应的 Bit-map 位为“1”，否则为“0”。
 
-该 Hadoop AI 增强包下载地址： 
+该 Hadoop AI 增强补丁下载地址： 
 https://issues.apache.org/jira/browse/YARN-7481
  
 
@@ -40,10 +40,10 @@ https://issues.apache.org/jira/browse/YARN-7481
         sudo ldconfig
 
 
- 2. 下载 Hadoop AI 增强包
-    在 "hadoop-2.7.2-gpu-port.patch" from https://issues.apache.org/jira/browse/YARN-7481 下载Hadoop AI 增强包。
+ 2. 下载 Hadoop AI 增强补丁
+    在 "hadoop-2.7.2-gpu-port.patch" from https://issues.apache.org/jira/browse/YARN-7481 下载Hadoop AI 增强补丁。
    
- 3. 获取 Hadoop 2.7.2 原码     
+ 3. 获取 Hadoop 2.7.2 源码     
     
            git clone https://github.com/apache/hadoop.git
            cd hadoop
@@ -56,12 +56,13 @@ https://issues.apache.org/jira/browse/YARN-7481
     编译官方 Hadoop 的详细步骤在此略过。
     执行下个步骤前请确保以上步骤执行正确。    
    
-5. 应用 Hadoop AI 增强包
-   拷贝下载的增强包至你的 Linux 编译 Hadoop 的根目录下，运行以下命令：
-  ```sh 
+5. 应用 Hadoop AI 增强补丁
+   
+    拷贝下载的增强补丁至你的 Linux 编译 Hadoop 的根目录下，运行以下命令：
+    ```sh 
    git apply hadoop-2.7.2.port-gpu.patch
    ```
-    if you see the output below you have successfully applied this patch
+   若看到以下输出则表示补丁应用成功：
 
         ../../hadoop-2.7.2.port-gpu:276: trailing whitespace.
         ../../hadoop-2.7.2.port-gpu:1630: trailing whitespace.
@@ -184,7 +185,7 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
     *DominantResourceCalculator* 在混合资源环境下进行 GPU 计数。同时创建了一个新的 Calculator *org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator* 仅计算 GPU 的资源。
 
 
-## Node Manager 插件##
+## Node Manager 插件
 
   源文件： org.apache.hadoop.yarn.util.LinuxResourceCalculatorPlugin
   
