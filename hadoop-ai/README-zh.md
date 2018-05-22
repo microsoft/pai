@@ -41,7 +41,8 @@ https://issues.apache.org/jira/browse/YARN-7481
 
 
  2. 下载 Hadoop AI 增强补丁
-    在 "hadoop-2.7.2-gpu-port.patch" from https://issues.apache.org/jira/browse/YARN-7481 下载Hadoop AI 增强补丁。
+
+     从 https://issues.apache.org/jira/browse/YARN-7481 下载 Hadoop AI 增强补丁 "hadoop-2.7.2-gpu-port.patch" 至本地。
    
  3. 获取 Hadoop 2.7.2 源码     
     
@@ -140,12 +141,14 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
  有以下几种 GPU 资源请求场景：
        
 1. 仅请求 GPU 数量: 
+
     如果 job 只关心 GPU 的数量，而不关心 GPU 位置，则请求资源实例中的 GPUAttribute 必须设置为 0：
 
         1.Resource res = Resource.newInstance(requireMem, requiredCPU, requiredGPUs, 0)
         2.Res.setGPUAttribute((long)0)
 
 2. 请求 GPU 位置 （GPUAttribute）
+
     GPU位置信息存储在64位 Bit-map（long）中，每位表示一个 GPU。 GPU ID 映射至 Bit-map 的方式如下所示：
 
         1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111
@@ -165,9 +168,11 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
     若 GPU 位置（GPUAttribute）设置为非 0，则 GPU 数量的设置必须与其对应。否则将不会响应该请求。
  
 3. 以节点 / 标签请求
+
     GPU 同样支持以节点 / 标签信息发起请求，方式与官方 Hadoop 2.7.2 相同。
 
 4. 请求放松（Relax） 
+
       在 GPU 调度中，Relax 为节点级的，GPU 位置无法放松。例如，需为节点 1 请求 2 个 GPU，GPUAttribute 设置为 3（二进制为 11，表示 GPU 0，1），在容器请求中允许放松时，若节点 1 的 GPU 0 或 1 不可用，则 YARN RM 会放松至其他节点的 GPU 0,1（若二者皆可用）。但是 YARN RM 不会放松至节点 1 的其他 GPU 位置上，也不会放松至其他节点的除了 0,1 位置的其他 GPU。
 
 ## Resource manger ##
@@ -182,6 +187,7 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
     CapacityScheduler, FairScheduler, and FifoScheduler 都进行了修改以支持 GPU 调度。在 FairScheduler 中，也支持抢占机制。
 
 3. Resource Calculator 
+
     *DominantResourceCalculator* 在混合资源环境下进行 GPU 计数。同时创建了一个新的 Calculator *org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator* 仅计算 GPU 的资源。
 
 
