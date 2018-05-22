@@ -74,14 +74,16 @@ const exportFile = (data, filename, type) => {
 };
 
 const submitJob = (jobConfig) => {
+  console.log(jobConfig);
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
-      data: jobConfig,
+      data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      contentType:"application/json; charset=utf-8",
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
