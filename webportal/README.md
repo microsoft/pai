@@ -34,4 +34,4 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 
 ### Read documents
 
-Click the tab "Documents" to read a tutorial of submitting a job, or to download the `pai-fs` tool.
+Click the tab "Documents" to read a tutorial of submitting a job.
