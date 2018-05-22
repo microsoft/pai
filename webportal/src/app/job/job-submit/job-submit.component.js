@@ -74,7 +74,6 @@ const exportFile = (data, filename, type) => {
 };
 
 const submitJob = (jobConfig) => {
-  console.log(jobConfig);
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
@@ -107,13 +106,12 @@ const submitJob = (jobConfig) => {
 };
 
 const loadEditor = () => {
-  var element = document.getElementById('editor-holder');
+  var element = $('#editor-holder')[0];
   editor = new JSONEditor(element, {
     schema: jobSchema,
     theme: 'bootstrap3',
     iconlib: 'bootstrap3',
     disable_array_reorder: true,
-    //startval: jobExample,
     no_additional_properties: true,
     show_errors: 'always',
   });
@@ -122,7 +120,7 @@ const loadEditor = () => {
 
 const resize = () => {
   var heights = window.innerHeight;
-  document.getElementById("editor-holder").style.height = heights - 300 + "px";
+  $("#editor-holder")[0].style.height = heights - 300 + "px";
 };
 
 $('#sidebar-menu--submit-job').addClass('active');
@@ -131,8 +129,9 @@ $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   loadEditor();
   editor.on('change', () => {
-    document.getElementById('submitJob').disabled = (editor.validate().length != 0);
+    $('#submitJob').disabled = (editor.validate().length != 0);
   });
+
   $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -142,6 +141,7 @@ $(document).ready(() => {
       }
     };
     reader.readAsText(event.target.files[0]);
+    $('#fileUpload').val('');
   });
   $(document).on('click', '#submitJob', () => {
     submitJob(editor.getValue());
