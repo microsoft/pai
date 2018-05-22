@@ -17,25 +17,23 @@
 
 package com.microsoft.frameworklauncher.common.validation;
 
-import com.microsoft.frameworklauncher.common.exts.CommonExts;
-import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {GpuConsistentValidation.Validator.class})
-public @interface GpuConsistentValidation {
+@Constraint(validatedBy = {MapValueNotNullValidation.Validator.class})
+public @interface MapValueNotNullValidation {
 
-  String message() default "{com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation.message}";
+  String message() default "{com.microsoft.frameworklauncher.common.validation.MapValueNotNullValidation.message}";
 
   Class<?>[] groups() default {};
 
@@ -44,31 +42,33 @@ public @interface GpuConsistentValidation {
   @Target({FIELD})
   @Retention(RUNTIME)
   @interface List {
-    GpuConsistentValidation[] value();
+    MapValueNotNullValidation[] value();
   }
 
-  public static class Validator implements ConstraintValidator<GpuConsistentValidation, ResourceDescriptor> {
+  public static class Validator implements ConstraintValidator<MapValueNotNullValidation, Map<?, ?>> {
     @Override
-    public void initialize(GpuConsistentValidation constraintAnnotation) {
+    public void initialize(MapValueNotNullValidation constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(ResourceDescriptor r, ConstraintValidatorContext context) {
+    public boolean isValid(Map<?, ?> m, ConstraintValidatorContext context) {
       // Not null is already handled by NotNull validator
-      if (r == null || r.getGpuNumber() == null || r.getGpuAttribute() == null) {
+      if (m == null) {
         return true;
       }
 
-      if (r.getGpuAttribute() != 0 && Long.bitCount(r.getGpuAttribute()) != r.getGpuNumber()) {
-        context.disableDefaultConstraintViolation();
-        String notValidMessage = String.format(
-            "GpuNumber [%s] is not consistent with GpuAttribute [%s]",
-            r.getGpuNumber(), CommonExts.toStringWithBits(r.getGpuAttribute()));
-        context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
-        return false;
-      } else {
-        return true;
+      for (Map.Entry<?, ?> kv : m.entrySet()) {
+        Object k = kv.getKey();
+        Object v = kv.getValue();
+        if (v == null) {
+          context.disableDefaultConstraintViolation();
+          String notValidMessage = String.format("Map value is null for Map key: [%s]", k);
+          context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
+          return false;
+        }
       }
+
+      return true;
     }
   }
 }

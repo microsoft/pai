@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
+import com.microsoft.frameworklauncher.common.validation.MapValueNotNullValidation;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -31,6 +32,7 @@ public class AclConfiguration implements Serializable {
   @Valid
   @NotNull
   @MapKeyNamingValidation
+  @MapValueNotNullValidation
   // Namespace -> AccessControlList
   // Namespace can be UserName, GroupName, etc.
   private Map<String, AccessControlList> namespaceAcls = new HashMap<>();

@@ -17,8 +17,8 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation;
-import com.microsoft.frameworklauncher.common.validation.PortConsistentValidation;
+import com.microsoft.frameworklauncher.common.validation.GpuValidation;
+import com.microsoft.frameworklauncher.common.validation.PortValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -43,8 +43,8 @@ public class ServiceDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  @GpuConsistentValidation
-  @PortConsistentValidation
+  @GpuValidation
+  @PortValidation
   private ResourceDescriptor resource;
 
   // private RetryPolicyDescriptor retryPolicy;

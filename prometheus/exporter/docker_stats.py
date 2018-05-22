@@ -20,23 +20,25 @@ import subprocess
 import json
 import sys
 import re
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 
-def parsePercentile(data):
+def parse_percentile(data):
     return data.replace("%", "")
 
-def parseIO(data):
+def parse_io(data):
     inOut = data.split("/")
-    inByte = convertToByte(inOut[0])
-    outByte = convertToByte(inOut[1])
+    inByte = convert_to_byte(inOut[0])
+    outByte = convert_to_byte(inOut[1])
     return {"in": inByte, "out": outByte}
 
-def parseUsageLimit(data):
+def parse_usage_limit(data):
     usageLimit = data.split("/")
-    usageByte = convertToByte(usageLimit[0])
-    limitByte = convertToByte(usageLimit[1])
+    usageByte = convert_to_byte(usageLimit[0])
+    limitByte = convert_to_byte(usageLimit[1])
     return {"usage": usageByte, "limit": limitByte}
 
-def convertToByte(data):
+def convert_to_byte(data):
     data = data.lower()
     number = float(re.findall(r"\d+", data)[0])
     if ("tb" in data) or ("tib" in data):
@@ -50,7 +52,7 @@ def convertToByte(data):
     else: 
         return number
 
-def parseDockerStats(stats):
+def parse_docker_stats(stats):
     data = [line.split(',') for line in stats.splitlines()]
     # pop the headers
     data.pop(0)
@@ -62,23 +64,23 @@ def parseDockerStats(stats):
         id = data[i][0]
         containerInfo = {
             "id": data[i][0],
-            "CPUPerc": parsePercentile(data[i][1]),
-            "MemUsage_Limit": parseUsageLimit(data[i][2]),
-            "NetIO": parseIO(data[i][3]),
-            "BlockIO": parseIO(data[i][4]),
-            "MemPerc": parsePercentile(data[i][5])
+            "CPUPerc": parse_percentile(data[i][1]),
+            "MemUsage_Limit": parse_usage_limit(data[i][2]),
+            "NetIO": parse_io(data[i][3]),
+            "BlockIO": parse_io(data[i][4]),
+            "MemPerc": parse_percentile(data[i][5])
         }
         containerStats[id] = containerInfo
     return containerStats
     
 def stats():
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.ID}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
-        dockerStats = parseDockerStats(dockerDockerStats)
+        dockerStats = parse_docker_stats(dockerDockerStats)
         return dockerStats
     except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     stats()

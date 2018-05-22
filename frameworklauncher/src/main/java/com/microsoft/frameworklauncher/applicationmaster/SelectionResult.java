@@ -28,10 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SelectionResult {
-
-  private Map<String, Long> nodes = new HashMap<String, Long>();
-  private List<ValueRange> overlapPorts = new ArrayList<ValueRange>();
-  private ResourceDescriptor optimizedResource = ResourceDescriptor.newInstance(0, 0, 0, (long) 0);
+  private Map<String, Long> nodes = new HashMap<>();
+  private List<ValueRange> overlapPorts = new ArrayList<>();
+  private ResourceDescriptor optimizedResource = ResourceDescriptor.newInstance(0, 0);
 
   public void addSelection(String hostName, Long gpuAttribute, List<ValueRange> ports) {
     if (nodes.isEmpty()) {
@@ -68,10 +67,12 @@ public class SelectionResult {
 
   @Override
   public String toString() {
-    String output = String.format("SelectionResult: [OptimizedResource: %s]", optimizedResource);
+    StringBuilder str = new StringBuilder(
+        String.format("SelectionResult: [OptimizedResource: %s]", optimizedResource));
     for (Map.Entry<String, Long> entry : nodes.entrySet()) {
-      output += String.format(" [Host: %s GpuAttribute: %s]", entry.getKey(), CommonExts.toStringWithBits(entry.getValue()));
+      str.append(String.format(" [Host: %s GpuAttribute: %s]",
+          entry.getKey(), CommonExts.toStringWithBits(entry.getValue())));
     }
-    return output;
+    return str.toString();
   }
 }

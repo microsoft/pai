@@ -19,19 +19,23 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class Ports implements Serializable {
   @Valid
   @NotNull
-  // start is the begin port
-  private Integer start;
+  @Min(0)
+  // If start is not zero, the Ports defines port range [start, start + count - 1], and
+  // it is a static port range since the start is specified and fixed.
+  // Otherwise, the Ports defines port range [{ANY_START}, {ANY_START} + count - 1], and
+  // it is a dynamic port range since the {ANY_START} can be any number.
+  private Integer start = 0;
 
   @Valid
   @NotNull
-  // count is the number of ports from "start", for example, if start is 80 and count is 2. the Ports is 80, 81
-  // if start is 0, and count > 0, it means any ports are ok, and the number is count.
+  @Min(1)
   private Integer count;
 
   public static Ports newInstance(Integer start, Integer count) {

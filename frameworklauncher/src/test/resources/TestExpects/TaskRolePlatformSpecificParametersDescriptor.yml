@@ -1,2 +1,2 @@
 !!com.microsoft.frameworklauncher.common.model.TaskRolePlatformSpecificParametersDescriptor {
-  taskNodeGpuType: testString, taskNodeLabel: testString}
+  samePortsAllocation: false, taskNodeGpuType: testString, taskNodeLabel: testString}

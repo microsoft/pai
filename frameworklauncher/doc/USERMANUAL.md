@@ -105,8 +105,8 @@ In other words, User do not need to worry about call one API multiple times by d
 In other words, User do not need to worry about call them at the same time in Multiple Threads/Processes/Nodes.
 
 ### <a name="BestPractices">Best Practices</a>
-* LauncherService can only handle a finite, limited request volume. User should try to minimize its overall request frequency and payload, so that the LauncherService is not overloaded. To achieve this, User can centralize requests, space out requests, filter respond and so on.
-* Completed Frameworks will ONLY be retained in recent FrameworkCompletedRetainSec, in case Client miss to delete the Framework after FrameworkCompleted. One exclusion is the Framework Launched by DataDeployment, it will be retained until the corresponding FrameworkDescriptionFile deleted in the DataDeployment. To avoid missing the CompletedFrameworkStatus, the polling interval seconds of Client should be less than FrameworkCompletedRetainSec. Check the FrameworkCompletedRetainSec by [GET LauncherStatus](#GET_LauncherStatus).
+* LauncherService can only handle a finite, limited request volume. User should try to minimize its overall request frequency and payload, so that the LauncherService is not overloaded. To achieve this, User can centralize requests, space out requests, filter respond and so on. Moreover, to get informations in a more scalable way than RestAPI, see [HDFS Published Informations](#HDFS_Published_Informations).
+* Completed Frameworks will ONLY be retained in recent FrameworkCompletedRetainSec, in case Client miss to delete the Framework after FrameworkCompleted. One exclusion is the Framework Launched by DataDeployment, it will be retained until the corresponding FrameworkDescriptionFile deleted in the DataDeployment. To avoid missing the CompletedFrameworkStatus, the polling interval seconds of Client should be less than FrameworkCompletedRetainSec. Check the frameworkCompletedRetainSec by [GET LauncherStatus](#GET_LauncherStatus).
 
 ### <a name="RootURI">Root URI (LauncherAddress)</a>
 
@@ -368,7 +368,7 @@ Get the AggregatedFrameworkStatus of a Requested Framework
 AggregatedFrameworkStatus = FrameworkStatus + all TaskRoles' (TaskRoleStatus + TaskStatuses)
 
 TaskStatuses Recipes:
-1. ServiceDecovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
+1. ServiceDiscovery (Based on TaskRoleName, ContainerHostName, ContainerIPAddress, ServiceId)
 2. TaskLogForwarding (Based on ContainerLogHttpAddress)
 3. MasterSlave and MigrateTask (Based on ContainerId)
 4. DataPartition (Based on TaskIndex) (Note TaskIndex will not change after Task Restart, Migrated or Upgraded)
@@ -573,14 +573,51 @@ Launcher sets up below EnvironmentVariables for each User Service to use:
 |:---- |:---- |
 | APP_ID | Framework's current associated Application ID. |
 | CONTAINER_ID | Task's current associated Container ID. |
+| CONTAINER_IP | Task's current associated Container IP address. |
 
-3. Used to get the assigned Resource, only set when corresponding feature is enabled.
+3. Used to access the Launcher managed public HDFS store.
 
 | EnvironmentVariable | Description |
 |:---- |:---- |
-| CONTAINER_IP | Only set when generateInstanceHostList is enabled. |
-| CONTAINER_GPUS | Only set when gpuNumber is greater than 0. It is a Number, each bit of this number represents a Gpu. for example, 3 represents gpu0 and gpu1  |
-| CONTAINER_PORTS | Only set when portDefinitions is set, the format is: portLabel1:port1,port2,port3;portLabel2:port4,port5,port6|
+| HDFS_USER_STORE_ROOT_DIR | For User to store data under the directory which can be GC automatically after the Framework Deleted. |
+| HDFS_FRAMEWORK_INFO_FILE | See HDFS Published Informations: [FrameworkInfo File](#FrameworkInfo_File). |
+
+4. Used to get the assigned Resource, only valid when corresponding feature is enabled.
+
+| EnvironmentVariable | Description |
+|:---- |:---- |
+| CONTAINER_GPUS | Only valid when gpuNumber is greater than 0. It is a number, each bit of this number represents a Gpu, for example, 3 represents gpu0 and gpu1. |
+| CONTAINER_PORTS | Only valid when portDefinitions is not empty. It is a string, a format example is: "portLabel1:port1,port2;portLabel2:port3,port4;". |
+
+
+## <a name="HDFS_Published_Informations">HDFS Published Informations</a>
+Launcher publishes informations to public HDFS files for User to fetch in a more scalable way than [RestAPI](#RestAPI).
+
+Notes:
+1. HDFS Published Informations are subsets of [RestAPI](#RestAPI).
+2. HDFS Published Informations are mainly used to improve the scalability to fetch informations. For example, fetch from a per Framework HDFS [FrameworkInfo File](#FrameworkInfo_File) is more scalable than fetch from a global single instance LauncherService by [RestAPI](#RestAPI).
+3. HDFS Published Informations are not so stable and up-to-date as [RestAPI](#RestAPI), so, Client is suggested to first fetch the HDFS Published Informations, if failed after several retries, then fallback to [RestAPI](#RestAPI).
+
+### <a name="LauncherHDFSRootDir">LauncherHDFSRootDir</a>
+
+Check the hdfsRootDir by [GET LauncherStatus](#GET_LauncherStatus).
+
+### <a name="FileDetails">File Details</a>
+#### <a name="FrameworkInfo_File">FrameworkInfo File</a>
+**HDFS Path**
+
+    /{LauncherHDFSRootDir}/{FrameworkName}/FrameworkInfo.json
+
+And it is also set by below EnvironmentVariable, see [EnvironmentVariables](#EnvironmentVariables):
+
+    {HDFS_FRAMEWORK_INFO_FILE}
+
+**Description**
+
+FrameworkInfo File contains the FrameworkInfo of a Requested Framework in Json format as [GET Framework](#GET_Framework).
+
+Notes:
+1. The FrameworkInfo File may not be up-to-date if the Framework is not in APPLICATION_RUNNING state. So, Client is suggested to only fetch this file inside the Containers of the Framework.
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>

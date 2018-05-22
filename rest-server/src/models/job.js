@@ -302,10 +302,12 @@ class Job {
         };
         for (let task of taskRoleStatuses[taskRole].taskStatuses.taskStatusArray) {
           const containerPorts = {};
-          for (let portStr of task.containerPorts.split(';')) {
-            if (portStr.length > 0) {
-              const port = portStr.split(':');
-              containerPorts[port[0]] = port[1];
+          if (task.containerPorts) {
+            for (let portStr of task.containerPorts.split(';')) {
+              if (portStr.length > 0) {
+                const port = portStr.split(':');
+                containerPorts[port[0]] = port[1];
+              }
             }
           }
           jobDetail.taskRoles[taskRole].taskStatuses.push({

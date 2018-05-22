@@ -189,7 +189,7 @@ public class ExitDiagnostics {
         "Container early discarded by NodeManager due to the request ports conflict", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.CONTAINER_AGENT_EXPIRY, new ExitStatusValue(
         ExitStatusKey.CONTAINER_AGENT_EXPIRY.toInt(),
-        "Container Killed since no heartbeat is received before the hearbeat expiry timestamp", ExitType.TRANSIENT_NORMAL));
+        "Container Killed since no heartbeat is received before the heartbeat expiry timestamp", ExitType.TRANSIENT_NORMAL));
     // Container Internal Error is handled by LAUNCHER_EXIT_STATUS_UNDEFINED and UserApp_XXXError
 
 
@@ -206,7 +206,7 @@ public class ExitDiagnostics {
     DEF.put(ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR.toInt(),
         "UserApplication non-transient error: maybe incorrect usage, input data corruption...", ExitType.NON_TRANSIENT));
-    // UserApplication Reserved Exitcodes
+    // UserApplication Reserved ExitCodes
     DEF.put(ExitStatusKey.USER_APP_FORCE_KILLED, new ExitStatusValue(
         137,
         "UserApplication's process force killed by others, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));

@@ -17,9 +17,9 @@
 
 package com.microsoft.frameworklauncher.common.validation;
 
-import com.microsoft.frameworklauncher.common.model.Ports;
+import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
-import com.microsoft.frameworklauncher.common.model.ValueRange;
+import com.microsoft.frameworklauncher.common.utils.PortUtils;
 import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 
 import javax.validation.Constraint;
@@ -28,8 +28,6 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.Map;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -37,11 +35,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = {PortConsistentValidation.Validator.class})
+@Constraint(validatedBy = {PortValidation.Validator.class})
 
-public @interface PortConsistentValidation {
+public @interface PortValidation {
 
-  String message() default "{com.microsoft.frameworklauncher.common.validation.PortConsistentValidation.message}";
+  String message() default "{com.microsoft.frameworklauncher.common.validation.PortValidation.message}";
 
   Class<?>[] groups() default {};
 
@@ -50,12 +48,12 @@ public @interface PortConsistentValidation {
   @Target({FIELD})
   @Retention(RUNTIME)
   @interface List {
-    PortConsistentValidation[] value();
+    PortValidation[] value();
   }
 
-  public static class Validator implements ConstraintValidator<PortConsistentValidation, ResourceDescriptor> {
+  public static class Validator implements ConstraintValidator<PortValidation, ResourceDescriptor> {
     @Override
-    public void initialize(PortConsistentValidation constraintAnnotation) {
+    public void initialize(PortValidation constraintAnnotation) {
     }
 
     @Override
@@ -65,25 +63,28 @@ public @interface PortConsistentValidation {
         return true;
       }
 
-      java.util.List<ValueRange> portRangeList = new ArrayList<ValueRange>();
-      Map<String, Ports> portDefinitions = r.getPortDefinitions();
+      int dynamicPortNumber = PortUtils.getDynamicPortNumber(r.getPortDefinitions());
+      int staticPortNumber = ValueRangeUtils.getValueNumber(PortUtils.getStaticPortRanges(r.getPortDefinitions()));
 
-      int portNumber = 0;
-      for (Ports ports : portDefinitions.values()) {
-        if (ports.getStart() != 0) {
-          portRangeList.add(ValueRange.newInstance(ports.getStart(), ports.getStart() + ports.getCount() - 1));
-        } else {
-          portNumber += ports.getCount();
-        }
-      }
-
-      if (portNumber > 0 && ValueRangeUtils.getValueNumber(portRangeList) > 0) {
+      if (dynamicPortNumber > 0 && staticPortNumber > 0) {
         context.disableDefaultConstraintViolation();
         String notValidMessage = String.format(
-            "illegal portDefinitions in ResourceDescriptor, \"any port\" and \"specified\" port are not allowed to coexistence");
+            "Illegal PortDefinitions: All start fields should be nonzero or zero: PortDefinitions: [%s]",
+            CommonExts.toString(r.getPortDefinitions()));
         context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
         return false;
       }
+
+      if (!ResourceDescriptor.checkHadoopLibrarySupportsPort() && (dynamicPortNumber > 0 || staticPortNumber > 0)) {
+        context.disableDefaultConstraintViolation();
+        String notValidMessage = String.format(
+            "PortDefinitions is not empty, but local hadoop library " +
+                "doesn't support Port, please patch YARN-7481 first: PortDefinitions: [%s]",
+            CommonExts.toString(r.getPortDefinitions()));
+        context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
+        return false;
+      }
+
       return true;
     }
   }

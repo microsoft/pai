@@ -59,11 +59,12 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     if (other == null) {
       return -1;
     }
-    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
+
+    if (getBegin().equals(other.getBegin()) && getEnd().equals(other.getEnd())) {
       return 0;
-    } else if (getBegin().intValue() < other.getBegin().intValue()) {
+    } else if (getBegin() < other.getBegin()) {
       return -1;
-    } else if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() < other.getEnd().intValue()) {
+    } else if (getBegin().equals(other.getBegin()) && getEnd() < other.getEnd()) {
       return -1;
     } else {
       return 1;
@@ -83,7 +84,7 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
     if (!(obj instanceof ValueRange))
       return false;
     ValueRange other = (ValueRange) obj;
-    if (getBegin().intValue() == other.getBegin().intValue() && getEnd().intValue() == other.getEnd().intValue()) {
+    if (getBegin().equals(other.getBegin()) && getEnd().equals(other.getEnd())) {
       return true;
     } else {
       return false;
@@ -96,11 +97,11 @@ public class ValueRange implements Serializable, Comparable<ValueRange> {
   }
 
   // Unfold the Range value to number value. i.e. Change 1-5 to format 1,2,3,4,5
-  public String toDetailString(String delimiter) {
+  public String toDetailedString(String delimiter) {
     StringBuilder sb = new StringBuilder();
     sb.append(getBegin().toString());
     for (int i = getBegin() + 1; i <= getEnd(); i++) {
-      sb.append(delimiter + i);
+      sb.append(delimiter).append(i);
     }
     return sb.toString();
   }

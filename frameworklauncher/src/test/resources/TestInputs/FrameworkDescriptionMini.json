@@ -11,10 +11,7 @@
         ],
         "resource": {
           "cpuNumber": 18,
-          "memoryMB": 19,
-          "portRanges": [],
-          "diskType": 0,
-          "diskMB": 0
+          "memoryMB": 19
         }
       }
     }
