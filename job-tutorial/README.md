@@ -252,7 +252,8 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on HDFS
 
-    Use hdfs tools to upload your code and data to HDFS on the system. We will upload a Docker image to DockerHub with built-in hdfs support.    
+    Use HDFS tools to upload your code and data to HDFS on the system. We will upload a Docker image to DockerHub with built-in HDFS support.
+    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details. 
 
 2. Prepare a job config file
 
