@@ -50,11 +50,6 @@ public class TaskRoleDescriptor implements Serializable {
   @NotNull
   private TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters = new TaskRolePlatformSpecificParametersDescriptor();
 
-  @Valid
-  @NotNull
-  // If this feature enabled, ApplicationMaster will allocate the same ports for all tasks in a task role
-  private Boolean useTheSamePorts = true;
-
   // private List<ServiceDescriptor> taskServices;
   // private List<String> dependOnTaskRoles;
 
@@ -104,13 +99,5 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setPlatformSpecificParameters(TaskRolePlatformSpecificParametersDescriptor platformSpecificParameters) {
     this.platformSpecificParameters = platformSpecificParameters;
-  }
-
-  public Boolean getUseTheSamePorts() {
-    return useTheSamePorts;
-  }
-
-  public void setUseTheSamePorts(Boolean useTheSamePorts) {
-    this.useTheSamePorts = useTheSamePorts;
   }
 }

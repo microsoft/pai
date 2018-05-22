@@ -67,9 +67,9 @@ public class FeatureTestUtils {
 
     // For now setting all required classpaths including
     // the classpath to "." for the application jar
-    StringBuilder classPathEnv = new StringBuilder(ApplicationConstants.Environment.CLASSPATH.$$())
-        .append(ApplicationConstants.CLASS_PATH_SEPARATOR).append("./*");
-    localEnvs.put("CLASSPATH", classPathEnv.toString());
+    String classPathEnv = ApplicationConstants.Environment.CLASSPATH.$$() +
+        ApplicationConstants.CLASS_PATH_SEPARATOR + "./*";
+    localEnvs.put("CLASSPATH", classPathEnv);
 
     Map<String, String> envMap = System.getenv();
     Field f;

@@ -25,16 +25,6 @@
         "resource": {
           "cpuNumber": 18,
           "memoryMB": 19,
-          "portRanges": [
-            {
-              "begin": 100,
-              "end": 103
-            },
-            {
-              "begin": 120,
-              "end": 123
-            }
-          ],
           "diskType": 1,
           "diskMB": 21
         }
@@ -59,16 +49,16 @@
         "resource": {
           "cpuNumber": 28,
           "memoryMB": 29,
-          "portRanges": [
-            {
-              "begin": 110,
-              "end": 113
+          "gpuNumber": 2,
+          "gpuAttribute": 3,
+          "portDefinitions": {
+            "ssh": {
+              "count": 1
             },
-            {
-              "begin": 120,
-              "end": 123
+            "http": {
+              "count": 2
             }
-          ],
+          },
           "diskType": 0,
           "diskMB": 31
         }
@@ -79,8 +69,6 @@
     "amResource": {
       "cpuNumber": 1,
       "memoryMB": 5120,
-      "portRanges": [
-      ],
       "diskType": 0,
       "diskMB": 0
     },

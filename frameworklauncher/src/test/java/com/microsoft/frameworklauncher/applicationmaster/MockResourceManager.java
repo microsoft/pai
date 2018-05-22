@@ -26,8 +26,8 @@ import org.apache.hadoop.yarn.util.Records;
 import java.util.*;
 
 public class MockResourceManager {
-  private List<NodeReport> nodeReportList = new Vector<>();
   private static MockResourceManager instance;
+  private final List<NodeReport> nodeReportList = new Vector<>();
 
   private MockResourceManager(int nodeNums, Resource resource) {
     initNodeIds(nodeNums, 10, resource);

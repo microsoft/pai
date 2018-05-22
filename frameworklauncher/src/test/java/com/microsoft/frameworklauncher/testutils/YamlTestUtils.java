@@ -26,12 +26,12 @@ import java.lang.reflect.*;
 import java.util.*;
 
 public class YamlTestUtils {
-  private static List<String> basicTypeClass = Arrays.asList(
+  private static final List<String> basicTypeClass = Arrays.asList(
       "java.lang.Integer",
       "java.lang.Long", "java.lang.Float",
       "java.lang.Boolean", "java.lang.String");
 
-  private static List<String> parameterizedTypeClass = Arrays.asList(
+  private static final List<String> parameterizedTypeClass = Arrays.asList(
       "java.util.Map", "java.util.List", "java.util.Set");
 
   private static final Integer INIT_INT = 0;

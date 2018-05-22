@@ -50,8 +50,8 @@ public class WebStructure {
   public static final String AGGREGATED_FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "AggregatedFrameworkRequest";
   public static final String FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "FrameworkRequest";
 
-  public final static String REQUEST_PARAM_LAUNCH_CLIENT_TYPE = WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE;
-  public final static String REQUEST_PARAM_USER_NAME = WebCommon.REQUEST_HEADER_USER_NAME;
+  public static final String REQUEST_PARAM_LAUNCH_CLIENT_TYPE = WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE;
+  public static final String REQUEST_PARAM_USER_NAME = WebCommon.REQUEST_HEADER_USER_NAME;
 
   public static String getNodePath(String parentNodePath, String nodeName) {
     return (StringUtils.stripEnd(parentNodePath, PATH_SEPARATOR) +

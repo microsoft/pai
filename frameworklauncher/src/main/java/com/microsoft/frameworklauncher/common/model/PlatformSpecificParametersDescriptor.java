@@ -17,10 +17,11 @@
 
 package com.microsoft.frameworklauncher.common.model;
 
-import com.microsoft.frameworklauncher.common.validation.GpuConsistentValidation;
-import com.microsoft.frameworklauncher.common.validation.PortConsistentValidation;
+import com.microsoft.frameworklauncher.common.validation.GpuValidation;
+import com.microsoft.frameworklauncher.common.validation.PortValidation;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -28,8 +29,8 @@ import java.io.Serializable;
 // Computation Platform Specific Parameters
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
-  @GpuConsistentValidation
-  @PortConsistentValidation
+  @GpuValidation
+  @PortValidation
   // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
   private ResourceDescriptor amResource;
 
@@ -49,13 +50,15 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // -1 means unlimit.
+  @Min(-2)
+  // -1 means unlimited.
   // -2 means using default value: LauncherConfiguration.RMResyncFrequency.
   private Integer containerConnectionMaxLostCount = -2;
 
   @Valid
   @NotNull
-  // No unlimit option, since exceed Container must be released eventually.
+  @Min(0)
+  // No unlimited option, since exceed Container must be released eventually.
   private Integer containerConnectionMaxExceedCount = 2;
 
   @Valid
@@ -96,7 +99,7 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
   @NotNull
   // The following will take effect only if amType is "AGENT" and AgentUseAgent flag is true.
-  // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHearbeatsIntervalSec
+  // Frameworks should not set agentHeartbeatIntervalSec to be smaller than LauncherStatus.AgentAMCheckAgentHeartbeatsIntervalSec
   private Integer agentHeartbeatIntervalSec = 30;
 
   @Valid
