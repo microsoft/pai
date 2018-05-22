@@ -9,11 +9,11 @@
 ## Introduction
 
 Platform for AI is a cluster management tool and resource scheduling platform.
-The platform incorporates some mature design that has a proven track record in the large scale Microsoft production environment, and is tailored primarily for academic and research purpose. 
+The platform incorporates some mature design that has a proven track record in the large scale Microsoft production environment.  
 
 PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides PAI [runtime environment](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md) support, with which existing deep learning frameworks, e.g., CNTK and TensorFlow, can onboard PAI without any code changes. The runtime environment support provides great extensibility: new workload can leverage the environment support to run on PAI with just a few extra lines of script and/or Python code.
 
-PAI supports GPU scheduling, a key requirement of deep learning job. 
+PAI supports GPU scheduling, a key requirement of deep learning jobs. 
 For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
 
 PAI embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
@@ -23,7 +23,7 @@ The training data and training results are stored in Hadoop HDFS.
 
 ## An Open AI Platform for R&D and Education 
 
-PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components: 
+One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. PAI is architected in a modular way: different module can be plugged in as appropriate. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the following components: 
 
 * Scheduling mechanism for deep learning workload
 * Deep neural network application that requires evaluation under realistic platform environment
@@ -37,9 +37,9 @@ PAI is completely open: it is under the MIT license. PAI is architected in a mod
 * AI Storage support
 * AI platform management 
 
-PAI operates in an open model: contributions from academia and industry are all highly welcome. PAI is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx).
+PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx).
 We are happy to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly. 
-
+Contributions from academia and industry are all highly welcome.
 
 ## System Deployment
 
