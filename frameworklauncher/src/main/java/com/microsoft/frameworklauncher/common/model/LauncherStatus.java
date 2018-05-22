@@ -22,6 +22,10 @@ import java.io.Serializable;
 public class LauncherStatus implements Serializable {
   private LauncherConfiguration launcherConfiguration;
   private UserDescriptor loggedInUser;
+  private Boolean hadoopLibrarySupportsGpu;
+  private Boolean hadoopLibrarySupportsPort;
+  private String serviceHost;
+  private String serviceIp;
 
   public LauncherConfiguration getLauncherConfiguration() {
     return launcherConfiguration;
@@ -37,5 +41,37 @@ public class LauncherStatus implements Serializable {
 
   public void setLoggedInUser(UserDescriptor loggedInUser) {
     this.loggedInUser = loggedInUser;
+  }
+
+  public Boolean getHadoopLibrarySupportsGpu() {
+    return hadoopLibrarySupportsGpu;
+  }
+
+  public void setHadoopLibrarySupportsGpu(Boolean hadoopLibrarySupportsGpu) {
+    this.hadoopLibrarySupportsGpu = hadoopLibrarySupportsGpu;
+  }
+
+  public Boolean getHadoopLibrarySupportsPort() {
+    return hadoopLibrarySupportsPort;
+  }
+
+  public void setHadoopLibrarySupportsPort(Boolean hadoopLibrarySupportsPort) {
+    this.hadoopLibrarySupportsPort = hadoopLibrarySupportsPort;
+  }
+
+  public String getServiceHost() {
+    return serviceHost;
+  }
+
+  public void setServiceHost(String serviceHost) {
+    this.serviceHost = serviceHost;
+  }
+
+  public String getServiceIp() {
+    return serviceIp;
+  }
+
+  public void setServiceIp(String serviceIp) {
+    this.serviceIp = serviceIp;
   }
 }
