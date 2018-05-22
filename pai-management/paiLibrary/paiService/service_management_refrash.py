@@ -67,11 +67,11 @@ class serivce_management_refrash:
         service_refrasher = service_refrash.service_refrash(service_conf, serv)
 
         dependency_list = service_refrasher.get_dependency()
-        for fat_serv in dependency_list:
-            if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
-                continue
-            self.start(fat_serv)
-
+        if dependency_list != None:
+            for fat_serv in dependency_list:
+                if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
+                    continue
+                self.start(fat_serv)
 
         self.logger.info("-----------------------------------------------------------")
         self.logger.info("Begin to generate service {0}'s template file".format(serv))

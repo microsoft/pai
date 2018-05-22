@@ -68,10 +68,11 @@ class serivce_management_start:
         service_starter = service_start.service_start(service_conf, serv)
 
         dependency_list = service_starter.get_dependency()
-        for fat_serv in dependency_list:
-            if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
-                continue
-            self.start(fat_serv)
+        if dependency_list != None:
+            for fat_serv in dependency_list:
+                if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
+                    continue
+                self.start(fat_serv)
 
 
         self.logger.info("-----------------------------------------------------------")
