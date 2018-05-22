@@ -30,6 +30,9 @@ from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
 from paiLibrary.paiBuild import push_center
 from paiLibrary.paiService import service_management_start
+from paiLibrary.paiService import service_management_stop
+from paiLibrary.paiService import service_management_delete
+from paiLibrary.paiService import service_management_refrash
 
 
 
@@ -320,13 +323,16 @@ def pai_service():
         service_management_starter.run()
 
     if option == "delete":
-        None
+        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter.run()
 
     if option == "stop":
-        None
+        service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
+        service_management_stopper.run()
 
     if option == "refrash":
-        None
+        service_management_refrasher = service_management_refrash.service_management_refrash(cluster_object_model, service_list)
+        service_management_refrasher.run()
 
 
 
@@ -356,7 +362,7 @@ def main():
 
     elif module == "service":
 
-        None
+        pai_service()
 
     elif module == "easy-way-deploy":
 

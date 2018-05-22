@@ -16,19 +16,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import time
 import logging
 import logging.config
 
-import service_stop
+import service_refrash
 import service_template_generate
 import service_template_clean
 from ..common import directory_handler
 from ..common import file_handler
 
 
-
-class service_management_stop:
+class serivce_management_refrash:
 
 
     def __init__(self, cluster_object_model, service_list = None, **kwargs):
@@ -62,40 +60,45 @@ class service_management_stop:
 
     def start(self, serv):
 
+        if serv in self.done_dict and self.done_dict[serv] == True:
+            return
+
         service_conf = file_handler.load_yaml_config("bootstrap/{0}/service.yaml".format(serv))
-        service_stopper = service_stop.service_stop(service_conf, serv)
+        service_refrasher = service_refrash.service_refrash(service_conf, serv)
 
-        self.logger.info("----------------------------------------------------------------------")
+        dependency_list = service_refrasher.get_dependency()
+        for fat_serv in dependency_list:
+            if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
+                continue
+            self.start(fat_serv)
+
+
+        self.logger.info("-----------------------------------------------------------")
         self.logger.info("Begin to generate service {0}'s template file".format(serv))
-
-        service_template_generater = service_template_generate.service_template_generate(self.cluster_object_model,
-                                                                                         serv, service_conf)
+        service_template_generater = service_template_generate.service_template_generate(self.cluster_object_model, serv, service_conf)
         service_template_generater.run()
 
-        self.logger.info("Begin to stop service: [ {0} ]".format(serv))
-        service_stopper.run()
+        self.logger.info("Begin to refrash service: [ {0} ]".format(serv))
+        service_refrasher.run()
 
-        self.logger.info("Begin to clean service's generated template file".format(serv))
+        self.logger.info("Begin to clean all service's generated template file".format(serv))
         service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
         service_template_cleaner.run()
 
-        self.logger.info("Successfully stop {0}".format(serv))
-        self.logger.info("----------------------------------------------------------------------")
+        self.logger.info("Successfully refrash {0}".format(serv))
+        self.logger.info("-----------------------------------------------------------")
 
 
 
     def run(self):
 
+        self.done_dict = dict()
+
         for serv in self.service_list:
-            if serv == "cluster-configuration":
-                continue
             if file_handler.file_exist_or_not("bootstrap/{0}/service.yaml".format(serv)) == False:
                 self.logger.warning("service.yaml can't be found on the directory of {0}".format(serv))
                 self.logger.warning("Please check your source code. The {0}'s service will be skipped.".format(serv))
                 continue
+            if serv in self.done_dict and self.done_dict[serv] == True:
+                continue
             self.start(serv)
-
-        if "cluster-configuration" in self.service_list:
-            self.start(serv)
-
-

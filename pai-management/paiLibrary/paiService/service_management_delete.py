@@ -20,7 +20,7 @@ import time
 import logging
 import logging.config
 
-import service_stop
+import service_delete
 import service_template_generate
 import service_template_clean
 from ..common import directory_handler
@@ -28,7 +28,8 @@ from ..common import file_handler
 
 
 
-class service_management_stop:
+class service_management_delete:
+
 
 
     def __init__(self, cluster_object_model, service_list = None, **kwargs):
@@ -63,7 +64,7 @@ class service_management_stop:
     def start(self, serv):
 
         service_conf = file_handler.load_yaml_config("bootstrap/{0}/service.yaml".format(serv))
-        service_stopper = service_stop.service_stop(service_conf, serv)
+        service_deleter = service_delete.service_delete(service_conf, serv)
 
         self.logger.info("----------------------------------------------------------------------")
         self.logger.info("Begin to generate service {0}'s template file".format(serv))
@@ -72,14 +73,14 @@ class service_management_stop:
                                                                                          serv, service_conf)
         service_template_generater.run()
 
-        self.logger.info("Begin to stop service: [ {0} ]".format(serv))
-        service_stopper.run()
+        self.logger.info("Begin to delete service: [ {0} ]".format(serv))
+        service_deleter.run()
 
-        self.logger.info("Begin to clean service's generated template file".format(serv))
+        self.logger.info("Begin to delete service's generated template file".format(serv))
         service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
         service_template_cleaner.run()
 
-        self.logger.info("Successfully stop {0}".format(serv))
+        self.logger.info("Successfully delete {0}".format(serv))
         self.logger.info("----------------------------------------------------------------------")
 
 
@@ -97,5 +98,3 @@ class service_management_stop:
 
         if "cluster-configuration" in self.service_list:
             self.start(serv)
-
-

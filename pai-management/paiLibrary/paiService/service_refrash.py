@@ -51,6 +51,12 @@ class service_refrash:
         linux_shell.execute_shell(cmd, err_msg)
 
 
+    def get_dependency(self):
+
+        if "prerequisite" not in self.service_conf:
+            return None
+        return self.service_conf["prerequisite"]
+
 
     def run(self):
 
