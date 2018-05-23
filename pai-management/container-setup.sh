@@ -21,6 +21,4 @@ cp -r /docker/* /usr/bin/
 
 docker run hello-world  || exit $?
 
-pip install kubernetes
-
 bash

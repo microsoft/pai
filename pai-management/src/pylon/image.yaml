@@ -15,10 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy:
-  - ../pylon
-
-templatelist:
-  - None
-
-prerequisite: None
+copy-list:
+  - src: ../pylon
+    dst: src/pylon/copied_file

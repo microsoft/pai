@@ -19,12 +19,17 @@ prerequisite:
   - cluster-configuration
   - drivers
 
-templatelist:
+template-list:
   - node-label.sh
   - node-exporter-ds.yaml
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
-  - cleanup.sh
+  - stop.sh
+  - refrash.sh
+  - delete.yaml
 
-startscript: start.sh
-stopscript: cleanup.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

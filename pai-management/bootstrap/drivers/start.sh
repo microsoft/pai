@@ -24,14 +24,14 @@ chmod u+x node-label.sh
 
 kubectl create -f drivers.yaml
 
-python ../../node_label_check.py -k machinetype -v gpu
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k machinetype -v gpu
 ret=$?
 
 if [ $ret -ne 0 ]; then
     echo "No GPU machine in your cluster"
 else
     # wait until all drivers are ready.
-    python ../../service_dependency_solve.py -w -s drivers-one-shot
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot
 fi
 
 popd > /dev/null

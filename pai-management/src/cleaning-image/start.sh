@@ -18,39 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # clean all the data in the cluster.
-if [ -d "/mnt/hdfs" ]; then
-
-    rm -rf /mnt/hdfs
-
-fi
-
-if [ -d "/mnt/yarn" ]; then
-
-    rm -rf /mnt/yarn
-
-fi
-
-if [ -d "/mnt/hadooptmp" ]; then
-
-    rm -rf /mnt/hadooptmp
-
-fi
-
-if [ -d "/mnt/launcherlogs" ]; then
-
-    rm -rf /mnt/launcherlogs
-
-fi
-
-if [ -d "/mnt/zoodata" ]; then
-
-    rm -rf /mnt/zoodata
-
-fi
 
 
-echo "Successfully clean up the data in the node."
 
+cp /${DELETE_CONFIG}/${WORKER_CONFIG}  delete_worker.sh
+chmod u+x delete_worker.sh
+
+./delete_worker.sh
 
 # Because Kuberetnes can't run the job to every node such as daemonset.
 # So we will use readiness probes to judge whether the batch job finish or not.
@@ -61,4 +35,3 @@ mkdir -p /jobstatus
 touch /jobstatus/jobok
 
 while true; do sleep 1000; done
-
