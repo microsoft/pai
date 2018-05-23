@@ -92,6 +92,8 @@ class serivce_management_start:
         self.logger.info("Successfully start {0}".format(serv))
         self.logger.info("-----------------------------------------------------------")
 
+        self.done_dict[serv] = True
+
 
 
     def run(self):

@@ -90,6 +90,7 @@ class service_management_refrash:
         self.logger.info("Successfully refrash {0}".format(serv))
         self.logger.info("-----------------------------------------------------------")
 
+        self.done_dict[serv] = True
 
 
     def run(self):
