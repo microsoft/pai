@@ -34,7 +34,7 @@ PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -
 
 echo "Frameworklauncher clean job is done"
 echo "Delete cleaner daemon and configmap"
-kubectl delete ds Delete-Batch-Job-Frameworker-Launcher
+kubectl delete ds delete-batch-job-frameworker-launcher
 kubectl delete configmap frameworklauncher-delete
 sleep 5
 

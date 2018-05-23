@@ -33,7 +33,7 @@ PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -
 
 echo "Hadoop Service clean job is done"
 echo "Delete cleaner daemon and configmap"
-kubectl delete ds Delete-Batch-Job-Prometheus
+kubectl delete ds delete-batch-job-prometheus
 kubectl delete configmap prometheus-delete
 sleep 5
 
