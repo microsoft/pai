@@ -44,16 +44,16 @@ docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-
 docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
 
-生成镜像之后，将其提交至Docker registry，使系统中的任何一个结点都能获取该镜像。执行：
+生成镜像之后，将其提交至 Docker registry，使系统中的任何一个结点都能获取该镜像。执行：
 ```sh
 docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
 docker push your_docker_registry/pai.run.tensorflow
 ```
-至此完成Docker镜像的准备。
+至此完成 Docker 镜像的准备。
 
 注意，上文中的脚本是假设 Docker registry 搭建在本地，实际的脚本代码根据 Docker registry 的配置可能有所不同。
 
-## job配置文件
+## job 配置文件
 用户需准备一个 json 文件描述 job 的配置细节，示例如下：
 ```js
 {
@@ -127,7 +127,7 @@ job 中的每一个 task 都运行在一个容器中，对于 multi-task job，t
 为相互沟通，用户可以在容器中编写代码来访问这些运行环境变量。
 这些环境变量也可以在 job 配置文件中使用。
 
-Docker容器中可访问的环境变量的完整列表如下：
+Docker 容器中可访问的环境变量的完整列表如下：
 
 | 环境变量名          | Description                              |
 | :--------------------------------- | :--------------------------------------- |
@@ -155,8 +155,8 @@ Docker容器中可访问的环境变量的完整列表如下：
 | PAI_CONTAINER_HOST_\_`$type`\_PORT_LIST | `portList.label == $type` 的端口列表，以逗号分隔 ，端口为 string 类型 |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  |  `PAI_TASK_ROLE_NAME == $name`的主机列表，以逗号分隔， `ip:port` 为 string，以当前 task 的索引排序。 |
 
-## 深度学习job示例
-一个分布式Tensorflow job的配置文件示例如下所示：
+## 深度学习 job 示例
+一个分布式 Tensorflow job 的配置文件示例如下所示：
 ```js
 {
   "jobName": "tensorflow-distributed-jobguid",
@@ -228,7 +228,7 @@ Docker容器中可访问的环境变量的完整列表如下：
 - [cntk-example.json](cntk/cntk-example.json): CMUDict语料库使用CNTK序列模型字音转换训练示例。
 
 ## 提交 job
-1. 上传数据和代码至HDFS
+1. 上传数据和代码至 HDFS
 
     使用 HDFS 工具上传你的代码和数据。我们在 DockerHub 上传了一个内置 HDFS 支持的 [Docker 镜像](https://hub.docker.com/r/paiexample/pai.example.hdfs/)。
     HDFS 的用法详情请参考 [HDFS 命令指南](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) 。
@@ -241,35 +241,35 @@ Docker容器中可访问的环境变量的完整列表如下：
     
     浏览器中打开门户网站，点击"Submit Job"上传配置文件，即可提交你的job。
 
-## SSH连接
-你可以使用SSH连接从容器外部或内部连接到其他指定的容器。
+## SSH 连接
+你可以使用 SSH 连接从容器外部或内部连接到其他指定的容器。
 
-## 从容器外部SSH连接
-1. 通过调用`/api/v1/jobs/:jobName/ssh` api或是点击门户网站上的job详情页来获取SSH连接。
+## 从容器外部 SSH 连接
+1. 通过调用`/api/v1/jobs/:jobName/ssh` api 或是点击门户网站上的 job 详情页来获取 SSH 连接。
 
-2. 打开Bash终端
+2. 打开 Bash 终端
 
-3. 从HDFS中下载相应私钥，例如使用[wget](http://www.gnu.org/software/wget/)：
+3. 从 HDFS 中下载相应私钥，例如使用 [wget](http://www.gnu.org/software/wget/)：
 
     ```sh
     wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
     ```
 
-4. 使用`chmod`赋予该私钥文件相应权限，如：
+4. 使用 `chmod` 赋予该私钥文件相应权限，如：
 
     ```sh
    chmod 400 application_id
    ```
 
 
-5. 使用`ssh`命令连接容器，例如：
+5. 使用 `ssh` 命令连接容器，例如：
 
     ```sh
    ssh -i application_id -p ssh_port root@container_ip
    ```
 
-### 从容器内部SSH连接
-可以使用`ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX`命令连接同属于一个job的其他容器。例如，有两个taskRoles，master 和 worker，可以使用如下命令直接连接到worker-0容器：
+### 从容器内部 SSH 连接
+可以使用 `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` 命令连接同属于一个 job 的其他容器。例如，有两个taskRoles，master 和 worker，可以使用如下命令直接连接到 worker-0 容器：
 ```sh
 ssh worker-0
 ```
