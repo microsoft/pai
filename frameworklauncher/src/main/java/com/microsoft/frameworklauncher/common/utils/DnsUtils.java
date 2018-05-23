@@ -27,11 +27,13 @@ import java.net.UnknownHostException;
 /**
  * DnsUtils makes Best Effort to resolve external IP and Host.
  * An external IP address is the address that other machines is able to connect to it.
- * Not all IP addresses are reachable outside the local machine or LAN, such as,
+ * Note, not all IP addresses are reachable outside the local machine or LAN, such as,
  * the virtual network IP addresses, the private network IP addresses, and so on.
  */
 public class DnsUtils {
   private static final DefaultLogger LOGGER = new DefaultLogger(DnsUtils.class);
+
+  // Assume local address will not change on the fly, so cache it on initialization.
   private static final String LOCAL_HOST;
   private static final String LOCAL_IP;
 
