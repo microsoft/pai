@@ -72,8 +72,8 @@ def gen_job_metrics(logDir, gpuMetrics):
         inspectInfo = docker_inspect.inspect(container)
         if not inspectInfo["labels"]:
             continue
-        gpuIds, labelStr = parseFromLabels(inspectInfo["labels"])
-        envStr = parseFromEnv(inspectInfo["env"])
+        gpuIds, labelStr = parse_from_labels(inspectInfo["labels"])
+        envStr = parse_from_env(inspectInfo["env"])
         labelStr = labelStr + envStr
         for id in gpuIds:
             if gpuMetrics:
