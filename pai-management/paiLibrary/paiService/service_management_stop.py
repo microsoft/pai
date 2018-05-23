@@ -96,6 +96,6 @@ class service_management_stop:
             self.start(serv)
 
         if "cluster-configuration" in self.service_list:
-            self.start(serv)
+            self.start("cluster-configuration")
 
 
