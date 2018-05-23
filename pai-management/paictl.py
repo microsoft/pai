@@ -330,7 +330,8 @@ def pai_service():
     if service_name != "all":
         service_list = [ service_name ]
 
-    prepare_configuration_hadoop()
+    if service_name in ["hadoop-service", "all"] and option in ["start", "refrash"]:
+        prepare_configuration_hadoop()
 
     # Tricky ,  re-install kubectl first.
     # TODO: install kubectl-install here.
