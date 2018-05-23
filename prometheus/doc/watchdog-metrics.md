@@ -55,7 +55,7 @@ vi watchdog-xx.log
 | service_pod_status_phase_failed | specific pod phase is failed, value is 1 |
 | service_pod_status_phase_unknown | specific pod phase become unknown, value is 1 |
 | service_pod_container_status_not_ready | specific pod contains container status is not ready, value is 1 |
-| service_pod_container_status_terminated | pecific pod container status is terminated total count, value is 1 |
+| service_pod_container_status_terminated | specific pod container status is terminated total count, value is 1 |
 | service_pod_container_status_waiting | specific pod container status is waiting  total count, value is 1 |
 | service_pod_container_status_restart_total | specific pod's container restart total count |
 | pod_status_probe_not_ready | each service occurs readiness probe failed error, condition is not ready, total count |
