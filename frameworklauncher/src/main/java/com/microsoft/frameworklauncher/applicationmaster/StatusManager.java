@@ -351,8 +351,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     taskStatus.setContainerId(containerId);
     taskStatus.setContainerHost(container.getNodeId().getHost());
-    taskStatus.setContainerIp(
-        DnsUtils.resolveExternalIPv4Address(taskStatus.getContainerHost()));
+    taskStatus.setContainerIp(DnsUtils.resolveIp(taskStatus.getContainerHost()));
     taskStatus.setContainerLogHttpAddress(
         HadoopUtils.getContainerLogHttpAddress(container.getNodeHttpAddress(), containerId, conf.getAmUser()));
     taskStatus.setContainerConnectionLostCount(0);
