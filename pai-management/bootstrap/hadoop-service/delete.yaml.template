@@ -18,12 +18,12 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: Delete-Batch-Job-Hadoop-Service
+  name: delete-batch-job-hadoop-service
 spec:
   template:
     metadata:
       labels:
-        app: Delete-Batch-Job-Hadoop-Service
+        app: delete-batch-job-hadoop-service
     spec:
       hostNetwork: true
       hostPID: true

@@ -18,12 +18,12 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: Delete-Batch-Job-Prometheus
+  name: delete-batch-job-prometheus
 spec:
   template:
     metadata:
       labels:
-        app: Delete-Batch-Job-Prometheus
+        app: delete-batch-job-prometheus
     spec:
       hostNetwork: true
       hostPID: true

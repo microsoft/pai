@@ -18,12 +18,12 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: Delete-Batch-Job-Frameworker-Launcher
+  name: delete-batch-job-frameworker-launcher
 spec:
   template:
     metadata:
       labels:
-        app: Delete-Batch-Job-Frameworker-Launcher
+        app: delete-batch-job-frameworker-launcher
     spec:
       hostNetwork: true
       hostPID: true

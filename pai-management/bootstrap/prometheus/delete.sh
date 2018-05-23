@@ -29,7 +29,7 @@ echo "Create cleaner daemon"
 kubectl create -f delete.yaml
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v Delete-Batch-Job-Prometheus
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-prometheus
 
 echo "Hadoop Service clean job is done"
 echo "Delete cleaner daemon and configmap"
