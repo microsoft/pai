@@ -312,7 +312,7 @@ def pai_service():
     cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
 
     service_list = None
-    if service_list != "all":
+    if service_name != "all":
         service_list = [ service_name ]
 
     # Tricky ,  re-install kubectl first.
