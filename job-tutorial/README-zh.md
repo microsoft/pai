@@ -227,38 +227,43 @@ Docker容器中可访问的环境变量的完整列表如下：
 - [tensorboard-example.json](tensorflow/tensorboard-example.json): 使用TensorBoard可视化训练logs示例.
 - [cntk-example.json](cntk/cntk-example.json): CMUDict语料库使用CNTK序列模型字音转换训练示例。
 
-## 提交job
+## 提交 job
 1. 上传数据和代码至HDFS
-    使用`pai-fs`将你的数据和代码上传至HDFS，例如：
-    ```sh
-        pai-fs -cp -r /local/data/dir hdfs://host:port/path/tensorflow-distributed-jobguid/data
-    ```
-    `pai-fs`的更多操作详见[pai-fs/README.md](../pai-fs/README.md#usage)
-2. 准备job配置文件
+
+    使用 HDFS 工具上传你的代码和数据。我们在 DockerHub 上传了一个内置 HDFS 支持的 [Docker 镜像](https://hub.docker.com/r/paiexample/pai.example.hdfs/)。
+    HDFS 的用法详情请参考 [HDFS 命令指南](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) 。
+
+2. 准备 job 配置文件
+
     为你的job准备[config file](#json-config-file-for-job-submission)
 
-3. 通过门户网站提交job
+3. 通过门户网站提交 job
+    
     浏览器中打开门户网站，点击"Submit Job"上传配置文件，即可提交你的job。
 
 ## SSH连接
 你可以使用SSH连接从容器外部或内部连接到其他指定的容器。
+
 ## 从容器外部SSH连接
 1. 通过调用`/api/v1/jobs/:jobName/ssh` api或是点击门户网站上的job详情页来获取SSH连接。
 
 2. 打开Bash终端
 
 3. 从HDFS中下载相应私钥，例如使用[wget](http://www.gnu.org/software/wget/)：
+
     ```sh
     wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
     ```
 
 4. 使用`chmod`赋予该私钥文件相应权限，如：
+
     ```sh
    chmod 400 application_id
    ```
 
 
 5. 使用`ssh`命令连接容器，例如：
+
     ```sh
    ssh -i application_id -p ssh_port root@container_ip
    ```
