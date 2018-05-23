@@ -23,6 +23,7 @@ import com.microsoft.frameworklauncher.common.model.LauncherStatus;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -69,7 +70,7 @@ public class Configuration {
     zkRootDir = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_ROOT_DIR);
     amVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_VERSION));
     amRmHeartbeatIntervalSec = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC));
-    amHostName = GlobalConstants.LOCAL_HOST_NAME;
+    amHostName = DnsUtils.getLocalHost();
     amRpcPort = -1;
     // Set a NotEmpty amTrackingUrl will override default (Proxied)TrackingUrl and OriginalTrackingUrl
     // which point to RMWebAPP.

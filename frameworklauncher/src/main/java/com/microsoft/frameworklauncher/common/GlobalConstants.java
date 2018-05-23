@@ -17,8 +17,6 @@
 
 package com.microsoft.frameworklauncher.common;
 
-import com.microsoft.frameworklauncher.common.utils.DnsUtils;
-
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
   public static final String LOGGER_CONFIG_FILE = "log4j.properties";
@@ -65,5 +63,4 @@ public class GlobalConstants {
   public static final String ENV_VAR_AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC = "AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC";
   public static final String ENV_VAR_AGENT_BOND_RPC_TIMEOUT_SEC = "AGENT_BOND_RPC_TIMEOUT_SEC";
   public static final String LINE = new String(new char[200]).replace("\0", "_");
-  public static final String LOCAL_HOST_NAME = DnsUtils.resolveLocalHostName();
 }

@@ -17,13 +17,13 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
@@ -111,7 +111,7 @@ public class GenerateContainerIpListTest {
         .getResource("TestGenerateContainerIpList.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
-            GlobalConstants.LOCAL_HOST_NAME, "user");
+            DnsUtils.getLocalHost(), "user");
     FrameworkStatus frameworkStatus = FeatureTestUtils.getFrameworkStatusFromRequest(frameworkRequest);
 
     Map<String, TaskRoleDescriptor> taskRoleDescriptorMap =

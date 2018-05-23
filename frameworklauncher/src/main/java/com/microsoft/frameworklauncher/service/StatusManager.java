@@ -17,7 +17,6 @@
 
 package com.microsoft.frameworklauncher.service;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
@@ -113,8 +112,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     launcherStatus.setLoggedInUser(loggedInUser);
     launcherStatus.setHadoopLibrarySupportsGpu(ResourceDescriptor.checkHadoopLibrarySupportsGpu());
     launcherStatus.setHadoopLibrarySupportsPort(ResourceDescriptor.checkHadoopLibrarySupportsPort());
-    launcherStatus.setServiceHost(GlobalConstants.LOCAL_HOST_NAME);
-    launcherStatus.setServiceIp(DnsUtils.resolveExternalIPv4Address(GlobalConstants.LOCAL_HOST_NAME));
+    launcherStatus.setServiceHost(DnsUtils.getLocalHost());
+    launcherStatus.setServiceIp(DnsUtils.getLocalIp());
     updateLauncherStatus(launcherStatus);
 
     // Recover AllFrameworkStatuses from ZK and clean the corrupted AggregatedFrameworkStatus
