@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,36 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
-kind: DaemonSet
-metadata:
-  name: cleaning-one-shot
-spec:
-  template:
-    metadata:
-      labels:
-        app: cleaning-one-shot
-    spec:
-      hostNetwork: true
-      hostPID: true
-      containers:
-      - name: cleaning-one-shot
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaning-image:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
-        imagePullPolicy: Always
-        volumeMounts:
-        - mountPath: /mnt
-          name: data-path
-        readinessProbe:
-          exec:
-            command:
-            - cat
-            - /jobstatus/jobok
-          initialDelaySeconds: 5
-          periodSeconds: 3
-      imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
-      volumes:
-      - name: data-path
-        hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}
 
+pushd $(dirname "$0") > /dev/null
+
+echo "relabel node's lable"
+sh node-label.sh
+
+{% for host in machinelist %}
+
+    {% if 'pylon' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "pylon="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have pylon's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon-
+fi
+    {% endif %}
+
+{% endfor %}
+
+popd > /dev/null

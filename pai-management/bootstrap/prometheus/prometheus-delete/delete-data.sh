@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,17 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
 
-template-list:
-  - node-label.sh
-  - pylon.yaml
-  - stop.sh
-  - refrash.sh
+echo "Clean the prometheus's data on the disk"
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refrash-script: refrash.sh
-upgraded-script: upgraded.sh
+
+#TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.

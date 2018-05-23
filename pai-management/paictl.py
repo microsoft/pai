@@ -19,10 +19,7 @@
 
 from __future__ import print_function
 
-import yaml
-import os
 import sys
-import jinja2
 import argparse
 import logging
 import logging.config
@@ -32,6 +29,10 @@ from paiLibrary.common import file_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
 from paiLibrary.paiBuild import push_center
+from paiLibrary.paiService import service_management_start
+from paiLibrary.paiService import service_management_stop
+from paiLibrary.paiService import service_management_delete
+from paiLibrary.paiService import service_management_refrash
 
 
 
@@ -49,12 +50,24 @@ def setup_logging():
 
 
 
+
+#########
+## TODO: Please remove all function following, after cluster_object_model is finsied.
+
+
 def load_cluster_objectModel_service(config_path):
 
     objectModel = objectModelFactory.objectModelFactory(config_path)
     ret = objectModel.objectModelPipeLine()
 
     return ret["service"]
+
+
+def load_cluster_objectModel_k8s(config_path):
+
+    objectModel = objectModelFactory.objectModelFactory(config_path)
+    ret = objectModel.objectModelPipeLine()
+    return ret["k8s"]
 
 
 
@@ -123,6 +136,26 @@ def generate_image_url_prefix(docker_info):
 
 
 
+def generate_etcd_ip_list(master_list):
+
+    etcd_cluster_ips_peer = ""
+    etcd_cluster_ips_server = ""
+    separated = ""
+    for infra in master_list:
+        ip = master_list[ infra ][ 'hostip' ]
+        etcdid = master_list[ infra ][ 'etcdid' ]
+        ip_peer = "{0}=http://{1}:2380".format(etcdid, ip)
+        ip_server = "http://{0}:4001".format(ip)
+
+        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+        etcd_cluster_ips_server = etcd_cluster_ips_server + separated + ip_server
+
+        separated = ","
+
+    return etcd_cluster_ips_peer, etcd_cluster_ips_server
+
+
+
 def generate_configuration_of_hadoop_queues(cluster_config):
     #
     hadoop_queues_config = {}
@@ -163,7 +196,28 @@ def cluster_object_model_generate_service(config_path):
 
     generate_configuration_of_hadoop_queues(cluster_config)
 
+    return cluster_config
 
+
+
+def cluster_object_model_generate_k8s(config_path):
+
+    cluster_config = load_cluster_objectModel_k8s(config_path)
+
+    master_list = cluster_config['mastermachinelist']
+    etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
+
+    # ETCD will communicate with each other through this address.
+    cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
+    # Other service will write and read data through this address.
+    cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
+
+    return cluster_config
+
+
+## TODO: Please remove all function above, after cluster_object_model is finsied.
+#########
 
 
 def pai_build_info():
@@ -218,9 +272,67 @@ def pai_control():
 
 
 
-def k8s_control():
 
-    None
+def pai_service_info():
+
+    logger.error("The command is wrong.")
+    logger.error("Start Service: paictl.py service start -p /path/to/configuration/ [ -n service-x ]")
+    logger.error("Stop Service : paictl.py service stop -p /path/to/configuration/ [ -n service-x ]")
+    logger.error("Delete Service (Stop Service, Then clean all service's data): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
+    logger.error("Refrash Service (Update Configuration, Update Machine's Label): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
+    # TODO: Two feature.
+    #logger.error("Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
+    #logger.error("Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
+
+
+
+def pai_service():
+
+    if len(sys.argv) < 2:
+        pai_service_info()
+        return
+
+    option = sys.argv[1]
+    del sys.argv[1]
+
+    if option not in ["start", "delete", "stop", "refrash"]:
+        pai_service_info()
+        return
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+                        help="The path of your configuration directory.")
+    parser.add_argument('-n', '--service-name', dest="service_name", default='all',
+                        help="Build and push the target image to the registry")
+    args = parser.parse_args(sys.argv[1:])
+
+    config_path = args.config_path
+    service_name = args.service_name
+    cluster_object_model = cluster_object_model_generate_service(config_path)
+    cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
+
+    service_list = None
+    if service_name != "all":
+        service_list = [ service_name ]
+
+    # Tricky ,  re-install kubectl first.
+    # TODO: install kubectl-install here.
+
+    if option == "start":
+        service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
+        service_management_starter.run()
+
+    if option == "delete":
+        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter.run()
+
+    if option == "stop":
+        service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
+        service_management_stopper.run()
+
+    if option == "refrash":
+        service_management_refrasher = service_management_refrash.service_management_refrash(cluster_object_model, service_list)
+        service_management_refrasher.run()
 
 
 
@@ -248,9 +360,9 @@ def main():
 
         None
 
-    elif module == "pai-control":
+    elif module == "service":
 
-        None
+        pai_service()
 
     elif module == "easy-way-deploy":
 

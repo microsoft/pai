@@ -20,49 +20,21 @@
 import argparse
 import sys
 import time
-from k8sPaiLibrary.monitorlib import servicestatus
 
-
-# Designed for shell, so use the exit function to pass error code.
-def service_status_check(servicename):
-
-    if servicestatus.is_service_ready(servicename) != True:
-        print "{0} is not ready yet!".format(servicename)
-        sys.exit(1)
-
-
-
-def waiting_until_service_ready(servicename, total_time=216000):
-
-    while servicestatus.is_service_ready(servicename) != True:
-
-        print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
-        time.sleep(10)
-        total_time = total_time - 10
-
-        if total_time < 0:
-            print "An issue occure when starting up {0}".format(servicename)
-            sys.exit(1)
-
-    print "{0} is ready!".format(servicename)
+from ..monitorlib import nodestatus
 
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--wait_service', action="store_true", help="wait until the service is ready")
-    parser.add_argument('-s', '--service', required=True, help="the data of app label in your service")
-    parser.add_argument('-t', '--timeout', type=int, default=216000, help="the data of app label in your service")
+    parser.add_argument('-k', '--label-key', dest="label_key", required=True, help="the data of app label-key in your service")
+    parser.add_argument('-v', '--label-value', dest="label_value", required=True, help="the data of app label-value in your service")
 
     args = parser.parse_args()
-    app_service_name = args.service
 
-    timeout = args.timeout
+    if nodestatus.is_label_exist(args.label_key, args.label_value) != True:
+        sys.exit(1)
 
-    if args.wait_service:
-        waiting_until_service_ready(app_service_name, timeout)
-    else:
-        service_status_check(app_service_name)
 
 
 if __name__ == "__main__":
