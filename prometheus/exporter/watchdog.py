@@ -185,16 +185,35 @@ def parse_pods_status(podsJsonObject, outputFile):
 
 def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
     # 1. check api server
-    apiServerhealty = requests.get("{}/healthz".format(address)).text
-    if apiServerhealty != "ok":
-        # api server health status, 1 is error    
+    try:
+        apiServerhealty = requests.get("{}/healthz".format(address)).text
+
+        if apiServerhealty != "ok":
+            # api server health status, 1 is error    
+            apiserverHealthStr = 'apiserver_status_error {0}\n'.format(1)
+            logger.error(apiserverHealthStr)
+            outputFile.write(apiserverHealthStr)
+    except:
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("watchdog error {}".format(e))
         apiserverHealthStr = 'apiserver_status_error {0}\n'.format(1)
         logger.error(apiserverHealthStr)
         outputFile.write(apiserverHealthStr)
 
     # 2. check etcd
-    etcdhealty = requests.get("{}/healthz/etcd".format(address)).text
-    if etcdhealty != "ok":
+    try:
+        etcdhealty = requests.get("{}/healthz/etcd".format(address)).text
+
+        if etcdhealty != "ok":
+            # etcd health status, 1 is error
+            etcdHealthStr = 'etcd_status_error {0}\n'.format(1)
+            logger.error(etcdHealthStr)
+            outputFile.write(etcdHealthStr)
+    except:
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("watchdog error {}".format(e))
         # etcd health status, 1 is error
         etcdHealthStr = 'etcd_status_error {0}\n'.format(1)
         logger.error(etcdHealthStr)
@@ -205,21 +224,32 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
     kubeletErrorCount = 0
     
     for name in nodeItems:
-        ip = name["metadata"]["name"]
-        kubeletHealthy = requests.get("http://{}:{}/healthz".format(ip, 10255)).text
+        try:
+            ip = name["metadata"]["name"]
+            kubeletHealthy = requests.get("http://{}:{}/healthz".format(ip, 10255)).text
 
-        if kubeletHealthy != "ok":
-            # each node kubelet health status, 1 is error
+            if kubeletHealthy != "ok":
+                # each node kubelet health status, 1 is error
+                kubeletHealthStr = "kubelet_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
+                logger.error(kubeletHealthStr)
+                outputFile.write(kubeletHealthStr)
+                kubeletErrorCount += 1
+        except:
+            exception = sys.exc_info()
+            for e in exception:
+                logger.error("watchdog error {}".format(e))
             kubeletHealthStr = "kubelet_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
             logger.error(kubeletHealthStr)
             outputFile.write(kubeletHealthStr)
             kubeletErrorCount += 1
+
     # error total count of node kubelet health status 
     status = 'kubelet_status_error_total {0}\n'.format(kubeletErrorCount)
     outputFile.write(status)
     return 
 
-def parse_nodes_status(nodesJsonObject, outputFile, configFilePath):
+def parse_nodes_status(nodesJsonObject, outputFile):
+    # check node status
     nodeItems = nodesJsonObject["items"]
     readyNodeCount = 0
     dockerError = 0
@@ -239,8 +269,6 @@ def parse_nodes_status(nodesJsonObject, outputFile, configFilePath):
     nodeNotReadyCount = 'node_notready_count {0}\n'.format(len(nodeItems) - readyNodeCount)
     logger.info("{}".format(nodeNotReadyCount))
     outputFile.write(nodeNotReadyCount)
-
-    checkDockerDaemonStatus(outputFile, configFilePath)
     return
 
 # check docker daemon health
@@ -262,16 +290,25 @@ def checkDockerDaemonStatus(outputFile, configFilePath):
     cmd = "sudo systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
     errorNodeCout = 0
     for node_config in node_configs:
-        if "username" not in node_config or "password" not in node_config or "sshport" not in node_config:
-            node_config["username"] = username
-            node_config["password"] = password
-            node_config["port"] = port
-        flag = common.ssh_shell_paramiko(node_config, cmd)
-        if not flag:
+        try: 
+            if "username" not in node_config or "password" not in node_config or "sshport" not in node_config:
+                node_config["username"] = username
+                node_config["password"] = password
+                node_config["port"] = port
+
+            flag = common.ssh_shell_paramiko(node_config, cmd)
+            if not flag:
+                errorNodeCout += 1
+                # single node docker health
+                logger.error("node_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
+        except:
+            exception = sys.exc_info()
+            for e in exception:
+                logger.error("watchdog error {}".format(e))
             errorNodeCout += 1
             # single node docker health
             logger.error("node_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
-    
+        
     if errorNodeCout > 0:
         # aggregate all nodes docker health total count
         logger.error("node_docker_error_total_count {}\n".format(errorNodeCout))
@@ -300,7 +337,9 @@ def main(argv):
 
             # 2. check nodes level status
             nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
-            parse_nodes_status(nodesStatus, outputFile, configFilePath)
+            parse_nodes_status(nodesStatus, outputFile)
+            # check docker deamon status
+            checkDockerDaemonStatus(outputFile, configFilePath)
 
             # 3. check k8s level status
             check_k8s_componentStaus(address, nodesStatus, outputFile)
