@@ -252,11 +252,8 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on HDFS
 
-    Use `pai-fs` to upload your code and data to HDFS on the system, for example
-    ```sh
-    pai-fs -cp -r /local/data/dir hdfs://host:port/path/tensorflow-distributed-jobguid/data
-    ```
-    please refer to [pai-fs/README.md](../pai-fs/README.md#usage) for more details.
+    Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
+    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details. 
 
 2. Prepare a job config file
 
