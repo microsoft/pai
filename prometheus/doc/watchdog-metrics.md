@@ -5,7 +5,9 @@ For example
 1. Check watchdog log and find an error:
 
 ssh watchdogPodHostIP
+
 cd /var/log/containers
+
 vi watchdog-xx.log 
 
 log example:
@@ -15,12 +17,16 @@ log example:
 2. Go to 10.151.40.133 to check containers detail exception:
 
 ssh 10.151.40.133
+
 vi /var/log/containers/node-exporter-xmvbz_default_gpu-exporter-xxx.log
+
 Find error:
+
 nvidia cmd error.
 
 # How to view watchdog logs
 Operator could get these logs & metrics from watchdog container's log
+
 1. From K8S portal
 
 Find the watchdog pod and container logs
@@ -28,7 +34,9 @@ Find the watchdog pod and container logs
 2. From Watchdog container log
 
 go to k8s container log folder
+
 cd /var/log/containers
+
 vi watchdog-xx.log 
 
 # Metrics
