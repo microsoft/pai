@@ -45,7 +45,7 @@ def parse_pods_status(podsJsonObject, outputFile):
     pod_container_status_waiting = 0
     pod_container_status_terminated = 0
     pod_container_status_not_ready = 0
-    pod_container_status_restarted_pod_count = 0 # if one pod restarts > 1, add 1 to this metrics
+    pod_container_status_restarted_pod_count = 0 
     podItems = podsJsonObject["items"]    
     serviceMetrics = []
     existServiceKey = {}
@@ -87,20 +87,20 @@ def parse_pods_status(podsJsonObject, outputFile):
         if ready != "True" and init == "True" and scheduled == "True":
             kube_pod_status_probe_not_ready += 1
             # specific pod occurs readiness probe failed error, condition is not ready, value is 1
-            logger.error("pod_status_probe_not_ready{{pod=\"{}\"}} {}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_probe_not_ready{{pod=\"{}\", hostip=\"{}\"}} {}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_probe_not_ready += 1
         # 2. check failed phase pods
         if phase == "Failed":
             kube_pod_status_phase_failed += 1
             # specific pod phase become faile, value is 1
-            logger.error("pod_status_phase_failed{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_phase_failed{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_phase_failed += 1
 
         # 3. check unknown phase pods 
         if phase == "Unknown":
             kube_pod_status_phase_unknown += 1
             # specific pod phase become unknown, value is 1
-            logger.error("pod_status_phase_unknown{{pod=\"{0}\"}} {1}\n".format(pod["metadata"]["name"], 1))
+            logger.error("pod_status_phase_unknown{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_phase_unknown += 1
 
         containerStatus = status["containerStatuses"]
@@ -112,26 +112,26 @@ def parse_pods_status(podsJsonObject, outputFile):
             if not containerReady:
                 pod_container_status_not_ready +=1 
                 # specific pod contains container status is not ready, value is 1
-                logger.error("container_status_not_ready{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_not_ready{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_not_ready += 1
 
             state = perContainerStatus["state"]
             if "terminated" in state:
                 pod_container_status_terminated += 1
                 # specific pod container status is terminated total count, value is 1
-                logger.error("container_status_terminated{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_terminated{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_terminated += 1
 
             if "waiting" in state:
                 pod_container_status_waiting += 1
                 # specific pod container status is waiting  total count, value is 1
-                logger.error("container_status_waiting{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], 1))
+                logger.error("container_status_waiting{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_waiting += 1
 
             if restartCount > 0:
                 pod_container_status_restarted_pod_count += 1
                 # specific pod's container restart total count
-                logger.error("container_status_restart_total{{pod=\"{0}\", container=\"{1}\"}} {2}\n".format(pod["metadata"]["name"], perContainerStatus["name"], restartCount))
+                logger.error("container_status_restart_total{{pod=\"{0}\", container=\"{1}\", instance=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], restartCount))
                 service.pod_container_status_restart_total += 1
 
     # service level aggregation metrics
