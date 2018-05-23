@@ -26,6 +26,7 @@ amRequestPullIntervalSec: 30
 amStatusPushIntervalSec: 30
 amFrameworkInfoPublishIntervalSec: 30
 amSkipLocalTriedResource: true
+
 # WebServer Setup
 webServerAddress: http://localhost:9086
 webServerStatusPullIntervalSec: 30
