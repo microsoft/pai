@@ -55,16 +55,12 @@ Steps:
 
 ### Deploy to a PAI Cluster
 
-The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process. 
+The [readme](../pai-management/README.md) in service deployment introduces the overall installation process. 
 
-The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) should be correctly configured:
+The following parameters in the [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) should be correctly configured:
 
-- `rest_server_uri`: String. The root url of the REST server.
-- `k8s_api_server_uri`: String. The root url of Kubernetes's API server.
-- `webhdfs_uri`: String. The root url of WebHDFS's API server.
-- `prometheus_uri`: String. The root url of Prometheus's API server.
-- `k8s_dashboard_uri`: String. The root url of the Kubernetes dashboard.
-- `yarn_web_portal_uri`: String. The root url of the Yarn web portal.
-- `grafana_uri`: String. The root url of Grafana.
-- `pai_web_portal_uri`: String. The root url of the PAI web portal.
-- `port`: Integer. The port number to access the Pylon service. 
+```
+pylon:
+  port:    # Integer. The port number to access the Pylon service. 
+```
+
