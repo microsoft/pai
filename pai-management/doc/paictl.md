@@ -20,9 +20,7 @@ A tool to manage your pai cluster.
 - [ Bootstrap your cluster ](#Cluster)
     - [ Bootstrap your cluster (K8S + Service) with cluster-configuration ](#Cluster_Boot)
     - [ BootStrap K8S ](#Cluster_K8s_Boot)
-    - [ BootStrap service ](#Cluster_Service_Boot)
     - [ Stop K8S ](#Cluster_K8s_Stop)
-    - [ Stop service ](#Cluster_Service_Stop)
     - [ Upgrading K8S version ](#Cluster_K8s_upgrade)
     - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
 - [ Install kubectl ](#Kubectl)
@@ -172,14 +170,6 @@ paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir
 1) Bootstrap k8s cluster
 2) Install kubectl
 
-#### BootStrap service <a name="Cluster_Service_Boot"></a>
-
-```
-paictl.py cluster service-bootstrap -p /path/to/cluster-configuration/dir
-```
-
-1) Install kubectl
-2) Bootstrap service
 
 #### Stop K8S <a name="Cluster_K8s_Stop"></a>
 
@@ -188,14 +178,6 @@ paictl.py cluster k8s-stop -p /path/to/cluster-configuration/dir
 ```
 
 1) Stop kubernetes on your cluster
-
-#### Stop service <a name="Cluster_Service_Stop"></a>
-
-```
-paictl.py cluster servcice-stop -p /path/to/cluster-configuration/dir
-```
-
-1) Stop all service on your cluster
 
 #### Upgrading K8S version <a name="Cluster_K8s_upgrade"></a>
 
