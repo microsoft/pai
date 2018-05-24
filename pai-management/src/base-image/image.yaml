@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 copy-list:
-  - src: host-configure/
+  - src: paiLibrary/imageTool/
     # please crate a new directory in your image src code. Because this directory will be
     # deleted after building image.
     dst: src/base-image/copied_file
