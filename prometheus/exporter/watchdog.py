@@ -328,9 +328,9 @@ def main(argv):
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
     consoleHandler.setFormatter(formatter)  
     logger.addHandler(consoleHandler)  
-    outputFile = open(logDir + "/watchdog.prom", "w")
     while(True):
         try:
+            outputFile = open(logDir + "/watchdog.prom", "w")
             # 1. check service level status
             podsStatus = requests.get("{}/api/v1/namespaces/default/pods/".format(address)).json()
             parse_pods_status(podsStatus, outputFile)
