@@ -52,9 +52,9 @@ load-balance-ip: load-balance IP
 如果你的环境没有负载均衡服务，可以通过给 k8s 集群增加代理节点来实现。PAI 目前只支持单节点
 代理。你也可以自行实现高可用的代理。
 
-[The proxy component definition](k8sPaiLibrary/maintainconf/deploy.yaml)
+[代理组件定义](k8sPaiLibrary/maintainconf/deploy.yaml)
 
-[The conponent templatefile path](k8sPaiLibrary/template)
+[组件模板文件路径](k8sPaiLibrary/template)
 
 注意以下 yaml 文件中最后一行的 k8s-role 设置. (非高可用代理)
 
@@ -300,7 +300,7 @@ service-deployment
 
 #### 模板
 模板引擎采用 [jinja2](http://jinja.pocoo.org/) 。
-模板文件中所需的实值信息均从 [clusterconfig-example.yaml](clusterconfig-example.yaml) 获取，若你的服务需要在模板文件中添加更多信息，修改该文件。 新添加的信息应被放置在该文件的 `clusterinfo`、`machineinfo` 或 `machinelist` 字段下。
+模板文件中所需的实值信息均从 [集群配置文件](../cluster-configuration/)中获取，若你的服务需要在模板文件中添加更多信息，修改该文件。 新添加的信息应被放置在该文件的 `clusterinfo`、`machineinfo` 或 `machinelist` 字段下。
 
 #### 部署 / 测试单个服务
 
