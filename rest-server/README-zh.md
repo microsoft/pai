@@ -25,7 +25,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
 ## 快速开始
 
 1. 准备 job 配置文件
-    参考 [examples/README.md](../job-tutorial/README.md#json-config-file-for-job-submission) 准备 job配置文件，假设命名为`exampleJob.json`。
+    参考 [PAI 深度学习指南 - job 配置文件](../job-tutorial/README-zh.md#job-配置文件) 准备 job配置文件，假设命名为`exampleJob.json`。
 
 2. 认证
     HTTP POST 你的用户名和密码至以下 uri，获取访问令牌：
@@ -75,7 +75,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
 ## RestAPI
 
 ### Root URI
-在 [service-deployment/clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) 中配置 rest server 的 IP 和端口。
+在 [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) 中配置 rest server 的端口。
 
 ### API
 
@@ -341,7 +341,7 @@ REST Server 提供一系列用于管理 jobs 的 API 接口。
 
     *参数*
 
-    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
+    参阅 [job 配置文件](../job-tutorial/README-zh.md#job-配置文件)
 
     *成功请求*
     ```
