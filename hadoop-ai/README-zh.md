@@ -80,7 +80,7 @@ https://issues.apache.org/jira/browse/YARN-7481
   
         运行命令 `mvn package -Pdist,native -DskipTests -Dtar`
     若以上步骤均正确执行，将会在 `hadoop-dist/target` 文件夹下生成  `hadoop-2.7.2.tar.gz`。
-    在[部署 PAI - 准备 dev-box](../pai-management/READ-zh.md#生成-docker-容器) 设置 Hadoop 路径时使用生成的`hadoop-2.7.2.tar.gz`。  
+    在[部署 PAI - 准备 dev-box](../pai-management/README-zh.md#生成-docker-容器) 设置 Hadoop 路径时使用生成的`hadoop-2.7.2.tar.gz`。  
    
 
 ## Yarn GPU 接口 ##
