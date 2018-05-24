@@ -20,9 +20,12 @@ prerequisite:
   - frameworklauncher
   - rest-server
 
-templatelist:
+template-list:
   - end-to-end-test.yaml
-  - cleanup.sh
+  - stop.sh
 
-startscript: start.sh
-stopscript: cleanup.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

@@ -51,3 +51,35 @@ def is_service_ready(servicename):
 
     return True
 
+
+
+
+# To check a service ready or not.
+# Note that service name should be same as the app-name in
+#     labels:
+#        key : value
+def pod_is_ready_or_not(label_key, label_value):
+
+    label_selector_str="{0}={1}".format(label_key, label_value)
+
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+
+    try:
+        pod_list = v1.list_pod_for_all_namespaces(label_selector=label_selector_str, watch=False)
+    except ApiException as e:
+        print "Exception when calling CoreV1Api->list_pod_for_all_namespaces: %s\n" % e
+        return False
+
+    if len(pod_list.items) == 0:
+        return False
+
+    for pod in pod_list.items:
+
+        for container in pod.status.container_statuses:
+            if container.ready != True:
+                return False
+
+    return True
+
+

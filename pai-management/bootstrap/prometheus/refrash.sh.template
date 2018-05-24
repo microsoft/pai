@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,17 +17,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
 
-template-list:
-  - node-label.sh
-  - pylon.yaml
-  - stop.sh
-  - refrash.sh
+pushd $(dirname "$0") > /dev/null
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refrash-script: refrash.sh
-upgraded-script: upgraded.sh
+
+echo "refrash prometheus configuration"
+kubectl apply -f prometheus-configmap.yaml
+
+echo "relabel node's label"
+sh node-label.sh
+
+{% for host in machinelist %}
+
+    {% if 'prometheus' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "prometheus="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have prometheus's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus-
+fi
+    {% endif %}
+
+    {% if 'node-exporter' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "node-exporter="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have node-exporter's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
+fi
+    {% endif %}
+
+{% endfor %}
+
+popd > /dev/null
