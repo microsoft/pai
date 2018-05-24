@@ -40,8 +40,8 @@ import java.util.concurrent.Callable;
 public class WebClient {
   // Each instance of the HttpClient will create a new socket and hold a connection open for a specific interval.
   // To avoid socket exhaustion problem, HttpClient instance need to be shared to use.
-  private CloseableHttpClient httpClient;
-  private String baseURI;
+  private final CloseableHttpClient httpClient;
+  private final String baseURI;
 
   public WebClient(String baseURI, LaunchClientType launchClientType, String userName) {
     this.baseURI = baseURI;

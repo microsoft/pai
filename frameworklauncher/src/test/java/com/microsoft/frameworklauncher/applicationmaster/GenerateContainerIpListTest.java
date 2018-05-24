@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class GenerateContainerIpListTest {
   private static final DefaultLogger LOG = new DefaultLogger(GenerateContainerIpListTest.class);
 
-  private String frameworkName = "TestGenerateContainerIpList";
+  private final String frameworkName = "TestGenerateContainerIpList";
   private String taskRoleName;
   private int taskNum;
 
@@ -71,9 +71,6 @@ public class GenerateContainerIpListTest {
     amThread.start();
     amThread.join();
 
-    // Clean up local file
-    new File(GlobalConstants.CONTAINER_IP_LIST_FILE).deleteOnExit();
-
     AggregatedTaskRoleStatus aggregatedTaskRoleStatus =
         zkStore.getAggregatedTaskRoleStatus(frameworkName, taskRoleName);
     List<TaskStatus> taskStatusArray = aggregatedTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
@@ -91,7 +88,7 @@ public class GenerateContainerIpListTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitStatus),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitStatus),
         exitStatus == ExitStatusKey.CONTAINER_START_FAILED.toInt());
 
     String containerIpListFilePath =
@@ -146,7 +143,7 @@ public class GenerateContainerIpListTest {
 
   private class AMForTest extends MockApplicationMaster {
     private final DefaultLogger LOGGER = new DefaultLogger(AMForTest.class);
-    private CountDownLatch signal;
+    private final CountDownLatch signal;
 
     public AMForTest(CountDownLatch signal) {
       this.signal = signal;

@@ -15,14 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy:
-  - ../pai-fs
-  - ../job-tutorial
-  - ../webportal
-
-
-templatelist:
-  - None
-
-
-prerequisite: None
+copy-list:
+  - src: ../pai-fs
+    dst: src/webportal/copied_file
+  - src: ../job-tutorial
+    dst: src/webportal/copied_file
+  - src: ../webportal
+    dst:  src/webportal/copied_file

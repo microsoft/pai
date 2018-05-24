@@ -100,7 +100,7 @@ proxy-deployment:
       dst: proxy-deployment/etc/kubernetes/manifests
 
     - name: haproxy.cfg
-      src: k8sPaiLibrary/template/haproxy.yaml.template
+      src: k8sPaiLibrary/template/haproxy.cfg.template
       dst: proxy-deployment/etc/kubernetes/haproxy
 
 

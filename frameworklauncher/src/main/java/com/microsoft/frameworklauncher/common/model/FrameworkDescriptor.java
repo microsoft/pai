@@ -18,6 +18,7 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import com.microsoft.frameworklauncher.common.validation.MapKeyNamingValidation;
+import com.microsoft.frameworklauncher.common.validation.MapValueNotNullValidation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
@@ -53,6 +54,7 @@ public class FrameworkDescriptor implements Serializable {
   @Valid
   @NotEmpty
   @MapKeyNamingValidation
+  @MapValueNotNullValidation
   private Map<String, TaskRoleDescriptor> taskRoles;
 
   @Valid
@@ -121,6 +123,30 @@ public class FrameworkDescriptor implements Serializable {
 
   public void setPlatformSpecificParameters(PlatformSpecificParametersDescriptor platformSpecificParameters) {
     this.platformSpecificParameters = platformSpecificParameters;
+  }
+
+  public boolean containsGpuResource() {
+    for (TaskRoleDescriptor taskRole : taskRoles.values()) {
+      if (taskRole.getTaskNumber() > 0) {
+        ResourceDescriptor taskResource = taskRole.getTaskService().getResource();
+        if (taskResource.getGpuNumber() > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public boolean containsPortResource() {
+    for (TaskRoleDescriptor taskRole : taskRoles.values()) {
+      if (taskRole.getTaskNumber() > 0) {
+        ResourceDescriptor taskResource = taskRole.getTaskService().getResource();
+        if (taskResource.getPortNumber() > 0 || taskResource.getPortRanges().size() > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
 

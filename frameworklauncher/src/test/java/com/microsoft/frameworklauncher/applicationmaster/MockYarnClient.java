@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class MockYarnClient extends YarnClient {
-  private MockResourceManager mockResourceManager;
+  private final MockResourceManager mockResourceManager;
 
   public MockYarnClient(MockResourceManager mockResourceManager) {
     super(null);

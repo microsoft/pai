@@ -17,26 +17,59 @@
 
 
 // module dependencies
+require('./job-submit.component.scss');
+require('json-editor')
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-
+const jobSchema = require('./job-submit.schema.js');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
 
+let editor;
+let jobDefaultConfig;
+
 const isValidJson = (str) => {
+  let valid = true;
+  let errors = null;
   try {
-    JSON.parse(str);
-    return true;
+    let json = JSON.parse(str);
+    errors = editor.validate(json);
+    if (errors.length) {
+      valid = false;
+      errors = errors[0].path.replace('root.', '') + ': ' + errors[0].message;
+    }
   } catch (e) {
-    alert('Please upload a valid json file: ' + e.message);
-    return false;
+    errors = e.message;
+    valid = false;
+  }
+  if (!valid) {
+    alert('Please upload a valid json file: ' + errors);
+  }
+  return valid;
+};
+
+const exportFile = (data, filename, type) => {
+  var file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+  else { // Others
+      var a = document.createElement("a"),
+              url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);  
+      }, 0); 
   }
 };
 
@@ -70,20 +103,51 @@ const submitJob = (jobConfig) => {
   });
 };
 
+const loadEditor = () => {
+  var element = document.getElementById('editor-holder');
+  editor = new JSONEditor(element, {
+    schema: jobSchema,
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    //startval: jobExample,
+    no_additional_properties: true,
+  });
+  jobDefaultConfig = editor.getValue();
+};
+
+const resize = () => {
+    var heights = window.innerHeight;
+    document.getElementById("editor-holder").style.height = heights - 300 + "px";
+};
+
 $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
-  $(document).on('change', '#file', (event) => {
+  loadEditor();
+  $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
-        submitJob(JSON.parse(jobConfig));
+        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
       }
     };
     reader.readAsText(event.target.files[0]);
   });
+  $(document).on('click', '#submitJob', () => {
+    submitJob(editor.getValue());
+  });
+  $(document).on('click', '#fileExport', () => {
+    exportFile(JSON.stringify(editor.getValue(), null, 4), 
+      (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json', 
+      'application/json');
+  });
+  resize();
+  window.onresize = function() {
+    resize();
+  };
 });
 
 module.exports = {submitJob};

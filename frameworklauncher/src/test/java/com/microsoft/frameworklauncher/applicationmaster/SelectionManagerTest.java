@@ -25,32 +25,30 @@ import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
-import org.apache.hadoop.yarn.api.records.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class SelectionManagerTest {
   @Test
   public void testResourceConverter() throws Exception {
-    ResourceDescriptor rd = ResourceDescriptor.newInstance(2, 2, 2, 3L);
-    Resource res = rd.toResource();
+    List<ValueRange> ports = new ArrayList<>();
+    ports.add(ValueRange.newInstance(2005, 2005));
+    ResourceDescriptor rd = ResourceDescriptor.newInstance(1, 2, 3, 4L, 1, ports);
+    ResourceDescriptor rd2 = ResourceDescriptor.fromResource(rd.toResource());
 
-    ResourceDescriptor rd2 = ResourceDescriptor.fromResource(res);
+    Assert.assertEquals(rd.getCpuNumber(), rd2.getCpuNumber());
+    Assert.assertEquals(rd.getMemoryMB(), rd2.getMemoryMB());
 
-    Assert.assertEquals(2, (int) rd2.getCpuNumber());
-    Assert.assertEquals(2, (int) rd2.getMemoryMB());
+    if (ResourceDescriptor.checkHadoopLibrarySupportsGpu()) {
+      Assert.assertEquals(rd.getGpuNumber(), rd2.getGpuNumber());
+      Assert.assertEquals(rd.getGpuAttribute(), rd2.getGpuAttribute());
+    }
 
-    try {
-      Class<?> clazz = rd2.getClass();
-      Method getGpuNumber = clazz.getMethod("getGPUs", int.class);
-      Method getGpuAtrribute = clazz.getMethod("getGPUAttribute", long.class);
-
-      Assert.assertEquals(3, (long) getGpuAtrribute.invoke(rd2));
-      Assert.assertEquals(2, (int) getGpuNumber.invoke(rd2));
-    } catch (NoSuchMethodException | IllegalAccessException ignored) {
+    if (ResourceDescriptor.checkHadoopLibrarySupportsPort()) {
+      Assert.assertEquals(rd.getPortNumber(), rd2.getPortNumber());
+      Assert.assertEquals(rd.getPortRanges(), rd2.getPortRanges());
     }
   }
 
@@ -66,22 +64,22 @@ public class SelectionManagerTest {
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
-    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
-    long candidateGPU = sm.selectCandidateGpuAttribute(node1, 1);
-    Assert.assertEquals(1L, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node1, 2);
-    Assert.assertEquals(3L, candidateGPU);
+    long candidateGpu = sm.selectCandidateGpuAttribute(node1, 1);
+    Assert.assertEquals(1L, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node1, 2);
+    Assert.assertEquals(3L, candidateGpu);
 
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 2);
-    Assert.assertEquals(3L, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 4);
-    Assert.assertEquals(0xFL, candidateGPU);
-    candidateGPU = sm.selectCandidateGpuAttribute(node3, 8);
-    Assert.assertEquals(0xFFL, candidateGPU);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 2);
+    Assert.assertEquals(3L, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 4);
+    Assert.assertEquals(0xFL, candidateGpu);
+    candidateGpu = sm.selectCandidateGpuAttribute(node3, 8);
+    Assert.assertEquals(0xFFL, candidateGpu);
 
-    candidateGPU = sm.selectCandidateGpuAttribute(node4, 2);
-    Assert.assertEquals(0x30L, candidateGPU);
+    candidateGpu = sm.selectCandidateGpuAttribute(node4, 2);
+    Assert.assertEquals(0x30L, candidateGpu);
 
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
 
@@ -160,7 +158,7 @@ public class SelectionManagerTest {
     node4 = new Node("node4", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 8, 0xFFL));
     node6 = new Node("node6", tag, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
 
-    SelectionManager sm2 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm2 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
     sm2.addNode(node3);
     sm2.addNode(node4);
@@ -176,7 +174,7 @@ public class SelectionManagerTest {
       Assert.assertEquals(15, result.getGpuAttribute(result.getNodeHosts().get(0)).longValue());
       Assert.assertEquals(240, result.getGpuAttribute(result.getNodeHosts().get(1)).longValue());
     }
-    List<String> nodeList = new ArrayList<String>();
+    List<String> nodeList = new ArrayList<>();
 
     nodeList.add(result.getNodeHosts().get(0));
     sm2.addContainerRequest(ResourceDescriptor.newInstance(1, 1, 4, result.getGpuAttribute(result.getNodeHosts().get(0))), nodeList);
@@ -209,7 +207,7 @@ public class SelectionManagerTest {
 
 
     Map<String, NodeConfiguration> gpuNodeConfig = createClusterTestNodes();
-    SelectionManager sm3 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm3 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
     sm3.addNode(node3);
     sm3.addNode(node4);
 
@@ -228,13 +226,13 @@ public class SelectionManagerTest {
     try {
       result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40", 1, null, gpuNodeConfig);
       Assert.fail("NodeGpuType should not be relaxed to RM");
-    } catch (NotAvailableException e) {
+    } catch (NotAvailableException ignored) {
     }
     result = sm3.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, "L40,T40,K40", 1, null, gpuNodeConfig);
     Assert.assertEquals("node3", result.getNodeHosts().get(0));
     Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
 
-    SelectionManager sm4 = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm4 = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
     node6 = new Node("node6", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node7 = new Node("node7", null, ResourceDescriptor.newInstance(2, 2, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
@@ -265,20 +263,20 @@ public class SelectionManagerTest {
 
   @Test
   public void testSelectionManagerWithPorts() throws Exception {
-    List<ValueRange> ports = new ArrayList<ValueRange>();
+    List<ValueRange> ports = new ArrayList<>();
     ports.add(ValueRange.newInstance(2005, 2010));
 
-    List<ValueRange> ports1 = new ArrayList<ValueRange>();
+    List<ValueRange> ports1 = new ArrayList<>();
     ports1.add(ValueRange.newInstance(2003, 2005));
     ports1.add(ValueRange.newInstance(2007, 2010));
 
-    List<ValueRange> ports2 = new ArrayList<ValueRange>();
+    List<ValueRange> ports2 = new ArrayList<>();
     ports2.add(ValueRange.newInstance(2003, 2005));
 
-    List<ValueRange> ports3 = new ArrayList<ValueRange>();
+    List<ValueRange> ports3 = new ArrayList<>();
     ports3.add(ValueRange.newInstance(2010, 2010));
 
-    List<ValueRange> ports4 = new ArrayList<ValueRange>();
+    List<ValueRange> ports4 = new ArrayList<>();
     ports4.add(ValueRange.newInstance(2005, 2006));
 
     Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(2, 2, 2, 3L, 6, ports), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -290,11 +288,11 @@ public class SelectionManagerTest {
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
 
-    SelectionManager sm = new SelectionManager(am.conf.getLauncherConfig(), am.statusManager, am.requestManager);
+    SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
     sm.addNode(node1);
     sm.addNode(node2);
 
-    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, null), null, null, 2, null, gpuNodeConfig);
+    SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, new ArrayList<>()), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
@@ -309,7 +307,7 @@ public class SelectionManagerTest {
 
   }
 
-  public Map<String, NodeConfiguration> createClusterTestNodes() throws Exception {
+  private Map<String, NodeConfiguration> createClusterTestNodes() {
     Map<String, NodeConfiguration> map = new HashMap<>();
     NodeConfiguration nodeConfig = new NodeConfiguration();
     nodeConfig.setGpuType("K40");

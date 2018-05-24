@@ -248,12 +248,7 @@ public class Service extends AbstractService {
       FrameworkStatus frameworkStatus,
       FrameworkRequest frameworkRequest,
       Resource amResource) throws Exception {
-    String frameworkName = frameworkStatus.getFrameworkName();
     AMType amType = frameworkRequest.getFrameworkDescriptor().getPlatformSpecificParameters().getAmType();
-
-    hdfsStore.makeFrameworkRootDir(frameworkName);
-    HadoopUtils.invalidateLocalResourcesCache();
-
     switch (amType) {
       case DEFAULT:
       default: {
@@ -276,6 +271,8 @@ public class Service extends AbstractService {
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
     hdfsStore.makeFrameworkRootDir(frameworkName);
+    hdfsStore.makeUserStoreRootDir(frameworkName);
+    HadoopUtils.invalidateLocalResourcesCache();
     HadoopUtils.addToLocalResources(localResources, hdfsStore.uploadAMPackageFile(frameworkName));
 
     // SetupLocalEnvironment
@@ -438,7 +435,7 @@ public class Service extends AbstractService {
       // Previous Created Application will lost the ApplicationSubmissionContext object to Launch after AM Restart
       // Because misjudge a ground truth Running Application to be FRAMEWORK_WAITING (lose Framework) is more serious than
       // misjudge a ground truth not Running Application to Running. (The misjudged Application will be completed
-      // by RMResync eventually, so the only impact is longger time to run the Framework)
+      // by RMResync eventually, so the only impact is longer time to run the Framework)
       if (frameworkState == FrameworkState.APPLICATION_CREATED) {
         statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_LAUNCHED);
       }
@@ -932,7 +929,7 @@ public class Service extends AbstractService {
         // Note that for the same Framework, there is race condition between the remove operation and
         // setupContainerLaunchContext, but the race condition is safe:
         // If the remove operation before or during the setupContainerLaunchContext,
-        // the Framework is LeftoverFramework and it will be Cleanuped by gcLeftoverFrameworks.
+        // the Framework is LeftoverFramework and it will be cleaned up by gcLeftoverFrameworks.
         // Otherwise, the Framework is removed totally and not need gcLeftoverFrameworks.
         hdfsStore.removeFrameworkRoot(frameworkName);
       } catch (Exception e) {

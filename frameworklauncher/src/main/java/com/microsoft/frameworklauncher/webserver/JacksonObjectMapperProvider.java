@@ -28,21 +28,16 @@ import javax.ws.rs.ext.Provider;
 @Singleton
 @Provider
 public class JacksonObjectMapperProvider implements ContextResolver<ObjectMapper> {
-  final ObjectMapper defaultObjectMapper;
+  private final ObjectMapper objectMapper;
 
   public JacksonObjectMapperProvider() {
-    defaultObjectMapper = createDefaultMapper();
+    objectMapper = new ObjectMapper();
+    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
 
   @Override
   public ObjectMapper getContext(Class<?> type) {
-    return defaultObjectMapper;
-  }
-
-  public static ObjectMapper createDefaultMapper() {
-    final ObjectMapper jackson = new ObjectMapper();
-    jackson.enable(SerializationFeature.INDENT_OUTPUT);
-    jackson.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    return jackson;
+    return objectMapper;
   }
 }
