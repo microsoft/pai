@@ -62,7 +62,7 @@ We need to build a scikit-learn image to run scikit-learn workload on PAI, this 
     RUN apt-get -y update && apt-get -y install git
 
     # install scikit-learn using pip
-    RUN pip install scikit-learn
+    RUN pip install numpy pandas scipy scikit-learn
 
     # clone scikit-learn examples
     RUN git clone https://github.com/scikit-learn/scikit-learn.git
@@ -96,7 +96,7 @@ FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 RUN apt-get -y update && apt-get -y install git PACKAGE
 
 # install other packages using pip
-RUN pip install scikit-learn PACKAGE
+RUN pip install numpy pandas scipy scikit-learn PACKAGE
 
 # clone scikit-learn examples
 RUN git clone https://github.com/scikit-learn/scikit-learn.git
@@ -141,7 +141,7 @@ Here're some configuration file examples:
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 0,
-      "command": "cd scikit-learn/benchmarks && python bench_text_vectorizers.py"
+      "command": "pip install memory_profiler && cd scikit-learn/benchmarks && python bench_text_vectorizers.py"
     }
   ]
 }

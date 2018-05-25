@@ -8,7 +8,7 @@
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 0,
-      "command": "cd scikit-learn/benchmarks && python bench_text_vectorizers.py"
+      "command": "pip install memory_profiler && cd scikit-learn/benchmarks && python bench_text_vectorizers.py"
     }
   ]
 }
