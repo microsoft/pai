@@ -18,6 +18,7 @@ launcherConfiguration:
     portNumber: 0
     portRanges:
     - {begin: 0, end: 0}
+  amFrameworkInfoPublishIntervalSec: 0
   amPriority: 0
   amRequestPullIntervalSec: 0
   amRmHeartbeatIntervalSec: 0

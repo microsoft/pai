@@ -21,9 +21,9 @@ import com.microsoft.frameworklauncher.common.model.LauncherConfiguration;
 import org.apache.hadoop.yarn.webapp.WebApp;
 
 public class LauncherWebApp extends WebApp {
-  private LauncherConfiguration conf;
-  private StatusManager statusManager;
-  private RequestManager requestManager;
+  private final LauncherConfiguration conf;
+  private final StatusManager statusManager;
+  private final RequestManager requestManager;
 
   public LauncherWebApp(LauncherConfiguration conf, StatusManager statusManager, RequestManager requestManager) {
     this.conf = conf;

@@ -65,6 +65,10 @@ public class YamlUtils {
     if (obj == null || otherObj == null) {
       return false;
     }
+
+    // Yaml serialized string is sorted by property name,
+    // so if objects are equal, the serialized string must be equal and vice versa.
+    // Thus, deepEquals can be based on serialized string equals.
     return Arrays.equals(toBytes(obj), toBytes(otherObj));
   }
 

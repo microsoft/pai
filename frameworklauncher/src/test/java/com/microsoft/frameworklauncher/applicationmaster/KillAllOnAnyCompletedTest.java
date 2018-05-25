@@ -37,7 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class KillAllOnAnyCompletedTest {
-  private String frameworkName = "TestKillAllOnAnyCompleted";
+  private final String frameworkName = "TestKillAllOnAnyCompleted";
   private String taskRoleName;
   private int taskNum;
 
@@ -84,7 +84,7 @@ public class KillAllOnAnyCompletedTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitCode),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitCode),
         exitCode == ExitStatusKey.SUCCEEDED.toInt());
   }
 
@@ -114,7 +114,7 @@ public class KillAllOnAnyCompletedTest {
 
   private class AMForTest extends MockApplicationMaster {
     private final DefaultLogger LOGGER = new DefaultLogger(AMForTest.class);
-    private CountDownLatch signal;
+    private final CountDownLatch signal;
 
     public AMForTest(CountDownLatch signal) {
       this.signal = signal;

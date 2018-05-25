@@ -43,8 +43,7 @@ import java.util.*;
 public class HadoopUtils {
   private static final DefaultLogger LOGGER = new DefaultLogger(HadoopUtils.class);
   private static final String HDFS_PATH_SEPARATOR = "/";
-
-  private static Configuration conf = new YarnConfiguration();
+  private static final Configuration CONF = new YarnConfiguration();
 
   // Cache for HDFS ResourceAbsolutePath -> ResourceFileStatus
   private static final Map<String, FileStatus> resourceFileStatusCache = new HashMap<>();
@@ -67,7 +66,7 @@ public class HadoopUtils {
   // Should success when the localPath exists and the hdfsPath's parent paths are exists directories
   public static void uploadFileToHdfs(String localPath, String hdfsPath) throws Exception {
     try {
-      FileSystem fs = FileSystem.get(conf);
+      FileSystem fs = FileSystem.get(CONF);
       LOGGER.logInfo("[hadoop fs -put -f %s %s]", localPath, hdfsPath);
       fs.copyFromLocalFile(new Path(localPath), new Path(hdfsPath));
     } catch (PathNotFoundException e) {
@@ -81,10 +80,24 @@ public class HadoopUtils {
     }
   }
 
+  // Should success when the srcHdfsPath exists and the dstHdfsPath's parent paths are exists directories
+  // Note renameFileInHdfs is guaranteed to be atomic
+  public static void renameFileInHdfs(String srcHdfsPath, String dstHdfsPath) throws Exception {
+    try {
+      FileContext fc = FileContext.getFileContext(CONF);
+      LOGGER.logInfo("[hadoop fs -mv -f %s %s]", srcHdfsPath, dstHdfsPath);
+      fc.rename(new Path(srcHdfsPath), new Path(dstHdfsPath), Options.Rename.OVERWRITE);
+    } catch (FileNotFoundException e) {
+      throw new NonTransientException("Path does not exist", e);
+    } catch (ParentNotDirectoryException e) {
+      throw new NonTransientException("Path is not a directory", e);
+    }
+  }
+
   // Should always success
   public static void removeDirInHdfs(String hdfsPath) throws Exception {
     try {
-      FileSystem fs = FileSystem.get(conf);
+      FileSystem fs = FileSystem.get(CONF);
       LOGGER.logInfo("[hadoop fs -rm -f -r -skipTrash %s]", hdfsPath);
       fs.delete(new Path(hdfsPath), true);
     } catch (PathNotFoundException ignored) {
@@ -95,7 +108,7 @@ public class HadoopUtils {
   // Note if parent directories do not exist, they will be created
   public static void makeDirInHdfs(String hdfsPath) throws Exception {
     try {
-      FileSystem fs = FileSystem.get(conf);
+      FileSystem fs = FileSystem.get(CONF);
       LOGGER.logInfo("[hadoop fs -mkdir -p %s]", hdfsPath);
       fs.mkdirs(new Path(hdfsPath));
     } catch (Exception e) {
@@ -108,14 +121,14 @@ public class HadoopUtils {
   }
 
   // Should always success
+  // Note the files/directories in subdirectories will not be included
   public static Set<String> listDirInHdfs(String hdfsPath) throws Exception {
     Set<String> nodeNames = new HashSet<>();
     try {
-      FileSystem fs = FileSystem.get(conf);
+      FileSystem fs = FileSystem.get(CONF);
       LOGGER.logInfo("[hadoop fs -ls %s]", hdfsPath);
-      RemoteIterator<LocatedFileStatus> files = fs.listFiles(new Path(hdfsPath), false);
-      while (files.hasNext()) {
-        nodeNames.add(files.next().getPath().getName());
+      for (FileStatus fileStatus : fs.listStatus(new Path(hdfsPath))) {
+        nodeNames.add(fileStatus.getPath().getName());
       }
     } catch (FileNotFoundException ignored) {
     }
@@ -125,10 +138,9 @@ public class HadoopUtils {
   // Should success when the hdfsPath exists
   private static FileStatus getFileStatusInHdfsInternal(String hdfsPath) throws Exception {
     try {
-      FileSystem fs = FileSystem.get(conf);
+      FileSystem fs = FileSystem.get(CONF);
       LOGGER.logInfo("[hadoop fs -stat %%Y %s]", hdfsPath);
-      FileStatus fileStatus = fs.getFileStatus(new Path(hdfsPath));
-      return fileStatus;
+      return fs.getFileStatus(new Path(hdfsPath));
     } catch (PathNotFoundException | FileNotFoundException e) {
       throw new NonTransientException("Path does not exist", e);
     }
@@ -147,7 +159,7 @@ public class HadoopUtils {
   public static void killApplication(String applicationId) throws Exception {
     try {
       YarnClient yarnClient = YarnClient.createYarnClient();
-      yarnClient.init(conf);
+      yarnClient.init(CONF);
       yarnClient.start();
       LOGGER.logInfo("[yarn application -kill %s]", applicationId);
       yarnClient.killApplication(ConverterUtils.toApplicationId(applicationId));
@@ -171,7 +183,7 @@ public class HadoopUtils {
     try {
       ugi.doAs((PrivilegedExceptionAction<Void>) () -> {
         YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(conf);
+        yarnClient.init(CONF);
         yarnClient.start();
         yarnClient.submitApplication(appContext);
         yarnClient.stop();
@@ -186,7 +198,7 @@ public class HadoopUtils {
     Set<String> containerIds = new HashSet<>();
 
     YarnClient yarnClient = YarnClient.createYarnClient();
-    yarnClient.init(conf);
+    yarnClient.init(CONF);
     yarnClient.start();
     List<ContainerReport> containerReports = yarnClient.getContainers(ConverterUtils.toApplicationAttemptId(attemptId));
     yarnClient.stop();
@@ -234,7 +246,7 @@ public class HadoopUtils {
     // Applications' Containers on the same node write the same data in the resource directory.
     try {
       FileStatus fileStatus = getFileStatusInHdfs(hdfsPath);
-      FileContext fileContext = FileContext.getFileContext(conf);
+      FileContext fileContext = FileContext.getFileContext(CONF);
       return LocalResource.newInstance(
           ConverterUtils.getYarnUrlFromPath(fileContext
               .getDefaultFileSystem().resolvePath(fileStatus.getPath())),

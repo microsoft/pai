@@ -26,6 +26,7 @@ repair:
     - name: kubelet.sh
       src: k8sPaiLibrary/template/kubelet.sh.template
       dst: repair
+      # parcel-center/nodename/repair/kubelet.sh
 
     # List of the file
     file-list:

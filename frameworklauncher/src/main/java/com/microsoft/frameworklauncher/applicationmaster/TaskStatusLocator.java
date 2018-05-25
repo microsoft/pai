@@ -48,6 +48,10 @@ public class TaskStatusLocator implements Comparable<TaskStatusLocator> {
 
   @Override
   public int compareTo(TaskStatusLocator other) {
+    if (other == null) {
+      return -1;
+    }
+
     int ret = taskRoleName.compareTo(other.taskRoleName);
     if (ret == 0) {
       ret = Integer.valueOf(taskIndex).compareTo(other.taskIndex);

@@ -34,7 +34,7 @@ public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<
   private final int allocateContainerNum = 6;
 
   private final ApplicationAttemptId attemptId;
-  private AtomicInteger containerId = new AtomicInteger(0);
+  private final AtomicInteger containerId = new AtomicInteger(0);
 
   public MockAMRMClient(ApplicationAttemptId attemptId, MockResourceManager mockResourceManager,
       int intervalMs, CallbackHandler callbackHandler) {
@@ -169,7 +169,7 @@ public class MockAMRMClient<T extends ContainerRequest> extends AMRMClientAsync<
   }
 
   private class AllocateContainerThread extends Thread {
-    List<Container> list;
+    private final List<Container> list;
 
     public AllocateContainerThread(List<Container> list) {
       this.list = list;

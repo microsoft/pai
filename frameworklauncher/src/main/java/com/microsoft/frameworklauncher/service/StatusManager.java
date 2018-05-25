@@ -126,7 +126,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
         try {
           frameworkStatus = zkStore.getFrameworkStatus(frameworkName);
-        } catch (KeeperException.NoNodeException e) {
+        } catch (KeeperException.NoNodeException ignored) {
         } catch (KeeperException e) {
           throw e;
         } catch (Exception e) {
@@ -498,9 +498,9 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       frameworkStatus.setApplicationExitCode(event.getApplicationExitCode());
       frameworkStatus.setApplicationExitDiagnostics(event.getApplicationExitDiagnostics());
 
-      // No need to Cleanup ZK here, since it will be Cleanuped by next Application
+      // No need to Cleanup ZK here, since it will be cleaned up by next Application
       // No need to Cleanup HDFS here, since it will be overwrote by next Application
-      // No need to Cleanup RM here, since it already Cleanuped before here
+      // No need to Cleanup RM here, since it already cleaned up before here
       if (dstState == FrameworkState.APPLICATION_COMPLETED) {
         assert (event.getApplicationExitCode() != null);
         frameworkStatus.setApplicationExitType(ExitDiagnostics.lookupExitType(

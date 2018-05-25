@@ -20,7 +20,10 @@ package com.microsoft.frameworklauncher.hdfsstore;
 import com.google.common.annotations.VisibleForTesting;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
+import com.microsoft.frameworklauncher.common.model.FrameworkInfo;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.HadoopUtils;
+import com.microsoft.frameworklauncher.common.web.WebCommon;
 
 import java.util.Set;
 
@@ -53,6 +56,10 @@ public class HdfsStore {
     HadoopUtils.makeDirInHdfs(hdfsStruct.getFrameworkRootPath(frameworkName));
   }
 
+  public void makeUserStoreRootDir(String frameworkName) throws Exception {
+    HadoopUtils.makeDirInHdfs(hdfsStruct.getUserStoreRootPath(frameworkName));
+  }
+
   public void removeFrameworkRoot(String frameworkName) throws Exception {
     HadoopUtils.removeDirInHdfs(hdfsStruct.getFrameworkRootPath(frameworkName));
   }
@@ -73,9 +80,20 @@ public class HdfsStore {
     return hdfsPath;
   }
 
-  public String uploadContainerIpListFile(String frameworkName) throws Exception {
+  public String uploadContainerIpListFile(String frameworkName, String containerIpList) throws Exception {
     String hdfsPath = hdfsStruct.getContainerIpListFilePath(frameworkName);
+    CommonUtils.writeFile(GlobalConstants.CONTAINER_IP_LIST_FILE, containerIpList);
     HadoopUtils.uploadFileToHdfs(GlobalConstants.CONTAINER_IP_LIST_FILE, hdfsPath);
+    return hdfsPath;
+  }
+
+  // Note uploadFrameworkInfoFile is guaranteed to be atomic
+  public String uploadFrameworkInfoFile(String frameworkName, FrameworkInfo frameworkInfo) throws Exception {
+    String hdfsTempPath = hdfsStruct.getFrameworkInfoFileTempPath(frameworkName);
+    String hdfsPath = hdfsStruct.getFrameworkInfoFilePath(frameworkName);
+    CommonUtils.writeFile(GlobalConstants.FRAMEWORK_INFO_FILE, WebCommon.toJson(frameworkInfo));
+    HadoopUtils.uploadFileToHdfs(GlobalConstants.FRAMEWORK_INFO_FILE, hdfsTempPath);
+    HadoopUtils.renameFileInHdfs(hdfsTempPath, hdfsPath);
     return hdfsPath;
   }
 }
