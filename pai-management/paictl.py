@@ -349,7 +349,6 @@ def pai_cluster_info():
 
     logger.error("The command is wrong.")
     logger.error("Bootstrap kubernetes cluster: paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir")
-    logger.error("Stop kubernetes on your cluster : paictl.py cluster k8s-stop -p /path/to/cluster-configuration/dir")
 
 
 def pai_cluster():
@@ -361,7 +360,7 @@ def pai_cluster():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["k8s-bootstrap"]:
+    if option not in ["k8s-bootstrap","k8s-clean"]:
         pai_cluster_info()
         return
 
@@ -388,8 +387,16 @@ def pai_cluster():
         maintain_k8s_cluster(cluster_config, option_name="deploy", clean=True)
 
         logger.info("Finish initializing PAI k8s cluster.")
+        return
 
+    if args.action == 'k8s-clean':
 
+        logger.info("Begin to clean up whole cluster.")
+
+        maintain_cluster(cluster_config, job_name = "clean", clean = True)
+
+        logger.info("Clean up job finished")
+        return
 
 
 def easy_way_deploy():
