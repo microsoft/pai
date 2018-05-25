@@ -117,7 +117,7 @@ def main():
 
     while servicestatus.is_service_ready('cleaning-one-shot') != True:
 
-        logger.info("The cleaning job not finish yet. Pleas wait for a moment!")
+        logger.info("The cleaning job not finish yet. Please wait for a moment!")
         time.sleep(5)
 
         timeout = timeout - 5

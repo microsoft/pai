@@ -36,7 +36,7 @@ def waiting_until_service_ready(servicename, total_time=216000):
 
     while servicestatus.is_service_ready(servicename) != True:
 
-        print "{0} is not ready yet. Pleas wait for a moment!".format(servicename)
+        print "{0} is not ready yet. Please wait for a moment!".format(servicename)
         time.sleep(10)
         total_time = total_time - 10
 
