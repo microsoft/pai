@@ -34,6 +34,9 @@ from paiLibrary.paiService import service_management_stop
 from paiLibrary.paiService import service_management_delete
 from paiLibrary.paiService import service_management_refrash
 
+from k8sPaiLibrary import maintainlib
+import importlib
+from k8sPaiLibrary.maintainlib import common as pai_common
 
 
 logger = logging.getLogger(__name__)
@@ -308,12 +311,7 @@ def pai_service():
 
     config_path = args.config_path
     service_name = args.service_name
-    cluster_object_model = cluster_object_model_generate_service(config_path)
     cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
-
-    service_list = None
-    if service_name != "all":
-        service_list = [ service_name ]
 
     # Tricky ,  re-install kubectl first.
     # TODO: install kubectl-install here.
@@ -333,6 +331,63 @@ def pai_service():
     if option == "refrash":
         service_management_refrasher = service_management_refrash.service_management_refrash(cluster_object_model, service_list)
         service_management_refrasher.run()
+
+
+def maintain_k8s_cluster(cluster_config, **kwargs):
+    print("option name is " +  kwargs["option_name"])
+    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
+    print("module_name is " + module_name)
+    module = importlib.import_module(module_name)
+
+    job_class = getattr(module, kwargs["option_name"])
+    job_instance = job_class(cluster_config, **kwargs)
+
+    job_instance.run()
+
+
+def pai_cluster_info():
+
+    logger.error("The command is wrong.")
+    logger.error("Bootstrap kubernetes cluster: paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir")
+    logger.error("Stop kubernetes on your cluster : paictl.py cluster k8s-stop -p /path/to/cluster-configuration/dir")
+
+
+def pai_cluster():
+
+    if len(sys.argv) < 2:
+        pai_cluster_info()
+        return
+
+    option = sys.argv[1]
+    del sys.argv[1]
+
+    if option not in ["k8s-bootstrap"]:
+        pai_cluster_info()
+        return
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+                        help="path of cluster configuration file")
+    args = parser.parse_args(sys.argv[1:])
+
+    config_path = args.config_path
+    cluster_config=load_cluster_objectModel_k8s(config_path)
+
+    master_list = cluster_config['mastermachinelist']
+    etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
+
+    # ETCD will communicate with each other through this address.
+    cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
+    # Other service will write and read data through this address.
+    cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
+
+    if option == "k8s-bootstrap":
+        logger.info("Begin to initialize PAI k8s cluster.")
+
+        maintain_k8s_cluster(cluster_config, option_name="deploy", clean=True)
+
+        logger.info("Finish initializing PAI k8s cluster.")
 
 
 
@@ -356,13 +411,17 @@ def main():
 
         pai_build()
 
-    elif module == "k8s-control":
+    elif module == "machine":
 
         None
 
     elif module == "service":
 
         pai_service()
+
+    elif module == "cluster":
+
+        pai_cluster()
 
     elif module == "easy-way-deploy":
 
