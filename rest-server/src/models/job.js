@@ -138,18 +138,24 @@ class Job {
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
       if (!error) {
-        this._prepareJobContext(name, data, (error, result) => {
+        this._initializeJobContextRootFolders((error, result) => {
           if (!error) {
-            unirest.put(launcherConfig.frameworkPath(name))
-              .headers(launcherConfig.webserviceRequestHeaders)
-              .send(this.generateFrameworkDescription(data))
-              .end((res) => {
-                if (res.status === 202) {
-                  next();
-                } else {
-                  next(new Error('[Launcher] ' + res.status + ' ' + JSON.stringify(res.body)));
-                }
-              });
+            this._prepareJobContext(name, data, (error, result) => {
+              if (!error) {
+                unirest.put(launcherConfig.frameworkPath(name))
+                  .headers(launcherConfig.webserviceRequestHeaders)
+                  .send(this.generateFrameworkDescription(data))
+                  .end((res) => {
+                    if (res.status === 202) {
+                      next();
+                    } else {
+                      next(new Error('[Launcher] ' + res.status + ' ' + JSON.stringify(res.body)));
+                    }
+                  });
+              } else {
+                next(error);
+              }
+            });
           } else {
             next(error);
           }
@@ -402,6 +408,32 @@ class Job {
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
     }
     return frameworkDescription;
+  }
+
+  _initializeJobContextRootFolders(next) {
+    const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    async.parallel([
+      (parallelCallback) => {
+        hdfs.createFolder(
+          '/Output',
+          {'user.name': 'root', 'permission': '777'},
+          (error, result) => {
+            parallelCallback(error);
+          }
+        );
+      },
+      (parallelCallback) => {
+        hdfs.createFolder(
+          '/Container',
+          {'user.name': 'root', 'permission': '777'},
+          (error, result) => {
+            parallelCallback(error);
+          }
+        );
+      },
+    ], (parallelError) => {
+      return next(parallelError);
+    });
   }
 
   _prepareJobContext(name, data, next) {
