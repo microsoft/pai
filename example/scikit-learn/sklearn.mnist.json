@@ -1,0 +1,14 @@
+{
+  "jobName": "sklearn-mnist",
+  "image": "paiexample/pai.example.sklearn",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "command": "cd scikit-learn/benchmarks && python bench_mnist.py"
+    }
+  ]
+}
