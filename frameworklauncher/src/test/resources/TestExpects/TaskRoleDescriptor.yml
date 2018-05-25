@@ -1,5 +1,6 @@
 !!com.microsoft.frameworklauncher.common.model.TaskRoleDescriptor
-platformSpecificParameters: {taskNodeGpuType: testString, taskNodeLabel: testString}
+platformSpecificParameters: {samePortsAllocation: false, taskNodeGpuType: testString,
+  taskNodeLabel: testString}
 scaleUnitNumber: 0
 scaleUnitTimeoutSec: 0
 taskNumber: 0
@@ -13,6 +14,9 @@ taskService:
     gpuAttribute: 0
     gpuNumber: 0
     memoryMB: 0
+    portDefinitions:
+      testString: {count: 0, start: 0}
+    portNumber: 0
     portRanges:
     - {begin: 0, end: 0}
   sourceLocations: [testString]

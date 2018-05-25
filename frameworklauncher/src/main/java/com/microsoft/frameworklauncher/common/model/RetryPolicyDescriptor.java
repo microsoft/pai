@@ -18,12 +18,13 @@
 package com.microsoft.frameworklauncher.common.model;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 // If fancyRetryPolicy is enabled,
-//  will Retry for TrainsientFailure,
-//  will Not Retry for NonTrainsientFailure,
+//  will Retry for TransientFailure,
+//  will Not Retry for NonTransientFailure,
 //  will apply NormalRetryPolicy for UnKnownFailure.
 //
 // If fancyRetryPolicy is not enabled, will apply NormalRetryPolicy for all kinds of failures.
@@ -34,6 +35,7 @@ import java.io.Serializable;
 public class RetryPolicyDescriptor implements Serializable {
   @Valid
   @NotNull
+  @Min(-1)
   private Integer maxRetryCount = 0;
 
   @Valid

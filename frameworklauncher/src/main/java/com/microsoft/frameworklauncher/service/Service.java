@@ -19,6 +19,7 @@ package com.microsoft.frameworklauncher.service;
 
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.definition.FrameworkStateDefinition;
+import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
@@ -134,7 +135,7 @@ public class Service extends AbstractService {
     yarnClient.start();
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
     hdfsStore = new HdfsStore(conf.getHdfsRootDir());
 
     // Initialize other components
@@ -179,13 +180,28 @@ public class Service extends AbstractService {
   public synchronized void stop(StopStatus stopStatus) {
     // Best Effort to stop Gracefully
     super.stop(stopStatus);
+
+    AggregateException ae = new AggregateException();
+
+    // Stop Service's SubServices
     try {
-      // Stop Service's SubServices
       if (yarnClient != null) {
         yarnClient.stop();
       }
     } catch (Exception e) {
-      LOGGER.logWarning(e, "Failed to stop %s gracefully", serviceName);
+      ae.addException(e);
+    }
+
+    try {
+      if (zkStore != null) {
+        zkStore.stop();
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
+    if (ae.getExceptions().size() > 0) {
+      LOGGER.logWarning(ae, "Failed to stop %s gracefully", serviceName);
     }
 
     LOGGER.logInfo("%s stopped", serviceName);
@@ -232,12 +248,7 @@ public class Service extends AbstractService {
       FrameworkStatus frameworkStatus,
       FrameworkRequest frameworkRequest,
       Resource amResource) throws Exception {
-    String frameworkName = frameworkStatus.getFrameworkName();
     AMType amType = frameworkRequest.getFrameworkDescriptor().getPlatformSpecificParameters().getAmType();
-
-    hdfsStore.makeFrameworkRootDir(frameworkName);
-    HadoopUtils.invalidateLocalResourcesCache();
-
     switch (amType) {
       case DEFAULT:
       default: {
@@ -260,6 +271,8 @@ public class Service extends AbstractService {
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
     hdfsStore.makeFrameworkRootDir(frameworkName);
+    hdfsStore.makeUserStoreRootDir(frameworkName);
+    HadoopUtils.invalidateLocalResourcesCache();
     HadoopUtils.addToLocalResources(localResources, hdfsStore.uploadAMPackageFile(frameworkName));
 
     // SetupLocalEnvironment
@@ -284,7 +297,6 @@ public class Service extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
-    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, conf.getAmRmHeartbeatIntervalSec().toString());
 
@@ -423,7 +435,7 @@ public class Service extends AbstractService {
       // Previous Created Application will lost the ApplicationSubmissionContext object to Launch after AM Restart
       // Because misjudge a ground truth Running Application to be FRAMEWORK_WAITING (lose Framework) is more serious than
       // misjudge a ground truth not Running Application to Running. (The misjudged Application will be completed
-      // by RMResync eventually, so the only impact is longger time to run the Framework)
+      // by RMResync eventually, so the only impact is longer time to run the Framework)
       if (frameworkState == FrameworkState.APPLICATION_CREATED) {
         statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_LAUNCHED);
       }
@@ -917,7 +929,7 @@ public class Service extends AbstractService {
         // Note that for the same Framework, there is race condition between the remove operation and
         // setupContainerLaunchContext, but the race condition is safe:
         // If the remove operation before or during the setupContainerLaunchContext,
-        // the Framework is LeftoverFramework and it will be Cleanuped by gcLeftoverFrameworks.
+        // the Framework is LeftoverFramework and it will be cleaned up by gcLeftoverFrameworks.
         // Otherwise, the Framework is removed totally and not need gcLeftoverFrameworks.
         hdfsStore.removeFrameworkRoot(frameworkName);
       } catch (Exception e) {

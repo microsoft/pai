@@ -17,12 +17,11 @@
 
 package com.microsoft.frameworklauncher.common;
 
-import com.microsoft.frameworklauncher.common.utils.DnsUtils;
-
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
   public static final String LOGGER_CONFIG_FILE = "log4j.properties";
   public static final String CONTAINER_IP_LIST_FILE = "ContainerIpList.ini";
+  public static final String FRAMEWORK_INFO_FILE = "FrameworkInfo.json";
   public static final int USING_UNLIMITED_VALUE = -1;
   public static final int USING_DEFAULT_VALUE = -2;
   public static final String LAUNCHER_APPLICATION_TYPE = "LAUNCHER";
@@ -36,7 +35,9 @@ public class GlobalConstants {
   public static final String ENV_VAR_FRAMEWORK_VERSION = "FRAMEWORK_VERSION";
   public static final String ENV_VAR_ZK_CONNECT_STRING = "ZK_CONNECT_STRING";
   public static final String ENV_VAR_ZK_ROOT_DIR = "ZK_ROOT_DIR";
-  public static final String ENV_VAR_ZK_COMPRESSION_ENABLE = "ZK_COMPRESSION_ENABLE";
+  public static final String ENV_VAR_HDFS_ROOT_DIR = "HDFS_ROOT_DIR";
+  public static final String ENV_VAR_HDFS_USER_STORE_ROOT_DIR = "HDFS_USER_STORE_ROOT_DIR";
+  public static final String ENV_VAR_HDFS_FRAMEWORK_INFO_FILE = "HDFS_FRAMEWORK_INFO_FILE";
   public static final String ENV_VAR_AM_VERSION = "AM_VERSION";
   public static final String ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC = "AM_RM_HEARTBEAT_INTERVAL_SEC";
   public static final String ENV_VAR_TASK_ROLE_NAME = "TASK_ROLE_NAME";
@@ -62,5 +63,4 @@ public class GlobalConstants {
   public static final String ENV_VAR_AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC = "AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC";
   public static final String ENV_VAR_AGENT_BOND_RPC_TIMEOUT_SEC = "AGENT_BOND_RPC_TIMEOUT_SEC";
   public static final String LINE = new String(new char[200]).replace("\0", "_");
-  public static final String LOCAL_HOST_NAME = DnsUtils.resolveLocalHostName();
 }

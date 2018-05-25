@@ -18,12 +18,12 @@
 package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.common.web.WebStructure;
@@ -40,7 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Path("/")
+@Path(WebStructure.ROOT_PATH)
 public class LauncherModule {
   private static final DefaultLogger LOGGER = new DefaultLogger(LauncherModule.class);
   private final LauncherConfiguration conf;
@@ -144,7 +144,7 @@ public class LauncherModule {
   }
 
   private void checkFrameworkWritableAccess(
-      UserDescriptor user, String namespace, AclConfiguration aclConf) throws Exception {
+      UserDescriptor user, String namespace, AclConfiguration aclConf) throws AuthorizationException {
     if (!getEffectiveNamespaceAcl(namespace, aclConf).containsUser(user)) {
       throw new AuthorizationException(String.format(
           "User [%s] does not have the Writable Access to the Namespace [%s].",
@@ -152,8 +152,7 @@ public class LauncherModule {
     }
   }
 
-  private AccessControlList getEffectiveNamespaceAcl(
-      String namespace, AclConfiguration aclConf) throws Exception {
+  private AccessControlList getEffectiveNamespaceAcl(String namespace, AclConfiguration aclConf) {
     AccessControlList namespaceAcl = new AccessControlList();
 
     // 1. Add Predefined Acl
@@ -169,8 +168,7 @@ public class LauncherModule {
     return namespaceAcl;
   }
 
-  private Set<UserDescriptor> getAdminUsers(
-      AclConfiguration aclConf) throws Exception {
+  private Set<UserDescriptor> getAdminUsers(AclConfiguration aclConf) {
     Set<UserDescriptor> adminUsers = new HashSet<>();
     adminUsers.add(statusManager.getLauncherStatus().getLoggedInUser());
     adminUsers.addAll(conf.getRootAdminUsers());
@@ -179,10 +177,10 @@ public class LauncherModule {
   }
 
   @GET
-  @Path(WebStructure.ROOT_PATH)
+  // Default to WebStructure.ROOT_PATH
   @Produces({MediaType.TEXT_PLAIN})
   public String getRootActiveMessage() {
-    return "Active at " + GlobalConstants.LOCAL_HOST_NAME;
+    return "Active at " + DnsUtils.getLocalHost() + ": " + DnsUtils.getLocalIp();
   }
 
   @GET

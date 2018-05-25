@@ -17,13 +17,13 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class GenerateContainerIpListTest {
   private static final DefaultLogger LOG = new DefaultLogger(GenerateContainerIpListTest.class);
 
-  private String frameworkName = "TestGenerateContainerIpList";
+  private final String frameworkName = "TestGenerateContainerIpList";
   private String taskRoleName;
   private int taskNum;
 
@@ -71,9 +71,6 @@ public class GenerateContainerIpListTest {
     amThread.start();
     amThread.join();
 
-    // Clean up local file
-    new File(GlobalConstants.CONTAINER_IP_LIST_FILE).deleteOnExit();
-
     AggregatedTaskRoleStatus aggregatedTaskRoleStatus =
         zkStore.getAggregatedTaskRoleStatus(frameworkName, taskRoleName);
     List<TaskStatus> taskStatusArray = aggregatedTaskRoleStatus.getTaskStatuses().getTaskStatusArray();
@@ -91,7 +88,7 @@ public class GenerateContainerIpListTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitStatus),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitStatus),
         exitStatus == ExitStatusKey.CONTAINER_START_FAILED.toInt());
 
     String containerIpListFilePath =
@@ -114,7 +111,7 @@ public class GenerateContainerIpListTest {
         .getResource("TestGenerateContainerIpList.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
-            GlobalConstants.LOCAL_HOST_NAME, "user");
+            DnsUtils.getLocalHost(), "user");
     FrameworkStatus frameworkStatus = FeatureTestUtils.getFrameworkStatusFromRequest(frameworkRequest);
 
     Map<String, TaskRoleDescriptor> taskRoleDescriptorMap =
@@ -146,7 +143,7 @@ public class GenerateContainerIpListTest {
 
   private class AMForTest extends MockApplicationMaster {
     private final DefaultLogger LOGGER = new DefaultLogger(AMForTest.class);
-    private CountDownLatch signal;
+    private final CountDownLatch signal;
 
     public AMForTest(CountDownLatch signal) {
       this.signal = signal;

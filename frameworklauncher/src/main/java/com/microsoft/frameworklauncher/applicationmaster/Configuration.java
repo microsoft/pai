@@ -23,6 +23,7 @@ import com.microsoft.frameworklauncher.common.model.LauncherStatus;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.UserDescriptor;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -37,7 +38,6 @@ public class Configuration {
   private Integer frameworkVersion;
   private String zkConnectString;
   private String zkRootDir;
-  private Boolean zkCompressionEnable;
   private Integer amVersion;
   private Integer amRmHeartbeatIntervalSec;
   private String amHostName;
@@ -68,10 +68,9 @@ public class Configuration {
     frameworkVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_FRAMEWORK_VERSION));
     zkConnectString = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING);
     zkRootDir = CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_ROOT_DIR);
-    zkCompressionEnable = Boolean.parseBoolean(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE));
     amVersion = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_VERSION));
     amRmHeartbeatIntervalSec = Integer.parseInt(CommonUtils.getEnvironmentVariable(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC));
-    amHostName = GlobalConstants.LOCAL_HOST_NAME;
+    amHostName = DnsUtils.getLocalHost();
     amRpcPort = -1;
     // Set a NotEmpty amTrackingUrl will override default (Proxied)TrackingUrl and OriginalTrackingUrl
     // which point to RMWebAPP.
@@ -120,10 +119,6 @@ public class Configuration {
 
   protected String getZkRootDir() {
     return zkRootDir;
-  }
-
-  public Boolean getZkCompressionEnable() {
-    return zkCompressionEnable;
   }
 
   protected Integer getAmVersion() {

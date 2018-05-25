@@ -17,12 +17,12 @@
 
 package com.microsoft.frameworklauncher.applicationmaster;
 
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
@@ -37,7 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class KillAllOnAnyCompletedTest {
-  private String frameworkName = "TestKillAllOnAnyCompleted";
+  private final String frameworkName = "TestKillAllOnAnyCompleted";
   private String taskRoleName;
   private int taskNum;
 
@@ -84,7 +84,7 @@ public class KillAllOnAnyCompletedTest {
 
     Assert.assertTrue("ApplicationMaster didn't stop",
         signal.getCount() == 0);
-    Assert.assertTrue(String.format("Wrong exitCode : %s", exitCode),
+    Assert.assertTrue(String.format("Wrong exitCode: %s", exitCode),
         exitCode == ExitStatusKey.SUCCEEDED.toInt());
   }
 
@@ -93,7 +93,7 @@ public class KillAllOnAnyCompletedTest {
         .getResource("TestKillAllOnAnyCompleted.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
-            GlobalConstants.LOCAL_HOST_NAME, "user");
+            DnsUtils.getLocalHost(), "user");
     FrameworkStatus frameworkStatus = FeatureTestUtils.getFrameworkStatusFromRequest(frameworkRequest);
 
     for (Map.Entry<String, TaskRoleDescriptor> entry :
@@ -114,7 +114,7 @@ public class KillAllOnAnyCompletedTest {
 
   private class AMForTest extends MockApplicationMaster {
     private final DefaultLogger LOGGER = new DefaultLogger(AMForTest.class);
-    private CountDownLatch signal;
+    private final CountDownLatch signal;
 
     public AMForTest(CountDownLatch signal) {
       this.signal = signal;

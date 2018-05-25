@@ -17,26 +17,59 @@
 
 
 // module dependencies
+require('./job-submit.component.scss');
+require('json-editor')
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-
+const jobSchema = require('./job-submit.schema.js');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
 
+let editor;
+let jobDefaultConfig;
+
 const isValidJson = (str) => {
+  let valid = true;
+  let errors = null;
   try {
-    JSON.parse(str);
-    return true;
+    let json = JSON.parse(str);
+    errors = editor.validate(json);
+    if (errors.length) {
+      valid = false;
+      errors = errors[0].path.replace('root.', '') + ': ' + errors[0].message;
+    }
   } catch (e) {
-    alert('Please upload a valid json file: ' + e.message);
-    return false;
+    errors = e.message;
+    valid = false;
+  }
+  if (!valid) {
+    alert('Please upload a valid json file: ' + errors);
+  }
+  return valid;
+};
+
+const exportFile = (data, filename, type) => {
+  var file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) // IE10+
+      window.navigator.msSaveOrOpenBlob(file, filename);
+  else { // Others
+      var a = document.createElement("a"),
+              url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);  
+      }, 0); 
   }
 };
 
@@ -45,10 +78,11 @@ const submitJob = (jobConfig) => {
     loading.showLoading();
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
-      data: jobConfig,
+      data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      contentType:"application/json; charset=utf-8",
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
@@ -63,6 +97,7 @@ const submitJob = (jobConfig) => {
         window.location.replace('/view.html');
       },
       error: (xhr, textStatus, error) => {
+        loading.hideLoading();
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },
@@ -70,20 +105,56 @@ const submitJob = (jobConfig) => {
   });
 };
 
+const loadEditor = () => {
+  var element = $('#editor-holder')[0];
+  editor = new JSONEditor(element, {
+    schema: jobSchema,
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    no_additional_properties: true,
+    show_errors: 'always',
+  });
+  jobDefaultConfig = editor.getValue();
+};
+
+const resize = () => {
+  var heights = window.innerHeight;
+  $("#editor-holder")[0].style.height = heights - 300 + "px";
+};
+
 $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
-  $(document).on('change', '#file', (event) => {
+  loadEditor();
+  editor.on('change', () => {
+    $('#submitJob').disabled = (editor.validate().length != 0);
+  });
+
+  $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const jobConfig = event.target.result;
       if (isValidJson(jobConfig)) {
-        submitJob(JSON.parse(jobConfig));
+        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
       }
     };
     reader.readAsText(event.target.files[0]);
+    $('#fileUpload').val('');
   });
+  $(document).on('click', '#submitJob', () => {
+    submitJob(editor.getValue());
+  });
+  $(document).on('click', '#fileExport', () => {
+    exportFile(JSON.stringify(editor.getValue(), null, 4), 
+      (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json', 
+      'application/json');
+  });
+  resize();
+  window.onresize = function() {
+    resize();
+  };
 });
 
 module.exports = {submitJob};

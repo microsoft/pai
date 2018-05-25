@@ -40,6 +40,7 @@ import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
+import com.microsoft.frameworklauncher.hdfsstore.HdfsStoreStructure;
 import com.microsoft.frameworklauncher.zookeeperstore.ZookeeperStore;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
@@ -83,8 +84,10 @@ public class ApplicationMaster extends AbstractService {
   protected NMClientAsync nmClient;
   protected StatusManager statusManager;
   protected RequestManager requestManager;
+  protected FrameworkInfoPublisher frameworkInfoPublisher;
   protected SelectionManager selectionManager;
   private RMResyncHandler rmResyncHandler;
+
   /**
    * REGION StateVariable
    */
@@ -96,9 +99,9 @@ public class ApplicationMaster extends AbstractService {
   //  before launchContainersTogether and will be Transitioned to Completed due
   //  to expire. So the only impact is longer time to launchContainersTogether.
   // ContainerId -> Container
-  private Map<String, Container> allocatedContainers = new HashMap<>();
+  private final Map<String, Container> allocatedContainers = new HashMap<>();
   // ContainerId -> ContainerConnectionExceedCount
-  private Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
+  private final Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
 
   /**
    * REGION AbstractService
@@ -161,10 +164,11 @@ public class ApplicationMaster extends AbstractService {
     conf.initializeDependOnYarnClientConfig(yarnClient);
 
     // Initialize Launcher Store
-    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir(), conf.getZkCompressionEnable());
+    zkStore = new ZookeeperStore(conf.getZkConnectString(), conf.getZkRootDir());
     conf.initializeDependOnZKStoreConfig(zkStore);
     hdfsStore = new HdfsStore(conf.getLauncherConfig().getHdfsRootDir());
     hdfsStore.makeFrameworkRootDir(conf.getFrameworkName());
+    hdfsStore.makeUserStoreRootDir(conf.getFrameworkName());
     hdfsStore.makeAMStoreRootDir(conf.getFrameworkName());
 
     // Initialize other components
@@ -174,7 +178,8 @@ public class ApplicationMaster extends AbstractService {
 
     statusManager = new StatusManager(this, conf, zkStore);
     requestManager = new RequestManager(this, conf, zkStore, launcherClient);
-    selectionManager = new SelectionManager(conf.getLauncherConfig(), statusManager, requestManager);
+    frameworkInfoPublisher = new FrameworkInfoPublisher(this, conf, zkStore, hdfsStore, statusManager, requestManager);
+    selectionManager = new SelectionManager(this, conf, statusManager, requestManager);
     rmResyncHandler = new RMResyncHandler(this, conf);
   }
 
@@ -186,12 +191,14 @@ public class ApplicationMaster extends AbstractService {
     // Here StatusManager recover completed
     reviseCorruptedTaskStates();
     recoverTransitionTaskStateQueue();
+
+    requestManager.start();
   }
 
   @Override
   protected void run() throws Exception {
     super.run();
-    requestManager.start();
+    frameworkInfoPublisher.start();
   }
 
   // THREAD SAFE
@@ -229,6 +236,14 @@ public class ApplicationMaster extends AbstractService {
       ae.addException(e);
     }
 
+    try {
+      if (frameworkInfoPublisher != null) {
+        frameworkInfoPublisher.stop(stopStatus);
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
     // Stop rmClient at last, since there is no work left in current AM, and only then RM is
     // allowed to process the application, such as generate application's diagnostics.
     try {
@@ -242,6 +257,14 @@ public class ApplicationMaster extends AbstractService {
               stopStatus.getDiagnostics(), conf.getAmTrackingUrl());
         }
         rmClient.stop();
+      }
+    } catch (Exception e) {
+      ae.addException(e);
+    }
+
+    try {
+      if (zkStore != null) {
+        zkStore.stop();
       }
     } catch (Exception e) {
       ae.addException(e);
@@ -497,7 +520,7 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private TaskStatus findTask(Container container) throws Exception {
+  private TaskStatus findTask(Container container) {
     Priority priority = container.getPriority();
     if (statusManager.containsTask(priority)) {
       TaskStatus taskStatus = statusManager.getTaskStatus(priority);
@@ -527,6 +550,7 @@ public class ApplicationMaster extends AbstractService {
   // To keep all tasks have the same ports in a task role.
   // Will reject this container if the ports are not the same.
   private Boolean testContainerPorts(Container container, String taskRoleName) throws Exception {
+    Boolean samePortsAllocation = requestManager.getTaskPlatParams().get(taskRoleName).getSamePortsAllocation();
     List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
     List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
 
@@ -534,8 +558,7 @@ public class ApplicationMaster extends AbstractService {
     String rejectedLogPrefix = logPrefix + "Rejected: ";
     String acceptedLogPrefix = logPrefix + "Accepted: ";
 
-    Boolean useTheSamePorts = requestManager.getTaskRoles().get(taskRoleName).getUseTheSamePorts();
-    if (useTheSamePorts) {
+    if (samePortsAllocation) {
       if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
         if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
           LOGGER.logWarning(rejectedLogPrefix + "Container ports are not the same as previous allocated ports.");
@@ -561,6 +584,8 @@ public class ApplicationMaster extends AbstractService {
   }
 
   private ContainerLaunchContext setupContainerLaunchContext(TaskStatus taskStatus) throws Exception {
+    HdfsStoreStructure hdfsStruct = hdfsStore.getHdfsStruct();
+
     String taskRoleName = taskStatus.getTaskRoleName();
     Integer taskIndex = taskStatus.getTaskIndex();
     Integer serviceVersion = getServiceVersion(taskRoleName);
@@ -583,7 +608,7 @@ public class ApplicationMaster extends AbstractService {
     }
 
     if (generateContainerIpList) {
-      String location = hdfsStore.getHdfsStruct().getContainerIpListFilePath(conf.getFrameworkName());
+      String location = hdfsStruct.getContainerIpListFilePath(conf.getFrameworkName());
       HadoopUtils.addToLocalResources(localResources, location);
     }
 
@@ -599,17 +624,16 @@ public class ApplicationMaster extends AbstractService {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, conf.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, conf.getZkRootDir());
-    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, conf.getZkCompressionEnable().toString());
+    localEnvs.put(GlobalConstants.ENV_VAR_HDFS_ROOT_DIR, conf.getLauncherConfig().getHdfsRootDir());
+    localEnvs.put(GlobalConstants.ENV_VAR_HDFS_USER_STORE_ROOT_DIR, hdfsStruct.getUserStoreRootPath(conf.getFrameworkName()));
+    localEnvs.put(GlobalConstants.ENV_VAR_HDFS_FRAMEWORK_INFO_FILE, hdfsStruct.getFrameworkInfoFilePath(conf.getFrameworkName()));
+
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, conf.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_APP_ID, conf.getApplicationId());
     localEnvs.put(GlobalConstants.ENV_VAR_ATTEMPT_ID, conf.getAttemptId());
+    localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_IP, taskStatus.getContainerIp());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_GPUS, taskStatus.getContainerGpus().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_PORTS, taskStatus.getContainerPorts());
-    if (generateContainerIpList) {
-      // Since one machine may have many external IPs, we assigned a specific one to
-      // help the UserService to locate itself in CONTAINER_IP_LIST_FILE
-      localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_IP, taskStatus.getContainerIp());
-    }
 
 
     // SetupEntryPoint
@@ -666,7 +690,7 @@ public class ApplicationMaster extends AbstractService {
       // Previous Launched Container may not receive onContainerStarted after AM Restart
       // Because misjudge a ground truth Running Container to be TASK_WAITING (lose Task) is more serious than
       // misjudge a ground truth not Running Container to Running. (The misjudged Container will be expired
-      // by RM eventually, so the only impact is longger time to run all Tasks)
+      // by RM eventually, so the only impact is longer time to run all Tasks)
       if (taskState == TaskState.CONTAINER_ALLOCATED ||
           taskState == TaskState.CONTAINER_LAUNCHED) {
         statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_RUNNING);
@@ -941,7 +965,7 @@ public class ApplicationMaster extends AbstractService {
 
   private Set<String> resyncTasksWithLiveContainers(Set<String> liveContainerIds) throws Exception {
     String logScope = "resyncTasksWithLiveContainers";
-    Set<String> retainContainerIds = new HashSet<String>();
+    Set<String> retainContainerIds = new HashSet<>();
 
     if (liveContainerIds == null) {
       LOGGER.logInfo(
@@ -1175,10 +1199,9 @@ public class ApplicationMaster extends AbstractService {
         fileContent.append(taskStatus.getContainerIp());
         fileContent.append("\n");
       }
-      CommonUtils.writeFile(GlobalConstants.CONTAINER_IP_LIST_FILE, fileContent.toString());
 
       try {
-        hdfsStore.uploadContainerIpListFile(conf.getFrameworkName());
+        hdfsStore.uploadContainerIpListFile(conf.getFrameworkName(), fileContent.toString());
         HadoopUtils.invalidateLocalResourcesCache();
       } catch (Exception e) {
         // It contains HDFS OP, so handle the corresponding Exception ASAP
@@ -1284,16 +1307,19 @@ public class ApplicationMaster extends AbstractService {
     });
   }
 
-  // Cleanup Task level external resource [RM] before RemoveTask by DecreaseTaskNumber
-  public void onTaskToRemove(TaskStatus taskStatus) {
+  public void onTaskToReleaseContainer(TaskStatus taskStatus) {
     String containerId = taskStatus.getContainerId();
     TaskState taskState = taskStatus.getTaskState();
 
     if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskState)) {
-      // No need to completeContainer, since it is to be Removed afterwards
       tryToReleaseContainer(containerId);
     }
+  }
 
+  // Cleanup Task level external resource [RM] before RemoveTask by DecreaseTaskNumber
+  public void onTaskToRemove(TaskStatus taskStatus) {
+    // No need to completeContainer, since it is to be Removed afterwards
+    onTaskToReleaseContainer(taskStatus);
     removeContainerRequest(taskStatus);
   }
 
@@ -1459,11 +1485,7 @@ public class ApplicationMaster extends AbstractService {
     return requestManager.getServiceVersion(taskRoleName);
   }
 
-  public boolean existsLocalVersionFrameworkRequest() throws NotAvailableException {
-    if (requestManager == null) {
-      throw new NotAvailableException("FrameworkRequest for local FrameworkVersion is not available");
-    } else {
-      return requestManager.existsLocalVersionFrameworkRequest();
-    }
+  public Boolean existsLocalVersionFrameworkRequest() {
+    return requestManager == null ? null : requestManager.existsLocalVersionFrameworkRequest();
   }
 }

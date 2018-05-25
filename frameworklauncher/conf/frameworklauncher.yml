@@ -8,24 +8,25 @@ rootAdminUsers: !!set
   ? {name: rootAdmin2}
 
 # Service Setup
-serviceRMResyncIntervalSec: 60
-serviceRequestPullIntervalSec: 60
+serviceRMResyncIntervalSec: 30
+serviceRequestPullIntervalSec: 30
 
 # Application Setup
-applicationRetrieveDiagnosticsRetryIntervalSec: 60
+applicationRetrieveDiagnosticsRetryIntervalSec: 30
 applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMaxDelaySec: 3600
 applicationTransientConflictMinDelaySec: 600
+applicationTransientConflictMaxDelaySec: 3600
 
 # Framework Setup
 frameworkCompletedRetainSec: 43200
 
 # ApplicationMaster Setup
-amVersion: 0
 amRmResyncFrequency: 6
-amRequestPullIntervalSec: 60
-amStatusPushIntervalSec: 60
+amRequestPullIntervalSec: 30
+amStatusPushIntervalSec: 30
+amFrameworkInfoPublishIntervalSec: 30
+amSkipLocalTriedResource: true
 
 # WebServer Setup
 webServerAddress: http://localhost:9086
-webServerStatusPullIntervalSec: 60
+webServerStatusPullIntervalSec: 30

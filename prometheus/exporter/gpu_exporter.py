@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -20,13 +21,15 @@ import subprocess
 import sys
 from xml.dom import minidom
 import os
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 
-def parseSmiXmlResult(smi, logDir):
+def parse_smi_xml_result(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
-    print(len(gpuList))
+    logger.info(len(gpuList))
     gpu_count = len(gpuList)
-    print("gpu numbers" + str(gpu_count))
+    logger.info("gpu numbers" + str(gpu_count))
     nvidiasmi_attached_gpus = "nvidiasmi_attached_gpus {0}\n".format(gpu_count)
     outputFile = open(logDir + "/gpu_exporter.prom", "w")
     outputFile.write(nvidiasmi_attached_gpus)
@@ -42,20 +45,21 @@ def parseSmiXmlResult(smi, logDir):
         outPut[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
     return outPut
 
-def genGpuMetricsFromSmi(logDir):
+def gen_gpu_metrics_from_smi(logDir):
     try:
+        logger.info("gen_gpu_metrics_from_smi")  
         cmd = "nvidia-smi -q -x"
         smi_output = subprocess.check_output([cmd], shell=True)
-        return parseSmiXmlResult(smi_output, logDir)
+        return parse_smi_xml_result(smi_output, logDir)
     except subprocess.CalledProcessError as e:
         if e.returncode == 127:
-            print("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            logger.error("nvidia cmd error. command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
         else:
-            print("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def main(argv):
     logDir = argv[0]
-    genGpuMetricsFromSmi(logDir)
+    gen_gpu_metrics_fromSmi(logDir)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

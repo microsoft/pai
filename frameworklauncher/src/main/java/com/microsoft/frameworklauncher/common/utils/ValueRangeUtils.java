@@ -17,13 +17,12 @@
 
 package com.microsoft.frameworklauncher.common.utils;
 
-import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
-import com.microsoft.frameworklauncher.common.model.Ports;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class ValueRangeUtils {
 
@@ -61,7 +60,7 @@ public class ValueRangeUtils {
     }
 
     List<ValueRange> sortedList = SortRangeList(rangeList);
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
 
     ValueRange current = sortedList.get(0).clone();
     resultList.add(current);
@@ -103,7 +102,7 @@ public class ValueRangeUtils {
     List<ValueRange> leftList = coalesceRangeList(leftRange);
     List<ValueRange> rightList = coalesceRangeList(rightRange);
 
-    List<ValueRange> result = new ArrayList<ValueRange>();
+    List<ValueRange> result = new ArrayList<>();
     int i = 0;
     int j = 0;
     while (i < leftList.size() && j < rightList.size()) {
@@ -183,7 +182,7 @@ public class ValueRangeUtils {
   }
 
   /*
-    add rightRange to leftRange, will ingore the overlap range.
+    add rightRange to leftRange, will ignore the overlap range.
    */
   public static List<ValueRange> addRange(List<ValueRange> leftRange, List<ValueRange> rightRange) {
 
@@ -240,7 +239,7 @@ public class ValueRangeUtils {
    */
   public static List<ValueRange> getSubRangeRandomly(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
     if (getValueNumber(availableRange) <= 0) {
       return resultList;
     }
@@ -274,24 +273,22 @@ public class ValueRangeUtils {
   }
 
   /*
-  get a sequential subRange list from the available range list, all the values in the subRange are bigger than baseValue.
- */
+    get a sequential subRange list from the available range list, all the values in the subRange are bigger than baseValue.
+  */
   public static List<ValueRange> getSubRangeSequentially(List<ValueRange> availableRange, int requestNumber, int baseValue) {
 
-    List<ValueRange> resultList = new ArrayList<ValueRange>();
+    List<ValueRange> resultList = new ArrayList<>();
     if (getValueNumber(availableRange) <= 0) {
       return resultList;
     }
 
     resultList.clear();
     int needNumber = requestNumber;
-
-    int newBaseValue = baseValue;
     for (ValueRange range : availableRange) {
-      if (range.getEnd() < newBaseValue) {
+      if (range.getEnd() < baseValue) {
         continue;
       }
-      int start = Math.max(range.getBegin(), newBaseValue);
+      int start = Math.max(range.getBegin(), baseValue);
       if ((range.getEnd() - start + 1) >= needNumber) {
         resultList.add(ValueRange.newInstance(start, start + needNumber - 1));
         return resultList;
@@ -330,7 +327,7 @@ public class ValueRangeUtils {
   }
 
   public static List<ValueRange> cloneList(List<ValueRange> list) {
-    List<ValueRange> newList = new ArrayList<ValueRange>();
+    List<ValueRange> newList = new ArrayList<>();
     for (ValueRange range : list) {
       newList.add(range.clone());
     }
@@ -354,74 +351,5 @@ public class ValueRangeUtils {
       }
     }
     return -1;
-  }
-
-  public static String toString(List<ValueRange> valueList) {
-    StringBuilder portString = new StringBuilder();
-    if (valueList != null) {
-      for (ValueRange range : valueList) {
-        portString.append(range);
-      }
-    }
-    return portString.toString();
-  }
-
-  // This function is to convert port from List<ValueRange> format to string format
-  // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
-  // the Ports label defined in portsDefinitions
-
-  public static String convertPortRangeToPortDefinitionsString(List<ValueRange> portRanges, Map<String, Ports> portsDefinitions) throws Exception {
-    StringBuilder portsString = new StringBuilder();
-
-    if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
-      Iterator iter = portsDefinitions.entrySet().iterator();
-
-      List<ValueRange> localPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
-      while (iter.hasNext()) {
-        Map.Entry entry = (Map.Entry) iter.next();
-        String key = (String) entry.getKey();
-        Ports ports = (Ports) entry.getValue();
-        //if user specified ports, directly use the PortDefinitions in request.
-        if (ports.getStart() > 0) {
-          portsString.append(key + ":" + ports.getStart());
-          for (int i = 2; i <= ports.getCount(); i++) {
-            portsString.append("," + (ports.getStart() + i - 1));
-          }
-          portsString.append(";");
-        } else {
-          //if user not specified ports, assign the allocated ContainerPorts to each port label.
-          List<ValueRange> assignPorts = ValueRangeUtils.getSubRangeSequentially(localPortRanges, ports.getCount(), 0);
-          if (getValueNumber(assignPorts) == ports.getCount()) {
-            localPortRanges = ValueRangeUtils.subtractRange(localPortRanges, assignPorts);
-
-            portsString.append(key + ":" + assignPorts.get(0).toDetailString(","));
-            for (int i = 1; i < assignPorts.size(); i++) {
-              portsString.append("," + assignPorts.get(i).toDetailString(","));
-            }
-            portsString.append(";");
-          } else {
-            throw new NotAvailableException("there is no enough ports to meet portsDefinitions requests");
-          }
-        }
-      }
-    }
-    return portsString.toString();
-  }
-
-  // The string format is "httpPort:80,81,82;sshPort:1021,1022,1023;"
-  public static List<ValueRange> convertPortDefinitionsStringToPortRange(String portDefinitions) {
-    if (portDefinitions != null && !portDefinitions.isEmpty()) {
-      Pattern pattern = Pattern.compile("[0-9]+");
-      List<ValueRange> resultList = new ArrayList<>();
-
-      Matcher portNum = pattern.matcher(portDefinitions);
-      while (portNum.find()) {
-        Integer port = Integer.parseInt(portNum.group());
-        resultList.add(ValueRange.newInstance(port, port));
-      }
-      return ValueRangeUtils.coalesceRangeList(resultList);
-    } else {
-      return new ArrayList<ValueRange>();
-    }
   }
 }

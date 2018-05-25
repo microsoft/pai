@@ -33,6 +33,12 @@ spec:
       containers:
       - image: prom/node-exporter:v0.15.2
         imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+          initialDelaySeconds: 30
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
@@ -56,6 +62,13 @@ spec:
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - /usr/local/healthy_check.py
+          initialDelaySeconds: 30
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"

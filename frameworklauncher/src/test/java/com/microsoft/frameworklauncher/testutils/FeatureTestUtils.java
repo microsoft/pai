@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.testutils;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZooKeeperClient;
 import com.microsoft.frameworklauncher.zookeeperstore.ZooKeeperClient;
@@ -61,16 +62,15 @@ public class FeatureTestUtils {
 
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_CONNECT_STRING, config.getZkConnectString());
     localEnvs.put(GlobalConstants.ENV_VAR_ZK_ROOT_DIR, config.getZkRootDir());
-    localEnvs.put(GlobalConstants.ENV_VAR_ZK_COMPRESSION_ENABLE, config.getZkCompressionEnable().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_VERSION, config.getAmVersion().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_AM_RM_HEARTBEAT_INTERVAL_SEC, config.getAmRmHeartbeatIntervalSec().toString());
     localEnvs.put(GlobalConstants.ENV_VAR_CONTAINER_ID, "container_" + System.currentTimeMillis() + "_0001_000001_1");
 
     // For now setting all required classpaths including
     // the classpath to "." for the application jar
-    StringBuilder classPathEnv = new StringBuilder(ApplicationConstants.Environment.CLASSPATH.$$())
-        .append(ApplicationConstants.CLASS_PATH_SEPARATOR).append("./*");
-    localEnvs.put("CLASSPATH", classPathEnv.toString());
+    String classPathEnv = ApplicationConstants.Environment.CLASSPATH.$$() +
+        ApplicationConstants.CLASS_PATH_SEPARATOR + "./*";
+    localEnvs.put("CLASSPATH", classPathEnv);
 
     Map<String, String> envMap = System.getenv();
     Field f;
@@ -111,9 +111,9 @@ public class FeatureTestUtils {
     for (int i = 0; i < length; i++) {
       String containerIdStr = "container_" + System.currentTimeMillis() + "_0001_000001_" + (i + 2);
       ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
-      NodeId nodeId = NodeId.newInstance(GlobalConstants.LOCAL_HOST_NAME, 3215);
+      NodeId nodeId = NodeId.newInstance(DnsUtils.getLocalHost(), 3215);
       Container container = Container.newInstance(containerId,
-          nodeId, GlobalConstants.LOCAL_HOST_NAME, resource, Priority.newInstance(1), null);
+          nodeId, DnsUtils.getLocalHost(), resource, Priority.newInstance(1), null);
       containerList.add(container);
     }
   }

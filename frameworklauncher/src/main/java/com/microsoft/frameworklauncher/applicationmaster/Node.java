@@ -37,7 +37,7 @@ public class Node implements Comparable<Node> {
     this.labels = labels;
     this.totalResource = totalResource;
     this.usedResource = usedResource;
-    this.requestedResource = ResourceDescriptor.newInstance(0, 0, 0, 0L);
+    this.requestedResource = ResourceDescriptor.newInstance(0, 0);
   }
 
   public static Node fromNodeReport(NodeReport nodeReport) throws Exception {
@@ -51,6 +51,10 @@ public class Node implements Comparable<Node> {
   // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
   @Override
   public int compareTo(Node other) {
+    if (other == null) {
+      return -1;
+    }
+
     ResourceDescriptor thisAvailableResource = this.getAvailableResource();
     ResourceDescriptor otherAvailableResource = other.getAvailableResource();
 

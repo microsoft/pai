@@ -26,16 +26,15 @@ public class LauncherConfiguration implements Serializable {
   // Common Setup
   private String zkConnectString = "127.0.0.1:2181";
   private String zkRootDir = "/Launcher";
-  private Boolean zkCompressionEnable = true;
   private String hdfsRootDir = "/Launcher";
   private Set<UserDescriptor> rootAdminUsers = new HashSet<>();
 
   // Service Setup
-  private Integer serviceRMResyncIntervalSec = 60;
+  private Integer serviceRMResyncIntervalSec = 30;
   private Integer serviceRequestPullIntervalSec = 30;
 
   // Application Setup
-  private Integer applicationRetrieveDiagnosticsRetryIntervalSec = 60;
+  private Integer applicationRetrieveDiagnosticsRetryIntervalSec = 30;
   private Integer applicationRetrieveDiagnosticsMaxRetryCount = 15;
   private Integer applicationTransientConflictMinDelaySec = 600;
   private Integer applicationTransientConflictMaxDelaySec = 3600;
@@ -61,8 +60,8 @@ public class LauncherConfiguration implements Serializable {
 
   // ApplicationMaster Setup
   private Integer amVersion = 0;
-  //AM Default Resource which can support max to 10000 total Tasks in one Framework
-  private ResourceDescriptor amDefaultResource = ResourceDescriptor.newInstance(4096, 1, 0, 0L);
+  // AM Default Resource which can support max to 10000 total Tasks in one Framework
+  private ResourceDescriptor amDefaultResource = ResourceDescriptor.newInstance(4096, 1);
   private Integer amPriority = 1;
   // Just in case AM cannot be gracefully Stopped and RM cannot judge its exit as transient,
   // such as AM process interrupted by external system, AM exit by FailFast, etc.
@@ -78,11 +77,12 @@ public class LauncherConfiguration implements Serializable {
   private Integer amRmResyncFrequency = 6;
   private Integer amRequestPullIntervalSec = 30;
   private Integer amStatusPushIntervalSec = 30;
+  private Integer amFrameworkInfoPublishIntervalSec = 30;
 
   // If a Task's ContainerRequest cannot be satisfied within
   // Random(amContainerRequestMinTimeoutSec, amContainerRequestMaxTimeoutSec), another
   // ContainerRequest (maybe different from previous one) will be made for this Task.
-  // This is useful for GPU scheduling and multiple TaskRoles.
+  // This is useful for Gpu scheduling and multiple TaskRoles.
   // Note, before YARN-3983, high Priority ContainerRequest must be satisfied before low Priority ContainerRequest.
   // So, to avoid one ContainerRequest always blocks all ContainerRequests even after timeout, we timeout
   // ContainerRequest randomly.
@@ -101,7 +101,7 @@ public class LauncherConfiguration implements Serializable {
   private Integer amSearchNodeBufferFactor = 2;
 
   // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
-  private Boolean amSkipLocalTriedResource = false;
+  private Boolean amSkipLocalTriedResource = true;
 
   // true: AM will allocate a none Gpu job into a node with Gpu resource.
   // false: AM will not allocate a none Gpu job a node with Gpu resource.
@@ -128,14 +128,6 @@ public class LauncherConfiguration implements Serializable {
 
   public void setZkRootDir(String zkRootDir) {
     this.zkRootDir = zkRootDir;
-  }
-
-  public Boolean getZkCompressionEnable() {
-    return zkCompressionEnable;
-  }
-
-  public void setZkCompressionEnable(Boolean zkCompressionEnable) {
-    this.zkCompressionEnable = zkCompressionEnable;
   }
 
   public String getHdfsRootDir() {
@@ -312,6 +304,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmStatusPushIntervalSec(Integer amStatusPushIntervalSec) {
     this.amStatusPushIntervalSec = amStatusPushIntervalSec;
+  }
+
+  public Integer getAmFrameworkInfoPublishIntervalSec() {
+    return amFrameworkInfoPublishIntervalSec;
+  }
+
+  public void setAmFrameworkInfoPublishIntervalSec(Integer amFrameworkInfoPublishIntervalSec) {
+    this.amFrameworkInfoPublishIntervalSec = amFrameworkInfoPublishIntervalSec;
   }
 
   public Integer getAmContainerRequestMinTimeoutSec() {

@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.webserver;
 
+import com.microsoft.frameworklauncher.common.exceptions.AggregateException;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -105,10 +106,21 @@ public class WebServer extends AbstractService {
   @Override
   public synchronized void stop(StopStatus stopStatus) {
     // Best Effort to stop Gracefully
+    super.stop(stopStatus);
+
+    AggregateException ae = new AggregateException();
+
+    // Stop WebServer's SubServices
     try {
-      super.stop(stopStatus);
+      if (zkStore != null) {
+        zkStore.stop();
+      }
     } catch (Exception e) {
-      LOGGER.logWarning(e, "Failed to stop %s gracefully", serviceName);
+      ae.addException(e);
+    }
+
+    if (ae.getExceptions().size() > 0) {
+      LOGGER.logWarning(ae, "Failed to stop %s gracefully", serviceName);
     }
 
     LOGGER.logInfo("%s stopped", serviceName);
