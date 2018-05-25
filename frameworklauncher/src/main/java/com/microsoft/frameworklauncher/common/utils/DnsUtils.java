@@ -90,9 +90,7 @@ public class DnsUtils {
     // The remote address can be unreachable dummy address since there is no real
     // connection established here.
     socket.connect(Inet4Address.getByName("1.2.3.4"), 1234);
-    InetAddress localAddress = socket.getLocalAddress();
-
-    return getUsableLocalAddress(localAddress);
+    return getUsableLocalAddress(socket.getLocalAddress());
   }
 
   private static Inet4Address resolveLocalAddressByInet4Address() throws Exception {
