@@ -18,20 +18,9 @@
 
 // module dependencies
 const fse = require('fs-extra');
-const archiver = require('archiver');
 const helpers = require('./helpers');
 const webportalConfig = require('./webportal.config');
 
-
-// pack utils for downloading
-fse.ensureDirSync(helpers.root('src/assets/util'));
-const output = fse.createWriteStream(helpers.root('src/assets/util/pai-fs.zip'));
-const archive = archiver('zip', {
-  zlib: { level: 9 }
-});
-archive.pipe(output);
-archive.directory(helpers.root('../pai-fs'), 'pai-fs');
-archive.finalize();
 
 // copy docs to app
 fse.copySync(
