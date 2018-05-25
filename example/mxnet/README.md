@@ -123,7 +123,7 @@ Here're some configuration file examples:
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 1,
-      "command": "pip install scikit-learn && cd incubator-mxnet/example/autoencoder && python mnist_sae.py --gpu"
+      "command": "pip install scipy scikit-learn && cd incubator-mxnet/example/autoencoder && python mnist_sae.py --gpu"
     }
   ]
 }
