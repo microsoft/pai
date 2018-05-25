@@ -19,10 +19,8 @@ package com.microsoft.frameworklauncher.common.utils;
 
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 
-import java.net.DatagramSocket;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 
 /**
  * DnsUtils makes Best Effort to resolve external IP and Host.
@@ -35,42 +33,40 @@ public class DnsUtils {
 
   // Assume local address will not change on the fly, so cache it on initialization.
   private static final String LOCAL_HOST;
+  private static final String LOCAL_CANONICAL_HOST;
   private static final String LOCAL_IP;
 
   static {
+    Inet4Address localAddress = resolveLocalAddress();
+    LOCAL_HOST = localAddress.getHostName().trim();
+    LOCAL_CANONICAL_HOST = localAddress.getCanonicalHostName().trim();
+    LOCAL_IP = localAddress.getHostAddress().trim();
+  }
+
+  private static Inet4Address resolveLocalAddress() {
     LOGGER.logInfo("Resolving local address");
 
-    InetAddress localAddress = null;
+    Inet4Address localAddress = null;
 
-    // First use DatagramSocket to resolve, since it will automatically choose
-    // the preferred outbound IP address which should be external.
     try {
-      DatagramSocket socket = new DatagramSocket();
-
-      // Initialize the local address which will be used to connect with the remote address.
-      // The remote address can be unreachable dummy address since there is no real
-      // connection established here.
-      socket.connect(Inet4Address.getByName("1.2.3.4"), 1234);
-      InetAddress socketLocalAddress = socket.getLocalAddress();
-
-      if (!(socketLocalAddress instanceof Inet4Address) ||
-          socketLocalAddress.isMulticastAddress() ||
-          socketLocalAddress.isLoopbackAddress() ||
-          socketLocalAddress.isAnyLocalAddress()) {
-        throw new Exception(String.format(
-            "SocketLocalAddress [%s] is not usable", socketLocalAddress));
-      }
-
-      localAddress = socketLocalAddress;
+      localAddress = resolveLocalAddressByDatagramSocket();
     } catch (Exception e) {
       LOGGER.logWarning(e, "Failed to resolve local address by DatagramSocket");
     }
 
     if (localAddress == null) {
       try {
-        localAddress = Inet4Address.getLocalHost();
+        localAddress = resolveLocalAddressByInet4Address();
       } catch (Exception e) {
-        LOGGER.logWarning(e, "Failed to resolve local address by InetAddress");
+        LOGGER.logWarning(e, "Failed to resolve local address by Inet4Address");
+      }
+    }
+
+    if (localAddress == null) {
+      try {
+        localAddress = resolveLocalAddressByNetworkInterfaces();
+      } catch (Exception e) {
+        LOGGER.logWarning(e, "Failed to resolve local address by NetworkInterfaces");
       }
     }
 
@@ -78,28 +74,91 @@ public class DnsUtils {
       LOGGER.logWarning(
           "Failed to resolve local address by all means. " +
               "Fallback to loopback address");
-      localAddress = Inet4Address.getLoopbackAddress();
+      localAddress = (Inet4Address) Inet4Address.getLoopbackAddress();
     }
-
-    LOCAL_HOST = localAddress.getHostName().trim();
-    LOCAL_IP = localAddress.getHostAddress().trim();
 
     LOGGER.logInfo("Resolved local address: [%s]", localAddress);
+
+    return localAddress;
   }
 
-  public static String resolveIp(String hostName) throws UnknownHostException {
-    if (LOCAL_HOST.equalsIgnoreCase(hostName.trim())) {
-      return LOCAL_IP;
-    } else {
-      return Inet4Address.getByName(hostName).getHostAddress();
+  private static Inet4Address resolveLocalAddressByDatagramSocket() throws Exception {
+    DatagramSocket socket = new DatagramSocket();
+
+    // Initialize the local address which will be used to connect with the remote address.
+    // It will automatically choose the preferred outbound IP address which should be external.
+    // The remote address can be unreachable dummy address since there is no real
+    // connection established here.
+    socket.connect(Inet4Address.getByName("1.2.3.4"), 1234);
+    InetAddress localAddress = socket.getLocalAddress();
+
+    return getUsableLocalAddress(localAddress);
+  }
+
+  private static Inet4Address resolveLocalAddressByInet4Address() throws Exception {
+    return getUsableLocalAddress(Inet4Address.getLocalHost());
+  }
+
+  private static Inet4Address resolveLocalAddressByNetworkInterfaces() throws Exception {
+    InetAddress localAddress = null;
+
+    Enumeration nis = NetworkInterface.getNetworkInterfaces();
+    while (localAddress == null && nis.hasMoreElements()) {
+      NetworkInterface ni = (NetworkInterface) nis.nextElement();
+      try {
+        if (!ni.isLoopback() && ni.isUp() && ni.getHardwareAddress() != null) {
+          Enumeration ips = ni.getInetAddresses();
+          while (localAddress == null && ips.hasMoreElements()) {
+            InetAddress ip = (InetAddress) ips.nextElement();
+            if (isUsableLocalAddress(ip)) {
+              localAddress = ip;
+            }
+          }
+        }
+      } catch (Exception e) {
+        LOGGER.logWarning(e,
+            "Failed to resolve local address by NetworkInterface: [%s]", ni);
+      }
     }
+
+    return getUsableLocalAddress(localAddress);
+  }
+
+  private static Inet4Address getUsableLocalAddress(InetAddress localAddress) throws Exception {
+    if (isUsableLocalAddress(localAddress)) {
+      return (Inet4Address) localAddress;
+    } else {
+      throw new Exception(String.format(
+          "Local address [%s] is not usable", localAddress));
+    }
+  }
+
+  private static boolean isUsableLocalAddress(InetAddress localAddress) {
+    return localAddress instanceof Inet4Address &&
+        !localAddress.isMulticastAddress() &&
+        !localAddress.isLoopbackAddress() &&
+        !localAddress.isAnyLocalAddress();
   }
 
   public static String getLocalHost() {
     return LOCAL_HOST;
   }
 
+  public static String getLocalCanonicalHost() {
+    return LOCAL_CANONICAL_HOST;
+  }
+
   public static String getLocalIp() {
     return LOCAL_IP;
+  }
+
+  public static String resolveIp(String hostName) throws UnknownHostException {
+    String trimmedHostName = hostName.trim();
+    if (getLocalHost().equalsIgnoreCase(trimmedHostName) ||
+        getLocalCanonicalHost().equalsIgnoreCase(trimmedHostName)) {
+      return getLocalIp();
+    } else {
+      return Inet4Address.getByName(trimmedHostName).getHostAddress();
+    }
   }
 }
