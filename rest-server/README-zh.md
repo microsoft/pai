@@ -20,34 +20,32 @@
 
 # REST Server
 
-REST Server exposes a set of interface that allows you to manage jobs.
+REST Server 提供一系列用于管理 jobs 的 API 接口。
 
-## Quick Start
+## 快速开始
 
-1. Job config file
+1. 准备 job 配置文件
+    参考 [PAI 深度学习指南 - job 配置文件](../job-tutorial/README-zh.md#job-配置文件) 准备 job配置文件，假设命名为`exampleJob.json`。
 
-    Prepare a job config file as described in [examples/README.md](../job-tutorial/README.md#json-config-file-for-job-submission), for example, `exampleJob.json`.
+2. 认证
+    HTTP POST 你的用户名和密码至以下 uri，获取访问令牌：
 
-2. Authentication
-
-    HTTP POST your username and password to get an access token from:
     ```
     http://restserver/api/v1/token
     ```
-    For example, with [curl](https://curl.haxx.se/), you can execute below command line:
+    例如，使用 [curl](https://curl.haxx.se/) 执行以下命令：
     ```sh
     curl -H "Content-Type: application/x-www-form-urlencoded" \
          -X POST http://restserver/api/v1/token \
          -d "username=YOUR_USERNAME" -d "password=YOUR_PASSWORD"
     ```
 
-3. Submit a job
-
-    HTTP POST the config file as json with access token in header to:
+3. 提交 job
+    HTTP POST job 配置文件到以下 uri，并且在 header 部分使用上一步得到的访问令牌。
     ```
     http://restserver/api/v1/jobs
     ```
-    For example, you can execute below command line:
+    例如：
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -55,21 +53,21 @@ REST Server exposes a set of interface that allows you to manage jobs.
          -d @exampleJob.json
     ```
 
-4. Monitor the job
+4. 监控 job
 
-    Check the list of jobs at:
+    获取 job 列表：
     ```
     http://restserver/api/v1/jobs
     ```
-    Check your exampleJob status at:
+   获取名为 “exampleJob” job 的状态：
     ```
     http://restserver/api/v1/jobs/exampleJob
     ```
-    Get the job config JSON content:
+   获取 JSON格式的 job 配置文件：
     ```
     http://restserver/api/v1/jobs/exampleJob/config
     ```
-    Get the job's SSH info:
+   获取 job 的 SSH信息
     ```
     http://restserver/api/v1/jobs/exampleJob/ssh
     ```
@@ -77,38 +75,37 @@ REST Server exposes a set of interface that allows you to manage jobs.
 ## RestAPI
 
 ### Root URI
+在 [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) 中配置 rest server 的端口。
 
-Configure the rest server port in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml).
-
-### API Details
+### API
 
 1. `POST token`
 
-    Authenticated and get an access token in the system.
+    在系统中进行身份验证并获取访问令牌。
 
-    *Request*
+    *请求*
     ```
     POST /api/v1/token
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
-      "username": "your username",
-      "password": "your password",
-      "expiration": "expiration time in seconds"
+      "username": "你的用户名",
+      "password": "你的密码",
+      "expiration": "登录有效时间，以秒为单位"
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
-      "token": "your access token",
-      "user": "username"
+      "token": "生成的访问令牌",
+      "user": "用户名"
     }
     ```
 
-    *Response if an error occured*
+    *失败响应*
     ```
     Status: 401
 
@@ -120,33 +117,33 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
 2. `PUT user`
 
-    Update a user in the system.
-    Administrator can add user or change other user's password; user can change his own password.
+    更新系统中的用户。
+    管理员可以添加或更改其他用户的密码；用户可以更改自己的密码。
 
-    *Request*
+    *请求*
     ```
     PUT /api/v1/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
-      "username": "username in [_A-Za-z0-9]+ format",
-      "password": "password at least 6 characters",
+      "username": "用户名，格式为：[_A-Za-z0-9]+",
+      "password": "密码，至少六个字符",
       "admin": true | false,
       "modify": true | false
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
       "message": "update successfully"
     }
     ```
 
-    *Response if an error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -156,33 +153,35 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-3. `DELETE user` (administrator only)
+3. `DELETE user` （需管理员权限）
+    
+    从系统中删除用户。
 
-    Remove a user in the system.
-
-    *Request*
+    *请求*
     ```
     DELETE /api/v1/user
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
-      "username": "username to be removed"
+      "username": "要移除的用户名"
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
+
     ```
-	Status: 200
-	
+    Status: 200
+  
     {
       "message": "remove successfully"
     }
     ```
 
-    *Response if an error occured*
+    *失败响应*
+
     ```
     Status: 500
 
@@ -191,8 +190,9 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
       "message": "remove failed"
     }
     ```
-	
-	*Response if not authorized*
+  
+    *未经授权时响应*
+
     ```
     Status: 401
 
@@ -202,24 +202,24 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-4. `PUT user/:username/virtualClusters` (administrator only)
+4. `PUT user/:username/virtualClusters` （需管理员权限）
 
-    Administrators can update user's virtual cluster. Administrators can access all virtual clusters, all users can access default virtual cluster.
+    管理员可以更新其他用户的虚拟集群。管理员可以访问所有的虚拟集群，普通用户能访问默认虚拟集群。
 
-    *Request*
+    *请求*
     ```
     PUT /api/v1/user/:username/virtualClusters
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
-      "virtualClusters": "virtual cluster list separated by commas (e.g. vc1,vc2)"
+      "virtualClusters": "虚拟集群列表，以逗号分隔 (例如： vc1,vc2)"
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     Status: 201
 
@@ -228,7 +228,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -238,7 +238,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if not authorized*
+    *未经授权时响应*
     ```
     Status: 401
 
@@ -250,28 +250,30 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
 5. `GET jobs`
 
-    Get the list of jobs.
+    获取 jobs 列表。
 
-    *Request*
+    *请求*
     ```
     GET /api/v1/jobs
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
-      "username": "filter jobs with username"
+      "username": "用户名，设置该参数以过滤出该用户提交的 jobs"
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
+    
+    得到 jobs 列表，格式如下：
     ```
     {
       [ ... ]
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -283,14 +285,14 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
 6. `GET jobs/:jobName`
 
-    Get job status in the system.
+    获取系统中的 job 状态。
 
-    *Request*
+    *请求*
     ```
     GET /api/v1/jobs/:jobName
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
       name: "jobName",
@@ -307,7 +309,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if the job does not exist*
+    *job 不存在时响应*
     ```
     Status: 404
 
@@ -317,7 +319,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -329,19 +331,19 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
 7. `POST jobs`
 
-    Submit a job in the system.
+    提交 job。
 
-    *Request*
+    *请求*
     ```
     POST /api/v1/jobs
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
-    *Parameters*
+    *参数*
 
-    [job config json](../job-tutorial/README.md#json-config-file-for-job-submission)
+    参阅 [job 配置文件](../job-tutorial/README-zh.md#job-配置文件)
 
-    *Response if succeeded*
+    *成功请求*
     ```
     Status: 201
 
@@ -350,7 +352,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if there is a duplicated job submission*
+    *重复提交时响应*
     ```
     Status: 400
     
@@ -360,7 +362,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
     
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -371,15 +373,15 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     ```
 
 8. `GET jobs/:jobName/config`
+   
+     获取 JSON 格式的 job 配置信息。
 
-    Get job config JSON content.
-
-    *Request*
+    *请求*
     ```
     GET /api/v1/jobs/:jobName/config
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
       "jobName": "test",
@@ -388,7 +390,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if the job does not exist*
+    *job 不存在时响应*
     ```
     Status: 404
 
@@ -398,7 +400,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -410,14 +412,14 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
 9. `GET jobs/:jobName/ssh`
 
-    Get job SSH info.
+    获取 job SSH 信息。
 
-    *Request*
+    *请求*
     ```
     GET /api/v1/jobs/:jobName/ssh
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
       "containers": [
@@ -437,7 +439,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if the job does not exist*
+    *job 不存在时响应*
     ```
     Status: 404
 
@@ -447,7 +449,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -458,23 +460,23 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     ```
 
 10. `PUT jobs/:jobName/executionType`
+    
+    启动或停止 job。
 
-    Start or stop a job.
-
-    *Request*
+    *请求*
     ```
     PUT /api/v1/jobs/:jobName/executionType
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
-    *Parameters*
+    *参数*
     ```
     {
       "value": "START" | "STOP"
     }
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     Status: 200
 
@@ -483,7 +485,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -493,15 +495,15 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
 
 11. `GET virtual-clusters`
+    
+    获取虚拟集群列表。
 
-    Get the list of virtual clusters.
-
-    *Request*
+    *请求*
     ```
     GET /api/v1/virtual-clusters
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
       "vc1": 
@@ -511,7 +513,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
@@ -523,21 +525,21 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     
 12. `GET virtual-clusters/:vcName`
 
-    Get virtual cluster status in the system.
+    获取系统中虚拟集群状态。
 
-    *Request*
+    *请求*
     ```
     GET /api/v1/virtual-clusters/:vcName
     ```
 
-    *Response if succeeded*
+    *成功响应*
     ```
     {
-      //capacity percentage this virtual cluster can use of entire cluster
+      // 该虚拟集群的可用容量占整个集群的百分比
       "capacity":50,
-      //max capacity percentage this virtual cluster can use of entire cluster
+      // 该虚拟群的最大容量占整个集群的百分比      
       "maxCapacity":100,
-      // used capacity percentage this virtual cluster can use of entire cluster
+      // 该虚拟集群已使用容量占整个集群的百分比
       "usedCapacity":0,
       "numActiveJobs":0,
       "numJobs":0,
@@ -550,7 +552,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if the virtual cluster does not exist*
+    *该虚拟集群不存在时响应*
     ```
     Status: 404
 
@@ -560,7 +562,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *失败响应*
     ```
     Status: 500
 
