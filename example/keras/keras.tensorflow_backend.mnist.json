@@ -1,0 +1,14 @@
+{
+    "jobName": "keras_tensorflow_backend_mnist",
+    "image": "paiexample/pai.example.keras.tensorflow",
+    "taskRoles": [
+        {
+            "name": "mnist",
+            "taskNumber": 1,
+            "cpuNumber": 4,
+            "memoryMB": 8192,
+            "gpuNumber": 1,
+            "command": "python mnist_cnn.py"
+        }
+    ]
+}

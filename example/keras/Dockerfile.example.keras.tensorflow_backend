@@ -1,0 +1,14 @@
+FROM aiplatform/pai.run.tensorflow
+
+# install git
+RUN apt-get -y update && apt-get -y install git
+
+# install Keras using pip
+RUN pip install keras
+
+# clone Keras examples
+RUN git clone git clone https://github.com/keras-team/keras.git 
+
+ENV KERAS_BACKEND tensorflow
+
+WORKDIR /keras/examples
