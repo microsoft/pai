@@ -38,11 +38,9 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [Keras examples](#keras-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.pytorch/) on Docker Hub.
-
 We need to build a Keras image to run Keras workload on PAI, this can be done in two steps:
 
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image for PAI Keras. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
 
     ```bash
     $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
@@ -51,7 +49,9 @@ We need to build a Keras image to run Keras workload on PAI, this can be done in
     $ cd -
     ```
 
-2. Prepare Keras envoriment in a [Dockerfile](./Dockerfile.example.keras.tensorflow_backend) using the base image.
+You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.cntk)/[tensorflow](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow) base image as Keras backend.
+
+2. Prepare Keras envoriment in a [Dockerfile](./Dockerfile.example.keras.tensorflow_backend) using tensorflow base image as Keras backend.
 
     Write a Keras Dockerfile and save it to `Dockerfile.example.Keras`:
 
