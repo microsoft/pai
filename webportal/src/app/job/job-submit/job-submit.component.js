@@ -129,7 +129,7 @@ $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   loadEditor();
   editor.on('change', () => {
-    $('#submitJob').disabled = (editor.validate().length != 0);
+    $('#submitJob').prop('disabled', (editor.validate().length != 0));
   });
 
   $(document).on('change', '#fileUpload', (event) => {
