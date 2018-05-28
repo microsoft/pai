@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+#
 import sys
 
 
@@ -336,7 +338,7 @@ class paiObjectModel:
                 break
 
         if vip == "":
-            print "no machine labeled with dashboard = true"
+            print("no machine labeled with dashboard = true")
             sys.exit(1)
 
         ret = "http://{0}:9090".format(vip)
@@ -384,7 +386,7 @@ class paiObjectModel:
                 deli = ","
 
         if ret == "":
-            print "No machine labeled with k8s-role = master!"
+            print("No machine labeled with k8s-role = master!")
             sys.exit(1)
 
         return ret
@@ -425,8 +427,8 @@ class paiObjectModel:
             if "pai-master" in host and host["pai-master"] == "true":
                 return host["hostip"]
 
-        print "At least one and only one machine should be labeled with pai-master = true"
-        print "please modify your cluster configuration, thanks."
+        print("At least one and only one machine should be labeled with pai-master = true")
+        print("please modify your cluster configuration, thanks.")
 
         sys.exit(1)
 

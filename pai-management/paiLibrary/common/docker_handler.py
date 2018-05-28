@@ -16,11 +16,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#import docker
-import file_handler
-import linux_shell
 import logging
 import logging.config
+#
+#import docker
+import paiLibrary.common.file_handler
+import paiLibrary.common.linux_shell
 
 
 # TODO: Change the command with linux_shell.execute_shell to docker lib.

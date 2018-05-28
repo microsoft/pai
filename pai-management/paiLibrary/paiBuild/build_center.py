@@ -16,14 +16,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
-
-import image_push
-import image_build
-import image_tag
-import hadoop_ai_build
 import logging
 import logging.config
-
+#
+import paiLibrary.paiBuild.image_push
+import paiLibrary.paiBuild.image_build
+import paiLibrary.paiBuild.image_tag
+import paiLibrary.paiBuild.hadoop_ai_build
+#
 from ..common import linux_shell
 from ..common import file_handler
 from ..common import directory_handler

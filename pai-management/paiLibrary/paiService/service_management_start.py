@@ -18,10 +18,11 @@
 
 import logging
 import logging.config
-
-import service_start
-import service_template_generate
-import service_template_clean
+#
+import paiLibrary.paiService.service_start
+import paiLibrary.paiService.service_template_generate
+import paiLibrary.paiService.service_template_clean
+#
 from ..common import directory_handler
 from ..common import file_handler
 

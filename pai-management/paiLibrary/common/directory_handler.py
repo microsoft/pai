@@ -16,10 +16,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import os
 import logging
 import logging.config
-import linux_shell
-import os
+#
+import paiLibrary.common.linux_shell
 
 
 logger = logging.getLogger(__name__)
