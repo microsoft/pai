@@ -204,7 +204,7 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
 
           1.ValueRanges valueRanges;
       		2.Resource res = Resource.newInstance(requireMem, requiredCPU);
-      		3.fill the value ranges.
+      		3.填充请求的端口数据
       		4.res.setPorts(valueRanges)
 
 ## Resource manger ##
