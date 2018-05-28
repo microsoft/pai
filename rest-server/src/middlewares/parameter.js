@@ -43,6 +43,25 @@ const validate = (schema) => {
   };
 };
 
+const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
+  let tasksNumber = 0;
+  for (let i = 0; i < req.body.taskRoles.length; i ++) {
+    tasksNumber += req.body.taskRoles[i].taskNumber;
+  }
+  const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
+  if (killAllOnCompletedTaskNumber > tasksNumber) {
+    const errorType = 'ParameterValidationError';
+    const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
+    logger.warn('[%s] %s', errorType, errorMessage);
+    return res.status(500).json({
+      error: errorType,
+      message: errorMessage,
+    });
+  } else {
+    next();
+  }
+};
+
 const jobQuery = (req, res, next) => {
   const query = {};
   if (req.query.username) {
@@ -53,4 +72,4 @@ const jobQuery = (req, res, next) => {
 };
 
 // module exports
-module.exports = {validate, jobQuery};
+module.exports = {validate, checkKillAllOnCompletedTaskNumber, jobQuery};

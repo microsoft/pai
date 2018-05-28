@@ -31,14 +31,14 @@ router.route('/')
     .get(param.jobQuery, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(tokenConfig.check, param.validate(jobConfig.schema), jobController.init, jobController.update);
+    .post(tokenConfig.check, param.validate(jobConfig.schema), param.checkKillAllOnCompletedTaskNumber, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(tokenConfig.check, param.validate(jobConfig.schema), jobController.update)
+    .put(tokenConfig.check, param.validate(jobConfig.schema), param.checkKillAllOnCompletedTaskNumber, jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(tokenConfig.check, jobController.remove);
