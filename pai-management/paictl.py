@@ -360,6 +360,40 @@ def easy_way_deploy():
     None
 
 
+def handle_cluster_module_generate_configuration_files_operation():
+    #
+    desc  = "Automatically generate the following configuration files from a quick-start file:\n"
+    desc += "\n"
+    desc += "    * Machine-level configurations: cluster-configuration.yaml\n"
+    desc += "    * Kubernetes-level configurations I: kubernetes-configuration.yaml\n"
+    desc += "    * Kubernetes-level configurations II: k8s-role-definition.yaml\n"
+    desc += "    * Service-level configurations: service-configuration.yaml\n"
+    desc += "\n"
+    parser = argparse.ArgumentParser(
+        description=desc,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-f', '--quick-start-file', dest="quick_start_file", required=True,
+                        help="The quick-start yaml file.")
+    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+                        help="The path of your configuration directory.")
+    #
+    args = parser.parse_args()
+
+#
+
+def handle_cluster_module():
+    if len(sys.argv) < 2:
+        # TODO: Print usage info.
+        return
+    op = sys.argv[1]
+    del sys.argv[1]
+    if op == "generate-configuration-files":
+        handle_cluster_module_generate_configuration_files_operation()
+    else:
+        # TODO: Print usage info.
+        return
+
+#
 
 def main():
 
@@ -389,6 +423,10 @@ def main():
     elif module == "have-a-try":
 
         None
+
+    elif module == "cluster":
+
+        handle_cluster_module()
 
     else:
 
