@@ -65,14 +65,16 @@ You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/D
     # install Keras python package using pip
     RUN pip install keras
 
+    WORKDIR /root
+    
     # clone Keras examples
-    RUN git clone git clone https://github.com/keras-team/keras.git 
+    RUN git clone https://github.com/keras-team/keras.git 
 
     # set tensorflow as keras backend
     ENV KERAS_BACKEND tensorflow
 
     # set work directory to keras examples
-    WORKDIR /keras/examples
+    WORKDIR /root/keras/examples
     ```
 
     Build the Docker image from `Dockerfile.example.Keras`:
