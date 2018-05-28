@@ -165,9 +165,9 @@ https://issues.apache.org/jira/browse/YARN-7481
             </property>
         ```
 
-## Yarn Client: GPU Resource Request ##
+## Yarn Client: Resource Request ##
 
-   The GPU request is sent to RM in a Resource object described in *org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest*, through the call *org.apache.hadoop.yarn.client.api.YarnClientaddContainerRequest*   
+   The Resource request is sent to RM in a Resource object described in *org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest*, through the call *org.apache.hadoop.yarn.client.api.YarnClientaddContainerRequest*
    
    There are several GPU request scenarios.
       
@@ -210,6 +210,13 @@ https://issues.apache.org/jira/browse/YARN-7481
 	yarn RM might relax to other node's GPU 0 and 1 (if both are available). 
 	But yarn RM will not relax to other GPUs in Node 1, or to GPUs other than 0 and 1 in other nodes. 
 
+5. Request with Ports:
+
+    1.ValueRanges valueRanges;
+		2.Resource res = Resource.newInstance(requireMem, requiredCPU);
+		3.fill the value ranges.
+		4.res.setPorts(valueRanges)
+
 ## Resource manger ##
 
 1. GPU allocation algorithm
@@ -225,7 +232,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 3. Resource Calculator 
 
 	The GPU count is considered in *DominantResourceCalculator* for the mix resource environment. 
-	Meanwhile,  a new Calculator *org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator* is created to only calculate resource by GPU.   
+	Meanwhile,  a new Calculator *org.apache.hadoop.yarn.api.records.Resource.GPUResourceCalculator* is created to only calculate resource by GPU.
 
 
 ## Node Manager Plugin ##

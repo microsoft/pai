@@ -5,11 +5,11 @@
 目前，YARN-3926 也将 GPU 作为可数资源（Countable Resource），支持 GPU 调度。
 然而，深度学习任务中，使用不同位置组合的 GPU 将影响 job 的效率。例如，若 GPU 0 和 1 同属于一个 PCI-E 交换机而 GPU 0 和 7 不是，则一个 2-GPU job 使用 GPU {0, 1}，将比使用 GPU {0, 7} 速度更快，
 
-我们也给 Hadoop 2.7.2 添加了 GPU 支持以实现细粒度的 GPU 位置调度。
+我们给 Hadoop 2.7.2 添加了 GPU 支持以实现细粒度的 GPU 位置调度。
 
 我们增加了一个 64 位的 Bit-map 作为 YARN 资源，该 Bit-map 能够表示每个节点的 GPU 使用率及位置信息。每个节点共 64 个 GPU 位置，当该位置有 GPU 时对应的 Bit-map 位为“1”，否则为“0”。
 
-我们给 Hadoop 2.7.2 添加了 Port 支持。客户端 (ApplicationMaster) 可以向 Yarn 资源管理器提交带有 Port 信息的资源请求。
+我们也给 Hadoop 2.7.2 添加了 Port 支持。客户端 (ApplicationMaster) 可以向 Yarn 资源管理器提交带有 Port 信息的资源请求。
 
 该 Hadoop AI 增强补丁下载地址： 
 https://issues.apache.org/jira/browse/YARN-7481
@@ -199,6 +199,13 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
 4. 请求放松（Relax） 
 
       在 GPU 调度中，Relax 为节点级的，GPU 位置无法放松。例如，需为节点 1 请求 2 个 GPU，GPUAttribute 设置为 3（二进制为 11，表示 GPU 0，1），在容器请求中允许放松时，若节点 1 的 GPU 0 或 1 不可用，则 YARN RM 会放松至其他节点的 GPU 0,1（若二者皆可用）。但是 YARN RM 不会放松至节点 1 的其他 GPU 位置上，也不会放松至其他节点的除了 0,1 位置的其他 GPU。
+
+5. 发送端口的请求:
+
+          1.ValueRanges valueRanges;
+      		2.Resource res = Resource.newInstance(requireMem, requiredCPU);
+      		3.fill the value ranges.
+      		4.res.setPorts(valueRanges)
 
 ## Resource manger ##
 
