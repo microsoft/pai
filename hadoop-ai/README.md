@@ -103,7 +103,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 		   optional int32 virtual_cores = 2;
 		   optional int32 GPUs = 3;
 		   optional int64 GPUAttribute = 4;
-       optional ValueRangesProto ports = 5;
+		   optional ValueRangesProto ports = 5;
 		 }
     ```
 
@@ -119,7 +119,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 		 4. public abstract long getGPUAttribute();
 		 5. public abstract void setGPUAttribute(long GPUAttribute);
 		 6. public abstract ValueRanges getPorts();
-     7. public abstract void setPorts(ValueRanges ports);
+		 7. public abstract void setPorts(ValueRanges ports);
     ```
 3.	Yarn configuration
     
@@ -212,7 +212,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 
 5. Request with Ports:
 
-    1.ValueRanges valueRanges;
+		1.ValueRanges valueRanges;
 		2.Resource res = Resource.newInstance(requireMem, requiredCPU);
 		3.fill the value ranges.
 		4.res.setPorts(valueRanges)
