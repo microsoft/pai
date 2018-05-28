@@ -36,9 +36,9 @@ sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-s
 
 # set memory and cpu resource for nodemanager
 mem_total=`cat /proc/meminfo | grep "MemTotal" | awk '{print $2}'`
-# memory size to nodemanager is floor(available_memory * 0.8)
-let mem_allocated=mem_total*8/10/1024/1024*1024
-sed  -i "s/{mem_allocated}/${mem_allocated}/g" $HADOOP_CONF_DIR/yarn-site.xml
+# memory size to nodemanager is floor(mem_total * 0.8)
+let mem_total=mem_total*8/10/1024/1024*1024
+sed  -i "s/{mem_total}/${mem_total}/g" $HADOOP_CONF_DIR/yarn-site.xml
 
 cpu_vcores=`cat /proc/cpuinfo | grep "processor" | wc -l`
 sed  -i "s/{cpu_vcores}/${cpu_vcores}/g" $HADOOP_CONF_DIR/yarn-site.xml

@@ -15,7 +15,7 @@
 +
 +    <property>
 +        <name>yarn.nodemanager.resource.memory-mb</name>
-+        <value>{mem_allocated}</value>
++        <value>{mem_total}</value>
 +        <description>Number of memory that can be allocated for containers.</description>
 +    </property>
 +
