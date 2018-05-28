@@ -1,7 +1,7 @@
 # Hadoop AI Enhancement
 ## Overview ##
 
-We enhance Hadoop with GPU support for better AI job scheduling. 
+We enhance Hadoop with GPU and Port support for better AI job scheduling.
 Currently, YARN-3926 also supports GPU scheduling, which treats GPU as countable resource. 
 However, GPU placement is very important to deep learning job for better efficiency. 
 For example, a 2-GPU job runs on gpu {0,1} could be faster than run on gpu {0, 7}, 
@@ -9,7 +9,9 @@ if GPU 0 and 1 are under the same PCI-E switch while 0 and 7 are not.
 
 We add the GPU support to Hadoop 2.7.2 to enable GPU locality scheduling, which support fine-grained GPU placement. 
 A 64-bits bitmap is added to yarn Resource, which indicates both GPU usage and locality information in a node
- (up to 64 GPUs per node). ‘1’ means available and ‘0’ otherwise in the corresponding position of the bit.  
+ (up to 64 GPUs per node). ‘1’ means available and ‘0’ otherwise in the corresponding position of the bit.
+
+We add the Port support to Hadoop 2.7.2 to enable Port allocation. Client(application master) can submit request with specific port ranges
 
 the AI enhancement patch was upload to: 
 https://issues.apache.org/jira/browse/YARN-7481
@@ -90,8 +92,8 @@ https://issues.apache.org/jira/browse/YARN-7481
      use `hadoop-2.7.2.tar.gz` to set your hadoop path to deploy into your cluster.  
    
 
-## Yarn GPU Interface ##
-1. Add GPUs and GPUAttribute into `yarn_protos` as interface.
+## Yarn Interface ##
+1. Add GPUs, GPUAttribute and ports into `yarn_protos` as interface.
 
     sourcefile:
     hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/proto/yarn_protos.proto
@@ -101,26 +103,29 @@ https://issues.apache.org/jira/browse/YARN-7481
 		   optional int32 virtual_cores = 2;
 		   optional int32 GPUs = 3;
 		   optional int64 GPUAttribute = 4;
+       optional ValueRangesProto ports = 5;
 		 }
     ```
 
-2.	Interface to get/set the GPU and GPU attribute
+2.	Interface to get/set the GPU, GPU attribute and Ports
 
     GPUAttribute, the bitmap, is represented as a long variable. 
     
     sourcefile: hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/records/Resource.java	
     ```
-		 1. public static Resource newInstance(int memory, int vCores, int GPUs, long GPUAttribute) 
+		 1. public static Resource newInstance(int memory, int vCores, int GPUs, long GPUAttribute, ValueRanges ports)
 		 2. public abstract int getGPUs();
 		 3. public abstract void setGPUs(int GPUs);
 		 4. public abstract long getGPUAttribute();
 		 5. public abstract void setGPUAttribute(long GPUAttribute);
+		 6. public abstract ValueRanges getPorts();
+     7. public abstract void setPorts(ValueRanges ports);
     ```
 3.	Yarn configuration
     
         sourcefile: hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/src/main/resources/yarn-default.xml
         
-        Below are some GPU properties required by the revised yarn Resource Manager (RM).
+        Below are some GPU and Port properties required by the revised yarn Resource Manager (RM).
         ```
             <property>
                 <description>The minimum allocation for every container request at the RM,  in terms of GPUs. Requests lower than this will throw an InvalidResourceRequestException. </description>
@@ -137,6 +142,26 @@ https://issues.apache.org/jira/browse/YARN-7481
                 </description>
                 <name>yarn.nodemanager.resource.percentage-physical-gpu-limit</name>
                 <value>100</value>
+            </property>
+            <property>
+                <description>exclude the gpus which is used by unknown process</description>
+                <name>yarn.gpu_exclude_ownerless_gpu.enable</name>
+                <value>false</value>
+            </property>
+            <property>
+                <description>the gpu memory threshold to indicate a gpu is used by unknown process</description>
+                <name>yarn.gpu_not_ready_memory_threshold-mb</name>
+                <value>20</value>
+            </property>
+            <property>
+                <description>enable port as resource</description>
+                <name>yarn.ports_as_resource.enable</name>
+                <value>true</value>
+            </property>
+            <property>
+                <description>the max port range available for resource allocation</description>
+                <name>yarn.nodemanager.resource.ports</name>
+                <value>[1-65535]</value>
             </property>
         ```
 
@@ -207,8 +232,11 @@ https://issues.apache.org/jira/browse/YARN-7481
 
   sourcefile: org.apache.hadoop.yarn.util.LinuxResourceCalculatorPlugin
 
-   In the node manager, the node's GPU capacity is collected by running a nvidia-smi command when the Node Manager service starts. We only collect the GPU capacity during NM's initialization.  
-   Node manager heartbeat does not report resource utilization status in Hadoop 2.7.2. In Hadoop 2.8 or later, Node Manager heartbeat is reporting the local resource information, we will consider adding more GPU status in the heartbeat.
+   The node's GPU capacity is collected by running a nvidia-smi command when the NodeManager service starts.
+   NodeManager heartbeat will also report the GPU utilization status to ResourceManager. User can config the yarn.gpu_exclude_ownerless_gpu.enable and yarn.gpu_not_ready_memory_threshold-mb to exclude the GPU which is not ready for serving.
+
+   The node's Port using information are collected through command "netstat -anlut" in NodeManager, The NodeManager heartbeat will also report the Port real time
+   using status to ResourceManager. user can config the yarn.nodemanager.resource.ports to set the serve port range.
 
 ## Web apps   ##
 
