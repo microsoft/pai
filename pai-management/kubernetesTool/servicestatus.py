@@ -44,7 +44,8 @@ def is_service_ready(servicename):
         return False
 
     for pod in pod_list.items:
-
+        if pod.status.container_statuses is None:
+            return False
         for container in pod.status.container_statuses:
             if container.ready != True:
                 return False
