@@ -18,12 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Get the configuration from configmap-volume, and cover the origin file in the path of hbase
+# Get the configuration from configmap-volume, and cover the original file in the path of hbase's conf
+# With this solution, you will be able to use one image to run different role.
 cp /hbase-configuration/hbase-env.sh $HBASE_HOME/conf/hbase-env.sh
 cp /hbase-configuration/master-hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
 
 
-# You could process the file copied to hbase in your own way.
+# You could process the un-complete file copied to hbase in your own way.
 
 # example 1
 # With the environment passed by kubernetes and docker, fill the target with sed or other tools
