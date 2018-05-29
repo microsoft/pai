@@ -100,7 +100,7 @@ https://issues.apache.org/jira/browse/YARN-7481
          }
     ```
 
-2.  获取 / 设置 GPU , GPU 属性 和 Port 接口
+2.  获取 / 设置 GPU , GPUAttribute 和 Port 接口
  GPU属性，以 Bit-map 表示，使用 `long` 类型存储。
     
     源文件：
@@ -203,9 +203,9 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
 5. 发送端口的请求:
 
           1.ValueRanges valueRanges;
-      		2.Resource res = Resource.newInstance(requireMem, requiredCPU);
-      		3.填充请求的端口数据
-      		4.res.setPorts(valueRanges)
+          2.Resource res = Resource.newInstance(requireMem, requiredCPU);
+          3.填充请求的端口数据
+          4.res.setPorts(valueRanges)
 
 ## Resource manger ##
 
