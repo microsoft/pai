@@ -1,13 +1,15 @@
 # Hadoop AI 增强
 ## 概述 ##
 
-我们给 Hadoop 增加了 GPU 支持，增强其对 AI job 的调度性能。
+我们给 Hadoop 增加了 GPU 和 Port 支持，增强其对 AI job 的调度性能。
 目前，YARN-3926 也将 GPU 作为可数资源（Countable Resource），支持 GPU 调度。
 然而，深度学习任务中，使用不同位置组合的 GPU 将影响 job 的效率。例如，若 GPU 0 和 1 同属于一个 PCI-E 交换机而 GPU 0 和 7 不是，则一个 2-GPU job 使用 GPU {0, 1}，将比使用 GPU {0, 7} 速度更快，
 
 我们给 Hadoop 2.7.2 添加了 GPU 支持以实现细粒度的 GPU 位置调度。
 
 我们增加了一个 64 位的 Bit-map 作为 YARN 资源，该 Bit-map 能够表示每个节点的 GPU 使用率及位置信息。每个节点共 64 个 GPU 位置，当该位置有 GPU 时对应的 Bit-map 位为“1”，否则为“0”。
+
+我们也给 Hadoop 2.7.2 添加了 Port 支持。客户端 (ApplicationMaster) 可以向 Yarn 资源管理器提交带有 Port 信息的资源请求。
 
 该 Hadoop AI 增强补丁下载地址： 
 https://issues.apache.org/jira/browse/YARN-7481
@@ -83,8 +85,8 @@ https://issues.apache.org/jira/browse/YARN-7481
     在[部署 PAI - 准备 dev-box](../pai-management/README-zh.md#生成-docker-容器) 设置 Hadoop 路径时使用生成的`hadoop-2.7.2.tar.gz`。  
    
 
-## Yarn GPU 接口 ##
-1. 将 GPU 和 GPUAttribute 添加到 `yarn_protos` 中作为接口。
+## Yarn GPU 和 Port 接口 ##
+1. 将 GPU , GPUAttribute 和 ports 添加到 `yarn_protos` 中作为接口。
 
     源文件:
     hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/proto/yarn_protos.proto
@@ -94,10 +96,11 @@ https://issues.apache.org/jira/browse/YARN-7481
            optional int32 virtual_cores = 2;
            optional int32 GPUs = 3;
            optional int64 GPUAttribute = 4;
+           optional ValueRangesProto ports = 5;
          }
     ```
 
-2.  获取 / 设置 GPU 及 GPU 属性接口
+2.  获取 / 设置 GPU , GPUAttribute 和 Port 接口
  GPU属性，以 Bit-map 表示，使用 `long` 类型存储。
     
     源文件：
@@ -108,6 +111,8 @@ hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/
          3. public abstract void setGPUs(int GPUs);
          4. public abstract long getGPUAttribute();
          5. public abstract void setGPUAttribute(long GPUAttribute);
+         6. public abstract ValueRanges getPorts();
+         7. public abstract void setPorts(ValueRanges ports);
     ```
 3.  YARN 配置
     
@@ -125,12 +130,32 @@ hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/
                 <description>The maximum allocation for every container request at the RM, in terms of GPUs. Requests higher than this will throw an InvalidResourceRequestException. </description>
                 <name>yarn.scheduler.maximum-allocation-gpus</name>
                 <value>8</value>
-            </property>     
+            </property>
             <property>
                 <description>Percentage of GPU that can be allocated  for containers. This setting allows users to limit the amount of  GPU that YARN containers use. Currently functional only on Linux using cgroups. The default is to use 100% of GPU.
                 </description>
                 <name>yarn.nodemanager.resource.percentage-physical-gpu-limit</name>
                 <value>100</value>
+            </property>
+            <property>
+                <description>exclude the gpus which is used by unknown process</description>
+                <name>yarn.gpu_exclude_ownerless_gpu.enable</name>
+                <value>false</value>
+            </property>
+            <property>
+                <description>the gpu memory threshold to indicate a gpu is used by unknown process</description>
+                <name>yarn.gpu_not_ready_memory_threshold-mb</name>
+                <value>20</value>
+            </property>
+            <property>
+                <description>enable port as resource</description>
+                <name>yarn.ports_as_resource.enable</name>
+                <value>true</value>
+            </property>
+            <property>
+                <description>the max port range available for resource allocation</description>
+                <name>yarn.nodemanager.resource.ports</name>
+                <value>[1-65535]</value>
             </property>
         ```
 
@@ -175,6 +200,13 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
 
       在 GPU 调度中，Relax 为节点级的，GPU 位置无法放松。例如，需为节点 1 请求 2 个 GPU，GPUAttribute 设置为 3（二进制为 11，表示 GPU 0，1），在容器请求中允许放松时，若节点 1 的 GPU 0 或 1 不可用，则 YARN RM 会放松至其他节点的 GPU 0,1（若二者皆可用）。但是 YARN RM 不会放松至节点 1 的其他 GPU 位置上，也不会放松至其他节点的除了 0,1 位置的其他 GPU。
 
+5. 发送端口的请求:
+
+          1.ValueRanges valueRanges;
+          2.Resource res = Resource.newInstance(requireMem, requiredCPU);
+          3.填充请求的端口数据
+          4.res.setPorts(valueRanges)
+
 ## Resource manger ##
 
 1. GPU 分配算法
@@ -195,8 +227,11 @@ GPU 资源请求以下列 Resource 对象的形式发送至 RM（Resource Manage
 
   源文件： org.apache.hadoop.yarn.util.LinuxResourceCalculatorPlugin
   
-  在 Node Manager （NM）中，启动服务时，通过运行 `nvidia-smi` 命令获取节点的 GPU 容量，该步骤仅在NM 初始化时进行。
-NM 心跳（heartbeat）不报告 Hadoop 2.7.2 中的资源利用状态。 在 Hadoop 2.8 或更高版本中，NM 心跳会报告本地资源信息，我们将考虑在心跳中添加更多GPU状态。
+  在 Node Manager （NM）中，启动服务时，通过运行 `nvidia-smi` 命令获取节点的 GPU 容量， NM 的心跳机制也会定期将 GPU 信息汇报给 ResourceManager。 用户可以通过 yarn.gpu_exclude_ownerless_gpu.enable 和 yarn.gpu_not_ready_memory_threshold-mb 两个参数来配置排除掉一些不可用的GPU。
+
+
+  节点的 Port 使用信息是通过在节点上运行命令 `netstat -anlut` 获取到的.  NodeManager 的心跳机制也会定期收集 Port 实时使用信息并汇报给 ResourceManager。
+  用户可以通过 yarn.nodemanager.resource.ports 来配置可以使用的 Port 范围。
 
 ## Web 应用   ##
  GPU 计数和 GPU 属性信息也显示在 Hadoop 网页中。 用户可以在应用程序信息页面中查看总容量、使用率、空闲情况等。 用户还可以在“节点信息”页面中检查每个节点以 Bit-map 表示的 GPU 使用情况。
