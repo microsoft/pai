@@ -23,8 +23,37 @@
 <configuration>
 
     <property>
-      <name>hbase.cluster.distributed</name>
-      <value>true</value>
+        <name>hbase.cluster.distributed</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hbase.tmp.dir</name>
+        <value>/var/lib/hbase-data</value>
+    </property>
+
+    <property>
+        <name>hbase.rootdir</name>
+        <value>hdfs://{HDFS_ADDRESS}:9000/hbase</value>
+    </property>
+
+    <property>
+        <name>hbase.master.hostname</name>
+        <value>{{ host_config['ip'] }}</value>
+    </property>
+
+    <property>
+        <name>hbase.zookeeper.quorum</name>
+        <value>
+{%- for host in cluster_config if 'zkid' in cluster_config[ host ] -%}
+    {{cluster_config[ host ]['ip']}}{% if not loop.last %},{% endif %}
+{%- endfor -%}
+        </value>
+    </property>
+
+    <property>
+        <name>hbase.zookeeper.property.clientPort</name>
+        <value>2181</value>
     </property>
 
 
