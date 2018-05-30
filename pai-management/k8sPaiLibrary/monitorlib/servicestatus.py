@@ -76,7 +76,8 @@ def pod_is_ready_or_not(label_key, label_value):
         return False
 
     for pod in pod_list.items:
-
+        if pod.status.container_statuses is None:
+            return False
         for container in pod.status.container_statuses:
             if container.ready != True:
                 return False
