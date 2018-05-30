@@ -236,7 +236,6 @@ def archive_tar(target, path):
 
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
 
-    print("job name is " + jobname)
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
     if "template-list" in maintain_config[jobname]:

@@ -175,24 +175,24 @@ class deploy:
                 node_config = self.cluster_config[listname][node_key]
                 self.logger.info("Begin to deploy k8s on host {0}, the node role is [ {1} ]".format(node_config["hostip"], role))
                 self.prepare_package(node_config, "{0}-deployment".format(role))
-        #         self.job_executer(node_config, "{0}-deployment".format(role))
+                self.job_executer(node_config, "{0}-deployment".format(role))
 
-        #         if self.clean_flag == True:
-        #             self.logger.info(" package cleaner is working on the folder of {0}!".format(node_config["hostip"]))
-        #             self.delete_packege(node_config)
-        #             self.logger.info(" package cleaner's work finished! ")
+                if self.clean_flag == True:
+                    self.logger.info(" package cleaner is working on the folder of {0}!".format(node_config["hostip"]))
+                    self.delete_packege(node_config)
+                    self.logger.info(" package cleaner's work finished! ")
 
-        #             self.logger.info(
-        #                 " remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
-        #             self.remote_host_cleaner(node_config, "{0}-deployment".format(role))
-        #             self.logger.info(" remote host cleaning job finished! ")
+                    self.logger.info(
+                        " remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
+                    self.remote_host_cleaner(node_config, "{0}-deployment".format(role))
+                    self.logger.info(" remote host cleaning job finished! ")
 
 
-        # kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
-        # kubectl_install_instance.run()
+        kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
+        kubectl_install_instance.run()
 
-        # self.create_kube_proxy()
-        # self.create_k8s_dashboard()
+        self.create_kube_proxy()
+        self.create_k8s_dashboard()
 
         self.logger.info("The kubernetes deployment is finished!")
 

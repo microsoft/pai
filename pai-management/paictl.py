@@ -333,7 +333,7 @@ def pai_service():
         service_management_refrasher.run()
 
 
-def maintain_k8s_cluster(cluster_config, **kwargs):
+def maintain_cluster_k8s(cluster_config, **kwargs):
     print("option name is " +  kwargs["option_name"])
     module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
     print("module_name is " + module_name)
@@ -370,33 +370,26 @@ def pai_cluster():
     args = parser.parse_args(sys.argv[1:])
 
     config_path = args.config_path
-    cluster_config=load_cluster_objectModel_k8s(config_path)
-
-    master_list = cluster_config['mastermachinelist']
-    etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
-
-    # ETCD will communicate with each other through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
-    # Other service will write and read data through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
-    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
+    cluster_config = cluster_object_model_generate_k8s(config_path)
 
     if option == "k8s-bootstrap":
         logger.info("Begin to initialize PAI k8s cluster.")
 
-        maintain_k8s_cluster(cluster_config, option_name="deploy", clean=True)
+        maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
 
         logger.info("Finish initializing PAI k8s cluster.")
         return
 
-    if args.action == 'k8s-clean':
+    # just use 'k8s-clean' for testing temporarily  .
 
-        logger.info("Begin to clean up whole cluster.")
+    # if option == "k8s-clean":
 
-        maintain_cluster(cluster_config, job_name = "clean", clean = True)
+    #     logger.info("Begin to clean up whole cluster.")
 
-        logger.info("Clean up job finished")
-        return
+    #     maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+
+    #     logger.info("Clean up job finished")
+    #     return
 
 
 def easy_way_deploy():
