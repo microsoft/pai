@@ -365,7 +365,13 @@ class Job {
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
-      'user': {'name': data.userName},
+      'user': {
+        'name': data.userName,
+      },
+      'retryPolicy': {
+        'maxRetryCount': data.retryCount,
+        'fancyRetryPolicy': true,
+      },
       'taskRoles': {},
       'platformSpecificParameters': {
         'queue': virtualCluster,
