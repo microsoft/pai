@@ -27,6 +27,9 @@ ENV HBASE_HOME=/usr/local/hbase \
     HBASE_LOG_DIR=/usr/local/hbase/logs \
     HADOOP_BIN_DIR=/usr/local/hbase/bin \
 
+COPY start.sh /usr/local/
+RUN chmod u+x /usr/loacl/start.sh
+
 
 # You could hardcode your configuration in the image. But it's highly recommended to take advantage of k8s to mount your configuration and start script. To make all image stateless, we'd better separate all configuration from the image.
 

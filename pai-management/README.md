@@ -19,8 +19,11 @@
 
 ## Configuration
 
+[A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
+
 
 ## Cluster Bootstrap
+
 
 
 ## Kubernetes Maintenance

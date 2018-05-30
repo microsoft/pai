@@ -12,6 +12,8 @@ For advanced user. A guide for developer to add their own service into pai.
     - [Write PAI's Image Configuration](#Image_Configuration)
     - [Place the Image Directory into PAI](#Image_Place)
 - [ Add Service's Maintain Module ](#Maintain)
+    - [Kubernetes ]
+    - [Prepare Service Configuration]
 
 
 ## Overview <a name="overview"></a>
@@ -56,7 +58,7 @@ Here is the examples of the configuration.
 Take hbase image's configuration here as an example to explain.
 
 
-```
+```yaml
 ### the image is based on hadoop-run. You should tell paictl to build hadoop-run first.
 ### Because hadoop-run is our customized image, you will have to set value here.
 ### If the based image is on public registry, you could comment this field.
@@ -111,13 +113,14 @@ If you wanna paictl to build hbase image, you should move the director ```exampl
 
 ## Add Service's Maintain Module <a name="Maintain"></a>
 
+After hbase image is built, you need bootstrap it in pai. Now the service management system is kubernetes.
 
-#### Taking advantage of kubernetes
 
+#### Prepare Service Configuration
 
-#### service.yaml
+This is the configuration of your service bootstrap module. And paictl will call different script to handle different things. This file should be placed in your service bootstrap module. And its name should be ```service.yaml```
 
-This is the configuration of your service bootstrap module.
+Here is the service configuration of HBase
 
 #### start
 
@@ -126,3 +129,5 @@ This is the configuration of your service bootstrap module.
 #### stop
 
 #### delete
+
+#### Upgrade
