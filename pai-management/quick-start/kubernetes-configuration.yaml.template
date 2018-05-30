@@ -20,10 +20,10 @@ kubernetes:
   cluster-dns: {{ env["cluster-dns"] }}
   # To support k8s ha, you should set an lb address here.
   # If deploy k8s with single master node, please set master IP address here
-  load-balance-ip: {{ "10.254.0.0/16" if "service-cluster-ip-range" not in env else env["service-cluster-ip-range"] }}
+  load-balance-ip: {{ env["machines"][0] }}
 
   # specify an IP range not in the same network segment with the host machine.
-  service-cluster-ip-range: 169.254.0.0/16
+  service-cluster-ip-range: {{ "10.254.0.0/16" if "service-cluster-ip-range" not in env else env["service-cluster-ip-range"] }}
   # According to the etcdversion, you should fill a corresponding backend name.
   # If you are not familiar with etcd, please don't change it.
   storage-backend: etcd3
