@@ -63,5 +63,5 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
             file_handler.write_generated_file(
                 target_file_path,
                 template_handler.generate_from_template_dict(
-                    file_handler.read_template("./templates/%s.template" % (x)),
+                    file_handler.read_template("./quick-start/%s.template" % (x)),
                     { "env": quick_start_config }))
