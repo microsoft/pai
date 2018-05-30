@@ -20,6 +20,7 @@ import sys
 import logging  
 from logging.handlers import RotatingFileHandler
 import os
+import re
 
 logger = logging.getLogger("node_exporter probe")  
 logger.setLevel(logging.INFO)  
@@ -33,9 +34,9 @@ def main():
     runTimeException = []
     gpuExists = False
     try:
-        gpuCheckCMD = "lspci | grep -E \"[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation*\""
-        gpuOutput = subprocess.check_output([gpuCheckCMD], shell=True)
-        if gpuOutput:
+        gpuOutput = subprocess.check_output(["lspci"], shell=True)
+        r = re.search("[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*", gpuOutput, flags=0)
+        if r is not None:
             gpuExists = True
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
