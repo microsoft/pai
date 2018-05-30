@@ -34,6 +34,7 @@ from paiLibrary.paiService import service_management_stop
 from paiLibrary.paiService import service_management_delete
 from paiLibrary.paiService import service_management_refrash
 
+from paiLibrary.paiCluster import cluster_util
 
 
 logger = logging.getLogger(__name__)
@@ -353,6 +354,51 @@ def pai_service():
         service_management_refrasher.run()
 
 
+def pai_cluster_info():
+
+    logger.error("The command is wrong.")
+    logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuraiton/dir")
+
+
+def pai_cluster():
+
+    if len(sys.argv) < 2:
+        pai_cluster_info()
+        return
+
+    option = sys.argv[1]
+    del sys.argv[1]
+
+    if option not in ["k8s-bootup","k8s-clean"]:
+        pai_cluster_info()
+        return
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+                        help="path of cluster configuration file")
+    args = parser.parse_args(sys.argv[1:])
+
+    config_path = args.config_path
+    cluster_config = cluster_object_model_generate_k8s(config_path)
+
+    if option == "k8s-bootup":
+        logger.info("Begin to initialize PAI k8s cluster.")
+
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
+
+        logger.info("Finish initializing PAI k8s cluster.")
+        return
+
+    # just use 'k8s-clean' for testing temporarily  .
+
+    # if option == "k8s-clean":
+
+    #     logger.info("Begin to clean up whole cluster.")
+
+    #     cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+
+    #     logger.info("Clean up job finished")
+    #     return
 
 
 def easy_way_deploy():
@@ -374,13 +420,17 @@ def main():
 
         pai_build()
 
-    elif module == "k8s-control":
+    elif module == "machine":
 
         None
 
     elif module == "service":
 
         pai_service()
+
+    elif module == "cluster":
+
+        pai_cluster()
 
     elif module == "easy-way-deploy":
 
