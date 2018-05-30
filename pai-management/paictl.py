@@ -19,7 +19,6 @@
 
 from __future__ import print_function
 
-import os
 import sys
 import argparse
 import logging
@@ -363,109 +362,51 @@ def pai_cluster_info():
 
 
 def pai_cluster():
-
     if len(sys.argv) < 2:
         pai_cluster_info()
         return
-
     option = sys.argv[1]
     del sys.argv[1]
-
-    if option not in ["k8s-bootup","k8s-clean"]:
+    if option not in ["k8s-bootup", "k8s-clean", "generate-configuration"]:
         pai_cluster_info()
         return
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-                        help="path of cluster configuration file")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    cluster_config = cluster_object_model_generate_k8s(config_path)
-
     if option == "k8s-bootup":
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+            help="path of cluster configuration file")
+        args = parser.parse_args(sys.argv[1:])
+        config_path = args.config_path
+        cluster_config = cluster_object_model_generate_k8s(config_path)
         logger.info("Begin to initialize PAI k8s cluster.")
-
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
-
         logger.info("Finish initializing PAI k8s cluster.")
-        return
-
-    # just use 'k8s-clean' for testing temporarily  .
-
-    # if option == "k8s-clean":
-
-    #     logger.info("Begin to clean up whole cluster.")
-
-    #     cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
-
-    #     logger.info("Clean up job finished")
-    #     return
+    elif option == "generate-configuration":
+        parser = argparse.ArgumentParser(
+            description="Generate configuration files based on a quick-start yaml file.",
+            formatter_class=argparse.RawDescriptionHelpFormatter)
+        parser.add_argument('-i', '--input', dest="quick_start_config_file", required=True,
+            help="the path of the quick-start configuration file (yaml format) as the input")
+        parser.add_argument('-o', '--output', dest="configuration_directory", required=True,
+            help="the path of the directory the configurations will be generated to")
+        parser.add_argument('-f', '--force', dest='force', action='store_true', required=False,
+            help="overwrite existing files")
+        parser.set_defaults(force=False)
+        args = parser.parse_args()
+        cluster_util.generate_configuration(
+            args.quick_start_config_file,
+            args.configuration_directory,
+            args.force)
+    #elif option == "k8s-clean":
+    #    # just use 'k8s-clean' for testing temporarily  .
+    #    logger.info("Begin to clean up whole cluster.")
+    #    cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+    #    logger.info("Clean up job finished")
 
 
 def easy_way_deploy():
 
     None
 
-
-def handle_cluster_module_generate_configuration_operation():
-    #
-    desc  = "Automatically generate the following configuration files from a quick-start file:\n"
-    desc += "\n"
-    desc += "    * Machine-level configurations: cluster-configuration.yaml\n"
-    desc += "    * Kubernetes-level configurations I: kubernetes-configuration.yaml\n"
-    desc += "    * Kubernetes-level configurations II: k8s-role-definition.yaml\n"
-    desc += "    * Service-level configurations: service-configuration.yaml\n"
-    desc += "\n"
-    parser = argparse.ArgumentParser(
-        description=desc,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-i', '--input', dest="quick_start_config_file", required=True,
-        help="the path of the quick-start configuration file (yaml format) as the input")
-    parser.add_argument('-o', '--output', dest="configuration_directory", required=True,
-        help="the path of the directory the configurations will be generated to")
-    parser.add_argument('-f', '--force', dest='force', action='store_true', required=False,
-        help="overwrite existing files")
-    parser.set_defaults(force=False)
-    args = parser.parse_args()
-    #
-    quick_start_config = file_handler.load_yaml_config(args.quick_start_config_file)
-    #
-    yaml_file_names = [
-        "cluster-configuration.yaml",
-        "kubernetes-configuration.yaml",
-        "k8s-role-definition.yaml",
-        "services-configuration.yaml"
-    ]
-    for x in yaml_file_names:
-        target_file_path = os.path.join(args.configuration_directory, x)
-        if file_handler.file_exist_or_not(target_file_path) and args.force is False:
-            # TODO: Prompt error.
-            print("File %s exists. Skip." % (target_file_path))
-            pass
-        else:
-            file_handler.create_folder_if_not_exist(args.configuration_directory)
-            file_handler.write_generated_file(
-                target_file_path,
-                template_handler.generate_from_template_dict(
-                    file_handler.read_template("./templates/%s.template" % (x)),
-                    { "env": quick_start_config }))
-
-#
-
-def pai_cluster():
-    if len(sys.argv) < 2:
-        # TODO: Print usage info.
-        return
-    op = sys.argv[1]
-    del sys.argv[1]
-    if op == "generate-configuration":
-        handle_cluster_module_generate_configuration_operation()
-    else:
-        # TODO: Print usage info.
-        return
-
-#
 
 def main():
 

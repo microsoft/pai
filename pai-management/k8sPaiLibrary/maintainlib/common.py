@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+#
 import yaml
 import os
 import errno
@@ -160,7 +162,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     stdin.write(password + '\n')
     stdin.flush()
     for response_msg in stdout:
-        print response_msg.strip('\n')
+        print(response_msg.strip('\n'))
 
     ssh.close()
 
@@ -200,7 +202,7 @@ def ssh_shell_paramiko(host_config, commandline):
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
-        print response_msg.strip('\n')
+        print(response_msg.strip('\n'))
 
     ssh.close()
     return True
