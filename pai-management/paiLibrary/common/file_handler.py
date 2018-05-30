@@ -66,4 +66,6 @@ def file_delete(file_path):
         linux_shell.execute_shell(shell_cmd, error_msg)
 
 
-
+def create_folder_if_not_exist(folder_path):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)

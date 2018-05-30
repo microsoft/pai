@@ -19,6 +19,7 @@
 
 from __future__ import print_function
 
+import os
 import sys
 import argparse
 import logging
@@ -26,6 +27,7 @@ import logging.config
 
 from paiLibrary.common import linux_shell
 from paiLibrary.common import file_handler
+from paiLibrary.common import template_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
 from paiLibrary.paiBuild import push_center
@@ -360,7 +362,7 @@ def easy_way_deploy():
     None
 
 
-def handle_cluster_module_generate_configuration_files_operation():
+def handle_cluster_module_generate_configuration_operation():
     #
     desc  = "Automatically generate the following configuration files from a quick-start file:\n"
     desc += "\n"
@@ -372,23 +374,47 @@ def handle_cluster_module_generate_configuration_files_operation():
     parser = argparse.ArgumentParser(
         description=desc,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-f', '--quick-start-file', dest="quick_start_file", required=True,
-                        help="The quick-start yaml file.")
-    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-                        help="The path of your configuration directory.")
-    #
+    parser.add_argument('-i', '--input', dest="quick_start_config_file", required=True,
+        help="the path of the quick-start configuration file (yaml format) as the input")
+    parser.add_argument('-o', '--output', dest="configuration_directory", required=True,
+        help="the path of the directory the configurations will be generated to")
+    parser.add_argument('-f', '--force', dest='force', action='store_true', required=False,
+        help="overwrite existing files")
+    parser.set_defaults(force=False)
     args = parser.parse_args()
+    #
+    quick_start_config = file_handler.load_yaml_config(args.quick_start_config_file)
+    #
+    yaml_file_names = [
+        "cluster-configuration.yaml",
+        "kubernetes-configuration.yaml",
+        "k8s-role-definition.yaml",
+        "services-configuration.yaml"
+    ]
+    for x in yaml_file_names:
+        target_file_path = os.path.join(args.configuration_directory, x)
+        if file_handler.file_exist_or_not(target_file_path) and args.force is False:
+            # TODO: Prompt error.
+            print("File %s exists. Skip." % (target_file_path))
+            pass
+        else:
+            file_handler.create_folder_if_not_exist(args.configuration_directory)
+            file_handler.write_generated_file(
+                target_file_path,
+                template_handler.generate_from_template_dict(
+                    file_handler.read_template("./templates/%s.template" % (x)),
+                    { "env": quick_start_config }))
 
 #
 
-def handle_cluster_module():
+def pai_cluster():
     if len(sys.argv) < 2:
         # TODO: Print usage info.
         return
     op = sys.argv[1]
     del sys.argv[1]
-    if op == "generate-configuration-files":
-        handle_cluster_module_generate_configuration_files_operation()
+    if op == "generate-configuration":
+        handle_cluster_module_generate_configuration_operation()
     else:
         # TODO: Print usage info.
         return
@@ -426,7 +452,7 @@ def main():
 
     elif module == "cluster":
 
-        handle_cluster_module()
+        pai_cluster()
 
     else:
 

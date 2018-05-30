@@ -17,10 +17,10 @@
 
 kubernetes:
   # Find the namesever in  /etc/resolv.conf
-  cluster-dns: IP
+  cluster-dns: {{ env["cluster-dns"] }}
   # To support k8s ha, you should set an lb address here.
   # If deploy k8s with single master node, please set master IP address here
-  load-balance-ip: IP
+  load-balance-ip: {{ "10.254.0.0/16" if "service-cluster-ip-range" not in env else env["service-cluster-ip-range"] }}
 
   # specify an IP range not in the same network segment with the host machine.
   service-cluster-ip-range: 169.254.0.0/16
@@ -42,6 +42,3 @@ kubernetes:
   kube-controller-manager-version:  v1.9.4
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
   dashboard-version: v1.8.3
-
-
-

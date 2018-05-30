@@ -18,14 +18,12 @@
 
 # If corresponding values aren't be set in the machine list, the default value will be filled in.
 default-machine-properties:
-
-  # Account with root permission
-  username: pai
-  password: pai
-  sshport: 22
+  # Account with sudo permission
+  username: {{ env["login-username"] }}
+  password: {{ env["login-password"] }}
+  sshport: {{ 22 if "ssh-port" not in env else env["ssh-port"] }}
 
 machine-sku:
-
   GENERIC:
     mem: 1
     gpu:
@@ -36,9 +34,7 @@ machine-sku:
     os: ubuntu16.04
 
 machine-list:
-
-{%- for m in machines %}
-
+{%- for m in env["machines"] %}
   - hostname: {{ m }}
     hostip: {{ m }}
     machine-type: GENERIC
@@ -53,5 +49,4 @@ machine-list:
     pai-worker: "true"
   {%- endif %}
     node-exporter: "true"
-
 {%- endfor %}
