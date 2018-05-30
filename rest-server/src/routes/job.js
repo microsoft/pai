@@ -19,26 +19,25 @@
 // module dependencies
 const express = require('express');
 const tokenConfig = require('../config/token');
-const jobConfig = require('../config/job');
 const jobController = require('../controllers/job');
-const param = require('../middlewares/parameter');
+const jobParam = require('../middlewares/job');
 
 
 const router = new express.Router();
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
-    .get(param.jobQuery, jobController.list)
+    .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(tokenConfig.check, param.validate(jobConfig.schema), param.checkKillAllOnCompletedTaskNumber, jobController.init, jobController.update);
+    .post(tokenConfig.check, jobParam.submission, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(tokenConfig.check, param.validate(jobConfig.schema), param.checkKillAllOnCompletedTaskNumber, jobController.update)
+    .put(tokenConfig.check, jobParam.submission, jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
     .delete(tokenConfig.check, jobController.remove);
