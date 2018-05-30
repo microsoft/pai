@@ -87,20 +87,20 @@ def parse_pods_status(podsJsonObject, outputFile):
         if ready != "True" and init == "True" and scheduled == "True":
             kube_pod_status_probe_not_ready += 1
             # specific pod occurs readiness probe failed error, condition is not ready, value is 1
-            logger.error("pod_status_probe_not_ready{{pod=\"{}\", hostip=\"{}\"}} {}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
+            logger.error("pod_current_probe_not_ready{{pod=\"{}\", hostip=\"{}\"}} {}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_probe_not_ready += 1
         # 2. check failed phase pods
         if phase == "Failed":
             kube_pod_status_phase_failed += 1
             # specific pod phase become faile, value is 1
-            logger.error("pod_status_phase_failed{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
+            logger.error("pod_current_phase_failed{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_phase_failed += 1
 
         # 3. check unknown phase pods 
         if phase == "Unknown":
             kube_pod_status_phase_unknown += 1
             # specific pod phase become unknown, value is 1
-            logger.error("pod_status_phase_unknown{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
+            logger.error(" pod_current_phase_unknown{{pod=\"{0}\", hostip=\"{}\"}} {1}\n".format(pod["metadata"]["name"], pod["status"]["hostIP"], 1))
             service.kube_pod_status_phase_unknown += 1
 
         containerStatus = status["containerStatuses"]
@@ -112,75 +112,75 @@ def parse_pods_status(podsJsonObject, outputFile):
             if not containerReady:
                 pod_container_status_not_ready +=1 
                 # specific pod contains container status is not ready, value is 1
-                logger.error("container_status_not_ready{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
+                logger.error("container_current_not_ready{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_not_ready += 1
 
             state = perContainerStatus["state"]
             if "terminated" in state:
                 pod_container_status_terminated += 1
                 # specific pod container status is terminated total count, value is 1
-                logger.error("container_status_terminated{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
+                logger.error("container_current_terminated{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_terminated += 1
 
             if "waiting" in state:
                 pod_container_status_waiting += 1
                 # specific pod container status is waiting  total count, value is 1
-                logger.error("container_status_waiting{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
+                logger.error("container_current_waiting{{pod=\"{0}\", container=\"{1}\", hostip=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], 1))
                 service.pod_container_status_waiting += 1
 
             if restartCount > 0:
                 pod_container_status_restarted_pod_count += 1
                 # specific pod's container restart total count
-                logger.error("container_status_restart_total{{pod=\"{0}\", container=\"{1}\", instance=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], restartCount))
+                logger.error("container_accumulation_restart_total{{pod=\"{0}\", container=\"{1}\", instance=\"{2}\"}} {3}\n".format(pod["metadata"]["name"], perContainerStatus["name"], pod["status"]["hostIP"], restartCount))
                 service.pod_container_status_restart_total += 1
 
     # service level aggregation metrics
     for service in serviceMetrics:
         # each service occurs readiness probe failed error, condition is not ready, total count
         if service.kube_pod_status_probe_not_ready != 0:
-            logger.error("service_pod_status_probe_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_probe_not_ready))
+            logger.error("service_current_probe_not_ready_pod_count{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_probe_not_ready))
         # each service pods' phase become failed total count
         if service.kube_pod_status_phase_failed != 0:
-            logger.error("service_pod_status_phase_failed{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_failed))
+            logger.error("service_current_phase_failed_pod_count{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_failed))
         # each service pods' phase become unknown total count
         if service.kube_pod_status_phase_unknown != 0: 
-            logger.error("service_pod_status_phase_unknown{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_unknown))
+            logger.error("service_current_phase_unknown_pod_count{{service=\"{}\"}} {}\n".format(service.name, service.kube_pod_status_phase_unknown))
         # each service pods' contains container status is not ready total count
         if service.pod_container_status_waiting != 0:
-            logger.error("service_pod_container_status_not_ready{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_waiting))
+            logger.error("service_current_not_ready_container_count{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_waiting))
         # each service pods' container status is terminated total count
         if service.pod_container_status_terminated != 0:
-            logger.error("service_pod_container_status_terminated{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_terminated))
+            logger.error("service_current_terminated_container_count{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_terminated))
         # each service pods' container status is waiting  total count
         if service.pod_container_status_not_ready != 0:
-            logger.error("service_pod_container_status_waiting{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_not_ready))
+            logger.error("service_current_waiting_container_count{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_not_ready))
         # each service pods' container restart total count
         if service.pod_container_status_restart_total != 0:
-            logger.error("service_pod_container_status_restart_total{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_restart_total))
+            logger.error("service_restarted_container_count{{service=\"{}\"}} {}\n".format(service.name, service.pod_container_status_restart_total))
     
     # aggregate whole cluster level service metrics
     # cluster pods' occurs readiness probe failed error, condition is not ready, total count
-    outputFile.write("cluster_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
+    outputFile.write("cluster_current_probe_not_ready_pod_count {}\n".format(kube_pod_status_probe_not_ready))
     # cluster pods' phase become failed total count
-    outputFile.write("cluster_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
+    outputFile.write("cluster_current_phase_failed_pod_count {}\n".format(kube_pod_status_phase_failed))
     # cluster pods' phase become unknown total count
-    outputFile.write("cluster_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
+    outputFile.write("cluster_phase_unknown_pod_count {}\n".format(kube_pod_status_phase_unknown))
     # cluster pods' contains container status is not ready total count
-    outputFile.write("cluster_pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
+    outputFile.write("cluster_current_status_not_ready_container_count {}\n".format(pod_container_status_not_ready))
     # cluster pods' container status is terminated total count
-    outputFile.write("cluster_pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
+    outputFile.write("cluster_current_terminated_container_count {}\n".format(pod_container_status_terminated))
     # cluster pods' container status is waiting  total count
-    outputFile.write("cluster_pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
+    outputFile.write("cluster_current_waiting_container_count {}\n".format(pod_container_status_waiting))
     # cluster pods' container restart total count
-    outputFile.write("cluster_pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
+    outputFile.write("cluster_container_once_restarted_pod_count {}\n".format(pod_container_status_restarted_pod_count))
 
-    logger.info("cluster_pod_status_probe_not_ready_total {}\n".format(kube_pod_status_probe_not_ready))
-    logger.info("cluster_pod_status_phase_failed_total {}\n".format(kube_pod_status_phase_failed))
-    logger.info("cluster_pod_status_phase_unknown_total {}\n".format(kube_pod_status_phase_unknown))
-    logger.info("cluster_pod_container_status_not_ready_total {}\n".format(pod_container_status_not_ready))
-    logger.info("cluster_pod_container_status_terminated_total {}\n".format(pod_container_status_terminated))
-    logger.info("cluster_pod_container_status_waiting_total {}\n".format(pod_container_status_waiting))
-    logger.info("cluster_pod_container_status_restarted_pod_count_total {}\n".format(pod_container_status_restarted_pod_count))
+    logger.info("cluster_current_probe_not_ready_pod_count {}\n".format(kube_pod_status_probe_not_ready))
+    logger.info("cluster_current_phase_failed_pod_count {}\n".format(kube_pod_status_phase_failed))
+    logger.info("cluster_phase_unknown_pod_count {}\n".format(kube_pod_status_phase_unknown))
+    logger.info("cluster_current_status_not_ready_container_count {}\n".format(pod_container_status_not_ready))
+    logger.info("cluster_current_terminated_container_count {}\n".format(pod_container_status_terminated))
+    logger.info("cluster_current_waiting_container_count {}\n".format(pod_container_status_waiting))
+    logger.info("cluster_container_once_restarted_pod_count {}\n".format(pod_container_status_restarted_pod_count))
     return
 
 def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
@@ -190,14 +190,14 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
 
         if apiServerhealty != "ok":
             # api server health status, 1 is error    
-            apiserverHealthStr = 'apiserver_status_error {0}\n'.format(1)
+            apiserverHealthStr = 'apiserver_current_status_error {0}\n'.format(1)
             logger.error(apiserverHealthStr)
             outputFile.write(apiserverHealthStr)
     except:
         exception = sys.exc_info()
         for e in exception:
             logger.error("watchdog error {}".format(e))
-        apiserverHealthStr = 'apiserver_status_error {0}\n'.format(1)
+        apiserverHealthStr = 'apiserver_current_status_error {0}\n'.format(1)
         logger.error(apiserverHealthStr)
         outputFile.write(apiserverHealthStr)
 
@@ -207,7 +207,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
 
         if etcdhealty != "ok":
             # etcd health status, 1 is error
-            etcdHealthStr = 'etcd_status_error {0}\n'.format(1)
+            etcdHealthStr = 'etcd_current_status_error {0}\n'.format(1)
             logger.error(etcdHealthStr)
             outputFile.write(etcdHealthStr)
     except:
@@ -215,7 +215,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
         for e in exception:
             logger.error("watchdog error {}".format(e))
         # etcd health status, 1 is error
-        etcdHealthStr = 'etcd_status_error {0}\n'.format(1)
+        etcdHealthStr = 'etcd_current_status_error {0}\n'.format(1)
         logger.error(etcdHealthStr)
         outputFile.write(etcdHealthStr)
 
@@ -230,7 +230,7 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
 
             if kubeletHealthy != "ok":
                 # each node kubelet health status, 1 is error
-                kubeletHealthStr = "kubelet_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
+                kubeletHealthStr = "kubelet_current_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
                 logger.error(kubeletHealthStr)
                 outputFile.write(kubeletHealthStr)
                 kubeletErrorCount += 1
@@ -238,13 +238,13 @@ def check_k8s_componentStaus(address, nodesJsonObject, outputFile):
             exception = sys.exc_info()
             for e in exception:
                 logger.error("watchdog error {}".format(e))
-            kubeletHealthStr = "kubelet_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
+            kubeletHealthStr = "kubelet_current_status_error{{node=\"{}\"}} {}\n".format(ip, 1)
             logger.error(kubeletHealthStr)
             outputFile.write(kubeletHealthStr)
             kubeletErrorCount += 1
 
     # error total count of node kubelet health status 
-    status = 'kubelet_status_error_total {0}\n'.format(kubeletErrorCount)
+    status = 'current_status_error_kubelet_count {0}\n'.format(kubeletErrorCount)
     outputFile.write(status)
     return 
 
@@ -261,18 +261,18 @@ def parse_nodes_status(nodesJsonObject, outputFile):
                 readyStatus = condition["status"]
                 if readyStatus != "True":
                     # node status, value 1 is error
-                    nodeHealthStr = "node_notready{{node=\"{}\"}} {}\n".format(name["metadata"]["name"], 1)
+                    nodeHealthStr = "node_current_notready{{node=\"{}\"}} {}\n".format(name["metadata"]["name"], 1)
                     logger.info(nodeHealthStr)
                 else: 
                     readyNodeCount += 1
     # all nodes not ready count
-    nodeNotReadyCount = 'node_notready_count {0}\n'.format(len(nodeItems) - readyNodeCount)
+    nodeNotReadyCount = 'notready_node_count {0}\n'.format(len(nodeItems) - readyNodeCount)
     logger.info("{}".format(nodeNotReadyCount))
     outputFile.write(nodeNotReadyCount)
     return
 
 # check docker daemon health
-def checkDockerDaemonStatus(outputFile, configFilePath):
+def check_docker_daemon_status(outputFile, configFilePath):
     cluster_config = common.load_yaml_file(configFilePath)
     node_configs = cluster_config['machine-list']
     username = ""
@@ -300,19 +300,19 @@ def checkDockerDaemonStatus(outputFile, configFilePath):
             if not flag:
                 errorNodeCout += 1
                 # single node docker health
-                logger.error("node_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
+                logger.error("node_current_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
         except:
             exception = sys.exc_info()
             for e in exception:
                 logger.error("watchdog error {}".format(e))
             errorNodeCout += 1
             # single node docker health
-            logger.error("node_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
+            logger.error("node_current_docker_error{{instance=\"{}\"}} {}\n".format(node_config["hostip"], 1))
         
     if errorNodeCout > 0:
         # aggregate all nodes docker health total count
-        logger.error("node_docker_error_total_count {}\n".format(errorNodeCout))
-    outputFile.write("node_docker_error_total_count {}\n".format(errorNodeCout))
+        logger.error("docker_error_node_count {}\n".format(errorNodeCout))
+    outputFile.write("docker_error_node_count {}\n".format(errorNodeCout))
 
 def main(argv):
     logDir = argv[0]
@@ -323,11 +323,16 @@ def main(argv):
     # init the logger
     logger.setLevel(logging.INFO)  
     logger.propagate = False
+    fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 1, backupCount=5)  
+    fileHandler.setLevel(logging.INFO)  
     consoleHandler = logging.StreamHandler()  
     consoleHandler.setLevel(logging.INFO)  
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
     consoleHandler.setFormatter(formatter)  
+    fileHandler.setFormatter(formatter)  
     logger.addHandler(consoleHandler)  
+    logger.addHandler(fileHandler)  
+
     while(True):
         try:
             outputFile = open(logDir + "/watchdog.prom", "w")
@@ -339,7 +344,7 @@ def main(argv):
             nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
             parse_nodes_status(nodesStatus, outputFile)
             # check docker deamon status
-            checkDockerDaemonStatus(outputFile, configFilePath)
+            check_docker_daemon_status(outputFile, configFilePath)
 
             # 3. check k8s level status
             check_k8s_componentStaus(address, nodesStatus, outputFile)
