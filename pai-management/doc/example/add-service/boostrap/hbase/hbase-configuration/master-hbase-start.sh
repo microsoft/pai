@@ -19,4 +19,4 @@
 
 
 # After the configuration and environment in master-hbase-generate.sh is done, start the master of hbase.
-$HADOOP_BIN_DIR/hbase-daemon.sh start master
+$HADOOP_BIN_DIR/hbase-daemon.sh foreground_start master
