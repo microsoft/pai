@@ -210,6 +210,7 @@ def ssh_shell_paramiko(host_config, commandline):
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
+        
         try:
             os.makedirs(path)
         except OSError as exc:
@@ -234,14 +235,16 @@ def archive_tar(target, path):
 
 
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
-
+    
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
+
     if "template-list" in maintain_config[jobname]:
         for template_info in maintain_config[jobname]["template-list"]:
 
             name = template_info['name']
             src = template_info['src']
             dst = template_info['dst']
+
             template_data = read_template("{0}".format(src))
             template_file = generate_from_template(template_data, cluster_config, node_config)
             create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
