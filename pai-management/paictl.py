@@ -34,9 +34,7 @@ from paiLibrary.paiService import service_management_stop
 from paiLibrary.paiService import service_management_delete
 from paiLibrary.paiService import service_management_refrash
 
-from k8sPaiLibrary import maintainlib
-import importlib
-from k8sPaiLibrary.maintainlib import common as pai_common
+from paiLibrary.paiCluster import cluster_util
 
 
 logger = logging.getLogger(__name__)
@@ -338,20 +336,10 @@ def pai_service():
         service_management_refrasher.run()
 
 
-def maintain_cluster_k8s(cluster_config, **kwargs):
-    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
-    module = importlib.import_module(module_name)
-
-    job_class = getattr(module, kwargs["option_name"])
-    job_instance = job_class(cluster_config, **kwargs)
-
-    job_instance.run()
-
-
 def pai_cluster_info():
 
     logger.error("The command is wrong.")
-    logger.error("Bootstrap kubernetes cluster: paictl.py cluster k8s-bootstrap -p /path/to/cluster-configuraiton/dir")
+    logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuraiton/dir")
 
 
 def pai_cluster():
@@ -363,7 +351,7 @@ def pai_cluster():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["k8s-bootstrap","k8s-clean"]:
+    if option not in ["k8s-bootup","k8s-clean"]:
         pai_cluster_info()
         return
 
@@ -378,7 +366,7 @@ def pai_cluster():
     if option == "k8s-bootup":
         logger.info("Begin to initialize PAI k8s cluster.")
 
-        maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
 
         logger.info("Finish initializing PAI k8s cluster.")
         return
@@ -389,7 +377,7 @@ def pai_cluster():
 
     #     logger.info("Begin to clean up whole cluster.")
 
-    #     maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+    #     cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
 
     #     logger.info("Clean up job finished")
     #     return
