@@ -339,9 +339,7 @@ def pai_service():
 
 
 def maintain_cluster_k8s(cluster_config, **kwargs):
-    print("option name is " +  kwargs["option_name"])
     module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
-    print("module_name is " + module_name)
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, kwargs["option_name"])
@@ -377,7 +375,7 @@ def pai_cluster():
     config_path = args.config_path
     cluster_config = cluster_object_model_generate_k8s(config_path)
 
-    if option == "k8s-bootstrap":
+    if option == "k8s-bootup":
         logger.info("Begin to initialize PAI k8s cluster.")
 
         maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
