@@ -35,7 +35,7 @@ chmod u+x configmap-create.sh
 
 ./configmap-create.sh
 
-# Hadoop name node
+# hbase master
 kubectl create -f hbase-master.yaml
 
 # A tool to check whether a node was labeled with hbasemaster="true"
@@ -43,11 +43,26 @@ PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -
 ret=$?
 
 if [ $ret -ne 0 ]; then
-    echo "No hadoop-name-node Pod in your cluster"
+    echo "No hbase-master Pod in your cluster"
 else
     # A tool to wait all pod which as label app=hbase-master to be ready.
     PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-master
 fi
+
+# hbase master
+kubectl create -f hbase-regionserver.yaml
+
+# A tool to check whether a node was labeled with hbasemaster="true"
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hbaseregionserver -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hbase-master Pod in your cluster"
+else
+    # A tool to wait all pod which as label app=hbase-master to be ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver
+fi
+
 
 
 popd > /dev/null
