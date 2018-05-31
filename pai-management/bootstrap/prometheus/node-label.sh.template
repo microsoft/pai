@@ -24,4 +24,7 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus=true
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true
     {% endif %}
+    {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true
+    {% endif %}
 {% endfor %}

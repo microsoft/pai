@@ -79,6 +79,15 @@ imagelist:
     templatelist:
       - None
     prerequisite: None
+
+  watchdog:
+    copy:
+      - ../prometheus/exporter
+      - ../pai-management/k8sPaiLibrary/maintainlib/common.py
+      - ../cluster-configuration/cluster-configuration.yaml
+    templatelist:
+      - dockerfile
+    prerequisite: None
     
   grafana:
     copy:
@@ -196,6 +205,7 @@ servicelist:
       - node-exporter-ds.yaml
       - prometheus-configmap.yaml
       - prometheus-deployment.yaml
+      - watchdog-ds.yaml
       - cleanup.sh
     startscript: start.sh
     stopscript: cleanup.sh
