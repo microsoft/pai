@@ -183,10 +183,16 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-namespace"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_registry_domain"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-registry-domain"]
-        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = \
-            serviceDict["clusterinfo"]["docker-registry-info"]["docker-username"]
-        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = \
-            serviceDict["clusterinfo"]["docker-registry-info"]["docker-password"]
+        if "docker-username" in serviceDict["clusterinfo"]["docker-registry-info"]:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = \
+                serviceDict["clusterinfo"]["docker-registry-info"]["docker-username"]
+        else:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = None
+        if "docker-password" in serviceDict["clusterinfo"]["docker-registry-info"]:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = \
+                serviceDict["clusterinfo"]["docker-registry-info"]["docker-password"]
+        else:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = None
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_tag"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-tag"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["secretname"] = \

@@ -91,7 +91,8 @@ def generate_secret_base64code(docker_info):
     if domain == "public":
         domain = ""
 
-    if username and passwd:
+    if docker_info["docker_username"] is not None and \
+        docker_info["docker_password"] is not None:
         login_docker_registry( domain, username, passwd )
 
         base64code = linux_shell.execute_shell_with_output(
