@@ -78,7 +78,7 @@ REST Server exposes a set of interface that allows you to manage jobs.
 
 ### Root URI
 
-Configure the rest server ip and port in [service-deployment/clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml).
+Configure the rest server port in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml).
 
 ### API Details
 

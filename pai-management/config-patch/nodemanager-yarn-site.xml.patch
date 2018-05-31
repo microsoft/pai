@@ -9,13 +9,13 @@
 +   
 +    <property>
 +        <name>yarn.nodemanager.resource.cpu-vcores</name>
-+        <value>24</value>
++        <value>{cpu_vcores}</value>
 +        <description>Number of CPU cores that can be allocated for containers.</description>
 +    </property>
 +
 +    <property>
 +        <name>yarn.nodemanager.resource.memory-mb</name>
-+        <value>204800</value>
++        <value>{mem_total}</value>
 +        <description>Number of memory that can be allocated for containers.</description>
 +    </property>
 +

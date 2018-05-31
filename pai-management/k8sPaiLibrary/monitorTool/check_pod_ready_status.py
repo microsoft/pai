@@ -37,7 +37,8 @@ def waiting_until_service_ready(label_key, label_value, total_time=216000):
 
     while servicestatus.pod_is_ready_or_not(label_key, label_value) != True:
 
-        print "{0} is not ready yet. Pleas wait for a moment!".format(label_value)
+
+        print "{0} is not ready yet. Please wait for a moment!".format(label_value)
         time.sleep(10)
         total_time = total_time - 10
 

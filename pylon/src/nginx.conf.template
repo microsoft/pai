@@ -81,15 +81,20 @@ http {
     # WebHDFS API server.
     location ~ ^/webhdfs/api(.*)$ {
       proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
-      proxy_intercept_errors on;
-      error_page 307 = @handle_webhdfs_api_redirect;
-
+      #
+      # Reason of commenting the following lines out:
+      #   - WebHDFS sends 100-continue no matter whether the 'Expect: 100-Continue' is set;
+      #   - Nginx does not expect 100-continue respond from WebHDFS, no matter whether the 'Expect: 100-Continue' is set;
+      #   - As a result, Nginx will definitely receive a '100-continue' respond from WebHDFS and then hang there untill timeout.
+      #   - No easier way yet other than changing the code of Nginx or WebHDFS. The current solution is a work-around.
+      #proxy_intercept_errors on;
+      #error_page 307 = @handle_webhdfs_api_redirect;
     }
-    location @handle_webhdfs_api_redirect {
-      if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
-        return 307 $scheme://$http_host/a/$1/$2/$3;
-      }
-    }
+    #location @handle_webhdfs_api_redirect {
+    #  if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
+    #    return 307 $scheme://$http_host/a/$1/$2/$3;
+    #  }
+    #}
 
     # Prometheus API server.
     location ~ ^/prometheus/api(.*)$ {

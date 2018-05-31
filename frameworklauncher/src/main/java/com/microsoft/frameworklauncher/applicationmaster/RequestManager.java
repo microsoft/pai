@@ -186,8 +186,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
     // newFrameworkDescriptor is always not null
     FrameworkDescriptor newFrameworkDescriptor = newAggFrameworkRequest.getFrameworkRequest().getFrameworkDescriptor();
-    checkFrameworkVersion(newFrameworkDescriptor);
-    flattenFrameworkDescriptor(newFrameworkDescriptor);
     updateFrameworkDescriptor(newFrameworkDescriptor);
     updateOverrideApplicationProgressRequest(newAggFrameworkRequest.getOverrideApplicationProgressRequest());
     updateMigrateTaskRequests(newAggFrameworkRequest.getMigrateTaskRequests());
@@ -220,6 +218,15 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
 
   private void flattenFrameworkDescriptor(FrameworkDescriptor newFrameworkDescriptor) {
     PlatformSpecificParametersDescriptor platParams = newFrameworkDescriptor.getPlatformSpecificParameters();
+
+    // platParams inherits YARN default params if it is null.
+    if (platParams.getTaskNodeLabel() == null) {
+      platParams.setTaskNodeLabel(platParams.getAmNodeLabel());
+    }
+    if (platParams.getTaskNodeLabel() == null) {
+      platParams.setTaskNodeLabel(conf.getAmQueueDefaultNodeLabel());
+    }
+
     for (TaskRoleDescriptor taskRoleDescriptor : newFrameworkDescriptor.getTaskRoles().values()) {
       TaskRolePlatformSpecificParametersDescriptor taskRolePlatParams = taskRoleDescriptor.getPlatformSpecificParameters();
 
@@ -279,14 +286,17 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   private void updateFrameworkDescriptor(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
+    flattenFrameworkDescriptor(newFrameworkDescriptor);
+
     if (YamlUtils.deepEquals(frameworkDescriptor, newFrameworkDescriptor)) {
       return;
     }
 
     LOGGER.logSplittedLines(Level.INFO,
-        "Detected FrameworkDescriptor changes. Updating to new FrameworkDescriptor:\n%s",
+        "Detected FrameworkDescriptor changes. Updating to new flattened FrameworkDescriptor:\n%s",
         WebCommon.toJson(newFrameworkDescriptor));
 
+    checkFrameworkVersion(newFrameworkDescriptor);
     checkUnsupportedHadoopFeatures(newFrameworkDescriptor);
     checkUnsupportedOnTheFlyChanges(newFrameworkDescriptor);
 
