@@ -88,22 +88,6 @@ def generate_secret_base64code(docker_info):
     username = str(docker_info[ "docker_username" ])
     passwd = str(docker_info[ "docker_password" ])
 
-    print()
-    print()
-    print()
-    print()
-    print()
-    print()
-    print()
-    print(username)
-    print(passwd)
-
-    print()
-    print()
-    print()
-    print()
-    print()
-
     if domain == "public":
         domain = ""
 
