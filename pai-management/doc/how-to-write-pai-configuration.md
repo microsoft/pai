@@ -124,21 +124,67 @@ kubernetes:
   docker-registry: gcr.io/google_containers
   hyperkube-version: v1.9.4
   etcd-version: 3.2.17
-  # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
   apiserver-version: v1.9.4
-  # http://gcr.io/google_containers/kube-scheduler. Or the tag in your registry.
   kube-scheduler-version: v1.9.4
-  # http://gcr.io/google_containers/kube-controller-manager
   kube-controller-manager-version:  v1.9.4
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
   dashboard-version: v1.8.3
 ```
 
+#### ```Some important value should set according to the specific cluster  ```
+
 - ```cluster-dns```: Find the namesever address in  /etc/resolv.conf
 - ```load-balance-ip```: If in your cluster, there is only on k8s-master, you should set this field with the ip-address of your k8s-master. If there are many k8s-master, please refer to this [chapter](#k8s-high-availability-configuration).
 - ```service-cluster-ip-range```: In this field, you should specify an ip range which shouldn't overlap with your current host's ip in your cluster.
+
+
+
+#### ```Some values could use the default value```
 - ```storage-backend```: If you are not familiar with etcd, please don't change it.
 - ```docker-registry```: The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr. After set this field with gcr.io/google_containers, your kubernetes component's image will pull from ```gcr.io/google_containers/hyperkube```
 - ```hyperkube-version```: The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).
 - ```etcd-version```: The version of etcd. If you are not familiar with etcd, please don't change it. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/etcd?gcrImageListsize=50).
-- ```apiserver-version```:
+- ```apiserver-version```: The version of apiserver. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-apiserver?gcrImageListsize=50).
+- ```kube-scheduler-version```: The version of kube-scheduler. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-scheduler?gcrImageListsize=50)
+- ```kube-controller-manager-version```: The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)
+- ```dashboard-version```: The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)
+
+## serivices-configuration.yaml <a name="services_configuration"></a>
+
+#### ```cluster```
+
+```
+cluster:
+
+  clusterid: pai-example
+  nvidia-drivers-version: 384.111
+  docker-verison: 17.06.2
+
+  # HDFS, zookeeper data path on your cluster machine.
+  data-path: "/datastorage"
+
+  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
+  docker-registry-info:
+
+    # If public, please fill it the same as your username
+    docker-namespace: your_registry_namespace
+
+    # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
+    # docker_registry_domain: public
+    docker-registry-domain: your_registry_domain
+    # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
+    docker-username: your_registry_username
+    docker-password: your_registry_password
+
+    docker-tag: your_image_tag
+
+    # The name of the secret in kubernetes will be created in your cluster
+    # Must be lower case, e.g., regsecret.
+    secret-name: your_secret_name
+```
+
+
+- ```clusterid```: The id of the cluster.
+- ```nvidia-drivers-version```: Choose proper nvidia driver version for your cluster from this [url](http://www.nvidia.com/object/linux-amd64-display-archive.html)
+- ```docker-verison```: Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env. Choose a version from this [url](https://download.docker.com/linux/static/stable/x86_64/)
+- ```data-path```:
