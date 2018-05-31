@@ -25,7 +25,6 @@
   "dependencies": {
     "admin-lte": "2.4.2",
     "app-root-path": "2.0.1",
-    "archiver": "2.1.0",
     "blueimp-file-upload": "9.19.2",
     "bootstrap": "3.3.7",
     "compression": "1.7.1",
@@ -50,6 +49,7 @@
     "joi": "13.0.2",
     "jquery": "3.2.1",
     "js-cookie": "2.2.0",
+    "json-editor": "0.7.28",
     "json-loader": "0.5.7",
     "markdown-loader": "2.0.1",
     "marked": "0.3.9",
@@ -64,8 +64,7 @@
     "uglifyjs-webpack-plugin": "1.1.4",
     "util": "0.10.3",
     "webpack": "3.10.0",
-    "winston": "2.4.0",
-    "json-editor": "0.7.28"
+    "winston": "2.4.0"
   },
   "scripts": {
     "build:dev": "npm run clean && npm run preprocess && npm run webpack -- --watch",

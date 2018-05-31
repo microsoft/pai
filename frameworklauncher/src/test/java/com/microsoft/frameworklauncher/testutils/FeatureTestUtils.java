@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.testutils;
 import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZooKeeperClient;
 import com.microsoft.frameworklauncher.zookeeperstore.ZooKeeperClient;
@@ -110,9 +111,9 @@ public class FeatureTestUtils {
     for (int i = 0; i < length; i++) {
       String containerIdStr = "container_" + System.currentTimeMillis() + "_0001_000001_" + (i + 2);
       ContainerId containerId = ConverterUtils.toContainerId(containerIdStr);
-      NodeId nodeId = NodeId.newInstance(GlobalConstants.LOCAL_HOST_NAME, 3215);
+      NodeId nodeId = NodeId.newInstance(DnsUtils.getLocalHost(), 3215);
       Container container = Container.newInstance(containerId,
-          nodeId, GlobalConstants.LOCAL_HOST_NAME, resource, Priority.newInstance(1), null);
+          nodeId, DnsUtils.getLocalHost(), resource, Priority.newInstance(1), null);
       containerList.add(container);
     }
   }

@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 INSTANCES="daemonset/node-exporter
+daemonset/watchdog
 deployment/prometheus-deployment
 configmap/prometheus-configmap"
 
@@ -33,5 +34,8 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus-
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
+    {% endif %}
+    {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog-
     {% endif %}
 {% endfor %}
