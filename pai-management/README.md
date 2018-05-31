@@ -24,15 +24,31 @@
 
 #### Setup Your Dev-box
 
+[A Guide For setup a dev-box](doc/how-to-setup-dev-box.md)
+
 
 #### Cluster Bootstrap
 
+TODO
 
 #### Machine (Kubernetes) Maintenance
 
+- Please maintain your machine in the dev-box
+
+[A Guide For Machine(Kubernetes) Maintenance](doc/machine-maintenance.md)
 
 #### Service Maintenance
 
+- please build and maintain your service in the dev-box.
+- You could skip the build process, and pull service image from our public registry.
+
+
+[A Guide For Build Service Image](doc/image-build.md)
+
+[A Guide For Service Maintenance](doc/service-maintain.md)
+
+TODO
+[A Guide For Pulling Image For the Public Registry]
 
 #### Advanced, Add Your Service
 

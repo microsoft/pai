@@ -305,5 +305,4 @@ Before bootstrap your kubernetes cluster, you should configure your load-balance
 
 - set the field ```load-balance-ip`` with the ip-address of your cloud load-balancer.
 
-- A tutorial about how to set load-balance for k8s on Azure.
 
