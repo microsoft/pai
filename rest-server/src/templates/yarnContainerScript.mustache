@@ -89,9 +89,11 @@ function get_host_list()
   done
   for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
     host_list=''
-    while read container_ip && read container_ports; do
-      host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,]" | cut -f 2 -d":"),
-    done < $(echo $taskrole_statuses |  jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts")
+    echo $taskrole_statuses \
+      | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts" \
+      | while read container_ip && read container_ports; do
+        host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,]" | cut -f 2 -d":"),
+      done
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
   done
@@ -111,7 +113,7 @@ PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS
 PAI_CONTAINER_ID=$CONTAINER_ID
 PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 PAI_JOB_NAME={{{ jobData.jobName }}}
-PAI_USER_NAME={{{ jobData.username }}}
+PAI_USER_NAME={{{ jobData.userName }}}
 PAI_DATA_DIR={{{ jobData.dataDir }}}
 PAI_OUTPUT_DIR={{{ jobData.outputDir }}}
 PAI_CODE_DIR={{{ jobData.codeDir }}}
@@ -130,6 +132,7 @@ ENV
 port_list=(${CONTAINER_PORTS//;/ })
 for ports in "${port_list[@]}"; do
   port_label="$(cut -f 1 -d":" <<< $ports)"
+  export PAI_CONTAINER_HOST_${port_label}_PORT_LIST="$(cut -f 2 -d":" <<< $ports)"
   echo PAI_CONTAINER_HOST_${port_label}_PORT_LIST="$(cut -f 2 -d":" <<< $ports)" >> $ENV_LIST
 done
 
@@ -141,7 +144,7 @@ get_host_list $ENV_LIST
 # Backward compatibility
 cat <<ENV >> $ENV_LIST
 # Backward compatibility
-PAI_USERNAME={{{ jobData.username }}}
+PAI_USERNAME={{{ jobData.userName }}}
 PAI_TASK_ROLE_NAME={{{ taskData.name }}}
 PAI_TASK_ROLE_NUM={{{ taskData.taskNumber }}}
 PAI_TASK_CPU_NUM={{{ taskData.cpuNumber }}}
