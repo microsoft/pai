@@ -14,10 +14,7 @@ For advanced user. A guide for developer to add their own service into pai.
 - [ Add Service's Bootstrap Module ](#Boot)
     - [ Prepare Service Configuration ](#Service_Configuration)
     - [ Some Experience of Kubernetes ](#Experience)
-    - [ Some Tips ](#Service_Tips)
-- [ Testing Your Service ](#Test)
-    - [ Building Test ](#Test_Build)
-    - [ Bootstrap Test ](#Test_Boot)
+    - [ Place the Module into PAI ](#Service_Place)
 
 
 ## Overview <a name="overview"></a>
@@ -239,6 +236,11 @@ This configuration consists of 7 parts.
     - [The status checking tool](../k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 
+#### Place the Module into PAI <a name="Service_Place"></a>
+
+ Note that the name of service's directory should be same with the serivce name.
+
+For example, now we wanna add a service module "XYZ" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/bootstrap/XYZ```. That is the service's directory named as the service's name.
 
 
-
+If you wanna paictl to start hbase image, you should move the director ```example/bootstrap/hbase``` to ```pai/pai-management/bootstrap```.
