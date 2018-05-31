@@ -81,7 +81,7 @@ If you have built your image and pushed it to Docker Hub, replace our pre-built 
 Here're some configuration file examples:
 
 ### [TensorFlow cifar10 benchmark](https://git.io/vF4wT)
-```json
+```js
 {
   "jobName": "tensorflow-mpi",
   "image": "paiexample/pai.example.tensorflow-mpi",
@@ -117,7 +117,7 @@ Here're some configuration file examples:
 ```
 
 ### [CNTK G2P example](https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript)
-```json
+```js
 {
   "jobName": "cntk-mpi",
   "image": "paiexample/pai.example.cntk-mpi",
