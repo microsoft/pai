@@ -203,8 +203,6 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    stdin.write(password + '\n')
-    stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
     for response_msg in stdout:
@@ -221,7 +219,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
-        
+
         try:
             os.makedirs(path)
         except OSError as exc:
@@ -246,7 +244,7 @@ def archive_tar(target, path):
 
 
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
-    
+
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
     if "template-list" in maintain_config[jobname]:

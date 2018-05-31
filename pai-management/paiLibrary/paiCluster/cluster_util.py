@@ -52,7 +52,13 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
     quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
     quick_start_config["ssh-port"] = \
-        22 if "ssh-port" not in quick_start_config_raw else quick_start_config_raw["ssh-port"]
+        22 if "ssh-port" not in quick_start_config_raw \
+        else quick_start_config_raw["ssh-port"]
+    #
+    # Prepare config of cluster IP range.
+    quick_start_config["service-cluster-ip-range"] = \
+        "10.254.0.0/16" if "service-cluster-ip-range" not in quick_start_config_raw \
+        else quick_start_config_raw["service-cluster-ip-range"]
     #
     # Prepare config of machine list.
     quick_start_config["machines"] = []
