@@ -159,18 +159,10 @@ cluster:
   clusterid: pai-example
   nvidia-drivers-version: 384.111
   docker-verison: 17.06.2
-
-  # HDFS, zookeeper data path on your cluster machine.
   data-path: "/datastorage"
-
-  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry-info:
 
-    # If public, please fill it the same as your username
     docker-namespace: your_registry_namespace
-
-    # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
-    # docker_registry_domain: public
     docker-registry-domain: your_registry_domain
     # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
     docker-username: your_registry_username
@@ -187,4 +179,131 @@ cluster:
 - ```clusterid```: The id of the cluster.
 - ```nvidia-drivers-version```: Choose proper nvidia driver version for your cluster from this [url](http://www.nvidia.com/object/linux-amd64-display-archive.html)
 - ```docker-verison```: Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env. Choose a version from this [url](https://download.docker.com/linux/static/stable/x86_64/)
-- ```data-path```:
+- ```data-path```: The absolute path on the host in your cluster where you wanna store your data such as hdfs, zookeeper and yarn. Note: please be sure there is enough space.
+- ```docker-registry-info```:
+    - ```docker-namespace```: Your registry's namespace. If your choose hub.docker as your docker registry. You should fill this field with your username.
+    - ```docker-registry-domain```: E.g., gcr.io. If public，fill docker_registry_domain with word "public"
+    - ```docker-username```: The account of the docker registry
+    - ```docker-password```: The password of the account
+    - ```docker-tag```: The image tag of the service. You could set the version here. Or just set latest here.
+    - ```secret-name```: An id, used by k8s.
+
+#### ```hadoop```
+```YAML
+hadoop:
+  # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
+  # hadoop-version
+  # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
+  custom-hadoop-binary-path: None
+  hadoop-version: 2.7.2
+  virtualClusters:
+    vc1:
+      description: VC for Alice's team.
+      capacity: 20
+    vc2:
+      description: VC for Bob's team.
+      capacity: 20
+    vc3:
+      description: VC for Charlie's team.
+      capacity: 20
+```
+
+- ```custom-hadoop-binary-path```: If you wanna to use hadoop-ai (A hadoop patched version developed by PAI. [More detail](../../hadoop-ai)) please set a path here. And paictl will build hadoop-ai, and place the binary to the path. If you don't wanna use hadoop-ai, set ```None``` here.
+- ```hadoop-version```: If you will build hadoop-ai and use it, you should set this as ```2.7.2```. If you set path as ```None```, please choose a version [here](http://archive.apache.org/dist/hadoop/common/).
+- ```virtualClusters```: hadoop queue setting.
+
+
+#### ```frameworklauncher```
+
+```
+frameworklauncher:
+  frameworklauncher-port: 9086
+```
+
+- ```frameworklauncher-port```: Launcher's port. You can use the default value.
+
+#### ```restserver```
+
+```
+restserver:
+  server-port: 9186
+  jwt-secret: your_jwt_secret
+  default-pai-admin-username: your_default_pai_admin_username
+  default-pai-admin-password: your_default_pai_admin_password
+```
+
+- ```server-port```: Port for rest api server. You can use the default value.
+- ```jwt-secret```: secret for signing authentication tokens, e.g., "Hello PAI!"
+- ```default-pai-admin-username```: database admin username, and admin username of pai.
+- ```default-pai-admin-password```: database admin password
+
+
+#### ```webportal```
+
+```
+webportal:
+  server-port: 9286
+```
+
+- ```server-port```: port for webportal, you can use the default value.
+
+
+#### ```grafana```
+
+```
+grafana:
+  grafana-port: 3000
+```
+
+- ```grafana```: port for grafana, you can use the default value.
+
+#### ```prometheus```
+
+```
+prometheus:
+  prometheus-port: 9091
+  node-exporter-port: 9100
+```
+
+- ```prometheus-port```: port for prometheus port, you can use the default value.
+- ```node-exporter-port```: port for node exporter, you can use the default value.
+
+#### ```pylon```
+
+```
+pylon:
+  # port of pylon
+  port: 80
+```
+
+- ```port```: port of pylon, you can use the default value.
+
+## Kubernetes High Availability Configuration <a name="k8s-high-availability-configuration"></a>
+
+#### ```Deploy Kubernetes With Single Master Node```
+
+Not enable kubernete-ha.
+
+- only set one node's k8s-role as master.
+- set this field ```load-balance-ip``` with the value of your master's ip address
+
+#### ```Deploy Kubernetes with ha and deploy proxy through pai```
+
+There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start k8s-master component on the target machine. And the ```proxy``` will start proxy component on the target machine.
+
+- One or more than one nodes are labeled with ```k8s-role: master```
+- One node should be labeled with ```k8s-role: proxy```
+- set this field ```load-balance-ip``` with the value of your proxy node's ip address
+
+Node: the proxy node is not in ha mode. If you wanna set proxy in ha-mode, you need customized the role ```proxy```. Or you can create a new role, and create the new rule to deploy k8s on a node.
+
+#### ```Setup k8s-ha iwith the cloud providers's load-balance service```
+
+If your cluster are in the cloud environment such as Azure. You could set the load-balancer through the cloud service.
+
+Before bootstrap your kubernetes cluster, you should configure your load-balance. please set the backend with your master. And set the following property with the ip of the load-balance in the kubernetes-configuration.yaml.
+
+- set the field ```load-balance-ip`` with the ip-address of your cloud load-balancer.
+
+- A tutorial about how to set load-balance for k8s on Azure.
+
