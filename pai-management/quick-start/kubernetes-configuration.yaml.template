@@ -17,7 +17,7 @@
 
 kubernetes:
   # Find the namesever in  /etc/resolv.conf
-  cluster-dns: {{ env["cluster-dns"] }}
+  cluster-dns: {{ env["dns"] }}
   # To support k8s ha, you should set an lb address here.
   # If deploy k8s with single master node, please set master IP address here
   load-balance-ip: {{ env["machines"][0] }}

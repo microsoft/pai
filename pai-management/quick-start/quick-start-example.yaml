@@ -1,13 +1,13 @@
 # (Required) Log-in info of all machines. System administrator should guarantee that the username/password
 # pair is valid and has sudo privilege on every machine.
-login-username: pai
-login-password: pai-password
+ssh-username: pai
+ssh-password: pai-password
 
 # (Optional, default=22) Port number of ssh service on each machine.
 #ssh-port: 22
 
 # (Required) Cluster DNS.
-cluster-dns: <ip-dns>
+dns: <ip-dns>
 
 # (Optional, default=10.254.0.0/16) IP range used by Kubernetes. If omitted, administrator should
 # double-confirm that the default value is working.
