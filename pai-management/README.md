@@ -17,19 +17,23 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Configuration
+#### Configuration
 
 [A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
 
 
-## Cluster Bootstrap
+#### Setup Your Dev-box
 
 
-
-## Kubernetes Maintenance
-
-
-## Service maintenance
+#### Cluster Bootstrap
 
 
-## Advanced, Add Your
+#### Machine (Kubernetes) Maintenance
+
+
+#### Service Maintenance
+
+
+#### Advanced, Add Your Service
+
+[A Guide For Adding New Service](doc/add-service.md)

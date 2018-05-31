@@ -18,19 +18,19 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: hbase-master-ds
+  name: hbase-regionserver-ds
 spec:
   template:
     metadata:
       labels:
-        app: hbase-master
+        app: hbase-regionserver
     spec:
       hostNetwork: true
       hostPID: true
       nodeSelector:
-        hbase-master: "true"
+        hbase-regionserver: "true"
       containers:
-      - name:  hbase-master
+      - name:  hbase-regionserver
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hbase:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
@@ -65,4 +65,4 @@ spec:
           name: hbase-configuration
       - name: hbase-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hbase/master
+          path: {{ clusterinfo[ 'dataPath' ] }}/hbase/regionserver
