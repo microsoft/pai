@@ -36,3 +36,15 @@ paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name
 3) If the option -n is set, only the target service will be stopped and deleted.
 
 
+#### Fresh Service in the cluster <a name="Service_Delete"></a>
+
+```
+paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
+```
+
+1) Update the configmap
+2) Remove the machine's label without the service
+3) re-label the machine with the service
+
+
+
