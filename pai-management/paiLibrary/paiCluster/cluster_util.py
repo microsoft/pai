@@ -19,10 +19,10 @@
 import os
 import logging
 import logging.config
-from paiLibrary.common import file_handler
-from paiLibrary.common import template_handler
-from k8sPaiLibrary import maintainlib
 import importlib
+from ..common import file_handler
+from ..common import template_handler
+from k8sPaiLibrary import maintainlib
 from k8sPaiLibrary.maintainlib import common as pai_common
 
 
@@ -45,8 +45,48 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         * Kubernetes-level configurations II: k8s-role-definition.yaml
         * Service-level configurations: service-configuration.yaml
     """
-    quick_start_config = file_handler.load_yaml_config(quick_start_config_file)
+    quick_start_config_raw = file_handler.load_yaml_config(quick_start_config_file)
+    quick_start_config = {}
     #
+    # Prepare config of ssh info.
+    quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
+    quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
+    quick_start_config["ssh-port"] = \
+        22 if "ssh-port" not in quick_start_config_raw else quick_start_config_raw["ssh-port"]
+    #
+    # Prepare config of machine list.
+    quick_start_config["machines"] = []
+    for m in quick_start_config_raw["machines"]:
+        quick_start_config["machines"].append({"hostname": None, "ip": m})
+    #
+    # Auto-complete missing configuration items: Part 1 -- DNS.
+    if "dns" in quick_start_config_raw:
+        quick_start_config["dns"] = quick_start_config_raw["dns"]
+    else:
+        m0 = quick_start_config["machines"][0]
+        result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
+            {
+                "hostip": m0["ip"],
+                "username": quick_start_config["ssh-username"],
+                "password": quick_start_config["ssh-password"],
+                "sshport": quick_start_config["ssh-port"]
+            },
+            "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2")
+        quick_start_config["dns"] = result_stdout.strip()
+    #
+    # Auto-complete missing configuration items: Part 2 -- hostnames.
+    for m in quick_start_config["machines"]:
+        result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
+            {
+                "hostip": m["ip"],
+                "username": quick_start_config["ssh-username"],
+                "password": quick_start_config["ssh-password"],
+                "sshport": quick_start_config["ssh-port"]
+            },
+            "hostname")
+        m["hostname"] = result_stdout.strip()
+    #
+    # Generate configuration files.
     target_file_names = [
         "cluster-configuration.yaml",
         "kubernetes-configuration.yaml",

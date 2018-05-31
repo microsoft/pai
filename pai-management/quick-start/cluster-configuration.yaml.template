@@ -21,7 +21,7 @@ default-machine-properties:
   # Account with sudo permission
   username: {{ env["ssh-username"] }}
   password: {{ env["ssh-password"] }}
-  sshport: {{ 22 if "ssh-port" not in env else env["ssh-port"] }}
+  sshport: {{ env["ssh-port"] }}
 
 machine-sku:
   GENERIC:
@@ -35,8 +35,8 @@ machine-sku:
 
 machine-list:
 {%- for m in env["machines"] %}
-  - hostname: {{ m }}
-    hostip: {{ m }}
+  - hostname: {{ m["hostname"] }}
+    hostip: {{ m["ip"] }}
     machine-type: GENERIC
   {%- if loop.index == 1 %}
     k8s-role: master

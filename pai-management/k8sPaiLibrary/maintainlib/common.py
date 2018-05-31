@@ -181,19 +181,24 @@ def sftp_paramiko(src, dst, filename, host_config):
 
 
 def ssh_shell_paramiko(host_config, commandline):
+    result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, commandline)
+    if result_stdout is None or result_stderr is None:
+        return False
+    return True
 
+
+
+def ssh_shell_paramiko_with_result(host_config, commandline):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
-
     username = str(host_config['username'])
     password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
-            return False
+            return (None, None)
         port = int(host_config['sshport'])
-
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, username=username, password=password)
@@ -201,11 +206,15 @@ def ssh_shell_paramiko(host_config, commandline):
     stdin.write(password + '\n')
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
+    result_stdout = ""
     for response_msg in stdout:
+        result_stdout += response_msg
         print(response_msg.strip('\n'))
-
+    result_stderr = ""
+    for response_msg in stderr:
+        result_stderr += response_msg
     ssh.close()
-    return True
+    return (result_stdout, result_stderr)
 
 
 
