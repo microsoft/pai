@@ -325,12 +325,8 @@ def main(argv):
     logger.propagate = False
     fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 1, backupCount=5)  
     fileHandler.setLevel(logging.INFO)  
-    consoleHandler = logging.StreamHandler()  
-    consoleHandler.setLevel(logging.INFO)  
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-    consoleHandler.setFormatter(formatter)  
     fileHandler.setFormatter(formatter)  
-    logger.addHandler(consoleHandler)  
     logger.addHandler(fileHandler)  
 
     while(True):
