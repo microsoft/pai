@@ -21,6 +21,7 @@ FROM hadoop-run
 RUN mkdir -p /usr/local/ && \
     wget --no-verbose http://www-eu.apache.org/dist/hbase/stable/hbase-1.2.6-bin.tar.gz -P /usr/local && \
     tar -xzf /usr/local/hbase-1.2.6-bin.tar.gz -C /usr/local/ && \
+    cd /usr/local && \
     ln -s ./hbase-1.2.6 hbase && \
     rm /usr/local/hbase-1.2.6-bin.tar.gz
 
