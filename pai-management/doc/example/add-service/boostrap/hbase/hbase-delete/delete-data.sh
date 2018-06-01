@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,34 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# Tell paictl which service should be ready, before starting hbase.
-prerequisite:
-  - cluster-configuration
-  - hadoop-service
+echo "Clean the hadoop and zookeeper's data on the disk"
 
+if [ -d "/mnt/hbase" ]; then
 
-# paictl will generate the template file with the name "filename".template with jinja2.
-template-list:
-  - node-label.sh
-  - hbase-master.yaml
-  - hbase-regionserver.yaml
-  - delete.yaml
-  - stop.sh
+    rm -rf /mnt/hbase
 
-# The script about how to starting a service
-start-script: start.sh
-
-# The script about how to stop a service
-stop-script: stop.sh
-
-# The script about how to stop a service and delete the data on the cluster
-delete-script: delete.sh
-
-# The script about refrash the status of the service.
-# Usually it will update the configmap and re-label the node.
-refrash-script: refrash.sh
-
-
-# A script about rolling-upgrade.
-# No example now.
-upgraded-script: upgraded.sh
+fi

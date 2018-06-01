@@ -43,17 +43,3 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 cd /pai/pai-management
 ```
-
-
-## Setup environment on your host.
-
-```
-sudo apt-get install python python-paramiko python-yaml python-jinja2
-sudo pip install python-etcd kubernetes
-
-# clone our repo first.
-git clone https://github.com/Microsoft/pai.git
-
-# Go into the workdir.
-cd pai/pai-management/
-```

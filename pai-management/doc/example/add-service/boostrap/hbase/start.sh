@@ -57,7 +57,7 @@ PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -
 ret=$?
 
 if [ $ret -ne 0 ]; then
-    echo "No hbase-master Pod in your cluster"
+    echo "No hbase-regionserver Pod in your cluster"
 else
     # A tool to wait all pod which as label app=hbase-master to be ready.
     PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver

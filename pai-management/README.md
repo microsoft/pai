@@ -19,23 +19,23 @@
 
 #### Configuration
 
-[A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
+- [A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
 
 
 #### Setup Your Dev-box
 
-[A Guide For setup a dev-box](doc/how-to-setup-dev-box.md)
+- [A Guide For setup a dev-box](doc/how-to-setup-dev-box.md)
 
 
 #### Cluster Bootstrap
 
 TODO
 
-#### Machine (Kubernetes) Maintenance
+#### PAI Machine Maintenance
 
-- Please maintain your machine in the dev-box
+- Please maintain the PAI cluster from within a dev-box described.
 
-[A Guide For Machine(Kubernetes) Maintenance](doc/machine-maintenance.md)
+- [A Guide For PAI Machine Maintenance](doc/machine-maintenance.md)
 
 #### Service Maintenance
 
@@ -43,14 +43,14 @@ TODO
 - You could skip the build process, and pull service image from our public registry.
 
 
-[A Guide For Build Service Image](doc/image-build.md)
+- [A Guide For Build Service Image](doc/image-build.md)
 
-[A Guide For Service Maintenance](doc/service-maintain.md)
+- [A Guide For Service Maintenance](doc/service-maintain.md)
 
 TODO
-[A Guide For Pulling Image For the Public Registry]
+- [A Guide For Pulling Image From the Public Registry]
 
 #### Advanced, Add Your Service
 
-[A Guide For Adding New Service](doc/add-service.md)
+- [A Guide For Adding New Service](doc/add-service.md)
 

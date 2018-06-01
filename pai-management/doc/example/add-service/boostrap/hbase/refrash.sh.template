@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,35 +17,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-# Tell paictl which service should be ready, before starting hbase.
-prerequisite:
-  - cluster-configuration
-  - hadoop-service
+echo "refrash hbase-configuration"
+kubectl create configmap hbase-configuration --from-file=hbase-configuration/ --dry-run -o yaml | kubectl apply -f -
 
-
-# paictl will generate the template file with the name "filename".template with jinja2.
-template-list:
-  - node-label.sh
-  - hbase-master.yaml
-  - hbase-regionserver.yaml
-  - delete.yaml
-  - stop.sh
-
-# The script about how to starting a service
-start-script: start.sh
-
-# The script about how to stop a service
-stop-script: stop.sh
-
-# The script about how to stop a service and delete the data on the cluster
-delete-script: delete.sh
-
-# The script about refrash the status of the service.
-# Usually it will update the configmap and re-label the node.
-refrash-script: refrash.sh
+echo "relabel the node label"
+sh node-label.sh
 
 
-# A script about rolling-upgrade.
-# No example now.
-upgraded-script: upgraded.sh
+{% for host in machinelist %}
+
+    {% if 'hbase-master' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hbasemaster="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hbase-master's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hbasemaster-
+fi
+    {% endif %}
+
+    {% if 'hbase-regionserver' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hbaseregionserver="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hbase-regionserver's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hbaseregionserver-
+fi
+    {% endif %}
+
+
+{% endfor %}
+
+popd > /dev/null

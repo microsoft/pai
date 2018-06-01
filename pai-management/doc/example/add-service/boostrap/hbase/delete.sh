@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,35 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-# Tell paictl which service should be ready, before starting hbase.
-prerequisite:
-  - cluster-configuration
-  - hadoop-service
+echo "Call stop to stop all hadoop service first"
+sh stop.sh
 
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap hbase-delete --from-file=hbase-delete/
 
-# paictl will generate the template file with the name "filename".template with jinja2.
-template-list:
-  - node-label.sh
-  - hbase-master.yaml
-  - hbase-regionserver.yaml
-  - delete.yaml
-  - stop.sh
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
 
-# The script about how to starting a service
-start-script: start.sh
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
 
-# The script about how to stop a service
-stop-script: stop.sh
+echo "Hbase Service clean job is done"
+echo "Delete Hbase cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hbase
+kubectl delete configmap hbase-delete
+sleep 5
 
-# The script about how to stop a service and delete the data on the cluster
-delete-script: delete.sh
-
-# The script about refrash the status of the service.
-# Usually it will update the configmap and re-label the node.
-refrash-script: refrash.sh
-
-
-# A script about rolling-upgrade.
-# No example now.
-upgraded-script: upgraded.sh
+popd > /dev/null
