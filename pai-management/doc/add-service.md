@@ -11,10 +11,12 @@ For advanced user. A guide for developer to add their own service into pai.
     - [ Prepare Service Docker Image ](#Image_Prepare)
     - [ Write PAI's Image Configuration ](#Image_Configuration)
     - [ Place the Image Directory into PAI ](#Image_Place)
+    - [ Build and Push ](#Image_Build_Push)
 - [ Add Service's Bootstrap Module ](#Boot)
     - [ Prepare Service Configuration ](#Service_Configuration)
     - [ Some Experience of Kubernetes ](#Experience)
     - [ Place the Module into PAI ](#Service_Place)
+    - [ Label the node and start service](#Service_Start)
 
 
 ## Overview <a name="overview"></a>
@@ -112,6 +114,17 @@ For example, now we wanna add a docker image "XYZ" into pai. You will first crea
 
 
 If you wanna paictl to build hbase image, you should move the director ```example/src/hbase``` to ```pai/pai-management/src```.
+
+
+#### Place the Image Directory into PAI <a name="Image_Build_Push"></a>
+
+```
+./paictl.py image build -p /path/to/your/cluster-configuration/dir -n hbase
+
+
+./paictl.py image push -p /path/to/your/cluster-configuration/dir -n hbase
+
+```
 
 
 ## Add Service's Bootstrap Module <a name="Boot"></a>
@@ -244,3 +257,29 @@ For example, now we wanna add a service module "XYZ" into pai. You will first cr
 
 
 If you wanna paictl to start hbase image, you should move the director ```example/bootstrap/hbase``` to ```pai/pai-management/bootstrap```.
+
+
+#### Label the node and start service <a name="Service_Start"></a>
+
+In this example, an single master node hbase is deployed.
+
+Before starting the hbase, you should label the node with corresponding label.
+
+```
+#For master, add this property
+hbase-master: "true"
+
+#For regionserver, add this property
+hbase-regionserver: "true"
+```
+
+Starting service.
+```
+./paictl.py service start -p /path/to/configuration/dir -n hbase
+```
+
+Delete service
+
+```
+./paictl.py service stop -p /path/to/configuration/dir -n hbase
+```
