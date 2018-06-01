@@ -21,7 +21,7 @@
 # Get the configuration from configmap-volume, and cover the original file in the path of hbase's conf
 # With this solution, you will be able to use one image to run different role.
 cp /hbase-configuration/hbase-env.sh $HBASE_HOME/conf/hbase-env.sh
-cp /hbase-configuration/master-hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
+cp /hbase-configuration/regionserver-hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
 
 
 # You could process the un-complete file copied to hbase in your own way.
