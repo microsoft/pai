@@ -165,7 +165,7 @@ const loadJobs = (limit, specifiedVc) => {
         alert(data.message);
       } else {
         let displayDataSet = [];
-        let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 1000);
+        let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 2000);
         for (let i = 0; i < rowCount; i++) {
           let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
           if (specifiedVc && vcName !== specifiedVc) {

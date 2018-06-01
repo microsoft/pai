@@ -59,9 +59,9 @@ If your environment don't have a load-balance service. You could add proxy node 
 
 [The proxy component definition](k8sPaiLibrary/maintainconf/deploy.yaml)
 
-[The conponent templatefile path](k8sPaiLibrary/template)
+[The component templatefile path](k8sPaiLibrary/template)
 
-You should configuration you node role as following. (None-ha proxy)
+You should configuration your node role as following. (None-ha proxy)
 
 ```yaml
    - hostname: hostname (echo `hostname`)
@@ -224,7 +224,7 @@ sudo ./k8sClusterManagement.py -p /path/to/configuration/directory -f yournodeli
 
 # Deploying Services On Kubernetes
 
-This document explains how to use Kubernetes to deploy system services, including framework launcher, hadoop, rest server, and web portal. 
+This document explains how to use Kubernetes to deploy system services, including framework launcher, hadoop, rest server and web portal. 
 
 ## Prerequisite
 
@@ -323,7 +323,7 @@ If you want to remove some default services, just comment them in [service.yaml]
 #### Template
 
 All templates will be instantiated by [jinja2](http://jinja.pocoo.org/).
-And all the information is retrieved from clusterconfig (as in [clusterconfig-example.yaml](clusterconfig-example.yaml)).
+And all the information is retrieved from clusterconfig (as in [cluster configuration directory](../cluster-configuration/)).
 If your service need more information, please add your property to cluster config. 
 The new property should be placed in clusterinfo, machineinfo or machinelist.
 

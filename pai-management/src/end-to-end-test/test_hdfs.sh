@@ -18,37 +18,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-hdfs_host=$HADOOP_VIP
-paifs_arg="--host $hdfs_host --port 50070 --user root"
+hdfs_uri=$HDFS_URI
 
 
 @test "list hdfs root dir" {
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  result="$(hdfs dfs -ls $hdfs_uri/)"
   [[ $result == *Launcher* ]]
 }
 
 @test "make hdfs test root dir" {
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test)"
-  [[ ! $result == *Error* ]]
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -ls hdfs://)"
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test)"
+  [[ ! $result == *mkdir* ]]
+  result="$(hdfs dfs -ls $hdfs_uri/)"
   [[ $result == *Test* ]]
 }
 
 @test "make hdfs test sub dir" {
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/launcher)"
-  [[ ! $result == *Error* ]]
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -mkdir hdfs://Test/cntk)"
-  [[ ! $result == *Error* ]]
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test/launcher)"
+  [[ ! $result == *mkdir* ]]
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test/cntk)"
+  [[ ! $result == *mkdir* ]]
 }
 
 @test "upload cntk data to hdfs" {
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -r -f CNTK/Examples/SequenceToSequence/CMUDict/Data hdfs://Test/cntk/)"
-  [[ ! $result == *Error* ]]
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -r -f CNTK/Examples/SequenceToSequence/CMUDict/BrainScript hdfs://Test/cntk/)"
-  [[ ! $result == *Error* ]]
+  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/cntk/)"
+  [[ ! $result == *put* ]]
+  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/BrainScript $hdfs_uri/Test/cntk/)"
+  [[ ! $result == *put* ]]
 }
 
 @test "upload cntk start script to hdfs" {
-  result="$(python pai/pai-fs/pai-fs.py $paifs_arg -cp -f etc/cntk.sh hdfs://Test/cntk/BrainScript/)"
-  [[ ! $result == *Error* ]]
+  result="$(hdfs dfs -put -f etc/cntk.sh $hdfs_uri/Test/cntk/BrainScript/)"
+  [[ ! $result == *put* ]]
+}
+
+@test "hdfs test root dir chmod" {
+  result="$(hdfs dfs -chmod -R 777 $hdfs_uri/Test)"
+  [[ ! $result == *chmod* ]]
 }

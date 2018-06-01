@@ -18,12 +18,12 @@
 package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
-import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
 import com.microsoft.frameworklauncher.common.web.WebStructure;
@@ -180,7 +180,7 @@ public class LauncherModule {
   // Default to WebStructure.ROOT_PATH
   @Produces({MediaType.TEXT_PLAIN})
   public String getRootActiveMessage() {
-    return "Active at " + GlobalConstants.LOCAL_HOST_NAME;
+    return "Active at " + DnsUtils.getLocalHost() + ": " + DnsUtils.getLocalIp();
   }
 
   @GET

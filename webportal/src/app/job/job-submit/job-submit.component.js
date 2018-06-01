@@ -78,10 +78,11 @@ const submitJob = (jobConfig) => {
     loading.showLoading();
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
-      data: jobConfig,
+      data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      contentType:"application/json; charset=utf-8",
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
@@ -96,6 +97,7 @@ const submitJob = (jobConfig) => {
         window.location.replace('/view.html');
       },
       error: (xhr, textStatus, error) => {
+        loading.hideLoading();
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },
@@ -104,21 +106,21 @@ const submitJob = (jobConfig) => {
 };
 
 const loadEditor = () => {
-  var element = document.getElementById('editor-holder');
+  var element = $('#editor-holder')[0];
   editor = new JSONEditor(element, {
     schema: jobSchema,
     theme: 'bootstrap3',
     iconlib: 'bootstrap3',
     disable_array_reorder: true,
-    //startval: jobExample,
     no_additional_properties: true,
+    show_errors: 'always',
   });
   jobDefaultConfig = editor.getValue();
 };
 
 const resize = () => {
-    var heights = window.innerHeight;
-    document.getElementById("editor-holder").style.height = heights - 300 + "px";
+  var heights = window.innerHeight;
+  $("#editor-holder")[0].style.height = heights - 300 + "px";
 };
 
 $('#sidebar-menu--submit-job').addClass('active');
@@ -126,6 +128,10 @@ $('#sidebar-menu--submit-job').addClass('active');
 $('#content-wrapper').html(jobSubmitHtml);
 $(document).ready(() => {
   loadEditor();
+  editor.on('change', () => {
+    $('#submitJob').prop('disabled', (editor.validate().length != 0));
+  });
+
   $(document).on('change', '#fileUpload', (event) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -135,6 +141,7 @@ $(document).ready(() => {
       }
     };
     reader.readAsText(event.target.files[0]);
+    $('#fileUpload').val('');
   });
   $(document).on('click', '#submitJob', () => {
     submitJob(editor.getValue());
