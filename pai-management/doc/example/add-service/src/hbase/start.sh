@@ -19,6 +19,7 @@
 # Here I will define 2 steps. 1) Environment and configuration preparation. 2) service starting.
 # And for our target to make this image stateless. We will mount all steps' script with k8s.
 
+echo "1"
 #step 1: Environment and configuration preparation
 cp /hbase-configuration/${GENERATE_CONFIG}  generate_config.sh
 chmod u+x generate_config.sh
