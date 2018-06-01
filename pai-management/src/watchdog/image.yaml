@@ -24,4 +24,4 @@ copy-list:
     dst: src/watchdog/copied_file
 
 template-list:
-  - start.sh
+  - dockerfile
