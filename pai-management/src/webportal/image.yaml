@@ -17,8 +17,6 @@
 
 
 copy-list:
-  - src: ../pai-fs
-    dst: src/webportal/copied_file
   - src: ../job-tutorial
     dst: src/webportal/copied_file
   - src: ../webportal
