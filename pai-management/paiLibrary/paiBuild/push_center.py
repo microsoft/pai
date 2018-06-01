@@ -16,12 +16,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
-
-import image_push
-import image_build
 import logging
 import logging.config
-
+#
+from . import image_push
+from . import image_build
+#
 from ..common import linux_shell
 from ..common import file_handler
 from ..common import directory_handler

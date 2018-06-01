@@ -15,11 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import paiObjectModel
 import yaml
 
-
-from paiLibrary.common import file_handler
+from . import paiObjectModel as om
+from ..common import file_handler
 
 
 
@@ -64,7 +63,7 @@ class objectModelFactory:
 
     def objectModelPipeLine(self):
 
-        ret = paiObjectModel.paiObjectModel(self.configurationMap)
+        ret = om.paiObjectModel(self.configurationMap)
         objectModel = ret.execute()
         return objectModel
 
