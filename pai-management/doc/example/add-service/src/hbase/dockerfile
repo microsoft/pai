@@ -25,7 +25,7 @@ RUN mkdir -p /usr/local/ && \
     rm /usr/local/hbase-1.2.6-bin.tar.gz
 
 ENV HBASE_HOME=/usr/local/hbase \
-    HBASE_LOG_DIR=/usr/local/hbase/logs \
+    HBASE_LOG_DIR=/var/lib/hbase-logs \
     HBASE_BIN_DIR=/usr/local/hbase/bin
 
 COPY start.sh /usr/local/

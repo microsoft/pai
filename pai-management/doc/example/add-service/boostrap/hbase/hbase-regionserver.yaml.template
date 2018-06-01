@@ -38,7 +38,7 @@ spec:
           name: hbase-tmp-storage
         - mountPath: /hbase-configuration
           name: hbase-config-volume
-        - mountPath: /usr/local/hbase/logs
+        - mountPath: /var/lib/hbase-logs
           name: hbase-log-storage
         readinessProbe:
           exec:
