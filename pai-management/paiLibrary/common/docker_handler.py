@@ -20,8 +20,8 @@ import logging
 import logging.config
 #
 #import docker
-import paiLibrary.common.file_handler
-import paiLibrary.common.linux_shell
+from . import file_handler
+from . import linux_shell
 
 
 # TODO: Change the command with linux_shell.execute_shell to docker lib.

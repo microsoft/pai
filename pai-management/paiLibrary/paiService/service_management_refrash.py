@@ -19,9 +19,10 @@
 import logging
 import logging.config
 
-import paiLibrary.paiService.service_refrash
-import paiLibrary.paiService.service_template_generate
-import paiLibrary.paiService.service_template_clean
+from . import service_refrash
+from . import service_template_generate
+from . import service_template_clean
+
 from ..common import directory_handler
 from ..common import file_handler
 

@@ -15,11 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import paiLibrary.clusterObjectModel.paiObjectModel as om
 import yaml
 
-
-from paiLibrary.common import file_handler
+from . import paiObjectModel as om
+from ..common import file_handler
 
 
 

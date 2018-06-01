@@ -19,10 +19,10 @@ import os
 import logging
 import logging.config
 #
-import paiLibrary.paiBuild.image_push
-import paiLibrary.paiBuild.image_build
-import paiLibrary.paiBuild.image_tag
-import paiLibrary.paiBuild.hadoop_ai_build
+from . import image_push
+from . import image_build
+from . import image_tag
+from . import hadoop_ai_build
 #
 from ..common import linux_shell
 from ..common import file_handler

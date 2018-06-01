@@ -20,7 +20,7 @@ import os
 import logging
 import logging.config
 #
-import paiLibrary.common.linux_shell
+from . import linux_shell
 
 
 logger = logging.getLogger(__name__)

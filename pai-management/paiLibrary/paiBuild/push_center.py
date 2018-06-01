@@ -19,8 +19,8 @@ import os
 import logging
 import logging.config
 #
-import paiLibrary.paiBuild.image_push
-import paiLibrary.paiBuild.image_build
+from . import image_push
+from . import image_build
 #
 from ..common import linux_shell
 from ..common import file_handler
