@@ -16,58 +16,62 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import os
-import logging
-import logging.config
-#
-from . import linux_shell
+# the component should be bootstrapped remotely
+component-list:
 
+  apiserver:
+  - src: apiserver.yaml
+    # the full dst path will be " template/generated/&{hostip}/ .... "
+    dst: src/etc/kubernetes/manifests
 
-logger = logging.getLogger(__name__)
+  controller-manager:
+  - src: controller-manager.yaml
+    dst: src/etc/kubernetes/manifests
 
+  etcd:
+  - src: etcd.yaml
+    dst: src/etc/kubernetes/manifests
 
-def get_subdirectory_list(path):
+  scheduler:
+  - src: scheduler.yaml
+    dst: src/etc/kubernetes/manifests
 
-    return next(os.walk(path))[1]
+  kubelet:
+  - src: kubelet.sh
+    dst: src/
 
+  kubeconfig:
+  - src: config
+    dst: src/etc/kubernetes
 
-
-def directory_create(path):
-
-    if os.path.exists(path) == False:
-        shell_cmd = "mkdir -p {0}".format(path)
-        error_msg = "failed to mkdir -p {0}".format(path)
-        linux_shell.execute_shell(shell_cmd, error_msg)
-
-
-
-def directory_copy(src_item, dst):
-
-    directory_create(dst)
-
-    shell_cmd = "cp -r {0} {1}".format(src_item, dst)
-    error_msg = "failed to copy {0}".format(src_item)
-    linux_shell.execute_shell(shell_cmd, error_msg)
-
-
-
-def directory_delete(path):
-
-    shell_cmd = "rm -rf {0}".format(path)
-    error_msg = "failed to delete {0}".format(path)
-    linux_shell.execute_shell(shell_cmd, error_msg)
+  haproxy:
+  - src: haproxy.yaml
+    dst: src/etc/kubernetes/manifests
+  - src: haproxy.cfg
+    dst: src/haproxy
 
 
 
-def directory_exist_or_not(path):
+k8s-role:
 
-    return os.path.isfile(path) != True and os.path.exists(path) == True
+  master:
+    component:
+    - name: apiserver
+    - name: controller-manager
+    - name: etcd
+    - name: scheduler
+    - name: kubelet
+    - name: kubeconfig
 
 
+  worker:
+    component:
+    - name: kubelet
+    - name: kubeconfig
 
 
-
-
-
-
-
+  proxy:
+    component:
+    - name: kubelet
+    - name: haproxy
+    - name: kubeconfig

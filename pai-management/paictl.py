@@ -26,6 +26,7 @@ import logging.config
 
 from paiLibrary.common import linux_shell
 from paiLibrary.common import file_handler
+from paiLibrary.common import template_handler
 from paiLibrary.clusterObjectModel import objectModelFactory
 from paiLibrary.paiBuild import build_center
 from paiLibrary.paiBuild import push_center
@@ -90,7 +91,8 @@ def generate_secret_base64code(docker_info):
     if domain == "public":
         domain = ""
 
-    if username and passwd:
+    if docker_info["docker_username"] is not None and \
+        docker_info["docker_password"] is not None:
         login_docker_registry( domain, username, passwd )
 
         base64code = linux_shell.execute_shell_with_output(
@@ -361,50 +363,50 @@ def pai_cluster_info():
 
 
 def pai_cluster():
-
     if len(sys.argv) < 2:
         pai_cluster_info()
         return
-
     option = sys.argv[1]
     del sys.argv[1]
-
-    if option not in ["k8s-bootup","k8s-clean"]:
+    if option not in ["k8s-bootup", "k8s-clean", "generate-configuration"]:
         pai_cluster_info()
         return
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-                        help="path of cluster configuration file")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    cluster_config = cluster_object_model_generate_k8s(config_path)
-
     if option == "k8s-bootup":
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+            help="path of cluster configuration file")
+        args = parser.parse_args(sys.argv[1:])
+        config_path = args.config_path
+        cluster_config = cluster_object_model_generate_k8s(config_path)
         logger.info("Begin to initialize PAI k8s cluster.")
-
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
-
         logger.info("Finish initializing PAI k8s cluster.")
-        return
-
-    # just use 'k8s-clean' for testing temporarily  .
-
-    # if option == "k8s-clean":
-
-    #     logger.info("Begin to clean up whole cluster.")
-
-    #     cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
-
-    #     logger.info("Clean up job finished")
-    #     return
+    elif option == "generate-configuration":
+        parser = argparse.ArgumentParser(
+            description="Generate configuration files based on a quick-start yaml file.",
+            formatter_class=argparse.RawDescriptionHelpFormatter)
+        parser.add_argument('-i', '--input', dest="quick_start_config_file", required=True,
+            help="the path of the quick-start configuration file (yaml format) as the input")
+        parser.add_argument('-o', '--output', dest="configuration_directory", required=True,
+            help="the path of the directory the configurations will be generated to")
+        parser.add_argument('-f', '--force', dest='force', action='store_true', required=False,
+            help="overwrite existing files")
+        parser.set_defaults(force=False)
+        args = parser.parse_args()
+        cluster_util.generate_configuration(
+            args.quick_start_config_file,
+            args.configuration_directory,
+            args.force)
+    #elif option == "k8s-clean":
+    #    # just use 'k8s-clean' for testing temporarily  .
+    #    logger.info("Begin to clean up whole cluster.")
+    #    cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+    #    logger.info("Clean up job finished")
 
 
 def easy_way_deploy():
 
     None
-
 
 
 def main():
@@ -439,6 +441,10 @@ def main():
     elif module == "have-a-try":
 
         None
+
+    elif module == "cluster":
+
+        pai_cluster()
 
     else:
 

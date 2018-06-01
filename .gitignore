@@ -19,3 +19,5 @@ build/
 out/
 tmp/
 dist/
+__pycache__
+*.pyc

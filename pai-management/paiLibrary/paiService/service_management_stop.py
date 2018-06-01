@@ -20,9 +20,10 @@ import time
 import logging
 import logging.config
 
-import service_stop
-import service_template_generate
-import service_template_clean
+from . import service_stop
+from . import service_template_generate
+from . import service_template_clean
+
 from ..common import directory_handler
 from ..common import file_handler
 
