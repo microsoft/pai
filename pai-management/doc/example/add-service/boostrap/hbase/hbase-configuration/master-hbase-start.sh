@@ -21,4 +21,3 @@
 # After the configuration and environment in master-hbase-generate.sh is done, start the master of hbase.
 $HBASE_BIN_DIR/hbase master start
 
-while true; do sleep 1000; done
