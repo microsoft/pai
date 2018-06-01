@@ -40,6 +40,8 @@ spec:
           name: hbase-config-volume
         - mountPath: /var/lib/hbase-logs
           name: hbase-log-storage
+        - mountPath: /host-configuration
+          name: host-confg-volume
         readinessProbe:
           exec:
             command:
@@ -66,3 +68,6 @@ spec:
       - name: hbase-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hbase/regionserver
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
