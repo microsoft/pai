@@ -19,6 +19,6 @@
 
 
 # After the configuration and environment in regionserver-hbase-generate.sh is done, start the regionserver of hbase.
-$HBASE_BIN_DIR/hbase-daemon.sh foreground_start regionserver
+$HBASE_BIN_DIR/hbase-daemon.sh start regionserver
 
 while true; do sleep 1000; done
