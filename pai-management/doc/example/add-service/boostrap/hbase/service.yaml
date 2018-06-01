@@ -29,6 +29,7 @@ template-list:
   - hbase-regionserver.yaml
   - delete.yaml
   - stop.sh
+  - refrash.sh
 
 # The script about how to starting a service
 start-script: start.sh
