@@ -53,9 +53,9 @@ spec:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
-          value: master-hbase-generate.sh
+          value: regionserver-hbase-generate.sh
         - name: START_SERVICE
-          value: master-hbase-start.sh
+          value: regionserver-hbase-start.sh
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
