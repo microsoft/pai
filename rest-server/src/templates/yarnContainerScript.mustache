@@ -89,11 +89,9 @@ function get_host_list()
   done
   for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
     host_list=''
-    echo $taskrole_statuses \
-      | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts" \
-      | while read container_ip && read container_ports; do
-        host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,]" | cut -f 2 -d":"),
-      done
+    while read container_ip && read container_ports; do
+      host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,;]*" | cut -f 2 -d":"),
+    done < <(echo $taskrole_statuses | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts")
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
   done
