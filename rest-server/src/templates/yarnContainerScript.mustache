@@ -79,7 +79,7 @@ function get_host_list()
 {
   delay_time=1
   while true; do
-    taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
+    taskrole_statuses=$(curl -i -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
     jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
     if [ $? -eq 0 ]; then
       break

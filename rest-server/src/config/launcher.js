@@ -54,16 +54,16 @@ launcherConfig.frameworkStatusPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkStatus`;
 };
 
-launcherConfig.frameworkAggregatedStatusPath = (frameworkName) => {
-  return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/AggregatedFrameworkStatus`;
-};
-
 launcherConfig.frameworkRequestPath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/FrameworkRequest`;
 };
 
 launcherConfig.frameworkExecutionTypePath = (frameworkName) => {
   return `${launcherConfig.webserviceUri}/v1/Frameworks/${frameworkName}/ExecutionType`;
+};
+
+launcherConfig.frameworkInfoWebhdfsPath = (frameworkName) => {
+  return `${launcherConfig.webhdfsUri}/webhdfs/v1/Launcher/${frameworkName}/FrameworkInfo.json?op=OPEN`;
 };
 
 // define launcher config schema
@@ -89,13 +89,13 @@ const launcherConfigSchema = Joi.object().keys({
   frameworkStatusPath: Joi.func()
     .arity(1)
     .required(),
-  frameworkAggregatedStatusPath: Joi.func()
-    .arity(1)
-    .required(),
   frameworkRequestPath: Joi.func()
     .arity(1)
     .required(),
   frameworkExecutionTypePath: Joi.func()
+    .arity(1)
+    .required(),
+  frameworkInfoWebhdfsPath: Joi.func()
     .arity(1)
     .required(),
   webserviceRequestHeaders: Joi.object()
