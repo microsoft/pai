@@ -20,6 +20,8 @@
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/jobhistory-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/jobhistory-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
+cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
+cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
