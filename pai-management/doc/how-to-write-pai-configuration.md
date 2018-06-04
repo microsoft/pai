@@ -181,12 +181,26 @@ cluster:
 - ```docker-verison```: Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env. Choose a version from this [url](https://download.docker.com/linux/static/stable/x86_64/)
 - ```data-path```: The absolute path on the host in your cluster where you wanna store your data such as hdfs, zookeeper and yarn. Note: please be sure there is enough space.
 - ```docker-registry-info```:
-    - ```docker-namespace```: Your registry's namespace. If your choose hub.docker as your docker registry. You should fill this field with your username.
+    - ```docker-namespace```: Your registry's namespace. If your choose DockerHub as your docker registry. You should fill this field with your username.
     - ```docker-registry-domain```: E.g., gcr.io. If public，fill docker_registry_domain with word "public"
     - ```docker-username```: The account of the docker registry
     - ```docker-password```: The password of the account
     - ```docker-tag```: The image tag of the service. You could set the version here. Or just set latest here.
     - ```secret-name```: An id, used by k8s.
+
+Note that PAI team provides a read-only public docker registry on DockerHub for official releases. To use this docker registry, th `docker-registry-info` section should be configured as follows, leaving `docker-username` and `docker-password` commented:
+
+```yaml
+docker-registry-info:
+  - docker-namespace: openpai
+  - docker-registry-domain: docker.io
+  #- docker-username: <n/a>
+  #- docker-password: <n/a>
+  - docker-tag: latest # or a specific version, i.e. 0.5.0.
+  - secret-name: <anything>
+```
+
+Users can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
 
 #### ```hadoop```
 ```YAML
