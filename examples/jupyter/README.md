@@ -44,7 +44,7 @@ We need to build a Jupyter Notebook image to run it on PAI, this can be done und
     ```bash
     $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
     $ sudo docker build -f Dockerfile.build.base \
-    >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+    >                   -t pai.example.jupyter .
     $ cd -
     ```
 2. Push the Docker image to a Docker registry:
@@ -74,7 +74,7 @@ RUN pip install PACKAGE
 
 To run Jupyter Notebook in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-Please built your image and pushed it to your Docker registry, replace image `aiplatform/base-image` with your own.
+Please built your image and pushed it to your Docker registry, replace image `aiplatform/pai.build.base` with your own.
 
 Here's one configuration file example:
 
@@ -83,7 +83,7 @@ Here's one configuration file example:
 ```json
 {
     "jobName": "jupyter_example",
-    "image": "aiplatform/base-image",
+    "image": "aiplatform/pai.build.base",
     "taskRoles": [
         {
             "name": "jupyter",
