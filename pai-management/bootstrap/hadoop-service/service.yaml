@@ -32,7 +32,7 @@ template-list:
   - stop.sh
   - refrash.sh
   - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml.content
+  - hadoop-configuration/capacity-scheduler.xml.template
 
 start-script: start.sh
 stop-script: stop.sh
