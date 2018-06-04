@@ -220,20 +220,6 @@ def cluster_object_model_generate_k8s(config_path):
 
 
 
-def prepare_configuration_hadoop(os_type="ubuntu16.04"):
-
-    logger.info("Begin to prepare hadoop configuration for image building.")
-    logger.warning("Maybe this process should be removed.")
-    logger.warning("We should cp this configuration when starting container with configmap of k8s.")
-
-    commandline = "./paiLibrary/managementTool/{0}/prepare_hadoop_config.sh".format(os_type)
-    error_msg = "Failed to prepare hadoop configuration."
-    linux_shell.execute_shell(commandline, error_msg)
-
-    logger.info("Preparing hadoop configuration is finished")
-
-
-
 ## TODO: Please remove all function above, after cluster_object_model is finsied.
 #########
 
@@ -332,9 +318,6 @@ def pai_service():
     service_list = None
     if service_name != "all":
         service_list = [ service_name ]
-
-    if service_name in ["hadoop-service", "all"] and option in ["start", "refrash"]:
-        prepare_configuration_hadoop()
 
     # Tricky ,  re-install kubectl first.
     # TODO: install kubectl-install here.

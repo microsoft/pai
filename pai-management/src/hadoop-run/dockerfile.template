@@ -41,8 +41,6 @@ ENV HADOOP_PREFIX=/usr/local/hadoop \
 
 ENV PATH=$PATH:$HADOOP_BIN_DIR:$HADOOP_SBIN_DIR:/usr/share/zookeeper/bin
 
-COPY hadoop-env.sh yarn-env.sh mapred-site.xml $HADOOP_CONF_DIR/
-
 RUN chown -R root:root /var
 RUN mkdir -p $HADOOP_YARN_HOME/logs
 

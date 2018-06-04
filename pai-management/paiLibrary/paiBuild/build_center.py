@@ -64,21 +64,6 @@ class build_center:
         return image_list
 
 
-
-    def prepare_configuration_hadoop(self):
-
-        self.logger.info("Begin to prepare hadoop configuration for image building.")
-        self.logger.warning("Maybe this process should be removed.")
-        self.logger.warning("We should cp this configuration when starting container with configmap of k8s.")
-
-        commandline = "./paiLibrary/managementTool/{0}/prepare_hadoop_config.sh".format(self.os_type)
-        error_msg = "Failed to prepare hadoop configuration."
-        linux_shell.execute_shell(commandline, error_msg)
-
-        self.logger.info("Preparing hadoop configuration is finished")
-
-
-
     def hadoop_binary_prepare(self):
 
         custom_hadoop_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
@@ -160,8 +145,6 @@ class build_center:
 
 
     def run(self):
-
-        self.prepare_configuration_hadoop()
 
         self.hadoop_binary_remove()
         self.hadoop_ai_build()
