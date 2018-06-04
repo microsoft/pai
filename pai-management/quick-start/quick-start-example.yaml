@@ -1,0 +1,40 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# (Required) Machine list. The first machine will be configured as the master,
+# and all other machines will be configured as workers.
+# Special case (not implemented yet): If this list contains only one machine,
+# then this machine will be the master and the worker at the same time.
+machines:
+  - <ip-of-master>
+  - <ip-of-worker1>
+  - <ip-of-worder2>
+
+# (Required) Log-in info of all machines. System administrator should guarantee
+# that the username/password pair is valid and has sudo privilege.
+ssh-username: <username>
+ssh-password: <password>
+
+# (Optional, default=22) Port number of ssh service on each machine.
+#ssh-port: 22
+
+# (Optional, default=DNS of the first machine) Cluster DNS.
+#dns: <ip-of-dns>
+
+# (Optional, default=10.254.0.0/16) IP range used by Kubernetes. Note that
+# this IP range should NOT conflict with the current network.
+#service-cluster-ip-range: <ip-range-for-k8s>
