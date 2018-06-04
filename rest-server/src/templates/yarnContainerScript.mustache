@@ -77,15 +77,27 @@ docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
 # Get container host list from framework launcher webservice
 function get_host_list()
 {
-  delay_time=1
+  delay_time=20
+  info_source="webhdfs"
   while true; do
-    taskrole_statuses=$(curl -i -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+    if [[ "$info_source" = "webhdfs" ]]; then
+      taskrole_statuses=$(curl -i -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+    else
+      taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
+    fi
     jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
     if [ $? -eq 0 ]; then
       break
     fi
-    sleep ${delay_time}m
-    delay_time=$(( delay_time < 5 ? delay_time + 1 : 5))
+    sleep ${delay_time}s
+    if [[ $delay_time -ge 300 ]]; then
+      if [[ "$info_source" = "webhdfs" ]]; then
+        delay_time=60
+        info_source="restapi"
+      fi
+    else
+      delay_time=$(( "$info_source" = "webhdfs" ? delay_time + 20 : delay_time + 60 ))
+    fi
   done
   for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
     host_list=''
