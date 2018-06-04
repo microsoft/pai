@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,13 +17,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../prometheus/exporter
-    dst: src/watchdog/copied_file
-  - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
-    dst: src/watchdog/copied_file
-  - src: ../cluster-configuration/cluster-configuration.yaml
-    dst: src/watchdog/copied_file
 
-template-list:
-  - dockerfile
+# After the configuration and environment in master-hbase-generate.sh is done, start the master of hbase.
+$HBASE_BIN_DIR/hbase master start
+

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,13 +17,22 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../prometheus/exporter
-    dst: src/watchdog/copied_file
-  - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
-    dst: src/watchdog/copied_file
-  - src: ../cluster-configuration/cluster-configuration.yaml
-    dst: src/watchdog/copied_file
+# In this script, you could set several steps to launcher your hbase.
+# Here I will define 2 steps. 1) Environment and configuration preparation. 2) service starting.
+# And for our target to make this image stateless. We will mount all steps' script with k8s.
 
-template-list:
-  - dockerfile
+#step 1: Environment and configuration preparation
+cp /hbase-configuration/${GENERATE_CONFIG}  generate_config.sh
+chmod u+x generate_config.sh
+./generate_config.sh
+
+#step 2: Service starting.
+cp /hbase-configuration/${START_SERVICE}  start_service.sh
+chmod u+x start_service.sh
+
+# This status check is mainly for ensuring the status of image pulling.
+# And usually this process costs most of the time when creating a new pod in kubernetes.
+mkdir -p /jobstatus
+touch /jobstatus/jobok
+
+./start_service.sh

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,13 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../prometheus/exporter
-    dst: src/watchdog/copied_file
-  - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
-    dst: src/watchdog/copied_file
-  - src: ../cluster-configuration/cluster-configuration.yaml
-    dst: src/watchdog/copied_file
 
-template-list:
-  - dockerfile
+echo "Clean the hadoop and zookeeper's data on the disk"
+
+if [ -d "/mnt/hbase" ]; then
+
+    rm -rf /mnt/hbase
+
+fi

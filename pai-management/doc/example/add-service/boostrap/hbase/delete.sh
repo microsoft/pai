@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,13 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../prometheus/exporter
-    dst: src/watchdog/copied_file
-  - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
-    dst: src/watchdog/copied_file
-  - src: ../cluster-configuration/cluster-configuration.yaml
-    dst: src/watchdog/copied_file
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - dockerfile
+echo "Call stop to stop all hadoop service first"
+sh stop.sh
+
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap hbase-delete --from-file=hbase-delete/
+
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
+
+echo "Hbase Service clean job is done"
+echo "Delete Hbase cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hbase
+kubectl delete configmap hbase-delete
+sleep 5
+
+popd > /dev/null
