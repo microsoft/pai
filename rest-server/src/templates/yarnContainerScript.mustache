@@ -87,13 +87,18 @@ function get_host_list()
     fi
     jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
     if [ $? -eq 0 ]; then
-      break
+      empty_line=$(jq -r ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) | grep -c "^$")
+      if [ $empty_line -eq 0 ]; then
+        break
+      fi
     fi
     sleep ${delay_time}s
     if [[ $delay_time -ge 300 ]]; then
       if [[ "$info_source" = "webhdfs" ]]; then
         delay_time=60
         info_source="restapi"
+      else
+        exit 1
       fi
     else
       delay_time=$(( "$info_source" = "webhdfs" ? delay_time + 20 : delay_time + 60 ))
