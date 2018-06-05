@@ -141,7 +141,7 @@ def port_validation(port):
 
 def sftp_paramiko(src, dst, filename, host_config):
     for ch in dst:
-        print (ch)
+        print (ord(ch))
     print (type(dst))
     print (dst)
     print (len(dst))
