@@ -141,7 +141,7 @@ def port_validation(port):
 
 def sftp_paramiko(src, dst, filename, host_config):
     for ch in dst:
-        print (ord(ch))
+        print (ch)
     print (type(dst))
     print (dst)
     print (len(dst))
@@ -227,7 +227,8 @@ def get_user_dir(host_config):
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
     if result_stdout != None:
         ret = result_stdout.encode('unicode-escape').decode('string_escape')
-        ret = ret.strip('\n')
+        ret = ret.replace('\n', '')
+        ret = ret.replace('\r', '')
         return ret
 
     if str(host_config['username']) == "root":
