@@ -221,6 +221,28 @@ const checkUserVc = (username, virtualCluster, callback) => {
   }
 };
 
+const getUserList = (next) => {
+  db.get(etcdConfig.storagePath(), {recursive: true}, (errMsg, res) => {
+    if (errMsg) {
+      next(new Error('UserListNotFound'), null);
+    } else {
+      const userInfoList = [];
+      res.forEach((value,key) => {
+        if (value === undefined && key !== etcdConfig.storagePath())
+        {
+            let userName = key.replace(etcdConfig.storagePath() + '/','');
+            userInfoList.push({
+              username: userName,
+              admin:res.get(etcdConfig.userAdminPath(userName)),
+              virtualCluster:res.get(etcdConfig.userVirtualClusterPath(userName))
+            })
+        }
+      });
+      next(null,userInfoList);
+    }
+  });
+};
+
 const setDefaultAdmin = (callback) => {
   update(etcdConfig.adminName, etcdConfig.adminPass, true, false, (res, status) => {
     if (!status) {
@@ -251,9 +273,16 @@ if (config.env !== 'test') {
       prepareStoragePath();
     } else {
       logger.info('base storage path exists');
+      getUserList((errMsg, res) => {
+        if (errMsg) {
+          logger.warn("get user list failed");
+        } else {
+          logger.warn(res);
+        }
+      })
     }
   });
 }
 
 // module exports
-module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc};
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList};

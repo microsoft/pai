@@ -113,5 +113,29 @@ const updateUserVc = (req, res) => {
   }
 };
 
+/**
+ * Update user virtual clusters.
+ */
+const getUserList = (req, res) => {
+  if (req.user.admin) {
+    userModel.getUserList((err,userList) => {
+      if (err) {
+        logger.warn('get user info list Error');
+        return res.status(500).json({
+          error: 'GetUserListError',
+          message: 'get user info list error',
+        });
+      } else {
+        return res.status(200).json(userList);
+      }
+    })
+  } else {
+    return res.status(401).json({
+      error: 'NotAuthorized',
+      message: 'not authorized',
+    });
+  }
+};
+
 // module exports
-module.exports = {update, remove, updateUserVc};
+module.exports = {update, remove, updateUserVc, getUserList};
