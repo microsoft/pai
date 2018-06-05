@@ -26,7 +26,7 @@ const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
     if (error) {
       if (error.message === 'JobNotFound') {
-        if (req.method !== 'PUT') {
+        if (req.method !== 'PUT' && req.method !== 'POST') {
           error.status = 404;
           error.message = `could not find job ${jobName}`;
           next(error);
@@ -36,7 +36,7 @@ const load = (req, res, next, jobName) => {
         next(error);
       }
     } else {
-      if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
+      if (req.method === 'PUT' && req.path === `/${jobName}` || req.method === 'POST' && req.path === '/') {
         const error = new Error(`job already exists: '${jobName}'`);
         error.status = 400;
         next(error);
@@ -44,25 +44,6 @@ const load = (req, res, next, jobName) => {
     }
     req.job = job;
     next();
-  });
-};
-
-const init = (req, res, next) => {
-  const jobName = req.body.jobName;
-  new Job(jobName, (job, error) => {
-    if (error) {
-      if (error.message === 'JobNotFound') {
-        req.job = job;
-        next();
-      } else {
-        error.status = 500;
-        next(error);
-      }
-    } else {
-      const error = new Error(`job already exists: '${jobName}'`);
-      error.status = 400;
-      next(error);
-    }
   });
 };
 
@@ -207,7 +188,6 @@ const getSshInfo = (req, res, next) => {
 // module exports
 module.exports = {
   load,
-  init,
   list,
   get,
   update,
