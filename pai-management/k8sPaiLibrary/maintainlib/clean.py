@@ -60,7 +60,7 @@ class clean:
         srcipt_package = "{0}.tar".format(self.jobname)
         src_local = "parcel-center/{0}".format(node_config["nodename"])
         dst_remote = common.get_user_dir(node_config)
-
+        print "path:   {0}".format(dst_remote)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
             return
 

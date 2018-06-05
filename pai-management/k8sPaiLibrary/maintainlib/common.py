@@ -220,7 +220,6 @@ def get_user_dir(host_config):
 
     cmd = "sudo getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
-    print (result_stdout)
     if result_stdout != None:
         ret = result_stdout.strip('\n')
         return ret
