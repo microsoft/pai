@@ -19,12 +19,11 @@
 const jwt = require('jsonwebtoken');
 const tokenConfig = require('../config/token');
 const tokenModel = require('../models/token');
-const logger = require('../config/logger');
 
 /**
  * Get the token.
  */
-const get = (req, res) => {
+const get = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;

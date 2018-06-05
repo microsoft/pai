@@ -448,7 +448,7 @@ describe('delete user : delete /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.message, 'response message').equal('can not delete admin user');
         done();
       });
   });
@@ -461,7 +461,7 @@ describe('delete user : delete /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.message, 'response message').equal('user does not exist');
         done();
       });
   });
@@ -726,7 +726,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        global.chai.expect(res.body.message, 'response message').equal('All servers returned error');
         done();
       });
   });
@@ -769,7 +769,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        global.chai.expect(res.body.message, 'response message').equal('All servers returned error');
         done();
       });
   });

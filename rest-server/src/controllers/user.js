@@ -85,9 +85,9 @@ const updateUserVc = (req, res, next) => {
           err.message = `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`;
           next(err);
         } else {
-          const err = err || new Error('update user virtual cluster failed');
-          err.status = 500;
-          next(err);
+          const error = err || new Error('update user virtual cluster failed');
+          error.status = 500;
+          next(error);
         }
       } else {
         return res.status(201).json({
