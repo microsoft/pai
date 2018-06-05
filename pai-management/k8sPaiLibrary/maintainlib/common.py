@@ -221,7 +221,7 @@ def get_user_dir(host_config):
     cmd = "sudo getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
     if result_stdout != None:
-        ret = result_stdout.strip('\n')
+        ret = result_stdout.replace("\n", "")
         return ret
 
     if str(host_config['username']) == "root":
