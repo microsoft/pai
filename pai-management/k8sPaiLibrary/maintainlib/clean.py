@@ -15,9 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import common
 import logging
 import logging.config
+
+
+
+package_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 class clean:
@@ -33,7 +38,8 @@ class clean:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/clean.yaml")
+        maintain_configuration_path = os.path.join(package_directory, "../maintainconf/clean.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
         self.jobname = "clean"
 

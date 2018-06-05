@@ -232,7 +232,6 @@ def pai_build_info():
 
 
 
-
 def pai_build():
 
     if len(sys.argv) < 2:
@@ -269,11 +268,19 @@ def pai_build():
 
 
 
-def pai_control():
+def pai_machine_info():
+
+    logger.error("The command is wrong.")
+    logger.error("Add New Machine Node into cluster     :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Remove Machine Node from cluster      :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Repair Issue Machine Node in cluster  :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Repair Issue k8s node in cluster      :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+
+
+
+def pai_machine():
 
     None
-
-
 
 
 
@@ -339,10 +346,12 @@ def pai_service():
         service_management_refrasher.run()
 
 
+
 def pai_cluster_info():
 
     logger.error("The command is wrong.")
     logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuraiton/dir")
+
 
 
 def pai_cluster():
@@ -387,10 +396,6 @@ def pai_cluster():
     #    logger.info("Clean up job finished")
 
 
-def easy_way_deploy():
-
-    None
-
 
 def main():
 
@@ -407,7 +412,7 @@ def main():
 
     elif module == "machine":
 
-        None
+        pai_machine()
 
     elif module == "service":
 
@@ -417,23 +422,9 @@ def main():
 
         pai_cluster()
 
-    elif module == "easy-way-deploy":
-
-        None
-
-    elif module == "have-a-try":
-
-        None
-
-    elif module == "cluster":
-
-        pai_cluster()
-
     else:
 
         logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
-
-
 
 
 

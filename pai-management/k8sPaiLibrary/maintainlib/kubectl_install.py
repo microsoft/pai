@@ -22,6 +22,10 @@ import logging.config
 
 
 
+package_directory = os.path.dirname(os.path.abspath(__file__))
+
+
+
 class kubectl_install:
 
     """
