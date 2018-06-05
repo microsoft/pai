@@ -29,7 +29,7 @@ import logging.config
 
 
 
-package_directory = os.path.dirname(os.path.abspath(__file__))
+package_directory_etcdfix = os.path.dirname(os.path.abspath(__file__))
 
 
 
@@ -186,7 +186,7 @@ class etcdfix:
 
         self.cluster_config = cluster_config
         self.bad_node_config = node_config
-        maintain_configuration_path = os.path.join(package_directory, "../maintainconf/etcdfix.yaml")
+        maintain_configuration_path = os.path.join(package_directory_etcdfix, "../maintainconf/etcdfix.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = clean
 

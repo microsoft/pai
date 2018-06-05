@@ -29,7 +29,7 @@ import logging.config
 
 
 
-package_directory = os.path.dirname(os.path.abspath(__file__))
+package_directory_remove = os.path.dirname(os.path.abspath(__file__))
 
 
 
@@ -45,7 +45,7 @@ class remove:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        maintain_configuration_path = os.path.join(package_directory, "../maintainconf/remove.yaml")
+        maintain_configuration_path = os.path.join(package_directory_remove, "../maintainconf/remove.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = clean
         self.jobname = "remove-node"
