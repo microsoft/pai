@@ -169,7 +169,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     # Put the file to target Path.
     transport = paramiko.Transport((hostip, port))
     transport.connect(username=username, password=password)
-
+    print ('{0}/{1}'.format(dst, filename))
     sftp = paramiko.SFTPClient.from_transport(transport)
     sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
     sftp.close()
