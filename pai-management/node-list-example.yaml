@@ -16,6 +16,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+machine-list:
+
+    - hostname: host1 # echo `hostname`
+      hostip: 192.168.1.11
+      machine-type: D8SV3
+      etcdid: etcdid1
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: master
+      dashboard: "true"
+      zkid: "1"
+      pai-master: "true"
+
+    - hostname: host2
+      hostip: 192.168.1.12
+      machine-type: NC24R
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
+      k8s-role: worker
+      pai-worker: "true"
+
+
+
 machinelist:
 
   worker-06:

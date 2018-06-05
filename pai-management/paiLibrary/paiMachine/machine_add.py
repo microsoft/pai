@@ -19,16 +19,28 @@ import os
 import logging
 import logging.config
 
-from k8sPaiLibrary.maintainlib import common as pai_common
-from k8sPaiLibrary.maintainlib import add
+from ...k8sPaiLibrary.maintainlib import common as pai_common
+from ...k8sPaiLibrary.maintainlib import add
 
 
 class machine_add:
 
 
-    def __init__(self, cluster_object_model, ):
+    def __init__(self, cluster_object_model, node_list_path):
 
         logger = logging.getLogger(__name__)
+        self.cluster_object_model = cluster_object_model
+
+        self.node_list = pai_common.load_yaml_file(node_list_path)
+
+
+
+    def run(self):
+
+
+
+
+
 
 
 
