@@ -17,12 +17,11 @@
 
 // module dependencies
 const userModel = require('../models/user');
-const logger = require('../config/logger');
 
 /**
  * Create / update a user.
  */
-const update = (req, res) => {
+const update = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const admin = req.body.admin;
@@ -32,11 +31,9 @@ const update = (req, res) => {
       (typeof admin === 'undefined' || !admin) && modify) {
     userModel.update(username, password, admin, modify, (err, state) => {
       if (err || !state) {
-        logger.warn('update user %s failed', username);
-        return res.status(500).json({
-          error: 'UpdateFailed',
-          message: 'update user failed',
-        });
+        const error = err || new Error('update user failed');
+        error.status = 500;
+        next(error);
       } else {
         return res.status(201).json({
           message: 'update successfully',
@@ -44,26 +41,23 @@ const update = (req, res) => {
       }
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    const error = new Error('not authorized');
+    error.status = 401;
+    next(error);
   }
 };
 
 /**
  * Remove a user.
  */
-const remove = (req, res) => {
+const remove = (req, res, next) => {
   const username = req.body.username;
   if (req.user.admin) {
     userModel.remove(username, (err, state) => {
       if (err || !state) {
-        logger.warn('remove user %s failed', username);
-        return res.status(500).json({
-          error: 'RemoveFailed',
-          message: 'remove failed',
-        });
+        const error = err || new Error('remove failed');
+        error.status = 500;
+        next(error);
       } else {
         return res.status(200).json({
           message: 'remove successfully',
@@ -71,33 +65,29 @@ const remove = (req, res) => {
       }
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    const error = new Error('not authorized');
+    error.status = 401;
+    next(error);
   }
 };
 
 /**
  * Update user virtual clusters.
  */
-const updateUserVc = (req, res) => {
+const updateUserVc = (req, res, next) => {
   const username = req.params.username;
   const virtualClusters = req.body.virtualClusters;
   if (req.user.admin) {
     userModel.updateUserVc(username, virtualClusters, (err, state) => {
       if (err || !state) {
-        logger.warn('update %s virtual cluster %s failed', username, virtualClusters);
         if (err.message === 'InvalidVirtualCluster') {
-          return res.status(500).json({
-            error: 'InvalidVirtualCluster',
-            message: `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`,
-          });
+          err.status = 500;
+          err.message = `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`;
+          next(err);
         } else {
-          return res.status(500).json({
-            error: 'UpdateVcFailed',
-            message: 'update user virtual cluster failed',
-          });
+          const err = err || new Error('update user virtual cluster failed');
+          err.status = 500;
+          next(err);
         }
       } else {
         return res.status(201).json({
@@ -106,10 +96,9 @@ const updateUserVc = (req, res) => {
       }
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    const error = new Error('not authorized');
+    error.status = 401;
+    next(error);
   }
 };
 
