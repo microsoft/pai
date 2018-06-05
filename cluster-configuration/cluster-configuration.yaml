@@ -61,7 +61,7 @@ machine-list:
       dashboard: "true"
       zkid: "1"
       pai-master: "true"
-
+      watchdog: "true"
 
 
     - hostname: hostname

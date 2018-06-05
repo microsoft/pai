@@ -24,6 +24,7 @@ templatelist:
   - node-exporter-ds.yaml
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
+  - watchdog-ds.yaml
   - cleanup.sh
 
 startscript: start.sh

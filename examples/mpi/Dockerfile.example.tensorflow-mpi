@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# tag: pai.run.tensorflow-mpi
+# tag: pai.example.tensorflow-mpi
 #
 # Before building this image you need to build the base image first:
 #
