@@ -171,7 +171,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     print (dst)
     print (filename)
     dst_remote = '{0}/{1}'.format(dst, filename)
-    print ('{0}/{1}'.format(dst, filename))
+    print ('{0}/{1}'.format(str(dst), str(filename)))
     print (dst_remote)
     sftp = paramiko.SFTPClient.from_transport(transport)
     sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
