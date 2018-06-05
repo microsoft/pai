@@ -30,22 +30,18 @@ const get = (req, res) => {
   const expiration = req.body.expiration;
   tokenModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
-      logger.warn('user %s authentication failed', username);
-      return res.status(401).json({
-        error: 'AuthenticationFailed',
-        message: 'authentication failed',
-      });
+      const error = err || new Error('authentication failed');
+      error.status = 401;
+      next(error);
     } else {
       jwt.sign({
         username: username,
         admin: admin,
       }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
         if (signError) {
-          logger.warn('sign token error\n%s', signError.stack);
-          return res.status(500).json({
-            error: 'SignTokenFailed',
-            message: 'sign token failed',
-          });
+          signError.status = 500;
+          signError.message = 'sign token failed';
+          next(signError);
         }
         return res.status(200).json({
           user: username,
