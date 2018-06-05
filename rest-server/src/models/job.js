@@ -112,6 +112,9 @@ class Job {
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {
         try {
+          if (typeof requestRes.body === 'undefined') {
+            next(null, new Error('Can not connect to launcher'));
+          }
           const requestResJson =
             typeof requestRes.body === 'object' ?
               requestRes.body :
