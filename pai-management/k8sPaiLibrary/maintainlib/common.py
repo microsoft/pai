@@ -140,7 +140,8 @@ def port_validation(port):
 
 
 def sftp_paramiko(src, dst, filename, host_config):
-
+    print (type(dst))
+    print (dst)
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
