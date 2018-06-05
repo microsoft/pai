@@ -222,7 +222,7 @@ def get_user_dir(host_config):
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
     if result_stdout != None:
         ret = result_stdout.encode("utf-8")
-        ret = result_stdout.strip('\n')
+        ret = ret.strip('\n')
         return ret
 
     if str(host_config['username']) == "root":
