@@ -29,7 +29,7 @@
 
 #### Cluster Bootstrap
 
-TODO
+- [A Guide For Booting Up The Cluster](doc/cluster-bootup.md)
 
 #### PAI Machine Maintenance
 
