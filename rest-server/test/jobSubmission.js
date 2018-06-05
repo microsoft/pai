@@ -287,7 +287,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        console.log(res.body)
         global.chai.expect(JSON.stringify(res.body), 'response body content').include('Can not connect to launcher');
         done();
       });
