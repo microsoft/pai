@@ -140,6 +140,7 @@ def port_validation(port):
 
 
 def sftp_paramiko(src, dst, filename, host_config):
+
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
@@ -168,13 +169,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     # Put the file to target Path.
     transport = paramiko.Transport((hostip, port))
     transport.connect(username=username, password=password)
-    print(type(src))
-    print(type(dst))
-    print (dst)
-    print (filename)
-    dst_remote = '{0}/{1}'.format(dst, filename)
-    print ('{0}/{1}'.format(str(dst), str(filename)))
-    print (dst_remote)
+
     sftp = paramiko.SFTPClient.from_transport(transport)
     sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
     sftp.close()
@@ -226,7 +221,8 @@ def get_user_dir(host_config):
     cmd = "sudo getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
     if result_stdout != None:
-        ret = result_stdout.replace("\n", "")
+        ret = result_stdout.encode("utf-8")
+        ret = result_stdout.strip('\n')
         return ret
 
     if str(host_config['username']) == "root":
