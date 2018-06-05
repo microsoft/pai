@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+#
 import yaml
 import os
 import errno
@@ -160,7 +162,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     stdin.write(password + '\n')
     stdin.flush()
     for response_msg in stdout:
-        print response_msg.strip('\n')
+        print(response_msg.strip('\n'))
 
     ssh.close()
 
@@ -179,38 +181,61 @@ def sftp_paramiko(src, dst, filename, host_config):
 
 
 def ssh_shell_paramiko(host_config, commandline):
+    result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, commandline)
+    if result_stdout is None or result_stderr is None:
+        return False
+    return True
 
+
+
+def ssh_shell_paramiko_with_result(host_config, commandline):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
-
     username = str(host_config['username'])
     password = str(host_config['password'])
     port = 22
     if 'sshport' in host_config:
         if port_validation(host_config['sshport']) == False:
-            return False
+            return (None, None)
         port = int(host_config['sshport'])
-
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    stdin.write(password + '\n')
-    stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
+    result_stdout = ""
     for response_msg in stdout:
-        print response_msg.strip('\n')
-
+        result_stdout += response_msg
+        print(response_msg.strip('\n'))
+    result_stderr = ""
+    for response_msg in stderr:
+        result_stderr += response_msg
     ssh.close()
-    return True
+    return (result_stdout, result_stderr)
+
+
+
+def get_user_dir(host_config):
+
+    cmd = "getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
+    result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
+
+    if result_stdout != None:
+        ret = result_stdout.strip('\n')
+        return ret
+
+    if str(host_config['username']) == "root":
+        return "/root"
+    else:
+        return "/home/{0}".format(host_config["username"])
 
 
 
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
-        
+
         try:
             os.makedirs(path)
         except OSError as exc:
@@ -235,7 +260,7 @@ def archive_tar(target, path):
 
 
 def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
-    
+
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
     if "template-list" in maintain_config[jobname]:

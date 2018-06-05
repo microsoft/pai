@@ -72,7 +72,7 @@ class deploy:
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(job_name)
         src_local = "parcel-center/{0}".format(node_config["nodename"])
-        dst_remote = "/home/{0}".format(node_config["username"])
+        dst_remote = common.get_user_dir(self.node_config)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
             return
 

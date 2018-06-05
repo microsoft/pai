@@ -212,7 +212,7 @@ class etcdfix:
 
         script_package = "etcd-reconfiguration-stop.tar"
         src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
-        dst_remote = "/home/{0}".format(bad_node_config["username"])
+        dst_remote = common.get_user_dir(bad_node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             return
@@ -238,7 +238,7 @@ class etcdfix:
 
         script_package = "etcd-reconfiguration-update.tar"
         src_local = "parcel-center/{0}".format(good_node_config["nodename"])
-        dst_remote = "/home/{0}".format(good_node_config["username"])
+        dst_remote = common.get_user_dir(good_node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
             return
@@ -269,7 +269,7 @@ class etcdfix:
 
         script_package = "etcd-reconfiguration-restart.tar"
         src_local = "parcel-center/{0}".format(bad_node_config["nodename"])
-        dst_remote = "/home/{0}".format(bad_node_config["username"])
+        dst_remote = common.get_user_dir(bad_node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             return
