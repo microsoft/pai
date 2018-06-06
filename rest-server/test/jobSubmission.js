@@ -200,7 +200,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update job new_job successfully.');
         done();
       });
   });
@@ -216,7 +216,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job_in_vc1 successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update job new_job_in_vc1 successfully.');
         done();
       });
   });
@@ -230,7 +230,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(202);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
+        global.chai.expect(res.body.message, 'response message').equal('Update job new_job successfully.');
         done();
       });
   });
@@ -274,7 +274,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('job already exists');
+        global.chai.expect(JSON.stringify(res.body), 'response body content').include('Submit job error: job job1 already exists.');
         done();
       });
   });
@@ -287,7 +287,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('Can not connect to launcher');
+        global.chai.expect(JSON.stringify(res.body), 'response body content').include('Get job error: could not connect to launcher.');
         done();
       });
   });
@@ -302,7 +302,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: could not find virtual cluster non-exist-vc');
+        global.chai.expect(res.body.message, 'response message').equal('Update job error: could not find virtual cluster non-exist-vc.');
         done();
       });
   });
@@ -316,7 +316,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');
+        global.chai.expect(res.body.message, 'response message').equal('Update job error: no virtual cluster right to access vc2.');
         done();
       });
   });
