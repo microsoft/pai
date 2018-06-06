@@ -32,8 +32,8 @@ taskStatuses:
     taskCompletedTimestamp: 0
     taskCreatedTimestamp: 0
     taskIndex: 0
-    taskRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
-      transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+    taskRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, succeededRetriedCount: 0,
+      transientConflictRetriedCount: 0, transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
     taskRoleName: testString
     taskServiceStatus: {serviceVersion: 0}
     taskState: TASK_WAITING

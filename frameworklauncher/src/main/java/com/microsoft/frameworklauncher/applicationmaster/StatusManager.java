@@ -20,7 +20,6 @@ package com.microsoft.frameworklauncher.applicationmaster;
 import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NonTransientException;
 import com.microsoft.frameworklauncher.common.exit.ExitDiagnostics;
-import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.AbstractService;
