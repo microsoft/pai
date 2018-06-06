@@ -36,6 +36,7 @@ const load = (req, res, next, jobName) => {
         next(error);
       }
     } else {
+      // will be handled by framework launcher in the future
       if (req.method === 'PUT' && req.path === `/${jobName}` || req.method === 'POST' && req.path === '/') {
         const error = new Error(`Submit job error: job ${jobName} already exists.`);
         error.status = httpStatus.BAD_REQUEST;
