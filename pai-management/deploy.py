@@ -323,6 +323,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
             hq_config["weight"] /= (total_weight / 100)
+        total_weight = 100
     if "default" not in hadoop_queues_config:
         hadoop_queues_config["default"] = {
             "description": "Default virtual cluster.",
