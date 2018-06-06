@@ -17,6 +17,7 @@
 
 // module dependencies
 const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
 const tokenConfig = require('../config/token');
 const tokenModel = require('../models/token');
 
@@ -30,7 +31,7 @@ const get = (req, res, next) => {
   tokenModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
       const error = err || new Error('authentication failed');
-      error.status = 401;
+      error.status = httpStatus.UNAUTHORIZED;
       next(error);
     } else {
       jwt.sign({
@@ -38,11 +39,11 @@ const get = (req, res, next) => {
         admin: admin,
       }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
         if (signError) {
-          signError.status = 500;
+          signError.status = httpStatus.INTERNAL_SERVER_ERROR;
           signError.message = 'sign token failed';
           next(signError);
         }
-        return res.status(200).json({
+        return res.status(httpStatus.OK).json({
           user: username,
           token: token,
           admin: admin,

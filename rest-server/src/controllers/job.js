@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const httpStatus = require('http-status');
 const Job = require('../models/job');
 const logger = require('../config/logger');
 
@@ -27,18 +28,18 @@ const load = (req, res, next, jobName) => {
     if (error) {
       if (error.message === 'JobNotFound') {
         if (req.method !== 'PUT' && req.method !== 'POST') {
-          error.status = 404;
+          error.status = httpStatus.NOT_FOUND;
           error.message = `could not find job ${jobName}`;
           next(error);
         }
       } else {
-        error.status = 500;
+        error.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(error);
       }
     } else {
       if (req.method === 'PUT' && req.path === `/${jobName}` || req.method === 'POST' && req.path === '/') {
         const error = new Error(`job already exists: '${jobName}'`);
-        error.status = 400;
+        error.status = httpStatus.BAD_REQUEST;
         next(error);
       }
     }
@@ -53,15 +54,15 @@ const load = (req, res, next, jobName) => {
 const list = (req, res, next) => {
   Job.prototype.getJobList(req._query, (jobList, err) => {
     if (err) {
-      err.status = 500;
+      err.status = httpStatus.INTERNAL_SERVER_ERROR;
       err.message = 'get job list error';
       next(err);
     } else if (jobList === undefined) {
-      err.status = 500;
+      err.status = httpStatus.INTERNAL_SERVER_ERROR;
       err.message = 'could not find job list';
       next(err);
     } else {
-      return res.status(200).json(jobList);
+      return res.status(httpStatus.OK).json(jobList);
     }
   });
 };
@@ -85,19 +86,19 @@ const update = (req, res, next) => {
     if (err) {
       logger.warn('update job %s error\n%s', name, err.stack);
       if (err.message === 'VirtualClusterNotFound') {
-        err.status = 500;
+        err.status = httpStatus.INTERNAL_SERVER_ERROR;
         err.message = `job update error: could not find virtual cluster ${data.virtualCluster}`;
         next(err);
       } else if (err.message === 'NoRightAccessVirtualCluster') {
-        err.status = 401;
+        err.status = httpStatus.UNAUTHORIZED;
         err.message = `job update error: no virtual cluster right to access ${data.virtualCluster}`;
         next(err);
       } else {
-        err.status = 500;
+        err.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(err);
       }
     } else {
-      return res.status(202).json({
+      return res.status(httpStatus.ACCEPTED).json({
         message: `update job ${name} successfully`,
       });
     }
@@ -112,11 +113,11 @@ const remove = (req, res, next) => {
   req.body.admin = req.user.admin;
   Job.prototype.deleteJob(req.job.name, req.body, (err) => {
     if (err) {
-      err.status = 403;
+      err.status = httpStatus.FORBIDDEN;
       err.message = 'job deleted error, cannot delete other user\'s job';
       next(err);
     } else {
-      return res.status(202).json({
+      return res.status(httpStatus.ACCEPTED).json({
         message: `deleted job ${req.job.name} successfully`,
       });
     }
@@ -131,11 +132,11 @@ const execute = (req, res, next) => {
   req.body.admin = req.user.admin;
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
-      err.status = 500;
+      err.status = httpStatus.INTERNAL_SERVER_ERROR;
       err.message = err.message || 'job execute error';
       next(err);
     } else {
-      return res.status(202).json({
+      return res.status(httpStatus.ACCEPTED).json({
         message: `execute job ${req.job.name} successfully`,
       });
     }
@@ -151,12 +152,12 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
-        return res.status(200).json(result);
+        return res.status(httpStatus.OK).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        error.status = 404;
+        error.status = httpStatus.NOT_FOUND;
         next(error);
       } else {
-        error.status = 500;
+        error.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(error);
       }
     }
@@ -173,12 +174,12 @@ const getSshInfo = (req, res, next) => {
     req.job.jobStatus.appId,
     (error, result) => {
       if (!error) {
-        return res.status(200).json(result);
+        return res.status(httpStatus.OK).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        error.status = 404;
+        error.status = httpStatus.NOT_FOUND;
         next(error);
       } else {
-        error.status = 500;
+        error.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(error);
       }
     }

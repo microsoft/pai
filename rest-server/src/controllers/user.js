@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
+const httpStatus = require('http-status');
 const userModel = require('../models/user');
 
 /**
@@ -32,17 +33,17 @@ const update = (req, res, next) => {
     userModel.update(username, password, admin, modify, (err, state) => {
       if (err || !state) {
         const error = err || new Error('update user failed');
-        error.status = 500;
+        error.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(error);
       } else {
-        return res.status(201).json({
+        return res.status(httpStatus.CREATED).json({
           message: 'update successfully',
         });
       }
     });
   } else {
     const error = new Error('not authorized');
-    error.status = 401;
+    error.status = httpStatus.UNAUTHORIZED;
     next(error);
   }
 };
@@ -56,17 +57,17 @@ const remove = (req, res, next) => {
     userModel.remove(username, (err, state) => {
       if (err || !state) {
         const error = err || new Error('remove failed');
-        error.status = 500;
+        error.status = httpStatus.INTERNAL_SERVER_ERROR;
         next(error);
       } else {
-        return res.status(200).json({
+        return res.status(httpStatus.OK).json({
           message: 'remove successfully',
         });
       }
     });
   } else {
     const error = new Error('not authorized');
-    error.status = 401;
+    error.status = httpStatus.UNAUTHORIZED;
     next(error);
   }
 };
@@ -81,23 +82,23 @@ const updateUserVc = (req, res, next) => {
     userModel.updateUserVc(username, virtualClusters, (err, state) => {
       if (err || !state) {
         if (err.message === 'InvalidVirtualCluster') {
-          err.status = 500;
+          err.status = httpStatus.INTERNAL_SERVER_ERROR;
           err.message = `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`;
           next(err);
         } else {
           const error = err || new Error('update user virtual cluster failed');
-          error.status = 500;
+          error.status = httpStatus.INTERNAL_SERVER_ERROR;
           next(error);
         }
       } else {
-        return res.status(201).json({
+        return res.status(httpStatus.CREATED).json({
           message: 'update user virtual clusters successfully',
         });
       }
     });
   } else {
     const error = new Error('not authorized');
-    error.status = 401;
+    error.status = httpStatus.UNAUTHORIZED;
     next(error);
   }
 };
