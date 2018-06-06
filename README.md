@@ -55,21 +55,9 @@ And the system need [NTP](http://www.ntp.org/) service for clock synchronization
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
 
-1. Build the binary for [Hadoop AI](./hadoop-ai/README.md) and place it in the specified path*
-2. [Deploy kubernetes and system services](./pai-management/README.md)
-3. Access [web portal](./webportal/README.md) for job submission and cluster management
+1. Deploy PAI with [pai-management](./pai-management/README.md)
+2. Access [web portal](./webportal/README.md) for job submission and cluster management
 
-\* If step 1 is skipped, a standard Hadoop 2.7.2 will be installed instead.
-
-#### Kubernetes deployment
-
-The platform leverages Kubernetes (k8s) to deploy and manage system services.
-To deploy k8s in the cluster, please refer to k8s deployment [readme](./pai-management/README.md) for details.
-
-#### Service deployment
-
-After Kubernetes is deployed, the system will leverage built-in k8s features (e.g., configmap) to deploy system services.
-Please refer to service deployment [readme](./pai-management/README.md) for details.
 
 #### Job management
 
