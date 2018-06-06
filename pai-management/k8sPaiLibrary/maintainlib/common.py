@@ -233,8 +233,6 @@ def get_user_dir(host_config):
         ret = result_stdout.encode('unicode-escape').decode('string_escape')
         ret = ret.replace('\n', '')
         ret = ret.replace('\r', '')
-        print (ret)
-        print (len(ret))
         return ret
 
     if str(host_config['username']) == "root":
