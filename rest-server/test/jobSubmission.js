@@ -260,7 +260,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('Could not validate request data.');
+        global.chai.expect(res.body.message, 'response message').include('Could not validate request data:');
         done();
       });
   });
@@ -331,7 +331,8 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('killAllOnCompletedTaskNumber should not be greater than tasks number.');
+        global.chai.expect(res.body.message, 'response message').equal(
+          'Could not validate request data: killAllOnCompletedTaskNumber should not be greater than tasks number.');
         done();
       });
   });
