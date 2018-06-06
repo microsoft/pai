@@ -17,11 +17,9 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Microsoft FrameworkLauncher User Manual
+# <a name="User_Manual">Microsoft FrameworkLauncher User Manual</a>
 
-
-## Index
-
+## <a name="Index">Index</a>
    - [Concepts](#Concepts)
    - [Quick Start](#Quick_Start)
    - [Architecture](#Architecture)
@@ -35,9 +33,7 @@
    - [Framework ACL](#Framework_ACL)
    - [Best Practices](#Best_Practices)
 
-
 ## <a name="Concepts">Concepts</a>
-
 * Different **TaskRoles** compose a **Framework**
 * Same **Tasks** compose a **TaskRole**
 * A **User Service** executed by all **Tasks** in a **TaskRole**
