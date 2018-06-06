@@ -90,9 +90,9 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
     # Todo: load maintain from a DB such as etcd instead of a yaml file.
     #maintain_config = pai_common.load_yaml_file("maintain.yaml")
 
-    for host in node_list_config['machinelist']:
+    for host in node_list_config['machine-list']:
 
-        maintain_one_node(cluster_config, node_list_config['machinelist'][host], job_name)
+        maintain_one_node(cluster_config, host, job_name)
 
 
 
@@ -228,7 +228,7 @@ def main():
 
         logger.debug("FIX ETCD on {0}".format(str(node_list_config)))
 
-        if len(node_list_config['machinelist']) != 1:
+        if len(node_list_config['machine-list']) != 1:
 
             logger.error("etcdfix can't fix more than one machine everytime. Please fix them one by one!")
             sys.exit(1)
