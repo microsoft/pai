@@ -108,7 +108,7 @@ machine-list:
 
     - hostname: hostname
       hostip: IP
-      machinetype: NC24R
+      machine-type: NC24R
       #sshport: PORT (Optional)
       #username: username (Optional)
       #password: password (Optional)
