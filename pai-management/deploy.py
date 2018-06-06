@@ -318,15 +318,16 @@ def generate_configuration_of_hadoop_queues(cluster_config):
             "weight": weight
         }
         total_weight += weight
-    hadoop_queues_config["default"] = {
-        "description": "Default virtual cluster.",
-        "weight": max(0, 100 - total_weight)
-    }
     if total_weight > 100:
         logger.warning("Too many resources configured in virtual clusters.")
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
             hq_config["weight"] /= (total_weight / 100)
+    if "default" not in hadoop_queues_config:
+        hadoop_queues_config["default"] = {
+            "description": "Default virtual cluster.",
+            "weight": max(0, 100 - total_weight)
+        }
     #
     cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 
