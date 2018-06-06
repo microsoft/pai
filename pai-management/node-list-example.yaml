@@ -22,9 +22,9 @@ machine-list:
       hostip: 192.168.1.11
       machine-type: D8SV3
       etcdid: etcdid1
-      #sshport: PORT (Optional)
-      #username: username (Optional)
-      #password: password (Optional)
+      sshport: PORT
+      username: username
+      password: password
       k8s-role: master
       dashboard: "true"
       zkid: "1"
@@ -33,28 +33,8 @@ machine-list:
     - hostname: host2
       hostip: 192.168.1.12
       machine-type: NC24R
-      #sshport: PORT (Optional)
-      #username: username (Optional)
-      #password: password (Optional)
+      sshport: PORT
+      username: username
+      password: password
       k8s-role: worker
       pai-worker: "true"
-
-
-
-machinelist:
-
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    k8s-role: worker
-
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    k8s-role: worker
