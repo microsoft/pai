@@ -28,7 +28,7 @@ const validate = (schema) => {
     Joi.validate(req.body, schema, (err, value) => {
       if (err) {
         const errorType = 'ParameterValidationError';
-        const errorMessage = 'Could not validate request data.\n' + err.stack;
+        const errorMessage = 'Could not validate request data.';
         logger.warn('[%s] %s', errorType, errorMessage);
         return res.status(500).json({
           error: errorType,

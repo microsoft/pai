@@ -260,7 +260,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('ParameterValidationError');
+        global.chai.expect(res.body.message, 'response message').equal('Could not validate request data.');
         done();
       });
   });
@@ -274,7 +274,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('Submit job error: job job1 already exists.');
+        global.chai.expect(res.body.message, 'response message').equal('Submit job error: job job1 already exists.');
         done();
       });
   });
@@ -287,7 +287,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('Get job error: could not connect to launcher.');
+        global.chai.expect(res.body.message, 'response message').equal('Get job error: could not connect to launcher.');
         done();
       });
   });
