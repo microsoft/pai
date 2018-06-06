@@ -214,7 +214,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
         if filter_password == False:
             # TODO: We should change this behavior.
             # What if the password == result?
-            filter_password
+            filter_password = True
             logger.info("Filter the password from output.  password: {0}".format(response_msg.strip('\n')))
             continue
         result_stdout += response_msg
