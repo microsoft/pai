@@ -23,6 +23,7 @@ public class GlobalConstants {
   public static final String CONTAINER_IP_LIST_FILE = "ContainerIpList.ini";
   public static final String FRAMEWORK_INFO_FILE = "FrameworkInfo.json";
   public static final int USING_UNLIMITED_VALUE = -1;
+  public static final int USING_EXTENDED_UNLIMITED_VALUE = -2;
   public static final int USING_DEFAULT_VALUE = -2;
   public static final String LAUNCHER_APPLICATION_TYPE = "LAUNCHER";
   public static final String PACKAGE_APPLICATION_MASTER_FILE = "frameworklauncher-1.0-SNAPSHOT-jar-with-dependencies.jar";
