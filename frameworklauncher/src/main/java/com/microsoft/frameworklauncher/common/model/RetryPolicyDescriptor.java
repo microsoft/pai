@@ -22,20 +22,23 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-// If fancyRetryPolicy is enabled,
-//  will Retry for TransientFailure,
-//  will Not Retry for NonTransientFailure,
-//  will apply NormalRetryPolicy for UnKnownFailure.
-//
-// If fancyRetryPolicy is not enabled, will apply NormalRetryPolicy for all kinds of failures.
-// NormalRetryPolicy is defined as,
-//  will Retry and RetriedCount++ if maxRetryCount is equal to -1,
-//  will Retry and RetriedCount++ if RetriedCount is less than maxRetryCount,
-//  will Not Retry if all previous conditions are not satisfied.
+/**
+ * If FancyRetryPolicy is enabled,
+ *  will retry if exit due to transient failure,
+ *  will not retry if exit due to non-transient failure,
+ *  will apply NormalRetryPolicy if exit due to success or unknown failure,
+ *
+ * If FancyRetryPolicy is not enabled, will apply NormalRetryPolicy for all kinds of exits.
+ * NormalRetryPolicy is defined as,
+ *  will retry and retriedCount++ if maxRetryCount == -2,
+ *  will retry and retriedCount++ if exit due to failure and maxRetryCount == -1,
+ *  will retry and retriedCount++ if exit due to failure and retriedCount < maxRetryCount,
+ *  will not retry if all previous conditions are not satisfied.
+ */
 public class RetryPolicyDescriptor implements Serializable {
   @Valid
   @NotNull
-  @Min(-1)
+  @Min(-2)
   private Integer maxRetryCount = 0;
 
   @Valid

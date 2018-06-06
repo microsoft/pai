@@ -633,7 +633,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   public synchronized List<TaskStatus> getFailedTaskStatus() {
     List<TaskStatus> failedTaskStatuses = new ArrayList<>();
     for (TaskStatus taskStatus : getTaskStatus(TaskStateDefinition.FINAL_STATES)) {
-      if (taskStatus.getContainerExitCode() != ExitStatusKey.SUCCEEDED.toInt()) {
+      if (taskStatus.getContainerExitType() != ExitType.SUCCEEDED) {
         failedTaskStatuses.add(taskStatus);
       }
     }

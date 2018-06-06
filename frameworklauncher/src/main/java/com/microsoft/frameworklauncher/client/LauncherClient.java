@@ -17,6 +17,7 @@
 
 package com.microsoft.frameworklauncher.client;
 
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.LauncherClientException;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
@@ -272,7 +273,7 @@ public class LauncherClient {
 
       if (!shouldRetryFinalResult) {
         throw new LauncherClientException(msg, output, false);
-      } else if ((maxRetryCount != -1 && retriedCount >= maxRetryCount)) {
+      } else if (maxRetryCount != GlobalConstants.USING_UNLIMITED_VALUE && retriedCount >= maxRetryCount) {
         throw new LauncherClientException(msg, output, true);
       } else {
         if (retryIntervalSec > 0) {
