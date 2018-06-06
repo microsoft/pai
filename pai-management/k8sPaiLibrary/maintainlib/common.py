@@ -211,6 +211,8 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     result_stdout = ""
     for response_msg in stdout:
         if password + '\n' == response_msg:
+            print("detected")
+            print(password)
             continue
         result_stdout += response_msg
         print(response_msg.strip('\n'))
