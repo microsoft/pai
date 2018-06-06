@@ -213,7 +213,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
         print ("------msg-----")
         print (response_msg)
         print ("--------------")
-        if password + '\n' == response_msg:
+        if password + '\r\n' == response_msg:
             print("detected")
             print(password)
             continue
