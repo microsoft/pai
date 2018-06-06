@@ -1,4 +1,6 @@
 !!com.microsoft.frameworklauncher.common.model.LauncherStatus
+hadoopLibrarySupportsGpu: false
+hadoopLibrarySupportsPort: false
 launcherConfiguration:
   amAllowNoneGpuJobOnGpuNode: false
   amAttemptFailuresValidityIntervalSec: 0
@@ -51,3 +53,5 @@ launcherConfiguration:
   zkConnectString: testString
   zkRootDir: testString
 loggedInUser: {name: testString}
+serviceHost: testString
+serviceIp: testString
