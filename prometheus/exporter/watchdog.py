@@ -340,8 +340,12 @@ def main(argv):
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     loggerRoot.addHandler(ch) 
-    loggerRoot.info("Please view log trace:") 
-    loggerRoot.info("Log trace path {}/watchdog.log".format(logDir))
+    loggerRoot.info("k8s does not rotate log for container, Ref Link: https://kubernetes.io/docs/concepts/cluster-administration/logging/") 
+    loggerRoot.info("Watchdog container will output log to a log rotate file") 
+    loggerRoot.info("Rotate File Setting: ") 
+    loggerRoot.info("maxBytes= 1024 * 1024 * 100") 
+    loggerRoot.info("backupCount=5") 
+    loggerRoot.info("Log path {}/watchdog.log".format(logDir))
     
     while(True):
         try:
