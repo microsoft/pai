@@ -18,7 +18,6 @@
 // module dependencies
 const httpStatus = require('http-status');
 const Job = require('../models/job');
-const logger = require('../config/logger');
 
 /**
  * Load job and append to req.
@@ -26,10 +25,10 @@ const logger = require('../config/logger');
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
     if (error) {
-      if (error.message === 'JobNotFound') {
+      if (error.message === 'Could not find job.') {
         if (req.method !== 'PUT' && req.method !== 'POST') {
           error.status = httpStatus.NOT_FOUND;
-          error.message = `could not find job ${jobName}`;
+          error.message = `Get job error: could not find job ${jobName}.`;
           next(error);
         }
       } else {
@@ -38,7 +37,7 @@ const load = (req, res, next, jobName) => {
       }
     } else {
       if (req.method === 'PUT' && req.path === `/${jobName}` || req.method === 'POST' && req.path === '/') {
-        const error = new Error(`job already exists: '${jobName}'`);
+        const error = new Error(`Submit job error: job ${jobName} already exists.`);
         error.status = httpStatus.BAD_REQUEST;
         next(error);
       }
@@ -55,11 +54,11 @@ const list = (req, res, next) => {
   Job.prototype.getJobList(req._query, (jobList, err) => {
     if (err) {
       err.status = httpStatus.INTERNAL_SERVER_ERROR;
-      err.message = 'get job list error';
+      err.message = 'List job error: error occurs in getting job list.';
       next(err);
     } else if (jobList === undefined) {
       err.status = httpStatus.INTERNAL_SERVER_ERROR;
-      err.message = 'could not find job list';
+      err.message = 'List job error: get empty job list.';
       next(err);
     } else {
       return res.status(httpStatus.OK).json(jobList);
@@ -84,14 +83,13 @@ const update = (req, res, next) => {
   data.userName = req.user.username;
   Job.prototype.putJob(name, data, (err) => {
     if (err) {
-      logger.warn('update job %s error\n%s', name, err.stack);
       if (err.message === 'VirtualClusterNotFound') {
         err.status = httpStatus.INTERNAL_SERVER_ERROR;
-        err.message = `job update error: could not find virtual cluster ${data.virtualCluster}`;
+        err.message = `Update job error: could not find virtual cluster ${data.virtualCluster}.`;
         next(err);
       } else if (err.message === 'NoRightAccessVirtualCluster') {
         err.status = httpStatus.UNAUTHORIZED;
-        err.message = `job update error: no virtual cluster right to access ${data.virtualCluster}`;
+        err.message = `Update job error: no virtual cluster right to access ${data.virtualCluster}.`;
         next(err);
       } else {
         err.status = httpStatus.INTERNAL_SERVER_ERROR;
@@ -99,7 +97,7 @@ const update = (req, res, next) => {
       }
     } else {
       return res.status(httpStatus.ACCEPTED).json({
-        message: `update job ${name} successfully`,
+        message: `Update job ${name} successfully.`,
       });
     }
   });
@@ -114,11 +112,10 @@ const remove = (req, res, next) => {
   Job.prototype.deleteJob(req.job.name, req.body, (err) => {
     if (err) {
       err.status = httpStatus.FORBIDDEN;
-      err.message = 'job deleted error, cannot delete other user\'s job';
       next(err);
     } else {
       return res.status(httpStatus.ACCEPTED).json({
-        message: `deleted job ${req.job.name} successfully`,
+        message: `Delete job ${req.job.name} successfully.`,
       });
     }
   });
@@ -133,11 +130,10 @@ const execute = (req, res, next) => {
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
       err.status = httpStatus.INTERNAL_SERVER_ERROR;
-      err.message = err.message || 'job execute error';
       next(err);
     } else {
       return res.status(httpStatus.ACCEPTED).json({
-        message: `execute job ${req.job.name} successfully`,
+        message: `Execute job ${req.job.name} successfully.`,
       });
     }
   });

@@ -24,14 +24,13 @@ const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
-
 const Hdfs = require('../util/hdfs');
 
 class Job {
   constructor(name, next) {
     this.name = name;
     this.getJob(name, (jobDetail, error) => {
-      if (error === null) {
+      if (!error) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
         }
@@ -109,7 +108,7 @@ class Job {
       .end((requestRes) => {
         try {
           if (typeof requestRes.body === 'undefined') {
-            next(null, new Error('Can not connect to launcher'));
+            next(null, new Error('Get job error: could not connect to launcher.'));
           }
           const requestResJson =
             typeof requestRes.body === 'object' ?
@@ -118,9 +117,9 @@ class Job {
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
-            next(null, new Error('JobNotFound'));
+            next(null, new Error('Could not find job.'));
           } else {
-            next(null, new Error('can not get job list'));
+            next(null, new Error('Get job error.'));
           }
         } catch (error) {
           next(null, error);
@@ -178,7 +177,7 @@ class Job {
             .headers(launcherConfig.webserviceRequestHeaders)
             .end(() => next());
         } else {
-          next(new Error('can not delete other user\'s job'));
+          next(new Error('Delete job error: cannot delete other user\'s job.'));
         }
       });
   }
@@ -197,7 +196,7 @@ class Job {
             .send({'executionType': data.value})
             .end((res) => next());
         } else {
-          next(new Error('can not execute other user\'s job'));
+          next(new Error('Execute job error: cannot execute other user\'s job.'));
         }
       });
   }
