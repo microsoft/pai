@@ -210,7 +210,9 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
     for response_msg in stdout:
-        if password in response_msg:
+        res_msg = response_msg.replace('\n', '')
+        res_msg = res_msg.replace('\r', '')
+        if password == res_msg:
             # TODO: We should change this behavior.
             # What if the password == result?
             continue
