@@ -209,12 +209,13 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
+    filter_password = False
     for response_msg in stdout:
-        res_msg = response_msg.replace('\n', '')
-        res_msg = res_msg.replace('\r', '')
-        if password == res_msg:
+        if filter_password == False:
             # TODO: We should change this behavior.
             # What if the password == result?
+            filter_password
+            logger.info("Filter the password from output.  password: {0}".format(response_msg.strip('\n')))
             continue
         result_stdout += response_msg
         print(response_msg.strip('\n'))
