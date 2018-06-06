@@ -210,7 +210,6 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
     for response_msg in stdout:
-        print (response_msg)
         if password + '\n' == response_msg:
             continue
         result_stdout += response_msg
@@ -232,6 +231,8 @@ def get_user_dir(host_config):
         ret = result_stdout.encode('unicode-escape').decode('string_escape')
         ret = ret.replace('\n', '')
         ret = ret.replace('\r', '')
+        print (ret)
+        print (len(ret))
         return ret
 
     if str(host_config['username']) == "root":
