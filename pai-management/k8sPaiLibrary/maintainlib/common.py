@@ -188,11 +188,9 @@ def ssh_shell_paramiko(host_config, commandline):
 
 
 def ssh_shell_paramiko_with_result(host_config, commandline):
-
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
         return False
-
     username = str(host_config['username'])
     password = str(host_config['password'])
     port = 22
@@ -200,29 +198,18 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
         if port_validation(host_config['sshport']) == False:
             return (None, None)
         port = int(host_config['sshport'])
-
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=hostip, port=port, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    stdin.write(password + '\n')
-    stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
-    filter_password = False
     for response_msg in stdout:
-        if filter_password == False:
-            # TODO: We should change this behavior.
-            # What if the password == result?
-            filter_password = True
-            logger.info("Filter the password from output.  password: {0}".format(response_msg.strip('\n')))
-            continue
         result_stdout += response_msg
         print(response_msg.strip('\n'))
     result_stderr = ""
     for response_msg in stderr:
         result_stderr += response_msg
-
     ssh.close()
     return (result_stdout, result_stderr)
 
