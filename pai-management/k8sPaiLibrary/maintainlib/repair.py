@@ -25,6 +25,11 @@ import paramiko
 import common
 
 
+
+package_directory_repair = os.path.dirname(os.path.abspath(__file__))
+
+
+
 class repair:
 
     """
@@ -35,7 +40,8 @@ class repair:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/repair.yaml")
+        maintain_configuration_path = os.path.join(package_directory_repair, "../maintainconf/repair.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.jobname = "repair"
         self.clean_flag = clean
 

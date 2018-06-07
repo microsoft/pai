@@ -81,7 +81,8 @@ class paiObjectModel:
             if host["k8s-role"] == "master":
 
                 masterDict[host["hostname"]] = host
-                masterDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in masterDict[host["hostname"]]:
+                    masterDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     masterDict[host["hostname"]]["sshport"] = \
@@ -98,7 +99,8 @@ class paiObjectModel:
             if host["k8s-role"] == "worker":
 
                 workerDict[host["hostname"]] = host
-                workerDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in workerDict[host["hostname"]]:
+                    workerDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     workerDict[host["hostname"]]["sshport"] = \
@@ -115,7 +117,8 @@ class paiObjectModel:
             if host["k8s-role"] == "proxy":
 
                 proxyDict[host["hostname"]] = host
-                proxyDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in proxyDict[host["hostname"]]:
+                    proxyDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     proxyDict[host["hostname"]]["sshport"] = \

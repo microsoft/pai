@@ -28,6 +28,11 @@ import logging
 import logging.config
 
 
+
+package_directory_deploy = os.path.dirname(os.path.abspath(__file__))
+
+
+
 class deploy:
 
     """
@@ -41,7 +46,8 @@ class deploy:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/deploy.yaml")
+        maintain_configuration_path = os.path.join(package_directory_deploy, "../maintainconf/deploy.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
 
 
