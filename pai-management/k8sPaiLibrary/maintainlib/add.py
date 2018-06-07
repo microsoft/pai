@@ -91,17 +91,17 @@ class add:
             return
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format(self.jobname, self.node_config['hostip'])
-        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/docker-ce-install.sh".format(self.jobname)
-        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format(self.jobname)
-        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
             return
 
@@ -113,7 +113,7 @@ class add:
 
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
-        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
 

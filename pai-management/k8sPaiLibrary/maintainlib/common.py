@@ -178,7 +178,8 @@ def sftp_paramiko(src, dst, filename, host_config):
     return True
 
 
-
+# Support command with sudo? : No
+# Could you get the command result as the return value? : No
 def ssh_shell_paramiko(host_config, commandline):
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, commandline)
     if result_stdout is None or result_stderr is None:
@@ -186,7 +187,8 @@ def ssh_shell_paramiko(host_config, commandline):
     return True
 
 
-
+# Support command with sudo? : No
+# Could you get the command result as the return value? : Yes
 def ssh_shell_paramiko_with_result(host_config, commandline):
 
     hostip = str(host_config['hostip'])
@@ -218,8 +220,9 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     return (result_stdout, result_stderr)
 
 
-
-def ssh_shell_paramiko_sudo(host_config, commandline):
+# Support command with sudo? : Yes
+# Could you get the command result as the return value? : No
+def ssh_shell_with_password_input_paramiko(host_config, commandline):
 
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
