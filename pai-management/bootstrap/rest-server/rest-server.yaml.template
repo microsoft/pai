@@ -37,6 +37,8 @@ spec:
         securityContext:
           privileged: true
         env:
+        - name: NODE_ENV
+          value: development
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
         - name: HDFS_URI

@@ -29,8 +29,7 @@ RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
 
 WORKDIR /usr/src/app
 
-ENV NODE_ENV=production \
-    SERVER_PORT=8080
+ENV SERVER_PORT=8080
 
 COPY copied_file/rest-server/package.json .
 
