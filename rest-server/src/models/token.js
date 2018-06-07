@@ -19,16 +19,20 @@ const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
 
 const check = (username, password, callback) => {
-  userModel.db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
+  userModel.db.has(etcdConfig.userPath(username), null, (err, res) => {
     if (!res) {
-      callback(null, false, false);
+      callback(new Error('Authentication failed.'));
     } else {
-      userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (errMsg, res) => {
-        if (errMsg) {
-          callback(errMsg, false, false);
+      userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (err, res) => {
+        if (err) {
+          callback(err);
         } else {
-          userModel.encrypt(username, password, (errMsg, derivedKey) => {
-            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)) === 'true');
+          userModel.encrypt(username, password, (err, derivedKey) => {
+            if (derivedKey === res.get(etcdConfig.userPasswdPath(username))) {
+              callback(err, res.get(etcdConfig.userAdminPath(username)) === 'true');
+            } else {
+              callback(new Error('Authentication failed.'));
+            }
           });
         }
       });

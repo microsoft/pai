@@ -28,11 +28,10 @@ const get = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
-  tokenModel.check(username, password, (err, state, admin) => {
-    if (err || !state) {
-      const error = err || new Error('authentication failed');
-      error.status = httpStatus.UNAUTHORIZED;
-      next(error);
+  tokenModel.check(username, password, (err, admin) => {
+    if (err) {
+      err.status = httpStatus.UNAUTHORIZED;
+      next(err);
     } else {
       jwt.sign({
         username: username,
@@ -40,7 +39,6 @@ const get = (req, res, next) => {
       }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
         if (signError) {
           signError.status = httpStatus.INTERNAL_SERVER_ERROR;
-          signError.message = 'sign token failed';
           next(signError);
         }
         return res.status(httpStatus.OK).json({

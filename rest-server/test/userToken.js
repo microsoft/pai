@@ -103,7 +103,7 @@ describe('user token test: post /api/v1/token', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('authentication failed');
+        global.chai.expect(res.body.message, 'response message').equal('Authentication failed.');
         done();
       });
   });
@@ -116,7 +116,7 @@ describe('user token test: post /api/v1/token', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('authentication failed');
+        global.chai.expect(res.body.message, 'response message').equal('Authentication failed.');
         done();
       });
   });
