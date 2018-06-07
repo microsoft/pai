@@ -219,7 +219,7 @@ class etcdfix:
 
         commandline = "tar -xvf {0}.tar && sudo ./{0}/stop-etcd-server.sh".format("etcd-reconfiguration-stop")
 
-        if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(bad_node_config, commandline) == False:
             return
 
         self.logger.info("Successfully stoping bad etcd server on node {0}".format(bad_node_config["nodename"]))
@@ -245,7 +245,7 @@ class etcdfix:
 
         commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update", "update-etcd-cluster", bad_node_config['hostip'], bad_node_config['etcdid'] )
 
-        if common.ssh_shell_paramiko(good_node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
             return
 
         self.logger.info("Successfully update etcd cluster configuration on node {0}".format(bad_node_config["nodename"]))
@@ -276,7 +276,7 @@ class etcdfix:
 
         commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh".format("etcd-reconfiguration-restart", "restart-etcd-server")
 
-        if common.ssh_shell_paramiko(bad_node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(bad_node_config, commandline) == False:
             return
 
         self.logger.info("Successfully restarting bad etcd server on node {0}".format(bad_node_config["nodename"]))

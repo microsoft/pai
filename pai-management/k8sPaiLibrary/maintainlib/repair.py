@@ -67,7 +67,7 @@ class repair:
 
         commandline = "tar -xvf repair.tar && sudo ./repair/repair-worker-node.sh"
 
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
         print "Successfully running repair job on node {0}".format(self.node_config["nodename"])

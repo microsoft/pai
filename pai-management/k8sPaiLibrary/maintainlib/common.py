@@ -178,7 +178,8 @@ def sftp_paramiko(src, dst, filename, host_config):
     return True
 
 
-
+# Support command with sudo? : No
+# Could you get the command result as the return value? : No
 def ssh_shell_paramiko(host_config, commandline):
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, commandline)
     if result_stdout is None or result_stderr is None:
@@ -186,7 +187,8 @@ def ssh_shell_paramiko(host_config, commandline):
     return True
 
 
-
+# Support command with sudo? : No
+# Could you get the command result as the return value? : Yes
 def ssh_shell_paramiko_with_result(host_config, commandline):
     hostip = str(host_config['hostip'])
     if ipv4_address_validation(hostip) == False:
@@ -214,10 +216,40 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     return (result_stdout, result_stderr)
 
 
+# Support command with sudo? : Yes
+# Could you get the command result as the return value? : No
+def ssh_shell_with_password_input_paramiko(host_config, commandline):
+
+    hostip = str(host_config['hostip'])
+    if ipv4_address_validation(hostip) == False:
+        return False
+
+    username = str(host_config['username'])
+    password = str(host_config['password'])
+    port = 22
+    if 'sshport' in host_config:
+        if port_validation(host_config['sshport']) == False:
+            return False
+        port = int(host_config['sshport'])
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
+    stdin.write(password + '\n')
+    stdin.flush()
+    logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
+    for response_msg in stdout:
+        print (response_msg.strip('\n'))
+
+    ssh.close()
+    return True
+
+
 
 def get_user_dir(host_config):
 
-    cmd = "sudo getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
+    cmd = "getent passwd {0} | cut -d: -f6".format(str(host_config['username']))
     result_stdout, result_stderr = ssh_shell_paramiko_with_result(host_config, cmd)
     if result_stdout != None:
         ret = result_stdout.encode('unicode-escape').decode('string_escape')
