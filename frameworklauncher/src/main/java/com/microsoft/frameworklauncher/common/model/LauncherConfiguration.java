@@ -95,16 +95,15 @@ public class LauncherConfiguration implements Serializable {
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
   private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
 
-  // Small ports usually reserved for system usage,  the minimum port a job can use.
+  // The minimum port to allocate to container, since small ports are usually reserved.
   private Integer amContainerMinPort = 2000;
-  // the factor to enlarge the candidate nodes compare with the request.
+  // The factor to enlarge the candidate nodes compared with the outstanding container requests.
   private Integer amSearchNodeBufferFactor = 2;
-
-  // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
+  // If this feature is enabled, the resource already tried in previous tasks' allocation
+  // will be skipped in current scheduling.
   private Boolean amSkipLocalTriedResource = true;
-
-  // true: AM will allocate a none Gpu job into a node with Gpu resource.
-  // false: AM will not allocate a none Gpu job a node with Gpu resource.
+  // If this feature is enabled, the containers of a none Gpu job may be allocated on a
+  // node with Gpu resource.
   private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
   // WebServer Setup
