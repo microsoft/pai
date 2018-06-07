@@ -1,6 +1,6 @@
 {
     "jobName": "jupyter_example",
-    "image": "aiplatform/pai.build.base",
+    "image": "aiplatform/pai.run.tensorflow",
     "taskRoles": [
         {
             "name": "jupyter",
@@ -15,7 +15,7 @@
                     "portNumber": 1
                 }
             ],
-            "command": "python3 -m pip install -q jupyter && jupyter notebook --allow-root --no-browser --ip 0.0.0.0 --port=$PAI_CONTAINER_HOST_jupyter_PORT_LIST --NotebookApp.token=\"\" --NotebookApp.allow_origin=\"*\" --NotebookApp.base_url=\"/jupyter\""
+            "command": "python3 -m pip install -q jupyter matplotlib && wget -O mnist.ipynb https://raw.githubusercontent.com/ianlewis/tensorflow-examples/master/notebooks/TensorFlow%20MNIST%20tutorial.ipynb && jupyter notebook --allow-root --no-browser --ip 0.0.0.0 --port=$PAI_CONTAINER_HOST_jupyter_PORT_LIST --NotebookApp.token=\"\" --NotebookApp.allow_origin=\"*\" --NotebookApp.base_url=\"/jupyter\""
         }
     ]
 }
