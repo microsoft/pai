@@ -84,15 +84,14 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
 
 def generate_secret_base64code(docker_info):
 
-    domain = str(docker_info[ "docker_registry_domain" ])
-    username = str(docker_info[ "docker_username" ])
-    passwd = str(docker_info[ "docker_password" ])
+    domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
+    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
 
     if domain == "public":
         domain = ""
 
-    if docker_info["docker_username"] is not None and \
-        docker_info["docker_password"] is not None:
+    if username and passwd:
         login_docker_registry( domain, username, passwd )
 
         base64code = linux_shell.execute_shell_with_output(
@@ -110,8 +109,8 @@ def generate_secret_base64code(docker_info):
 
 def generate_docker_credential(docker_info):
 
-    username = str(docker_info[ "docker_username" ])
-    passwd = str(docker_info[ "docker_password" ])
+    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
 
     if username and passwd:
         credential = linux_shell.execute_shell_with_output(
