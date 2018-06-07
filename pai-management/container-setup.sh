@@ -18,10 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pip uninstall requests
+echo y
 pip install requests
+echo y
 pip uninstall docopt
+echo y
 pip install docopt
-
+echo y
 
 cp -r /docker/* /usr/bin/
 
