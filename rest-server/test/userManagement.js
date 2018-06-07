@@ -790,55 +790,55 @@ describe('get user info list : get /api/v1/user', () => {
     nock(etcdHosts)
       .get('/v2/keys/users?recursive=true')
       .reply(200, {
-        "action": "get",
-        "node": {
-          "key": "/users",
-          "dir": true,
-          "nodes": [{
-            "key": "/users/admin",
-            "dir": true,
-            "nodes": [{
-              "key": "/users/admin/passwd",
-              "value": "pass1",
-              "modifiedIndex": 6,
-              "createdIndex": 6
+        'action': 'get',
+        'node': {
+          'key': '/users',
+          'dir': true,
+          'nodes': [{
+            'key': '/users/admin',
+            'dir': true,
+            'nodes': [{
+              'key': '/users/admin/passwd',
+              'value': 'pass1',
+              'modifiedIndex': 6,
+              'createdIndex': 6
             }, {
-              "key": "/users/admin/admin",
-              "value": "true",
-              "modifiedIndex": 7,
-              "createdIndex": 7
+              'key': '/users/admin/admin',
+              'value': 'true',
+              'modifiedIndex': 7,
+              'createdIndex': 7
             }, {
-              "key": "/users/admin/virtualClusters",
-              "value": "default,vc1,vc2,vc3",
-              "modifiedIndex": 8,
-              "createdIndex": 8
+              'key': '/users/admin/virtualClusters',
+              'value': 'default,vc1,vc2,vc3',
+              'modifiedIndex': 8,
+              'createdIndex': 8
             }],
-            "modifiedIndex": 5,
-            "createdIndex": 5
+            'modifiedIndex': 5,
+            'createdIndex': 5
           }, {
-            "key": "/users/test_user",
-            "dir": true,
-            "nodes": [{
-              "key": "/users/test_user/passwd",
-              "value": "pass2",
-              "modifiedIndex": 10,
-              "createdIndex": 10
+            'key': '/users/test_user',
+            'dir': true,
+            'nodes': [{
+              'key': '/users/test_user/passwd',
+              'value': 'pass2',
+              'modifiedIndex': 10,
+              'createdIndex': 10
             }, {
-              "key": "/users/test_user/admin",
-              "value": "false",
-              "modifiedIndex": 11,
-              "createdIndex": 11
+              'key': '/users/test_user/admin',
+              'value': 'false',
+              'modifiedIndex': 11,
+              'createdIndex': 11
             }, {
-              "key": "/users/test_user/virtualClusters",
-              "value": "default",
-              "modifiedIndex": 12,
-              "createdIndex": 12
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default',
+              'modifiedIndex': 12,
+              'createdIndex': 12
             }],
-            "modifiedIndex": 9,
-            "createdIndex": 9
+            'modifiedIndex': 9,
+            'createdIndex': 9
           }],
-          "modifiedIndex": 4,
-          "createdIndex": 4
+          'modifiedIndex': 4,
+          'createdIndex': 4
         }});
 
 
@@ -856,7 +856,7 @@ describe('get user info list : get /api/v1/user', () => {
   // // Positive cases
   // //
 
-  it('Case 1 (Positive): should get user info successfully with valid token', (done) => {
+  it('Case 1 (Positive): should get user info successfully with admin valid token', (done) => {
     global.chai.request(global.server)
       .get('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
@@ -873,18 +873,17 @@ describe('get user info list : get /api/v1/user', () => {
   // Negative cases
   //
 
-  // it('Case 1 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
-  //   global.chai.request(global.server)
-  //     .put('/api/v1/user/test_invalid_vc_user/virtualClusters')
-  //     .set('Authorization', 'Bearer ' + validToken)
-  //     .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
-  //     .end((err, res) => {
-  //       global.chai.expect(res, 'status code').to.have.status(500);
-  //       global.chai.expect(res, 'response format').be.json;
-  //       global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find virtual cluster non_exist_vc');
-  //       done();
-  //     });
-  // });
+  it('Case 1 (Negative): should fail to get user list with non-admin token', (done) => {
+    global.chai.request(global.server)
+      .get('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        done();
+      });
+  });
 
 });
 

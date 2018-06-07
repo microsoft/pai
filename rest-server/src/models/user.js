@@ -227,18 +227,17 @@ const getUserList = (next) => {
       next(new Error('UserListNotFound'), null);
     } else {
       const userInfoList = [];
-      res.forEach((value,key) => {
-        if (value === undefined && key !== etcdConfig.storagePath())
-        {
-            let userName = key.replace(etcdConfig.storagePath() + '/','');
-            userInfoList.push({
-              username: userName,
-              admin:res.get(etcdConfig.userAdminPath(userName)),
-              virtualCluster:res.get(etcdConfig.userVirtualClusterPath(userName))
-            })
+      res.forEach((value, key) => {
+        if (value === undefined && key !== etcdConfig.storagePath()) {
+          let userName = key.replace(etcdConfig.storagePath() + '/', '');
+          userInfoList.push({
+            username: userName,
+            admin: res.get(etcdConfig.userAdminPath(userName)),
+            virtualCluster: res.get(etcdConfig.userVirtualClusterPath(userName)),
+          });
         }
       });
-      next(null,userInfoList);
+      next(null, userInfoList);
     }
   });
 };
@@ -275,11 +274,11 @@ if (config.env !== 'test') {
       logger.info('base storage path exists');
       getUserList((errMsg, res) => {
         if (errMsg) {
-          logger.warn("get user list failed");
+          logger.warn('get user list failed');
         } else {
           logger.warn(res);
         }
-      })
+      });
     }
   });
 }

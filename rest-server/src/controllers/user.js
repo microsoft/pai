@@ -118,7 +118,7 @@ const updateUserVc = (req, res) => {
  */
 const getUserList = (req, res) => {
   if (req.user.admin) {
-    userModel.getUserList((err,userList) => {
+    userModel.getUserList((err, userList) => {
       if (err) {
         logger.warn('get user info list Error');
         return res.status(500).json({
@@ -128,7 +128,7 @@ const getUserList = (req, res) => {
       } else {
         return res.status(200).json(userList);
       }
-    })
+    });
   } else {
     return res.status(401).json({
       error: 'NotAuthorized',
