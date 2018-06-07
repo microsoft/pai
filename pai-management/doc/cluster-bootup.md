@@ -80,7 +80,7 @@ ssh-password: pai-admin-password
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
 ```
-paictl.py cluster start-kubernetes \
+paictl.py cluster k8s-bootup \
   -p /path/to/cluster-configuraiton/dir
 ```
 
