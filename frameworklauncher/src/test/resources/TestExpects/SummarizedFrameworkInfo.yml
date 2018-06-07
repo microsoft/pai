@@ -5,8 +5,8 @@ firstRequestTimestamp: 0
 frameworkCompletedTimestamp: 0
 frameworkDescription: testString
 frameworkName: testString
-frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, transientConflictRetriedCount: 0,
-  transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
+frameworkRetryPolicyState: {nonTransientRetriedCount: 0, retriedCount: 0, succeededRetriedCount: 0,
+  transientConflictRetriedCount: 0, transientNormalRetriedCount: 0, unKnownRetriedCount: 0}
 frameworkState: null
 frameworkVersion: 0
 lastRequestTimestamp: 0

@@ -20,11 +20,13 @@ package com.microsoft.frameworklauncher.common.model;
 import java.io.Serializable;
 
 public class RetryPolicyState implements Serializable {
-  // If FancyRetryPolicy is enabled, it is the RetriedCount for UnKnownFailure, i.e. UnKnownFailureCount.
-  // Otherwise, it is the RetriedCount for all kinds of failures.
+  // retriedCount is to be compared against maxRetryCount, see RetryPolicyDescriptor.
+  // If FancyRetryPolicy is enabled, it is the RetriedCount for exit due to success or unknown failure.
+  // Otherwise, it is the RetriedCount for all kinds of exits.
   private Integer retriedCount = 0;
 
   // Below counters are available even if FancyRetryPolicy is not enabled.
+  private Integer succeededRetriedCount = 0;
   private Integer transientNormalRetriedCount = 0;
   private Integer transientConflictRetriedCount = 0;
   private Integer nonTransientRetriedCount = 0;
@@ -36,6 +38,14 @@ public class RetryPolicyState implements Serializable {
 
   public void setRetriedCount(Integer retriedCount) {
     this.retriedCount = retriedCount;
+  }
+
+  public Integer getSucceededRetriedCount() {
+    return succeededRetriedCount;
+  }
+
+  public void setSucceededRetriedCount(Integer succeededRetriedCount) {
+    this.succeededRetriedCount = succeededRetriedCount;
   }
 
   public Integer getTransientNormalRetriedCount() {

@@ -78,7 +78,7 @@ class remove:
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
         src_local = "parcel-center/{0}".format(self.node_config["nodename"])
-        dst_remote = "/home/{0}".format(self.node_config["username"])
+        dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
             return
@@ -89,7 +89,7 @@ class remove:
             return
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
             return
 
@@ -101,7 +101,7 @@ class remove:
 
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
 

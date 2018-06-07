@@ -17,15 +17,28 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-# Microsoft FrameworkLauncher User Manual
+# <a name="User_Manual">Microsoft FrameworkLauncher User Manual</a>
+
+## <a name="Index">Index</a>
+   - [Concepts](#Concepts)
+   - [Quick Start](#Quick_Start)
+   - [Architecture](#Architecture)
+   - [Pipeline](#Pipeline)
+   - [Configuration](#Configuration)
+   - [RestAPI](#RestAPI)
+   - [DataModel and FeatureUsage](#DataModel_and_FeatureUsage)
+   - [EnvironmentVariables](#EnvironmentVariables)
+   - [HDFS Published Informations](#HDFS_Published_Informations)
+   - [ExitStatus Convention](#ExitStatus_Convention)
+   - [Framework ACL](#Framework_ACL)
+   - [Best Practices](#Best_Practices)
 
 ## <a name="Concepts">Concepts</a>
-
 * Different **TaskRoles** compose a **Framework**
 * Same **Tasks** compose a **TaskRole**
 * A **User Service** executed by all **Tasks** in a **TaskRole**
 
-## <a name="QuickStart">Quick Start</a>
+## <a name="Quick_Start">Quick Start</a>
 1. **Prepare Framework**
     1. **Upload Framework Executable to HDFS**
 
@@ -50,7 +63,7 @@
 
     *See [README](../README.md) to Start Launcher Service*
 
-    *See [Root URI](#RootURI) to get {LauncherAddress}*
+    *See [Root URI](#RestAPI_Root_URI) to get {LauncherAddress}*
 
     HTTP PUT the Framework Description File as json to:
 
@@ -98,29 +111,29 @@ Launcher Service can be configured by [LauncherConfiguration](../src/main/java/c
 And we also provide a default configuration for you to refer: [Default LauncherConfiguration File](../conf/frameworklauncher.yml).
 
 ## <a name="RestAPI">RestAPI</a>
-### <a name="Guarantees">Guarantees</a>
+### <a name="RestAPI_Guarantees">Guarantees</a>
 * All APIs are IDEMPOTENT and STATELESS, to allowed trivial Work Preserving Client Restart.
 In other words, User do not need to worry about call one API multiple times by different Client instance (such as Client Restart, etc).
 * All APIs are DISTRIBUTED THREAD SAFE, to allow multiple distributed Client instances to access.
 In other words, User do not need to worry about call them at the same time in Multiple Threads/Processes/Nodes.
 
-### <a name="BestPractices">Best Practices</a>
+### <a name="RestAPI_Best_Practices">Best Practices</a>
 * LauncherService can only handle a finite, limited request volume. User should try to minimize its overall request frequency and payload, so that the LauncherService is not overloaded. To achieve this, User can centralize requests, space out requests, filter respond and so on. Moreover, to get informations in a more scalable way than RestAPI, see [HDFS Published Informations](#HDFS_Published_Informations).
 * Completed Frameworks will ONLY be retained in recent FrameworkCompletedRetainSec, in case Client miss to delete the Framework after FrameworkCompleted. One exclusion is the Framework Launched by DataDeployment, it will be retained until the corresponding FrameworkDescriptionFile deleted in the DataDeployment. To avoid missing the CompletedFrameworkStatus, the polling interval seconds of Client should be less than FrameworkCompletedRetainSec. Check the frameworkCompletedRetainSec by [GET LauncherStatus](#GET_LauncherStatus).
 
-### <a name="RootURI">Root URI (LauncherAddress)</a>
+### <a name="RestAPI_Root_URI">Root URI</a>
 
 Configure it as webServerAddress inside [LauncherConfiguration File](../conf/frameworklauncher.yml).
 
-### <a name="Types">Types</a>
-* Refer [Data Model](#DataModel) for the Type of HTTP Request and Response.
+### <a name="RestAPI_Types">Types</a>
+* Refer [DataModel and FeatureUsage](#DataModel_and_FeatureUsage) for the Type of HTTP Request and Response.
 
-### <a name="Common_Request_Headers">Common Request Headers</a>
+### <a name="RestAPI_Common_Request_Headers">Common Request Headers</a>
 | Headers | Description |
 |:---- |:---- |
 | UserName | Specifies which User send the Request. It is effective iff webServerAclEnable is true, see [Framework ACL](#Framework_ACL). |
 
-### <a name="APIDetails">API Details</a>
+### <a name="RestAPI_API_Details">API Details</a>
 #### <a name="PUT_Framework">PUT Framework</a>
 **Request**
 
@@ -543,14 +556,12 @@ Get the AclConfiguration
 | ServiceUnavailable(503) | ExceptionMessage | Same as [PUT Framework](#PUT_Framework) |
 
 
-## <a name="DataModel">DataModel</a>
-You can check the Type, Specification and FeatureUsage inside Launcher Data Model:
-
-    ../src/main/java/com/microsoft/frameworklauncher/common/model/*
+## <a name="DataModel_and_FeatureUsage">DataModel and FeatureUsage</a>
+You can check the Type, Specification and FeatureUsage inside [Launcher Data Model](../src/main/java/com/microsoft/frameworklauncher/common/model).
 
 For example:
 
-A Framework is Defined and Requested by FrameworkDescriptor data structure. To find the feature usage inside FrameworkDescriptor, you can refer the comment inside [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java).
+A Framework is Defined and Requested by FrameworkDescriptor data structure. To find the FeatureUsage inside FrameworkDescriptor, you can refer the comments inside [FrameworkDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/FrameworkDescriptor.java).
 
 
 ## <a name="EnvironmentVariables">EnvironmentVariables</a>
@@ -602,7 +613,7 @@ Notes:
 
 Check the hdfsRootDir by [GET LauncherStatus](#GET_LauncherStatus).
 
-### <a name="FileDetails">File Details</a>
+### <a name="File_Details">File Details</a>
 #### <a name="FrameworkInfo_File">FrameworkInfo File</a>
 **HDFS Path**
 
@@ -718,13 +729,13 @@ For example:
         EntryPoint=HbaseRS.zip/start.bat
         SourceLocations=hdfs:///HbaseRS.zip, hdfs:///HbaseCom <- HbaseRS.zip is a ZIP file
 
-    The two Sources HbaseRS.zip and HbaseCom will be downloaded (and uncompressed) to local machine as below structure:
+    The two Sources HbaseRS.zip and HbaseCom will be downloaded (and uncompressed) to local node as below structure:
 
         ./   <- The Initial Working Directory
         ├─HbaseRS.zip <- Service Directory <- HbaseRS.zip is a directory uncompressed from original ZIP file
         └─HbaseCom <- Service Directory
 
-2. Launcher will not restart the succeeded Task (i.e. the process started by EntryPoint ends with exit code 0) in any RetryPolicy. So, if you want to always restart Service on the same machine irrespective of its exit code, you need to **warp the original EntryPoint** by another script, such as:
+2. Launcher may restart the exited Service on another node even if the original node is free and healthy. So, if you want to always restart the exited Service on the same node, you need to **warp the original EntryPoint** by another script, such as:
 
         while true; do
             # call the original EntryPoint
