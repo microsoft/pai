@@ -695,44 +695,29 @@ public class Service extends AbstractService {
       return;
     }
 
+    RetryPolicyDescriptor retryPolicy = frameworkRequest.getFrameworkDescriptor().getRetryPolicy();
+    Boolean fancyRetryPolicy = retryPolicy.getFancyRetryPolicy();
+    Integer maxRetryCount = retryPolicy.getMaxRetryCount();
+
     LOGGER.logSplittedLines(Level.INFO,
         logPrefix + "ApplicationExitCode: [%s], ApplicationExitType: [%s], RetryPolicyState:\n[%s]",
         exitCode, exitType, WebCommon.toJson(newRetryPolicyState));
 
-    // 1. ApplicationSucceeded
-    if (exitCode == ExitStatusKey.SUCCEEDED.toInt()) {
-      LOGGER.logInfo(logPrefix +
-          "Will completeFramework with FrameworkSucceeded. Reason: " +
-          "ApplicationExitCode = %s.", exitCode);
-
-      completeFramework(frameworkStatus);
-      return;
-    }
-
-    // 2. ApplicationFailed
-    RetryPolicyDescriptor retryPolicy = frameworkRequest.getFrameworkDescriptor().getRetryPolicy();
-    String completeFrameworkLogPrefix = logPrefix + "Will completeFramework with ApplicationFailed. Reason: ";
+    String completeFrameworkLogPrefix = logPrefix + "Will completeFramework. Reason: ";
     String retryFrameworkLogPrefix = logPrefix + "Will retryFramework with new Application. Reason: ";
 
-    // 2.1. FancyRetryPolicy
-    String fancyRetryPolicyLogSuffix = String.format("FancyRetryPolicy: %s Failure Occurred.", exitType);
-    if (exitType == ExitType.NON_TRANSIENT) {
-      newRetryPolicyState.setNonTransientRetriedCount(newRetryPolicyState.getNonTransientRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
-        LOGGER.logWarning(completeFrameworkLogPrefix + fancyRetryPolicyLogSuffix);
-        completeFramework(frameworkStatus);
-        return;
-      }
-    } else if (exitType == ExitType.TRANSIENT_NORMAL) {
+    // 1. FancyRetryPolicy
+    String fancyRetryPolicyLogSuffix = String.format("FancyRetryPolicy: Framework exited due to %s.", exitType);
+    if (exitType == ExitType.TRANSIENT_NORMAL) {
       newRetryPolicyState.setTransientNormalRetriedCount(newRetryPolicyState.getTransientNormalRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
+      if (fancyRetryPolicy) {
         LOGGER.logWarning(retryFrameworkLogPrefix + fancyRetryPolicyLogSuffix);
         retryFramework(frameworkStatus, newRetryPolicyState);
         return;
       }
     } else if (exitType == ExitType.TRANSIENT_CONFLICT) {
       newRetryPolicyState.setTransientConflictRetriedCount(newRetryPolicyState.getTransientConflictRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
+      if (fancyRetryPolicy) {
         int delaySec = RetryUtils.calcRandomBackoffDelay(
             transientConflictRetriedCount,
             conf.getApplicationTransientConflictMinDelaySec(),
@@ -748,34 +733,52 @@ public class Service extends AbstractService {
         }, delaySec * 1000);
         return;
       }
+    } else if (exitType == ExitType.NON_TRANSIENT) {
+      newRetryPolicyState.setNonTransientRetriedCount(newRetryPolicyState.getNonTransientRetriedCount() + 1);
+      if (fancyRetryPolicy) {
+        LOGGER.logWarning(completeFrameworkLogPrefix + fancyRetryPolicyLogSuffix);
+        completeFramework(frameworkStatus);
+        return;
+      }
     } else {
-      newRetryPolicyState.setUnKnownRetriedCount(newRetryPolicyState.getUnKnownRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
-        // FancyRetryPolicy only handle Transient and NON_TRANSIENT Failure specially,
-        // Leave UNKNOWN Failure to NormalRetryPolicy
+      if (exitType == ExitType.SUCCEEDED) {
+        newRetryPolicyState.setSucceededRetriedCount(newRetryPolicyState.getSucceededRetriedCount() + 1);
+      } else {
+        newRetryPolicyState.setUnKnownRetriedCount(newRetryPolicyState.getUnKnownRetriedCount() + 1);
+      }
+      if (fancyRetryPolicy) {
+        // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
+        // Leave exit due to others to NormalRetryPolicy
         LOGGER.logWarning(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
     }
 
-    // 2.2. NormalRetryPolicy
-    if (retryPolicy.getMaxRetryCount() != GlobalConstants.USING_UNLIMITED_VALUE &&
-        retriedCount >= retryPolicy.getMaxRetryCount()) {
-      LOGGER.logWarning(completeFrameworkLogPrefix +
-              "RetriedCount %s has reached MaxRetryCount %s.",
-          retriedCount, retryPolicy.getMaxRetryCount());
-
-      completeFramework(frameworkStatus);
-      return;
-    } else {
+    // 2. NormalRetryPolicy
+    if (maxRetryCount == GlobalConstants.USING_EXTENDED_UNLIMITED_VALUE ||
+        (exitType != ExitType.SUCCEEDED && maxRetryCount == GlobalConstants.USING_UNLIMITED_VALUE) ||
+        (exitType != ExitType.SUCCEEDED && retriedCount < maxRetryCount)) {
       newRetryPolicyState.setRetriedCount(newRetryPolicyState.getRetriedCount() + 1);
 
       LOGGER.logWarning(retryFrameworkLogPrefix +
               "RetriedCount %s has not reached MaxRetryCount %s.",
-          retriedCount, retryPolicy.getMaxRetryCount());
+          retriedCount, maxRetryCount);
       retryFramework(frameworkStatus, newRetryPolicyState);
       return;
+    } else {
+      if (exitType == ExitType.SUCCEEDED) {
+        LOGGER.logWarning(completeFrameworkLogPrefix +
+            "Framework exited due to %s.", exitType);
+        completeFramework(frameworkStatus);
+        return;
+      } else {
+        LOGGER.logWarning(completeFrameworkLogPrefix +
+                "RetriedCount %s has reached MaxRetryCount %s.",
+            retriedCount, maxRetryCount);
+        completeFramework(frameworkStatus);
+        return;
+      }
     }
   }
 

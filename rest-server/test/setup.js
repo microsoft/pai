@@ -91,6 +91,7 @@ global.frameworkDetailTemplate = JSON.stringify({
     'frameworkStatus': {
       'frameworkRetryPolicyState': {
         'retriedCount': 0,
+        'succeededRetriedCount': 0,
         'transientNormalRetriedCount': 0,
         'transientConflictRetriedCount': 0,
         'nonTransientRetriedCount': 0,

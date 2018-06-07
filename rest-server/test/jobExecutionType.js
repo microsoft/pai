@@ -37,6 +37,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
           'name': 'test',
           'frameworkState': 'APPLICATION_RUNNING',
           'frameworkRetryPolicyState': {
+            'succeededRetriedCount': 0,
             'transientNormalRetriedCount': 0,
             'transientConflictRetriedCount': 0,
             'nonTransientRetriedCount': 0,

@@ -17,31 +17,43 @@
 
 
 // module dependencies
-const Joi = require('joi');
+const param = require('./parameter');
 const logger = require('../config/logger');
+const jobConfig = require('../config/job');
 
-/**
- * Validate parameters.
- */
-const validate = (schema) => {
-  return (req, res, next) => {
-    Joi.validate(req.body, schema, (err, value) => {
-      if (err) {
-        const errorType = 'ParameterValidationError';
-        const errorMessage = 'Could not validate request data.\n' + err.stack;
-        logger.warn('[%s] %s', errorType, errorMessage);
-        return res.status(500).json({
-          error: errorType,
-          message: errorMessage,
-        });
-      } else {
-        req.originalBody = req.body;
-        req.body = value;
-        next();
-      }
+
+const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
+  let tasksNumber = 0;
+  for (let i = 0; i < req.body.taskRoles.length; i ++) {
+    tasksNumber += req.body.taskRoles[i].taskNumber;
+  }
+  const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
+  if (killAllOnCompletedTaskNumber > tasksNumber) {
+    const errorType = 'ParameterValidationError';
+    const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
+    logger.warn('[%s] %s', errorType, errorMessage);
+    return res.status(500).json({
+      error: errorType,
+      message: errorMessage,
     });
-  };
+  } else {
+    next();
+  }
+};
+
+const submission = [
+  param.validate(jobConfig.schema),
+  checkKillAllOnCompletedTaskNumber,
+];
+
+const query = (req, res, next) => {
+  const query = {};
+  if (req.query.username) {
+    query.username = req.query.username;
+  }
+  req._query = query;
+  next();
 };
 
 // module exports
-module.exports = {validate};
+module.exports = {submission, query};

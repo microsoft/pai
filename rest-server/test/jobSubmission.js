@@ -308,7 +308,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
   });
 
   it('[N-06] Failed to submit a job to no access right virtual cluster.', (done) => {
-    prepareNockForCaseN06('new_job_vc_no_right')
+    prepareNockForCaseN06('new_job_vc_no_right');
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -317,6 +317,21 @@ describe('Submit job: POST /api/v1/jobs', () => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');
+        done();
+      });
+  });
+
+  it('[N-07] killAllOnCompletedTaskNumber is greater than tasks number.', (done) => {
+    const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_killAllOnCompletedTaskNumber'}));
+    jobConfig.killAllOnCompletedTaskNumber = 2;
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(jobConfig)
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('killAllOnCompletedTaskNumber should not be greater than tasks number.');
         done();
       });
   });
