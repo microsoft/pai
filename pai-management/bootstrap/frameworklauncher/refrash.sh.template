@@ -24,7 +24,7 @@ echo "Refrash the configmap of launcher"
 kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "Relabel the node with laucher tag"
-sh node-label.sh
+/bin/bash node-label.sh
 
 {% for host in machinelist %}
 

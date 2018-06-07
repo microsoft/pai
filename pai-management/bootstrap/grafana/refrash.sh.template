@@ -23,7 +23,7 @@ echo "refrash grafana-configuration"
 kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "relabel the node label"
-sh node-label.sh
+/bin/bash node-label.sh
 
 {% for host in machinelist %}
 

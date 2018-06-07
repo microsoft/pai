@@ -25,7 +25,7 @@ echo "refrash prometheus configuration"
 kubectl apply -f prometheus-configmap.yaml
 
 echo "relabel node's label"
-sh node-label.sh
+/bin/bash node-label.sh
 
 {% for host in machinelist %}
 

@@ -24,7 +24,7 @@ echo "refrash hadoop-configuration"
 kubectl create configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }} --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "relabel the node label"
-sh node-label.sh
+/bin/bash node-label.sh
 
 
 {% for host in machinelist %}
