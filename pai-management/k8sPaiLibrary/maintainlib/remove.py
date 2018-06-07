@@ -83,7 +83,7 @@ class remove:
             return
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
             return
 
@@ -95,7 +95,7 @@ class remove:
 
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_paramiko_sudo(self.node_config, commandline) == False:
             return
 
 
