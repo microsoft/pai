@@ -35,6 +35,7 @@ describe('Jobs API /api/v1/jobs', () => {
         'username': 'test1',
         'frameworkState': 'FRAMEWORK_COMPLETED',
         'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
           'transientNormalRetriedCount': 0,
           'transientConflictRetriedCount': 0,
           'nonTransientRetriedCount': 0,
@@ -50,6 +51,7 @@ describe('Jobs API /api/v1/jobs', () => {
         'username': 'test2',
         'frameworkState': 'FRAMEWORK_COMPLETED',
         'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
           'transientNormalRetriedCount': 1,
           'transientConflictRetriedCount': 2,
           'nonTransientRetriedCount': 3,

@@ -82,7 +82,7 @@ class Job {
             res.body : JSON.parse(res.body);
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
-            ['transientNormalRetriedCount', 'transientConflictRetriedCount',
+            ['succeededRetriedCount', 'transientNormalRetriedCount', 'transientConflictRetriedCount',
               'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
                 retries += frameworkInfo.frameworkRetryPolicyState[retry];
               });
@@ -268,6 +268,7 @@ class Job {
       let jobRetryCount = 0;
       const jobRetryCountInfo = frameworkStatus.frameworkRetryPolicyState;
       jobRetryCount =
+        jobRetryCountInfo.succeededRetriedCount +
         jobRetryCountInfo.transientNormalRetriedCount +
         jobRetryCountInfo.transientConflictRetriedCount +
         jobRetryCountInfo.nonTransientRetriedCount +
