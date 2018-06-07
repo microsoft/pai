@@ -30,7 +30,9 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(tokenConfig.check, jobParam.submission, jobController.init, jobController.update);
+    .post(tokenConfig.check, jobParam.submission, (req, res, next) => {
+      jobController.load(req, res, next, req.body.jobName);
+    }, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */

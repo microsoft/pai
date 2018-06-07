@@ -18,7 +18,7 @@
 
 // module dependencies
 const param = require('./parameter');
-const logger = require('../config/logger');
+const httpStatus = require('http-status');
 const jobConfig = require('../config/job');
 
 
@@ -29,13 +29,10 @@ const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
   }
   const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
   if (killAllOnCompletedTaskNumber > tasksNumber) {
-    const errorType = 'ParameterValidationError';
-    const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
-    logger.warn('[%s] %s', errorType, errorMessage);
-    return res.status(500).json({
-      error: errorType,
-      message: errorMessage,
-    });
+    const err = new Error('Could not validate request data: ' +
+      'killAllOnCompletedTaskNumber should not be greater than tasks number.');
+    err.status = httpStatus.INTERNAL_SERVER_ERROR;
+    next(err);
   } else {
     next();
   }

@@ -17,37 +17,33 @@
 
 // module dependencies
 const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
 const tokenConfig = require('../config/token');
 const tokenModel = require('../models/token');
-const logger = require('../config/logger');
 
 /**
  * Get the token.
  */
-const get = (req, res) => {
+const get = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
   tokenModel.check(username, password, (err, state, admin) => {
     if (err || !state) {
-      logger.warn('user %s authentication failed', username);
-      return res.status(401).json({
-        error: 'AuthenticationFailed',
-        message: 'authentication failed',
-      });
+      const error = err || new Error('authentication failed');
+      error.status = httpStatus.UNAUTHORIZED;
+      next(error);
     } else {
       jwt.sign({
         username: username,
         admin: admin,
       }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
         if (signError) {
-          logger.warn('sign token error\n%s', signError.stack);
-          return res.status(500).json({
-            error: 'SignTokenFailed',
-            message: 'sign token failed',
-          });
+          signError.status = httpStatus.INTERNAL_SERVER_ERROR;
+          signError.message = 'sign token failed';
+          next(signError);
         }
-        return res.status(200).json({
+        return res.status(httpStatus.OK).json({
           user: username,
           token: token,
           admin: admin,

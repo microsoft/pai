@@ -24,14 +24,13 @@ const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
-
 const Hdfs = require('../util/hdfs');
 
 class Job {
   constructor(name, next) {
     this.name = name;
     this.getJob(name, (jobDetail, error) => {
-      if (error === null) {
+      if (!error) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
         }
@@ -77,33 +76,29 @@ class Job {
     unirest.get(reqPath)
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((res) => {
-        try {
-          const resJson = typeof res.body === 'object' ?
-            res.body : JSON.parse(res.body);
-          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
-            let retries = 0;
-            ['transientNormalRetriedCount', 'transientConflictRetriedCount',
-              'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
-                retries += frameworkInfo.frameworkRetryPolicyState[retry];
-              });
-            return {
-              name: frameworkInfo.frameworkName,
-              username: frameworkInfo.userName,
-              state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
-              subState: frameworkInfo.frameworkState,
-              executionType: frameworkInfo.executionType,
-              retries: retries,
-              createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
-              completedTime: frameworkInfo.frameworkCompletedTimestamp,
-              appExitCode: frameworkInfo.applicationExitCode,
-              virtualCluster: frameworkInfo.queue,
-            };
-          });
-          jobList.sort((a, b) => b.createdTime - a.createdTime);
-          next(jobList);
-        } catch (error) {
-          next(null, error);
-        }
+        const resJson = typeof res.body === 'object' ?
+          res.body : JSON.parse(res.body);
+        const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
+          let retries = 0;
+          ['transientNormalRetriedCount', 'transientConflictRetriedCount',
+            'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
+              retries += frameworkInfo.frameworkRetryPolicyState[retry];
+            });
+          return {
+            name: frameworkInfo.frameworkName,
+            username: frameworkInfo.userName,
+            state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
+            subState: frameworkInfo.frameworkState,
+            executionType: frameworkInfo.executionType,
+            retries: retries,
+            createdTime: frameworkInfo.firstRequestTimestamp || new Date(2018, 1, 1).getTime(),
+            completedTime: frameworkInfo.frameworkCompletedTimestamp,
+            appExitCode: frameworkInfo.applicationExitCode,
+            virtualCluster: frameworkInfo.queue,
+          };
+        });
+        jobList.sort((a, b) => b.createdTime - a.createdTime);
+        next(jobList);
       });
   }
 
@@ -112,6 +107,9 @@ class Job {
       .headers(launcherConfig.webserviceRequestHeaders)
       .end((requestRes) => {
         try {
+          if (typeof requestRes.body === 'undefined') {
+            next(null, new Error('Get job error: could not connect to launcher.'));
+          }
           const requestResJson =
             typeof requestRes.body === 'object' ?
               requestRes.body :
@@ -119,9 +117,9 @@ class Job {
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
-            next(null, new Error('JobNotFound'));
+            next(null, new Error('Could not find job.'));
           } else {
-            next(null, new Error('InternalServerError'));
+            next(null, new Error('Get job error.'));
           }
         } catch (error) {
           next(null, error);
@@ -179,7 +177,7 @@ class Job {
             .headers(launcherConfig.webserviceRequestHeaders)
             .end(() => next());
         } else {
-          next(new Error('can not delete other user\'s job'));
+          next(new Error('Delete job error: cannot delete other user\'s job.'));
         }
       });
   }
@@ -198,7 +196,7 @@ class Job {
             .send({'executionType': data.value})
             .end((res) => next());
         } else {
-          next(new Error('can not execute other user\'s job'));
+          next(new Error('Execute job error: cannot execute other user\'s job.'));
         }
       });
   }
@@ -420,27 +418,16 @@ class Job {
 
   _initializeJobContextRootFolders(next) {
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    async.parallel([
-      (parallelCallback) => {
-        hdfs.createFolder(
-          '/Output',
-          {'user.name': 'root', 'permission': '777'},
-          (error, result) => {
-            parallelCallback(error);
-          }
-        );
-      },
-      (parallelCallback) => {
-        hdfs.createFolder(
-          '/Container',
-          {'user.name': 'root', 'permission': '777'},
-          (error, result) => {
-            parallelCallback(error);
-          }
-        );
-      },
-    ], (parallelError) => {
-      return next(parallelError);
+    async.each(['Output', 'Container'], (path, callback) => {
+      hdfs.createFolder(
+        `/${path}`,
+        {'user.name': 'root', 'permission': '777'},
+        (error) => {
+          callback(error);
+        }
+      );
+    }, (error) => {
+      next(error);
     });
   }
 
@@ -457,13 +444,13 @@ class Job {
             }
           );
         } else {
-          parallelCallback(null);
+          parallelCallback();
         }
       },
       (parallelCallback) => {
         async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
           hdfs.createFolder(
-            `/Container/${data.userName}/${name}/` + x,
+            `/Container/${data.userName}/${name}/${x}`,
             {'user.name': data.userName, 'permission': '755'},
             (error, result) => {
               eachCallback(error);
@@ -522,7 +509,7 @@ class Job {
         );
       },
     ], (parallelError) => {
-      return next(parallelError);
+      next(parallelError);
     });
   }
 }
