@@ -59,8 +59,13 @@ hadoop:
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues.
   # The capacity of each virtual cluster is specified as the percentage of the whole resources in the system.
-  # All un-configured resources will go to an auto-generated virtual cluster called 'default'.
+  # All un-configured resources will go to an auto-generated virtual cluster called 'default', if the 'default' vc
+  # has not been explicitly specified in this section.
   #virtualClusters:
+  #  #'default' can be omitted here.
+  #  #default:
+  #  #  description: Default VC.
+  #  #  capacity: 40
   #  vc1:
   #    description: VC for Alice's team.
   #    capacity: 20
