@@ -23,7 +23,6 @@ require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
-require('datatables.net-plugins/sorting/title-numeric.js');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
@@ -184,53 +183,45 @@ const loadJobs = (specifiedVc) => {
         if (data.error) {
           alert(data.message);
         } else {
-          let displayDataSet = [];
-          let rowCount = data.length;
-          for (let i = 0; i < rowCount; i++) {
-            let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
-            if (specifiedVc && vcName !== specifiedVc) {
-              continue;
-            }
-            let hjss = getHumanizedJobStateString(data[i]);
-            let stopBtnStyle =
-              (hjss === 'Waiting' || hjss === 'Running') ?
-              '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
-                data[i].name + '\')">Stop</button>':
-              '<button class="btn btn-default btn-sm" disabled>Stop</button>';
-            displayDataSet.push({
-              jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
-              userName: data[i].username,
-              vcName: '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>',
-              startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
-                convertTime(false, data[i].createdTime),
-              duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
-                convertTime(true, data[i].createdTime, data[i].completedTime),
-              retries: data[i].retries,
-              status: convertState(hjss),
-              stop: stopBtnStyle,
-            });
+          if (specifiedVc) {
+            return data.filter((job) => specifiedVc === (job.virtualCluster || 'default'))
+          } else {
+            return data
           }
-
-          return displayDataSet;
         }
       }
     },
     'columns': [
-      {title: 'Job', data: 'jobName'},
-      {title: 'User', data: 'userName'},
-      {title: 'Virtual Cluster', data: 'vcName'},
-      {title: 'Start Time', data: 'startTime'},
-      {title: 'Duration', data: 'duration'},
+      {title: 'Job', data: 'name', render(name, type) {
+        if (type !== 'display') return name;
+        return '<a href="view.html?jobName=' + name + '">' + name + '</a>';
+      } },
+      {title: 'User', data: 'username'},
+      {title: 'Virtual Cluster', data: 'virtualCluster', defaultContent: 'default'},
+      {title: 'Start Time', data: 'createdTime', render(createdTime, type) {
+        if (type !== 'display') return Math.round(createdTime / 1000);
+        return convertTime(false, createdTime)
+      }},
+      {title: 'Duration', data: null, render({createdTime, completedTime}, type) {
+        if (type !== 'display') return getDurationInSeconds(createdTime, completedTime);
+        return convertTime(true, createdTime, completedTime)
+      } },
       {title: 'Retries', data: 'retries'},
-      {title: 'Status', data: 'status'},
-      {title: 'Stop', data: 'stop'},
+      {title: 'Status', data: null, render: getHumanizedJobStateString },
+      {title: 'Stop', data: null, render(job, type) {
+        let hjss = getHumanizedJobStateString(job);
+        return (hjss === 'Waiting' || hjss === 'Running') ?
+          '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
+            job.name + '\')">Stop</button>':
+          '<button class="btn btn-default btn-sm" disabled>Stop</button>';
+      } },
     ],
     'scrollY': (($(window).height() - 265)) + 'px',
     'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
     'order': [[3, 'desc']],
     'columnDefs': [
       {type: 'natural', targets: [0, 1, 2, 5, 6]},
-      {type: 'title-numeric', targets: [3, 4]},
+      {type: 'num', targets: [3, 4]},
     ],
     'deferRender': true,
     'autoWidth': false,
