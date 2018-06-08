@@ -106,26 +106,6 @@ machine-list:
 - ```node-exporter```: Optional. Some machine may not have ```pai-master``` and ```pai-worker``` labels. You should assign this label to the node.
 
 
-*Note:* If you want to deploy PAI in single box environment, just set `pai-master` and `pai-worker` labels for the same machine:
-
-```yaml
-machine-list:
-
-    - hostname: hostname (echo `hostname`)
-      hostip: IP
-      machine-type: D8SV3
-      etcdid: etcdid1
-      #sshport: PORT (Optional)
-      #username: username (Optional)
-      #password: password (Optional)
-      k8s-role: master
-      dashboard: "true"
-      zkid: "1"
-      pai-master: "true"
-      pai-worker: "true"
-```
-
-
 ## k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
 Don't change this configuration.
