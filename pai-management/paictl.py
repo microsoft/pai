@@ -176,7 +176,7 @@ def generate_configuration_of_hadoop_queues(cluster_config):
             "description": "Default virtual cluster.",
             "weight": max(0.0, 100.0 - total_weight)
         }
-    if total_weight != 100.0:
+    if total_weight > 1e-09 and total_weight != 100.0:
         logger.warning("The sum of capacities (%d) should be equal to 100." % (total_weight))
         for hq_name in hadoop_queues_config:
             hq_config = hadoop_queues_config[hq_name]
