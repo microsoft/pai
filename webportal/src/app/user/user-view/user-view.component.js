@@ -75,6 +75,13 @@ const removeUser = (userName) => {
   }
 };
 
+const redirectToUserEdit = (userName, isAdmin, vcList) => {
+  window.location.href = 'user-edit.html?userName=' + userName + "?isAdmin=" + isAdmin + "?vcList=" + vcList;
+}
+
+const redirectToAddUser = () => {
+  window.location.href = 'register.html';
+}
 
 const loadUsers = (limit, specifiedVc) => {
   loading.showLoading();
@@ -104,7 +111,8 @@ const loadUsers = (limit, specifiedVc) => {
               userName: data[i].username,
               admin: adminStatus,
               vcName: data[i].virtualCluster,
-              edit: `<button class="btn btn-default btn-sm">Edit</button>`,
+              edit: `'<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\''` + data[i].username +
+                    `'\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\'>Edit</button>'`,
               remove: removeBtnStyle,
             });
           }
@@ -158,21 +166,9 @@ $(document).ready(() => {
   };
   resizeContentWrapper();
   $('#sidebar-menu--cluster-view--user-management').addClass('active');
-  const query = url.parse(window.location.href, true).query;
-  // if (query['jobName']) {
-  //   loadJobDetail(query['jobName']);
-  //   $('#content-wrapper').css({'overflow': 'auto'});
-  // } else {
-  //   loadUsers(query['limit'], query['vcName']);
-  //   $('#content-wrapper').css({'overflow': 'hidden'});
-  // }
-  if (query['userName']) {
-    // loadJobDetail(query['userName']);
-    $('#content-wrapper').css({'overflow': 'auto'});
-  } else {
-    loadUsers();
-    $('#content-wrapper').css({'overflow': 'hidden'});
-  }
+  loadUsers();
+  $('#content-wrapper').css({'overflow': 'hidden'});
+
 });
 
-module.exports = {loadUsers, removeUser};
+module.exports = {loadUsers, removeUser, redirectToUserEdit};
