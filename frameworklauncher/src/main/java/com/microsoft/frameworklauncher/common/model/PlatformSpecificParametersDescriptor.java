@@ -29,10 +29,10 @@ import java.io.Serializable;
 // Computation Platform Specific Parameters
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
+  @NotNull
   @GpuValidation
   @PortValidation
-  // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
-  private ResourceDescriptor amResource;
+  private ResourceDescriptor amResource = ResourceDescriptor.newInstance(4096, 1);
 
   @Valid
   private String amNodeLabel;
@@ -85,6 +85,13 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
   // All the Tasks' IPAddresses are recorded consistently in this file, and the assigned current
   // Task's IPAddress can be retrieved from its environment variable CONTAINER_IP.
   private Boolean generateContainerIpList = false;
+
+  @Valid
+  @NotNull
+  // Only used for Port Scheduling and Gpu Scheduling.
+  // If this feature is enabled, the resource already tried in previous tasks' allocation will be
+  // skipped to consider in current scheduling.
+  private Boolean skipLocalTriedResource = true;
 
   @Valid
   @NotNull
@@ -202,6 +209,14 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   public void setGenerateContainerIpList(Boolean generateContainerIpList) {
     this.generateContainerIpList = generateContainerIpList;
+  }
+
+  public Boolean getSkipLocalTriedResource() {
+    return skipLocalTriedResource;
+  }
+
+  public void setSkipLocalTriedResource(Boolean skipLocalTriedResource) {
+    this.skipLocalTriedResource = skipLocalTriedResource;
   }
 
   public AMType getAmType() {

@@ -20,6 +20,7 @@ package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
+import com.microsoft.frameworklauncher.common.model.PlatformSpecificParametersDescriptor;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
@@ -29,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SelectionManagerTest {
   @Test
@@ -63,6 +67,9 @@ public class SelectionManagerTest {
     MockApplicationMaster am = new MockApplicationMaster();
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
+
+    am.setRequestManager(mock(RequestManager.class));
+    when(am.requestManager.getPlatParams()).thenReturn(new PlatformSpecificParametersDescriptor());
 
     SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
@@ -287,6 +294,9 @@ public class SelectionManagerTest {
     MockApplicationMaster am = new MockApplicationMaster();
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
     am.initialize();
+
+    am.setRequestManager(mock(RequestManager.class));
+    when(am.requestManager.getPlatParams()).thenReturn(new PlatformSpecificParametersDescriptor());
 
     SelectionManager sm = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
     sm.addNode(node1);

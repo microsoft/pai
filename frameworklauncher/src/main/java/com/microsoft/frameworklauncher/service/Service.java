@@ -377,12 +377,7 @@ public class Service extends AbstractService {
         frameworkRequest.getLaunchClientHostName(),
         frameworkRequest.getLaunchClientUserName());
 
-    Resource resource;
-    if (platParams.getAmResource() != null) {
-      resource = platParams.getAmResource().toResource();
-    } else {
-      resource = conf.getAmDefaultResource().toResource();
-    }
+    Resource resource = platParams.getAmResource().toResource();
 
     applicationContext.setApplicationName(applicationName);
     applicationContext.setApplicationType(GlobalConstants.LAUNCHER_APPLICATION_TYPE);
