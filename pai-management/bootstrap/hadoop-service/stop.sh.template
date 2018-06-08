@@ -30,11 +30,17 @@ kubectl delete ds zookeeper-ds
 kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
 
 {% for host in machinelist %}
-    {% if 'hdfsrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole-
+    {% if 'hadoop-name-node' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node-
     {% endif %}
-    {% if 'yarnrole' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole-
+    {% if 'hadoop-data-node' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node-
+    {% endif %}
+    {% if 'hadoop-resource-manager' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager-
+    {% endif %}
+    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
     {% endif %}
     {% if 'jobhistory' in machinelist[ host ] -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-

@@ -46,7 +46,7 @@ fi
 # Hadoop name node
 kubectl create -f hadoop-name-node.yaml
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hdfsrole -v master
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-name-node -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -60,7 +60,7 @@ fi
 # Hadoop data node
 kubectl create -f hadoop-data-node.yaml
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hdfsrole -v worker
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-data-node -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -74,7 +74,7 @@ fi
 # Hadoop resource manager
 kubectl create -f hadoop-resource-manager.yaml
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k yarnrole -v master
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
@@ -88,7 +88,7 @@ fi
 # Hadoop node manager
 kubectl create -f hadoop-node-manager.yaml
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k yarnrole -v worker
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
