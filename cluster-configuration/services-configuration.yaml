@@ -59,7 +59,6 @@ hadoop:
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
   #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
-  #   - The 'capacity' fields must be filled in with integer values.
   #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
   #     member list of 'default' VC when it is created.
   #   - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not

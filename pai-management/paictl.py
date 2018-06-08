@@ -170,16 +170,26 @@ def generate_configuration_of_hadoop_queues(cluster_config):
     #
     virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
     if "default" not in virtual_clusters_config:
+        logger.warn("VC 'default' has not been explicitly specified. " +
+            "Auto-recoverd by adding it with 0 capacity.")
         virtual_clusters_config["default"] = {
             "description": "Default VC.",
             "capacity": 0
         }
     total_capacity = 0
     for vc_name in virtual_clusters_config:
+        if virtual_clusters_config[vc_name]["capacity"] < 0:
+            logger.warn("Capacity of VC '%s' (=%f) should be a positive number. " \
+                % (vc_name, virtual_clusters_config[vc_name]["capacity"]) +
+                "Auto-recoverd by setting it to 0.")
+            virtual_clusters_config[vc_name]["capacity"] = 0
         total_capacity += virtual_clusters_config[vc_name]["capacity"]
-    if total_capacity == 0:
+    if float(total_capacity).is_integer() and total_capacity == 0:
+        logger.warn("Total capacity (=%d) should be a positive number. " \
+            % (total_capacity) +
+            "Auto-recoverd by splitting resources to each VC evenly.")
         for vc_name in virtual_clusters_config:
-            virtual_clusters_config[vc_name][capacity] = 1
+            virtual_clusters_config[vc_name]["capacity"] = 1
             total_capacity += 1
     for vc_name in virtual_clusters_config:
         hadoop_queues_config[vc_name] = {
