@@ -17,6 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+echo y | pip uninstall requests
+echo y | pip install requests
+echo y | pip uninstall docopt
+echo y | pip install docopt
+
 cp -r /docker/* /usr/bin/
 
 docker run hello-world  || exit $?
