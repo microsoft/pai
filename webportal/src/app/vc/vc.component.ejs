@@ -29,7 +29,7 @@
                   <%= formatNumber(data[vcName]['capacity'], 2) %> %
                 </td>
                 <td>
-                  <%= formatNumber(data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
+                  <%= formatNumber(data[vcName]['capacity'] === 0 ? 0 : data[vcName]['usedCapacity'] / data[vcName]['capacity'] * 100, 2) %> %
                 </td>
                 <td>
                   <%= data[vcName]['resourcesUsed']['memory'] %> MB
