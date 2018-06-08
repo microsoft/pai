@@ -147,8 +147,8 @@ class paiObjectModel:
 
         if "pai-master" in host and host["pai-master"] == "true":
 
-            host["hdfsrole"] = "master"
-            host["yarnrole"] = "master"
+            host["hadoop-name-node"] = "true"
+            host["hadoop-resource-manager"] = "true"
             host["zookeeper"] = "true"
             host["jobhistory"] = "true"
             host["launcher"] = "true"
@@ -161,8 +161,8 @@ class paiObjectModel:
 
         if "pai-worker" in host and host["pai-worker"] == "true":
 
-            host["hdfsrole"] = "worker"
-            host["yarnrole"] = "worker"
+            host["hadoop-data-node"] = "true"
+            host["hadoop-node-manager"] = "true"
             host["node-exporter"] = "true"
 
 
