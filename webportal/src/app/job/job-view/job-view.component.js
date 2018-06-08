@@ -233,6 +233,7 @@ const loadJobs = (specifiedVc) => {
       {type: 'title-numeric', targets: [3, 4]},
     ],
     'deferRender': true,
+    'autoWidth': false,
   }).api();
 };
 
