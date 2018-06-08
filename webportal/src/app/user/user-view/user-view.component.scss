@@ -1,0 +1,23 @@
+.divider {
+  border-top: 1px solid #7c7c7c;
+}
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.modal {
+  position: relative;
+  top: auto;
+  bottom: auto;
+  right: auto;
+  left: auto;
+  display: block;
+  z-index: 1;
+}
+
+.disabled {
+  pointer-events: none;
+  color: silver;
+  cursor: default;
+}
