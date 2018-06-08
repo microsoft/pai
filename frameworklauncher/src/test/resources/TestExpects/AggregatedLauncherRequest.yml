@@ -34,6 +34,7 @@ aggregatedFrameworkRequests:
           killAllOnAnyCompleted: false
           killAllOnAnyServiceCompleted: false
           queue: testString
+          skipLocalTriedResource: false
           taskNodeGpuType: testString
           taskNodeLabel: testString
           taskServiceHealthCheck: {consecutiveFailures: 0, delaySeconds: 0, entryPoint: testString,

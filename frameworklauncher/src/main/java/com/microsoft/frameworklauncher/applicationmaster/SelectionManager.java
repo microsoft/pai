@@ -162,7 +162,7 @@ public class SelectionManager { // THREAD SAFE
 
   //Default Node Selection strategy.
   private SelectionResult selectNodesByJobPacking(ResourceDescriptor requestResource, int startStatesTaskCount) {
-    int requestNumber = startStatesTaskCount * conf.getAmSearchNodeBufferFactor();
+    int requestNumber = startStatesTaskCount * conf.getAmCandidateNodesFactor();
     List<Node> candidateNodes = new ArrayList<>();
     SelectionResult result = new SelectionResult();
 
@@ -270,7 +270,7 @@ public class SelectionManager { // THREAD SAFE
       }
     }
 
-    filterNodesByResource(optimizedRequestResource, conf.getAmSkipLocalTriedResource());
+    filterNodesByResource(optimizedRequestResource, requestManager.getPlatParams().getSkipLocalTriedResource());
 
     filterNodesByRackSelectionPolicy(optimizedRequestResource, startStatesTaskCount);
     if (filteredNodes.size() < 1) {
