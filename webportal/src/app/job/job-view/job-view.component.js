@@ -155,72 +155,85 @@ const convertGpu = (gpuAttribute) => {
   }
 };
 
-const loadJobs = (limit, specifiedVc) => {
-  loading.showLoading();
-  $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/jobs`,
-    type: 'GET',
-    success: (data) => {
-      if (data.error) {
-        alert(data.message);
-      } else {
-        let displayDataSet = [];
-        let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 2000);
-        for (let i = 0; i < rowCount; i++) {
-          let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
-          if (specifiedVc && vcName !== specifiedVc) {
-            continue;
-          }
-          let hjss = getHumanizedJobStateString(data[i]);
-          let stopBtnStyle =
-            (hjss === 'Waiting' || hjss === 'Running') ?
-            '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
-              data[i].name + '\')">Stop</button>':
-            '<button class="btn btn-default btn-sm" disabled>Stop</button>';
-          displayDataSet.push({
-            jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
-            userName: data[i].username,
-            vcName: '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>',
-            startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
-              convertTime(false, data[i].createdTime),
-            duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
-              convertTime(true, data[i].createdTime, data[i].completedTime),
-            retries: data[i].retries,
-            status: convertState(hjss),
-            stop: stopBtnStyle,
-          });
-        }
-        $('#view-table').html(jobTableComponent({}));
-        table = $('#job-table').dataTable({
-          'data': displayDataSet,
-          'columns': [
-            {title: 'Job', data: 'jobName'},
-            {title: 'User', data: 'userName'},
-            {title: 'Virtual Cluster', data: 'vcName'},
-            {title: 'Start Time', data: 'startTime'},
-            {title: 'Duration', data: 'duration'},
-            {title: 'Retries', data: 'retries'},
-            {title: 'Status', data: 'status'},
-            {title: 'Stop', data: 'stop'},
-          ],
-          'scrollY': (($(window).height() - 265)) + 'px',
-          'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-          'order': [[3, 'desc']],
-          'columnDefs': [
-            {type: 'natural', targets: [0, 1, 2, 5, 6]},
-            {type: 'title-numeric', targets: [3, 4]},
-          ],
-          'deferRender': true,
-        }).api();
-      }
-      loading.hideLoading();
-    },
-    error: (xhr, textStatus, error) => {
-      const res = JSON.parse(xhr.responseText);
-      alert(res.message);
-      loading.hideLoading();
-    },
+const loadJobs = (specifiedVc) => {
+  $('#view-table').html(jobTableComponent({}));
+
+  const $table = $('#job-table')
+    .on('preXhr.dt', loading.showLoading)
+    .on('xhr.dt', loading.hideLoading);
+
+  /* Uncomment following lines for simple profiling:
+  $table.on('preXhr.dt', function () {
+    console.time('request');
+  }).on('xhr.dt', function () {
+    console.timeEnd('request');
+    console.time('process');
+  }).on('preDraw.dt', function () {
+    console.timeEnd('process');
+    console.time('draw');
+  }).on('draw.dt', function () {
+    console.timeEnd('draw')
   });
+  // */
+
+  table = $table.dataTable({
+    'ajax': {
+      url: `${webportalConfig.restServerUri}/api/v1/jobs`,
+      type: 'GET',
+      dataSrc: (data) => {
+        if (data.error) {
+          alert(data.message);
+        } else {
+          let displayDataSet = [];
+          let rowCount = data.length;
+          for (let i = 0; i < rowCount; i++) {
+            let vcName = (data[i].virtualCluster) ? data[i].virtualCluster : 'default';
+            if (specifiedVc && vcName !== specifiedVc) {
+              continue;
+            }
+            let hjss = getHumanizedJobStateString(data[i]);
+            let stopBtnStyle =
+              (hjss === 'Waiting' || hjss === 'Running') ?
+              '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
+                data[i].name + '\')">Stop</button>':
+              '<button class="btn btn-default btn-sm" disabled>Stop</button>';
+            displayDataSet.push({
+              jobName: '<a href="view.html?jobName=' + data[i].name + '">' + data[i].name + '</a>',
+              userName: data[i].username,
+              vcName: '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>',
+              startTime: '<span title="' + Math.round(data[i].createdTime / 1000) + '"/>' +
+                convertTime(false, data[i].createdTime),
+              duration: '<span title="' + getDurationInSeconds(data[i].createdTime, data[i].completedTime) + '"/>' +
+                convertTime(true, data[i].createdTime, data[i].completedTime),
+              retries: data[i].retries,
+              status: convertState(hjss),
+              stop: stopBtnStyle,
+            });
+          }
+
+          return displayDataSet;
+        }
+      }
+    },
+    'columns': [
+      {title: 'Job', data: 'jobName'},
+      {title: 'User', data: 'userName'},
+      {title: 'Virtual Cluster', data: 'vcName'},
+      {title: 'Start Time', data: 'startTime'},
+      {title: 'Duration', data: 'duration'},
+      {title: 'Retries', data: 'retries'},
+      {title: 'Status', data: 'status'},
+      {title: 'Stop', data: 'stop'},
+    ],
+    'scrollY': (($(window).height() - 265)) + 'px',
+    'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
+    'order': [[3, 'desc']],
+    'columnDefs': [
+      {type: 'natural', targets: [0, 1, 2, 5, 6]},
+      {type: 'title-numeric', targets: [3, 4]},
+    ],
+    'deferRender': true,
+  }).api();
 };
 
 const stopJob = (jobName) => {
@@ -372,7 +385,7 @@ $(document).ready(() => {
     loadJobDetail(query['jobName']);
     $('#content-wrapper').css({'overflow': 'auto'});
   } else {
-    loadJobs(query['limit'], query['vcName']);
+    loadJobs(query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
 });
