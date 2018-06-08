@@ -107,7 +107,8 @@ const launcherConfigSchema = Joi.object().keys({
 
 const {error, value} = Joi.validate(launcherConfig, launcherConfigSchema);
 if (error) {
-  throw new Error(`launcher config error\n${error}`);
+  logger.error('Wrong configuration for framework launcher!');
+  throw error;
 }
 launcherConfig = value;
 
@@ -117,9 +118,9 @@ if (config.env !== 'test') {
   .timeout(2000)
   .end((res) => {
     if (res.status === 200) {
-      logger.info('connected to framework launcher successfully');
+      logger.info('Connected to framework launcher successfully.');
     } else {
-      throw new Error('cannot connect to framework launcher');
+      throw new Error(`Cannot connect to framework launcher ${launcherConfig.healthCheckPath()}!`);
     }
   });
 }
