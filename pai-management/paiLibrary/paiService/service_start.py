@@ -39,13 +39,7 @@ class service_start:
 
         start_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["start-script"])
 
-        cmd = "chmod +x {0}".format(start_script)
-        err_msg = "Failed to run command [{0}] to grant execution permission to file {1}".format(cmd, start_script)
-        self.logger.info("Change the permission of the script in path {0}.".format(start_script))
-        self.logger.info("Begin to execute the cmd [ {0} ]".format(cmd))
-        linux_shell.execute_shell(cmd, err_msg)
-
-        cmd = "./{0}".format(start_script)
+        cmd = "/bin/bash {0}".format(start_script)
         err_msg = "Failed to execute the start script of service {0}".format(self.service_name)
         self.logger.info("Begin to execute service {0}'s start script.".format(self.service_name))
         linux_shell.execute_shell(cmd, err_msg)

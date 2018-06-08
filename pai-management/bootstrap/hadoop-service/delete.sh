@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "Call stop to stop all hadoop service first"
-sh stop.sh
+/bin/bash stop.sh
 
 echo "Create hadoop-delete configmap for deleting data on the host"
 kubectl create configmap hadoop-delete --from-file=hadoop-delete/

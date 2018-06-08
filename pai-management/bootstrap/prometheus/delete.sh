@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "Call stop to stop service first"
-sh stop.sh
+/bin/bash stop.sh
 
 echo "Create prometheus-delete configmap for deleting data on the host"
 kubectl create configmap prometheus-delete --from-file=prometheus-delete/
