@@ -21,6 +21,7 @@ const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.e
 const userEditComponent = require('./user-edit.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
+const url = require('url');
 require('./user-edit.component.scss');
 
 
@@ -126,13 +127,18 @@ $('#form-update-virtual-cluster').on('submit', (e) => {
   });
 });
 
+const loadContent = (query) => {
+  console.log('in load content');
+  $('#update-account-input-username').value = query['userName'];
+  $('#update-virtual-cluster-input-virtualCluster').value=query['vcList'];
+  //$('#form-update-account :input[name=admin]').is(':checked') = query['isAdmin'] == 'true' ? true : false;
+}
+
 
 $(document).ready(() => {
   $('#sidebar-menu--cluster-view').addClass('active');
   $('#sidebar-menu--cluster-view--user-management').addClass('active');
 
   const query = url.parse(window.location.href, true).query;
-  console.log('username is ' + query['userName']);
-  console.log('isAdmin is ' + query['isAdmin']);
-  console.log('vclist is ' + query['vcList']);
+  loadContent(query);
 });

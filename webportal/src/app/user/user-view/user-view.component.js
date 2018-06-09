@@ -76,11 +76,12 @@ const removeUser = (userName) => {
 };
 
 const redirectToUserEdit = (userName, isAdmin, vcList) => {
-  window.location.href = 'user-edit.html?userName=' + userName + "?isAdmin=" + isAdmin + "?vcList=" + vcList;
+  window.location.href = '/user-edit.html?userName=' + userName + "&isAdmin=" + isAdmin + "&vcList=" + vcList;
 }
 
 const redirectToAddUser = () => {
-  window.location.href = 'register.html';
+  console.log('into redirect to add user');
+  window.location.href = '/register.html';
 }
 
 const loadUsers = (limit, specifiedVc) => {
@@ -107,12 +108,14 @@ const loadUsers = (limit, specifiedVc) => {
                 '<button class="btn btn-default btn-sm" disabled>Remove</button>' :
                 '<button class="btn btn-default btn-sm" onclick="removeUser(\'' +
                 data[i].userName + '\')">Remove</button>';
+                console.log('<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\'' + data[i].username +
+                         '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>');
             displayDataSet.push({
               userName: data[i].username,
               admin: adminStatus,
               vcName: data[i].virtualCluster,
-              edit: `'<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\''` + data[i].username +
-                    `'\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\'>Edit</button>'`,
+              edit: '<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\'' + data[i].username +
+                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
           }
@@ -128,11 +131,11 @@ const loadUsers = (limit, specifiedVc) => {
             ],
             'scrollY': (($(window).height() - 265)) + 'px',
             'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
-            'order': [[3, 'desc']],
             'columnDefs': [
               {type: 'natural', targets: [0, 1, 2, 3, 4]},
             ],
             'deferRender': true,
+            'autowidth': false,
           }).api();
         }
         loading.hideLoading();
@@ -149,6 +152,8 @@ const loadUsers = (limit, specifiedVc) => {
 
 window.loadUsers = loadUsers;
 window.removeUser = removeUser;
+window.redirectToUserEdit = redirectToUserEdit;
+window.redirectToAddUser = redirectToAddUser;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -171,4 +176,4 @@ $(document).ready(() => {
 
 });
 
-module.exports = {loadUsers, removeUser, redirectToUserEdit};
+module.exports = {loadUsers, removeUser, redirectToUserEdit, redirectToAddUser};
