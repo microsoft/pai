@@ -33,7 +33,7 @@ applicationTransientConflictMinDelaySec: 600
 applicationTransientConflictMaxDelaySec: 3600
 
 # Framework Setup
-frameworkCompletedRetainSec: 604800
+frameworkCompletedRetainSec: 2592000
 
 # ApplicationMaster Setup
 amRmResyncFrequency: 6
