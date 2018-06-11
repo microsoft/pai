@@ -81,7 +81,7 @@ function get_host_list()
   info_source="webhdfs"
   while true; do
     if [[ "$info_source" = "webhdfs" ]]; then
-      taskrole_statuses=$(curl -i -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
     else
       taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
     fi
@@ -102,7 +102,11 @@ function get_host_list()
         exit 205
       fi
     else
-      delay_time=$(( "$info_source" = "webhdfs" ? delay_time + 20 : delay_time + 60 ))
+      if [[ "$info_source" = "webhdfs" ]]; then
+        delay_time=$((delay_time + 20))
+      else
+        delay_time=$((delay_time + 60))
+      fi
     fi
   done
   for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
