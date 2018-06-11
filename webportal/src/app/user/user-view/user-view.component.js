@@ -31,6 +31,7 @@ const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.e
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const userViewComponent = require('./user-view.component.ejs');
 const userTableComponent = require('./user-table.component.ejs');
+const userEditModalComponent = require('./user-edit-modal-conponent.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
@@ -44,13 +45,15 @@ const userViewHtml = userViewComponent({
 });
 
 const removeUser = (userName) => {
+  console.log('in removeUser');
+  console.log('username is ' + userName);
   const res = confirm('Are you sure to remove the user?');
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/user`,
         data: {
-          username,
+          userName,
         },
         type: 'DELETE',
         headers: {
@@ -64,6 +67,7 @@ const removeUser = (userName) => {
           } else {
             alert('Remove user successfully');
           }
+          window.location.href = '/user-view.html';
         },
         error: (xhr, textStatus, error) => {
           $('#form-remove-user').trigger('reset');
@@ -74,10 +78,6 @@ const removeUser = (userName) => {
     });
   }
 };
-
-const redirectToUserEdit = (userName, isAdmin, vcList) => {
-  window.location.href = '/user-edit.html?userName=' + userName + "&isAdmin=" + isAdmin + "&vcList=" + vcList;
-}
 
 const redirectToAddUser = () => {
   console.log('into redirect to add user');
@@ -101,20 +101,18 @@ const loadUsers = (limit, specifiedVc) => {
           let rowCount = Math.min(data.length, (limit && (/^\+?[0-9][\d]*$/.test(limit))) ? limit : 2000);
 
           for (let i = 0; i < rowCount; i++) {
-            let adminStatus =
-              (data[i].admin === 'true') ? `<span class="label label-success">Admin</span>` : `<span class="label label-primary">non-admin</span>`
             let removeBtnStyle =
               (data[i].admin === 'true') ?
-                '<button class="btn btn-default btn-sm" disabled>Remove</button>' :
+                '<button class="btn btn-default btn-sm" title="can\'t delete admin user" disabled>Remove</button>' :
                 '<button class="btn btn-default btn-sm" onclick="removeUser(\'' +
-                data[i].userName + '\')">Remove</button>';
-                console.log('<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\'' + data[i].username +
-                         '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>');
+                data[i].username + '\')">Remove</button>';
+            console.log('<button class="btn btn-default btn-sm" onclick="removeUser(\'' +
+            data[i].username + '\')">Remove</button>');
             displayDataSet.push({
               userName: data[i].username,
-              admin: adminStatus,
+              admin: (data[i].admin === 'true') ? 'Yes' : 'No',
               vcName: data[i].virtualCluster,
-              edit: '<button class="btn btn-default btn-sm" onclick="redirectToUserEdit(\'' + data[i].username +
+              edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
                     '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
@@ -123,9 +121,9 @@ const loadUsers = (limit, specifiedVc) => {
           table = $('#user-table').dataTable({
             'data': displayDataSet,
             'columns': [
-              {title: 'User', data: 'userName'},
+              {title: 'User Name', data: 'userName'},
               {title: 'Admin', data: 'admin'},
-              {title: 'Virtual Cluster', data: 'vcName'},
+              {title: 'Virtual Cluster List', data: 'vcName'},
               {title: 'Edit', data: 'edit'},
               {title: 'Remove', data: 'remove'}
             ],
@@ -150,10 +148,117 @@ const loadUsers = (limit, specifiedVc) => {
 };
 
 
+const showEditInfo = (username,isAdmin,vcList) => {
+  $('#modalPlaceHolder').html(userEditModalComponent({
+    'username': username,
+    'isAdmin': isAdmin,
+    'vcList': vcList,
+    updateUserVc,
+    updateUserAccount
+  }));
+  $('#userEditModal').modal('show');
+};
+
+const updateUserVc = (username) => {
+  const virtualCluster = $('#form-update-virtual-cluster :input[name=virtualCluster]').val();
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
+      data: {
+        virtualClusters: virtualCluster,
+      },
+      type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      dataType: 'json',
+      success: (data) => {
+        $('#form-update-virtual-cluster').trigger('reset');
+        if (data.error) {
+          alert(data.message);
+        } else {
+          alert('Update user information successfully');
+        }
+        window.location.href = '/user-view.html';
+      },
+      error: (xhr, textStatus, error) => {
+        $('#form-update-virtual-cluster').trigger('reset');
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
+    });
+  });
+}
+
+const updateUserAccount = (username) => {
+  const password = $('#form-update-account :input[name=password]').val();
+  const admin = $('#form-update-account :input[name=admin]').is(':checked') ? true : false;
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/user`,
+      data: {
+        username,
+        password,
+        admin: admin,
+        modify: true,
+      },
+      type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      dataType: 'json',
+      success: (data) => {
+        if (data.error) {
+          alert(data.message);
+        } else {
+          if (admin) {
+            $.ajax({
+              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
+              data: {
+                virtualClusters: '',
+              },
+              type: 'PUT',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              dataType: 'json',
+              success: (updateVcData) => {
+                $('#form-update-account').trigger('reset');
+                if (updateVcData.error) {
+                  alert(updateVcData.message);
+                } else {
+                  alert('Update user basic information successfully');
+                }
+              },
+              error: (xhr, textStatus, error) => {
+                $('#form-update-account').trigger('reset');
+                const res = JSON.parse(xhr.responseText);
+                alert(res.message);
+              },
+            });
+          } else {
+            $('#form-update-account').trigger('reset');
+            alert('Update user basic information successfully');
+          }
+        }
+        window.location.href = '/user-view.html';
+      },
+      error: (xhr, textStatus, error) => {
+        $('#form-update-account').trigger('reset');
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
+    });
+  });
+}
+
+
 window.loadUsers = loadUsers;
 window.removeUser = removeUser;
-window.redirectToUserEdit = redirectToUserEdit;
 window.redirectToAddUser = redirectToAddUser;
+window.showEditInfo = showEditInfo;
+window.updateUserVc = updateUserVc;
+window.updateUserAccount = updateUserAccount;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -173,7 +278,6 @@ $(document).ready(() => {
   $('#sidebar-menu--cluster-view--user-management').addClass('active');
   loadUsers();
   $('#content-wrapper').css({'overflow': 'hidden'});
-
 });
 
-module.exports = {loadUsers, removeUser, redirectToUserEdit, redirectToAddUser};
+module.exports = {loadUsers, removeUser, showEditInfo, redirectToAddUser, updateUserVc, updateUserAccount};

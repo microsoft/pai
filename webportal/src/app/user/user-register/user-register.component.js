@@ -73,6 +73,7 @@ $(document).ready(() => {
                 } else {
                   alert('Add new user successfully');
                 }
+                window.location.href = '/user-view.html';
               },
               error: (xhr, textStatus, error) => {
                 $('#form-register').trigger('reset');
