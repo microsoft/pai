@@ -160,7 +160,6 @@ start_ssh_service
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
-sleep 10
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
