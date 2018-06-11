@@ -44,16 +44,14 @@ const userViewHtml = userViewComponent({
   userTable: userTableComponent,
 });
 
-const removeUser = (userName) => {
-  console.log('in removeUser');
-  console.log('username is ' + userName);
+const removeUser = (username) => {
   const res = confirm('Are you sure to remove the user?');
   if (res) {
     userAuth.checkToken((token) => {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/user`,
         data: {
-          userName,
+          username,
         },
         type: 'DELETE',
         headers: {
@@ -61,7 +59,6 @@ const removeUser = (userName) => {
         },
         dataType: 'json',
         success: (data) => {
-          $('#form-remove-user').trigger('reset');
           if (data.error) {
             alert(data.message);
           } else {
@@ -70,7 +67,6 @@ const removeUser = (userName) => {
           window.location.href = '/user-view.html';
         },
         error: (xhr, textStatus, error) => {
-          $('#form-remove-user').trigger('reset');
           const res = JSON.parse(xhr.responseText);
           alert(res.message);
         },
@@ -173,7 +169,6 @@ const updateUserVc = (username) => {
       },
       dataType: 'json',
       success: (data) => {
-        $('#form-update-virtual-cluster').trigger('reset');
         if (data.error) {
           alert(data.message);
         } else {
@@ -223,7 +218,6 @@ const updateUserAccount = (username) => {
               },
               dataType: 'json',
               success: (updateVcData) => {
-                $('#form-update-account').trigger('reset');
                 if (updateVcData.error) {
                   alert(updateVcData.message);
                 } else {
@@ -237,7 +231,6 @@ const updateUserAccount = (username) => {
               },
             });
           } else {
-            $('#form-update-account').trigger('reset');
             alert('Update user basic information successfully');
           }
         }
