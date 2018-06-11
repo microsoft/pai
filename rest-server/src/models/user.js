@@ -233,7 +233,7 @@ const getUserList = (next) => {
           userInfoList.push({
             username: userName,
             admin: res.get(etcdConfig.userAdminPath(userName)),
-            virtualCluster: res.get(etcdConfig.userVirtualClusterPath(userName)),
+            virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
           });
         }
       });
