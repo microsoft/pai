@@ -25,7 +25,6 @@ require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
 require('./user-view.component.scss');
-const url = require('url');
 // const moment = require('moment/moment.js');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
@@ -76,9 +75,8 @@ const removeUser = (username) => {
 };
 
 const redirectToAddUser = () => {
-  console.log('into redirect to add user');
   window.location.href = '/register.html';
-}
+};
 
 const loadUsers = (limit, specifiedVc) => {
   loading.showLoading();
@@ -102,8 +100,6 @@ const loadUsers = (limit, specifiedVc) => {
                 '<button class="btn btn-default btn-sm" title="can\'t delete admin user" disabled>Remove</button>' :
                 '<button class="btn btn-default btn-sm" onclick="removeUser(\'' +
                 data[i].username + '\')">Remove</button>';
-            console.log('<button class="btn btn-default btn-sm" onclick="removeUser(\'' +
-            data[i].username + '\')">Remove</button>');
             displayDataSet.push({
               userName: data[i].username,
               admin: (data[i].admin === 'true') ? 'Yes' : 'No',
@@ -121,7 +117,7 @@ const loadUsers = (limit, specifiedVc) => {
               {title: 'Admin', data: 'admin'},
               {title: 'Virtual Cluster List', data: 'vcName'},
               {title: 'Edit', data: 'edit'},
-              {title: 'Remove', data: 'remove'}
+              {title: 'Remove', data: 'remove'},
             ],
             'scrollY': (($(window).height() - 265)) + 'px',
             'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
@@ -144,13 +140,13 @@ const loadUsers = (limit, specifiedVc) => {
 };
 
 
-const showEditInfo = (username,isAdmin,vcList) => {
+const showEditInfo = (username, isAdmin, vcList) => {
   $('#modalPlaceHolder').html(userEditModalComponent({
     'username': username,
     'isAdmin': isAdmin,
     'vcList': vcList,
     updateUserVc,
-    updateUserAccount
+    updateUserAccount,
   }));
   $('#userEditModal').modal('show');
 };
@@ -183,7 +179,7 @@ const updateUserVc = (username) => {
       },
     });
   });
-}
+};
 
 const updateUserAccount = (username) => {
   const password = $('#form-update-account :input[name=password]').val();
@@ -243,7 +239,7 @@ const updateUserAccount = (username) => {
       },
     });
   });
-}
+};
 
 
 window.loadUsers = loadUsers;

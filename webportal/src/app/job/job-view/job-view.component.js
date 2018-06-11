@@ -83,7 +83,7 @@ const getHumanizedJobStateString = (jobInfo) => {
     hjss = 'Unknown';
   }
   return hjss;
-}
+};
 
 const convertTime = (elapsed, startTime, endTime) => {
   if (startTime) {
@@ -184,37 +184,37 @@ const loadJobs = (specifiedVc) => {
           alert(data.message);
         } else {
           if (specifiedVc) {
-            return data.filter((job) => specifiedVc === (job.virtualCluster || 'default'))
+            return data.filter((job) => specifiedVc === (job.virtualCluster || 'default'));
           } else {
-            return data
+            return data;
           }
         }
-      }
+      },
     },
     'columns': [
       {title: 'Job', data: 'name', render(name, type) {
         if (type !== 'display') return name;
         return '<a href="view.html?jobName=' + name + '">' + name + '</a>';
-      } },
+      }},
       {title: 'User', data: 'username'},
       {title: 'Virtual Cluster', data: 'virtualCluster', defaultContent: 'default'},
       {title: 'Start Time', data: 'createdTime', render(createdTime, type) {
         if (type !== 'display') return Math.round(createdTime / 1000);
-        return convertTime(false, createdTime)
+        return convertTime(false, createdTime);
       }},
       {title: 'Duration', data: null, render({createdTime, completedTime}, type) {
         if (type !== 'display') return getDurationInSeconds(createdTime, completedTime);
-        return convertTime(true, createdTime, completedTime)
-      } },
+        return convertTime(true, createdTime, completedTime);
+      }},
       {title: 'Retries', data: 'retries'},
-      {title: 'Status', data: null, render: getHumanizedJobStateString },
+      {title: 'Status', data: null, render: getHumanizedJobStateString},
       {title: 'Stop', data: null, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
         return (hjss === 'Waiting' || hjss === 'Running') ?
           '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
             job.name + '\')">Stop</button>':
           '<button class="btn btn-default btn-sm" disabled>Stop</button>';
-      } },
+      }},
     ],
     'scrollY': (($(window).height() - 265)) + 'px',
     'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
