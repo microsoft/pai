@@ -18,17 +18,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist %}
-    {% if 'hdfsrole' in machinelist[ host ] and machinelist[ host ][ 'hdfsrole' ] == 'master' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole=master
+    {% if 'hadoop-name-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-name-node' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node=true
     {% endif %}
-    {% if 'yarnrole' in machinelist[ host ] and machinelist[ host ][ 'yarnrole' ] == 'master' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole=master
+    {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true
     {% endif %}
-    {% if 'hdfsrole' in machinelist[ host ] and machinelist[ host ][ 'hdfsrole' ] == 'worker' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hdfsrole=worker
+    {% if 'hadoop-data-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-data-node' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node=true
     {% endif %}
-    {% if 'yarnrole' in machinelist[ host ] and machinelist[ host ][ 'yarnrole' ] == 'worker' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarnrole=worker
+    {% if 'hadoop-node-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-node-manager' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager=true
     {% endif %}
     {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true

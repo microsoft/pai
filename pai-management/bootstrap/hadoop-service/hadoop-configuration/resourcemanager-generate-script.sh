@@ -20,19 +20,10 @@
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/resourcemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/resourcemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
+cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
+cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
+cp  /hadoop-configuration/capacity-scheduler.xml $HADOOP_CONF_DIR/capacity-scheduler.xml
 
-# Step 4 of 4 to set up Hadoop queues.
-# Patch the original capacity-scheduler.xml file with the one in the configmap.
-# Three sub-steps:
-#   1) Extract the head part from the original capacity-scheduler.xml file (a.k.a. the target file).
-#   2) Extract the 'configuration' part from the capacity-scheduler.xml in the configmap (a.k.a. the content file).
-#   3) Concatent the above two parts and use it to replace the original capacity-scheduler.xml file.
-TARGET_FILE=$HADOOP_CONF_DIR/capacity-scheduler.xml
-CONTENT_FILE=/hadoop-configuration/capacity-scheduler.xml.content
-TEMP_FILE=~/capacity-scheduler.xml
-sed -n 1,$((`grep -n "<configuration>" $TARGET_FILE | cut -d: -f 1` - 1))p $TARGET_FILE > $TEMP_FILE
-cat $CONTENT_FILE >> $TEMP_FILE
-cp -f $TEMP_FILE $TARGET_FILE
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
 sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 

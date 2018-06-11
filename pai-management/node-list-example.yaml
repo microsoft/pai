@@ -16,20 +16,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-machinelist:
+machine-list:
 
-  worker-06:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    k8s-role: worker
+    - hostname: host1 # echo `hostname`
+      hostip: 192.168.1.11
+      machine-type: D8SV3
+      etcdid: etcdid1
+      sshport: PORT
+      username: username
+      password: password
+      k8s-role: master
+      dashboard: "true"
+      zkid: "1"
+      pai-master: "true"
 
-  worker-07:
-    nodename: IP
-    hostip: IP
-    sshport: PORT
-    username: username
-    password: password
-    k8s-role: worker
+    - hostname: host2
+      hostip: 192.168.1.12
+      machine-type: NC24R
+      sshport: PORT
+      username: username
+      password: password
+      k8s-role: worker
+      pai-worker: "true"

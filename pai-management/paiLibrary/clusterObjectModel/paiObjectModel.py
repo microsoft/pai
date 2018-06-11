@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+#
 import sys
 
 
@@ -79,7 +81,8 @@ class paiObjectModel:
             if host["k8s-role"] == "master":
 
                 masterDict[host["hostname"]] = host
-                masterDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in masterDict[host["hostname"]]:
+                    masterDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     masterDict[host["hostname"]]["sshport"] = \
@@ -96,7 +99,8 @@ class paiObjectModel:
             if host["k8s-role"] == "worker":
 
                 workerDict[host["hostname"]] = host
-                workerDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in workerDict[host["hostname"]]:
+                    workerDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     workerDict[host["hostname"]]["sshport"] = \
@@ -113,7 +117,8 @@ class paiObjectModel:
             if host["k8s-role"] == "proxy":
 
                 proxyDict[host["hostname"]] = host
-                proxyDict[host["hostname"]]["nodename"] = host["hostip"]
+                if "nodename" not in proxyDict[host["hostname"]]:
+                    proxyDict[host["hostname"]]["nodename"] = host["hostip"]
 
                 if "sshport" not in host:
                     proxyDict[host["hostname"]]["sshport"] = \
@@ -142,8 +147,8 @@ class paiObjectModel:
 
         if "pai-master" in host and host["pai-master"] == "true":
 
-            host["hdfsrole"] = "master"
-            host["yarnrole"] = "master"
+            host["hadoop-name-node"] = "true"
+            host["hadoop-resource-manager"] = "true"
             host["zookeeper"] = "true"
             host["jobhistory"] = "true"
             host["launcher"] = "true"
@@ -156,8 +161,8 @@ class paiObjectModel:
 
         if "pai-worker" in host and host["pai-worker"] == "true":
 
-            host["hdfsrole"] = "worker"
-            host["yarnrole"] = "worker"
+            host["hadoop-data-node"] = "true"
+            host["hadoop-node-manager"] = "true"
             host["node-exporter"] = "true"
 
 
@@ -181,10 +186,16 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-namespace"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_registry_domain"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-registry-domain"]
-        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = \
-            serviceDict["clusterinfo"]["docker-registry-info"]["docker-username"]
-        serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = \
-            serviceDict["clusterinfo"]["docker-registry-info"]["docker-password"]
+        if "docker-username" in serviceDict["clusterinfo"]["docker-registry-info"]:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = \
+                serviceDict["clusterinfo"]["docker-registry-info"]["docker-username"]
+        else:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_username"] = None
+        if "docker-password" in serviceDict["clusterinfo"]["docker-registry-info"]:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = \
+                serviceDict["clusterinfo"]["docker-registry-info"]["docker-password"]
+        else:
+            serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_password"] = None
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_tag"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-tag"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["secretname"] = \
@@ -205,7 +216,10 @@ class paiObjectModel:
 
         # section : virtualClusters
 
-        serviceDict["clusterinfo"]["virtualClusters"] = self.rawData["serviceConfiguration"]["hadoop"]["virtualClusters"]
+        if "virtualClusters" in self.rawData["serviceConfiguration"]["hadoop"]:
+            serviceDict["clusterinfo"]["virtualClusters"] = self.rawData["serviceConfiguration"]["hadoop"]["virtualClusters"]
+        else:
+            serviceDict["clusterinfo"]["virtualClusters"] = {}
 
 
         # section : frameworklauncher
@@ -336,7 +350,7 @@ class paiObjectModel:
                 break
 
         if vip == "":
-            print "no machine labeled with dashboard = true"
+            print("no machine labeled with dashboard = true")
             sys.exit(1)
 
         ret = "http://{0}:9090".format(vip)
@@ -384,7 +398,7 @@ class paiObjectModel:
                 deli = ","
 
         if ret == "":
-            print "No machine labeled with k8s-role = master!"
+            print("No machine labeled with k8s-role = master!")
             sys.exit(1)
 
         return ret
@@ -425,8 +439,8 @@ class paiObjectModel:
             if "pai-master" in host and host["pai-master"] == "true":
                 return host["hostip"]
 
-        print "At least one and only one machine should be labeled with pai-master = true"
-        print "please modify your cluster configuration, thanks."
+        print("At least one and only one machine should be labeled with pai-master = true")
+        print("please modify your cluster configuration, thanks.")
 
         sys.exit(1)
 

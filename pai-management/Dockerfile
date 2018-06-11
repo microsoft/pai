@@ -50,7 +50,7 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd
+    pip install python-etcd docker kubernetes
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
