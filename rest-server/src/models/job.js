@@ -332,31 +332,33 @@ class Job {
   }
 
   generateYarnContainerScript(data, idx) {
+    let tasksNumber = 0;
+    for (let i = 0; i < data.taskRoles.length; i ++) {
+      tasksNumber += data.taskRoles[i].taskNumber;
+    }
     const yarnContainerScript = mustache.render(
-      yarnContainerScriptTemplate, {
-        'idx': idx,
-        'hdfsUri': launcherConfig.hdfsUri,
-        'taskData': data.taskRoles[idx],
-        'jobData': data,
-      });
+        yarnContainerScriptTemplate, {
+          'idx': idx,
+          'tasksNumber': tasksNumber,
+          'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
+          'taskRolesNumber': data.taskRoles.length,
+          'hdfsUri': launcherConfig.hdfsUri,
+          'aggregatedStatusUri': launcherConfig.frameworkAggregatedStatusPath(data.jobName),
+          'frameworkInfoWebhdfsUri': launcherConfig.frameworkInfoWebhdfsPath(data.jobName),
+          'taskData': data.taskRoles[idx],
+          'jobData': data,
+        });
     return yarnContainerScript;
   }
 
   generateDockerContainerScript(data, idx) {
-    let tasksNumber = 0;
-    for (let i = 0; i < data.taskRoles.length; i++) {
-      tasksNumber += data.taskRoles[i].taskNumber;
-    }
     const dockerContainerScript = mustache.render(
-      dockerContainerScriptTemplate, {
-        'idx': idx,
-        'tasksNumber': tasksNumber,
-        'taskRoleList': data.taskRoles.map((x) => x.name).join(','),
-        'taskRolesNumber': data.taskRoles.length,
-        'hdfsUri': launcherConfig.hdfsUri,
-        'taskData': data.taskRoles[idx],
-        'jobData': data,
-      });
+        dockerContainerScriptTemplate, {
+          'idx': idx,
+          'hdfsUri': launcherConfig.hdfsUri,
+          'taskData': data.taskRoles[idx],
+          'jobData': data,
+        });
     return dockerContainerScript;
   }
 
