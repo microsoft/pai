@@ -29,7 +29,8 @@ ENV PATH=$PATH:$NV_DRIVER/bin
 WORKDIR /root/
 
 RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip git pciutils
+    apt-get -y install wget build-essential python python-pip git pciutils && \
+    pip install requests
 
 COPY copied_file/exporter/* /usr/local/
 
