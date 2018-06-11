@@ -72,12 +72,6 @@ def main():
         runTimeException.append(shortErr)
         logger.error(err)
 
-    if not os.path.exists("/datastorage/prometheus/gpu_exporter.prom"):
-        err = "/datastorage/prometheus/gpu_exporter.prom does not exists"
-        shortErr = "gpulogfile"
-        runTimeException.append(shortErr)
-        logger.error(err)
-
     if not os.path.exists("/datastorage/prometheus/job_exporter.prom"):
         err = "/datastorage/prometheus/job_exporter.prom does not exists"
         shortErr = "joblogfile"
