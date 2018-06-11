@@ -15,9 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import common
 import logging
 import logging.config
+
+
+
+package_directory_clean = os.path.dirname(os.path.abspath(__file__))
 
 
 class clean:
@@ -33,7 +38,8 @@ class clean:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/clean.yaml")
+        maintain_configuration_path = os.path.join(package_directory_clean, "../maintainconf/clean.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
         self.jobname = "clean"
 
@@ -59,8 +65,7 @@ class clean:
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
         src_local = "parcel-center/{0}".format(node_config["nodename"])
-        dst_remote = "/home/{0}".format(node_config["username"])
-
+        dst_remote = common.get_user_dir(node_config)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
             return
 
@@ -70,7 +75,7 @@ class clean:
             return
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(node_config['hostip']))
             return
 
@@ -82,7 +87,7 @@ class clean:
 
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             return
 
 

@@ -823,87 +823,91 @@ public class ApplicationMaster extends AbstractService {
     ExitType exitType = taskStatus.getContainerExitType();
     Integer retriedCount = taskStatus.getTaskRetryPolicyState().getRetriedCount();
     RetryPolicyState newRetryPolicyState = YamlUtils.deepCopy(taskStatus.getTaskRetryPolicyState(), RetryPolicyState.class);
+
+    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
+    RetryPolicyDescriptor retryPolicy = requestManager.getTaskRetryPolicies().get(taskRoleName);
+    Boolean fancyRetryPolicy = retryPolicy.getFancyRetryPolicy();
+    Integer maxRetryCount = retryPolicy.getMaxRetryCount();
+
     String logPrefix = String.format("%s: attemptToRetry: ", taskLocator);
 
     LOGGER.logSplittedLines(Level.INFO,
         logPrefix + "ContainerExitCode: [%s], ContainerExitType: [%s], RetryPolicyState:\n[%s]",
         exitCode, exitType, WebCommon.toJson(newRetryPolicyState));
 
-    // 1. ContainerSucceeded
-    if (exitCode == ExitStatusKey.SUCCEEDED.toInt()) {
-      LOGGER.logInfo(logPrefix +
-          "Will completeTask with TaskSucceeded. Reason: " +
-          "ContainerExitCode = %s.", exitCode);
-
-      completeTask(taskStatus);
-      return;
-    }
-
-    // 2. ContainerFailed
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
-    RetryPolicyDescriptor retryPolicy = requestManager.getTaskRetryPolicies().get(taskRoleName);
-    String completeTaskLogPrefix = logPrefix + "Will completeTask with TaskFailed. Reason: ";
+    String completeTaskLogPrefix = logPrefix + "Will completeTask. Reason: ";
     String retryTaskLogPrefix = logPrefix + "Will retryTask with new Container. Reason: ";
 
-    // 2.1. Handle Special Case
+    // 0. Handle Special Case
     if (generateContainerIpList) {
       LOGGER.logWarning(completeTaskLogPrefix +
           "TaskRetryPolicy is ignored due to GenerateContainerIpList enabled.");
-
       completeTask(taskStatus);
       return;
     }
 
-    // 2.2. FancyRetryPolicy
-    String fancyRetryPolicyLogSuffix = String.format("FancyRetryPolicy: %s Failure Occurred.", exitType);
-    if (exitType == ExitType.NON_TRANSIENT) {
-      newRetryPolicyState.setNonTransientRetriedCount(newRetryPolicyState.getNonTransientRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
-        LOGGER.logWarning(completeTaskLogPrefix + fancyRetryPolicyLogSuffix);
-        completeTask(taskStatus);
-        return;
-      }
-    } else if (exitType == ExitType.TRANSIENT_NORMAL) {
+    // 1. FancyRetryPolicy
+    String fancyRetryPolicyLogSuffix = String.format("FancyRetryPolicy: Task exited due to %s.", exitType);
+    if (exitType == ExitType.TRANSIENT_NORMAL) {
       newRetryPolicyState.setTransientNormalRetriedCount(newRetryPolicyState.getTransientNormalRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
+      if (fancyRetryPolicy) {
         LOGGER.logWarning(retryTaskLogPrefix + fancyRetryPolicyLogSuffix);
         retryTask(taskStatus, newRetryPolicyState);
         return;
       }
     } else if (exitType == ExitType.TRANSIENT_CONFLICT) {
       newRetryPolicyState.setTransientConflictRetriedCount(newRetryPolicyState.getTransientConflictRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
+      if (fancyRetryPolicy) {
         LOGGER.logWarning(retryTaskLogPrefix + fancyRetryPolicyLogSuffix);
         retryTask(taskStatus, newRetryPolicyState);
         return;
       }
+    } else if (exitType == ExitType.NON_TRANSIENT) {
+      newRetryPolicyState.setNonTransientRetriedCount(newRetryPolicyState.getNonTransientRetriedCount() + 1);
+      if (fancyRetryPolicy) {
+        LOGGER.logWarning(completeTaskLogPrefix + fancyRetryPolicyLogSuffix);
+        completeTask(taskStatus);
+        return;
+      }
     } else {
-      newRetryPolicyState.setUnKnownRetriedCount(newRetryPolicyState.getUnKnownRetriedCount() + 1);
-      if (retryPolicy.getFancyRetryPolicy()) {
-        // FancyRetryPolicy only handle Transient and NON_TRANSIENT Failure specially,
-        // Leave UNKNOWN Failure to NormalRetryPolicy
+      if (exitType == ExitType.SUCCEEDED) {
+        newRetryPolicyState.setSucceededRetriedCount(newRetryPolicyState.getSucceededRetriedCount() + 1);
+      } else {
+        newRetryPolicyState.setUnKnownRetriedCount(newRetryPolicyState.getUnKnownRetriedCount() + 1);
+      }
+      if (fancyRetryPolicy) {
+        // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
+        // Leave exit due to others to NormalRetryPolicy
         LOGGER.logWarning(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
     }
 
-    // 2.3. NormalRetryPolicy
-    if (retryPolicy.getMaxRetryCount() != GlobalConstants.USING_UNLIMITED_VALUE &&
-        retriedCount >= retryPolicy.getMaxRetryCount()) {
-      LOGGER.logWarning(completeTaskLogPrefix +
-              "RetriedCount %s has reached MaxRetryCount %s.",
-          retriedCount, retryPolicy.getMaxRetryCount());
-      completeTask(taskStatus);
-      return;
-    } else {
+    // 2. NormalRetryPolicy
+    if (maxRetryCount == GlobalConstants.USING_EXTENDED_UNLIMITED_VALUE ||
+        (exitType != ExitType.SUCCEEDED && maxRetryCount == GlobalConstants.USING_UNLIMITED_VALUE) ||
+        (exitType != ExitType.SUCCEEDED && retriedCount < maxRetryCount)) {
       newRetryPolicyState.setRetriedCount(newRetryPolicyState.getRetriedCount() + 1);
 
       LOGGER.logWarning(retryTaskLogPrefix +
               "RetriedCount %s has not reached MaxRetryCount %s.",
-          retriedCount, retryPolicy.getMaxRetryCount());
+          retriedCount, maxRetryCount);
       retryTask(taskStatus, newRetryPolicyState);
       return;
+    } else {
+      if (exitType == ExitType.SUCCEEDED) {
+        LOGGER.logWarning(completeTaskLogPrefix +
+            "Task exited due to %s.", exitType);
+        completeTask(taskStatus);
+        return;
+      } else {
+        LOGGER.logWarning(completeTaskLogPrefix +
+                "RetriedCount %s has reached MaxRetryCount %s.",
+            retriedCount, maxRetryCount);
+        completeTask(taskStatus);
+        return;
+      }
     }
   }
 

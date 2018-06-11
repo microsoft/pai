@@ -60,8 +60,6 @@ public class LauncherConfiguration implements Serializable {
 
   // ApplicationMaster Setup
   private Integer amVersion = 0;
-  // AM Default Resource which can support max to 10000 total Tasks in one Framework
-  private ResourceDescriptor amDefaultResource = ResourceDescriptor.newInstance(4096, 1);
   private Integer amPriority = 1;
   // Just in case AM cannot be gracefully Stopped and RM cannot judge its exit as transient,
   // such as AM process interrupted by external system, AM exit by FailFast, etc.
@@ -95,16 +93,12 @@ public class LauncherConfiguration implements Serializable {
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
   private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
 
-  // Small ports usually reserved for system usage,  the minimum port a job can use.
+  // The minimum port to allocate to container, since small ports are usually reserved.
   private Integer amContainerMinPort = 2000;
-  // the factor to enlarge the candidate nodes compare with the request.
-  private Integer amSearchNodeBufferFactor = 2;
-
-  // true: AM allocation resource will skip the resource(gpu and port) already tried in previous tasks' allocation.
-  private Boolean amSkipLocalTriedResource = true;
-
-  // true: AM will allocate a none Gpu job into a node with Gpu resource.
-  // false: AM will not allocate a none Gpu job a node with Gpu resource.
+  // The multiple of START_STATES Tasks which is used to consider more candidate nodes.
+  private Integer amCandidateNodesFactor = 2;
+  // If this feature is enabled, the container of a none Gpu job is allowed to be allocated on a
+  // node with Gpu resource.
   private Boolean amAllowNoneGpuJobOnGpuNode = true;
 
   // WebServer Setup
@@ -242,14 +236,6 @@ public class LauncherConfiguration implements Serializable {
     this.amVersion = amVersion;
   }
 
-  public ResourceDescriptor getAmDefaultResource() {
-    return amDefaultResource;
-  }
-
-  public void setAmDefaultResource(ResourceDescriptor amDefaultResource) {
-    this.amDefaultResource = amDefaultResource;
-  }
-
   public Integer getAmPriority() {
     return amPriority;
   }
@@ -354,20 +340,12 @@ public class LauncherConfiguration implements Serializable {
     this.amContainerMinPort = amContainerMinPort;
   }
 
-  public Integer getAmSearchNodeBufferFactor() {
-    return amSearchNodeBufferFactor;
+  public Integer getAmCandidateNodesFactor() {
+    return amCandidateNodesFactor;
   }
 
-  public void setAmSearchNodeBufferFactor(Integer amSearchNodeBufferFactor) {
-    this.amSearchNodeBufferFactor = amSearchNodeBufferFactor;
-  }
-
-  public Boolean getAmSkipLocalTriedResource() {
-    return amSkipLocalTriedResource;
-  }
-
-  public void setAmSkipLocalTriedResource(Boolean amSkipLocalTriedResource) {
-    this.amSkipLocalTriedResource = amSkipLocalTriedResource;
+  public void setAmCandidateNodesFactor(Integer amCandidateNodesFactor) {
+    this.amCandidateNodesFactor = amCandidateNodesFactor;
   }
 
   public Boolean getAmAllowNoneGpuJobOnGpuNode() {

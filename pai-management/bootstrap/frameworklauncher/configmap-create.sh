@@ -18,3 +18,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/
+
+kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/

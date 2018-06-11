@@ -19,9 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-chmod u+x node-label.sh
+#chmod u+x node-label.sh
 
-./node-label.sh
+/bin/bash node-label.sh
 
 kubectl create -f webportal.yaml
 

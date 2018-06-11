@@ -58,6 +58,10 @@ public class MockApplicationMaster extends ApplicationMaster {
     LOGGER.logInfo("onServiceVersionsUpdated: ServiceVersions: %s", CommonExts.toString(serviceVersions));
   }
 
+  public void setRequestManager(RequestManager requestManager) {
+    this.requestManager = requestManager;
+  }
+
   @Override
   public void onStartRMResyncHandler() {
     LOGGER.logInfo("onStartRMResyncHandler");

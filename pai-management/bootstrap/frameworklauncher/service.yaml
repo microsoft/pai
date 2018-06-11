@@ -20,10 +20,15 @@ prerequisite:
   - cluster-configuration
   - hadoop-service
 
-templatelist:
+template-list:
   - node-label.sh
   - frameworklauncher.yaml
-  - cleanup.sh
+  - stop.sh
+  - refrash.sh
+  - delete.yaml
 
-startscript: start.sh
-stopscript: cleanup.sh
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refrash-script: refrash.sh
+upgraded-script: upgraded.sh

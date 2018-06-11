@@ -57,10 +57,16 @@ hadoop:
   custom-hadoop-binary-path: None
   hadoop-version: 2.7.2
   # Step 1 of 4 to set up Hadoop queues.
-  # Define all virtual clusters, equivalent concept of Hadoop queues.
-  # The capacity of each virtual cluster is specified as the percentage of the whole resources in the system.
-  # All un-configured resources will go to an auto-generated virtual cluster called 'default'.
+  # Define all virtual clusters, equivalent concept of Hadoop queues:
+  #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
+  #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
+  #     member list of 'default' VC when it is created.
+  #   - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
+  #     been explicitly specified here.
   virtualClusters:
+    default:
+      description: Default VC.
+      capacity: 40
     vc1:
       description: VC for Alice's team.
       capacity: 20

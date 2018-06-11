@@ -25,6 +25,11 @@ import paramiko
 import common
 
 
+
+package_directory_repair = os.path.dirname(os.path.abspath(__file__))
+
+
+
 class repair:
 
     """
@@ -35,7 +40,8 @@ class repair:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/repair.yaml")
+        maintain_configuration_path = os.path.join(package_directory_repair, "../maintainconf/repair.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.jobname = "repair"
         self.clean_flag = clean
 
@@ -60,14 +66,14 @@ class repair:
         # sftp your script to remote host with paramiko.
         srcipt_package = "repair.tar"
         src_local = "parcel-center/{0}".format(self.node_config["nodename"])
-        dst_remote = "/home/{0}".format(self.node_config["username"])
+        dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
             return
 
         commandline = "tar -xvf repair.tar && sudo ./repair/repair-worker-node.sh"
 
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
         print "Successfully running repair job on node {0}".format(self.node_config["nodename"])

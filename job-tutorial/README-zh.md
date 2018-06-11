@@ -152,7 +152,7 @@ Docker 容器中可访问的环境变量的完整列表如下：
 | PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | 即配置文件中的  `killAllOnCompletedTaskNumber` |
 | PAI_CONTAINER_HOST_IP              | 当前Docker 容器的 IP |
 | PAI_CONTAINER_HOST_PORT_LIST       | 当前 Docker 容器的端口列表，格式示例： `portLabel0:port0,port1,port2;portLabel1:port3,port4` |
-| PAI_CONTAINER_HOST_\_`$type`\_PORT_LIST | `portList.label == $type` 的端口列表，以逗号分隔 ，端口为 string 类型 |
+| PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | `portList.label == $type` 的端口列表，以逗号分隔 ，端口为 string 类型 |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  |  `PAI_TASK_ROLE_NAME == $name`的主机列表，以逗号分隔， `ip:port` 为 string，以当前 task 的索引排序。 |
 
 ## 深度学习 job 示例

@@ -29,10 +29,10 @@ import java.io.Serializable;
 // Computation Platform Specific Parameters
 public class PlatformSpecificParametersDescriptor implements Serializable {
   @Valid
+  @NotNull
   @GpuValidation
   @PortValidation
-  // If you want to use the LauncherConfiguration.amDefaultResource, do not set it or set it to null.
-  private ResourceDescriptor amResource;
+  private ResourceDescriptor amResource = ResourceDescriptor.newInstance(4096, 1);
 
   @Valid
   private String amNodeLabel;
@@ -63,23 +63,23 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // If this feature enabled, different Tasks is ensured to run on different nodes.
+  // If this feature is enabled, different Tasks is ensured to run on different nodes.
   private Boolean antiaffinityAllocation = false;
 
   @Valid
   @NotNull
-  // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED.
+  // If this feature is enabled, all Running Tasks will be killed after any TASK_COMPLETED.
   private Boolean killAllOnAnyCompleted = false;
 
   @Valid
   @NotNull
-  // If this feature enabled, all Running Tasks will be killed after any TASK_COMPLETED
+  // If this feature is enabled, all Running Tasks will be killed after any TASK_COMPLETED
   // which is due to the exit of UserService.
   private Boolean killAllOnAnyServiceCompleted = false;
 
   @Valid
   @NotNull
-  // If this feature enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
+  // If this feature is enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
   // then Launches them together.
   // Besides, a ContainerIpList file will be generated in each Task's current working directory.
   // All the Tasks' IPAddresses are recorded consistently in this file, and the assigned current
@@ -88,12 +88,19 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
+  // Only used for Port Scheduling and Gpu Scheduling.
+  // If this feature is enabled, the resource already tried in previous tasks' allocation will be
+  // skipped to consider in current scheduling.
+  private Boolean skipLocalTriedResource = true;
+
+  @Valid
+  @NotNull
   private AMType amType = AMType.DEFAULT;
 
   @Valid
   @NotNull
   // The following will take effect only if amType is "AGENT".
-  // If this feature enabled, Agent will be enabled to send heartbeats to AM.
+  // If this feature is enabled, Agent will be enabled to send heartbeats to AM.
   private Boolean agentUseHeartbeat = false;
 
   @Valid
@@ -110,7 +117,7 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // If this feature enabled, Agent will be enabled to do health checking for user applications.
+  // If this feature is enabled, Agent will be enabled to do health checking for user applications.
   private Boolean agentUseHealthCheck = false;
 
   @Valid
@@ -202,6 +209,14 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   public void setGenerateContainerIpList(Boolean generateContainerIpList) {
     this.generateContainerIpList = generateContainerIpList;
+  }
+
+  public Boolean getSkipLocalTriedResource() {
+    return skipLocalTriedResource;
+  }
+
+  public void setSkipLocalTriedResource(Boolean skipLocalTriedResource) {
+    this.skipLocalTriedResource = skipLocalTriedResource;
   }
 
   public AMType getAmType() {

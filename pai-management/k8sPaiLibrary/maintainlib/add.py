@@ -27,6 +27,8 @@ import time
 import logging
 import logging.config
 
+package_directory_add = os.path.dirname(os.path.abspath(__file__))
+
 
 class add:
 
@@ -40,7 +42,8 @@ class add:
 
         self.cluster_config = cluster_config
         self.node_config = node_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/add.yaml")
+        maintain_configuration_path = os.path.join(package_directory_add, "../maintainconf/add.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = clean
 
         if node_config['k8s-role'] == 'worker':
@@ -80,7 +83,7 @@ class add:
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(self.jobname)
         src_local = "parcel-center/{0}".format(self.node_config["nodename"])
-        dst_remote = "/home/{0}".format(self.node_config["username"])
+        dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
             return
@@ -91,17 +94,17 @@ class add:
             return
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format(self.jobname, self.node_config['hostip'])
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/docker-ce-install.sh".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format(self.jobname)
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
             return
 
@@ -113,7 +116,7 @@ class add:
 
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
-        if common.ssh_shell_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
 

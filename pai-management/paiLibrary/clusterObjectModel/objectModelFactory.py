@@ -15,8 +15,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import paiObjectModel
 import yaml
+
+from . import paiObjectModel as om
+from ..common import file_handler
+
+
 
 class objectModelFactory:
 
@@ -39,15 +43,6 @@ class objectModelFactory:
 
 
 
-    def loadYamlConfig(self, configPath):
-
-        with open(configPath, "r") as f:
-            clusterData = yaml.load(f)
-
-        return clusterData
-
-
-
     def setConfiguration(self, configurationPath):
 
         self.clusterConfigurationPath = "{0}/cluster-configuration.yaml".format(configurationPath)
@@ -59,16 +54,16 @@ class objectModelFactory:
 
     def initializeConifugration(self):
 
-        self.configurationMap["clusterConfiguration"] = self.loadYamlConfig(self.clusterConfigurationPath)
-        self.configurationMap["k8sRoleDefinition"] = self.loadYamlConfig(self.k8sRoleDefinition)
-        self.configurationMap["kubernetesConfiguration"] = self.loadYamlConfig(self.kubernetesConfiguration)
-        self.configurationMap["serviceConfiguration"] = self.loadYamlConfig(self.serviceConfiguration)
+        self.configurationMap["clusterConfiguration"] = file_handler.load_yaml_config(self.clusterConfigurationPath)
+        self.configurationMap["k8sRoleDefinition"] = file_handler.load_yaml_config(self.k8sRoleDefinition)
+        self.configurationMap["kubernetesConfiguration"] = file_handler.load_yaml_config(self.kubernetesConfiguration)
+        self.configurationMap["serviceConfiguration"] = file_handler.load_yaml_config(self.serviceConfiguration)
 
 
 
     def objectModelPipeLine(self):
 
-        ret = paiObjectModel.paiObjectModel(self.configurationMap)
+        ret = om.paiObjectModel(self.configurationMap)
         objectModel = ret.execute()
         return objectModel
 

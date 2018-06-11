@@ -33,14 +33,13 @@ applicationTransientConflictMinDelaySec: 600
 applicationTransientConflictMaxDelaySec: 3600
 
 # Framework Setup
-frameworkCompletedRetainSec: 604800
+frameworkCompletedRetainSec: 2592000
 
 # ApplicationMaster Setup
 amRmResyncFrequency: 6
 amRequestPullIntervalSec: 20
 amStatusPushIntervalSec: 20
 amFrameworkInfoPublishIntervalSec: 20
-amSkipLocalTriedResource: true
 
 # WebServer Setup
 webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}

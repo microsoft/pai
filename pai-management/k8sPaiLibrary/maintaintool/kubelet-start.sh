@@ -20,6 +20,11 @@
 
 scriptPath=$1
 
+
+#stop all swap on the machine
+
+swapoff -a
+
 # check etc/ exist or not.
 staticpod="$scriptPath/etc"
 if [ -d "$staticpod" ]; then

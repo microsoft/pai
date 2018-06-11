@@ -25,7 +25,9 @@ from logging.handlers import RotatingFileHandler
 import time
 import common
 
+loggerRoot = logging.getLogger()  
 logger = logging.getLogger("watchdog")  
+loggerCommon = logging.getLogger("common")  
 
 class Service:
     name = ""
@@ -321,14 +323,30 @@ def main(argv):
     address = argv[3]
     
     # init the logger
+    loggerCommon.propagate = False
     logger.setLevel(logging.INFO)  
     logger.propagate = False
-    fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 1, backupCount=5)  
+    fileHandler = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 100, backupCount=5)  
     fileHandler.setLevel(logging.INFO)  
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
     fileHandler.setFormatter(formatter)  
-    logger.addHandler(fileHandler)  
+    logger.addHandler(fileHandler) 
 
+    loggerRoot.setLevel(logging.INFO)  
+    loggerRoot.propagate = False
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    loggerRoot.addHandler(ch) 
+    loggerRoot.info("k8s does not rotate log for container, Ref Link: https://kubernetes.io/docs/concepts/cluster-administration/logging/") 
+    loggerRoot.info("Watchdog container will output log to a log rotate file") 
+    loggerRoot.info("Rotate File Setting: ") 
+    loggerRoot.info("maxBytes= 1024 * 1024 * 100") 
+    loggerRoot.info("backupCount=5") 
+    loggerRoot.info("Log path {}/watchdog.log".format(logDir))
+    
     while(True):
         try:
             outputFile = open(logDir + "/watchdog.prom", "w")

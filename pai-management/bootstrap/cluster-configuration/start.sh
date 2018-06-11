@@ -19,8 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-chmod u+x configmap-create.sh
-./configmap-create.sh
+#chmod u+x configmap-create.sh
+/bin/bash configmap-create.sh
 
 kubectl create -f secret.yaml
 

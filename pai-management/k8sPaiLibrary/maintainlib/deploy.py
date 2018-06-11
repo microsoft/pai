@@ -28,6 +28,11 @@ import logging
 import logging.config
 
 
+
+package_directory_deploy = os.path.dirname(os.path.abspath(__file__))
+
+
+
 class deploy:
 
     """
@@ -41,7 +46,8 @@ class deploy:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_config = cluster_config
-        self.maintain_config = common.load_yaml_file("k8sPaiLibrary/maintainconf/deploy.yaml")
+        maintain_configuration_path = os.path.join(package_directory_deploy, "../maintainconf/deploy.yaml")
+        self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
 
 
@@ -62,7 +68,7 @@ class deploy:
 
         commandline = "sudo rm -rf {0}*".format(job_name)
 
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             return
 
 
@@ -72,7 +78,7 @@ class deploy:
         # sftp your script to remote host with paramiko.
         srcipt_package = "{0}.tar".format(job_name)
         src_local = "parcel-center/{0}".format(node_config["nodename"])
-        dst_remote = "/home/{0}".format(node_config["username"])
+        dst_remote = common.get_user_dir(node_config)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
             return
 
@@ -82,17 +88,17 @@ class deploy:
             return
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format(job_name, node_config['hostip'])
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/docker-ce-install.sh".format(job_name)
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(node_config['hostip']))
             return
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format(job_name)
-        if common.ssh_shell_paramiko(node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(node_config['hostip']))
             return
 
