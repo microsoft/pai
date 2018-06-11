@@ -166,7 +166,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
 | PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
 | PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
-| PAI_CONTAINER_HOST_\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
+| PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
 
 
