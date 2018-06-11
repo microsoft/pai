@@ -219,7 +219,7 @@ class paiObjectModel:
         if "virtualClusters" in self.rawData["serviceConfiguration"]["hadoop"]:
             serviceDict["clusterinfo"]["virtualClusters"] = self.rawData["serviceConfiguration"]["hadoop"]["virtualClusters"]
         else:
-            serviceDict["clusterinfo"]["virtualClusters"] = []
+            serviceDict["clusterinfo"]["virtualClusters"] = {}
 
 
         # section : frameworklauncher

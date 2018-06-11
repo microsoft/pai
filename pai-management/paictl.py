@@ -159,28 +159,43 @@ def generate_etcd_ip_list(master_list):
 
 
 def generate_configuration_of_hadoop_queues(cluster_config):
-    #
+    """The method to configure VCs:
+      - Each VC correspoonds to a Hadoop queue.
+      - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
+      - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
+        been explicitly specified in the configuration file.
+      - If all capacities are 0, resources will be split evenly to each VC.
+    """
     hadoop_queues_config = {}
     #
-    total_weight = 0.0
-    for vc_name in cluster_config["clusterinfo"]["virtualClusters"]:
-        vc_config = cluster_config["clusterinfo"]["virtualClusters"][vc_name]
-        weight = float(vc_config["capacity"])
+    virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
+    if "default" not in virtual_clusters_config:
+        logger.warn("VC 'default' has not been explicitly specified. " +
+            "Auto-recoverd by adding it with 0 capacity.")
+        virtual_clusters_config["default"] = {
+            "description": "Default VC.",
+            "capacity": 0
+        }
+    total_capacity = 0
+    for vc_name in virtual_clusters_config:
+        if virtual_clusters_config[vc_name]["capacity"] < 0:
+            logger.warn("Capacity of VC '%s' (=%f) should be a positive number. " \
+                % (vc_name, virtual_clusters_config[vc_name]["capacity"]) +
+                "Auto-recoverd by setting it to 0.")
+            virtual_clusters_config[vc_name]["capacity"] = 0
+        total_capacity += virtual_clusters_config[vc_name]["capacity"]
+    if float(total_capacity).is_integer() and total_capacity == 0:
+        logger.warn("Total capacity (=%d) should be a positive number. " \
+            % (total_capacity) +
+            "Auto-recoverd by splitting resources to each VC evenly.")
+        for vc_name in virtual_clusters_config:
+            virtual_clusters_config[vc_name]["capacity"] = 1
+            total_capacity += 1
+    for vc_name in virtual_clusters_config:
         hadoop_queues_config[vc_name] = {
-            "description": vc_config["description"],
-            "weight": weight
+            "description": virtual_clusters_config[vc_name]["description"],
+            "weight": float(virtual_clusters_config[vc_name]["capacity"]) / float(total_capacity) * 100
         }
-        total_weight += weight
-    if "default" not in hadoop_queues_config:
-        hadoop_queues_config["default"] = {
-            "description": "Default virtual cluster.",
-            "weight": max(0.0, 100.0 - total_weight)
-        }
-    if total_weight != 100.0:
-        logger.warning("The sum of capacities (%d) should be equal to 100." % (total_weight))
-        for hq_name in hadoop_queues_config:
-            hq_config = hadoop_queues_config[hq_name]
-            hq_config["weight"] /= (total_weight / 100.0)
     #
     cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
 

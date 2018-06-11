@@ -17,8 +17,8 @@
 
 # (Required) Machine list. The first machine will be configured as the master,
 # and all other machines will be configured as workers.
-# Special case (not implemented yet): If this list contains only one machine,
-# then this machine will be the master and the worker at the same time.
+# Special case: If this list contains only one machine, then this machine will be the master
+# and the worker at the same time.
 machines:
   - <ip-of-master>
   - <ip-of-worker1>
