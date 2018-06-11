@@ -29,7 +29,10 @@
 
 #### Cluster Bootstrap
 
+###### distributed
 - [A Guide For Booting Up The Cluster](doc/cluster-bootup.md)
+###### single box
+- [A Guide For Single Box Bootstrap](doc/single-box-deployment.md)
 
 #### PAI Machine Maintenance
 
@@ -47,8 +50,7 @@
 
 - [A Guide For Service Maintenance](doc/service-maintain.md)
 
-TODO
-- [A Guide For Pulling Image From the Public Registry]
+- [A Guide For Pulling Image From the Public Registry](doc/how-to-write-pai-configuration.md#serivices-configurationyaml)
 
 #### Advanced, Add Your Service
 
