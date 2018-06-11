@@ -35,7 +35,7 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
 
   @Valid
   @NotNull
-  // If this feature enabled, different Tasks is ensured to allocate the same ports
+  // If this feature is enabled, different Tasks is ensured to allocate the same ports
   // even if dynamic port range is specified in portDefinitions.
   private Boolean samePortsAllocation = true;
 

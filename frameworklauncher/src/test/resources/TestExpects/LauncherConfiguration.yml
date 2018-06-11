@@ -2,30 +2,17 @@
 amAllowNoneGpuJobOnGpuNode: false
 amAttemptFailuresValidityIntervalSec: 0
 amAttemptMaxCount: 0
+amCandidateNodesFactor: 0
 amContainerMinPort: 0
 amContainerRequestMaxTimeoutSec: 0
 amContainerRequestMinTimeoutSec: 0
-amDefaultResource:
-  cpuNumber: 0
-  diskMB: 0
-  diskType: HDD
-  gpuAttribute: 0
-  gpuNumber: 0
-  memoryMB: 0
-  portDefinitions:
-    testString: {count: 0, start: 0}
-  portNumber: 0
-  portRanges:
-  - {begin: 0, end: 0}
 amFrameworkInfoPublishIntervalSec: 0
 amPriority: 0
 amRequestPullIntervalSec: 0
 amRmHeartbeatIntervalSec: 0
 amRmResyncFrequency: 0
-amSearchNodeBufferFactor: 0
 amSetupContainerRequestMaxRetryIntervalSec: 0
 amSetupContainerRequestMinRetryIntervalSec: 0
-amSkipLocalTriedResource: false
 amStatusPushIntervalSec: 0
 amVersion: 0
 applicationRetrieveDiagnosticsMaxRetryCount: 0
