@@ -43,6 +43,8 @@ This method is for advanced users. PAI configuration consists of 4 YAML files:
 
 There are two ways to prepare the above 4 PAI configuration files. The first one is to prepare them manually. The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
+If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
+
 ## Step 1b. Prepare PAI configuration: Using `paictl` tool <a name="step-1b"></a>
 
 The second way, which is designed for fast deployment, is to generate a set of default configuration files from a very simple stariting-point file using the `paictl` maintenance tool:
