@@ -186,6 +186,58 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   }
 
+  const prepareNockForCaseN07 = (jobName) => {
+      global.nock(global.launcherWebserviceUri)
+        .get(`/v1/Frameworks/${jobName}`)
+        .reply(
+          404,
+          {}
+        );
+
+      nock(yarnUri)
+        .get('/ws/v1/cluster/scheduler')
+        .reply(200, {
+          'scheduler': {
+            'schedulerInfo': {
+              'queues': {
+                'queue': [
+                  {
+                    'queueName': 'default',
+                    'state': 'RUNNING',
+                    'type': 'capacitySchedulerLeafQueueInfo',
+                  },
+                  {
+                    'queueName': 'vc1',
+                    'state': 'RUNNING',
+                    'type': 'capacitySchedulerLeafQueueInfo',
+                  },
+                  {
+                    'queueName': 'vc2',
+                    'state': 'RUNNING',
+                    'type': 'capacitySchedulerLeafQueueInfo',
+                  }
+                ]
+              },
+              'type': 'capacityScheduler',
+              'usedCapacity': 0.0
+            }
+          }
+        });
+
+      //
+      // Mock etcd return result
+      //
+      nock(global.etcdHosts)
+        .get('/v2/keys/users/user1/virtualClusters')
+        .reply(200, {
+          'errorCode':100,
+          'message':'Key not found',
+          'cause':'/users/user1/virtualClusters',
+          'index':51
+        });
+  }
+
+
   //
   // Positive cases
   //
@@ -332,6 +384,20 @@ describe('Submit job: POST /api/v1/jobs', () => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('killAllOnCompletedTaskNumber should not be greater than tasks number.');
+        done();
+      });
+  });
+
+  it('[N-08] should submit job failed when db does not have vc field', (done) => {
+    prepareNockForCaseN07('new_job_vc_no_right');
+    global.chai.request(global.server)
+      .post('/api/v1/jobs')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(404);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('job update error: search virtual cluster from db failed');
         done();
       });
   });

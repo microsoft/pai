@@ -204,7 +204,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
           }
           db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
             if (errMsg || !res) {
-              callback(errMsg, false);
+              callback(new Error('SearchVirtualClusterFromDbFailed'), false);
             } else {
               let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
               for (let item of userVirtualClusters) {
