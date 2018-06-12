@@ -22,7 +22,7 @@ template-list:
   - node-label.sh
   - zookeeper.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
