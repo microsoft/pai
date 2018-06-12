@@ -30,7 +30,7 @@ const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.e
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const userViewComponent = require('./user-view.component.ejs');
 const userTableComponent = require('./user-table.component.ejs');
-const userEditModalComponent = require('./user-edit-modal-conponent.ejs');
+const userEditModalComponent = require('./user-edit-modal-component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../user-auth/user-auth.component');
@@ -125,7 +125,7 @@ const loadUsers = (limit, specifiedVc) => {
               {type: 'natural', targets: [0, 1, 2, 3, 4]},
             ],
             'deferRender': true,
-            'autowidth': false,
+            'autoWidth': false,
           }).api();
         }
         loading.hideLoading();
@@ -219,18 +219,21 @@ const updateUserAccount = (username) => {
                 } else {
                   alert('Update user basic information successfully');
                 }
+                window.location.href = '/user-view.html';
               },
               error: (xhr, textStatus, error) => {
                 $('#form-update-account').trigger('reset');
                 const res = JSON.parse(xhr.responseText);
                 alert(res.message);
+                window.location.href = '/user-view.html';
               },
             });
           } else {
             alert('Update user basic information successfully');
+            window.location.href = '/user-view.html';
           }
         }
-        window.location.href = '/user-view.html';
+
       },
       error: (xhr, textStatus, error) => {
         $('#form-update-account').trigger('reset');
@@ -260,7 +263,7 @@ const resizeContentWrapper = () => {
 $('#content-wrapper').html(userViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function(envent) {
+  window.onresize = function(event) {
     resizeContentWrapper();
   };
   resizeContentWrapper();

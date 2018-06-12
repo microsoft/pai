@@ -27,9 +27,9 @@
         </div>
         <form id="form-update-virtual-cluster" class="form-register">
             <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
-            <input type="virtualCluster" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
+            <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
               placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
-            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Virtual Clusters</button>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
         </form>
       </div>
       <div class="modal-footer">

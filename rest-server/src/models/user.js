@@ -111,10 +111,11 @@ const remove = (username, callback) => {
   } else {
     db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
       if (!res) {
-        callback(new Error('user does not exist'), false);
+        callback(new Error('UserNotFoundInDatabase'), false);
       } else {
         db.get(etcdConfig.userAdminPath(username), null, (errMsg, res) => {
           if (errMsg) {
+            callback(new Error('NotFoundInDatabase'), false);
             callback(errMsg, false);
           } else {
             if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
@@ -140,13 +141,16 @@ const updateUserVc = (username, virtualClusters, callback) => {
   } else {
     db.get(etcdConfig.userPath(username), null, (errMsg, res) => {
       if (errMsg) {
+        callback(new Error('UserNotFoundInDatabase'), false);
         logger.warn('user %s not exists', etcdConfig.userPath(username));
         callback(errMsg, false);
       } else {
         VirtualCluster.prototype.getVcList((vcList, err) => {
           if (err) {
+            callback(new Error('NoVirtualClusterFound'), false);
             logger.warn('get virtual cluster list error\n%s', err.stack);
           } else if (!vcList) {
+            callback(new Error('NoVirtualClusterFound'), false);
             logger.warn('list virtual clusters error, no virtual cluster found');
           } else {
             let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true') ? Object.keys(vcList) : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
@@ -169,7 +173,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
             db.set(etcdConfig.userVirtualClusterPath(username), updateVcList.toString(), null, (errMsg, res) => {
               if (errMsg) {
                 logger.warn('update %s virtual cluster: %s failed, error message:%s', etcdConfig.userVirtualClusterPath(username), errMsg);
-                callback(errMsg, false);
+                callback(new Error('UpdateDataFailed'), false);
               } else {
                 if (addUserWithInvalidVc) {
                   callback(new Error('InvalidVirtualCluster'), false);
@@ -204,7 +208,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
           }
           db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
             if (errMsg || !res) {
-              callback(new Error('SearchVirtualClusterFromDbFailed'), false);
+              callback(new Error('VirtualClusterNotFoundInDatabase'), false);
             } else {
               let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
               for (let item of userVirtualClusters) {
