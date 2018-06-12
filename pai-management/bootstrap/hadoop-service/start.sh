@@ -28,21 +28,6 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash configmap-create.sh
 
 
-# Zookeeper
-kubectl create -f zookeeper.yaml
-
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k zookeeper -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No Zookeeper Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper
-fi
-
-
 # Hadoop name node
 kubectl create -f hadoop-name-node.yaml
 

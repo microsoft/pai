@@ -17,25 +17,16 @@
 
 prerequisite:
   - cluster-configuration
-  - drivers
-  - zookeeper
 
 template-list:
   - node-label.sh
-  - configmap-create.sh
-  - hadoop-name-node.yaml
-  - hadoop-data-node.yaml
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - one-time-job-hadoop.yaml
+  - zookeeper.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
   - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
-refrash-script: refrash.sh
+refrash-script: refresh.sh
 upgraded-script: upgraded.sh
