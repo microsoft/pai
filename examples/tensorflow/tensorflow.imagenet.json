@@ -2,11 +2,8 @@
   "jobName": "tensorflow-imagenet",
   "image": "paiexample/pai.example.tensorflow",
 
-  // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  // make a new dir for output on hdfs
   "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
-  // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
 
   "taskRoles": [

@@ -2,11 +2,8 @@
   "jobName": "tensorflow-distributed-cifar10",
   "image": "paiexample/pai.example.tensorflow",
 
-  // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  // make a new dir for output on hdfs
   "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
-  // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
 
   "taskRoles": [

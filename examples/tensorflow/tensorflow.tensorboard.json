@@ -2,9 +2,7 @@
   "jobName": "tensorflow-tensorboard",
   "image": "paiexample/pai.example.tensorflow",
 
-  // prepare checkpoint and log to be visualized and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  // prepare visualization script tensorboard-example.sh and upload to hdfs
   "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
 
   "taskRoles": [
