@@ -364,6 +364,7 @@ class Job {
 
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
+    const fancyRetryPolicy = (data.retryCount >= -1);
     const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
@@ -373,7 +374,7 @@ class Job {
       },
       'retryPolicy': {
         'maxRetryCount': data.retryCount,
-        'fancyRetryPolicy': true,
+        'fancyRetryPolicy': fancyRetryPolicy,
       },
       'taskRoles': {},
       'platformSpecificParameters': {
