@@ -16,13 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.'
 
 
-# tag: pai.run.cntk
-#
-# Before building this image you need to build the base image first:
-#
-# docker build -f Dockerfile.build.mpi -t pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-
-
 FROM pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
 ENV CNTK_VERSION=2.0.beta11.0

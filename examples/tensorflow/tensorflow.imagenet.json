@@ -1,18 +1,17 @@
 {
-  "jobName": "tensorflow-jobguid",
-  "image": "pai.run.tensorflow",
+  "jobName": "tensorflow-imagenet",
+  "image": "paiexample/pai.example.tensorflow",
 
   // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
   // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-jobguid/code",
-  "virtualCluster": "default",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
 
   "taskRoles": [
     {
-      "name": "imagenet-train",
+      "name": "imagenet_train",
       "taskNumber": 1,
       "cpuNumber": 8,
       "memoryMB": 32768,
