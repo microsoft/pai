@@ -1,0 +1,19 @@
+{
+  "jobName": "cntk-g2p",
+  "image": "paiexample/pai.example.cntk",
+
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+
+  "taskRoles": [
+    {
+      "name": "g2p_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 16384,
+      "gpuNumber": 1,
+      "command": "cd code && /bin/bash cntk-g2p.sh"
+    }
+  ]
+}

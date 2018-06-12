@@ -1,0 +1,18 @@
+{
+  "jobName": "tensorflow-tensorboard",
+  "image": "paiexample/pai.example.tensorflow",
+
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+
+  "taskRoles": [
+    {
+      "name": "tensorboard",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 4096,
+      "gpuNumber": 0,
+      "command": "/bin/bash code/tensorflow-tensorboard.sh"
+    }
+  ]
+}
