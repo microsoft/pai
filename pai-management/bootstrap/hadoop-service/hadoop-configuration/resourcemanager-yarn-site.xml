@@ -211,5 +211,30 @@
         <value>true</value>
     </property>
 
+  <property>
+    <description>The minimum allocation for every container request at the RM,
+      in terms of GPUs. Requests lower than this will throw a
+      InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.minimum-allocation-gpus</name>
+    <value>0</value>
+  </property>
+
+  <property>
+    <description>The maximum allocation for every container request at the RM,
+      in terms of GPUs. Requests higher than this will throw a
+      InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-gpus</name>
+    <value>8</value>
+  </property>
+
+  <property>
+    <description>Number of GPUs that can be allocated
+      for containers. This is used by the RM scheduler when allocating
+      resources for containers. This is not used to limit the number of
+      physical GPUs used by YARN containers.</description>
+    <name>yarn.nodemanager.resource.gpus</name>
+    <value>8</value>
+  </property>
+
 </configuration>
 
