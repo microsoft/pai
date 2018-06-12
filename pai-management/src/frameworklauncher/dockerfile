@@ -17,6 +17,7 @@
 
 FROM hadoop-run
 
+RUN rm -rf /var/lib/apt/lists
 RUN apt-get -y update && \
     apt-get -y install maven
 
