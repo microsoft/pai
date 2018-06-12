@@ -100,7 +100,8 @@ Here're some configuration file examples:
       ],
       "command": "bazel-bin/tensorflow_serving/example/mnist_saved_model /tmp/mnist_model && while :; do tensorflow_model_server --port=$PAI_CONTAINER_HOST_model_server_PORT_LIST --model_name=mnist --model_base_path=/tmp/mnist_model; done"
     }
-  ]
+  ],
+  "retryCount": -2
 }
 ```
 
