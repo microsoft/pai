@@ -253,4 +253,12 @@
     <value>20</value>
   </property>
 
+  <property>
+    <description>Number of GPUs that can be allocated
+      for containers. This is used by the RM scheduler when allocating
+      resources for containers. This is not used to limit the number of
+      physical GPUs used by YARN containers.</description>
+    <name>yarn.nodemanager.resource.gpus</name>
+    <value>8</value>
+  </property>
 </configuration>
