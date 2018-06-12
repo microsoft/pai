@@ -33,7 +33,4 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager=
     {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
     {% endif %}
-    {% if 'zookeeper' in machinelist[ host ] and machinelist[ host ][ 'zookeeper' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper=true
-    {% endif %}
 {% endfor %}

@@ -68,12 +68,6 @@ if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "jobh
 fi
     {% endif %}
 
-    {% if 'zookeeper' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "zookeeper="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have zookeeper's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper-
-fi
-    {% endif %}
 
 {% endfor %}
 

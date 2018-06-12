@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,27 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-  - zookeeper
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - node-label.sh
-  - configmap-create.sh
-  - hadoop-name-node.yaml
-  - hadoop-data-node.yaml
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - one-time-job-hadoop.yaml
-  - stop.sh
-  - refrash.sh
-  - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
+/bin/bash node-label.sh
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refrash-script: refrash.sh
-upgraded-script: upgraded.sh
+# Zookeeper
+kubectl create -f zookeeper.yaml
+
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k zookeeper -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No Zookeeper Pod in your cluster"
+else
+    # wait until all zookeeper are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper
+fi
+
+
+
+popd > /dev/null

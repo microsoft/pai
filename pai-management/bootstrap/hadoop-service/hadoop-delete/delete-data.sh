@@ -39,8 +39,3 @@ if [ -d "/mnt/hadooptmp" ]; then
 fi
 
 
-if [ -d "/mnt/zoodata" ]; then
-
-    rm -rf /mnt/zoodata
-
-fi
