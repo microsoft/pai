@@ -20,6 +20,7 @@ FROM base-image
 ENV HADOOP_VERSION=hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}
 
 RUN apt-get -y install zookeeper libsnappy-dev
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY hadoop/hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}.tar.gz /usr/local/
 
