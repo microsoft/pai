@@ -128,7 +128,7 @@ paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
 ### Bootstrap Kubernetes <a name="Cluster_K8s_Boot"></a>
 
 ```
-paictl.py cluster start-kubernetes -p /path/to/cluster-configuraiton/dir
+paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
 - Install kubectl in the deployment box.

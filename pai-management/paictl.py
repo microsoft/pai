@@ -365,7 +365,7 @@ def pai_service():
 def pai_cluster_info():
 
     logger.error("The command is wrong.")
-    logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuraiton/dir")
+    logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuration/dir")
 
 
 
