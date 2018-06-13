@@ -197,7 +197,10 @@ const loadJobs = (specifiedVc) => {
         return '<a href="view.html?jobName=' + name + '">' + name + '</a>';
       } },
       {title: 'User', data: 'username'},
-      {title: 'Virtual Cluster', data: 'virtualCluster', defaultContent: 'default'},
+      {title: 'Virtual Cluster', data: 'virtualCluster', render(virtualCluster) {
+        let vcName = virtualCluster || 'default';
+        return '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>';
+      }},
       {title: 'Start Time', data: 'createdTime', render(createdTime, type) {
         if (type !== 'display') return Math.round(createdTime / 1000);
         return convertTime(false, createdTime)
