@@ -30,12 +30,12 @@ template-list:
   - zookeeper.yaml
   - one-time-job-hadoop.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
   - delete.yaml
   - hadoop-configuration/capacity-scheduler.xml
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 upgraded-script: upgraded.sh
