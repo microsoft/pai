@@ -6,23 +6,13 @@
   vertical-align: middle;
 }
 
-.modal {
-  position: relative;
-  top: auto;
-  bottom: auto;
-  right: auto;
-  left: auto;
-  display: block;
-  z-index: 1;
-}
-
 .disabled {
   pointer-events: none;
   color: silver;
   cursor: default;
 }
 
-#toRegister .add-user-btn {
+#toRegister {
   margin: 10px;
   margin-top: 0px;
   padding-left: 40px;
@@ -62,7 +52,7 @@
   border-top-right-radius: 0;
 }
 
-.form-register input[type="virtualCluster"] {
+.form-register input[id="update-virtual-cluster-input-virtualCluster"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;

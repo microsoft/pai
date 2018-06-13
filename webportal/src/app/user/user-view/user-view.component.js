@@ -25,7 +25,7 @@ require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('datatables.net-plugins/sorting/title-numeric.js');
 require('./user-view.component.scss');
-// const moment = require('moment/moment.js');
+
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const userViewComponent = require('./user-view.component.ejs');

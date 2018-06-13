@@ -3,7 +3,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Edit <%= username %> Profile</h4>
+        <h4 class="modal-title">Edit information of <%= username %></h4>
       </div>
       <div class="modal-body">
         <div class="box-header with-border user-edit-border">
@@ -29,7 +29,7 @@
             <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
             <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
               placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
-            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
+              <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
         </form>
       </div>
       <div class="modal-footer">
