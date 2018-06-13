@@ -1,22 +1,21 @@
 ## Configuration
 
-Before deploy or maintain pai on your cluster, you should finish configuring the cluster-configuration first.
+Before deployment or maintenance, user should have the cluster configuration files ready.
 
-Note: Please do not change the name of the file. And those 4 files should be put in the same directory.
+You could find the example configuration files in [pai/cluster-configuration/](../../cluster-configuration).
 
-You could find the example configuration file in [pai/cluster-configuration/](../../cluster-configuration).
+Note: Please do not change the name of the configuration files. And those 4 files should be put in the same directory.
+
 
 ## Index
 
-- [cluster-configuration.yaml](#cluster_configuration)
-- [k8s-role-definition.yaml](#k8s_role_definition)
-- [kubernetes-configuration.yaml](#kubernetes_configuration)
-- [serivices-configuration.yaml](#services_configuration)
-
-##
+- [Set up cluster-configuration.yaml](#cluster_configuration)
+- [Set up k8s-role-definition.yaml](#k8s_role_definition)
+- [Set up kubernetes-configuration.yaml](#kubernetes_configuration)
+- [Set up serivices-configuration.yaml](#services_configuration)
 - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
 
-## cluster-configuration.yaml <a name="cluster_configuration"></a>
+## Set up cluster-configuration.yaml <a name="cluster_configuration"></a>
 
 An example cluster-configuration.yaml is available [here](../../cluster-configuration/cluster-configuration.yaml). In the following we explain the fields in the yaml file one by one.
 
@@ -105,13 +104,13 @@ machine-list:
 - ```node-exporter```: Optional. Some machine may not have ```pai-master``` and ```pai-worker``` labels. You can assign this label to the node.
 
 
-## k8s-role-definition.yaml <a name="k8s_role_definition"></a>
+## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
 An example k8s-role-definition.yaml file is available [here](../../cluster-configuration/k8s-role-definition.yaml).
 The file is used to bootstrap a k8s cluster. It includes a list of k8s components and specifies what components should be include in different k8s roles (master, worker, and proxy). 
 By default, user does not need to change the file.
 
-## kubernetes-configuration.yaml <a name="kubernetes_configuration"></a>
+## Set up kubernetes-configuration.yaml <a name="kubernetes_configuration"></a>
 
 An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
@@ -147,7 +146,7 @@ kubernetes:
 - ```kube-controller-manager-version```: The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)
 - ```dashboard-version```: The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)
 
-## serivices-configuration.yaml <a name="services_configuration"></a>
+## Set up serivices-configuration.yaml <a name="services_configuration"></a>
 
 An example services-configuration.yaml file is available [here](../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
 
