@@ -1,0 +1,22 @@
+{
+  "jobName": "tensorflow-serving",
+  "image": "paiexample/pai.example.tensorflow-serving",
+  "taskRoles": [
+    {
+      "name": "serving",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "portList": [
+        {
+          "label": "model_server",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ],
+      "command": "bazel-bin/tensorflow_serving/example/mnist_saved_model /tmp/mnist_model && while :; do tensorflow_model_server --port=$PAI_CONTAINER_HOST_model_server_PORT_LIST --model_name=mnist --model_base_path=/tmp/mnist_model; done"
+    }
+  ],
+  "retryCount": -2
+}

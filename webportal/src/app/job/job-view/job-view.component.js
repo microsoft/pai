@@ -207,7 +207,10 @@ const loadJobs = (specifiedVc) => {
         return convertTime(true, createdTime, completedTime);
       }},
       {title: 'Retries', data: 'retries'},
-      {title: 'Status', data: null, render: getHumanizedJobStateString},
+      {title: 'Status', data: null, render(data, type) {
+        if (type !== 'display') return getHumanizedJobStateString(data);
+        return convertState(getHumanizedJobStateString(data));
+      }},
       {title: 'Stop', data: null, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
         return (hjss === 'Waiting' || hjss === 'Running') ?
