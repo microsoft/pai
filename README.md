@@ -18,7 +18,7 @@ For better performance, PAI supports fine-grained topology-aware job placement t
 
 PAI embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
 The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage static components in the system.
-The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](https://issues.apache.org/jira/browse/YARN-7481). 
+The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](./hadoop-ai/README.md). 
 The training data and training results are stored in Hadoop HDFS.
 
 ## An Open AI Platform for R&D and Education 
