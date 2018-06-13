@@ -22,6 +22,7 @@ import sys
 import re
 import logging  
 logger = logging.getLogger("gpu_expoter")  
+import cadvisor_parse
 
 def parse_percentile(data):
     return data.replace("%", "")
@@ -52,21 +53,34 @@ def convert_to_byte(data):
     else: 
         return number
 
-def parse_docker_stats(stats):
+def parse_docker_stats(stats, netIn, netOut):
     data = [line.split(',') for line in stats.splitlines()]
     # pop the headers
     data.pop(0)
     rowNum = len(data)
     colNum = len(data[0])
     containerStats = {}
-
+ 
     for i in range(rowNum):
+        containerName = data[i][6]
+        netInMetric = "0.0"
+        netOutMetric = "0.0"
+
+        for inItem in netIn:
+            if inItem["name"] == containerName:
+                netInMetric = inItem["value"]
+        for outItem in netOut:
+            if outItem["name"] == containerName:
+                netOutMetric = outItem["value"]
+
+        netMetric =  {"in": netInMetric, "out": netOutMetric}
+    
         id = data[i][0]
         containerInfo = {
             "id": data[i][0],
             "CPUPerc": parse_percentile(data[i][1]),
             "MemUsage_Limit": parse_usage_limit(data[i][2]),
-            "NetIO": parse_io(data[i][3]),
+            "NetIO": netMetric,
             "BlockIO": parse_io(data[i][4]),
             "MemPerc": parse_percentile(data[i][5])
         }
@@ -75,9 +89,10 @@ def parse_docker_stats(stats):
     
 def stats():
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
+        netIn, netOut = cadvisor_parse.get_network_metric()
+        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}},{{.Name}}\""
         dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
-        dockerStats = parse_docker_stats(dockerDockerStats)
+        dockerStats = parse_docker_stats(dockerDockerStats, netIn, netOut)
         return dockerStats
     except subprocess.CalledProcessError as e:
         logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
