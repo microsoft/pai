@@ -2,10 +2,9 @@
 
 Before deploy or maintain pai on your cluster, you should finish configuring the cluster-configuration first.
 
-Note: Don't change the name of the file. And those 4 files should be put in the same directory.
+Note: Please do not change the name of the file. And those 4 files should be put in the same directory.
 
-
-You could find the configuration in this path: [pai/cluster-configuration/](../../cluster-configuration)
+You could find the example configuration file in [pai/cluster-configuration/](../../cluster-configuration).
 
 ## Index
 
@@ -13,6 +12,8 @@ You could find the configuration in this path: [pai/cluster-configuration/](../.
 - [k8s-role-definition.yaml](#k8s_role_definition)
 - [kubernetes-configuration.yaml](#kubernetes_configuration)
 - [serivices-configuration.yaml](#services_configuration)
+
+##
 - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
 
 ## cluster-configuration.yaml <a name="cluster_configuration"></a>
@@ -23,14 +24,13 @@ An example cluster-configuration.yaml is available [here](../../cluster-configur
 
 ```YAML
 default-machine-properties:
-  # Account with sudo permission
+  # A Linux host account with sudo permission
   username: username
   password: password
   sshport: port
 ```
 
-Set the default value of username, password, and sshport in default-machine-properties. 
-If not specified otherwise, PAI will use the default values to access cluter machines.
+Set the default value of username, password, and sshport in default-machine-properties. PAI will use these default values to access cluter machines. User can override the default access information for each machine in [machine-list](#m_list).
 
 #### ```machine-sku```
 
@@ -55,7 +55,7 @@ In this field, you could define several sku with different name. And in the mach
 - gpu: If there is no gpu on this sku, you could remove this field
 - os: Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.
 
-#### ```machine-list```
+#### ```machine-list``` <a name="m_list"></a>
 
 ```
 machine-list:
