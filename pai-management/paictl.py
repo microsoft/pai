@@ -33,7 +33,7 @@ from paiLibrary.paiBuild import push_center
 from paiLibrary.paiService import service_management_start
 from paiLibrary.paiService import service_management_stop
 from paiLibrary.paiService import service_management_delete
-from paiLibrary.paiService import service_management_refrash
+from paiLibrary.paiService import service_management_refresh
 
 from paiLibrary.paiCluster import cluster_util
 
@@ -305,7 +305,7 @@ def pai_service_info():
     logger.error("Start Service: paictl.py service start -p /path/to/configuration/ [ -n service-x ]")
     logger.error("Stop Service : paictl.py service stop -p /path/to/configuration/ [ -n service-x ]")
     logger.error("Delete Service (Stop Service, Then clean all service's data): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
-    logger.error("Refrash Service (Update Configuration, Update Machine's Label): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
+    logger.error("refresh Service (Update Configuration, Update Machine's Label): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
     # TODO: Two feature.
     #logger.error("Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
     #logger.error("Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
@@ -321,7 +321,7 @@ def pai_service():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["start", "delete", "stop", "refrash"]:
+    if option not in ["start", "delete", "stop", "refresh"]:
         pai_service_info()
         return
 
@@ -356,9 +356,9 @@ def pai_service():
         service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
         service_management_stopper.run()
 
-    if option == "refrash":
-        service_management_refrasher = service_management_refrash.service_management_refrash(cluster_object_model, service_list)
-        service_management_refrasher.run()
+    if option == "refresh":
+        service_management_refresher = service_management_refresh.service_management_refresh(cluster_object_model, service_list)
+        service_management_refresher.run()
 
 
 
