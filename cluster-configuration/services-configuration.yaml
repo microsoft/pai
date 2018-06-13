@@ -34,27 +34,27 @@ cluster:
   docker-registry-info:
 
     # If public, please fill it the same as your username
-    docker-namespace: your_registry_namespace
+    docker-namespace: openpai
 
     # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
     # docker_registry_domain: public
-    docker-registry-domain: your_registry_domain
+    docker-registry-domain: docker.io
     # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
-    docker-username: your_registry_username
-    docker-password: your_registry_password
+    docker-username: 
+    docker-password: 
 
-    docker-tag: your_image_tag
+    docker-tag: latest
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
-    secret-name: your_secret_name
+    secret-name: regsecret
 
 
 hadoop:
   # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
   # hadoop-version
   # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
-  custom-hadoop-binary-path: None
+  custom-hadoop-binary-path: ./customhadoop/
   hadoop-version: 2.7.2
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
@@ -87,7 +87,7 @@ restserver:
   # port for rest api server
   server-port: 9186
   # secret for signing authentication tokens, e.g., "Hello PAI!"
-  jwt-secret: your_jwt_secret
+  jwt-secret: "Hello PAI!"
   # database admin username
   default-pai-admin-username: your_default_pai_admin_username
   # database admin password
