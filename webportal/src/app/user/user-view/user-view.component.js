@@ -128,6 +128,7 @@ const loadUsers = (limit, specifiedVc) => {
             'autoWidth': false,
           }).api();
         }
+        resizeContentWrapper();
         loading.hideLoading();
       },
       error: (xhr, textStatus, error) => {
@@ -254,7 +255,7 @@ window.updateUserAccount = updateUserAccount;
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
   if (table != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
+    $('.dataTables_scrollBody').css('height', (($(window).height() - 315)) + 'px');
     table.columns.adjust().draw();
   }
 };
@@ -265,7 +266,6 @@ $(document).ready(() => {
   window.onresize = function(event) {
     resizeContentWrapper();
   };
-  resizeContentWrapper();
   $('#sidebar-menu--cluster-view--user-management').addClass('active');
   loadUsers();
   $('#content-wrapper').css({'overflow': 'hidden'});
