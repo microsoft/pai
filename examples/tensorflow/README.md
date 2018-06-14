@@ -122,7 +122,7 @@ Here're some configuration file examples:
 
   "taskRoles": [
     {
-      "name": "imagenet_train",
+      "name": "cifar_train",
       "taskNumber": 1,
       "cpuNumber": 8,
       "memoryMB": 32768,
