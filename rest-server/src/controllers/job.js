@@ -129,9 +129,9 @@ const update = (req, res) => {
           error: 'JobUpdateWithNoRightVirtualCluster',
           message: `job update error: no virtual cluster right to access ${data.virtualCluster}`,
         });
-      } else if (err.message === 'SearchVirtualClusterFromDbFailed') {
+      } else if (err.message === 'VirtualClusterNotFoundInDatabase') {
         return res.status(404).json({
-          error: 'SearchVirtualClusterFromDbFailed',
+          error: 'VirtualClusterNotFoundInDatabase',
           message: `job update error: search virtual cluster from db failed`,
         });
       } else {

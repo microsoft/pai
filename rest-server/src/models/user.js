@@ -141,9 +141,8 @@ const updateUserVc = (username, virtualClusters, callback) => {
   } else {
     db.get(etcdConfig.userPath(username), null, (errMsg, res) => {
       if (errMsg) {
-        callback(new Error('UserNotFoundInDatabase'), false);
         logger.warn('user %s not exists', etcdConfig.userPath(username));
-        callback(errMsg, false);
+        callback(new Error('UserNotFoundInDatabase'), false);
       } else {
         VirtualCluster.prototype.getVcList((vcList, err) => {
           if (err) {

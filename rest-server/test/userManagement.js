@@ -726,7 +726,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: update virtual cluster list to database failed');
         done();
       });
   });
@@ -763,15 +763,15 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 2 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/non_exist_user/virtualClusters')
-      .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
-      .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
-        done();
-      });
+    .put('/api/v1/user/non_exist_user/virtualClusters')
+    .set('Authorization', 'Bearer ' + validToken)
+    .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+    .end((err, res) => {
+      global.chai.expect(res, 'status code').to.have.status(500);
+      global.chai.expect(res, 'response format').be.json;
+      global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find non_exist_user in database');
+      done();
+    });
   });
 
 });
@@ -861,7 +861,6 @@ describe('get user info list : get /api/v1/user', () => {
       .get('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
       .end((err, res) => {
-        console.log(res);
         global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.length, 'job list length').to.equal(2);

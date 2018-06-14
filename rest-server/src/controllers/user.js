@@ -96,7 +96,7 @@ const updateUserVc = (req, res) => {
         } else if (err.message === 'UserNotFoundInDatabase') {
           return res.status(500).json({
             error: 'UserNotFoundInDatabase',
-            message: `update virtual cluster failed: find user: ${username} in database failed`,
+            message: `update virtual cluster failed: could not find ${username} in database`,
           });
         } else if (err.message === 'NoVirtualClusterFound') {
           return res.status(500).json({
