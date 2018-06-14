@@ -227,7 +227,7 @@ const jobSchema = {
       format: "tabs",
       propertyOrder: 1000,
       description: "List of taskRole, one task role at least",
-    },  
+    },
   },
   required: [
     "jobName",
