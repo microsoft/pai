@@ -19,7 +19,7 @@ FROM hadoop-run
 
 RUN apt-get -y update && \
     apt-get -y install maven
-RUN rm -rf /var/lib/apt/lists
+RUN rm -rf /var/lib/apt/lists/*
 
 COPY copied_file/ /usr/local/
 RUN chmod u+x /usr/local/frameworklauncher/build.sh
