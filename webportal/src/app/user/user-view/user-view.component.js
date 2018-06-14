@@ -233,7 +233,6 @@ const updateUserAccount = (username) => {
             window.location.href = '/user-view.html';
           }
         }
-
       },
       error: (xhr, textStatus, error) => {
         $('#form-update-account').trigger('reset');
