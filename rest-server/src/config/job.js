@@ -84,6 +84,7 @@ const jobConfigSchema = Joi.object().keys({
     .default('default'),
   retryCount: Joi.number()
     .integer()
+    .min(-2)
     .default(0),
 }).required();
 

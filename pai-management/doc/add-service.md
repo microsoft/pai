@@ -161,9 +161,9 @@ stop-script: stop.sh
 # The script about how to stop a service and delete the data on the cluster
 delete-script: delete.sh
 
-# The script about refrash the status of the service.
+# The script about refresh the status of the service.
 # Usually it will update the configmap and re-label the node.
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 
 
 # A script about rolling-upgrade.
@@ -190,8 +190,8 @@ This configuration consists of 7 parts.
 - ```delete-script``` parts:
     - A shell script to stop your service and delete all the data persisted on the cluster.
 
-- ```refrash-script``` parts:
-    - The script about refrash the status of the service. Usually it will update the configmap and re-label the node.
+- ```refresh-script``` parts:
+    - The script about refresh the status of the service. Usually it will update the configmap and re-label the node.
 
 - ```upgraded-script``` parts:
     - Not supported yet.
