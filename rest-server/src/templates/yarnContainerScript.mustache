@@ -20,6 +20,9 @@
 
 # Entrypoint script for yarn container.
 
+docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
+
 exec 13>/tmp/pai_yarncontainer_$CONTAINER_ID.log
 BASH_XTRACEFD=13
 
@@ -31,15 +34,13 @@ function exit_handler()
   exec 13>&-
   hdfs dfs -put /tmp/pai_yarncontainer_$CONTAINER_ID.log \
     {{{ hdfsUri }}}/Container/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/log/
+  kill -9 $(docker inspect --format="{{.State.Pid}}" $docker_name)
   kill 0
 }
 
 set -x
 trap exit_handler EXIT
 
-
-docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
-export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
 while /bin/true; do
