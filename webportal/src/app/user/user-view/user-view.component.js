@@ -134,6 +134,7 @@ const loadUsers = (limit, specifiedVc) => {
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
+        resizeContentWrapper();
         loading.hideLoading();
       },
     });
