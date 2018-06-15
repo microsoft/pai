@@ -1,4 +1,4 @@
-## Configuration
+# PAI Configuration
 
 Before deployment or maintenance, user should have the cluster configuration files ready.
 
@@ -19,7 +19,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
 
 An example cluster-configuration.yaml is available [here](../../cluster-configuration/cluster-configuration.yaml). In the following we explain the fields in the yaml file one by one.
 
-#### ```default-machine-properties```
+### ```default-machine-properties```
 
 ```YAML
 default-machine-properties:
@@ -31,7 +31,7 @@ default-machine-properties:
 
 Set the default value of username, password, and sshport in default-machine-properties. PAI will use these default values to access cluter machines. User can override the default access information for each machine in [machine-list](#m_list).
 
-#### ```machine-sku```
+### ```machine-sku```
 
 ```YAML
 machine-sku:
@@ -54,7 +54,7 @@ In this field, you could define several sku with different name. And in the mach
 - gpu: If there is no gpu on this sku, you could remove this field
 - os: Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.
 
-#### ```machine-list``` <a name="m_list"></a>
+### ```machine-list``` <a name="m_list"></a>
 
 ```
 machine-list:
@@ -118,7 +118,7 @@ An example kubernetes-configuration.yaml file is available [here](../../cluster-
 kubernetes:
   cluster-dns: IP
   load-balance-ip: IP
-  service-cluster-ip-range: 169.254.0.0/16
+  service-cluster-ip-range: 10.254.0.0/16
   storage-backend: etcd3
   docker-registry: gcr.io/google_containers
   hyperkube-version: v1.9.4
@@ -130,13 +130,13 @@ kubernetes:
   dashboard-version: v1.8.3
 ```
 
-#### ```User *must* set the following fields to bootstrap a cluster ```
+### ```User *must* set the following fields to bootstrap a cluster ```
 
 - ```cluster-dns```: Find the namesever address in  /etc/resolv.conf
-- ```load-balance-ip```: If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are many k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).
+- ```load-balance-ip```: If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).
 
-#### ```Some values could use the default value```
-- ```service-cluster-ip-range```: Please specify an ip range that does not overlap with the host network in the cluster. 169.254.0.0/16 link-local IPv4 address according to [RFC 3927](https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.
+### ```Some values could use the default value```
+- ```service-cluster-ip-range```: Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927](https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.
 - ```storage-backend```: ETCD major version. If you are not familiar with etcd, please do not change it.
 - ```docker-registry```: The docker registry used in the k8s deployment. If you can access gcr, we suggest to use gcr. Set this field to gcr.io/google_containers, the deployment process will Kubernetes component's image from ```gcr.io/google_containers/hyperkube```
 - ```hyperkube-version```: The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).
@@ -150,7 +150,7 @@ kubernetes:
 
 An example services-configuration.yaml file is available [here](../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
 
-#### ```cluster```
+### ```cluster```
 
 ```
 cluster:
@@ -201,13 +201,11 @@ docker-registry-info:
 
 Users can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
 
-#### ```hadoop```
+### ```hadoop```
 ```YAML
 hadoop:
-  # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
-  # hadoop-version
-  # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
-  custom-hadoop-binary-path: None
+  # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai 
+  custom-hadoop-binary-path: ./customhadoop/
   hadoop-version: 2.7.2
   virtualClusters:
     default:
@@ -224,12 +222,12 @@ hadoop:
       capacity: 20
 ```
 
-- ```custom-hadoop-binary-path```: If you would like to use [hadoop-ai](../../hadoop-ai), please set a path here. And paictl will build hadoop-ai, and place the binary to the path. If you do not use hadoop-ai, set ```None``` here.
-- ```hadoop-version```: If you will build hadoop-ai and use it, you should set this to ```2.7.2```. If you set path as ```None```, please choose a version [here](http://archive.apache.org/dist/hadoop/common/).
-- ```virtualClusters```: hadoop queue setting. The sum of capacity should be 100.
+- ```custom-hadoop-binary-path```: please set a path here for paictl to build [hadoop-ai](../../hadoop-ai), and place the binary here. 
+- ```hadoop-version```: please set this to ```2.7.2```. 
+- ```virtualClusters```: hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.
 
 
-#### ```frameworklauncher```
+### ```frameworklauncher```
 
 ```
 frameworklauncher:
@@ -238,7 +236,7 @@ frameworklauncher:
 
 - ```frameworklauncher-port```: Launcher's port. You can use the default value.
 
-#### ```restserver```
+### ```restserver```
 
 ```
 restserver:
@@ -254,7 +252,7 @@ restserver:
 - ```default-pai-admin-password```: database admin password
 
 
-#### ```webportal```
+### ```webportal```
 
 ```
 webportal:
@@ -264,7 +262,7 @@ webportal:
 - ```server-port```: port for webportal, you can use the default value.
 
 
-#### ```grafana```
+### ```grafana```
 
 ```
 grafana:
@@ -273,7 +271,7 @@ grafana:
 
 - ```grafana```: port for grafana, you can use the default value.
 
-#### ```prometheus```
+### ```prometheus```
 
 ```
 prometheus:
@@ -284,7 +282,7 @@ prometheus:
 - ```prometheus-port```: port for prometheus port, you can use the default value.
 - ```node-exporter-port```: port for node exporter, you can use the default value.
 
-#### ```pylon```
+### ```pylon```
 
 ```
 pylon:
@@ -296,14 +294,14 @@ pylon:
 
 ## Kubernetes High Availability Configuration <a name="k8s-high-availability-configuration"></a>
 
-#### ```Deploy Kubernetes on a Single Master Node```
+### ```Deploy Kubernetes on a Single Master Node```
 
 Single master mode does not have high availability.
 
 - only set one node's k8s-role as master
 - set this field ```load-balance-ip``` to your master's ip address
 
-#### ```Deploy Kubernetes with ha and deploy proxy through pai```
+### ```Deploy Kubernetes with ha and deploy proxy through pai```
 
 There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
 
@@ -313,7 +311,7 @@ There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-
 
 Node: the proxy node itself is not in ha mode. How to configure the proxy node in ha mode is out of the scope of PAI deployment.
 
-#### ```Setup k8s-ha with a reliable load-balance service```
+### ```Setup k8s-ha with a reliable load-balance service```
 
 If your cluster has a reliable laod-balance server (e.g. in a cloud environment such as Azure), you could set up a load-balancer and set the field ```load-balance-ip``` in the kubernetes-configuration.yaml to the load-balancer.
 
