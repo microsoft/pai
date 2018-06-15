@@ -1,7 +1,5 @@
 # PAI Examples
 
-This page contains a list of awesome PAI examples.
-
   - [Contributing](#contributing)
   - [List of workload](#list-of-workload)
   - [Off-the-shelf examples](#off-the-shelf-examples)
@@ -27,7 +25,7 @@ If you want to contribute to run new workload on PAI or add more PAI examples, p
 
 ## Off-the-shelf examples
 
-Examples which can be run by submitting the json straightly without preparing anything.
+Examples which can be run by submitting the json straightly without any modification.
 
 * [serving.tensorflow.json](./serving/serving.tensorflow.json): TensorFlow model serving.
 * [tensorflow.cifar10.json](./tensorflow/tensorflow.cifar10.json): Single GPU trainning on CIFAR-10 using TensorFlow.
