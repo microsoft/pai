@@ -192,7 +192,6 @@ docker run --name $docker_name \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
-  --oom-kill-disable \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
