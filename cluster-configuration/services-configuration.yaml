@@ -84,8 +84,8 @@ frameworklauncher:
 restserver:
   # port for rest api server
   server-port: 9186
-  # secret for signing authentication tokens, e.g., "Hello PAI!"
-  jwt-secret: "Hello PAI!"
+  # secret for signing authentication tokens, e.g., hello
+  jwt-secret: HelloPAI
   # database admin username
   default-pai-admin-username: your_default_pai_admin_username
   # database admin password
