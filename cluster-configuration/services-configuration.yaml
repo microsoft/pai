@@ -52,7 +52,7 @@ cluster:
 
 hadoop:
   # custom_hadoop_binary_path is required to build hadoop-ai, a patch to hadoop-2.7.2
-  custom-hadoop-binary-path: ./customhadoop/
+  custom-hadoop-binary-path: /pathHadoop/
   hadoop-version: 2.7.2
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
