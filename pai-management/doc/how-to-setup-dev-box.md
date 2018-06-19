@@ -1,11 +1,40 @@
 # Setup dev-box
 
-## Recommended: In docker Container
+## Install docker on your server
 
-- Install docker on your host.
-- Finish configuring the cluster-configuration
+```dev-box``` is a docker container you could use to maintain PAI cluster. And we provide a prebuild image hosted on Docker Hub for your convenience.
 
-#### Build the Dev-Box's docker image.
+## Use prebuild dev-box image
+
+```bash
+
+# Pull the dev-box image from Docker Hub
+sudo docker pull docker.io/openpai/dev-box
+
+# Run your dev-box
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /pathConfiguration:/cluster-configuration  \
+        -v /var/lib/docker:/var/lib/docker \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /pathHadoop:/pathHadoop \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=dev-box \
+        docker.io/openpai/dev-box
+
+# Working in your dev-box
+sudo docker exec -it dev-box /bin/bash
+cd /pai/pai-management
+
+# Now you are free to configure your cluaster and run PAI commands...
+
+```
+
+## Or build dev-box docker image on your own
+
+### Build dev-box on the latest code
 
 ```bash
 
@@ -20,13 +49,14 @@ sudo docker build -t dev-box .
 
 ```
 
-#### Starting Your Dev-Box's contianer
+### Start Your dev-box contianer
 
 - Suppose the path of ```custom-hadoop-binary-path``` in your service-configuration is ```/pathHadoop```
 - Suppose the directory path of your cluster-configuration is ``/pathConfiguration````. Note: Don't change the configuration file name！
 
 ```bash
-# Running your maintain-box as a docker container.
+
+# Run your dev-box
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
         -v /pathConfiguration:/cluster-configuration  \
@@ -39,7 +69,10 @@ sudo docker run -itd \
         --name=dev-box \
         dev-box
 
-# Working in your maintain-box
+# Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
 cd /pai/pai-management
+
+# Now you are free to configure your cluaster and run PAI commands...
+
 ```
