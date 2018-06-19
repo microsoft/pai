@@ -14,13 +14,13 @@ sudo docker pull docker.io/openpai/dev-box
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop.
 # Assume the directory path of your cluster-configuration is /pathConfiguration.
-# By the way, both of the above could be an empty directory.
+# By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /pathConfiguration:/cluster-configuration  \
         -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
+        -v /pathConfiguration:/cluster-configuration  \
         --pid=host \
         --privileged=true \
         --net=host \
@@ -62,10 +62,10 @@ sudo docker build -t dev-box .
 # Run your dev-box
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /pathConfiguration:/cluster-configuration  \
         -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
+        -v /pathConfiguration:/cluster-configuration  \
         --pid=host \
         --privileged=true \
         --net=host \
