@@ -136,7 +136,7 @@ kubernetes:
 - ```cluster-dns```: Find the namesever address in  /etc/resolv.conf
 - ```load-balance-ip```: If in your cluster, there is only on k8s-master, you should set this field with the ip-address of your k8s-master. If there are many k8s-master, please refer to this [chapter](#k8s-high-availability-configuration).
 - ```service-cluster-ip-range```: In this field, you should specify an ip range which shouldn't overlap with your current host's ip in your cluster.
-- ```docker-registry```: If you are in a region can't access the gcr.io, you can change it to docker.io/openpai. This registry is used for installing k8s cluster only, will pull k8s images from it.
+- ```docker-registry```: If you are in a region that cannot access the gcr.io, you can change it to docker.io/openpai. This registry is used for installing k8s cluster only, will pull k8s images from it.
 
 
 
