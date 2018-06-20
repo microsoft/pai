@@ -25,8 +25,6 @@ platformSpecificParameters:
   containerConnectionMaxExceedCount: 0
   containerConnectionMaxLostCount: 0
   generateContainerIpList: false
-  killAllOnAnyCompleted: false
-  killAllOnAnyServiceCompleted: false
   queue: testString
   skipLocalTriedResource: false
   taskNodeGpuType: testString
@@ -37,6 +35,7 @@ platformSpecificParameters:
 retryPolicy: {fancyRetryPolicy: false, maxRetryCount: 0}
 taskRoles:
   testString:
+    applicationCompletionPolicy: {minFailedTaskCount: 0, minSucceededTaskCount: 0}
     platformSpecificParameters: {samePortsAllocation: false, taskNodeGpuType: testString,
       taskNodeLabel: testString}
     scaleUnitNumber: 0

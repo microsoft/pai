@@ -36,8 +36,8 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class KillAllOnAnyCompletedTest {
-  private final String frameworkName = "TestKillAllOnAnyCompleted";
+public class ApplicationCompletionPolicyTest {
+  private final String frameworkName = "TestApplicationCompletionPolicy";
   private String taskRoleName;
   private int taskNum;
 
@@ -47,7 +47,7 @@ public class KillAllOnAnyCompletedTest {
   private int exitCode;
 
   @Test
-  public void testKillAllOnAnyCompletedTest() throws Exception {
+  public void testApplicationCompletionPolicy() throws Exception {
     init();
 
     // Initialize containers
@@ -90,7 +90,7 @@ public class KillAllOnAnyCompletedTest {
 
   private void init() throws Exception {
     String frameworkFile = Thread.currentThread().getContextClassLoader()
-        .getResource("TestKillAllOnAnyCompleted.json").getPath();
+        .getResource("TestApplicationCompletionPolicy.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
             DnsUtils.getLocalHost(), "user");
