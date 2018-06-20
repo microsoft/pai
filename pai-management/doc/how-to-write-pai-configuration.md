@@ -99,9 +99,9 @@ machine-list:
 - ```k8s-role```: Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](#k8s-high-availability-configuration).
 - ```dashboard```: Select one node to set this field. And set the value as ``` "true" ```.
 - ```pai-master```: Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.
-- ```zkid```: Unique zookeeper id. Required by```pai-Master```. You can set this filed from ```1``` to ```n```
+- ```zkid```: Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```
 - ```pai-worker```: Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work.
-- ```node-exporter```: Optional. Some machine may not have ```pai-master``` and ```pai-worker``` labels. You can assign this label to the node.
+- ```node-exporter```: Optional. You can assign this label to nodes to enable hardware monitoring.
 
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
@@ -138,7 +138,7 @@ kubernetes:
 ### ```Some values could use the default value```
 - ```service-cluster-ip-range```: Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927](https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.
 - ```storage-backend```: ETCD major version. If you are not familiar with etcd, please do not change it.
-- ```docker-registry```: The docker registry used in the k8s deployment. If you can access gcr, we suggest to use gcr. Set this field to gcr.io/google_containers, the deployment process will Kubernetes component's image from ```gcr.io/google_containers/hyperkube```
+- ```docker-registry```: The docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to gcr.io/google_containers, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. You can also set the docker registry to openpai.docker.io, which is maintained by pai.
 - ```hyperkube-version```: The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).
 - ```etcd-version```: The version of etcd. If you are not familiar with etcd, please do not change it. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/etcd?gcrImageListsize=50).
 - ```apiserver-version```: The version of apiserver. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-apiserver?gcrImageListsize=50).
@@ -292,16 +292,16 @@ pylon:
 
 - ```port```: port of pylon, you can use the default value.
 
-## Kubernetes High Availability Configuration <a name="k8s-high-availability-configuration"></a>
+## Kubernetes and High Availability (HA) <a name="k8s-high-availability-configuration"></a>
 
-### ```Deploy Kubernetes on a Single Master Node```
+### ```Deploy Kubernetes on a Single Master Node (without HA)```
 
 Single master mode does not have high availability.
 
 - only set one node's k8s-role as master
 - set this field ```load-balance-ip``` to your master's ip address
 
-### ```Deploy Kubernetes with ha and deploy proxy through pai```
+### ```Kubernetes with High Availability: The `proxy` Role```
 
 There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
 
@@ -311,7 +311,7 @@ There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-
 
 Node: the proxy node itself is not in ha mode. How to configure the proxy node in ha mode is out of the scope of PAI deployment.
 
-### ```Setup k8s-ha with a reliable load-balance service```
+### ```Kubernetes with High Availability: External Load Balancer```
 
 If your cluster has a reliable load-balance server (e.g. in a cloud environment such as Azure), you could set up a load-balancer and set the field ```load-balance-ip``` in the kubernetes-configuration.yaml to the load-balancer.
 
