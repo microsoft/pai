@@ -92,6 +92,9 @@ def maintain_nodes(cluster_config, node_list_config, job_name):
 
     for host in node_list_config['machine-list']:
 
+        if 'nodename' not in host:
+            host['nodename'] = host['hostip']
+
         maintain_one_node(cluster_config, host, job_name)
 
 
