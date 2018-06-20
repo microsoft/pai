@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class FrameworkDescriptor implements Serializable {
@@ -125,6 +126,24 @@ public class FrameworkDescriptor implements Serializable {
     this.platformSpecificParameters = platformSpecificParameters;
   }
 
+  // TaskRoleName -> TaskNumber
+  public Map<String, Integer> extractTaskNumbers() {
+    Map<String, Integer> taskNumbers = new HashMap<>();
+    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRoles.entrySet()) {
+      taskNumbers.put(taskRole.getKey(), taskRole.getValue().getTaskNumber());
+    }
+    return taskNumbers;
+  }
+
+  // TaskRoleName -> ServiceVersion
+  public Map<String, Integer> extractServiceVersions() {
+    Map<String, Integer> serviceVersions = new HashMap<>();
+    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRoles.entrySet()) {
+      serviceVersions.put(taskRole.getKey(), taskRole.getValue().getTaskService().getVersion());
+    }
+    return serviceVersions;
+  }
+
   public boolean containsGpuResource() {
     for (TaskRoleDescriptor taskRole : taskRoles.values()) {
       if (taskRole.getTaskNumber() > 0) {
@@ -148,5 +167,13 @@ public class FrameworkDescriptor implements Serializable {
     }
     return false;
   }
-}
 
+  public int calcTotalGpuCount() {
+    int totalGpuCount = 0;
+    for (TaskRoleDescriptor taskRoleDescriptor : taskRoles.values()) {
+      totalGpuCount += taskRoleDescriptor.getTaskNumber() *
+          taskRoleDescriptor.getTaskService().getResource().getGpuNumber();
+    }
+    return totalGpuCount;
+  }
+}

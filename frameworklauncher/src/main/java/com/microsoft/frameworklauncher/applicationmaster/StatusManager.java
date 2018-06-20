@@ -201,7 +201,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     // Here ZK and Mem Status is the same.
     // Since Request may be ahead of Status even when Running,
-    // so here the Recovery of AM StatusManager is completed.
+    // so here the Recovery of AM StatusManager has completed.
   }
 
   @Override
@@ -562,27 +562,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   /**
    * REGION ReadInterface
    */
-  public synchronized Integer getStartStatesTaskCount(String taskRoleName) {
-    int startStatesTaskCount = 0;
-    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusArray) {
-      if (TaskStateDefinition.START_STATES.contains(taskStatus.getTaskState())) {
-        startStatesTaskCount++;
-      }
-    }
-    return startStatesTaskCount;
-  }
-
-  public synchronized List<ValueRange> getLiveAssociatedContainerPorts(String taskRoleName) {
-    List<TaskStatus> taskStatusArray = taskStatuseses.get(taskRoleName).getTaskStatusArray();
-    for (TaskStatus taskStatus : taskStatusArray) {
-      if (TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES.contains(taskStatus.getTaskState())) {
-        return PortUtils.toPortRanges(taskStatus.getContainerPorts());
-      }
-    }
-    return new ArrayList<>();
-  }
-
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized TaskStatus getTaskStatus(TaskStatusLocator locator) {
     assertTaskStatusLocator(locator);
@@ -591,11 +570,16 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   // Returned TaskStatus is readonly, caller should not modify it
   public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet) {
-    return getTaskStatus(taskStateSet, true);
+    return getTaskStatus(taskStateSet, null);
   }
 
   // Returned TaskStatus is readonly, caller should not modify it
-  public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, Boolean contains) {
+  public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, String taskRoleName) {
+    return getTaskStatus(taskStateSet, taskRoleName, true);
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized List<TaskStatus> getTaskStatus(Set<TaskState> taskStateSet, String taskRoleName, Boolean contains) {
     Set<TaskState> acceptableTaskStateSet = new HashSet<>();
     if (contains) {
       acceptableTaskStateSet.addAll(taskStateSet);
@@ -610,10 +594,44 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     List<TaskStatus> taskStatuses = new ArrayList<>();
     for (TaskState taskState : acceptableTaskStateSet) {
       for (TaskStatusLocator locator : taskStateLocators.get(taskState)) {
-        taskStatuses.add(getTaskStatus(locator));
+        if (taskRoleName == null || taskRoleName.equals(locator.getTaskRoleName())) {
+          taskStatuses.add(getTaskStatus(locator));
+        }
       }
     }
     return taskStatuses;
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized List<TaskStatus> getFailedTaskStatus() {
+    return getFailedTaskStatus(null);
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized List<TaskStatus> getFailedTaskStatus(String taskRoleName) {
+    List<TaskStatus> failedTaskStatuses = new ArrayList<>();
+    for (TaskStatus taskStatus : getTaskStatus(TaskStateDefinition.FINAL_STATES, taskRoleName)) {
+      if (taskStatus.getContainerExitType() != ExitType.SUCCEEDED) {
+        failedTaskStatuses.add(taskStatus);
+      }
+    }
+    return failedTaskStatuses;
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized List<TaskStatus> getSucceededTaskStatus() {
+    return getSucceededTaskStatus(null);
+  }
+
+  // Returned TaskStatus is readonly, caller should not modify it
+  public synchronized List<TaskStatus> getSucceededTaskStatus(String taskRoleName) {
+    List<TaskStatus> succeededTaskStatuses = new ArrayList<>();
+    for (TaskStatus taskStatus : getTaskStatus(TaskStateDefinition.FINAL_STATES, taskRoleName)) {
+      if (taskStatus.getContainerExitType() == ExitType.SUCCEEDED) {
+        succeededTaskStatuses.add(taskStatus);
+      }
+    }
+    return succeededTaskStatuses;
   }
 
   // Returned TaskStatus is readonly, caller should not modify it
@@ -626,17 +644,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   public synchronized TaskStatus getTaskStatusWithLiveAssociatedContainerId(String containerId) {
     assertLiveAssociatedContainerId(containerId);
     return getTaskStatus(liveAssociatedContainerIdLocators.get(containerId));
-  }
-
-  // Returned TaskStatus is readonly, caller should not modify it
-  public synchronized List<TaskStatus> getFailedTaskStatus() {
-    List<TaskStatus> failedTaskStatuses = new ArrayList<>();
-    for (TaskStatus taskStatus : getTaskStatus(TaskStateDefinition.FINAL_STATES)) {
-      if (taskStatus.getContainerExitType() != ExitType.SUCCEEDED) {
-        failedTaskStatuses.add(taskStatus);
-      }
-    }
-    return failedTaskStatuses;
   }
 
   public synchronized List<String> getLiveAssociatedContainerIds() {
@@ -734,6 +741,16 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
   public synchronized Map<String, AggregatedTaskRoleStatus> getPersistedAggTaskRoleStatuses() {
     return persistedAggTaskRoleStatuses;
+  }
+
+  public synchronized List<ValueRange> getAnyLiveAssociatedContainerPorts(String taskRoleName) {
+    List<TaskStatus> taskStatuses = getTaskStatus(
+        TaskStateDefinition.CONTAINER_LIVE_ASSOCIATED_STATES, taskRoleName);
+    if (taskStatuses.size() > 0) {
+      return PortUtils.toPortRanges(taskStatuses.get(0).getContainerPorts());
+    } else {
+      return new ArrayList<>();
+    }
   }
 
   /**
