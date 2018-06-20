@@ -101,7 +101,7 @@ machine-list:
 - ```pai-master```: Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.
 - ```zkid```: Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```
 - ```pai-worker```: Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work.
-- ```node-exporter```: Optional. You can assign this label to nodes to enable hardware monitoring.
+- ```node-exporter```: Optional. You can assign this label to nodes to enable hardware and service monitoring.
 
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
