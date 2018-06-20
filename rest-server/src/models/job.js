@@ -414,9 +414,9 @@ class Job {
             'diskMB': 0,
           },
         },
-        "applicationCompletionPolicy": {
-          "minFailedTaskCount": 1,
-          "minSucceededTaskCount": minSucceededTaskCount
+        'applicationCompletionPolicy': {
+          'minFailedTaskCount': 1,
+          'minSucceededTaskCount': minSucceededTaskCount,
         },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
