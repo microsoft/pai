@@ -120,7 +120,7 @@ kubernetes:
   load-balance-ip: IP
   service-cluster-ip-range: 10.254.0.0/16
   storage-backend: etcd3
-  docker-registry: gcr.io/google_containers
+  docker-registry: docker.io/pai
   hyperkube-version: v1.9.4
   etcd-version: 3.2.17
   apiserver-version: v1.9.4
@@ -138,7 +138,7 @@ kubernetes:
 ### ```Some values could use the default value```
 - ```service-cluster-ip-range```: Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927](https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.
 - ```storage-backend```: ETCD major version. If you are not familiar with etcd, please do not change it.
-- ```docker-registry```: The docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to gcr.io/google_containers, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. You can also set the docker registry to openpai.docker.io, which is maintained by pai.
+- ```docker-registry```: The docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to gcr.io/google_containers, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. You can also set the docker registry to openpai.docker.io (or docker.io/pai), which is maintained by pai.
 - ```hyperkube-version```: The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).
 - ```etcd-version```: The version of etcd. If you are not familiar with etcd, please do not change it. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/etcd?gcrImageListsize=50).
 - ```apiserver-version```: The version of apiserver. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-apiserver?gcrImageListsize=50).
