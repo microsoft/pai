@@ -71,7 +71,7 @@
     "build": "npm run clean && npm run preprocess && npm run webpack",
     "clean:dist": "npm run rimraf -- dist",
     "clean": "npm cache clean && npm run clean:dist",
-    "lint": "eslint src/**/*.js",
+    "lint": "eslint \"src/**/*.js\"",
     "node": "node",
     "preprocess": "node config/preprocess.js",
     "rimraf": "rimraf",

@@ -20,21 +20,20 @@
 
 # Entrypoint script for yarn container.
 
-exec 13>/tmp/pai_yarncontainer_$CONTAINER_ID.log
+exec 13>$LOG_DIRS/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
 function exit_handler()
 {
   printf "%s %s\n" \
-    "[ERROR]" "EXIT signal received in yarn container, exiting ..."
+    "[DEBUG]" "EXIT signal received in yarn container, exiting ..."
   set +x
   exec 13>&-
-  hdfs dfs -put /tmp/pai_yarncontainer_$CONTAINER_ID.log \
-    {{{ hdfsUri }}}/Container/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/log/
   kill 0
 }
 
 set -x
+PS4="+[\t] "
 trap exit_handler EXIT
 
 
@@ -193,6 +192,11 @@ if [[ -n $PAI_CODE_DIR ]]; then
 fi
 
 
+# Prepare docker debug log
+mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
+ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LOG_DIRS/DockerContainerDebug.log
+
+
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
   || { echo 'Can not pull Docker image' ; exit 1; }
@@ -208,10 +212,11 @@ docker run --name $docker_name \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
+  --volume /tmp/pai-root/alive/$APP_ID:/alive \
+  --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
   --volume /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID:/pai/bootstrap \
   --volume /tmp/pai-root/code/$APP_ID/$CONTAINER_ID:/pai/code \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
-  --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \

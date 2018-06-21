@@ -31,7 +31,6 @@ import org.apache.log4j.Level;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 // Manage the CURD to ZK Request
@@ -59,24 +58,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // ContainerId -> MigrateTaskRequest
   private volatile Map<String, MigrateTaskRequest> migrateTaskRequests = null;
 
-
-  /**
-   * REGION ExtensionRequest
-   * ExtensionRequest should be always CONSISTENT with BaseRequest
-   */
-  private volatile ClusterConfiguration clusterConfiguration;
-  private volatile UserDescriptor user;
-  private volatile PlatformSpecificParametersDescriptor platParams;
-  // TaskRoleName -> TaskRoleDescriptor
-  private volatile Map<String, TaskRoleDescriptor> taskRoles;
-  // TaskRoleName -> RetryPolicyDescriptor
-  private volatile Map<String, RetryPolicyDescriptor> taskRetryPolicies;
-  // TaskRoleName -> ServiceDescriptor
-  private volatile Map<String, ServiceDescriptor> taskServices;
-  // TaskRoleName -> ResourceDescriptor
-  private volatile Map<String, ResourceDescriptor> taskResources;
-  // TaskRoleName -> TaskRolePlatformSpecificParametersDescriptor
-  private volatile Map<String, TaskRolePlatformSpecificParametersDescriptor> taskPlatParams;
 
   /**
    * REGION StateVariable
@@ -202,7 +183,6 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
         WebCommon.toJson(newLauncherRequest));
 
     launcherRequest = newLauncherRequest;
-    clusterConfiguration = launcherRequest.getClusterConfiguration();
   }
 
   private void checkFrameworkVersion(FrameworkDescriptor newFrameworkDescriptor) throws Exception {
@@ -300,41 +280,18 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     checkUnsupportedHadoopFeatures(newFrameworkDescriptor);
     checkUnsupportedOnTheFlyChanges(newFrameworkDescriptor);
 
+    // Backup old to detect changes
+    FrameworkDescriptor oldFrameworkDescriptor = frameworkDescriptor;
+
     // Replace on the fly FrameworkDescriptor with newFrameworkDescriptor.
     // The operation is Atomic, since it only modifies the reference.
     // So, the on going read for the old FrameworkDescriptor will not get intermediate results
     frameworkDescriptor = newFrameworkDescriptor;
-
-    // Backup old to detect changes
-    PlatformSpecificParametersDescriptor oldPlatParams = platParams;
-    Map<String, TaskRoleDescriptor> oldTaskRoles = taskRoles;
-    Map<String, ServiceDescriptor> oldTaskServices = taskServices;
-
-    // Update ExtensionRequest
-    user = frameworkDescriptor.getUser();
-    platParams = frameworkDescriptor.getPlatformSpecificParameters();
-    taskRoles = frameworkDescriptor.getTaskRoles();
-    Map<String, RetryPolicyDescriptor> newTaskRetryPolicies = new HashMap<>();
-    Map<String, ServiceDescriptor> newTaskServices = new HashMap<>();
-    Map<String, ResourceDescriptor> newTaskResources = new HashMap<>();
-    Map<String, TaskRolePlatformSpecificParametersDescriptor> newTaskPlatParams = new HashMap<>();
-    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRoles.entrySet()) {
-      String taskRoleName = taskRole.getKey();
-      TaskRoleDescriptor taskRoleDescriptor = taskRole.getValue();
-      newTaskRetryPolicies.put(taskRoleName, taskRoleDescriptor.getTaskRetryPolicy());
-      newTaskServices.put(taskRoleName, taskRoleDescriptor.getTaskService());
-      newTaskResources.put(taskRoleName, taskRoleDescriptor.getTaskService().getResource());
-      newTaskPlatParams.put(taskRoleName, taskRoleDescriptor.getPlatformSpecificParameters());
-    }
-    taskRetryPolicies = newTaskRetryPolicies;
-    taskServices = newTaskServices;
-    taskResources = newTaskResources;
-    taskPlatParams = newTaskPlatParams;
-    Map<String, Integer> taskNumbers = getTaskNumbers(taskRoles);
-    Map<String, Integer> serviceVersions = getServiceVersions(taskServices);
+    Map<String, Integer> serviceVersions = frameworkDescriptor.extractServiceVersions();
+    Map<String, Integer> taskNumbers = frameworkDescriptor.extractTaskNumbers();
 
     // Notify AM to take actions for Request
-    if (oldPlatParams == null) {
+    if (oldFrameworkDescriptor == null) {
       // For the first time, send all Request to AM
       am.onServiceVersionsUpdated(serviceVersions);
       am.onTaskNumbersUpdated(taskNumbers);
@@ -347,10 +304,10 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
       }
     } else {
       // For the other times, only send changed Request to AM
-      if (!CommonExts.equals(getServiceVersions(oldTaskServices), serviceVersions)) {
+      if (!CommonExts.equals(oldFrameworkDescriptor.extractServiceVersions(), serviceVersions)) {
         am.onServiceVersionsUpdated(serviceVersions);
       }
-      if (!CommonExts.equals(getTaskNumbers(oldTaskRoles), taskNumbers)) {
+      if (!CommonExts.equals(oldFrameworkDescriptor.extractTaskNumbers(), taskNumbers)) {
         am.onTaskNumbersUpdated(taskNumbers);
       }
     }
@@ -388,28 +345,11 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     migrateTaskRequests = CommonExts.asReadOnly(newMigrateTaskRequests);
   }
 
-  private Map<String, Integer> getTaskNumbers(Map<String, TaskRoleDescriptor> taskRoles) {
-    Map<String, Integer> taskNumbers = new HashMap<>();
-    for (Map.Entry<String, TaskRoleDescriptor> taskRole : taskRoles.entrySet()) {
-      taskNumbers.put(taskRole.getKey(), taskRole.getValue().getTaskNumber());
-    }
-    return taskNumbers;
-  }
-
-  private Map<String, Integer> getServiceVersions(Map<String, ServiceDescriptor> taskServices) {
-    Map<String, Integer> serviceVersions = new HashMap<>();
-    for (Map.Entry<String, ServiceDescriptor> taskService : taskServices.entrySet()) {
-      serviceVersions.put(taskService.getKey(), taskService.getValue().getVersion());
-    }
-    return serviceVersions;
-  }
-
-
   /**
    * REGION ReadInterface
    */
   public ClusterConfiguration getClusterConfiguration() {
-    return clusterConfiguration;
+    return launcherRequest.getClusterConfiguration();
   }
 
   public AggregatedFrameworkRequest getAggregatedFrameworkRequest() {
@@ -417,44 +357,43 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   }
 
   public UserDescriptor getUser() {
-    return user;
+    return frameworkDescriptor.getUser();
   }
 
   public PlatformSpecificParametersDescriptor getPlatParams() {
-    return platParams;
-  }
-
-  public Map<String, TaskRoleDescriptor> getTaskRoles() {
-    return taskRoles;
-  }
-
-  public Map<String, RetryPolicyDescriptor> getTaskRetryPolicies() {
-    return taskRetryPolicies;
-  }
-
-  public Map<String, ServiceDescriptor> getTaskServices() {
-    return taskServices;
-  }
-
-  public Map<String, ResourceDescriptor> getTaskResources() {
-    return taskResources;
+    return frameworkDescriptor.getPlatformSpecificParameters();
   }
 
   public int getTotalGpuCount() {
-    int gpuCount = 0;
-    Map<String, TaskRoleDescriptor> taskRolesSnapshot = taskRoles;
-    for (TaskRoleDescriptor taskRoleDescriptor : taskRolesSnapshot.values()) {
-      gpuCount += taskRoleDescriptor.getTaskService().getResource().getGpuNumber() * taskRoleDescriptor.getTaskNumber();
-    }
-    return gpuCount;
+    return frameworkDescriptor.calcTotalGpuCount();
   }
 
-  public Map<String, TaskRolePlatformSpecificParametersDescriptor> getTaskPlatParams() {
-    return taskPlatParams;
+  public TaskRoleDescriptor getTaskRole(String taskRoleName) {
+    return frameworkDescriptor.getTaskRoles().get(taskRoleName);
+  }
+
+  public RetryPolicyDescriptor getTaskRetryPolicy(String taskRoleName) {
+    return getTaskRole(taskRoleName).getTaskRetryPolicy();
+  }
+
+  public TaskRoleApplicationCompletionPolicyDescriptor getTaskRoleApplicationCompletionPolicy(String taskRoleName) {
+    return getTaskRole(taskRoleName).getApplicationCompletionPolicy();
+  }
+
+  public TaskRolePlatformSpecificParametersDescriptor getTaskRolePlatParams(String taskRoleName) {
+    return getTaskRole(taskRoleName).getPlatformSpecificParameters();
+  }
+
+  public ServiceDescriptor getTaskService(String taskRoleName) {
+    return getTaskRole(taskRoleName).getTaskService();
+  }
+
+  public ResourceDescriptor getTaskResource(String taskRoleName) {
+    return getTaskService(taskRoleName).getResource();
   }
 
   public Integer getServiceVersion(String taskRoleName) {
-    return taskRoles.get(taskRoleName).getTaskService().getVersion();
+    return getTaskService(taskRoleName).getVersion();
   }
 
   public Float getApplicationProgress() throws Exception {

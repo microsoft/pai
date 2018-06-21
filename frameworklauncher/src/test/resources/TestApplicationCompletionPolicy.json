@@ -15,9 +15,13 @@
         "maxRetryCount": 0,
         "fancyRetryPolicy": false
       },
+      "applicationCompletionPolicy": {
+        "minFailedTaskCount": 1,
+        "minSucceededTaskCount": 1
+      },
       "taskService": {
         "version": 1,
-        "entryPoint": "KillAllOnAnyCompletedTest/run.sh",
+        "entryPoint": "ApplicationCompletionPolicyTest/run.sh",
         "sourceLocations": [
         ],
         "resource": {
@@ -38,8 +42,6 @@
     "containerConnectionMaxLostCount": -2,
     "containerConnectionMaxExceedCount": 2,
     "antiaffinityAllocation": false,
-    "killAllOnAnyCompleted": true,
-    "killAllOnAnyServiceCompleted": false,
     "generateContainerIpList": false,
     "amType": "DEFAULT",
     "agentUseHeartbeat": false,

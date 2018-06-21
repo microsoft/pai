@@ -453,7 +453,7 @@ public class Service extends AbstractService {
     LOGGER.logInfo("All the previous FRAMEWORK_WAITING Frameworks have been driven");
 
     transitionFrameworkStateQueue.queueSystemTask(() -> {
-      retrieveApplicationDiagnostics();
+      retrieveApplicationExitDiagnostics();
     });
     LOGGER.logInfo("All the previous APPLICATION_RETRIEVING_DIAGNOSTICS Frameworks have been driven");
 
@@ -476,14 +476,14 @@ public class Service extends AbstractService {
     attemptToRetry(frameworkStatus);
   }
 
-  // retrieveApplicationDiagnostics to prepare completeApplication
-  private void retrieveApplicationDiagnostics(String applicationId, Integer exitCode, String diagnostics, boolean needToKill) throws Exception {
+  // retrieveApplicationExitDiagnostics to prepare completeApplication
+  private void retrieveApplicationExitDiagnostics(String applicationId, Integer exitCode, String diagnostics, boolean needToKill) throws Exception {
     if (needToKill) {
       HadoopUtils.killApplication(applicationId);
     }
 
     String logSuffix = String.format(
-        "[%s]: retrieveApplicationDiagnostics: ExitCode: %s, ExitDiagnostics: %s, NeedToKill: %s",
+        "[%s]: retrieveApplicationExitDiagnostics: ExitCode: %s, ExitDiagnostics: %s, NeedToKill: %s",
         applicationId, exitCode, diagnostics, needToKill);
 
     if (!statusManager.isApplicationIdAssociated(applicationId)) {
@@ -501,12 +501,12 @@ public class Service extends AbstractService {
     diagnosticsRetrieveHandler.retrieveDiagnosticsAsync(applicationId, diagnostics);
   }
 
-  private void retrieveApplicationDiagnostics() throws Exception {
+  private void retrieveApplicationExitDiagnostics() throws Exception {
     for (FrameworkStatus frameworkStatus : statusManager.getFrameworkStatus(
         new HashSet<>(Collections.singletonList(FrameworkState.APPLICATION_RETRIEVING_DIAGNOSTICS)))) {
       // No need to kill, since if a Framework is in APPLICATION_RETRIEVING_DIAGNOSTICS,
       // it is guaranteed to be already killed.
-      retrieveApplicationDiagnostics(
+      retrieveApplicationExitDiagnostics(
           frameworkStatus.getApplicationId(),
           frameworkStatus.getApplicationExitCode(),
           frameworkStatus.getApplicationExitDiagnostics(),
@@ -583,21 +583,21 @@ public class Service extends AbstractService {
       // YarnException indicates exceptions from yarn servers, and IOException indicates exceptions from RPC layer.
       // So, consider YarnException as NonTransientError, and IOException as TransientError.
       if (e instanceof YarnException) {
-        retrieveApplicationDiagnostics(
+        retrieveApplicationExitDiagnostics(
             applicationId,
             ExitStatusKey.LAUNCHER_SUBMIT_APP_NON_TRANSIENT_ERROR.toInt(),
             "Failed to submit application due to non-transient error, maybe application is non-compliant." + eMsg,
             true);
         return;
       } else if (e instanceof IOException) {
-        retrieveApplicationDiagnostics(
+        retrieveApplicationExitDiagnostics(
             applicationId,
             ExitStatusKey.LAUNCHER_SUBMIT_APP_TRANSIENT_ERROR.toInt(),
             "Failed to submit application due to transient error, maybe YARN RM is down." + eMsg,
             true);
         return;
       } else {
-        retrieveApplicationDiagnostics(
+        retrieveApplicationExitDiagnostics(
             applicationId,
             ExitStatusKey.LAUNCHER_SUBMIT_APP_UNKNOWN_ERROR.toInt(),
             "Failed to submit application due to unknown error." + eMsg,
@@ -820,19 +820,19 @@ public class Service extends AbstractService {
             statusManager.transitionFrameworkState(frameworkName, FrameworkState.APPLICATION_RUNNING);
           }
         } else if (applicationFinalStatus == FinalApplicationStatus.SUCCEEDED) {
-          retrieveApplicationDiagnostics(
+          retrieveApplicationExitDiagnostics(
               applicationId,
               ExitStatusKey.SUCCEEDED.toInt(),
               diagnostics,
               false);
         } else if (applicationFinalStatus == FinalApplicationStatus.KILLED) {
-          retrieveApplicationDiagnostics(
+          retrieveApplicationExitDiagnostics(
               applicationId,
               ExitStatusKey.AM_KILLED_BY_USER.toInt(),
               diagnostics,
               false);
         } else if (applicationFinalStatus == FinalApplicationStatus.FAILED) {
-          retrieveApplicationDiagnostics(
+          retrieveApplicationExitDiagnostics(
               applicationId,
               null,
               diagnostics,
@@ -862,7 +862,7 @@ public class Service extends AbstractService {
                 "Will complete it with RMResyncLost ExitStatus",
             frameworkName, applicationId);
 
-        retrieveApplicationDiagnostics(
+        retrieveApplicationExitDiagnostics(
             applicationId,
             ExitStatusKey.AM_RM_RESYNC_LOST.toInt(),
             "AM lost after RMResynced",

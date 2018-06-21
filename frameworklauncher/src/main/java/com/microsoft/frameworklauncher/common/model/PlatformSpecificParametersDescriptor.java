@@ -68,17 +68,6 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // If this feature is enabled, all Running Tasks will be killed after any TASK_COMPLETED.
-  private Boolean killAllOnAnyCompleted = false;
-
-  @Valid
-  @NotNull
-  // If this feature is enabled, all Running Tasks will be killed after any TASK_COMPLETED
-  // which is due to the exit of UserService.
-  private Boolean killAllOnAnyServiceCompleted = false;
-
-  @Valid
-  @NotNull
   // If this feature is enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
   // then Launches them together.
   // Besides, a ContainerIpList file will be generated in each Task's current working directory.
@@ -185,22 +174,6 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   public void setAntiaffinityAllocation(Boolean antiaffinityAllocation) {
     this.antiaffinityAllocation = antiaffinityAllocation;
-  }
-
-  public Boolean getKillAllOnAnyCompleted() {
-    return killAllOnAnyCompleted;
-  }
-
-  public void setKillAllOnAnyCompleted(Boolean killAllOnAnyCompleted) {
-    this.killAllOnAnyCompleted = killAllOnAnyCompleted;
-  }
-
-  public Boolean getKillAllOnAnyServiceCompleted() {
-    return killAllOnAnyServiceCompleted;
-  }
-
-  public void setKillAllOnAnyServiceCompleted(Boolean killAllOnAnyServiceCompleted) {
-    this.killAllOnAnyServiceCompleted = killAllOnAnyServiceCompleted;
   }
 
   public Boolean getGenerateContainerIpList() {

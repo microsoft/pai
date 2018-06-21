@@ -159,7 +159,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
     // Here ZK and Mem Status is the same.
     // Since Request may be ahead of Status even when Running,
-    // so here the Recovery of Service StatusManager is completed.
+    // so here the Recovery of Service StatusManager has completed.
   }
 
   // No need to run and stop for StatusManager, since all ZK and Mem Status
