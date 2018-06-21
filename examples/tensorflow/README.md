@@ -111,6 +111,54 @@ If you have built your image and pushed it to Docker Hub, replace our pre-built 
 
 Here're some configuration file examples:
 
+### Image classification on CIFAR-10
+```js
+{
+  "jobName": "tensorflow-cifar10",
+  "image": "paiexample/pai.example.tensorflow",
+
+  "dataDir": "/tmp/data",
+  "outputDir": "/tmp/output",
+
+  "taskRoles": [
+    {
+      "name": "cifar_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=$PAI_DATA_DIR && python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
+    }
+  ]
+}
+```
+
+### Image classification on ImageNet
+```js
+{
+  "jobName": "tensorflow-imagenet",
+  "image": "paiexample/pai.example.tensorflow",
+
+  // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
+  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  // make a new dir for output on hdfs
+  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
+  // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
+  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+
+  "taskRoles": [
+    {
+      "name": "imagenet_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "python code/train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=imagenet --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
+    }
+  ]
+}
+```
+
 ### Distributed traning on CIFAR-10
 ```js
 {
@@ -144,32 +192,6 @@ Here're some configuration file examples:
   ],
   "killAllOnCompletedTaskNumber": 2,
   "retryCount": 0
-}
-```
-
-### Image classification on ImageNet
-```js
-{
-  "jobName": "tensorflow-imagenet",
-  "image": "paiexample/pai.example.tensorflow",
-
-  // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
-  // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
-
-  "taskRoles": [
-    {
-      "name": "imagenet_train",
-      "taskNumber": 1,
-      "cpuNumber": 8,
-      "memoryMB": 32768,
-      "gpuNumber": 1,
-      "command": "python code/train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=imagenet --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
-    }
-  ]
 }
 ```
 

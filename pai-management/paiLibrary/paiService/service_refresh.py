@@ -23,7 +23,7 @@ from ..common import linux_shell
 
 
 
-class service_refrash:
+class service_refresh:
 
 
     def __init__(self, service_conf, serivce_name):
@@ -37,11 +37,11 @@ class service_refrash:
 
     def start(self):
 
-        refrash_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["refrash-script"])
+        refresh_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["refresh-script"])
 
-        cmd = "/bin/bash {0}".format(refrash_script)
-        err_msg = "Failed to execute the refrash script of service {0}".format(self.service_name)
-        self.logger.info("Begin to execute service {0}'s refrash script.".format(self.service_name))
+        cmd = "/bin/bash {0}".format(refresh_script)
+        err_msg = "Failed to execute the refresh script of service {0}".format(self.service_name)
+        self.logger.info("Begin to execute service {0}'s refresh script.".format(self.service_name))
         linux_shell.execute_shell(cmd, err_msg)
 
 

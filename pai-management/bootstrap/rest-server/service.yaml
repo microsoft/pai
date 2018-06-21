@@ -23,10 +23,10 @@ template-list:
   - node-label.sh
   - rest-server.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 upgraded-script: upgraded.sh

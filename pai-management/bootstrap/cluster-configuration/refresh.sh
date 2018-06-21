@@ -19,6 +19,14 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "no job in the refrash script of end-to-end-test"
+echo "refresh secret for k8s cluster"
+kubectl apply -f secret.yaml
+
+echo "refresh host-configuration"
+kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f -
+echo "refresh docker-credentials"
+kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f -
+echo "refresh gpu-configuration"
+kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 popd > /dev/null
