@@ -2,7 +2,7 @@
 
 ## Install docker on your server
 
-```dev-box``` is a docker container you could use to maintain PAI cluster. And we provide a prebuild image hosted on Docker Hub for your convenience.
+```dev-box``` is a docker container used to boot up or/and maintain a PAI cluster. For convenience, we provide a prebuild Docker image on Docker Hub.
 
 ## Use prebuild dev-box image
 
@@ -12,8 +12,8 @@
 sudo docker pull docker.io/openpai/dev-box
 
 # Run your dev-box
-# Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop.
-# Assume the directory path of your cluster-configuration is /pathConfiguration.
+# Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
+#   and the path of your cluster-configuration is /pathConfiguration.
 # By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
@@ -48,11 +48,11 @@ git clone https://github.com/Microsoft/pai.git
 cd pai/pai-management/
 
 # Build your dev-box.
-sudo docker build -t dev-box .
+sudo docker build -t dev-box
 
 ```
 
-### Start Your dev-box contianer
+### Start your dev-box container
 
 - Suppose the path of ```custom-hadoop-binary-path``` in your service-configuration is ```/pathHadoop```
 - Suppose the directory path of your cluster-configuration is ``/pathConfiguration````. Note: Don't change the configuration file name！
