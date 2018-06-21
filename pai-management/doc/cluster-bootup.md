@@ -83,7 +83,7 @@ After the configuration files are prepared, the Kubernetes services can be start
 
 ```
 paictl.py cluster k8s-bootup \
-  -p /path/to/cluster-configuraiton/dir
+  -p /path/to/cluster-configuration/dir
 ```
 
 The `paictl` tool does the following things:

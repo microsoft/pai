@@ -19,22 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Refrash the configmap of launcher"
-
-kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f -
-
-echo "Relabel the node with laucher tag"
-/bin/bash node-label.sh
-
-{% for host in machinelist %}
-
-    {% if 'launcher' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher-
-fi
-    {% endif %}
-
-{% endfor %}
+echo "no job in the refresh script of end-to-end-test"
 
 popd > /dev/null

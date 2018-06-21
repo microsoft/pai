@@ -21,8 +21,6 @@ antiaffinityAllocation: false
 containerConnectionMaxExceedCount: 0
 containerConnectionMaxLostCount: 0
 generateContainerIpList: false
-killAllOnAnyCompleted: false
-killAllOnAnyServiceCompleted: false
 queue: testString
 skipLocalTriedResource: false
 taskNodeGpuType: testString

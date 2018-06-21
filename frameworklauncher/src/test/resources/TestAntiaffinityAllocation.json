@@ -38,8 +38,6 @@
     "containerConnectionMaxLostCount": -2,
     "containerConnectionMaxExceedCount": 2,
     "antiaffinityAllocation": true,
-    "killAllOnAnyCompleted": false,
-    "killAllOnAnyServiceCompleted": false,
     "generateContainerIpList": false,
     "amType": "DEFAULT",
     "agentUseHeartbeat": false,

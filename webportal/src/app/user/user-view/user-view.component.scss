@@ -1,3 +1,25 @@
+.divider {
+  border-top: 1px solid #7c7c7c;
+}
+
+.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+.disabled {
+  pointer-events: none;
+  color: silver;
+  cursor: default;
+}
+
+#toRegister {
+  margin: 10px;
+  margin-top: 0px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+
 .form-register {
   max-width: 360px;
   padding: 30px;
@@ -16,9 +38,6 @@
 .form-register .form-control {
   position: relative;
   height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
   padding: 10px;
   font-size: 16px;
 }
@@ -27,19 +46,13 @@
   z-index: 2;
 }
 
-.form-register input[type="username"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
 .form-register input[type="password"] {
   margin-bottom: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
-.form-register input[type="virtualCluster"] {
+.form-register input[id="update-virtual-cluster-input-virtualCluster"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -48,4 +61,8 @@
 .user-management-nav{
   border-bottom-color: #d2d6de !important;
   border-right-color: #d2d6de !important;
+}
+
+.user-edit-border {
+  padding:15px;
 }

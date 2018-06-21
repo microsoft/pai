@@ -12,7 +12,7 @@
       "scaleUnitNumber": 16,
       "scaleUnitTimeoutSec": 17,
       "taskRetryPolicy": {
-        "maxRetryCount": -1,
+        "maxRetryCount": -2,
         "fancyRetryPolicy": false
       },
       "taskService": {
@@ -36,7 +36,7 @@
       "scaleUnitNumber": 26,
       "scaleUnitTimeoutSec": 27,
       "taskRetryPolicy": {
-        "maxRetryCount": -1,
+        "maxRetryCount": -2,
         "fancyRetryPolicy": false
       },
       "taskService": {
@@ -78,8 +78,6 @@
     "containerConnectionMaxLostCount": -2,
     "containerConnectionMaxExceedCount": 2,
     "antiaffinityAllocation": true,
-    "killAllOnAnyCompleted": false,
-    "killAllOnAnyServiceCompleted": false,
     "generateContainerIpList": false,
     "amType": 0,
     "agentUseHeartbeat": false,
