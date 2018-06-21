@@ -48,14 +48,14 @@ git clone https://github.com/Microsoft/pai.git
 cd pai/pai-management/
 
 # Build your dev-box.
-sudo docker build -t dev-box
+sudo docker build -t dev-box .
 
 ```
 
 ### Start your dev-box container
 
 - Suppose the path of ```custom-hadoop-binary-path``` in your service-configuration is ```/pathHadoop```
-- Suppose the directory path of your cluster-configuration is ``/pathConfiguration````. Note: Don't change the configuration file name！
+- Suppose the directory path of your cluster-configuration is ```/pathConfiguration```. Note: Don't change the configuration file name！
 
 ```bash
 
