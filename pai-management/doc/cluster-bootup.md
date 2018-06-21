@@ -5,12 +5,12 @@ This document introduces the detailed procedures to boot up PAI on an existing c
 Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
 
-- [Overview <a name="overview"></a>](#overview-a-nameoverviewa)
-- [Step 1a. Prepare PAI configuration: Manual approach <a name="step-1a"></a>](#step-1a-prepare-pai-configuration-manual-approach-a-namestep-1aa)
-- [Step 1b. Prepare PAI configuration: Using `paictl` tool <a name="step-1b"></a>](#step-1b-prepare-pai-configuration-using-paictl-tool-a-namestep-1ba)
-- [Step 2. Boot up Kubernetes <a name="step-2"></a>](#step-2-boot-up-kubernetes-a-namestep-2a)
-- [Step 3. Start all PAI services <a name="step-3"></a>](#step-3-start-all-pai-services-a-namestep-3a)
-- [Appendix: Default values in auto-generated configuration files <a name="appendix"></a>](#appendix-default-values-in-auto-generated-configuration-files-a-nameappendixa)
+- [Overview](#overview)
+- [Step 1a. Prepare PAI configuration: Manual approach](#step-1a)
+- [Step 1b. Prepare PAI configuration: Using `paictl` tool for a quickstart deployment](#step-1b)
+- [Step 2. Boot up Kubernetes](#step-2)
+- [Step 3. Start all PAI services](#step-3)
+- [Appendix: Default values in auto-generated configuration files](#appendix)
 
 <!-- /TOC -->
 
