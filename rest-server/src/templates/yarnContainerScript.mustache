@@ -220,5 +220,4 @@ docker run --name $docker_name \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '/pai/bootstrap/docker_bootstrap.sh' \
-  || exit 1
+  '/pai/bootstrap/docker_bootstrap.sh'
