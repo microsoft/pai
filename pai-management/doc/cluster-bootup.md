@@ -1,6 +1,8 @@
 # Tutorial: Booting up the cluster
 
-This document introduces the detailed procedures to boot up PAI on an existing cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
+This document introduces the detailed procedures to boot up PAI on a cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
+
+Please refer to Section [single box deployment](./single-box-deployment.md) if user would like to deplay PAI on a single server.
 
 Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
