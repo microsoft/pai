@@ -11,14 +11,14 @@
 Platform for AI (PAI) is a platform for cluster management and resource scheduling.
 The platform incorporates the mature design that has a proven track record in Microsoft's large scale production environment.
 
-PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides PAI [runtime environment](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md) support, with which existing deep learning frameworks, e.g., CNTK and TensorFlow, can onboard PAI without any code changes. The runtime environment support provides great extensibility: new workload can leverage the environment support to run on PAI with just a few extra lines of script and/or Python code.
+PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides PAI [runtime environment](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md) support, with which existing [deep learning frameworks](./examples/README.md), e.g., CNTK and TensorFlow, can onboard PAI without any code changes. The runtime environment support provides great extensibility: new workload can leverage the environment support to run on PAI with just a few extra lines of script and/or Python code.
 
 PAI supports GPU scheduling, a key requirement of deep learning jobs. 
 For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
 
 PAI embraces a [microservices](https://en.wikipedia.org/wiki/Microservices) architecture: every component runs in a container.
 The system leverages [Kubernetes](https://kubernetes.io/) to deploy and manage static components in the system.
-The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](./hadoop-ai). 
+The more dynamic deep learning jobs are scheduled and managed by [Hadoop](http://hadoop.apache.org/) YARN with our [GPU enhancement](./hadoop-ai/README.md). 
 The training data and training results are stored in Hadoop HDFS.
 
 ## An Open AI Platform for R&D and Education 
