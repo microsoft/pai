@@ -51,7 +51,8 @@ cluster:
 
 
 hadoop:
-  # custom_hadoop_binary_path is required to build hadoop-ai, a patch to hadoop-2.7.2
+  # custom_hadoop_binary_path is required to build hadoop-ai.
+  # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
   custom-hadoop-binary-path: /pathHadoop/
   hadoop-version: 2.7.2
   # Step 1 of 4 to set up Hadoop queues.
