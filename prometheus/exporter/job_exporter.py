@@ -110,7 +110,7 @@ def main(argv):
             # collect GPU metrics
             gpuMetrics = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
             # collection connection metrics
-            connectionDic = iftop()
+            connectionDic = network.iftop()
             # join with docker stats metrics and docker inspect labels
             gen_job_metrics(logDir, gpuMetrics, connectionDic)
         except:

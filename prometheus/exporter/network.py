@@ -76,20 +76,13 @@ def parse_iftop(stats):
     return connectionDic
 
 def iftop():
-    test = "True"
-
-    if(test == "True"):
-        file = open("network/iftop.txt", "r") 
-        iftop = file.read()
-        return parse_iftop(iftop)
-    else:
-        try:
-            iftopCMD = "sudo iftop -t -P -s 1 -L 10000 -B -n -N"
-            iftopResult = subprocess.check_output([iftopCMD], shell=True)
-            result = parse_iftop(iftopResult)
-            return result
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    try:
+        iftopCMD = "sudo iftop -t -P -s 1 -L 10000 -B -n -N"
+        iftopResult = subprocess.check_output([iftopCMD], shell=True)
+        result = parse_iftop(iftopResult)
+        return result
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def parse_lsof(stats):
     connections = {}
@@ -111,20 +104,13 @@ def parse_lsof(stats):
     return connections
 
 def lsof(containerPID):
-    test = "True"
-
-    if(test == "True"):
-        file = open("network/lsof.txt", "r") 
-        lsof = file.read()
-        return parse_lsof(lsof)
-    else:
-        try:
-            lsofCMD = "./infilter {} /usr/bin/lsof -i -n".format(containerPID)
-            isofResult = subprocess.check_output([lsofCMD], shell=True)
-            result = parse_lsof(isofResult)
-            return result
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    try:
+        lsofCMD = "./infilter {} /usr/bin/lsof -i -n".format(containerPID)
+        isofResult = subprocess.check_output([lsofCMD], shell=True)
+        result = parse_lsof(isofResult)
+        return result
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 def acc_per_container_network_metrics(connectionDic, pid):
     connections = lsof(pid)

@@ -45,7 +45,7 @@ def parse_docker_inspect(jsonStr):
             if envItem[0] in targetEnv:
                 envs.append("container_env_{0}=\"{1}\"".format(envItem[0].replace(".", "_"), envItem[1]))
     
-    inspectMetrics = {"pid": pid, env": envs, "labels": labels}
+    inspectMetrics = {"pid": pid, "env": envs, "labels": labels}
     return inspectMetrics
     
 def inspect(containerId):
