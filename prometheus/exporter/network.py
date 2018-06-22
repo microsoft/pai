@@ -105,7 +105,7 @@ def parse_lsof(stats):
 
 def lsof(containerPID):
     try:
-        lsofCMD = "./infilter {} /usr/bin/lsof -i -n".format(containerPID)
+        lsofCMD = "infilter {} /usr/bin/lsof -i -n".format(containerPID)
         isofResult = subprocess.check_output([lsofCMD], shell=True)
         result = parse_lsof(isofResult)
         return result
