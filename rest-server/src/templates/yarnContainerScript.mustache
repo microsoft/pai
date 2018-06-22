@@ -32,7 +32,8 @@ function exit_handler()
     "[DEBUG]" "EXIT signal received in yarn container, exiting ..."
   set +x
   exec 13>&-
-  kill -9 $(docker inspect --format="{{.State.Pid}}" $docker_name)
+  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name) && kill -9 $pid ||\
+    printf "%s %s\n"  "[DEBUG]" "$docker_name does not exist."
   kill 0
 }
 
