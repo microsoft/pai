@@ -24,11 +24,11 @@ template-list:
   - node-label.sh
   - hadoop-name-node.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 upgraded-script: upgraded.sh
