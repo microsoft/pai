@@ -1,6 +1,6 @@
 # Tutorial: Booting up the cluster
 
-This document introduces the detailed procedures to boot up PAI on an existing cluster.
+This document introduces the detailed procedures to boot up PAI on an existing cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
 
 Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
@@ -18,6 +18,7 @@ Table of contents:
 
 We assume that the whole cluster has already been configured by the system maintainer to meet the following requirements:
 
+- A [dev-box](./how-to-setup-dev-box.md) has been set up and can access the cluster.
 - SSH service is enabled on each of the machines.
 - All machines share the same username / password for the SSH service on each of them.
 - The username that can be used to login to each machine should have sudo privilege.
@@ -36,16 +37,16 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 
 This method is for advanced users. PAI configuration consists of 4 YAML files:
 
-- `cluster-configuration.yaml` - Machine-lvel configurations, including login info, machine SKUs, labels of each machine, etc.
-- `kubernetes-configuration.yaml` - Kubernetes-level configurations, part 1. This file contains basic configurations of Kuberntes, such as the version info, network configurations, etc.
-- `k8s-role-definition.yaml` - Kubernetes-level configurations, part 2. This file contains the mappings of Kubernetes roles and machine labels.
-- `serivices-configuration.yaml` - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
+- [`cluster-configuration.yaml`](./how-to-write-pai-configuration.md#cluster_configuration) - Machine-level configurations, including login info, machine SKUs, labels of each machine, etc.
+- [`kubernetes-configuration.yaml`](./how-to-write-pai-configuration.md#kubernetes_configuration) - Kubernetes-level configurations, part 1. This file contains basic configurations of Kuberntes, such as the version info, network configurations, etc.
+- [`k8s-role-definition.yaml`](./how-to-write-pai-configuration.md#k8s_role_definition) - Kubernetes-level configurations, part 2. This file contains the mappings of Kubernetes roles and machine labels.
+- [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
 There are two ways to prepare the above 4 PAI configuration files. The first one is to prepare them manually. The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
 
-## Step 1b. Prepare PAI configuration: Using `paictl` tool <a name="step-1b"></a>
+## Step 1b. Prepare PAI configuration: A quick start approach using `paictl` tool <a name="step-1b"></a>
 
 The second way, which is designed for fast deployment, is to generate a set of default configuration files from a very simple stariting-point file using the `paictl` maintenance tool:
 
@@ -76,6 +77,8 @@ machines:
 ssh-username: pai-admin
 ssh-password: pai-admin-password
 ```
+An example quick-start.yaml file is available [here](../quick-start/quick-start-example.yaml). 
+Note that the quick start approach does not provide high availability and customized deployment, which is done through the [manual approach](#step-1a).
 
 ## Step 2. Boot up Kubernetes <a name="step-2"></a>
 
@@ -96,7 +99,7 @@ After this step, the system maintainer can check the status of Kubernetes by acc
 ```
 http://<master>:9090
 ```
-where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. In a special case when there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
+where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
 
 ## Step 3. Start all PAI services <a name="step-3"></a>
 
@@ -108,7 +111,7 @@ paictl.py service start \
   [ -n service-name ]
 ```
 
-If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In this latter case, the above command does the following things:
+If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
 
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`.
 - Use `kubectl` to set up config maps and create pods on Kubernetes.
@@ -117,7 +120,7 @@ After this step, the system maintainer can check the status of PAI services by a
 ```
 http://<master>:9286
 ```
-where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. In a special case when there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
+where `<master>` is the same as in the previous [section](#step-2).
 
 ## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
