@@ -33,7 +33,7 @@ import java.io.Serializable;
  *  will retry and retriedCount++ if maxRetryCount == -2,
  *  will retry and retriedCount++ if exit due to failure and maxRetryCount == -1,
  *  will retry and retriedCount++ if exit due to failure and retriedCount < maxRetryCount,
- *  will not retry if all previous conditions are not satisfied.
+ *  will not retry if all above conditions are not satisfied.
  */
 public class RetryPolicyDescriptor implements Serializable {
   @Valid

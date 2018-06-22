@@ -44,6 +44,10 @@ public class TaskRoleDescriptor implements Serializable {
 
   @Valid
   @NotNull
+  private TaskRoleApplicationCompletionPolicyDescriptor applicationCompletionPolicy = new TaskRoleApplicationCompletionPolicyDescriptor();
+
+  @Valid
+  @NotNull
   private ServiceDescriptor taskService;
 
   @Valid
@@ -83,6 +87,14 @@ public class TaskRoleDescriptor implements Serializable {
 
   public void setTaskRetryPolicy(RetryPolicyDescriptor taskRetryPolicy) {
     this.taskRetryPolicy = taskRetryPolicy;
+  }
+
+  public TaskRoleApplicationCompletionPolicyDescriptor getApplicationCompletionPolicy() {
+    return applicationCompletionPolicy;
+  }
+
+  public void setApplicationCompletionPolicy(TaskRoleApplicationCompletionPolicyDescriptor applicationCompletionPolicy) {
+    this.applicationCompletionPolicy = applicationCompletionPolicy;
   }
 
   public ServiceDescriptor getTaskService() {

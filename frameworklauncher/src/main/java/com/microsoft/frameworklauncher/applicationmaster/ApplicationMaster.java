@@ -293,15 +293,7 @@ public class ApplicationMaster extends AbstractService {
     return rmResp;
   }
 
-  private void stopForContainer(int exitCode) {
-    stopForContainer(exitCode, "");
-  }
-
-  private void stopForContainer(int exitCode, String diagnostics) {
-    stopForContainer(exitCode, diagnostics, "");
-  }
-
-  private void stopForContainer(int exitCode, String diagnostics, String customizedDiagnostics) {
+  private void stopForContainerCompletion(int exitCode, String diagnostics, String customizedDiagnostics) {
     ExitStatusValue partialValue = new ExitStatusValue(exitCode, diagnostics, null);
 
     String fullDiagnostics = ExitDiagnostics.generateDiagnostics(partialValue, customizedDiagnostics);
@@ -310,8 +302,27 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(exitStatusKey.toInt(), true, fullDiagnostics));
   }
 
-  private void stopForInternalTransientError() {
-    stopForInternalTransientError("");
+  private void stopForApplicationCompletion(
+      String applicationCompletionReason, List<TaskStatus> completedTaskStatuses) throws IOException {
+    TaskStatus lastCompletedTaskStatus = completedTaskStatuses.get(0);
+    for (TaskStatus completedTaskStatus : completedTaskStatuses) {
+      if (lastCompletedTaskStatus.getTaskCompletedTimestamp() < completedTaskStatus.getTaskCompletedTimestamp()) {
+        lastCompletedTaskStatus = completedTaskStatus;
+      }
+    }
+
+    stopForContainerCompletion(
+        lastCompletedTaskStatus.getContainerExitCode(),
+        lastCompletedTaskStatus.getContainerExitDiagnostics(),
+        generateApplicationCompletionDiagnostics(applicationCompletionReason, lastCompletedTaskStatus));
+  }
+
+  private void stopForApplicationCompletion(String applicationCompletionReason) {
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
+        ExitStatusKey.SUCCEEDED,
+        generateApplicationCompletionDiagnostics(applicationCompletionReason));
+
+    stop(new StopStatus(ExitStatusKey.SUCCEEDED.toInt(), true, diagnostics));
   }
 
   private void stopForInternalTransientError(String customizedDiagnostics) {
@@ -323,10 +334,6 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR.toInt(), false, diagnostics));
   }
 
-  private void stopForInternalNonTransientError() {
-    stopForInternalNonTransientError("");
-  }
-
   private void stopForInternalNonTransientError(String customizedDiagnostics) {
     String diagnostics = ExitDiagnostics.generateDiagnostics(
         ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR, customizedDiagnostics);
@@ -334,15 +341,12 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR.toInt(), true, diagnostics));
   }
 
-  private void stopForInternalUnKnownError() {
-    stopForInternalUnKnownError("");
-  }
-
   private void stopForInternalUnKnownError(String customizedDiagnostics) {
     String diagnostics = ExitDiagnostics.generateDiagnostics(
         ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR, customizedDiagnostics);
 
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), true, diagnostics));
+    // Do not unregister to treat it conservatively.
+    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_UNKNOWN_ERROR.toInt(), false, diagnostics));
   }
 
   // Principle to setup ContainerRequest for a Task:
@@ -355,9 +359,9 @@ public class ApplicationMaster extends AbstractService {
   private ContainerRequest setupContainerRequest(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     Priority requestPriority = statusManager.getNextContainerRequestPriority();
-    String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
+    String requestNodeLabel = requestManager.getTaskRolePlatParams(taskRoleName).getTaskNodeLabel();
 
-    ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
+    ResourceDescriptor requestResource = requestManager.getTaskResource(taskRoleName);
     ResourceDescriptor maxResource = conf.getMaxResource();
 
     if (!ResourceDescriptor.fitsIn(requestResource, maxResource)) {
@@ -380,17 +384,17 @@ public class ApplicationMaster extends AbstractService {
     return HadoopUtils.toContainerRequest(requestResource, requestPriority, requestNodeLabel, null);
   }
 
-  private String generateContainerDiagnostics(TaskStatus taskStatus) {
-    return generateContainerDiagnostics(taskStatus, "");
+  private String generateContainerLocations(TaskStatus taskStatus) {
+    return generateContainerLocations(taskStatus, "");
   }
 
-  private String generateContainerDiagnostics(TaskStatus taskStatus, String linePrefix) {
+  private String generateContainerLocations(TaskStatus taskStatus, String linePrefix) {
     String containerId = taskStatus.getContainerId();
     String hostName = taskStatus.getContainerHost();
     String logHttpAddress = taskStatus.getContainerLogHttpAddress();
 
-    return String.format(
-        "%4$sContainerLogHttpAddress: %1$s\n" +
+    return String.format("" +
+            "%4$sContainerLogHttpAddress: %1$s\n" +
             "%4$sAppCacheNetworkPath: %2$s\n" +
             "%4$sContainerLogNetworkPath: %3$s",
         logHttpAddress,
@@ -399,86 +403,60 @@ public class ApplicationMaster extends AbstractService {
         linePrefix);
   }
 
-  private String generateCustomizedDiagnosticsPrefix(TaskStatus taskStatus) throws IOException {
-    String taskRoleName = taskStatus.getTaskRoleName();
-    TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
-    String containerId = taskStatus.getContainerId();
-    String hostName = taskStatus.getContainerHost();
+  private String generateApplicationCompletionDiagnostics(String applicationCompletionReason) {
+    return "[ApplicationCompletionReason]: " + applicationCompletionReason;
+  }
 
-    String customizedDiagnosticsPrefix = "";
-    customizedDiagnosticsPrefix += String.format("%s: TASK_COMPLETED:" +
-        "\n[TaskStatus]:\n%s", taskLocator, WebCommon.toJson(taskStatus));
+  private String generateApplicationCompletionDiagnostics(
+      String applicationCompletionReason, TaskStatus lastCompletedTaskStatus) throws IOException {
+    String taskRoleName = lastCompletedTaskStatus.getTaskRoleName();
 
-    customizedDiagnosticsPrefix += String.format(
-        "\n[ContainerDiagnostics]:" +
-            "\nContainer completed %s on HostName %s." +
-            "\n%s", containerId, hostName, generateContainerDiagnostics(taskStatus));
-
-    customizedDiagnosticsPrefix += String.format(
-        "\n%s\n[AMStopReason]:", GlobalConstants.LINE);
-
-    return customizedDiagnosticsPrefix;
+    return String.format("" +
+            "[%s]: [LastCompletedTask]: [TaskStatus]:\n%s\n" +
+            "[%s]: [LastCompletedTask]: [ContainerLocations]:\n%s\n%s\n%s",
+        taskRoleName, WebCommon.toJson(lastCompletedTaskStatus),
+        taskRoleName, generateContainerLocations(lastCompletedTaskStatus),
+        GlobalConstants.LINE,
+        generateApplicationCompletionDiagnostics(applicationCompletionReason));
   }
 
   private void attemptToStop(TaskStatus taskStatus) throws IOException {
     String taskRoleName = taskStatus.getTaskRoleName();
-    TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
-    String diagnostics = taskStatus.getContainerExitDiagnostics();
-    Integer exitCode = taskStatus.getContainerExitCode();
     ExitType exitType = taskStatus.getContainerExitType();
-    String containerId = taskStatus.getContainerId();
-    String hostName = taskStatus.getContainerHost();
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
-    Boolean killAllOnAnyCompleted = requestManager.getPlatParams().getKillAllOnAnyCompleted();
-    Boolean killAllOnAnyServiceCompleted = requestManager.getPlatParams().getKillAllOnAnyServiceCompleted();
 
-    if (generateContainerIpList && exitCode == ExitStatusKey.CONTAINER_START_FAILED.toInt()) {
-      String customizedDiagnostics = generateCustomizedDiagnosticsPrefix(taskStatus) + String.format(
-          "Failed to start Container %s on HostName %s, and GenerateContainerIpList enabled.",
-          containerId, hostName);
-      stopForContainer(exitCode, diagnostics, customizedDiagnostics);
+    TaskRoleApplicationCompletionPolicyDescriptor applicationCompletionPolicy =
+        requestManager.getTaskRoleApplicationCompletionPolicy(taskRoleName);
+    Integer minFailedTaskCount = applicationCompletionPolicy.getMinFailedTaskCount();
+    Integer minSucceededTaskCount = applicationCompletionPolicy.getMinSucceededTaskCount();
+
+    if (exitType != ExitType.SUCCEEDED && minFailedTaskCount != null) {
+      List<TaskStatus> failedTaskStatuses = statusManager.getFailedTaskStatus(taskRoleName);
+      if (minFailedTaskCount <= failedTaskStatuses.size()) {
+        String applicationCompletionReason = String.format(
+            "[%s]: FailedTaskCount %s has reached MinFailedTaskCount %s.",
+            taskRoleName, failedTaskStatuses.size(), minFailedTaskCount);
+        stopForApplicationCompletion(applicationCompletionReason, failedTaskStatuses);
+      }
     }
 
-    if (killAllOnAnyCompleted) {
-      String customizedDiagnostics = generateCustomizedDiagnosticsPrefix(taskStatus) + String.format(
-          "Task %s Completed and KillAllOnAnyCompleted enabled.",
-          taskLocator);
-      stopForContainer(exitCode, diagnostics, customizedDiagnostics);
-    }
-
-    if (killAllOnAnyServiceCompleted) {
-      // Consider these exitTypes and exitCodes are indicated UserService exit
-      if (exitType == ExitType.SUCCEEDED ||
-          exitType == ExitType.UNKNOWN ||
-          exitCode == ExitStatusKey.USER_APP_TRANSIENT_ERROR.toInt() ||
-          exitCode == ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR.toInt()) {
-        String customizedDiagnostics = generateCustomizedDiagnosticsPrefix(taskStatus) + String.format(
-            "Task %s Completed with ExitType %s and KillAllOnAnyServiceCompleted enabled.",
-            taskLocator, exitType);
-        stopForContainer(exitCode, diagnostics, customizedDiagnostics);
+    if (exitType == ExitType.SUCCEEDED && minSucceededTaskCount != null) {
+      List<TaskStatus> succeededTaskStatuses = statusManager.getSucceededTaskStatus(taskRoleName);
+      if (minSucceededTaskCount <= succeededTaskStatuses.size()) {
+        String applicationCompletionReason = String.format(
+            "[%s]: SucceededTaskCount %s has reached MinSucceededTaskCount %s.",
+            taskRoleName, succeededTaskStatuses.size(), minSucceededTaskCount);
+        stopForApplicationCompletion(applicationCompletionReason, succeededTaskStatuses);
       }
     }
 
     if (statusManager.isAllTaskInFinalState()) {
       int totalTaskCount = statusManager.getTaskCount();
       List<TaskStatus> failedTaskStatuses = statusManager.getFailedTaskStatus();
-      String customizedDiagnosticsSuffix = String.format(
-          "All Tasks are in FINAL_STATES. TotalTaskCount: %s, FailedTaskCount: %s",
+      String applicationCompletionReason = String.format(
+          "All Tasks completed and no ApplicationCompletionPolicy has ever been triggered: " +
+              "TotalTaskCount: %s, FailedTaskCount: %s.",
           totalTaskCount, failedTaskStatuses.size());
-
-      if (failedTaskStatuses.size() > 0) {
-        TaskStatus lastFailedTaskStatus = failedTaskStatuses.get(0);
-        for (TaskStatus failedTaskStatus : failedTaskStatuses) {
-          if (lastFailedTaskStatus.getTaskCompletedTimestamp() < failedTaskStatus.getTaskCompletedTimestamp()) {
-            lastFailedTaskStatus = failedTaskStatus;
-          }
-        }
-        String customizedDiagnostics = generateCustomizedDiagnosticsPrefix(lastFailedTaskStatus) + customizedDiagnosticsSuffix;
-        stopForContainer(lastFailedTaskStatus.getContainerExitCode(), lastFailedTaskStatus.getContainerExitDiagnostics(), customizedDiagnostics);
-      } else {
-        String customizedDiagnostics = generateCustomizedDiagnosticsPrefix(taskStatus) + customizedDiagnosticsSuffix;
-        stopForContainer(exitCode, diagnostics, customizedDiagnostics);
-      }
+      stopForApplicationCompletion(applicationCompletionReason);
     }
   }
 
@@ -550,8 +528,8 @@ public class ApplicationMaster extends AbstractService {
   // To keep all tasks have the same ports in a task role.
   // Will reject this container if the ports are not the same.
   private Boolean testContainerPorts(Container container, String taskRoleName) throws Exception {
-    Boolean samePortsAllocation = requestManager.getTaskPlatParams().get(taskRoleName).getSamePortsAllocation();
-    List<ValueRange> allocatedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+    Boolean samePortsAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortsAllocation();
+    List<ValueRange> allocatedPorts = statusManager.getAnyLiveAssociatedContainerPorts(taskRoleName);
     List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
 
     String logPrefix = String.format("[%s][%s]: testContainerPorts: ", container.getId().toString(), taskRoleName);
@@ -592,8 +570,8 @@ public class ApplicationMaster extends AbstractService {
 
     UserDescriptor user = requestManager.getUser();
     Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
-    List<String> sourceLocations = requestManager.getTaskServices().get(taskRoleName).getSourceLocations();
-    String entryPoint = requestManager.getTaskServices().get(taskRoleName).getEntryPoint();
+    List<String> sourceLocations = requestManager.getTaskService(taskRoleName).getSourceLocations();
+    String entryPoint = requestManager.getTaskService(taskRoleName).getEntryPoint();
 
     // SetupLocalResources
     Map<String, LocalResource> localResources = new HashMap<>();
@@ -825,7 +803,7 @@ public class ApplicationMaster extends AbstractService {
     RetryPolicyState newRetryPolicyState = YamlUtils.deepCopy(taskStatus.getTaskRetryPolicyState(), RetryPolicyState.class);
 
     Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
-    RetryPolicyDescriptor retryPolicy = requestManager.getTaskRetryPolicies().get(taskRoleName);
+    RetryPolicyDescriptor retryPolicy = requestManager.getTaskRetryPolicy(taskRoleName);
     Boolean fancyRetryPolicy = retryPolicy.getFancyRetryPolicy();
     Integer maxRetryCount = retryPolicy.getMaxRetryCount();
 
@@ -942,7 +920,7 @@ public class ApplicationMaster extends AbstractService {
 
     LOGGER.logSplittedLines(Level.INFO,
         "%s%s\n%s",
-        taskLocator, logSuffix, generateContainerDiagnostics(taskStatus, linePrefix));
+        taskLocator, logSuffix, generateContainerLocations(taskStatus, linePrefix));
 
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_COMPLETED,
         new TaskEvent().setContainerExitCode(exitCode).setContainerExitDiagnostics(diagnostics));
@@ -1130,7 +1108,7 @@ public class ApplicationMaster extends AbstractService {
     try {
       TaskEvent taskEvent = new TaskEvent();
       taskEvent.setContainer(container);
-      taskEvent.setPortDefinitions(requestManager.getTaskResources().get(taskRoleName).getPortDefinitions());
+      taskEvent.setPortDefinitions(requestManager.getTaskResource(taskRoleName).getPortDefinitions());
       statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED, taskEvent);
       LOGGER.logInfo("%s[%s]: Succeeded to Allocate Container to Task", taskLocator, containerId);
 
@@ -1236,7 +1214,7 @@ public class ApplicationMaster extends AbstractService {
 
     LOGGER.logSplittedLines(Level.INFO,
         "%s%s\n%s",
-        taskLocator, logSuffix, generateContainerDiagnostics(taskStatus, linePrefix));
+        taskLocator, logSuffix, generateContainerLocations(taskStatus, linePrefix));
 
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_RUNNING);
   }

@@ -46,4 +46,5 @@ docker run \
   --logtostderr=true \
   --image-gc-high-threshold=98 \
   --image-gc-low-threshold=95 \
+  --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
   --v=2

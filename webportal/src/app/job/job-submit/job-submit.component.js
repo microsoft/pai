@@ -18,7 +18,7 @@
 
 // module dependencies
 require('./job-submit.component.scss');
-require('json-editor')
+require('json-editor'); /* global JSONEditor */
 const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
@@ -56,20 +56,20 @@ const isValidJson = (str) => {
 };
 
 const exportFile = (data, filename, type) => {
-  var file = new Blob([data], {type: type});
-  if (window.navigator.msSaveOrOpenBlob) // IE10+
-      window.navigator.msSaveOrOpenBlob(file, filename);
-  else { // Others
-      var a = document.createElement("a"),
-              url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);  
-      }, 0); 
+  let file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) { // IE10+
+    window.navigator.msSaveOrOpenBlob(file, filename);
+  } else { // Others
+    let a = document.createElement('a');
+    let url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
   }
 };
 
@@ -82,7 +82,7 @@ const submitJob = (jobConfig) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      contentType:"application/json; charset=utf-8",
+      contentType: 'application/json; charset=utf-8',
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
@@ -106,7 +106,7 @@ const submitJob = (jobConfig) => {
 };
 
 const loadEditor = () => {
-  var element = $('#editor-holder')[0];
+  let element = $('#editor-holder')[0];
   editor = new JSONEditor(element, {
     schema: jobSchema,
     theme: 'bootstrap3',
@@ -119,8 +119,8 @@ const loadEditor = () => {
 };
 
 const resize = () => {
-  var heights = window.innerHeight;
-  $("#editor-holder")[0].style.height = heights - 300 + "px";
+  let heights = window.innerHeight;
+  $('#editor-holder')[0].style.height = heights - 300 + 'px';
 };
 
 $('#sidebar-menu--submit-job').addClass('active');
@@ -147,8 +147,8 @@ $(document).ready(() => {
     submitJob(editor.getValue());
   });
   $(document).on('click', '#fileExport', () => {
-    exportFile(JSON.stringify(editor.getValue(), null, 4), 
-      (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json', 
+    exportFile(JSON.stringify(editor.getValue(), null, 4),
+      (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json',
       'application/json');
   });
   resize();
