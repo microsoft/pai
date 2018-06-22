@@ -71,6 +71,17 @@ http {
     # PAI REST server
     location ~ ^/rest-server/api(.*)$ {
       proxy_pass {{REST_SERVER_URI}}/api$1$is_args$args;
+      #
+      proxy_set_header Accept-Encoding "";
+      subs_filter_types *;
+      subs_filter
+        \"containerLog\":\"http://([^/]*):8042/(.*)\"
+        \"containerLog\":\"$scheme://$http_host/yarn/$1/8042/$2\"
+        r;
+      subs_filter
+        \"appTrackingUrl\":\"http://([^/]*):8088/(.*)\"
+        \"appTrackingUrl\":\"scheme://$http_host/yarn/$1/8088/$2\"
+        r;
     }
 
     # Kubernetes API server.
