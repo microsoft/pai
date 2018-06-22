@@ -27,8 +27,6 @@ function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "EXIT signal received in docker container, exiting ..."
-  set +x
-  exec 17>&-
   kill 0
 }
 
