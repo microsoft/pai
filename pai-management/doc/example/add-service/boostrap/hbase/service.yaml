@@ -29,7 +29,7 @@ template-list:
   - hbase-regionserver.yaml
   - delete.yaml
   - stop.sh
-  - refrash.sh
+  - refresh.sh
 
 # The script about how to starting a service
 start-script: start.sh
@@ -40,9 +40,9 @@ stop-script: stop.sh
 # The script about how to stop a service and delete the data on the cluster
 delete-script: delete.sh
 
-# The script about refrash the status of the service.
+# The script about refresh the status of the service.
 # Usually it will update the configmap and re-label the node.
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 
 
 # A script about rolling-upgrade.

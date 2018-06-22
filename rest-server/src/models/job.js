@@ -364,7 +364,8 @@ class Job {
 
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
-    const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
+    const fancyRetryPolicy = (data.retryCount >= -1);
+    const minSucceededTaskCount = (data.killAllOnCompletedTaskNumber > 0) ? 1 : null;
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
@@ -373,14 +374,12 @@ class Job {
       },
       'retryPolicy': {
         'maxRetryCount': data.retryCount,
-        'fancyRetryPolicy': true,
+        'fancyRetryPolicy': fancyRetryPolicy,
       },
       'taskRoles': {},
       'platformSpecificParameters': {
         'queue': virtualCluster,
         'taskNodeGpuType': gpuType,
-        'killAllOnAnyCompleted': killOnCompleted,
-        'killAllOnAnyServiceCompleted': killOnCompleted,
         'generateContainerIpList': true,
       },
     };
@@ -414,6 +413,10 @@ class Job {
             'diskType': 0,
             'diskMB': 0,
           },
+        },
+        'applicationCompletionPolicy': {
+          'minFailedTaskCount': 1,
+          'minSucceededTaskCount': minSucceededTaskCount,
         },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;

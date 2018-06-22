@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,24 +15,48 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-echo "Refrash the configmap of launcher"
+import logging
+import logging.config
 
-kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f -
+from ..common import linux_shell
 
-echo "Relabel the node with laucher tag"
-/bin/bash node-label.sh
 
-{% for host in machinelist %}
 
-    {% if 'launcher' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher-
-fi
-    {% endif %}
+class service_refresh:
 
-{% endfor %}
 
-popd > /dev/null
+    def __init__(self, service_conf, serivce_name):
+
+        self.logger = logging.getLogger(__name__)
+
+        self.service_conf = service_conf
+        self.service_name = serivce_name
+
+
+
+    def start(self):
+
+        refresh_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["refresh-script"])
+
+        cmd = "/bin/bash {0}".format(refresh_script)
+        err_msg = "Failed to execute the refresh script of service {0}".format(self.service_name)
+        self.logger.info("Begin to execute service {0}'s refresh script.".format(self.service_name))
+        linux_shell.execute_shell(cmd, err_msg)
+
+
+    def get_dependency(self):
+
+        if "prerequisite" not in self.service_conf:
+            return None
+        return self.service_conf["prerequisite"]
+
+
+    def run(self):
+
+        self.start()
+
+
+
+
+

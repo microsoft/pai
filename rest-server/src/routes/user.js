@@ -29,7 +29,10 @@ router.route('/')
     .put(tokenConfig.check, param.validate(userConfig.userPutInputSchema), userController.update)
 
     /** DELETE /api/v1/user - Remove a user */
-    .delete(tokenConfig.check, param.validate(userConfig.userDeleteInputSchema), userController.remove);
+    .delete(tokenConfig.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
+
+    /** Get /api/v1/user - Get user info list */
+    .get(tokenConfig.check, userController.getUserList);
 
 router.route('/:username/virtualClusters')
     .put(tokenConfig.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);

@@ -19,7 +19,7 @@
 import logging
 import logging.config
 
-from . import service_refrash
+from . import service_refresh
 from . import service_template_generate
 from . import service_template_clean
 
@@ -27,7 +27,7 @@ from ..common import directory_handler
 from ..common import file_handler
 
 
-class service_management_refrash:
+class service_management_refresh:
 
 
     def __init__(self, cluster_object_model, service_list = None, **kwargs):
@@ -65,9 +65,9 @@ class service_management_refrash:
             return
 
         service_conf = file_handler.load_yaml_config("bootstrap/{0}/service.yaml".format(serv))
-        service_refrasher = service_refrash.service_refrash(service_conf, serv)
+        service_refresher = service_refresh.service_refresh(service_conf, serv)
 
-        dependency_list = service_refrasher.get_dependency()
+        dependency_list = service_refresher.get_dependency()
         if dependency_list != None:
             for fat_serv in dependency_list:
                 if fat_serv not in self.service_list:
@@ -81,14 +81,14 @@ class service_management_refrash:
         service_template_generater = service_template_generate.service_template_generate(self.cluster_object_model, serv, service_conf)
         service_template_generater.run()
 
-        self.logger.info("Begin to refrash service: [ {0} ]".format(serv))
-        service_refrasher.run()
+        self.logger.info("Begin to refresh service: [ {0} ]".format(serv))
+        service_refresher.run()
 
         self.logger.info("Begin to clean all service's generated template file".format(serv))
         service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
         service_template_cleaner.run()
 
-        self.logger.info("Successfully refrash {0}".format(serv))
+        self.logger.info("Successfully refresh {0}".format(serv))
         self.logger.info("-----------------------------------------------------------")
 
         self.done_dict[serv] = True

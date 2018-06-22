@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 
-echo "refrash hadoop-configuration"
+echo "refresh hadoop-configuration"
 kubectl create configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }} --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "relabel the node label"

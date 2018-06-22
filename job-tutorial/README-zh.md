@@ -222,10 +222,9 @@ Docker 容器中可访问的环境变量的完整列表如下：
 ```
 
 ## 更多例子
-- [tensorflow-example.json](tensorflow/tensorflow-example.json): ImageNet数据集Tensorflow单GPU训练示例.
-- [tensorflow-distributed-example.json](tensorflow/tensorflow-distributed-example.json): CIFAR-10数据集Tensorflow分布式训练示例.
-- [tensorboard-example.json](tensorflow/tensorboard-example.json): 使用TensorBoard可视化训练logs示例.
-- [cntk-example.json](cntk/cntk-example.json): CMUDict语料库使用CNTK序列模型字音转换训练示例。
+
+更多样例，请参考 [examples 目录](../examples).
+
 
 ## 提交 job
 1. 上传数据和代码至 HDFS

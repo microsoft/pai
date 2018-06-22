@@ -242,10 +242,7 @@ A distributed TensorFlow job is listed below as an example:
 
 ## More examples
 
-- [tensorflow-example.json](tensorflow/tensorflow-example.json): Single GPU trainning on ImageNet.
-- [tensorflow-distributed-example.json](tensorflow/tensorflow-distributed-example.json): Distributed trainning on CIFAR-10.
-- [tensorboard-example.json](tensorflow/tensorboard-example.json): TensorBoard visualization for trainning logs.
-- [cntk-example.json](cntk/cntk-example.json): CNTK grapheme-to-phoneme trainning using sequence-to-sequence model on CMUDict corpus.
+For more examples, please refer to [job examples directory](../examples).
 
 
 ## Job submission

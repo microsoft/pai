@@ -30,6 +30,7 @@
    - [EnvironmentVariables](#EnvironmentVariables)
    - [HDFS Published Informations](#HDFS_Published_Informations)
    - [ExitStatus Convention](#ExitStatus_Convention)
+   - [ApplicationCompletionPolicy](#ApplicationCompletionPolicy)
    - [Framework ACL](#Framework_ACL)
    - [Best Practices](#Best_Practices)
 
@@ -203,7 +204,7 @@ Notes:
 Get the FrameworkStatus of a Requested Framework
 
 Recipes:
-1. User Level RetryPolicy (Based on FrameworkState, ApplicationExitCode, ApplicationDiagnostic, ApplicationExitType)
+1. User Level RetryPolicy (Based on FrameworkState, ApplicationExitCode, ApplicationExitDiagnostics, ApplicationExitType)
 2. Directly Monitor Underlay YARN Application by YARN CLI or RestAPI (Based on ApplicationId or ApplicationTrackingUrl)
 
 **Response**
@@ -632,11 +633,91 @@ Notes:
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>
-You can check the all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
+You can check all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
 
 Recipes:
 1. Your LauncherClient can depend on the ExitStatus Convention
 2. If your Service failed, the Service can optionally return the ExitCode of USER_APP_TRANSIENT_ERROR and USER_APP_NON_TRANSIENT_ERROR to help FancyRetryPolicy to identify your Service's TRANSIENT_NORMAL and NON_TRANSIENT ExitType. If neither ExitCode is returned, the Service is considered to exit due to UNKNOWN ExitType.
+
+
+## <a name="ApplicationCompletionPolicy">ApplicationCompletionPolicy</a>
+### <a name="ApplicationCompletionPolicy_Overview">Overview</a>
+ApplicationCompletionPolicy can be configured for each TaskRole to control:
+1. The conditions to complete the Application.
+2. The ExitStatus of the completed Application.
+
+### <a name="ApplicationCompletionPolicy_Usage">Usage</a>
+For details, please check: [TaskRoleApplicationCompletionPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/TaskRoleApplicationCompletionPolicyDescriptor.java).
+
+### <a name="ApplicationCompletionPolicy_Examples">Examples</a>
+Notes, *Italic Conditions* can be inherited from the **DEFAULT** ApplicationCompletionPolicy, so no need to specify them explicitly.
+
+<table>
+  <tbody>
+    <tr>
+      <th>FrameworkType</th>
+      <th>TaskRole</th>
+      <th>ApplicationCompletionPolicy</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>DEFAULT</td>
+      <td>TaskRole1</td>
+      <td><i>MinFailedTaskCount = 1<br>MinSucceededTaskCount = null</i></td>
+      <td rowspan="2">The default ApplicationCompletionPolicy:<br>Fail the Application immediately if any Task failed.<br>Succeed the Application until all Tasks succeeded.</td>
+    </tr>
+    <tr>
+      <td>TaskRole2</td>
+      <td><i>MinFailedTaskCount = 1<br>MinSucceededTaskCount = null</i></td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Service</td>
+      <td>TaskRole1</td>
+      <td><i>MinFailedTaskCount = 1<br>MinSucceededTaskCount = null</i></td>
+      <td rowspan="1">Actually, any ApplicationCompletionPolicy is fine, since Service's Task will never complete, i.e. its Task's MaxRetryCount is -2.</td>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>MapReduce</td>
+      <td>Map</td>
+      <td>MinFailedTaskCount = {Map.TaskNumber} * {mapreduce.map.failures.maxpercent} + 1<br><i>MinSucceededTaskCount = null</i></td>
+      <td rowspan="2">A few failed Tasks is acceptable, but always want to wait all Tasks to succeed:<br>Fail the Application immediately if the failed Tasks exceeded the limit.<br>Succeed the Application until all Tasks completed and the failed Tasks is within the limit.</td>
+    </tr>
+    <tr>
+      <td>Reduce</td>
+      <td>MinFailedTaskCount = {Reduce.TaskNumber} * {mapreduce.reduce.failures.maxpercent} + 1<br><i>MinSucceededTaskCount = null</i></td>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>TensorFlow</td>
+      <td>ParameterServer</td>
+      <td><i>MinFailedTaskCount = 1<br>MinSucceededTaskCount = null</i></td>
+      <td rowspan="2">Succeed a certain TaskRole is enough, and do not want to wait all Tasks to succeed:<br>Fail the Application immediately if any Task failed.<br>Succeed the Application immediately if Worker's all Tasks succeeded.</td>
+    </tr>
+    <tr>
+      <td>Worker</td>
+      <td><i>MinFailedTaskCount = 1</i><br>MinSucceededTaskCount = {Worker.TaskNumber}</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><b>Arbitrator Dominated</td>
+      <td>Arbitrator</td>
+      <td><i>MinFailedTaskCount = 1</i><br>MinSucceededTaskCount = 1</td>
+      <td rowspan="3">The ApplicationCompletionPolicy is fully delegated to the Application's single instance arbitrator:<br>Fail the Application immediately if the arbitrator failed.<br>Succeed the Application immediately if the arbitrator succeeded.</td>
+    </tr>
+    <tr>
+      <td>TaskRole1</td>
+      <td>MinFailedTaskCount = null<br><i>MinSucceededTaskCount = null</i></td>
+    </tr>
+    <tr>
+      <td>TaskRole2</td>
+      <td>MinFailedTaskCount = null<br><i>MinSucceededTaskCount = null</i></td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>First Completed Task Dominated</td>
+      <td>TaskRole1</td>
+      <td><i>MinFailedTaskCount = 1</i><br>MinSucceededTaskCount = 1</td>
+      <td rowspan="1">The ApplicationCompletionPolicy is fully delegated to the Application's first completed Task:<br>Fail the Application immediately if any Task failed.<br>Succeed the Application immediately if any Task succeeded.</td>
+    </tr>
+  </tbody>
+</table>
 
 
 ## <a name="Framework_ACL">Framework ACL</a>
