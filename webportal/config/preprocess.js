@@ -28,7 +28,7 @@ fse.copySync(
     helpers.root('src/app/job/job-docs/job-docs.md'));
 
 fse.copySync(
-    helpers.root('../job-tutorial/tensorflow/tensorflow-distributed-example.json'),
+    helpers.root('../examples/tensorflow/tensorflow.distributed-cifar10.json'),
     helpers.root('src/app/job/job-submit/job-submit.example.json'));
 
 // write env config

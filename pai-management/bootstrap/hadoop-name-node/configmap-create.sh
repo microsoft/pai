@@ -17,8 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-echo "no job in the refrash script of end-to-end-test"
-
-popd > /dev/null
+kubectl create configmap hadoop-name-node-configuration --from-file=hadoop-name-node-configuration/

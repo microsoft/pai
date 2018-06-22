@@ -19,6 +19,7 @@
 package com.microsoft.frameworklauncher.applicationmaster;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.microsoft.frameworklauncher.common.definition.TaskStateDefinition;
 import com.microsoft.frameworklauncher.common.exceptions.NotAvailableException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
@@ -200,19 +201,19 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult select(String taskRoleName)
       throws NotAvailableException {
-    ResourceDescriptor requestResource = requestManager.getTaskResources().get(taskRoleName);
+    ResourceDescriptor requestResource = requestManager.getTaskResource(taskRoleName);
     LOGGER.logInfo(
         "select: TaskRole: [%s] Resource: [%s]", taskRoleName, requestResource);
-    String requestNodeLabel = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeLabel();
-    String requestNodeGpuType = requestManager.getTaskPlatParams().get(taskRoleName).getTaskNodeGpuType();
+    String requestNodeLabel = requestManager.getTaskRolePlatParams(taskRoleName).getTaskNodeLabel();
+    String requestNodeGpuType = requestManager.getTaskRolePlatParams(taskRoleName).getTaskNodeGpuType();
     Map<String, NodeConfiguration> configuredNodes = requestManager.getClusterConfiguration().getNodes();
-    Boolean samePortsAllocation = requestManager.getTaskPlatParams().get(taskRoleName).getSamePortsAllocation();
-    int startStatesTaskCount = statusManager.getStartStatesTaskCount(taskRoleName);
+    Boolean samePortsAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortsAllocation();
+    int startStatesTaskCount = statusManager.getTaskStatus(TaskStateDefinition.START_STATES, taskRoleName).size();
 
     // Prefer to use previous successfully associated ports. if no associated ports, try to reuse the "Requesting" ports.
     List<ValueRange> reusedPorts = new ArrayList<>();
     if (samePortsAllocation) {
-      reusedPorts = statusManager.getLiveAssociatedContainerPorts(taskRoleName);
+      reusedPorts = statusManager.getAnyLiveAssociatedContainerPorts(taskRoleName);
       if (ValueRangeUtils.getValueNumber(reusedPorts) <= 0 && previousRequestedPorts.containsKey(taskRoleName)) {
         reusedPorts = previousRequestedPorts.get(taskRoleName);
         // the cache only guide the next task to use previous requesting port.

@@ -24,6 +24,9 @@
 
 #### Setup Your Dev-box
 
+Note: Please working on dev-box when managing your cluster.
+
+
 - [A Guide For setup a dev-box](doc/how-to-setup-dev-box.md)
 
 

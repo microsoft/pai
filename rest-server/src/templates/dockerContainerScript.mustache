@@ -20,7 +20,7 @@
 
 # Bootstrap script for docker container.
 
-exec 17>/tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log
+exec 17>/pai/log/DockerContainerDebug.log
 BASH_XTRACEFD=17
 
 function exit_handler()
@@ -29,12 +29,11 @@ function exit_handler()
     "[DEBUG]" "EXIT signal received in docker container, exiting ..."
   set +x
   exec 17>&-
-  hdfs dfs -put /tmp/pai_dockercontainer_$PAI_CONTAINER_ID.log \
-    {{{ hdfsUri }}}/Container/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/log/
   kill 0
 }
 
 set -x
+PS4="+[\t] "
 trap exit_handler EXIT
 
 
@@ -54,9 +53,7 @@ task_role_no={{{ idx }}}
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-if [[ -n $PAI_CODE_DIR ]]; then
-  hdfs dfs -get $PAI_CODE_DIR || exit 1
-fi
+mv /pai/code/* ./
 
 
 function prepare_ssh()

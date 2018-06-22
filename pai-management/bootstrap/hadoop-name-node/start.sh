@@ -17,32 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
+#chmod u+x node-label.sh
 
-echo "refrash prometheus configuration"
-kubectl apply -f prometheus-configmap.yaml
-
-echo "relabel node's label"
 /bin/bash node-label.sh
 
-{% for host in machinelist %}
+#chmod u+x configmap-create.sh
 
-    {% if 'prometheus' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "prometheus="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have prometheus's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus-
+/bin/bash configmap-create.sh
+
+
+# Hadoop name node
+kubectl create -f hadoop-name-node.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-name-node -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-name-node Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node
 fi
-    {% endif %}
 
-    {% if 'node-exporter' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "node-exporter="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have node-exporter's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
-fi
-    {% endif %}
-
-{% endfor %}
 
 popd > /dev/null

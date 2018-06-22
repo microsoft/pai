@@ -19,29 +19,20 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "refrash hbase-configuration"
-kubectl create configmap hbase-configuration --from-file=hbase-configuration/ --dry-run -o yaml | kubectl apply -f -
+echo "refresh grafana-configuration"
+kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "relabel the node label"
-sh node-label.sh
-
+/bin/bash node-label.sh
 
 {% for host in machinelist %}
 
-    {% if 'hbase-master' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hbasemaster="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hbase-master's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hbasemaster-
+    {% if 'grafana' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "grafana="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have grafana's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} grafana-
 fi
     {% endif %}
-
-    {% if 'hbase-regionserver' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hbaseregionserver="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hbase-regionserver's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hbaseregionserver-
-fi
-    {% endif %}
-
 
 {% endfor %}
 

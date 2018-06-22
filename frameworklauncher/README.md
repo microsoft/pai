@@ -42,7 +42,7 @@ FrameworkLauncher (or Launcher for short) is built to enable running Large-Scale
   * ServiceDiscovery
   * AntiaffinityAllocation: Services running on different Machines
   * GangAllocation: Start Services together
-  * KillAllOnAnyCompleted and KillAllOnAnyServiceCompleted
+  * ApplicationCompletionPolicy
   * Framework Tree Management: DeleteOnParentDeleted, StopOnParentStopped
   * DataPartition
 

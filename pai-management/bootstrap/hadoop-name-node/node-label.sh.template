@@ -17,24 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-echo "Refrash the configmap of launcher"
-
-kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f -
-
-echo "Relabel the node with laucher tag"
-/bin/bash node-label.sh
-
 {% for host in machinelist %}
-
-    {% if 'launcher' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher-
-fi
+    {% if 'hadoop-name-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-name-node' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node=true
     {% endif %}
-
 {% endfor %}
-
-popd > /dev/null

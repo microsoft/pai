@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 
-echo "refrash hadoop-configuration"
+echo "refresh hadoop-configuration"
 kubectl create configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }} --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 echo "relabel the node label"
@@ -29,21 +29,12 @@ echo "relabel the node label"
 
 {% for host in machinelist %}
 
-    {% if 'hadoop-name-node' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-name-node="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-name-node's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node-
-fi
-    {% endif %}
-
-
     {% if 'hadoop-data-node' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-data-node="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-data-node's label"
     kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node-
 fi
     {% endif %}
-
 
     {% if 'hadoop-resource-manager' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-resource-manager="; then
@@ -52,7 +43,6 @@ if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hado
 fi
     {% endif %}
 
-
     {% if 'hadoop-node-manager' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-node-manager="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-node-manager's label"
@@ -60,14 +50,12 @@ if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hado
 fi
     {% endif %}
 
-
     {% if 'jobhistory' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "jobhistory="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have jobhistory's label"
     kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
 fi
     {% endif %}
-
 
 {% endfor %}
 

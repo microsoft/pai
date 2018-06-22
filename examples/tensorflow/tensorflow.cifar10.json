@@ -1,0 +1,18 @@
+{
+  "jobName": "tensorflow-cifar10",
+  "image": "paiexample/pai.example.tensorflow",
+
+  "dataDir": "/tmp/data",
+  "outputDir": "/tmp/output",
+
+  "taskRoles": [
+    {
+      "name": "cifar_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "git clone https://github.com/tensorflow/models && cd models/research/slim && python download_and_convert_data.py --dataset_name=cifar10 --dataset_dir=$PAI_DATA_DIR && python train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=cifar10 --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
+    }
+  ]
+}

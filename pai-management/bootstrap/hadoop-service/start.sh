@@ -28,20 +28,6 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash configmap-create.sh
 
 
-# Hadoop name node
-kubectl create -f hadoop-name-node.yaml
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-name-node -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-name-node Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node
-fi
-
-
 # Hadoop data node
 kubectl create -f hadoop-data-node.yaml
 

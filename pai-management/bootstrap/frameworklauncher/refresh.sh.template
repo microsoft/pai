@@ -19,14 +19,22 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "refrash secret for k8s cluster"
-kubectl apply -f secret.yaml
+echo "refresh the configmap of launcher"
 
-echo "refrash host-configuration"
-kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f -
-echo "refrash docker-credentials"
-kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f -
-echo "refrash gpu-configuration"
-kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f -
+
+echo "Relabel the node with laucher tag"
+/bin/bash node-label.sh
+
+{% for host in machinelist %}
+
+    {% if 'launcher' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher-
+fi
+    {% endif %}
+
+{% endfor %}
 
 popd > /dev/null

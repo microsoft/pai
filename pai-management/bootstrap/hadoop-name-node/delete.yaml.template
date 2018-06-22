@@ -18,28 +18,29 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: hadoop-name-node-ds
+  name: delete-batch-job-hadoop-name-node
 spec:
   template:
     metadata:
       labels:
-        app: hadoop-name-node
+        app: delete-batch-job-hadoop-name-node
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hadoop-name-node: "true"
       containers:
-      - name:  hadoop-name-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - name: cleaning-one-shot
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaning-image:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /var/lib/hdfs/name
-          name: hadoop-name-storage
-        - mountPath: /hadoop-configuration
-          name: hadoop-config-volume
-        - mountPath: /var/lib/hadoopdata
-          name: hadoop-tmp-storage
+        - mountPath: /mnt
+          name: data-path
+        - mountPath: /hadoop-name-node-delete
+          name: hadoop-name-node-delete-config
+        env:
+        - name: DELETE_CONFIG
+          value: hadoop-name-node-delete
+        - name: WORKER_CONFIG
+          value: delete-data.sh
         readinessProbe:
           exec:
             command:
@@ -47,22 +48,12 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
-        env:
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: GENERATE_CONFIG
-          value: namenode-generate-script.sh
-        - name: START_SERVICE
-          value: namenode-start-service.sh
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
-      - name: hadoop-name-storage
+      - name: data-path
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/name
-      - name: hadoop-config-volume
+          path: {{ clusterinfo[ 'dataPath' ] }}
+      - name: hadoop-name-node-delete-config
         configMap:
-          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
-      - name: hadoop-tmp-storage
-        hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/namenode
+          name: hadoop-name-node-delete
