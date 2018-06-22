@@ -17,10 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
-cp  /hadoop-configuration/namenode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
-cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
-cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
-cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
+cp  /hadoop-name-node-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
+cp  /hadoop-name-node-configuration/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
+cp  /hadoop-name-node-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
+cp  /hadoop-name-node-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
+cp  /hadoop-name-node-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 
 sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 

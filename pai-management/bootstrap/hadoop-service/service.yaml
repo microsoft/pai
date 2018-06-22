@@ -19,11 +19,11 @@ prerequisite:
   - cluster-configuration
   - drivers
   - zookeeper
+  - hadoop-name-node
 
 template-list:
   - node-label.sh
   - configmap-create.sh
-  - hadoop-name-node.yaml
   - hadoop-data-node.yaml
   - hadoop-resource-manager.yaml
   - hadoop-node-manager.yaml

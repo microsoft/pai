@@ -18,9 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in machinelist %}
-    {% if 'hadoop-name-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-name-node' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node=true
-    {% endif %}
     {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true
     {% endif %}
