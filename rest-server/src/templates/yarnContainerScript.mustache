@@ -178,6 +178,19 @@ ENV
 
 echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
 
+export $(grep -v '^#' $ENV_LIST | xargs)
+
+
+# Prepare docker bootstrap script
+mkdir -p "/tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID"
+hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID/docker_bootstrap.sh
+
+# Prepare user code
+mkdir -p "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID"
+if [[ -n $PAI_CODE_DIR ]]; then
+  hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" || exit 1
+fi
+
 
 # Prepare docker debug log
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
@@ -201,6 +214,8 @@ docker run --name $docker_name \
   --security-opt apparmor:unconfined \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
+  --volume /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID:/pai/bootstrap \
+  --volume /tmp/pai-root/code/$APP_ID/$CONTAINER_ID:/pai/code \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
@@ -210,5 +225,4 @@ docker run --name $docker_name \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '-c' 'hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh bootstrap.sh && /bin/bash bootstrap.sh' \
-  || exit 1
+  '/pai/bootstrap/docker_bootstrap.sh'

@@ -53,9 +53,7 @@ task_role_no={{{ idx }}}
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-if [[ -n $PAI_CODE_DIR ]]; then
-  hdfs dfs -get $PAI_CODE_DIR || exit 1
-fi
+mv /pai/code/* ./
 
 
 function prepare_ssh()
