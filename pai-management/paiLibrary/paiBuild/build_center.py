@@ -116,7 +116,7 @@ class build_center:
         if base_image != None:
             self.build(base_image)
 
-        if image_build_worker.need_hadoop_binary:
+        if image_build_worker.need_hadoop_binary():
             self.hadoop_binary_remove()
             self.hadoop_ai_build()
             self.hadoop_binary_prepare()
@@ -129,7 +129,7 @@ class build_center:
         self.logger.info("-----------------------------------------------------------")
         self.tag(image_name)
 
-        if image_build_worker.need_hadoop_binary:
+        if image_build_worker.need_hadoop_binary():
             self.hadoop_binary_remove()
 
 
