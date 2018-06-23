@@ -51,10 +51,9 @@ cluster:
 
 
 hadoop:
-  # If custom_hadoop_binary_path is None, script will download a standard version of hadoop binary for you
-  # hadoop-version
-  # http://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
-  custom-hadoop-binary-path: None
+  # When needed, hadoop-ai would be downloaded and built under 'custom-hadoop-binary-path'.
+  # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
+  custom-hadoop-binary-path: /pathHadoop/
   hadoop-version: 2.7.2
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
