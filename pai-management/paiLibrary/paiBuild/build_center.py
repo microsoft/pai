@@ -115,6 +115,7 @@ class build_center:
         base_image = image_build_worker.get_dependency()
         if base_image != None:
             self.build(base_image)
+            self.tag(base_image)
 
         if image_build_worker.need_hadoop_binary:
             self.hadoop_binary_remove()
