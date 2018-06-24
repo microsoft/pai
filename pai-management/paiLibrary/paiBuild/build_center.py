@@ -117,7 +117,6 @@ class build_center:
             self.build(base_image)
 
         if image_build_worker.need_hadoop_binary():
-            self.hadoop_binary_remove()
             self.hadoop_ai_build()
             self.hadoop_binary_prepare()
 
@@ -128,9 +127,6 @@ class build_center:
         self.logger.info("{0}'s image building is successful.".format(image_name))
         self.logger.info("-----------------------------------------------------------")
         self.tag(image_name)
-
-        if image_build_worker.need_hadoop_binary():
-            self.hadoop_binary_remove()
 
 
 
@@ -155,6 +151,8 @@ class build_center:
 
     def run(self):
 
+        self.hadoop_binary_remove()
+
         self.done_dict = dict()
         self.docker_cli = docker_handler.docker_handler(
             docker_registry = self.cluster_object_model['clusterinfo']['dockerregistryinfo']['docker_registry_domain'],
@@ -172,6 +170,7 @@ class build_center:
                 continue
             self.build(image_name)
 
+        self.hadoop_binary_remove()
 
 
 
