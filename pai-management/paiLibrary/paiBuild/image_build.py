@@ -61,6 +61,9 @@ class image_build:
 
     def need_hadoop_binary(self):
 
+        if self.copy_list == None:
+            return False
+
         for copy_file in self.copy_list:
             if str(copy_file["src"]) == "src/hadoop-run/hadoop":
                 return True
