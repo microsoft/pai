@@ -28,47 +28,18 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash configmap-create.sh
 
 
-# Hadoop resource manager
-kubectl create -f hadoop-resource-manager.yaml
+# Hadoop data node
+kubectl create -f hadoop-data-node.yaml
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-data-node -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
-    echo "No hadoop-resource-manager Pod in your cluster"
+    echo "No hadoop-data-node Pod in your cluster"
 else
     # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-data-node
 fi
 
-
-# Hadoop node manager
-kubectl create -f hadoop-node-manager.yaml
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-node-manager Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
-fi
-
-
-# Hadoop jobhistory
-kubectl create -f hadoop-jobhistory.yaml
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k jobhistory -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No jobhistory Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-jobhistory-service
-fi
-
-kubectl create -f one-time-job-hadoop.yaml
 
 popd > /dev/null

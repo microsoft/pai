@@ -20,19 +20,13 @@ prerequisite:
   - drivers
   - zookeeper
   - hadoop-name-node
-  - hadoop-data-node
 
 template-list:
   - node-label.sh
-  - configmap-create.sh
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - one-time-job-hadoop.yaml
+  - hadoop-data-node.yaml
   - stop.sh
   - refresh.sh
   - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
 
 start-script: start.sh
 stop-script: stop.sh

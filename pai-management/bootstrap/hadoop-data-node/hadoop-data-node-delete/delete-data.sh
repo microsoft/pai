@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,27 +17,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-  - zookeeper
-  - hadoop-name-node
-  - hadoop-data-node
 
-template-list:
-  - node-label.sh
-  - configmap-create.sh
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - one-time-job-hadoop.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
+echo "Clean the hadoop-data-node's data on the disk"
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+if [ -d "/mnt/hdfs/data" ]; then
+
+    rm -rf /mnt/hdfs
+
+fi
+
+
+if [ -d "/mnt/hadooptmp/datanode" ]; then
+
+    rm -rf /mnt/hadooptmp
+
+fi
+
+

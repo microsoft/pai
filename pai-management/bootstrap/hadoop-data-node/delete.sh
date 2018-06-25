@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,27 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-  - zookeeper
-  - hadoop-name-node
-  - hadoop-data-node
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - node-label.sh
-  - configmap-create.sh
-  - hadoop-resource-manager.yaml
-  - hadoop-node-manager.yaml
-  - hadoop-jobhistory.yaml
-  - one-time-job-hadoop.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
+echo "Call stop to stop all hadoop-data-node pod first"
+/bin/bash stop.sh
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+echo "Create hadoop-data-node-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-data-node-delete --from-file=hadoop-data-node-delete/
+
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-data-node
+
+echo "Hadoop Service clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hadoop-data-node
+kubectl delete configmap hadoop-data-node-delete
+sleep 5
+
+popd > /dev/null
