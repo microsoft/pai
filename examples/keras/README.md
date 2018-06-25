@@ -57,7 +57,7 @@ You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/D
 
     ```dockerfile
     # use tensorflow as Keras backend
-    FROM aiplatform/pai.run.tensorflow
+    FROM openpai/pai.example.tensorflow
 
     # install git
     RUN apt-get -y update && apt-get -y install git
