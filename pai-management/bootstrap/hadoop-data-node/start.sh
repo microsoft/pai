@@ -19,26 +19,27 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
-kubectl delete ds hadoop-resource-manager-ds
+#chmod u+x node-label.sh
 
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+/bin/bash node-label.sh
 
-{% for host in machinelist %}
-    {% if 'hadoop-data-node' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node-
-    {% endif %}
-    {% if 'hadoop-resource-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager-
-    {% endif %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-    {% endif %}
-{% endfor %}
+#chmod u+x configmap-create.sh
+
+/bin/bash configmap-create.sh
+
+
+# Hadoop data node
+kubectl create -f hadoop-data-node.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-data-node -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-data-node Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-data-node
+fi
+
 
 popd > /dev/null

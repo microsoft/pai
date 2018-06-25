@@ -21,9 +21,6 @@
     {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true
     {% endif %}
-    {% if 'hadoop-data-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-data-node' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node=true
-    {% endif %}
     {% if 'hadoop-node-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-node-manager' ] == 'true' -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager=true
     {% endif %}

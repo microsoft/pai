@@ -20,11 +20,11 @@ prerequisite:
   - drivers
   - zookeeper
   - hadoop-name-node
+  - hadoop-data-node
 
 template-list:
   - node-label.sh
   - configmap-create.sh
-  - hadoop-data-node.yaml
   - hadoop-resource-manager.yaml
   - hadoop-node-manager.yaml
   - hadoop-jobhistory.yaml
