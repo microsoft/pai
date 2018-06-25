@@ -85,8 +85,10 @@ def gen_job_metrics(logDir, gpuMetrics, connectionDic):
         containerMemUsage = 'container_MemUsage{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["usage"])
         containerMemLimit = 'container_MemLimit{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["limit"])
         inSize, outSize = network.acc_per_container_network_metrics(connectionDic, pid)
-        containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, inSize)
-        containerNetOut = 'container_NetOut{{{0}}} {1}\n'.format(labelStr, outSize)
+        inBandwidth = inSize / 40
+        outBandwidth = outSize / 40
+        containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, inBandwidth)
+        containerNetOut = 'container_NetOut{{{0}}} {1}\n'.format(labelStr, outBandwidth)
         containerBlockIn = 'container_BlockIn{{{0}}} {1}\n'.format(labelStr, stats[container]["BlockIO"]["in"])
         containerBlockOut = 'container_BlockOut{{{0}}} {1}\n'.format(labelStr, stats[container]["BlockIO"]["out"])
         containerMemPerc = 'container_MemPerc{{{0}}} {1}\n'.format(labelStr, stats[container]["MemPerc"])
