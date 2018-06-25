@@ -55,7 +55,7 @@ And the system need [NTP](http://www.ntp.org/) service for clock synchronization
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
 
-1. Deploy PAI with [pai-management](./pai-management/README.md)
+1. Deploy PAI following our [bootup process](./pai-management/doc/cluster-bootup.md)
 2. Access [web portal](./webportal/README.md) for job submission and cluster management
 
 

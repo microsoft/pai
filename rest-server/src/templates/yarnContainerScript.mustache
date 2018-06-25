@@ -20,6 +20,9 @@
 
 # Entrypoint script for yarn container.
 
+docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
+
 exec 13>$LOG_DIRS/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
@@ -27,8 +30,8 @@ function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "EXIT signal received in yarn container, exiting ..."
-  set +x
-  exec 13>&-
+  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name) && kill -9 $pid ||\
+    printf "%s %s\n"  "[DEBUG]" "$docker_name does not exist."
   kill 0
 }
 
@@ -36,9 +39,6 @@ set -x
 PS4="+[\t] "
 trap exit_handler EXIT
 
-
-docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
-export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 mkdir -p "/tmp/pai-root/alive/$APP_ID"
 while /bin/true; do
@@ -208,7 +208,6 @@ docker run --name $docker_name \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
-  --oom-kill-disable \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \

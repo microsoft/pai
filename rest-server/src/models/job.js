@@ -347,6 +347,7 @@ class Job {
           'frameworkInfoWebhdfsUri': launcherConfig.frameworkInfoWebhdfsPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
+          'inspectFormat': '{{.State.Pid}}',
         });
     return yarnContainerScript;
   }

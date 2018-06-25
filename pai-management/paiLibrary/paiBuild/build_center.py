@@ -122,6 +122,7 @@ class build_center:
         self.done_dict[image_name] = True
         self.logger.info("{0}'s image building is successful.".format(image_name))
         self.logger.info("-----------------------------------------------------------")
+        self.tag(image_name)
 
 
 
@@ -166,7 +167,6 @@ class build_center:
             if image_name in self.done_dict and self.done_dict[image_name] == True:
                 continue
             self.build(image_name)
-            self.tag(image_name)
 
         self.hadoop_binary_remove()
 
