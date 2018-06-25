@@ -1,6 +1,6 @@
 {
     "jobName": "keras_tensorflow_backend_mnist",
-    "image": "paiexample/pai.example.keras.cntk",
+    "image": "openpai/pai.example.keras.cntk",
     "taskRoles": [
         {
             "name": "mnist",

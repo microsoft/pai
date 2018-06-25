@@ -1,6 +1,6 @@
 {
   "jobName": "sklearn-mnist",
-  "image": "paiexample/pai.example.sklearn",
+  "image": "openpai/pai.example.sklearn",
   "taskRoles": [
     {
       "name": "main",
