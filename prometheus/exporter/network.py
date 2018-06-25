@@ -1,4 +1,4 @@
-  #!/usr/bin/python
+#!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -131,9 +131,9 @@ def acc_per_container_network_metrics(connectionDic, pid):
 def main(argv):
     timeSleep = 3
     iter = 0
-    connectionDic = iftop()
-    pid = [704]
+    pid = [argv]
     while(True):
+        connectionDic = iftop()
         for id in pid:
             print(id)
             inSize, outSize = acc_per_container_network_metrics(connectionDic, id)
