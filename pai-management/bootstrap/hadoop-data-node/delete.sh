@@ -19,10 +19,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Call stop to stop all hadoop service first"
+echo "Call stop to stop all hadoop-data-node pod first"
 /bin/bash stop.sh
 
-echo "Create hadoop-delete configmap for deleting data on the host"
+echo "Create hadoop-data-node-delete configmap for deleting data on the host"
 kubectl create configmap hadoop-data-node-delete --from-file=hadoop-data-node-delete/
 
 echo "Create cleaner daemon"
