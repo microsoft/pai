@@ -726,7 +726,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: update virtual cluster list to database failed');
         done();
       });
   });
@@ -763,13 +763,123 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 2 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/non_exist_user/virtualClusters')
+    .put('/api/v1/user/non_exist_user/virtualClusters')
+    .set('Authorization', 'Bearer ' + validToken)
+    .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+    .end((err, res) => {
+      global.chai.expect(res, 'status code').to.have.status(500);
+      global.chai.expect(res, 'response format').be.json;
+      global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find non_exist_user in database');
+      done();
+    });
+  });
+
+});
+
+
+describe('get user info list : get /api/v1/user', () => {
+  afterEach(() => {
+    if (!nock.isDone()) {
+      //this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
+  beforeEach(() => {
+
+    nock(etcdHosts)
+      .get('/v2/keys/users?recursive=true')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users',
+          'dir': true,
+          'nodes': [{
+            'key': '/users/admin',
+            'dir': true,
+            'nodes': [{
+              'key': '/users/admin/passwd',
+              'value': 'pass1',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/admin/admin',
+              'value': 'true',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }, {
+              'key': '/users/admin/virtualClusters',
+              'value': 'default,vc1,vc2,vc3',
+              'modifiedIndex': 8,
+              'createdIndex': 8
+            }],
+            'modifiedIndex': 5,
+            'createdIndex': 5
+          }, {
+            'key': '/users/test_user',
+            'dir': true,
+            'nodes': [{
+              'key': '/users/test_user/passwd',
+              'value': 'pass2',
+              'modifiedIndex': 10,
+              'createdIndex': 10
+            }, {
+              'key': '/users/test_user/admin',
+              'value': 'false',
+              'modifiedIndex': 11,
+              'createdIndex': 11
+            }, {
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default',
+              'modifiedIndex': 12,
+              'createdIndex': 12
+            }],
+            'modifiedIndex': 9,
+            'createdIndex': 9
+          }],
+          'modifiedIndex': 4,
+          'createdIndex': 4
+        }});
+
+
+  });
+
+  //
+  // Get a valid token that expires in 60 seconds.
+  //
+
+  const validToken = global.jwt.sign({ username: 'admin_user', admin: true }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
+  const invalidToken = '';
+
+  // //
+  // // Positive cases
+  // //
+
+  it('Case 1 (Positive): should get user info successfully with admin valid token', (done) => {
+    global.chai.request(global.server)
+      .get('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(200);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user virtual cluster failed');
+        global.chai.expect(res.body.length, 'job list length').to.equal(2);
+        done();
+      });
+  });
+
+  //
+  // Negative cases
+  //
+
+  it('Case 1 (Negative): should fail to get user list with non-admin token', (done) => {
+    global.chai.request(global.server)
+      .get('/api/v1/user')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('not authorized');
         done();
       });
   });

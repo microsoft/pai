@@ -93,10 +93,25 @@ const updateUserVc = (req, res) => {
             error: 'InvalidVirtualCluster',
             message: `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`,
           });
+        } else if (err.message === 'UserNotFoundInDatabase') {
+          return res.status(500).json({
+            error: 'UserNotFoundInDatabase',
+            message: `update virtual cluster failed: could not find ${username} in database`,
+          });
+        } else if (err.message === 'NoVirtualClusterFound') {
+          return res.status(500).json({
+            error: 'NoVirtualClusterFound',
+            message: `update virtual cluster failed: could not get virtual cluster list of current cluster`,
+          });
+        } else if (err.message === 'UpdateDataFailed') {
+          return res.status(500).json({
+            error: 'UpdateDataFailed',
+            message: `update virtual cluster failed: update virtual cluster list to database failed`,
+          });
         } else {
           return res.status(500).json({
             error: 'UpdateVcFailed',
-            message: 'update user virtual cluster failed',
+            message: `update ${username} virtual cluster failed`,
           });
         }
       } else {
@@ -113,5 +128,36 @@ const updateUserVc = (req, res) => {
   }
 };
 
+/**
+ * Update user virtual clusters.
+ */
+const getUserList = (req, res) => {
+  if (req.user.admin) {
+    userModel.getUserList((err, userList) => {
+      if (err) {
+        logger.warn('get user info list Error');
+        if (err.message === 'UserListNotFound') {
+          return res.status(500).json({
+            error: 'UserListNotFound',
+            message: 'could not find user list',
+          });
+        } else {
+          return res.status(500).json({
+            error: 'GetUserListError',
+            message: 'get user info list error',
+          });
+        }
+      } else {
+        return res.status(200).json(userList);
+      }
+    });
+  } else {
+    return res.status(401).json({
+      error: 'NotAuthorized',
+      message: 'not authorized',
+    });
+  }
+};
+
 // module exports
-module.exports = {update, remove, updateUserVc};
+module.exports = {update, remove, updateUserVc, getUserList};

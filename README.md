@@ -11,7 +11,7 @@
 Platform for AI (PAI) is a platform for cluster management and resource scheduling.
 The platform incorporates the mature design that has a proven track record in Microsoft's large scale production environment.
 
-PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides PAI [runtime environment](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md) support, with which existing deep learning frameworks, e.g., CNTK and TensorFlow, can onboard PAI without any code changes. The runtime environment support provides great extensibility: new workload can leverage the environment support to run on PAI with just a few extra lines of script and/or Python code.
+PAI supports AI jobs (e.g., deep learning jobs) running in a GPU cluster. The platform provides PAI [runtime environment](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md) support, with which existing [deep learning frameworks](./examples/README.md), e.g., CNTK and TensorFlow, can onboard PAI without any code changes. The runtime environment support provides great extensibility: new workload can leverage the environment support to run on PAI with just a few extra lines of script and/or Python code.
 
 PAI supports GPU scheduling, a key requirement of deep learning jobs. 
 For better performance, PAI supports fine-grained topology-aware job placement that can request for the GPU with a specific location (e.g., under the same PCI-E switch).
@@ -55,7 +55,7 @@ And the system need [NTP](http://www.ntp.org/) service for clock synchronization
 ### Deployment process
 To deploy and use the system, the process consists of the following steps.
 
-1. Deploy PAI with [pai-management](./pai-management/README.md)
+1. Deploy PAI following our [bootup process](./pai-management/doc/cluster-bootup.md)
 2. Access [web portal](./webportal/README.md) for job submission and cluster management
 
 

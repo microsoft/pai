@@ -347,6 +347,7 @@ class Job {
           'frameworkInfoWebhdfsUri': launcherConfig.frameworkInfoWebhdfsPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
+          'inspectFormat': '{{.State.Pid}}',
         });
     return yarnContainerScript;
   }
@@ -365,7 +366,7 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const fancyRetryPolicy = (data.retryCount >= -1);
-    const killOnCompleted = (data.killAllOnCompletedTaskNumber > 0);
+    const minSucceededTaskCount = (data.killAllOnCompletedTaskNumber > 0) ? 1 : null;
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
@@ -380,8 +381,6 @@ class Job {
       'platformSpecificParameters': {
         'queue': virtualCluster,
         'taskNodeGpuType': gpuType,
-        'killAllOnAnyCompleted': killOnCompleted,
-        'killAllOnAnyServiceCompleted': killOnCompleted,
         'generateContainerIpList': true,
       },
     };
@@ -415,6 +414,10 @@ class Job {
             'diskType': 0,
             'diskMB': 0,
           },
+        },
+        'applicationCompletionPolicy': {
+          'minFailedTaskCount': 1,
+          'minSucceededTaskCount': minSucceededTaskCount,
         },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;

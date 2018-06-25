@@ -62,4 +62,7 @@ RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
 
 COPY container-setup.sh /
 
+COPY k8sPaiLibrary/maintaintool/kubectl-install.sh /kubectl-install.sh
+RUN /bin/bash kubectl-install.sh
+
 CMD ["/container-setup.sh"]

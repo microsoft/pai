@@ -29,10 +29,10 @@ template-list:
   - grafana-configuration/pai-taskroleview-dashboard.json
   - grafana-configuration/pai-taskview-dashboard.json
   - grafana-configuration/prom-datasource.json
-  - refrash.sh
+  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
-refrash-script: refrash.sh
+refresh-script: refresh.sh
 upgraded-script: upgraded.sh
