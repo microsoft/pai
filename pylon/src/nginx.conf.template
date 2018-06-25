@@ -75,11 +75,11 @@ http {
       proxy_set_header Accept-Encoding "";
       subs_filter_types *;
       subs_filter
-        \"containerLog\":\"http://([^/]*):8042/(.*)\"
+        \"containerLog\":\"http://([^/]*):8042/([^\"]*)\"
         \"containerLog\":\"$scheme://$http_host/yarn/$1:8042/$2\"
         r;
       subs_filter
-        \"appTrackingUrl\":\"http://([^/]*):8088/(.*)\"
+        \"appTrackingUrl\":\"http://([^/]*):8088/([^\"]*)\"
         \"appTrackingUrl\":\"$scheme://$http_host/yarn/$1:8088/$2\"
         r;
     }
@@ -147,27 +147,40 @@ http {
         r;
       #
       subs_filter
-        href=(['"])/([^/]*):8042(['"])
-        href=$1$scheme://$http_host/yarn/$2:8042/node$3
+        href=\'http://([^/]*):8042\'
+        href=\'$scheme://$http_host/yarn/$1:8042/node\'
         r;
       subs_filter
-        href=(['"])http://([^/]*):8042(['"])
-        href=$1$scheme://$http_host/yarn/$2:8042/node$3
+        href=\'http://([^/]*):8042/([^\']*)\'
+        href=\'$scheme://$http_host/yarn/$1:8042/$2\'
         r;
       subs_filter
-        href=(['"])http://([^/]*):8042/(.*)(['"])
-        href=$1$scheme://$http_host/yarn/$2:8042/$3$4
+        href=\'http://([^/]*):8088/([^\']*)\'
+        href=\'$scheme://$http_host/yarn/$1:8088/$2\'
+        r;
+      #
+      subs_filter
+        href=\"/([^/]*):8042\"
+        href=\"$scheme://$http_host/yarn/$1:8042/node\"
+        r;
+     subs_filter
+        href=\"http://([^/]*):8042\"
+        href=\"$scheme://$http_host/yarn/$1:8042/node\"
         r;
       subs_filter
-        href=(['"])http://([^/]*):8088(['"])
-        href=$1$scheme://$http_host/yarn/$2:8088/cluster$3
+        href=\"http://([^/]*):8042/([^\"]*)\"
+        href=\"$scheme://$http_host/yarn/$1:8042/$2\"
         r;
       subs_filter
-        href=(['"])http://([^/]*):8088/(.*)(['"])
-        href=$1$scheme://$http_host/yarn/$2:8088/$3$4
+        href=\"http://([^/]*):8088\"
+        href=\"$scheme://$http_host/yarn/$1:8088/cluster\"
         r;
       subs_filter
-        url=http://([^/]*):8188/(.*)\">
+        href=\"http://([^/]*):8088/([^\"]*)\"
+        href=\"$scheme://$http_host/yarn/$1:8088/$2\"
+        r;
+      subs_filter
+        url=http://([^/]*):8188/([^\"]*)\">
         url=$scheme://$http_host/yarn/$1:8188/$2\">
         r;
       #
