@@ -2,7 +2,12 @@
 
 PAI can be deployed on a single server.
 
-## Step 1. Prepare the a yaml file quick-start.yaml <a name="step-1a"></a>
+## Step 0. Prepare the dev-box
+
+It is recommended to perform the operations below in a dev box.
+Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
+
+## Step 1. Prepare the quick-start.yaml file <a name="step-1a"></a>
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
