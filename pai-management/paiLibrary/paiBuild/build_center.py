@@ -116,6 +116,10 @@ class build_center:
         if base_image != None:
             self.build(base_image)
 
+        if image_build_worker.need_hadoop_binary():
+            self.hadoop_ai_build()
+            self.hadoop_binary_prepare()
+
         self.logger.info("-----------------------------------------------------------")
         self.logger.info("Begin to build {0}'s image.".format(image_name))
         image_build_worker.run()
@@ -148,8 +152,6 @@ class build_center:
     def run(self):
 
         self.hadoop_binary_remove()
-        self.hadoop_ai_build()
-        self.hadoop_binary_prepare()
 
         self.done_dict = dict()
         self.docker_cli = docker_handler.docker_handler(
@@ -169,6 +171,8 @@ class build_center:
             self.build(image_name)
 
         self.hadoop_binary_remove()
+
+
 
 
 

@@ -17,5 +17,11 @@
 
 prerequisite: base-image
 
+copy-list:
+  # TODO It's a bit tricky here.
+  # This two line indicates it need hadoop-ai. For now, I don't want to make much change on code, so.
+  - src: src/hadoop-run/hadoop
+    dst: src/hadoop-run/tmp
+
 template-list:
   - dockerfile
