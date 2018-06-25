@@ -1,4 +1,4 @@
-#!/usr/bin/python
+  #!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -77,7 +77,7 @@ def parse_iftop(stats):
 
 def iftop():
     try:
-        iftopCMD = "sudo iftop -t -P -s 1 -L 10000 -B -n -N"
+        iftopCMD = "iftop -t -P -s 1 -L 10000 -B -n -N"
         iftopResult = subprocess.check_output([iftopCMD], shell=True)
         result = parse_iftop(iftopResult)
         return result
