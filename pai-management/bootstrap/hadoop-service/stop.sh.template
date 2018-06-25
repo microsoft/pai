@@ -27,9 +27,6 @@ kubectl delete ds hadoop-resource-manager-ds
 kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
 
 {% for host in machinelist %}
-    {% if 'hadoop-data-node' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node-
-    {% endif %}
     {% if 'hadoop-resource-manager' in machinelist[ host ] -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager-
     {% endif %}

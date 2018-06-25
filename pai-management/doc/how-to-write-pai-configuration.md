@@ -103,11 +103,12 @@ machine-list:
 - ```pai-worker```: Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work.
 - ```node-exporter```: Optional. You can assign this label to nodes to enable hardware and service monitoring.
 
+Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./single-box-deployment.md).
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
 An example k8s-role-definition.yaml file is available [here](../../cluster-configuration/k8s-role-definition.yaml).
-The file is used to bootstrap a k8s cluster. It includes a list of k8s components and specifies what components should be include in different k8s roles (master, worker, and proxy). 
+The file is used to bootstrap a k8s cluster. It includes a list of k8s components and specifies what components should be include in different k8s roles (master, worker, and proxy).
 By default, user does not need to change the file.
 
 ## Set up kubernetes-configuration.yaml <a name="kubernetes_configuration"></a>
@@ -185,7 +186,7 @@ cluster:
     - ```docker-username```: The account of the docker registry
     - ```docker-password```: The password of the account
     - ```docker-tag```: The image tag of the service. You could set the version here. Or just set latest here.
-    - ```secret-name```: Must be lower case, e.g., regsecret. The name of the secret in Kubernetes will be created for your cluster. 
+    - ```secret-name```: Must be lower case, e.g., regsecret. The name of the secret in Kubernetes will be created for your cluster.
 
 Note that we provide a read-only public docker registry on DockerHub for official releases. To use this docker registry, th `docker-registry-info` section should be configured as follows, leaving `docker-username` and `docker-password` commented:
 
@@ -204,8 +205,8 @@ Users can browse to https://hub.docker.com/r/openpai to see all the repositories
 ### ```hadoop```
 ```YAML
 hadoop:
-  # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai 
-  custom-hadoop-binary-path: ./customhadoop/
+  # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
+  custom-hadoop-binary-path: /pathHadoop/
   hadoop-version: 2.7.2
   virtualClusters:
     default:
@@ -222,8 +223,8 @@ hadoop:
       capacity: 20
 ```
 
-- ```custom-hadoop-binary-path```: please set a path here for paictl to build [hadoop-ai](../../hadoop-ai), and place the binary here. 
-- ```hadoop-version```: please set this to ```2.7.2```. 
+- ```custom-hadoop-binary-path```: please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).
+- ```hadoop-version```: please set this to ```2.7.2```.
 - ```virtualClusters```: hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.
 
 
@@ -305,7 +306,7 @@ Single master mode does not have high availability.
 
 There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
 
-- one or more than one nodes are labeled with ```k8s-role: master``` 
+- one or more than one nodes are labeled with ```k8s-role: master```
 - one node should be labeled with ```k8s-role: proxy```
 - set the field ```load-balance-ip``` to your proxy node's ip address
 
@@ -316,5 +317,3 @@ Node: the proxy node itself is not in ha mode. How to configure the proxy node i
 If your cluster has a reliable load-balance server (e.g. in a cloud environment such as Azure), you could set up a load-balancer and set the field ```load-balance-ip``` in the kubernetes-configuration.yaml to the load-balancer.
 
 - Set the field ```load-balance-ip`` to the ip-address of your load-balancer.
-
-
