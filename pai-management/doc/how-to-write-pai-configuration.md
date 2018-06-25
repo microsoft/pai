@@ -103,6 +103,7 @@ machine-list:
 - ```pai-worker```: Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work.
 - ```node-exporter```: Optional. You can assign this label to nodes to enable hardware and service monitoring.
 
+Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./single-box-deployment.md).
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
