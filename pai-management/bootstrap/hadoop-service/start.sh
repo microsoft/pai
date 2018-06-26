@@ -28,20 +28,6 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash configmap-create.sh
 
 
-# Hadoop node manager
-kubectl create -f hadoop-node-manager.yaml
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-node-manager Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
-fi
-
-
 # Hadoop jobhistory
 kubectl create -f hadoop-jobhistory.yaml
 

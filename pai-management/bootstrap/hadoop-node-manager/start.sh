@@ -17,8 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
-    {% endif %}
-{% endfor %}
+pushd $(dirname "$0") > /dev/null
+
+#chmod u+x node-label.sh
+
+/bin/bash node-label.sh
+
+#chmod u+x configmap-create.sh
+
+/bin/bash configmap-create.sh
+
+
+# Hadoop node manager
+kubectl create -f hadoop-node-manager.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-node-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
+fi
+
+
+popd > /dev/null

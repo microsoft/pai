@@ -17,8 +17,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
-    {% endif %}
-{% endfor %}
+
+echo "Clean the hadoop node manager's data on the disk"
+
+if [ -d "/mnt/yarn/node" ]; then
+
+    rm -rf /mnt/yarn/node
+
+fi
+
+if [ -d "/mnt/hadooptmp/nodemanager" ]; then
+
+    rm -rf /mnt/hadooptmp/nodemanager
+
+fi

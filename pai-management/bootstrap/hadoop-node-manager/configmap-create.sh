@@ -17,8 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
-    {% endif %}
-{% endfor %}
+kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/
