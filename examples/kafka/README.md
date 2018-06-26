@@ -2,17 +2,19 @@ How to run kafka on PAI
 ===
 If you just want to make a very simple example to see whether you can use kafka on PAI, you could submit the job with the kafka_test.json file in this folder. Then, you can see the stdout in the "Go to Tracking Page" page. You could see that the program has already producerd and consumed message with kafka. 
 
+And we have prepared a docker image with zookeeper, kafka and kafka-python for you, you can use it by build image with the "Dockerfile.example.kafka" file:`sudo docker build -f Dockerfile.example.kafka -t kafka.test .`. And then "run" and "exec" it!
+
 But, if you want to use kafka by yourself, you should follow the next steps.
 
 Please follow the next process step by step. Do not skip any steps if you don't know whether you can skip it.
 
 Zookeeper
 ---
-If you already have a kafka cluster, you could skip this step.
+If you already have a kafka cluster or build the image by "Dockerfile.example.kafka", you could skip this step.
 
 1.[Download zookeeper source file](https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html) and unpack it.
 
-2.open the text file "/conf/zoo.cfg".
+2.Change the name of file "/conf/zoo_sample.cfg" to "/conf/zoo.cfg" and open it.
 
 3.Set the "dataDir" and "clientPort" like "dataDir=/var/zookeeper clientPort=2181". Remember the port you set.
 
@@ -20,7 +22,7 @@ If you already have a kafka cluster, you could skip this step.
 
 Kafka
 ---
-If you already have a kafka cluster, you could skip this step.
+If you already have a kafka cluster or build the image by "Dockerfile.example.kafka", you could skip this step.
 
 Just take reference in the [official document](https://www.tutorialspoint.com/apache_kafka/apache_kafka_installation_steps.html).
 
@@ -34,7 +36,7 @@ Note:
 
 Make your logical code
 ---
-1.If you want to use python to check if the kafka can be used correctly, you'd better see the [official document](https://kafka-python.readthedocs.io/en/master/).
+1.If you want to use python to check if the kafka can be used correctly, you'd better see the [official document](https://kafka-python.readthedocs.io/en/master/). Don't forget to install kafka-python.(If you build the image by "Dockerfile.example.kafka", ignore it!)
 
 2.When you use the producer of kafka, you should keep in mind that the massage might be lost if you haven't set "acks" and haven't use "producer.flush()".
 
