@@ -1,14 +1,6 @@
 {
-  "jobName": "new_kafka_test",
-  "image": "qyyy/test:latest",
-  "authFile": "",
-  "dataDir": "",
-  "outputDir": "",
-  "codeDir": "",
-  "virtualCluster": "default",
-  "gpuType": "",
-  "killAllOnCompletedTaskNumber": 1,
-  "retryCount": 0,
+  "jobName": "kafka",
+  "image": "openpai/pai.example.kafka:latest",
   "taskRoles": [
     {
       "name": "main",
