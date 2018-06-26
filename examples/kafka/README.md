@@ -1,6 +1,6 @@
 How to run kafka on PAI
 ===
-If you just want to make a very simple example to see whether you can use kafka on PAI, you could submit the job with the config.json file in this folder. Then, you can see the stdout in the "Go to Tracking Page " page. You could see that the program has already producerd and consumed message with kafka. 
+If you just want to make a very simple example to see whether you can use kafka on PAI, you could submit the job with the kafka_test.json file in this folder. Then, you can see the stdout in the "Go to Tracking Page" page. You could see that the program has already producerd and consumed message with kafka. 
 
 But, if you want to use kafka by yourself, you should follow the next steps.
 
@@ -22,7 +22,7 @@ Kafka
 ---
 If you already have a kafka cluster, you could skip this step.
 
-Just take reference in the [official document](https://www.tutorialspoint.com/apache_kafka/apache_kafka_installation_steps.html)
+Just take reference in the [official document](https://www.tutorialspoint.com/apache_kafka/apache_kafka_installation_steps.html).
 
 Note:
 
@@ -30,7 +30,7 @@ Note:
 
 2.The "zookeeper.connect" port is the port you have already set in "/conf/zoo.cfg".
 
-3.If you can't start the kafka server, it might due to you haven't started the zookeeper server or you haven't set the correct port.
+3.If you can't start the kafka server, it might because you haven't started the zookeeper server or you haven't set the correct port.
 
 Make your logical code
 ---
