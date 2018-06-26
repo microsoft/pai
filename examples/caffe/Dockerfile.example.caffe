@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python-setuptools \
         python-scipy
 
+WORKDIR /root
+
 # clone caffe and build
 RUN git clone --depth 1 https://github.com/BVLC/caffe.git && \
     pip install ipython==5.0.0 && \
