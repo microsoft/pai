@@ -19,19 +19,27 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
+#chmod u+x node-label.sh
 
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+/bin/bash node-label.sh
 
-{% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-    {% endif %}
-{% endfor %}
+#chmod u+x configmap-create.sh
+
+/bin/bash configmap-create.sh
+
+
+# Hadoop resource manager
+kubectl create -f hadoop-resource-manager.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-resource-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager
+fi
+
 
 popd > /dev/null

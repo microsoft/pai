@@ -17,21 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
-
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
-
 {% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
+    {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true
     {% endif %}
 {% endfor %}
-
-popd > /dev/null
