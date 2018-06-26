@@ -90,6 +90,8 @@ spec:
         - mountPath: /datastorage/prometheus
           name: collector-mount
         name: gpu-exporter
+        command: ["python", "/usr/local/job_exporter.py"]
+        args: ["/datastorage/prometheus", "30"]
       volumes:
         - name: docker-bin
           hostPath:

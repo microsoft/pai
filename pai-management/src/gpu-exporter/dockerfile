@@ -42,6 +42,7 @@ RUN cd infilter && make && cd ..
 RUN cp infilter/infilter /usr/bin
 #
 # start
-#
-
-CMD python /usr/local/job_exporter.py /datastorage/prometheus 30
+#  
+# The start cmd will be called at K8s config yaml file.
+# local container test cmd example: 
+# CMD python /usr/local/job_exporter.py /datastorage/prometheus 30
