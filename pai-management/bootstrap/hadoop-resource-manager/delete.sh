@@ -19,19 +19,22 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete job batch-job-hadoop
-kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
+echo "Call stop.sh to stop hadoop resource manager first"
+/bin/bash stop.sh
 
-kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-resource-manager-delete --from-file=hadoop-resource-manager-delete/
 
-{% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
-    {% endif %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-    {% endif %}
-{% endfor %}
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager
+
+echo "Hadoop resource manager clean job is done"
+echo "Delete hadoop resource manager cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hadoop-resource-manager
+kubectl delete configmap hadoop-resource-manager-delete
+sleep 5
 
 popd > /dev/null
