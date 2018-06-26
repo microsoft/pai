@@ -17,4 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl create configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }} --from-file=hadoop-configuration/
+
+echo "Clean the hadoop jobhistory server and hadoop timeline server's data on the disk"
+
+
+if [ -d "/mnt/hadooptmp/jobhistory" ]; then
+
+    rm -rf /mnt/hadooptmp/jobhistory
+
+fi

@@ -17,30 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh
-
-#chmod u+x configmap-create.sh
-
-/bin/bash configmap-create.sh
-
-
-# Hadoop jobhistory
-kubectl create -f hadoop-jobhistory.yaml
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k jobhistory -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No jobhistory Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-jobhistory-service
-fi
-
-kubectl create -f one-time-job-hadoop.yaml
-
-popd > /dev/null
+kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/

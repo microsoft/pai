@@ -50,7 +50,7 @@ spec:
           value: jobhistory-start-service.sh
         volumeMounts:
         - mountPath: /hadoop-configuration
-          name: hadoop-config-volume
+          name: hadoop-jobhistory-config-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
         readinessProbe:
@@ -63,9 +63,9 @@ spec:
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
-      - name: hadoop-config-volume
+      - name: hadoop-jobhistory-config-volume
         configMap:
-          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+          name: hadoop-jobhistory-configuration
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/jobhistory
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadbukeooptmp/jobhistory
