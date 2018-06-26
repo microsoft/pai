@@ -21,6 +21,8 @@ import json
 import sys
 import re
 import time
+import logging  
+logger = logging.getLogger("gpu_expoter")  
 
 def convert_to_byte(data):
     number = float(re.findall(r"(\d+(\.\d+)?)", data)[0][0])
@@ -81,8 +83,12 @@ def iftop():
         iftopResult = subprocess.check_output([iftopCMD], shell=True)
         result = parse_iftop(iftopResult)
         return result
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    except: 
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter iftop error {}".format(e))
+        connectionDic = {}
+        return connectionDic
 
 def parse_lsof(stats):
     connections = {}
@@ -109,24 +115,36 @@ def lsof(containerPID):
         isofResult = subprocess.check_output([lsofCMD], shell=True)
         result = parse_lsof(isofResult)
         return result
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    except:
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter lsof error {}".format(e))
+        connections = {}
+        return connections
 
 def acc_per_container_network_metrics(connectionDic, pid):
-    connections = lsof(pid)
-    accInBytes = 0
-    accOutBytes = 0
+    try:
+        connections = lsof(pid)
+        accInBytes = 0
+        accOutBytes = 0
 
-    for conn in connections:
-        inBytes = 0
-        outBytes = 0
-        if conn in connectionDic:
-            inBytes = connectionDic[conn]["inSize"]
-            accInBytes += inBytes
-        if conn in connectionDic:
-            outBytes = connectionDic[conn]["outSize"]
-            accOutBytes += outBytes
-    return accInBytes, accOutBytes
+        for conn in connections:
+            inBytes = 0
+            outBytes = 0
+            if conn in connectionDic:
+                inBytes = connectionDic[conn]["inSize"]
+                accInBytes += inBytes
+            if conn in connectionDic:
+                outBytes = connectionDic[conn]["outSize"]
+                accOutBytes += outBytes
+        return accInBytes, accOutBytes
+    except: 
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter acc_per_container_network_metrics error {}".format(e))
+        accInBytes = 0
+        accOutBytes = 0
+        return 0, 0
 
 def main(argv):
     timeSleep = 3
