@@ -185,7 +185,7 @@ cluster:
     - ```docker-registry-domain```: E.g., gcr.io. If public，fill docker_registry_domain with the word "public".
     - ```docker-username```: The account of the docker registry
     - ```docker-password```: The password of the account
-    - ```docker-tag```: The image tag of the service. You could set the version here. Or just set latest here.
+    - ```docker-tag```: The image tag of the service, which should match the PAI release version, for example: `pai-0.6.y` for the release 0.6. Or use `latest` for the latest code.
     - ```secret-name```: Must be lower case, e.g., regsecret. The name of the secret in Kubernetes will be created for your cluster.
 
 Note that we provide a read-only public docker registry on DockerHub for official releases. To use this docker registry, th `docker-registry-info` section should be configured as follows, leaving `docker-username` and `docker-password` commented:
@@ -196,7 +196,7 @@ docker-registry-info:
   - docker-registry-domain: docker.io
   #- docker-username: <n/a>
   #- docker-password: <n/a>
-  - docker-tag: latest # or a specific version, i.e. 0.5.0.
+  - docker-tag: pai-0.6.y # the image tag for PAI release 0.6
   - secret-name: <anything>
 ```
 

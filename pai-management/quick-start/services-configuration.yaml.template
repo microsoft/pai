@@ -43,7 +43,8 @@ cluster:
     #docker-username: <username>
     #docker-password: <password>
 
-    docker-tag: latest
+    # Should match the PAI version, pai-0.6.y for the PAI release 0.6.
+    docker-tag: pai-0.6.y
 
     # The name of the secret in kubernetes will be created in your cluster
     # Must be lower case, e.g., regsecret.
