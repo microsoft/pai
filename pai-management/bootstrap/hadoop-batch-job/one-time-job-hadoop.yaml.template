@@ -54,4 +54,4 @@ spec:
       volumes:
       - name: hadoop-config-volume
         configMap:
-          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+          name: hadoop-configuration

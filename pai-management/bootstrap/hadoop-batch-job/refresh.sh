@@ -21,23 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-configuration"
-kubectl create configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }} --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
-
-echo "relabel the node label"
-/bin/bash node-label.sh
-
-
-{% for host in machinelist %}
-
-    {% if 'jobhistory' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "jobhistory="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have jobhistory's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
-fi
-    {% endif %}
-
-{% endfor %}
-
+kubectl create configmap hadoop-configuration --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 
 popd > /dev/null

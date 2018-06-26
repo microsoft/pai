@@ -17,19 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
-cp  /hadoop-configuration/jobhistory-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
-cp  /hadoop-configuration/jobhistory-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
-cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
-cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
+pushd $(dirname "$0") > /dev/null
 
-sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
-sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
-sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
-sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
-sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+echo "Call stop to stop hadoop jobhistory first"
+/bin/bash stop.sh
 
-sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
+echo "Create hadoop-jobhistory-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-jobhistory-delete --from-file=hadoop-jobhistory-delete/
 
-sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-site.xml 
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
 
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-jobhistory
+
+echo "Hadoop Service clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hadoop-jobhistory
+kubectl delete configmap hadoop-jobhistory-delete
+sleep 5
+
+popd > /dev/null

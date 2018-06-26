@@ -18,12 +18,12 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: delete-batch-job-hadoop-service
+  name: delete-batch-job-hadoop-jobhistory
 spec:
   template:
     metadata:
       labels:
-        app: delete-batch-job-hadoop-service
+        app: delete-batch-job-hadoop-jobhistory
     spec:
       hostNetwork: true
       hostPID: true
@@ -34,11 +34,11 @@ spec:
         volumeMounts:
         - mountPath: /mnt
           name: data-path
-        - mountPath: /hadoop-delete
-          name: hadoop-delete-config
+        - mountPath: /hadoop-jobhistory-delete
+          name: hadoop-jobhistory-delete-config
         env:
         - name: DELETE_CONFIG
-          value: hadoop-delete
+          value: hadoop-jobhistory-delete
         - name: WORKER_CONFIG
           value: delete-data.sh
         readinessProbe:
@@ -54,6 +54,6 @@ spec:
       - name: data-path
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}
-      - name: hadoop-delete-config
+      - name: hadoop-jobhistory-delete-config
         configMap:
-          name: hadoop-delete
+          name: hadoop-jobhistory-delete

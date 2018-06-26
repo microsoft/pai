@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,23 @@
 
 <!-- Put site-specific property overrides in this file. -->
 
-
-
 <configuration>
-  <property>
-    <name>mapreduce.framework.name</name>
-    <value>yarn</value>
-  </property>
+
+<property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://{HDFS_ADDRESS}:9000</value>
+  <description>
+         Formerly fs.default.name, the default path prefix used by the Hadoop FS client when
+         none is given. 
+  </description>
+</property>
+
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/var/lib/hadoopdata</value>
+  <description>
+         A base for other temporary directories.
+  </description>
+</property>
 
 </configuration>
