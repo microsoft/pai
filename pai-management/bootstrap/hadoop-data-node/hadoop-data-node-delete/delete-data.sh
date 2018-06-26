@@ -22,14 +22,14 @@ echo "Clean the hadoop-data-node's data on the disk"
 
 if [ -d "/mnt/hdfs/data" ]; then
 
-    rm -rf /mnt/hdfs
+    rm -rf /mnt/hdfs/data
 
 fi
 
 
 if [ -d "/mnt/hadooptmp/datanode" ]; then
 
-    rm -rf /mnt/hadooptmp
+    rm -rf /mnt/hadooptmp/datanode
 
 fi
 
