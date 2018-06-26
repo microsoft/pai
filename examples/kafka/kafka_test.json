@@ -1,0 +1,34 @@
+{
+  "jobName": "new_kafka_test",
+  "image": "qyyy/test:latest",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "",
+  "codeDir": "",
+  "virtualCluster": "default",
+  "gpuType": "",
+  "killAllOnCompletedTaskNumber": 1,
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 2048,
+      "gpuNumber": 0,
+      "command": "/bin/bash /root/start.sh",
+      "portList": [
+        {
+          "label": "kafka",
+          "beginAt": 0,
+          "portNumber": 1
+        },
+        {
+          "label": "zookeeper",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ]
+    }
+  ]
+}
