@@ -24,4 +24,8 @@ echo "refresh hadoop-configuration"
 kubectl create configmap hadoop-configuration --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
 
 
+kubectl delete job batch-job-hadoop
+
+kubectl create -f one-time-job-hadoop.yaml
+
 popd > /dev/null
