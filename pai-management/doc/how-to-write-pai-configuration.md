@@ -317,3 +317,5 @@ Node: the proxy node itself is not in ha mode. How to configure the proxy node i
 If your cluster has a reliable load-balance server (e.g. in a cloud environment such as Azure), you could set up a load-balancer and set the field ```load-balance-ip``` in the kubernetes-configuration.yaml to the load-balancer.
 
 - Set the field ```load-balance-ip`` to the ip-address of your load-balancer.
+
+
