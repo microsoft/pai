@@ -81,7 +81,7 @@ class kubectl_install:
 
     def run(self):
 
-        #self.kubectl_install()
+        self.kubectl_install()
         self.kubectl_configuration_generate()
         self.kubectl_ready_test()
 
