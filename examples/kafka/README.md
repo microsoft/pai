@@ -1,6 +1,6 @@
 How to run kafka on PAI
 ===
-If you just want to make a very simple example to see whether you can use kafka on PAI, you could submit the job with the kafka_test.json file in this folder. Then, you can see the stdout in the "Go to Tracking Page" page. You could see that the program has already producerd and consumed message with kafka. 
+If you just want to make a very simple example to see whether you can use kafka on PAI, you could submit the job with the kafka.json file in this folder. Then, you can see the stdout in the "Go to Tracking Page" page. You could see that the program has already producerd and consumed message with kafka. 
 
 And we have prepared a docker image with zookeeper, kafka and kafka-python for you, you can use it by build image with the "Dockerfile.example.kafka" file:`sudo docker build -f Dockerfile.example.kafka -t kafka.test .`. And then "run" and "exec" it!
 
