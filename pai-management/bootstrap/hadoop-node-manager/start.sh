@@ -17,20 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-echo "Clean the hadoop-data-node's data on the disk"
+#chmod u+x node-label.sh
 
-if [ -d "/mnt/hdfs/data" ]; then
+/bin/bash node-label.sh
 
-    rm -rf /mnt/hdfs/data
+#chmod u+x configmap-create.sh
 
+/bin/bash configmap-create.sh
+
+
+# Hadoop node manager
+kubectl create -f hadoop-node-manager.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-node-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
 fi
 
 
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
-
-fi
-
-
+popd > /dev/null

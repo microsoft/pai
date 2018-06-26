@@ -22,11 +22,11 @@ prerequisite:
   - hadoop-name-node
   - hadoop-data-node
   - hadoop-resource-manager
+  - hadoop-node-manager
 
 template-list:
   - node-label.sh
   - configmap-create.sh
-  - hadoop-node-manager.yaml
   - hadoop-jobhistory.yaml
   - one-time-job-hadoop.yaml
   - stop.sh

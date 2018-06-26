@@ -21,14 +21,10 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl delete job batch-job-hadoop
 kubectl delete ds hadoop-jobhistory-service
-kubectl delete ds hadoop-node-manager-ds
 
 kubectl delete configmap {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
 
 {% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
-    {% endif %}
     {% if 'jobhistory' in machinelist[ host ] -%}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory-
     {% endif %}

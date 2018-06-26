@@ -17,20 +17,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-echo "Clean the hadoop-data-node's data on the disk"
-
-if [ -d "/mnt/hdfs/data" ]; then
-
-    rm -rf /mnt/hdfs/data
-
-fi
-
-
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
-
-fi
-
-
+kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/

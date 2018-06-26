@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
-cp  /hadoop-configuration/nodemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
-cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
+cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
+cp  /hadoop-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
 cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 

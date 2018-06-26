@@ -18,19 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-echo "Clean the hadoop-data-node's data on the disk"
+echo "Clean the hadoop node manager's data on the disk"
 
-if [ -d "/mnt/hdfs/data" ]; then
+if [ -d "/mnt/yarn/node" ]; then
 
-    rm -rf /mnt/hdfs/data
-
-fi
-
-
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
+    rm -rf /mnt/yarn/node
 
 fi
 
+if [ -d "/mnt/hadooptmp/nodemanager" ]; then
 
+    rm -rf /mnt/hadooptmp/nodemanager
+
+fi

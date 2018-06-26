@@ -17,20 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-echo "Clean the hadoop-data-node's data on the disk"
+kubectl delete ds hadoop-node-manager-ds
 
-if [ -d "/mnt/hdfs/data" ]; then
+kubectl delete configmap hadoop-node-manager-configuration
 
-    rm -rf /mnt/hdfs/data
+{% for host in machinelist %}
+    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
+    {% endif %}
+{% endfor %}
 
-fi
-
-
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
-
-fi
-
-
+popd > /dev/null

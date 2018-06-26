@@ -17,20 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-echo "Clean the hadoop-data-node's data on the disk"
+echo "Call stop to stop hadoop node manager first"
+/bin/bash stop.sh
 
-if [ -d "/mnt/hdfs/data" ]; then
+echo "Create hadoop-node-manager-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-node-manager-delete --from-file=hadoop-node-manager-delete/
 
-    rm -rf /mnt/hdfs/data
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
 
-fi
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-node-manager
 
+echo "Hadoop node manager clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hadoop-node-manager
+kubectl delete configmap hadoop-node-manager-delete
+sleep 5
 
-if [ -d "/mnt/hadooptmp/datanode" ]; then
-
-    rm -rf /mnt/hadooptmp/datanode
-
-fi
-
-
+popd > /dev/null
