@@ -28,7 +28,7 @@ template-list:
   - stop.sh
   - refresh.sh
   - delete.yaml
-  - hadoop-configuration/capacity-scheduler.xml
+  - hadoop-resource-manager-configuration/capacity-scheduler.xml
 
 start-script: start.sh
 stop-script: stop.sh
