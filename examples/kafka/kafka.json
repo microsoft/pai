@@ -1,6 +1,6 @@
 {
   "jobName": "kafka",
-  "image": "openpai/pai.example.kafka:latest",
+  "image": "openpai/pai.example.kafka",
   "taskRoles": [
     {
       "name": "main",
