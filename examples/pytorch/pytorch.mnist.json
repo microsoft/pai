@@ -1,6 +1,6 @@
 {
   "jobName": "pytorch-mnist",
-  "image": "paiexample/pai.example.pytorch",
+  "image": "openpai/pai.example.pytorch",
   "taskRoles": [
     {
       "name": "main",

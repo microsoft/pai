@@ -39,7 +39,7 @@ First of all, PAI runs all jobs in Docker container.
 
 We use TensorFlow model serving as an example, for how to serve a TensorFlow model, please refer to its [serving tutorial](https://www.tensorflow.org/serving/serving_basic).
 
-You can also jump to [Serving a TensorFlow model](#serving-a-tensorflow-model) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.tensorflow-serving/) on Docker Hub.
+You can also jump to [Serving a TensorFlow model](#serving-a-tensorflow-model) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.tensorflow-serving/) on Docker Hub.
 
 We need to build a TensorFlow serving image with GPU support to serve a TensorFlow model on PAI, this can be done in two steps:
 
@@ -75,7 +75,7 @@ We need to build a TensorFlow serving image with GPU support to serve a TensorFl
 
 To run TensorFlow model serving, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.tensorflow-serving` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-serving` with your own.
 
 Here're some configuration file examples:
 
@@ -83,7 +83,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "tensorflow-serving",
-  "image": "paiexample/pai.example.tensorflow-serving",
+  "image": "openpai/pai.example.tensorflow-serving",
   "taskRoles": [
     {
       "name": "serving",

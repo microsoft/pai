@@ -1,4 +1,4 @@
-FROM aiplatform/pai.run.tensorflow
+FROM openpai/pai.example.tensorflow
 
 # install git
 RUN apt-get -y update && apt-get -y install git

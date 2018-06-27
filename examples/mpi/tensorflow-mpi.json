@@ -1,6 +1,6 @@
 {
   "jobName": "tensorflow-mpi",
-  "image": "paiexample/pai.example.tensorflow-mpi",
+  "image": "openpai/pai.example.tensorflow-mpi",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-mpi/data",

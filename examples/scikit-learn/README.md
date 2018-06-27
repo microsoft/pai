@@ -38,7 +38,7 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [scikit-learn examples](#scikit-learn-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.sklearn/) on Docker Hub.
+You can also jump to [scikit-learn examples](#scikit-learn-examples) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.sklearn/) on Docker Hub.
 
 We need to build a scikit-learn image to run scikit-learn workload on PAI, this can be done in two steps:
 
@@ -107,7 +107,7 @@ RUN git clone https://github.com/scikit-learn/scikit-learn.git
 
 To run scikit-learn examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.sklearn` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.sklearn` with your own.
 
 Here're some configuration file examples:
 
@@ -115,7 +115,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "sklearn-mnist",
-  "image": "paiexample/pai.example.sklearn",
+  "image": "openpai/pai.example.sklearn",
   "taskRoles": [
     {
       "name": "main",
@@ -133,7 +133,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "sklearn-text-vectorizers",
-  "image": "paiexample/pai.example.sklearn",
+  "image": "openpai/pai.example.sklearn",
   "taskRoles": [
     {
       "name": "main",
