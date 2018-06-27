@@ -14,7 +14,7 @@ with open('output.log','a') as p:
         count += 1
         if count == 50 or time.time()-now > 10:
             break
-if 'kafka_test' not in client.list('/'):
-    client.makedirs('/kafka_test', permission=777)
-if 'output.log' not in client.list('/kafka_test'):
-    client.upload('/kafka_test','output.log')
+if hdfs_host not in client.list('/'):
+    client.makedirs(hdfs_host, permission=777)
+if 'output.log' not in client.list(hdfs_host):
+    client.upload(hdfs_host,'output.log')
