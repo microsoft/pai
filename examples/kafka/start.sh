@@ -1,6 +1,6 @@
 #startup zookeeper
 cd /root/zookeeper-3.4.12/conf
-sed '14d' zoo.cfg
+sed -i '14d' zoo.cfg
 sed -i "13a clientPort=$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" zoo.cfg
 cd /root/zookeeper-3.4.12/bin
 ./zkServer.sh start
@@ -8,7 +8,7 @@ sleep 5s
 
 #startup kafka
 cd /root/kafka_2.11-1.1.0/config
-sed '123d' server.properties
+sed -i '123d' server.properties
 sed -i "123a zookeeper.connect=localhost:$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" server.properties
 sed -i "31a listeners=PLAINTEXT://localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST" server.properties
 cd /root/kafka_2.11-1.1.0
