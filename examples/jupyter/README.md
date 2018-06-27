@@ -61,7 +61,7 @@ You can skip this section if you do not need to prepare other dependencies.
 You can customize runtime Jupyter Notebook environment in your own docker image based on our base image, for example, adding other dependeces in Dockerfile:
 
 ```dockerfile
-FROM paiexample/pai.example.jupyter
+FROM openpai/pai.example.jupyter
 
 # install other packages using apt-get
 RUN apt-get -y update && apt-get -y install git PACKAGE
@@ -76,14 +76,14 @@ To run Jupyter Notebook in PAI, you need to prepare a job configuration file and
 
 Here's one configuration file example to use Jupyter Notebook as a tutorial to run a tensorflow mnist example:
 
-Please built your image and pushed it to your Docker registry, replace image `aiplatform/pai.run.tensorflow` with your own and modify the command if needed.
+Please built your image and pushed it to your Docker registry, replace image `openpai/pai.example.tensorflow` with your own and modify the command if needed.
 
 ### Job configuration file
 
 ```json
 {
     "jobName": "jupyter_example",
-    "image": "aiplatform/pai.run.tensorflow",
+    "image": "openpai/pai.example.tensorflow",
     "taskRoles": [
         {
             "name": "jupyter",

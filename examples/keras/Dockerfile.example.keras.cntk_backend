@@ -1,4 +1,4 @@
-FROM aiplatform/pai.run.cntk
+FROM openpai/pai.example.cntk
 
 # install git
 RUN apt-get -y update && apt-get -y install git

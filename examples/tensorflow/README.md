@@ -37,7 +37,7 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [TensorFlow examples](#tensorflow-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.tensorflow/) on Docker Hub.
+You can also jump to [TensorFlow examples](#tensorflow-examples) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.tensorflow/) on Docker Hub.
 
 We need to build a TensorFlow image with GPU support to run TensorFlow workload on PAI, this can be done in two steps:
 
@@ -107,7 +107,7 @@ WORKDIR /root
 
 To run TensorFlow examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.tensorflow` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own.
 
 Here're some configuration file examples:
 
@@ -115,7 +115,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "tensorflow-cifar10",
-  "image": "paiexample/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow",
 
   "dataDir": "/tmp/data",
   "outputDir": "/tmp/output",
@@ -137,7 +137,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "tensorflow-imagenet",
-  "image": "paiexample/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow",
 
   // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
@@ -163,7 +163,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "tensorflow-distributed-cifar10",
-  "image": "paiexample/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
@@ -199,7 +199,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "tensorflow-tensorboard",
-  "image": "paiexample/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow",
 
   // prepare checkpoint and log to be visualized and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
