@@ -1,0 +1,14 @@
+{
+  "jobName": "caffe2-resnet50",
+  "image": "openpai/pai.example.caffe2",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "python resnet50_trainer.py --train_data null"
+    }
+  ]
+}
