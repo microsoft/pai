@@ -206,7 +206,8 @@ Users can browse to https://hub.docker.com/r/openpai to see all the repositories
 ```YAML
 hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
-  custom-hadoop-binary-path: /pathHadoop/
+  # Notice: the name should be hadoop-{hadoop-version}.tar.gz
+  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
   hadoop-version: 2.7.2
   virtualClusters:
     default:
