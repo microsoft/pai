@@ -31,7 +31,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 cd /pai/pai-management
 
-# Now you are free to configure your cluaster and run PAI commands...
+# Now you are free to configure your cluster and run PAI commands...
 
 ```
 
@@ -76,6 +76,6 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 cd /pai/pai-management
 
-# Now you are free to configure your cluaster and run PAI commands...
+# Now you are free to configure your cluster and run PAI commands...
 
 ```

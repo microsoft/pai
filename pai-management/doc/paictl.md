@@ -30,7 +30,7 @@ A tool to manage your pai cluster.
 ### Build infrastructure image(s) <a name="Image_Build"></a>
 
 ```
-paictl.py image build -p /path/to/cluster-configuration/dir [ -n image-name ]
+python paictl.py image build -p /path/to/cluster-configuration/dir [ -n image-name ]
 ```
 
 - Build hadoop-ai with tuned configurations.
@@ -40,7 +40,7 @@ paictl.py image build -p /path/to/cluster-configuration/dir [ -n image-name ]
 ### Push infrastructure image(s) <a name="Image_Push"></a>
 
 ```
-paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-name ]
+python paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-name ]
 ```
 
 - Push the tagged image to the docker registry which is configured in the cluster-configuration.
@@ -52,7 +52,7 @@ paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-name ]
 ### Repair machines that have problems <a name="Machine_Repair"></a>
 
 ```
-paictl.py machine repair -p /path/to/cluster-configuration/dir -l machine-list.yaml
+python paictl.py machine repair -p /path/to/cluster-configuration/dir -l machine-list.yaml
 ```
 
 - See an example of the machine list [here](#Machine_Nodelist_Example).
@@ -60,7 +60,7 @@ paictl.py machine repair -p /path/to/cluster-configuration/dir -l machine-list.y
 ### Add machines to the cluster <a name="Machine_Add"></a>
 
 ```
-paictl.py machine add -p /path/to/cluster-configuration/dir -l machine-list.yaml
+python paictl.py machine add -p /path/to/cluster-configuration/dir -l machine-list.yaml
 ```
 
 - See an example of the machine list [here](#Machine_Nodelist_Example).
@@ -68,7 +68,7 @@ paictl.py machine add -p /path/to/cluster-configuration/dir -l machine-list.yaml
 ### Remove machines from the cluster <a name="Machine_Remove"></a>
 
 ```
-paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine-list.yaml
+python paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine-list.yaml
 ```
 
 - See an example of the machine list [here](#Machine_Nodelist_Example).
@@ -78,7 +78,7 @@ paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine-list.y
 ### Start service(s) <a name="Service_Start"></a>
 
 ```
-paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 1) Start all services by default.
@@ -87,7 +87,7 @@ paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name 
 ### Stop service(s) <a name="Service_Stop"></a>
 
 ```
-paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 - Stop all services by default.
@@ -96,7 +96,7 @@ paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
 ### Delete service(s) <a name="Service_Delete"></a>
 
 ```
-paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 - 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc. 
@@ -106,7 +106,7 @@ paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name
 ### Upgrade service(s) <a name="Service_Upgrade"></a>
 
 ```
-paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 - Refresh all the labels on each node.
@@ -118,7 +118,7 @@ paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-nam
 ### Bootstrap the whole cluster (K8S + Service) with cluster-configuration <a name="Cluster_Boot"></a>
 
 ```
-paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
+python paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
 ```
 
 - Install kubectl in the deployment box.
@@ -128,7 +128,7 @@ paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
 ### Bootstrap Kubernetes <a name="Cluster_K8s_Boot"></a>
 
 ```
-paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
+python paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
 - Install kubectl in the deployment box.
@@ -137,7 +137,7 @@ paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
 ### Stop Kubernetes <a name="Cluster_K8s_Stop"></a>
 
 ```
-paictl.py cluster stop-kubernetes -p /path/to/cluster-configuration/dir
+python paictl.py cluster stop-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
 - Stop Kubernetes in the specified cluster.
@@ -145,16 +145,16 @@ paictl.py cluster stop-kubernetes -p /path/to/cluster-configuration/dir
 ### Upgrade Kubernetes <a name="Cluster_K8s_upgrade"></a>
 
 ```
-paictl.py cluster upgrade-kubernetes -p /path/to/cluster-configuration/dir
+python paictl.py cluster upgrade-kubernetes -p /path/to/cluster-configuration/dir
 ```
 
-- Stop all infrasturcture services in the specified cluster.
+- Stop all infrastructure services in the specified cluster.
 - Upgrade Kubernetes to a newer version.
 
 ### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
 
 ```
-paictl.py cluster generate-configuration -p /path/to/machinelist.csv
+python paictl.py cluster generate-configuration -p /path/to/machinelist.csv
 ```
 
 - The machine list should be provided in CSV format.
@@ -165,12 +165,12 @@ paictl.py cluster generate-configuration -p /path/to/machinelist.csv
 ## Install kubectl <a name="Kubectl"></a>
 
 ```
-paictl.py utility install-kubectl -p /path/to/cluster-configuration/dir
+python paictl.py utility install-kubectl -p /path/to/cluster-configuration/dir
 ```
 
 - The `kubectl` is a prerequisite to do all maintenance operations. If you find that `kubectl` has not been installed or correctly configured in your maintenance box, you have to install it first.
 
-## Appenix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
+## Appendix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
 
 ```yaml
 machine-list:
