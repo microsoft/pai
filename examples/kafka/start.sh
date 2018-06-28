@@ -33,12 +33,12 @@ done
 #run python example
 cd /root/python-kafka-test
 sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Producer.py
-sed -i "4a outdir='$PAI_OUTPUT_DIR'" Consumer.py
-sed -i "5a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Consumer.py
+sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Consumer.py
 cd
 python /root/python-kafka-test/Consumer.py
 sleep 10s
 python /root/python-kafka-test/Producer.py &
+hdfs dfs -put $PAI_OUTPUT_DIR output.log
 
 #delete topic "test"
 #cd /root/kafka_2.11-1.1.0
