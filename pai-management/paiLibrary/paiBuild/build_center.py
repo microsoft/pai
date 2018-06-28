@@ -34,7 +34,7 @@ class build_center:
 
 
 
-    def __init__(self, cluster_object_model, build_target = None, skip_hadoop_ai_build = False, os_type="ubuntu16.04"):
+    def __init__(self, cluster_object_model, build_target = None, os_type="ubuntu16.04"):
 
         self.logger = logging.getLogger(__name__)
 
@@ -45,7 +45,6 @@ class build_center:
             self.image_list = build_target
 
         self.os_type = os_type
-        self.skip_hadoop_ai_build = skip_hadoop_ai_build
 
         self.image_depend_on_hadoop_ai = self.resolve_hadoop_dependency()
 
@@ -164,7 +163,7 @@ class build_center:
 
     def run(self):
 
-        if self.skip_hadoop_ai_build == False and self.image_depend_on_hadoop_ai == True:
+        if self.image_depend_on_hadoop_ai == True:
             self.hadoop_binary_remove()
             self.hadoop_ai_build()
             self.hadoop_binary_prepare()
@@ -186,7 +185,7 @@ class build_center:
                 continue
             self.build(image_name)
 
-        if self.skip_hadoop_ai_build == False and self.image_depend_on_hadoop_ai == True:
+        if self.image_depend_on_hadoop_ai == True:
             self.hadoop_binary_remove()
 
 

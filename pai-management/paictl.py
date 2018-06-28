@@ -263,9 +263,6 @@ def pai_build():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--config-path', dest = "config_path", required=True, help="The path of your configuration directory.")
     parser.add_argument('-n', '--image-name', dest = "image_name", default='all', help="Build and push the target image to the registry")
-    # Never publish this option.
-    if option == "build":
-        parser.add_argument('--skip-hadoop-ai-build', dest="skip_hadoop_ai_build", action="store_true", help="Force skiping hadoop-ai building process, no matter the image need it or not.")
     args = parser.parse_args(sys.argv[1:])
 
     config_path = args.config_path
@@ -278,7 +275,7 @@ def pai_build():
         image_list = [ image_name ]
 
     if option == "build":
-        center = build_center.build_center(cluster_object_model, image_list, args.skip_hadoop_ai_build)
+        center = build_center.build_center(cluster_object_model, image_list)
         center.run()
 
     if option == "push":
