@@ -34,7 +34,7 @@ class build_center:
 
 
 
-    def __init__(self, cluster_object_model, build_target = None, os_type="ubuntu16.04"):
+    def __init__(self, cluster_object_model, build_target = None, skip_hadoop_ai_build = False, os_type="ubuntu16.04"):
 
         self.logger = logging.getLogger(__name__)
 
@@ -45,6 +45,23 @@ class build_center:
             self.image_list = build_target
 
         self.os_type = os_type
+        self.skip_hadoop_ai_build = skip_hadoop_ai_build
+
+        self.image_depend_on_hadoop_ai = self.resolve_hadoop_dependency()
+
+
+
+    def resolve_hadoop_dependency(self):
+
+        if "hadoop-run" in self.image_list:
+            return True
+        if "frameworklauncher" in self.image_list:
+            return True
+        if "rest-server" in self.image_list:
+            return True
+        if "end-to-end-test" in self.image_list:
+            return True
+        return False
 
 
 
@@ -147,9 +164,10 @@ class build_center:
 
     def run(self):
 
-        self.hadoop_binary_remove()
-        self.hadoop_ai_build()
-        self.hadoop_binary_prepare()
+        if self.skip_hadoop_ai_build == False and self.image_depend_on_hadoop_ai == True:
+            self.hadoop_binary_remove()
+            self.hadoop_ai_build()
+            self.hadoop_binary_prepare()
 
         self.done_dict = dict()
         self.docker_cli = docker_handler.docker_handler(
@@ -168,7 +186,8 @@ class build_center:
                 continue
             self.build(image_name)
 
-        self.hadoop_binary_remove()
+        if self.skip_hadoop_ai_build == False and self.image_depend_on_hadoop_ai == True:
+            self.hadoop_binary_remove()
 
 
 
