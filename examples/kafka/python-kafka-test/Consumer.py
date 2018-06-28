@@ -2,6 +2,9 @@ from kafka import KafkaConsumer
 from hdfs.client import Client
 import time
 
+path = outdir.split('/')
+hdfs_host = 'http://' + path[2].split(':')[0] + ':50070'
+file_path = '/' + '/'.join(path[3:])
 client = Client(hdfs_host)
 print(hdfs_host)
 consumer = KafkaConsumer('test', bootstrap_servers=host, group_id='test_group', auto_offset_reset='earliest')
@@ -15,7 +18,4 @@ with open('output.log','a') as p:
         count += 1
         if count == 50 or time.time()-now > 10:
             break
-if hdfs_host not in client.list('/'):
-    client.makedirs(hdfs_host, permission=777)
-if 'output.log' not in client.list(hdfs_host):
-    client.upload(hdfs_host,'output.log')
+client.upload(file_path,'output.log')
