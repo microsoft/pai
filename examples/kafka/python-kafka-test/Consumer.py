@@ -3,6 +3,7 @@ from hdfs.client import Client
 import time
 
 client = Client(hdfs_host)
+print(hdfs_host)
 consumer = KafkaConsumer('test', bootstrap_servers=host, group_id='test_group', auto_offset_reset='earliest')
 print 'Consumer start!'
 now = time.time()
