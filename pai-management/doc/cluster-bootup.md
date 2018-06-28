@@ -2,7 +2,7 @@
 
 This document introduces the detailed procedures to boot up PAI on a cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
 
-Please refer to Section [single box deployment](./single-box-deployment.md) if user would like to deplay PAI on a single server.
+Please refer to Section [single box deployment](./single-box-deployment.md) if user would like to deploy PAI on a single server.
 
 
 Table of contents:
@@ -41,7 +41,7 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 This method is for advanced users. PAI configuration consists of 4 YAML files:
 
 - [`cluster-configuration.yaml`](./how-to-write-pai-configuration.md#cluster_configuration) - Machine-level configurations, including login info, machine SKUs, labels of each machine, etc.
-- [`kubernetes-configuration.yaml`](./how-to-write-pai-configuration.md#kubernetes_configuration) - Kubernetes-level configurations, part 1. This file contains basic configurations of Kuberntes, such as the version info, network configurations, etc.
+- [`kubernetes-configuration.yaml`](./how-to-write-pai-configuration.md#kubernetes_configuration) - Kubernetes-level configurations, part 1. This file contains basic configurations of Kubernetes, such as the version info, network configurations, etc.
 - [`k8s-role-definition.yaml`](./how-to-write-pai-configuration.md#k8s_role_definition) - Kubernetes-level configurations, part 2. This file contains the mappings of Kubernetes roles and machine labels.
 - [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
@@ -51,7 +51,7 @@ If you want to deploy PAI in single box environment, please refer to [Single Box
 
 ## Step 1b. Prepare PAI configuration: A quick start approach using `paictl` tool <a name="step-1b"></a>
 
-The second way, which is designed for fast deployment, is to generate a set of default configuration files from a very simple stariting-point file using the `paictl` maintenance tool:
+The second way, which is designed for fast deployment, is to generate a set of default configuration files from a very simple starting-point file using the `paictl` maintenance tool:
 
 ```
 python paictl.py cluster generate-configuration \
@@ -61,7 +61,7 @@ python paictl.py cluster generate-configuration \
 
 The 4 configuration files will be stored into the `/path/to/cluster-configuration/dir` folder. Note that most of the fields in the 4 configuration fields are automatically generated using default values. See [Appendix](#appendix) for an incomplete list of these default values.
 
-The `quick-start.yaml` file consits of the following sections:
+The `quick-start.yaml` file consists of the following sections:
 
 - `machines` - The list of all machines. The first machine will be configured as the master, and all other machines will be configured as workers.
 - `ssh-username` and `ssh-password`: Log-in info of all machines.
@@ -109,7 +109,7 @@ where `<master>` denotes the IP address of the load balancer of Kubernetes maste
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
 ```
-paictl.py service start \
+python paictl.py service start \
   -p /path/to/cluster-configuration/dir \
   [ -n service-name ]
 ```
@@ -132,7 +132,7 @@ The `paictl` tool sets the following default values in the 4 configuration files
 - The first machine in the machine list will be configured as the master node.
 - If not explicitly specified, the SSH port is set to `22`.
 - If not explicitly specified, the cluster DNS is set to the value of the `nameserver` field in `/etc/resolv.conf` file of the master node.
-- If not explicitly specified, the IP range used by Kuberntes is set to `10.254.0.0/16`.
+- If not explicitly specified, the IP range used by Kubernetes is set to `10.254.0.0/16`.
 - The docker registry is set to `docker.io`, and the docker namespace is set to `openpai`. In another word, all PAI service images will be pulled from `docker.io/openpai` (see [this link](https://hub.docker.com/r/openpai/) on DockerHub for the details of all images).
 - Cluster id is set to `pai-example`.
 - Cluster id is set to `pai-example`.

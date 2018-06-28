@@ -62,7 +62,7 @@ If some nodes in your cluster is unhealthy, you should repair them. The node sta
 
 
 ### Note:
-- This method will delete all kuberentes related data of pai in your cluster.
+- This method will delete all kubernetes related data of pai in your cluster.
 
 ### Steps:
 
