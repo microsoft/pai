@@ -35,9 +35,9 @@ cd /root/python-kafka-test
 sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Producer.py
 sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Consumer.py
 cd
+python /root/python-kafka-test/Producer.py
+sleep 5s
 python /root/python-kafka-test/Consumer.py
-sleep 10s
-python /root/python-kafka-test/Producer.py &
 hdfs dfs -put $PAI_OUTPUT_DIR output.log
 
 #delete topic "test"
