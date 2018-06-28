@@ -208,6 +208,7 @@ docker run --name $docker_name \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
+  --shm-size={{{ taskData.memoryMB }}}m \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
