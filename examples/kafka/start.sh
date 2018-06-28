@@ -38,7 +38,7 @@ cd
 python /root/python-kafka-test/Producer.py
 sleep 5s
 python /root/python-kafka-test/Consumer.py
-hdfs dfs -put $PAI_OUTPUT_DIR output.log
+hdfs dfs -put output.log $PAI_OUTPUT_DIR
 
 #delete topic "test"
 #cd /root/kafka_2.11-1.1.0
