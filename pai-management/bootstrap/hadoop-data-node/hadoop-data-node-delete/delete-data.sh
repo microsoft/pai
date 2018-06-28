@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,19 +18,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-prerequisite:
-  - cluster-configuration
-  - hadoop-batch-job
+echo "Clean the hadoop-data-node's data on the disk"
 
-template-list:
-  - node-label.sh
-  - frameworklauncher.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
+if [ -d "/mnt/hdfs/data" ]; then
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+    rm -rf /mnt/hdfs/data
+
+fi
+
+
+if [ -d "/mnt/hadooptmp/datanode" ]; then
+
+    rm -rf /mnt/hadooptmp/datanode
+
+fi
+
+

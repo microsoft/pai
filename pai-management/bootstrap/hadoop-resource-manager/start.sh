@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - hadoop-batch-job
+#chmod u+x node-label.sh
 
-template-list:
-  - node-label.sh
-  - frameworklauncher.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
+/bin/bash node-label.sh
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+#chmod u+x configmap-create.sh
+
+/bin/bash configmap-create.sh
+
+
+# Hadoop resource manager
+kubectl create -f hadoop-resource-manager.yaml
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-resource-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager
+fi
+
+
+popd > /dev/null

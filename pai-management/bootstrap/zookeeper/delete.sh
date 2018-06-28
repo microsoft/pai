@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - hadoop-batch-job
+echo "Call stop to stop all hadoop service first"
+/bin/bash stop.sh
 
-template-list:
-  - node-label.sh
-  - frameworklauncher.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap zookeeper-delete --from-file=zookeeper-delete/
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-zookeeper
+
+echo "Zookeeper clean job is done"
+echo "Delete Zookeeper cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-zookeeper
+kubectl delete configmap zookeeper-delete
+sleep 5
+
+popd > /dev/null

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-prerequisite:
-  - cluster-configuration
-  - hadoop-batch-job
+echo "Call stop.sh to stop hadoop resource manager first"
+/bin/bash stop.sh
 
-template-list:
-  - node-label.sh
-  - frameworklauncher.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-resource-manager-delete --from-file=hadoop-resource-manager-delete/
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+echo "Create cleaner daemon"
+kubectl create -f delete.yaml
+sleep 5
+
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager
+
+echo "Hadoop resource manager clean job is done"
+echo "Delete hadoop resource manager cleaner daemon and configmap"
+kubectl delete ds delete-batch-job-hadoop-resource-manager
+kubectl delete configmap hadoop-resource-manager-delete
+sleep 5
+
+popd > /dev/null

@@ -15,17 +15,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 prerequisite:
   - cluster-configuration
-  - hadoop-batch-job
+  - drivers
+  - zookeeper
+  - hadoop-name-node
+  - hadoop-data-node
 
 template-list:
   - node-label.sh
-  - frameworklauncher.yaml
+  - hadoop-resource-manager.yaml
   - stop.sh
   - refresh.sh
   - delete.yaml
+  - hadoop-resource-manager-configuration/capacity-scheduler.xml
 
 start-script: start.sh
 stop-script: stop.sh
