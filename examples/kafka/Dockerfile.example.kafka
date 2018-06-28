@@ -14,6 +14,6 @@ RUN wget http://ftp.yz.yamagata-u.ac.jp/pub/network/apache/zookeeper/zookeeper-3
 RUN wget http://ftp.riken.jp/net/apache/kafka/1.1.0/kafka_2.11-1.1.0.tgz && tar xzvf kafka_2.11-1.1.0.tgz && rm kafka_2.11-1.1.0.tgz
 
 #download logic code
-RUN wget https://raw.githubusercontent.com/qyyy/pai/master/examples/kafka/start.sh && chmod u+x start.sh && mkdir python-kafka-test && cd python-kafka-test && wget https://raw.githubusercontent.com/qyyy/pai/master/examples/kafka/python-kafka-test/Producer.py &&  wget https://raw.githubusercontent.com/qyyy/pai/master/examples/kafka/python-kafka-test/Consumer.py
+RUN wget https://raw.githubusercontent.com/Microsoft/pai/master/examples/kafka/start.sh && chmod u+x start.sh && mkdir python-kafka-test && cd python-kafka-test && wget https://raw.githubusercontent.com/Microsoft/pai/master/examples/kafka/python-kafka-test/Producer.py &&  wget https://raw.githubusercontent.com/Microsoft/pai/master/examples/kafka/python-kafka-test/Consumer.py
 
 WORKDIR /root
