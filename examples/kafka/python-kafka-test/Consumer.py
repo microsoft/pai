@@ -1,7 +1,12 @@
 from kafka import KafkaConsumer
 import time
+import argparse
 
-consumer = KafkaConsumer('test', bootstrap_servers=host, group_id='test_group', auto_offset_reset='earliest')
+parser = argparse.ArgumentParser()
+parser.add_argument('--host', type=str, default=None)
+args = parser.parse_args()
+
+consumer = KafkaConsumer('test', bootstrap_servers=args.host, group_id='test_group', auto_offset_reset='earliest')
 print 'Consumer start!'
 now = time.time()
 with open('output.log','a') as p:
