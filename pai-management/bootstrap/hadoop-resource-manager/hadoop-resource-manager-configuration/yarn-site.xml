@@ -212,6 +212,26 @@
     </property>
 
   <property>
+    <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
+    <value>1200000</value>
+  </property>
+
+  <property>
+    <name>yarn.nm.liveness-monitor.expiry-interval-ms</name>
+    <value>900000</value>
+  </property>
+
+  <property>
+    <name>yarn.am.liveness-monitor.expiry-interval-ms</name>
+    <value>1000000</value>
+  </property>
+
+  <property>
+    <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
+    <value>88000</value>
+  </property>
+
+  <property>
     <description>The minimum allocation for every container request at the RM,
       in terms of GPUs. Requests lower than this will throw a
       InvalidResourceRequestException.</description>
@@ -226,6 +246,7 @@
     <name>yarn.scheduler.maximum-allocation-gpus</name>
     <value>8</value>
   </property>
+
 
 </configuration>
 
