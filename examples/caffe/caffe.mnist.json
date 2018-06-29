@@ -1,0 +1,14 @@
+{
+  "jobName": "caffe-mnist",
+  "image": "openpai/pai.example.caffe",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "./data/mnist/get_mnist.sh && ./examples/mnist/create_mnist.sh && ./examples/mnist/train_lenet.sh"
+    }
+  ]
+}
