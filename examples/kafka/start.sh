@@ -35,6 +35,11 @@ sleep 5s
 python /root/python-kafka-test/Consumer.py --host=$PAI_CONTAINER_HOST_kafka_PORT_LIST
 hdfs dfs -put output.log $PAI_OUTPUT_DIR
 
+while true
+do
+    sleep 100s
+done
+
 #delete topic "test"
 #cd /root/kafka_2.11-1.1.0
 #./bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic test
