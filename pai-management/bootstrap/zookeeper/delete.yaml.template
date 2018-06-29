@@ -38,7 +38,7 @@ spec:
           name: zookeeper-delete-config
         env:
         - name: DELETE_CONFIG
-          value: hadoop-delete
+          value: zookeeper-delete
         - name: WORKER_CONFIG
           value: delete-data.sh
         readinessProbe:
