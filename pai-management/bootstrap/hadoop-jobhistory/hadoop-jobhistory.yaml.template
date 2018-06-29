@@ -68,4 +68,4 @@ spec:
           name: hadoop-jobhistory-configuration
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadbukeooptmp/jobhistory
+          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/jobhistory
