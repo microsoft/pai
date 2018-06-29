@@ -7,7 +7,7 @@ sleep 5s
 
 #startup kafka
 cd /root/kafka_2.11-1.1.0/config
-sed -i "s/^zookeeper.connect=localhost:[0-9]*$/zookeeper.connect=localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST/g" server.properties
+sed -i "s/^zookeeper.connect=localhost:[0-9]*$/zookeeper.connect=localhost:$PAI_CONTAINER_HOST_zookeeper_PORT_LIST/g" server.properties
 sed -i "31a listeners=PLAINTEXT://localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST" server.properties
 cd /root/kafka_2.11-1.1.0
 service="zookeeper"
