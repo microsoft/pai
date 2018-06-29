@@ -37,8 +37,8 @@ spec:
         - mountPath: /zookeeper-delete
           name: zookeeper-delete-config
         env:
-        - name: zookeeper-delete
-          value: hadoop-delete
+        - name: DELETE_CONFIG
+          value: zookeeper-delete
         - name: WORKER_CONFIG
           value: delete-data.sh
         readinessProbe:
