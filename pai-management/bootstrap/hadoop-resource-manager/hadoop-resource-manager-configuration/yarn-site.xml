@@ -212,6 +212,11 @@
     </property>
 
   <property>
+    <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
+    <value>1200000</value>
+  </property>
+
+  <property>
     <description>The minimum allocation for every container request at the RM,
       in terms of GPUs. Requests lower than this will throw a
       InvalidResourceRequestException.</description>
@@ -226,6 +231,7 @@
     <name>yarn.scheduler.maximum-allocation-gpus</name>
     <value>8</value>
   </property>
+
 
 </configuration>
 
