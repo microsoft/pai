@@ -1,15 +1,13 @@
 #startup zookeeper
 cd /root/zookeeper-3.4.12/conf
-sed -i '14d' zoo.cfg
-sed -i "13a clientPort=$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" zoo.cfg
+sed -i "s/^clientPort=[0-9]*$/clientPort=$PAI_CONTAINER_HOST_zookeeper_PORT_LIST/g" zoo.cfg
 cd /root/zookeeper-3.4.12/bin
 ./zkServer.sh start
 sleep 5s
 
 #startup kafka
 cd /root/kafka_2.11-1.1.0/config
-sed -i '123d' server.properties
-sed -i "123a zookeeper.connect=localhost:$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" server.properties
+sed -i "s/^zookeeper.connect=localhost:[0-9]*$/zookeeper.connect=localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST/g" server.properties
 sed -i "31a listeners=PLAINTEXT://localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST" server.properties
 cd /root/kafka_2.11-1.1.0
 service="zookeeper"
@@ -31,13 +29,10 @@ done
 #sleep 5s
 
 #run python example
-cd /root/python-kafka-test
-sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Producer.py
-sed -i "3a host='localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST'" Consumer.py
 cd
-python /root/python-kafka-test/Producer.py
+python /root/python-kafka-test/Producer.py --host=$PAI_CONTAINER_HOST_kafka_PORT_LIST
 sleep 5s
-python /root/python-kafka-test/Consumer.py
+python /root/python-kafka-test/Consumer.py --host=$PAI_CONTAINER_HOST_kafka_PORT_LIST
 hdfs dfs -put output.log $PAI_OUTPUT_DIR
 
 #delete topic "test"
