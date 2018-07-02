@@ -1,0 +1,250 @@
+[
+    {
+        "Id": "8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8",
+        "Created": "2018-04-08T06:23:12.893146Z",
+        "Path": "/bin/bash",
+        "Args": [
+            "-c",
+            "hdfs dfs -get hdfs://10.151.40.179:9000/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/1.sh bootstrap.sh && /bin/bash bootstrap.sh"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 95539,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2018-04-08T06:23:14.0915086Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:82d09928e96c3b26740f14c880f0b3bc320304fba7f3df68411f060b37b5de50",
+        "ResolvConfPath": "/var/lib/docker/containers/8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8/hostname",
+        "HostsPath": "/var/lib/docker/containers/8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8/hosts",
+        "LogPath": "/var/lib/docker/containers/8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8/8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8-json.log",
+        "Name": "/trialslot_nnimain_d65bc5ac-container_e25_1522829300813_1943_01_000002",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "unconfined",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/var/drivers/nvidia/current:/usr/local/nvidia:ro",
+                "/tmp/pai-root/alive/application_1522829300813_1943:/alive"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "host",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": [
+                "SYS_ADMIN"
+            ],
+            "CapDrop": null,
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "shareable",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "apparmor:unconfined"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 4294967296,
+            "NanoCpus": 1000000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [
+                {
+                    "PathOnHost": "/dev/fuse",
+                    "PathInContainer": "/dev/fuse",
+                    "CgroupPermissions": "rwm"
+                }
+            ],
+            "DeviceCgroupRules": null,
+            "DiskQuota": 0,
+            "KernelMemory": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": -1,
+            "MemorySwappiness": null,
+            "OomKillDisable": true,
+            "PidsLimit": 0,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/cc2d439f733ad76298b439c4174eabbb72300703ab15cb978f77597cc8826d18-init/diff:/var/lib/docker/overlay2/f422211cd033a9eb58149c033298112bd8a03976a7cc5dd21d57c649cd67203b/diff:/var/lib/docker/overlay2/bbb87d26268c9601475531ba923da84c6daa8257a269868850156f95c5ea59d1/diff:/var/lib/docker/overlay2/e1432f3a30e28b24efa8ea19307b187a01cc2667e7c1a8a24a07ea9a6b828b5c/diff:/var/lib/docker/overlay2/783e3391fc24930c63ec730b32ba3dfdc2e9d1e94d80cade730dc2756bb148ae/diff:/var/lib/docker/overlay2/1782cc0b6bbb7c8d941760eea0ab10b0d97278ba8304c2f26c145e3a864c1eb8/diff:/var/lib/docker/overlay2/ed2466213cc3497afe87b85e4430936a793f8a8056c7f1fe69c0f96fc8c8d206/diff:/var/lib/docker/overlay2/707e29dbc743a5acdd53ae5e453f3e940fe938be254d021344ed2b761368984b/diff:/var/lib/docker/overlay2/8642aeecd211c91dd9c83a0c42e4aee7936230a151c64b19f1ff9680897b585c/diff:/var/lib/docker/overlay2/d774b424b4636abceddc481f9ff20015c008c29d185f2d5d29ae3cee2fdf915d/diff:/var/lib/docker/overlay2/4cc68a831c215d068a1b079078a4235061443d66b0d86a3776e293f8adc97d2b/diff:/var/lib/docker/overlay2/32d42badaa8e928b2382c35eedf216feb934c2ac0c35772cc881407661fa1158/diff:/var/lib/docker/overlay2/f0fe4f2d4e622a5bd98a9cf1d5a422eb35c4518aa03ebea22bbb0808353fbdac/diff:/var/lib/docker/overlay2/73b09905085d1f014d511c554b5c49bd7affed3e4a74d91a94573ff79c775db0/diff:/var/lib/docker/overlay2/847dee01a0600f3e23dc197dc196dc57ef808cbafbfd194fe7ac82d44e2f344f/diff:/var/lib/docker/overlay2/542eec7d1d2f15ac53120a02bbbd90a6210a1fcd0a1a80f9b6753e1d2eec8296/diff:/var/lib/docker/overlay2/55fc305cb6ee0d77277728cc9e86a125268bd73059ce01cb54cf15c0d6eb50b9/diff:/var/lib/docker/overlay2/6e286179c4729af128327d9af9bf336a08b74d8fe3bd2287d34cbda1b7916d7d/diff:/var/lib/docker/overlay2/ac78d59b59b38a34dd7b3b9f4693045c63c274c607d624b5b6e02a72dbb4260e/diff:/var/lib/docker/overlay2/1572faad4731ce63ce2dab79e3016a361c022582dfd25194b957c8eb9475eee8/diff:/var/lib/docker/overlay2/80d491c9f59df027ac80c180e88342c8dfdfc62b3777cd701c4ede66e8455b23/diff:/var/lib/docker/overlay2/fcff31b83b6166579287632fcc42b5221c776c6e50b98ca6e570c55a7658a810/diff:/var/lib/docker/overlay2/95497a9d81a42040a9b0ecee908beb01543145a55a73abee9d5f51b44e737c20/diff:/var/lib/docker/overlay2/36c6fd0a2b786609ab8ee062a3f2cb5a8176a867ef880edd4afdb7328e36fc83/diff:/var/lib/docker/overlay2/cf4a639ca0f56b8c1f9e04a2d2246cf5b23718b42ea005c0d0c950442dcbdc65/diff:/var/lib/docker/overlay2/f9c384c2a44a4da00461769e100e4ef3516830ab2d7faeab57f23368ee1e2aca/diff:/var/lib/docker/overlay2/dd6997782fcfe3f9714a2e41b55dd183abd4132073fc5b9b63a4505fc5d98e2e/diff:/var/lib/docker/overlay2/f76e39213018410533bc5f6ddbf6f06dd6126ac5ef58b21489f373f9419c5bdf/diff:/var/lib/docker/overlay2/baa5ef55d976112e916cce01484a9f0b39e2e3c1daf1191b00e2452b7d232e29/diff:/var/lib/docker/overlay2/175c1e58c9c470e0670696fc504a4127b94aef6d232ff43f04a64159046cdab1/diff:/var/lib/docker/overlay2/f36d975a5303aac509c81752cf852f020bf78b5588654507a78c2533a6041919/diff:/var/lib/docker/overlay2/6af44b9714b9b3c9e00443181aa08458c60a09e6307b58bbf470b4befa85d263/diff:/var/lib/docker/overlay2/8f96697f36ba8405dcfcdfc87c4eadf3305115d886ceb1fdea5cec647c2cf7a3/diff:/var/lib/docker/overlay2/0818ca1099853a9ee53331b9ba89ec8a6085c483a5c77ed8c8164d57e8de1d9a/diff:/var/lib/docker/overlay2/3a9869a03ef777d9251976de981e7723ab68054581b603f728e5472fe4eb75c0/diff:/var/lib/docker/overlay2/522c5c3e2bb2dd323b4f3aae7b1da3e93e7e055a443be496bbd44c637541e7a8/diff:/var/lib/docker/overlay2/461c3cb5e6457667a3d0524540e1eb0cbda7839f2501956de4559cd7ee30ba3b/diff:/var/lib/docker/overlay2/02bce3d6404658c76f1bc05c1ddf33109ee7b44bab6ef21a4216bec07e0e2dbf/diff:/var/lib/docker/overlay2/4aa09eb05b77c98b6f89955614e769379c9a57b23f1bb51ec0cb7f5fd7406c26/diff:/var/lib/docker/overlay2/f8c37b3eab2a89c4cdb8ee3a087e113b4f8241adb653d90a1473f939aaff9923/diff:/var/lib/docker/overlay2/cf1c2e6e386c0a1274c4b784a256e937e497c976664cf361f18dbdab6f374b7f/diff:/var/lib/docker/overlay2/99e5fecf66136542d8c5eeec0ece39260dd13379ddd5eaf5bc18f21b0170acf1/diff:/var/lib/docker/overlay2/72fb7e06a10441b79c3deab4798d32d547d0bd491e99534c9c6d5978beb74039/diff:/var/lib/docker/overlay2/f5b8fc044cb321fdd1d9c04f223d6ad52a8834dfd20a1c7da7eb77489da78b05/diff:/var/lib/docker/overlay2/ec1e00495ce29a4042003eb3e3a888cfbf2c77d86680704cf9d07d9766725ae2/diff:/var/lib/docker/overlay2/859e51cd0da10ac21e83a230b78d809c96d4d3492150156a9322b22f3e678685/diff:/var/lib/docker/overlay2/ecd6e81258bb8cb9473e18d5a7f09ed0bd03d6690aa4aa0c108636d7e8f831e3/diff:/var/lib/docker/overlay2/7e35c8457fd69a0b8294d34a7ad5c5909785e5b7d6f356fa6dfa55ef99d80b42/diff:/var/lib/docker/overlay2/4d0462f898f76a7acb497e97d42bbba3e4f62b15b2e345eb46afae0f639f5f45/diff:/var/lib/docker/overlay2/1287023cb0a8ee94d7b68dbabfe97c9fbd84692a62c50eb65fc0a1e5d3836dce/diff:/var/lib/docker/overlay2/86d31d5b4859e83b130ad956382fc5e4bdae9522bac4ee4348b39f8c3eab6722/diff:/var/lib/docker/overlay2/be5fc2c95b9972aa67caa2c9372a66d89180bb63dad053db1d929b3121143e3b/diff:/var/lib/docker/overlay2/30ed266c7beb77a4848b576e6daefaa7119185abd85e817c9e317dbe21031e63/diff:/var/lib/docker/overlay2/e1a7041ce31547c554bb7caa21567cdeb4c8919a9e92f9ff58fe3c329f65375e/diff:/var/lib/docker/overlay2/5450f8c5cd3614708ab44fb387bd10fdc08c7eeb54c7b74f5fa864ceb11f0de4/diff:/var/lib/docker/overlay2/c159a68fc2228e2c7cc8e9c40b0384caf11b6dca618ba1a4b8b17831e1cc65cd/diff",
+                "MergedDir": "/var/lib/docker/overlay2/cc2d439f733ad76298b439c4174eabbb72300703ab15cb978f77597cc8826d18/merged",
+                "UpperDir": "/var/lib/docker/overlay2/cc2d439f733ad76298b439c4174eabbb72300703ab15cb978f77597cc8826d18/diff",
+                "WorkDir": "/var/lib/docker/overlay2/cc2d439f733ad76298b439c4174eabbb72300703ab15cb978f77597cc8826d18/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/var/drivers/nvidia/current",
+                "Destination": "/usr/local/nvidia",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/tmp/pai-root/alive/application_1522829300813_1943",
+                "Destination": "/alive",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "paigcr-a-gpu-1058",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "APP_ID=application_1522829300813_1943",
+                "FRAMEWORK_NAME=trialslot_nnimain_d65bc5ac",
+                "HADOOP_USER_NAME=openmindstudio",
+                "PAI_TASK_INDEX=0",
+                "PAI_CONTAINER_HOST_IP=10.151.40.199",
+                "PAI_CONTAINER_ID=container_e25_1522829300813_1943_01_000002",
+                "PATH=/usr/local/node/bin:/usr/local/yarn/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin",
+                "CUDA_VERSION=8.0.61",
+                "NVIDIA_CUDA_VERSION=8.0.61",
+                "CUDA_PKG_VERSION=8-0=8.0.61-1",
+                "LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server",
+                "NVIDIA_VISIBLE_DEVICES=all",
+                "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+                "LIBRARY_PATH=/usr/local/cuda/lib64/stubs:",
+                "CUDNN_VERSION=6.0.21",
+                "HADOOP_VERSION=2.7.2",
+                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                "HADOOP_INSTALL=/usr/local/hadoop",
+                "HADOOP_PREFIX=/usr/local/hadoop",
+                "HADOOP_BIN_DIR=/usr/local/hadoop/bin",
+                "HADOOP_SBIN_DIR=/usr/local/hadoop/sbin",
+                "HADOOP_HDFS_HOME=/usr/local/hadoop",
+                "HADOOP_COMMON_LIB_NATIVE_DIR=/usr/local/hadoop/lib/native",
+                "HADOOP_OPTS=-Djava.library.path=/usr/local/hadoop/lib/native",
+                "NNI_ROOT_DIR=/root",
+                "NNI_DATA_DIR=/root/data",
+                "NNI_LOG_DIR=/root/log"
+            ],
+            "Cmd": [
+                "-c",
+                "hdfs dfs -get hdfs://10.151.40.179:9000/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/1.sh bootstrap.sh && /bin/bash bootstrap.sh"
+            ],
+            "Image": "openpai.azurecr.io/nni_v0.0.1",
+            "Volumes": null,
+            "WorkingDir": "/root",
+            "Entrypoint": [
+                "/bin/bash"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "GPU_ID": "0,1,",
+                "HADOOP_VERSION": "2.7.2",
+                "PAI_CURRENT_TASK_ROLE_NAME": "tuner",
+                "PAI_HOSTNAME": "paigcr-a-gpu-1058",
+                "PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac",
+                "PAI_USER_NAME": "openmindstudio",
+                "com.nvidia.build.id": "32579957",
+                "com.nvidia.build.ref": "88bc4e08cac2668ec821eead444e5ede2cafcf25",
+                "com.nvidia.cuda.version": "8.0.61",
+                "com.nvidia.cudnn.version": "6.0.21",
+                "com.nvidia.volumes.needed": "nvidia_driver",
+                "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "45c9a8784676355144b6b8e6e93c2c4916ba7e590e46da93b350556ad051fb0e",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/default",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "host": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "9cbddcd38dbdd48cb85e143fa97513f63c0cee7f1a5a41abb16ab13fb59b09cf",
+                    "EndpointID": "98bab4691113f38f7cab803036c90c224b658a45f5201f5bc861ac6d876057f6",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
