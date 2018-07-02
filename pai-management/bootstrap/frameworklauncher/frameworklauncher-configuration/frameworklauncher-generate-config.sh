@@ -19,10 +19,10 @@
 
 # Prepare for hadoop-config.
 
-cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
-cp  /hadoop-configuration/nodemanager-mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
-cp  /hadoop-configuration/nodemanager-yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
-cp  /hadoop-configuration/datanode-hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
+cp  /hadoop-nm-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
+cp  /hadoop-nm-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
+cp  /hadoop-nm-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
+cp  /hadoop-dn-configuration/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{NODEMANAGER_ADDRESS}/${NODEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
