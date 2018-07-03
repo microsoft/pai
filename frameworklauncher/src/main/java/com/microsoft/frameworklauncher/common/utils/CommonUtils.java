@@ -110,11 +110,11 @@ public class CommonUtils {
   public static String getEnvironmentVariable(String name, String defaultValue) throws Exception {
     String value = System.getenv(name);
     if (value == null) {
-      String message = String.format("Failed to find environment variable %1$s.", name);
+      String message = String.format("Failed to find environment variable %s.", name);
       if (defaultValue == null) {
         throw new Exception(message + " And no default value given.");
       } else {
-        LOGGER.logWarning(message + " Using default value [%1$s].", defaultValue);
+        LOGGER.logWarning(message + " Using default value [%s].", defaultValue);
         value = defaultValue;
       }
     }

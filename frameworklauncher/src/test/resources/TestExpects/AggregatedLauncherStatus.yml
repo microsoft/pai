@@ -69,10 +69,12 @@ launcherStatus:
     amContainerRequestMaxTimeoutSec: 0
     amContainerRequestMinTimeoutSec: 0
     amFrameworkInfoPublishIntervalSec: 0
+    amGangAllocationTimeoutSec: 0
     amPriority: 0
     amRequestPullIntervalSec: 0
     amRmHeartbeatIntervalSec: 0
     amRmResyncFrequency: 0
+    amRmResyncNmExpiryBufferSec: 0
     amSetupContainerRequestMaxRetryIntervalSec: 0
     amSetupContainerRequestMinRetryIntervalSec: 0
     amStatusPushIntervalSec: 0

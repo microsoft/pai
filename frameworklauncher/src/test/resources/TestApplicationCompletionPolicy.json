@@ -42,7 +42,7 @@
     "containerConnectionMaxLostCount": -2,
     "containerConnectionMaxExceedCount": 2,
     "antiaffinityAllocation": false,
-    "generateContainerIpList": false,
+    "gangAllocation": false,
     "amType": "DEFAULT",
     "agentUseHeartbeat": false,
     "agentHeartbeatIntervalSec": 30,

@@ -66,7 +66,6 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   // Live Associated ContainerId -> TaskStatusLocator
   private final Map<String, TaskStatusLocator> liveAssociatedContainerIdLocators = new HashMap<>();
   // Live Associated HostNames
-  // TODO: Using MachineName instead of HostName to avoid unstable HostName Resolution
   private final Set<String> liveAssociatedHostNames = new HashSet<>();
 
   /**
@@ -82,7 +81,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   // TaskRoleName -> AggregatedTaskRoleStatus
   private Map<String, AggregatedTaskRoleStatus> persistedAggTaskRoleStatuses = new HashMap<>();
 
-  // No need to persistent ContainerRequest since it is only valid within one application attempt.
+  // No need to persist ContainerRequest since it is only valid within one application attempt.
   // Used to generate an unique Priority for each ContainerRequest in current application attempt.
   // This helps to match ContainerRequest and allocated Container.
   // Besides, it can also avoid the issue YARN-314.
@@ -93,6 +92,17 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   // Used to invert index TaskStatusLocator by ContainerRequest.Priority
   // Priority -> TaskStatusLocator
   private final Map<Priority, TaskStatusLocator> priorityLocators = new HashMap<>();
+
+  // No need to persist AllocatedContainer since it is only valid within one application attempt.
+  // Used to track current AllocatedContainer for Tasks in CONTAINER_ALLOCATED state
+  // TaskStatusLocator -> AllocatedContainer
+  private final Map<TaskStatusLocator, Container> taskAllocatedContainers = new HashMap<>();
+
+  // Used to track current OutstandingTaskAppeared round within one application attempt, so no need to persist.
+  private int outstandingTaskAppearedRound = 0;
+
+  // Whether onOutstandingTaskDisappeared or onOutstandingTaskAppeared has been triggered.
+  private boolean outstandingTaskCallbackTriggered = false;
 
   /**
    * REGION AbstractService
@@ -193,11 +203,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         }
       }
 
+      // Recover Latest Persisted Status
+      updatePersistedAggTaskRoleStatuses();
+
       LOGGER.logInfo("Succeeded to recover %s.", serviceName);
     }
-
-    // Update Latest Persisted Status
-    updatePersistedAggTaskRoleStatuses();
 
     // Here ZK and Mem Status is the same.
     // Since Request may be ahead of Status even when Running,
@@ -344,7 +354,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   }
 
   // Should call disassociateTaskWithContainer if associateTaskWithContainer failed
-  private void associateTaskWithContainer(TaskStatusLocator locator, Container container, Map<String, Ports> portDefinitions) throws Exception {
+  private void associateTaskWithContainer(
+      TaskStatusLocator locator, Container container, Map<String, Ports> portDefinitions) throws Exception {
     TaskStatus taskStatus = getTaskStatus(locator);
     String containerId = container.getId().toString();
 
@@ -423,6 +434,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
       // Update StateVariable
       removeContainerRequest(locator);
+      removeAllocatedContainer(locator);
 
       // To ensure other Task's TaskIndex unchanged, we have to remove the Task at tail
       taskStatusArray.remove(taskIndex);
@@ -445,6 +457,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     if (taskContainerRequests.containsKey(locator)) {
       priorityLocators.remove(taskContainerRequests.get(locator).getPriority());
       taskContainerRequests.remove(locator);
+    }
+  }
+
+  private void removeAllocatedContainer(TaskStatusLocator locator) {
+    if (taskAllocatedContainers.containsKey(locator)) {
+      taskAllocatedContainers.remove(locator);
     }
   }
 
@@ -496,6 +514,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     nextContainerRequestPriority = Priority.newInstance(nextContainerRequestPriority.getPriority() + 1);
     taskContainerRequests.put(locator, request);
     priorityLocators.put(request.getPriority(), locator);
+  }
+
+  private void addAllocatedContainer(TaskStatusLocator locator, Container container) {
+    taskAllocatedContainers.put(locator, container);
   }
 
   private void setContainerConnectionLostCount(String containerId, int count) {
@@ -557,6 +579,17 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     }
 
     persistedAggTaskRoleStatuses = aggTaskRoleStatuses;
+  }
+
+  private void onOutstandingTaskDisappeared() {
+    outstandingTaskCallbackTriggered = true;
+    outstandingTaskAppearedRound++;
+    am.onOutstandingTaskDisappeared();
+  }
+
+  private void onOutstandingTaskAppeared(int outstandingTaskCount) {
+    outstandingTaskCallbackTriggered = true;
+    am.onOutstandingTaskAppeared(outstandingTaskAppearedRound, outstandingTaskCount);
   }
 
   /**
@@ -716,6 +749,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return getTaskCount(TaskStateDefinition.FINAL_STATES);
   }
 
+  public synchronized int getOutstandingStateTaskCount() {
+    return getTaskCount(TaskStateDefinition.OUTSTANDING_STATES);
+  }
+
   public synchronized Boolean isAllTaskInFinalState() {
     return (getFinalStateTaskCount() == getTaskCount());
   }
@@ -739,6 +776,11 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return nextContainerRequestPriority;
   }
 
+  public synchronized Container getAllocatedContainer(TaskStatusLocator locator) {
+    assertTaskStatusLocator(locator);
+    return taskAllocatedContainers.get(locator);
+  }
+
   public synchronized Map<String, AggregatedTaskRoleStatus> getPersistedAggTaskRoleStatuses() {
     return persistedAggTaskRoleStatuses;
   }
@@ -751,6 +793,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     } else {
       return new ArrayList<>();
     }
+  }
+
+  public synchronized int getOutstandingTaskAppearedRound() {
+    return outstandingTaskAppearedRound;
   }
 
   /**
@@ -819,6 +865,15 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
       disassociateTaskWithContainer(locator);
     }
 
+    if (srcState == TaskState.CONTAINER_ALLOCATED) {
+      removeAllocatedContainer(locator);
+    }
+
+    if (dstState == TaskState.CONTAINER_ALLOCATED) {
+      assert (event.getContainer() != null);
+      addAllocatedContainer(locator, event.getContainer());
+    }
+
     if (dstState == TaskState.CONTAINER_COMPLETED) {
       assert (event.getContainerExitCode() != null);
 
@@ -853,9 +908,28 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     // Mark as changed
     taskStatusesesChanged.put(locator.getTaskRoleName(), true);
     LOGGER.logInfo("Transitioned Task %s from [%s] to [%s]", locator, srcState, dstState);
+
+    // Start Transition Callbacks
+    if (TaskStateDefinition.OUTSTANDING_STATES.contains(srcState) &&
+        !TaskStateDefinition.OUTSTANDING_STATES.contains(dstState)) {
+      int outstandingTaskCount = getOutstandingStateTaskCount();
+      if (outstandingTaskCount == 0) {
+        onOutstandingTaskDisappeared();
+      }
+    }
+
+    if (!TaskStateDefinition.OUTSTANDING_STATES.contains(srcState) &&
+        TaskStateDefinition.OUTSTANDING_STATES.contains(dstState)) {
+      int outstandingTaskCount = getOutstandingStateTaskCount();
+      if (outstandingTaskCount == 1) {
+        onOutstandingTaskAppeared(outstandingTaskCount);
+      }
+    }
   }
 
   public synchronized void updateTaskNumbers(Map<String, Integer> newTaskNumbers) {
+    int previousOutstandingTaskCount = getOutstandingStateTaskCount();
+
     for (Map.Entry<String, Integer> newTaskNumberKV : newTaskNumbers.entrySet()) {
       String newTaskRoleName = newTaskNumberKV.getKey();
       int newTaskNumber = newTaskNumberKV.getValue();
@@ -885,6 +959,24 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
         decreaseTaskNumber(newTaskRoleName, newTaskNumber);
       } else if (newTaskNumber > curTaskNumber) {
         increaseTaskNumber(newTaskRoleName, newTaskNumber);
+      }
+    }
+
+    // Start UpdateTaskNumbers Callbacks
+    int currentOutstandingTaskCount = getOutstandingStateTaskCount();
+    if (!outstandingTaskCallbackTriggered) {
+      // If onOutstandingTaskDisappeared or onOutstandingTaskAppeared has not been triggered yet,
+      // they should be recovered, regardless of previousOutstandingTaskCount.
+      if (currentOutstandingTaskCount == 0) {
+        onOutstandingTaskDisappeared();
+      } else if (currentOutstandingTaskCount > 0) {
+        onOutstandingTaskAppeared(currentOutstandingTaskCount);
+      }
+    } else {
+      if (previousOutstandingTaskCount > 0 && currentOutstandingTaskCount == 0) {
+        onOutstandingTaskDisappeared();
+      } else if (previousOutstandingTaskCount == 0 && currentOutstandingTaskCount > 0) {
+        onOutstandingTaskAppeared(currentOutstandingTaskCount);
       }
     }
   }

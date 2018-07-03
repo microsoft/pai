@@ -76,13 +76,6 @@ public class MockHdfsStore extends HdfsStore {
   }
 
   @Override
-  public String uploadContainerIpListFile(String frameworkName, String containerIpList) throws Exception {
-    String hdfsPath = getHdfsStruct().getContainerIpListFilePath(frameworkName);
-    CommonUtils.writeFile(hdfsPath, containerIpList);
-    return hdfsPath;
-  }
-
-  @Override
   public String uploadFrameworkInfoFile(String frameworkName, FrameworkInfo frameworkInfo) throws Exception {
     String hdfsPath = getHdfsStruct().getFrameworkInfoFilePath(frameworkName);
     CommonUtils.writeFile(hdfsPath, WebCommon.toJson(frameworkInfo));

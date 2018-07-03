@@ -73,6 +73,7 @@ public class LauncherConfiguration implements Serializable {
   // Containers actively, instead of waiting the RM call back passively.
   // This feature can provide eventual consistency between AM and RM.
   private Integer amRmResyncFrequency = 6;
+  private Integer amRmResyncNmExpiryBufferSec = 300;
   private Integer amRequestPullIntervalSec = 30;
   private Integer amStatusPushIntervalSec = 30;
   private Integer amFrameworkInfoPublishIntervalSec = 30;
@@ -92,6 +93,14 @@ public class LauncherConfiguration implements Serializable {
   // Random(amSetupContainerRequestMinRetryIntervalSec, amSetupContainerRequestMaxRetryIntervalSec).
   private Integer amSetupContainerRequestMinRetryIntervalSec = 30;
   private Integer amSetupContainerRequestMaxRetryIntervalSec = 150;
+
+  // If GangAllocation cannot be satisfied within this timeout, fails the whole application
+  // with TRANSIENT_CONFLICT ExitType.
+  // And then the Framework will be backoff retried if Framework FancyRetryPolicy is enabled.
+  // It is suggested to be less than
+  // yarn.resourcemanager.rm.container-allocation.expiry-interval-ms which is default to 600s,
+  // so that the allocated container can be held before this timeout.
+  private Integer amGangAllocationTimeoutSec = 500;
 
   // The minimum port to allocate to container, since small ports are usually reserved.
   private Integer amContainerMinPort = 2000;
@@ -276,6 +285,14 @@ public class LauncherConfiguration implements Serializable {
     this.amRmResyncFrequency = amRmResyncFrequency;
   }
 
+  public Integer getAmRmResyncNmExpiryBufferSec() {
+    return amRmResyncNmExpiryBufferSec;
+  }
+
+  public void setAmRmResyncNmExpiryBufferSec(Integer amRmResyncNmExpiryBufferSec) {
+    this.amRmResyncNmExpiryBufferSec = amRmResyncNmExpiryBufferSec;
+  }
+
   public Integer getAmRequestPullIntervalSec() {
     return amRequestPullIntervalSec;
   }
@@ -330,6 +347,14 @@ public class LauncherConfiguration implements Serializable {
 
   public void setAmSetupContainerRequestMaxRetryIntervalSec(Integer amSetupContainerRequestMaxRetryIntervalSec) {
     this.amSetupContainerRequestMaxRetryIntervalSec = amSetupContainerRequestMaxRetryIntervalSec;
+  }
+
+  public Integer getAmGangAllocationTimeoutSec() {
+    return amGangAllocationTimeoutSec;
+  }
+
+  public void setAmGangAllocationTimeoutSec(Integer amGangAllocationTimeoutSec) {
+    this.amGangAllocationTimeoutSec = amGangAllocationTimeoutSec;
   }
 
   public Integer getAmContainerMinPort() {
