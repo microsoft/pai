@@ -381,7 +381,7 @@ class Job {
       'platformSpecificParameters': {
         'queue': virtualCluster,
         'taskNodeGpuType': gpuType,
-        'generateContainerIpList': true,
+        'gangAllocation': true,
       },
     };
     for (let i = 0; i < data.taskRoles.length; i++) {

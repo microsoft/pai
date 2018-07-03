@@ -17,7 +17,7 @@
       },
       "taskService": {
         "version": 1,
-        "entryPoint": "GenerateContainerIpListTest/run.sh",
+        "entryPoint": "GangAllocationTest/run.sh",
         "sourceLocations": [
         ],
         "resource": {
@@ -38,7 +38,7 @@
     "containerConnectionMaxLostCount": -2,
     "containerConnectionMaxExceedCount": 2,
     "antiaffinityAllocation": false,
-    "generateContainerIpList": true,
+    "gangAllocation": true,
     "amType": "DEFAULT",
     "agentUseHeartbeat": false,
     "agentHeartbeatIntervalSec": 30,

@@ -147,7 +147,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // since AM is not always running, such as when the FrameworkState is not APPLICATION_RUNNING.
   private void deleteOrphanFrameworks() throws Exception {
     // A Framework is DeleteOrphan, if and only if its ParentFramework is not null and Deleted.
-    // DeleteOrphan Framework will be Deleted here, if its DeleteOnParentDeleted enabled.
+    // DeleteOrphan Framework will be Deleted here, if its DeleteOnParentDeleted is enabled.
     boolean frameworkDeletedInThisPass;
     do {
       frameworkDeletedInThisPass = false;
@@ -164,7 +164,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           if (deleteOnParentDeleted && !aggFrameworkRequests.containsKey(parentFrameworkName)) {
             LOGGER.logInfo(
                 "[%s]: deleteOrphanFrameworks: " +
-                    "Since its DeleteOnParentDeleted enabled and its ParentFramework [%s] Deleted",
+                    "Since its DeleteOnParentDeleted is enabled and its ParentFramework [%s] is Deleted",
                 frameworkName, parentFrameworkName);
 
             deleteFrameworkRequestInternal(frameworkName);
@@ -190,7 +190,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
   // since AM is not always running, such as when the FrameworkState is not APPLICATION_RUNNING.
   private void stopOrphanFrameworks() throws Exception {
     // A Framework is StopOrphan, if and only if its ParentFramework is not null and Stopped.
-    // StopOrphan Framework will be Stopped here, if its StopOnParentStopped enabled.
+    // StopOrphan Framework will be Stopped here, if its StopOnParentStopped is enabled.
     boolean frameworkStoppedInThisPass;
     do {
       frameworkStoppedInThisPass = false;
@@ -211,7 +211,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
                   getFrameworkDescriptor().getExecutionType() == ExecutionType.STOP) {
             LOGGER.logInfo(
                 "[%s]: stopOrphanFrameworks: " +
-                    "Since its StopOnParentStopped enabled and its ParentFramework [%s] Stopped",
+                    "Since its StopOnParentStopped is enabled and its ParentFramework [%s] is Stopped",
                 frameworkName, parentFrameworkName);
 
             stopFrameworkRequestInternal(frameworkName);
@@ -353,7 +353,7 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
           // Reject future child Frameworks
           throw new BadRequestException(String.format(
               "[%s]: setFrameworkRequest Rejected: " +
-                  "Since its DeleteOnParentDeleted enabled and its ParentFramework [%s] Deleted",
+                  "Since its DeleteOnParentDeleted is enabled and its ParentFramework [%s] is Deleted",
               frameworkName, parentFrameworkName));
         }
 

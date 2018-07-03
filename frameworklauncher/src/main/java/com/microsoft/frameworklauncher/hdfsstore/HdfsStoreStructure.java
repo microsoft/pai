@@ -55,11 +55,6 @@ public class HdfsStoreStructure {
     return HadoopUtils.getHdfsNodePath(getFrameworkRootPath(frameworkName), "AMStore");
   }
 
-  public String getContainerIpListFilePath(String frameworkName) {
-    return HadoopUtils.getHdfsNodePath(getAMStoreRootPath(frameworkName),
-        FilenameUtils.getName(GlobalConstants.CONTAINER_IP_LIST_FILE));
-  }
-
   public String getFrameworkInfoFilePath(String frameworkName) {
     return HadoopUtils.getHdfsNodePath(getFrameworkRootPath(frameworkName),
         FilenameUtils.getName(GlobalConstants.FRAMEWORK_INFO_FILE));

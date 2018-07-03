@@ -29,9 +29,6 @@ public class RMResyncHandler { // THREAD SAFE
   private final ApplicationMaster am;
   private final Configuration conf;
 
-  // NM expiry interval buffer
-  private static final int NM_EXPIRY_INTERVAL_BUFFER_SECONDS = 600;
-
   // RMResync interval
   private final int intervalSeconds;
 
@@ -50,7 +47,7 @@ public class RMResyncHandler { // THREAD SAFE
     // To make our decisions more reliable, we have to check liveContainerIds at least RMResyncFrequency
     // times before make decisions.
     intervalSeconds =
-        (nmExpiryIntervalSeconds + NM_EXPIRY_INTERVAL_BUFFER_SECONDS) /
+        (nmExpiryIntervalSeconds + this.conf.getLauncherConfig().getAmRmResyncNmExpiryBufferSec()) /
             this.conf.getLauncherConfig().getAmRmResyncFrequency();
   }
 

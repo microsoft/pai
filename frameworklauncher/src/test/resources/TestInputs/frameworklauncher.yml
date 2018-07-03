@@ -25,6 +25,7 @@ amRmResyncFrequency: 6
 amRequestPullIntervalSec: 30
 amStatusPushIntervalSec: 30
 amFrameworkInfoPublishIntervalSec: 30
+amGangAllocationTimeoutSec: 500
 
 # WebServer Setup
 webServerAddress: http://localhost:9086

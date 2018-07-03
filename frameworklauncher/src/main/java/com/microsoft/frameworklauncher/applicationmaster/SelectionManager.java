@@ -207,12 +207,12 @@ public class SelectionManager { // THREAD SAFE
     String requestNodeLabel = requestManager.getTaskRolePlatParams(taskRoleName).getTaskNodeLabel();
     String requestNodeGpuType = requestManager.getTaskRolePlatParams(taskRoleName).getTaskNodeGpuType();
     Map<String, NodeConfiguration> configuredNodes = requestManager.getClusterConfiguration().getNodes();
-    Boolean samePortsAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortsAllocation();
+    Boolean samePortAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortAllocation();
     int startStatesTaskCount = statusManager.getTaskStatus(TaskStateDefinition.START_STATES, taskRoleName).size();
 
     // Prefer to use previous successfully associated ports. if no associated ports, try to reuse the "Requesting" ports.
     List<ValueRange> reusedPorts = new ArrayList<>();
-    if (samePortsAllocation) {
+    if (samePortAllocation) {
       reusedPorts = statusManager.getAnyLiveAssociatedContainerPorts(taskRoleName);
       if (ValueRangeUtils.getValueNumber(reusedPorts) <= 0 && previousRequestedPorts.containsKey(taskRoleName)) {
         reusedPorts = previousRequestedPorts.get(taskRoleName);
@@ -222,7 +222,7 @@ public class SelectionManager { // THREAD SAFE
     }
     SelectionResult result = select(requestResource, requestNodeLabel, requestNodeGpuType, startStatesTaskCount, reusedPorts, configuredNodes);
 
-    if (samePortsAllocation) {
+    if (samePortAllocation) {
       // This startStatesTaskCount also count current task. StartStatesTaskCount == 1 means current task is the last task.
       // reusedPortsTimes is used to avoid startStatesTaskCount not decrease in the situation of timeout tasks back to startStates.
       if (startStatesTaskCount > 1) {

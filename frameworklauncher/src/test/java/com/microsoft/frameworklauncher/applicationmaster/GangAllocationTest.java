@@ -22,7 +22,6 @@ import com.microsoft.frameworklauncher.common.exit.ExitStatusKey;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
 import com.microsoft.frameworklauncher.common.service.StopStatus;
-import com.microsoft.frameworklauncher.common.utils.CommonUtils;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.hdfsstore.HdfsStore;
 import com.microsoft.frameworklauncher.hdfsstore.MockHdfsStore;
@@ -36,14 +35,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class GenerateContainerIpListTest {
-  private static final DefaultLogger LOG = new DefaultLogger(GenerateContainerIpListTest.class);
+public class GangAllocationTest {
+  private static final DefaultLogger LOG = new DefaultLogger(GangAllocationTest.class);
 
-  private final String frameworkName = "TestGenerateContainerIpList";
+  private final String frameworkName = "TestGangAllocation";
   private String taskRoleName;
   private int taskNum;
 
@@ -54,8 +56,7 @@ public class GenerateContainerIpListTest {
   private int exitStatus;
 
   @Test
-  public void testGenerateContainerIpList() throws Exception {
-    LOG.logInfo("GenerateContainerIpListTest start!");
+  public void testGangAllocation() throws Exception {
     init();
 
     CountDownLatch signal = new CountDownLatch(1);
@@ -90,25 +91,11 @@ public class GenerateContainerIpListTest {
         signal.getCount() == 0);
     Assert.assertTrue(String.format("Wrong exitCode: %s", exitStatus),
         exitStatus == ExitStatusKey.CONTAINER_START_FAILED.toInt());
-
-    String containerIpListFilePath =
-        hdfsStore.getHdfsStruct().getContainerIpListFilePath(frameworkName);
-    File containerIpListFile = new File(containerIpListFilePath);
-    Assert.assertTrue(containerIpListFile.exists());
-
-    String content = CommonUtils.readFile(containerIpListFilePath);
-    StringTokenizer tokenizer = new StringTokenizer(content, "\n");
-    int i = taskNum;
-    while (tokenizer.hasMoreTokens()) {
-      Assert.assertTrue(i > 0);
-      String host = taskStatusArray.get(--i).getContainerIp();
-      Assert.assertTrue(host.equals(tokenizer.nextToken()));
-    }
   }
 
   private void init() throws Exception {
     String frameworkFile = Thread.currentThread().getContextClassLoader()
-        .getResource("TestGenerateContainerIpList.json").getPath();
+        .getResource("TestGangAllocation.json").getPath();
     FrameworkRequest frameworkRequest = FeatureTestUtils
         .getFrameworkRequestFromJson(frameworkName, frameworkFile,
             DnsUtils.getLocalHost(), "user");

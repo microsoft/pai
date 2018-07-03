@@ -48,7 +48,7 @@ public class PortUtils {
             portString.append(";");
           } else {
             // If defined dynamic ports, assign portRanges for it.
-            // Note to assign in a fixed way, such as sequentially, in case samePortsAllocation specified.
+            // Note to assign in a fixed way, such as sequentially, in case samePortAllocation specified.
             List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
                 coalescedPortRanges, ports.getCount(), 0);
             coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
