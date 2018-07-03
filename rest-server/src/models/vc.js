@@ -19,7 +19,7 @@
 // module dependencies
 const unirest = require('unirest');
 const yarnConfig = require('../config/yarn');
-const logger = require('../config/logger');
+const createError = require('../util/error');
 
 class VirtualCluster {
   constructor(name, next) {
@@ -30,7 +30,7 @@ class VirtualCluster {
             this[key] = vcList[name][key];
           }
         } else {
-          error = new Error('VirtualClusterNotFound');
+          error = createError('Not Found', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${name} not found.`);
         }
       }
       next(this, error);
@@ -72,8 +72,7 @@ class VirtualCluster {
             const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
             next(vcInfo, null);
           } else {
-            logger.warn(`unsupported scheduler type: ${schedulerInfo.type}`);
-            next(null, new Error('InternalServerError'));
+            next(null, createError('Internal Server Error', 'ERR_BAD_CONFIGURATION', `Scheduler type ${schedulerInfo.type} is not supported.`));
           }
         } catch (error) {
           next(null, error);

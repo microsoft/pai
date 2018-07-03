@@ -18,6 +18,7 @@
 // module dependencies
 const userModel = require('../models/user');
 const logger = require('../config/logger');
+const createError = require('../util/error');
 
 /**
  * Create / update a user.
@@ -81,39 +82,13 @@ const remove = (req, res) => {
 /**
  * Update user virtual clusters.
  */
-const updateUserVc = (req, res) => {
+const updateUserVc = (req, res, next) => {
   const username = req.params.username;
   const virtualClusters = req.body.virtualClusters;
   if (req.user.admin) {
-    userModel.updateUserVc(username, virtualClusters, (err, state) => {
-      if (err || !state) {
-        logger.warn('update %s virtual cluster %s failed', username, virtualClusters);
-        if (err.message === 'InvalidVirtualCluster') {
-          return res.status(500).json({
-            error: 'InvalidVirtualCluster',
-            message: `update virtual cluster failed: could not find virtual cluster ${virtualClusters}`,
-          });
-        } else if (err.message === 'UserNotFoundInDatabase') {
-          return res.status(500).json({
-            error: 'UserNotFoundInDatabase',
-            message: `update virtual cluster failed: could not find ${username} in database`,
-          });
-        } else if (err.message === 'NoVirtualClusterFound') {
-          return res.status(500).json({
-            error: 'NoVirtualClusterFound',
-            message: `update virtual cluster failed: could not get virtual cluster list of current cluster`,
-          });
-        } else if (err.message === 'UpdateDataFailed') {
-          return res.status(500).json({
-            error: 'UpdateDataFailed',
-            message: `update virtual cluster failed: update virtual cluster list to database failed`,
-          });
-        } else {
-          return res.status(500).json({
-            error: 'UpdateVcFailed',
-            message: `update ${username} virtual cluster failed`,
-          });
-        }
+    userModel.updateUserVc(username, virtualClusters, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
       } else {
         return res.status(201).json({
           message: 'update user virtual clusters successfully',
@@ -121,10 +96,7 @@ const updateUserVc = (req, res) => {
       }
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
   }
 };
 

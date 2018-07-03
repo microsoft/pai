@@ -541,23 +541,41 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         }
       });
 
-    nock(etcdHosts)
-      .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/test_user/virtualClusters',
-          'value': 'default,vc1',
-          'modifiedIndex': 11,
-          'createdIndex': 11
-        },
-        'prevNode': {
-          'key': '/users/test_user/virtualClusters',
-          'value': 'default',
-          'modifiedIndex': 12,
-          'createdIndex': 12
-        }
-      });
+      nock(etcdHosts)
+        .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
+        .reply(200, {
+          'action': 'update',
+          'node': {
+            'key': '/users/test_user/virtualClusters',
+            'value': 'default,vc1',
+            'modifiedIndex': 11,
+            'createdIndex': 11
+          },
+          'prevNode': {
+            'key': '/users/test_user/virtualClusters',
+            'value': 'default',
+            'modifiedIndex': 12,
+            'createdIndex': 12
+          }
+        });
+
+        nock(etcdHosts)
+          .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default' })
+          .reply(200, {
+            'action': 'update',
+            'node': {
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default',
+              'modifiedIndex': 11,
+              'createdIndex': 11
+            },
+            'prevNode': {
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default,vc1',
+              'modifiedIndex': 12,
+              'createdIndex': 12
+            }
+          });
 
     nock(etcdHosts)
       .get('/v2/keys/users/test_non_admin_user')
@@ -677,7 +695,14 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         }
       });
 
-
+      nock(etcdHosts)
+      .get('/v2/keys/users/non_exist_user')
+      .reply(200, {
+        'errorCode': 100,
+        'message': 'Key not found',
+        'cause': '/users/non_exist_user',
+        'index': 4242650
+      });
   });
 
   //
@@ -724,9 +749,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: update virtual cluster list to database failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_VIRTUAL_CLUSTER');
         done();
       });
   });
@@ -754,9 +779,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find virtual cluster non_exist_vc');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_VIRTUAL_CLUSTER');
         done();
       });
   });
@@ -767,9 +792,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
     .set('Authorization', 'Bearer ' + validToken)
     .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
     .end((err, res) => {
-      global.chai.expect(res, 'status code').to.have.status(500);
+      global.chai.expect(res, 'status code').to.have.status(404);
       global.chai.expect(res, 'response format').be.json;
-      global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find non_exist_user in database');
+      global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
       done();
     });
   });
