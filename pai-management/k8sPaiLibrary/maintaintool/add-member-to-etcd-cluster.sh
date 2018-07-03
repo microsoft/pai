@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,35 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+bad_member_ip=$1
+bad_member_etcd_id=$2
 
-etcd-reconfiguration-stop:
+target_id=`docker ps --filter "name=container_etcd-server" -q`
 
-    file-list:
-    - name: stop-etcd-server.sh
-      src: k8sPaiLibrary/maintaintool/stop-etcd-server.sh
-      dst: etcd-reconfiguration-stop
-
-
-etcd-reconfiguration-update:
-
-    file-list:
-    - name: remove-member-from-etcd-cluster.sh
-      src: k8sPaiLibrary/maintaintool/remove-member-from-etcd-cluster.sh
-      dst: etcd-reconfiguration-update
-    - name: add-member-to-etcd-cluster.sh
-      src: k8sPaiLibrary/maintaintool/add-member-to-etcd-cluster.sh
-      dst: etcd-reconfiguration-update
-
-
-
-etcd-reconfiguration-restart:
-
-    template-list:
-    - name: etcd.yaml
-      src: k8sPaiLibrary/template/etcd.yaml.template
-      dst: etcd-reconfiguration-restart
-
-    file-list:
-    - name: restart-etcd-server.sh
-      src: k8sPaiLibrary/maintaintool/restart-etcd-server.sh
-      dst: etcd-reconfiguration-restart
+docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380
