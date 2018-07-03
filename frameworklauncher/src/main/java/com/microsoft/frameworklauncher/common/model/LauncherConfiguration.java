@@ -73,7 +73,7 @@ public class LauncherConfiguration implements Serializable {
   // Containers actively, instead of waiting the RM call back passively.
   // This feature can provide eventual consistency between AM and RM.
   private Integer amRmResyncFrequency = 6;
-  private Integer amRmResyncNmExpiryBufferSec = 300;
+  private Integer amRmResyncNmExpiryBufferSec = 60;
   private Integer amRequestPullIntervalSec = 30;
   private Integer amStatusPushIntervalSec = 30;
   private Integer amFrameworkInfoPublishIntervalSec = 30;
