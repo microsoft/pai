@@ -18,11 +18,12 @@
 // module dependencies
 const userModel = require('../models/user');
 const logger = require('../config/logger');
+const createError = require('../util/error');
 
 /**
  * Create / update a user.
  */
-const update = (req, res) => {
+const update = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const admin = req.body.admin;
@@ -30,13 +31,9 @@ const update = (req, res) => {
   if (req.user.admin ||
       username === req.user.username &&
       (typeof admin === 'undefined' || !admin) && modify) {
-    userModel.update(username, password, admin, modify, (err, state) => {
-      if (err || !state) {
-        logger.warn('update user %s failed', username);
-        return res.status(500).json({
-          error: 'UpdateFailed',
-          message: 'update user failed',
-        });
+    userModel.update(username, password, admin, modify, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
       } else {
         return res.status(201).json({
           message: 'update successfully',
@@ -44,37 +41,26 @@ const update = (req, res) => {
       }
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
   }
 };
 
 /**
  * Remove a user.
  */
-const remove = (req, res) => {
+const remove = (req, res, next) => {
   const username = req.body.username;
   if (req.user.admin) {
-    userModel.remove(username, (err, state) => {
-      if (err || !state) {
-        logger.warn('remove user %s failed', username);
-        return res.status(500).json({
-          error: 'RemoveFailed',
-          message: 'remove failed',
-        });
-      } else {
-        return res.status(200).json({
-          message: 'remove successfully',
-        });
+    userModel.remove(username, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
       }
+      return res.status(200).json({
+        message: 'remove successfully',
+      });
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
   }
 };
 
@@ -131,31 +117,16 @@ const updateUserVc = (req, res) => {
 /**
  * Update user virtual clusters.
  */
-const getUserList = (req, res) => {
+const getUserList = (req, res, next) => {
   if (req.user.admin) {
     userModel.getUserList((err, userList) => {
       if (err) {
-        logger.warn('get user info list Error');
-        if (err.message === 'UserListNotFound') {
-          return res.status(500).json({
-            error: 'UserListNotFound',
-            message: 'could not find user list',
-          });
-        } else {
-          return res.status(500).json({
-            error: 'GetUserListError',
-            message: 'get user info list error',
-          });
-        }
-      } else {
-        return res.status(200).json(userList);
+        return next(createError.unknown(err));
       }
+      return res.status(200).json(userList);
     });
   } else {
-    return res.status(401).json({
-      error: 'NotAuthorized',
-      message: 'not authorized',
-    });
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
   }
 };
 

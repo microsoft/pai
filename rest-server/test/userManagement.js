@@ -123,9 +123,9 @@ describe('Add new user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': true })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
         done();
       });
   });
@@ -136,9 +136,9 @@ describe('Add new user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'test_user', 'password': '123456', 'admin': true, 'modify': false })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
         done();
       });
   });
@@ -279,9 +279,9 @@ describe('update user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
         done();
       });
   });
@@ -303,7 +303,8 @@ describe('update user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
         done();
       });
   });
@@ -446,9 +447,9 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_REMOVE_ADMIN');
         done();
       });
   });
@@ -459,9 +460,9 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_exist_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
         done();
       });
   });
@@ -472,7 +473,7 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         done();
       });
   });
@@ -877,9 +878,9 @@ describe('get user info list : get /api/v1/user', () => {
       .get('/api/v1/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
         done();
       });
   });
