@@ -249,8 +249,22 @@ class etcdfix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
             return
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update", "update-etcd-cluster", bad_node_config['hostip'], bad_node_config['etcdid'] )
+        commandline = "tar -xvf {0}.tar".format("etcd-reconfiguration-update")
+        if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
+            return
 
+        commandline = "sudo /bin/bash {0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update",
+                                                                 "remove-member-from-etcd-cluster",
+                                                                 bad_node_config['hostip'],
+                                                                 bad_node_config['etcdid'])
+        if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
+            return
+
+
+        commandline = "sudo /bin/bash {0}/{1}.sh {2} {3}".format("etcd-reconfiguration-update",
+                                                                 "add-member-to-etcd-cluster",
+                                                                 bad_node_config['hostip'],
+                                                                 bad_node_config['etcdid'])
         if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
             return
 
