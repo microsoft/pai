@@ -19,41 +19,35 @@
 const jwt = require('jsonwebtoken');
 const tokenConfig = require('../config/token');
 const tokenModel = require('../models/token');
-const logger = require('../config/logger');
+const createError = require('../util/error');
 
 /**
  * Get the token.
  */
-const get = (req, res) => {
+const get = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
   tokenModel.check(username, password, (err, state, admin) => {
-    if (err || !state) {
-      logger.warn('user %s authentication failed', username);
-      return res.status(401).json({
-        error: 'AuthenticationFailed',
-        message: 'authentication failed',
-      });
-    } else {
-      jwt.sign({
-        username: username,
-        admin: admin,
-      }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
-        if (signError) {
-          logger.warn('sign token error\n%s', signError.stack);
-          return res.status(500).json({
-            error: 'SignTokenFailed',
-            message: 'sign token failed',
-          });
-        }
-        return res.status(200).json({
-          user: username,
-          token: token,
-          admin: admin,
-        });
-      });
+    if (err) {
+      return next(createError.unknown(err));
     }
+    if (!state) {
+      return next(createError('Bad Request', 'ERR_INCORRECT_PASSWORD', 'Password is incorrect'));
+    }
+    jwt.sign({
+      username: username,
+      admin: admin,
+    }, tokenConfig.secret, {expiresIn: expiration}, (signError, token) => {
+      if (signError) {
+        return next(createError.unknown(signError));
+      }
+      return res.status(200).json({
+        user: username,
+        token: token,
+        admin: admin,
+      });
+    });
   });
 };
 

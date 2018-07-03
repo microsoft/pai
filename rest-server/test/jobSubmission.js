@@ -299,7 +299,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('No authorization token was found');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_UNAUTHORIZED_USER');
         done();
       });
   });

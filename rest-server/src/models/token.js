@@ -17,22 +17,26 @@
 
 const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
+const createError = require('../util/error');
 
 const check = (username, password, callback) => {
-  userModel.db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
+  userModel.db.has(etcdConfig.userPath(username), null, (_, res) => {
     if (!res) {
-      callback(null, false, false);
-    } else {
-      userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (errMsg, res) => {
-        if (errMsg) {
-          callback(errMsg, false, false);
-        } else {
-          userModel.encrypt(username, password, (errMsg, derivedKey) => {
-            callback(errMsg, derivedKey === res.get(etcdConfig.userPasswdPath(username)), res.get(etcdConfig.userAdminPath(username)) === 'true');
-          });
-        }
-      });
+      return callback(createError('Bad Request', 'ERR_NO_USER', `User ${username} not found.`));
     }
+    userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (err, res) => {
+      if (err) {
+        return callback(err);
+      }
+      userModel.encrypt(username, password, (err, derivedKey) => {
+        if (err) {
+          return callback(err);
+        }
+        callback(null,
+          derivedKey === res.get(etcdConfig.userPasswdPath(username)),
+          res.get(etcdConfig.userAdminPath(username)) === 'true');
+      });
+    });
   });
 };
 

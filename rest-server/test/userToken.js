@@ -101,9 +101,9 @@ describe('user token test: post /api/v1/token', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'token_test_user', 'password': 'abcdef' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('authentication failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_INCORRECT_PASSWORD');
         done();
       });
   });
@@ -114,12 +114,11 @@ describe('user token test: post /api/v1/token', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(getTokenTemplate, { 'username': 'non_exist_user', 'password': 'abcdef' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('authentication failed');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
         done();
       });
   });
 
 });
-
