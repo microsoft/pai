@@ -8,7 +8,7 @@
       "cpuNumber": 4,
       "memoryMB": 8192,
       "gpuNumber": 1,
-      "command": "python resnet50_trainer.py --train_data null"
+      "command": "python resnet50_trainer.py --train_data null --epoch_size 100 --num_epochs 100"
     }
   ]
 }
