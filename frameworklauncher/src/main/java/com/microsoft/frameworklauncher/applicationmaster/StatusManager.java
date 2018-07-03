@@ -98,8 +98,8 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
   // TaskStatusLocator -> AllocatedContainer
   private final Map<TaskStatusLocator, Container> taskAllocatedContainers = new HashMap<>();
 
-  // Whether onOutstandingTaskDisappeared or onOutstandingTaskAppeared has been triggered in current
-  // application attempt, so no need to persist.
+  // Used to indicate whether onOutstandingTaskDisappeared or onOutstandingTaskAppeared has been triggered
+  // in current application attempt, so no need to persist.
   private boolean outstandingTaskCallbackTriggered = false;
   // Used to track current OutstandingTaskAppeared round within one application attempt, so no need to persist.
   private int outstandingTaskAppearedRound = 0;
