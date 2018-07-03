@@ -50,18 +50,18 @@ If you could use kafka correctly in your own environment, of course computer or 
 3. submit your job on PAI webportal.
 
 Note:
-Now(2018-6-26), we can't use static port and dynamic port at the same time, and the job would add two dynamic ports(ssh and http) automatically. So, we could only use dynamic port to support zookeeper and kafka instead of static port. Then the way to use dynamic port is following:
+    Now(2018-6-26), we can't use static port and dynamic port at the same time, and the job would add two dynamic ports(ssh and http) automatically. So, we could only use dynamic port to support zookeeper and kafka instead of static port. Then the way to use dynamic port is following:
 
 1. Delete the port setting sentences in "zoo.cfg" and "server.properties".
 
 2. Add the sentences you have deleted by using command "sed" and environment variable:
 
-`sed -i "13a clientPort=$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" zoo.cfg`
-
-`sed -i "123a zookeeper.connect=localhost:$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" server.properties`
-
-`sed -i "31a listeners=PLAINTEXT://localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST" server.properties`
-
+    ```bash
+    sed -i "13a clientPort=$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" zoo.cfg
+    sed -i "123a zookeeper.connect=localhost:$PAI_CONTAINER_HOST_zookeeper_PORT_LIST" server.properties
+    sed -i "31a listeners=PLAINTEXT://localhost:$PAI_CONTAINER_HOST_kafka_PORT_LIST" server.properties
+    ```
+    
 3. Delete the port setting codes in your logic codes.
 
 4. Add the deleted codes by the same way as you doing with the sentences.
