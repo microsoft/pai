@@ -10,6 +10,14 @@ matrix:
         - pip install paramiko pyyaml jinja2 python-etcd kubernetes
       script:
         - python -m unittest discover test/
+    - language: python
+      python: 2.7
+      before_install:
+        - cd prometheus
+      install:
+        - pip install paramiko pyyaml jinja2
+      script:
+        - python -m unittest discover test/
     - language: java
       jdk: oraclejdk8
       before_install:
