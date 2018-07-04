@@ -37,7 +37,7 @@ def load_yaml_config(config_path):
 def read_template(template_path):
 
     with open(template_path, "r") as f:
-        template_data = f.read()
+        template_data = f.read().decode('utf-8')
 
     return template_data
 

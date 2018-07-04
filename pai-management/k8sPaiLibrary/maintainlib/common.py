@@ -74,7 +74,7 @@ def execute_shell_return(shell_cmd, error_msg):
 def read_template(template_path):
 
     with open(template_path, "r") as fin:
-        template_data = fin.read()
+        template_data = fin.read().decode('utf-8')
 
     return template_data
 
