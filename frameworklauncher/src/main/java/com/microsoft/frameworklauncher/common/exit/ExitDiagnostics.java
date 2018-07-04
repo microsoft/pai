@@ -110,7 +110,7 @@ public class ExitDiagnostics {
     DEF.put(ExitStatusKey.AM_KILLED_BY_USER, new ExitStatusValue(
         ExitStatusKey.AM_KILLED_BY_USER.toInt(),
         "AM Killed by User", ExitType.TRANSIENT_NORMAL));
-    // AM Internal TransientNormalError: hdfs error, env error...
+    // AM Internal TransientNormalError: machine error, network error, configuration error, environment error...
     DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR, new ExitStatusValue(
         ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR.toInt(),
         "AM internal transient normal error", ExitType.TRANSIENT_NORMAL));
@@ -206,7 +206,8 @@ public class ExitDiagnostics {
     //      Note that UserApplication should do some retries on the local machine first, return USER_APP_TRANSIENT_ERROR only if local retries does not work.
     DEF.put(ExitStatusKey.USER_APP_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.USER_APP_TRANSIENT_ERROR.toInt(),
-        "UserApplication transient error: maybe hdfs error, env error, machine error, connection error...", ExitType.TRANSIENT_NORMAL));
+        "UserApplication transient error: maybe dependent components shutdown, " +
+            "machine error, network error, configuration error, environment error...", ExitType.TRANSIENT_NORMAL));
     // UserApplication failed, and it can ensure that it will fail in every retry times:
     DEF.put(ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR.toInt(),
