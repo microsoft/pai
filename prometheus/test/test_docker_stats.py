@@ -50,5 +50,32 @@ class TestDockerStats(unittest.TestCase):
         self.assertEqual(target_stats_info, stats_info)
         pass
 
+    def test_convert_to_byte(self):
+        data = "380.4MiB"
+        result = convert_to_byte(data)
+        self.assertEqual(398458880.0, result)
+        pass
+
+    def test_parse_usage_limit(self):
+        data = "380.4MiB / 55.03GiB"
+        result = parse_usage_limit(data)
+        target = {'usage': 398458880.0, 'limit': 59055800320.0}
+        self.assertEqual(target, result)
+        pass
+
+    def test_parse_io(self):
+        data = "0B / 0B"
+        result = parse_io(data)
+        target = {'out': 0.0, 'in': 0.0}
+        self.assertEqual(target, result)
+        pass
+
+    def test_parse_percentile(self):
+        data = "24.45%"
+        result = parse_percentile(data)
+        target = "24.45"
+        self.assertEqual(target, result)
+        pass
+
 if __name__ == '__main__':
     unittest.main()
