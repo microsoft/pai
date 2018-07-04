@@ -33,6 +33,7 @@ import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
+import org.mortbay.log.Log;
 
 import java.util.*;
 
@@ -177,6 +178,7 @@ public class SelectionManager { // THREAD SAFE
       if (gpuAttribute == 0) {
         gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
+      Log.info("Select: " + node.getHost() + " GpuNumber:" + requestResource.getGpuNumber() + " gpuAttribute:" + gpuAttribute);
       result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
     }
     return result;
