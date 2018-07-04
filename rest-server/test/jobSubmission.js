@@ -312,7 +312,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('ParameterValidationError');
+        global.chai.expect(res.body, 'response body content').include({ code: 'ERR_INVALID_PARAMETERS' });
         done();
       });
   });
