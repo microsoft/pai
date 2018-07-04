@@ -18,6 +18,9 @@
 import os
 import unittest
 import sys
+import yaml
+import logging
+import logging.config
 #sys.path.append("..")
 print(sys.path)
 #from exporter import gpu_exporter
