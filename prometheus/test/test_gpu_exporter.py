@@ -43,7 +43,7 @@ class TestGPUExporter(unittest.TestCase):
 
             logging.config.dictConfig(logging_configuration)
 
-            logging.getLogger()
+            self.logger = logging.getLogger()
 
     def tearDown(self):
         try:
@@ -54,8 +54,8 @@ class TestGPUExporter(unittest.TestCase):
     def test_parse_smi_xml_result(self):
         import sys
         #sys.path.append("..")
-        logger = logging.getLogger()
-        logger.info(sys.path)
+        #logger = logging.getLogger()
+        self.logger.info(sys.path)
         # sample_path = "data/nvidia_smi_sample.xml"
         # file = open(sample_path, "r")
         # nvidia_smi_result = file.read()
