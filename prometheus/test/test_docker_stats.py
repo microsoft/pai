@@ -15,14 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
 import os
 import unittest
 import sys
 sys.path.append("..")
-from exporter.docker_inspect import parse_docker_inspect
+from exporter.docker_stats import parse_docker_stats
+from exporter.docker_stats import convert_to_byte
+from exporter.docker_stats import parse_usage_limit
+from exporter.docker_stats import parse_io
+from exporter.docker_stats import parse_percentile
 
-class TestDockerInspect(unittest.TestCase):
+class TestDockerStats(unittest.TestCase):
     """
     Test docker_inspect.py
     """
@@ -39,12 +42,12 @@ class TestDockerInspect(unittest.TestCase):
             pass
 
     def test_parse_docker_inspect(self):
-        sample_path = "data/docker_inspect_sample.json"
-        file = open(sample_path, "r") 
-        dockerInspect = file.read()
-        inspectInfo = parse_docker_inspect(dockerInspect)
-        targetInspectInfo = {'labels': ['container_label_PAI_USER_NAME="openmindstudio"', 'container_label_GPU_ID="0,1,"', 'container_label_PAI_HOSTNAME="paigcr-a-gpu-1058"', 'container_label_PAI_JOB_NAME="trialslot_nnimain_d65bc5ac"', 'container_label_PAI_CURRENT_TASK_ROLE_NAME="tuner"'], 'env': ['container_env_PAI_TASK_INDEX="0"']}
-        self.assertEqual(targetInspectInfo, inspectInfo)
+        sample_path = "data/docker_stats_sample.txt"
+        file = open(sample_path, "r")
+        docker_stats = file.read()
+        stats_info = parse_docker_stats(docker_stats)
+        target_stats_info = {'722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636': {'BlockIO': {'out': 163577856.0, 'in': 29360128.0}, 'NetIO': {'out': 456340275200.0, 'in': 1099511627776.0}, 'CPUPerc': '0.00', 'MemPerc': '0.19', 'id': '722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636', 'MemUsage_Limit': {'usage': 111149056.0, 'limit': 59055800320.0}}, '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419': {'BlockIO': {'out': 0.0, 'in': 29360128.0}, 'NetIO': {'out': 0.0, 'in': 0.0}, 'CPUPerc': '0.00', 'MemPerc': '6.23', 'id': '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419', 'MemUsage_Limit': {'usage': 18874368.0, 'limit': 314572800.0}}}
+        self.assertEqual(target_stats_info, stats_info)
         pass
 
 if __name__ == '__main__':
