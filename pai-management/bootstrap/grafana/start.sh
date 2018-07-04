@@ -27,6 +27,13 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash node-label.sh
 
+while !  kubectl get configmap | grep -q "grafana-configuration" 
+do
+  sleep 3
+  echo "grafana-configuration configmap does not exist, try to create grafana configmap"
+  /bin/bash configmap-create.sh
+done
+
 kubectl create -f grafana.yaml
 
 popd > /dev/null
