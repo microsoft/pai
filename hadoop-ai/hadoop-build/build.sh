@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cd /
-wget https://issues.apache.org/jira/secure/attachment/12930228/hadoop_2.9.0.patch
+wget https://issues.apache.org/jira/secure/attachment/12930245/hadoop_2.9.0.patch
 git clone https://github.com/apache/hadoop.git
 
 cd hadoop
