@@ -310,7 +310,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(JSON.stringify(res.body), 'response body content').include('ParameterValidationError');
         done();

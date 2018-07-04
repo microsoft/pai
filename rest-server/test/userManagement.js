@@ -292,7 +292,7 @@ describe('update user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': null, 'admin': false, 'modify': true })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         done();
       });
   });
