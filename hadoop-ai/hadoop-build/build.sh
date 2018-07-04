@@ -18,16 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cd /
-wget https://issues.apache.org/jira/secure/attachment/12929921/hadoop-2.9.0-gpu-port.patch
+wget https://issues.apache.org/jira/secure/attachment/12930228/hadoop_2.9.0.patch
 git clone https://github.com/apache/hadoop.git
 
 cd hadoop
 
 git checkout branch-2.9.0
 
-cp /hadoop-2.9.0-gpu-port.patch /hadoop
+cp /hadoop_2.9.0.patch /hadoop
 
-git apply hadoop-2.9.0-gpu-port.patch
+git apply hadoop_2.9.0.patch
 
 mvn package -Pdist,native -DskipTests -Dtar
 
