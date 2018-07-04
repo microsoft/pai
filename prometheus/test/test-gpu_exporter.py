@@ -20,9 +20,9 @@ import os
 import unittest
 import sys
 sys.path.append("..")
-from exporter.docker_inspect import parse_docker_inspect
+from exporter.gpu_exporter import parse_smi_xml_result
 
-class TestDockerInspect(unittest.TestCase):
+class TestGPUExporter(unittest.TestCase):
     """
     Test docker_inspect.py
     """
@@ -38,13 +38,14 @@ class TestDockerInspect(unittest.TestCase):
         except:
             pass
 
-    def test_parse_docker_inspect(self):
-        sample_path = "data/docker_inspect_sample.json"
+    def test_parse_smi_xml_result(self):
+        sample_path = "data/nvidia_smi_sample.xml"
         file = open(sample_path, "r") 
-        dockerInspect = file.read()
-        inspectInfo = parse_docker_inspect(dockerInspect)
-        targetInspectInfo = {'labels': ['container_label_PAI_USER_NAME="openmindstudio"', 'container_label_GPU_ID="0,1,"', 'container_label_PAI_HOSTNAME="paigcr-a-gpu-1058"', 'container_label_PAI_JOB_NAME="trialslot_nnimain_d65bc5ac"', 'container_label_PAI_CURRENT_TASK_ROLE_NAME="tuner"'], 'env': ['container_env_PAI_TASK_INDEX="0"']}
-        self.assertEqual(targetInspectInfo, inspectInfo)
+        nvidiaSmiResult = file.read()
+        outputDir = "data"
+        nvidiaSmiParseResult = parse_smi_xml_result(nvidiaSmiResult, outputDir)
+        targetSmiInfo = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '3': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '2': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '5': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '4': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
+        self.assertEqual(targetSmiInfo, nvidiaSmiParseResult)
         pass
 
 if __name__ == '__main__':
