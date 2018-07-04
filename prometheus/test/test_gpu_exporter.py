@@ -48,9 +48,11 @@ class TestGPUExporter(unittest.TestCase):
 
             self.logger = logging.getLogger()
 
+        os.chdir(os.path.abspath(".."))
+
     def tearDown(self):
         try:
-            os.chdir(os.path.abspath(".."))
+            #os.chdir(os.path.abspath(".."))
         except:
             pass
 
@@ -59,6 +61,7 @@ class TestGPUExporter(unittest.TestCase):
         #sys.path.append("..")
         #logger = logging.getLogger()
         self.logger.info(sys.path)
+        from exporter import gpu_exporter
         # sample_path = "data/nvidia_smi_sample.xml"
         # file = open(sample_path, "r")
         # nvidia_smi_result = file.read()
