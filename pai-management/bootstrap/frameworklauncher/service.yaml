@@ -18,7 +18,7 @@
 
 prerequisite:
   - cluster-configuration
-  - hadoop-service
+  - hadoop-batch-job
 
 template-list:
   - node-label.sh

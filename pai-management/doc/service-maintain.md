@@ -8,7 +8,7 @@
 #### Start service in the cluster <a name="Service_Start"></a>
 
 ```
-paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 1) Starting all service in your cluster.
@@ -18,7 +18,7 @@ paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name 
 #### Stop service in the cluster <a name="Service_Stop"></a>
 
 ```
-paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 1) Stop all service in your cluster.
@@ -28,7 +28,7 @@ paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
 #### Delete (Stop and clean Data) Service in the cluster <a name="Service_Delete"></a>
 
 ```
-paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 1) Firstly, it will stop all service on your cluster.
@@ -39,7 +39,7 @@ paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name
 #### Fresh Service in the cluster <a name="Service_Delete"></a>
 
 ```
-paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 1) Update the configmap

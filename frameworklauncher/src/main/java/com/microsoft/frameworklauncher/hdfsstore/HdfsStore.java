@@ -80,13 +80,6 @@ public class HdfsStore {
     return hdfsPath;
   }
 
-  public String uploadContainerIpListFile(String frameworkName, String containerIpList) throws Exception {
-    String hdfsPath = hdfsStruct.getContainerIpListFilePath(frameworkName);
-    CommonUtils.writeFile(GlobalConstants.CONTAINER_IP_LIST_FILE, containerIpList);
-    HadoopUtils.uploadFileToHdfs(GlobalConstants.CONTAINER_IP_LIST_FILE, hdfsPath);
-    return hdfsPath;
-  }
-
   // Note uploadFrameworkInfoFile is guaranteed to be atomic
   public String uploadFrameworkInfoFile(String frameworkName, FrameworkInfo frameworkInfo) throws Exception {
     String hdfsTempPath = hdfsStruct.getFrameworkInfoFileTempPath(frameworkName);

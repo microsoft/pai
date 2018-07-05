@@ -26,9 +26,15 @@ public class AbstractService {
   private static final DefaultLogger LOGGER = new DefaultLogger(AbstractService.class);
 
   public final String serviceName;
+  public final Boolean isKernelService;
 
   public AbstractService(String serviceName) {
+    this(serviceName, false);
+  }
+
+  public AbstractService(String serviceName, Boolean isKernelService) {
     this.serviceName = serviceName;
+    this.isKernelService = isKernelService;
   }
 
   public void start() {
@@ -65,20 +71,24 @@ public class AbstractService {
   }
 
   protected void initialize() throws Exception {
-    LOGGER.logInfo("Initializing %1$s", serviceName);
+    LOGGER.logInfo("Initializing %s", serviceName);
   }
 
   protected void recover() throws Exception {
-    LOGGER.logInfo("Recovering %1$s", serviceName);
+    LOGGER.logInfo("Recovering %s", serviceName);
   }
 
   protected void run() throws Exception {
-    LOGGER.logInfo("Running %1$s", serviceName);
+    LOGGER.logInfo("Running %s", serviceName);
   }
 
   public void stop(StopStatus stopStatus) {
-    LOGGER.logSplittedLines(stopStatus.getCode() == 0 ? Level.INFO : Level.ERROR,
-        "Stopping %1$s with StopStatus: %2$s", serviceName, stopStatus);
+    Level logLevel = stopStatus.getCode() == 0 ? Level.INFO : Level.ERROR;
+    if (isKernelService) {
+      LOGGER.logSplittedLines(logLevel,
+          "Stopping %s with StopStatus: %s", serviceName, stopStatus);
+    } else {
+      LOGGER.log(logLevel, "Stopping %s", serviceName);
+    }
   }
 }
-

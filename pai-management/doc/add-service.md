@@ -1,4 +1,4 @@
-# add a serive
+# add a service
 
 For advanced user. A guide for developer to add their own service into pai.
 
@@ -91,7 +91,7 @@ prerequisite: hadoop-run
 Configuration consists of three parts. If any parts in your image's configuration is empty, just remove it.
 
 - ```prerequisite``` part:
-    - Your service image may be built from a base image. If the base image is a customized image and can't be pulled from a docker registry, you will have to build the base image first. In this tutrial, hbase image is built from hadoop-run which is pai's customized image, so we have to build hadoop-run first. After setting prerequisite fileds, paictl will build hadoop-run first.
+    - Your service image may be built from a base image. If the base image is a customized image and can't be pulled from a docker registry, you will have to build the base image first. In this tutrial, hbase image is built from hadoop-run which is pai's customized image, so we have to build hadoop-run first. After setting prerequisite fields, paictl will build hadoop-run first.
     - Note: If your base image could be pulled from a docker registry, just remove this. If your base image is pai's customized image or yourself's customized image added into pai, you must set this field.
 
 
@@ -174,7 +174,7 @@ upgraded-script: upgraded.sh
 This configuration consists of 7 parts.
 
 - ```prerequisite``` parts:
-    - Let's consider this scenario. There are 3 services named ```A```, ```B``` and ```C```. And now serivce ```C``` depends on serivce ```B``` and ```C```. If you wanna start ```C```, you will have to start ```A``` and ```B```. So in this field, you can tell paictl which service should be ready if you wanna start a service.
+    - Let's consider this scenario. There are 3 services named ```A```, ```B``` and ```C```. And now service ```C``` depends on service ```B``` and ```C```. If you wanna start ```C```, you will have to start ```A``` and ```B```. So in this field, you can tell paictl which service should be ready if you wanna start a service.
     - cluster-configuration is a special service in pai. Some important configuration of the cluster and registry's secret are in this service. So this service should be the first service of pai.
 
 -  ```template-list``` parts:
@@ -201,7 +201,7 @@ This configuration consists of 7 parts.
 [Node Label](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/)
 - Benefits
     - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
-    - With node label, we are able to management a serivce on a specific node, but do not affect the same service on other nodes.
+    - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
 - Example
     - [Hadoop Service's node-label.sh](../bootstrap/hadoop-service/node-label.sh.template)
     - [Hadoop name node](../bootstrap/hadoop-service/hadoop-name-node.yaml.template)
@@ -251,7 +251,7 @@ This configuration consists of 7 parts.
 
 #### Place the Module into PAI <a name="Service_Place"></a>
 
- Note that the name of service's directory should be same with the serivce name.
+ Note that the name of service's directory should be same with the service name.
 
 For example, now we wanna add a service module "XYZ" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/bootstrap/XYZ```. That is the service's directory named as the service's name.
 

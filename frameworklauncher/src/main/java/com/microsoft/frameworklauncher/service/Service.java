@@ -95,7 +95,7 @@ public class Service extends AbstractService {
    * REGION AbstractService
    */
   public Service() {
-    super(Service.class.getName());
+    super(Service.class.getName(), true);
   }
 
   @Override

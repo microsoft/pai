@@ -37,7 +37,8 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
   @NotNull
   // If this feature is enabled, different Tasks is ensured to allocate the same ports
   // even if dynamic port range is specified in portDefinitions.
-  private Boolean samePortsAllocation = true;
+  @Deprecated
+  private Boolean samePortAllocation = false;
 
   public String getTaskNodeLabel() {
     return taskNodeLabel;
@@ -55,11 +56,11 @@ public class TaskRolePlatformSpecificParametersDescriptor implements Serializabl
     this.taskNodeGpuType = taskNodeGpuType;
   }
 
-  public Boolean getSamePortsAllocation() {
-    return samePortsAllocation;
+  public Boolean getSamePortAllocation() {
+    return samePortAllocation;
   }
 
-  public void setSamePortsAllocation(Boolean samePortsAllocation) {
-    this.samePortsAllocation = samePortsAllocation;
+  public void setSamePortAllocation(Boolean samePortAllocation) {
+    this.samePortAllocation = samePortAllocation;
   }
 }

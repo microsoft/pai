@@ -76,135 +76,105 @@ public class LauncherClient {
   }
 
   public void putFramework(String frameworkName, FrameworkDescriptor frameworkDescriptor) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(frameworkName);
-      CommonValidation.validate(frameworkDescriptor);
-      return webClient.put(
-          WebStructure.getFrameworkPath(frameworkName),
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(frameworkDescriptor));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.getFrameworkPath(frameworkName),
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(frameworkDescriptor)));
   }
 
   public void putTaskNumber(String frameworkName, String taskRoleName, UpdateTaskNumberRequest updateTaskNumberRequest) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(frameworkName);
-      CommonValidation.validate(taskRoleName);
-      CommonValidation.validate(updateTaskNumberRequest);
-      return webClient.put(
-          WebStructure.getTaskNumberPath(frameworkName, taskRoleName),
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(updateTaskNumberRequest));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.getTaskNumberPath(frameworkName, taskRoleName),
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(updateTaskNumberRequest)));
   }
 
   public void putExecutionType(String frameworkName, UpdateExecutionTypeRequest updateExecutionTypeRequest) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(frameworkName);
-      CommonValidation.validate(updateExecutionTypeRequest);
-      return webClient.put(
-          WebStructure.getExecutionTypePath(frameworkName),
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(updateExecutionTypeRequest));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.getExecutionTypePath(frameworkName),
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(updateExecutionTypeRequest)));
   }
 
   public void putMigrateTask(String frameworkName, String containerId, MigrateTaskRequest migrateTaskRequest) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(frameworkName);
-      CommonValidation.validate(migrateTaskRequest);
-      return webClient.put(
-          WebStructure.getMigrateTaskPath(frameworkName, containerId),
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(migrateTaskRequest));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.getMigrateTaskPath(frameworkName, containerId),
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(migrateTaskRequest)));
   }
 
   public void putApplicationProgress(String frameworkName, OverrideApplicationProgressRequest overrideApplicationProgressRequest) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(frameworkName);
-      CommonValidation.validate(overrideApplicationProgressRequest);
-      return webClient.put(
-          WebStructure.getApplicationProgressPath(frameworkName),
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(overrideApplicationProgressRequest));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.getApplicationProgressPath(frameworkName),
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(overrideApplicationProgressRequest)));
   }
 
   public void deleteFramework(String frameworkName) throws Exception {
-    executeWithRetry(() -> {
-      return webClient.delete(WebStructure.getFrameworkPath(frameworkName));
-    });
+    executeWithRetry(() -> webClient.delete(
+        WebStructure.getFrameworkPath(frameworkName)));
   }
 
   public void deleteMigrateTask(String frameworkName, String containerId) throws Exception {
-    executeWithRetry(() -> webClient.delete(WebStructure.getMigrateTaskPath(frameworkName, containerId)));
+    executeWithRetry(() -> webClient.delete(
+        WebStructure.getMigrateTaskPath(frameworkName, containerId)));
   }
 
   public AggregatedFrameworkStatus getAggregatedFrameworkStatus(String frameworkName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getAggregatedFrameworkStatusPath(frameworkName));
-    }, AggregatedFrameworkStatus.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.getAggregatedFrameworkStatusPath(frameworkName)),
+        AggregatedFrameworkStatus.class);
   }
 
   public FrameworkStatus getFrameworkStatus(String frameworkName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getFrameworkStatusPath(frameworkName));
-    }, FrameworkStatus.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.getFrameworkStatusPath(frameworkName)),
+        FrameworkStatus.class);
   }
 
   public AggregatedFrameworkRequest getAggregatedFrameworkRequest(String frameworkName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getAggregatedFrameworkRequestPath(frameworkName));
-    }, AggregatedFrameworkRequest.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.getAggregatedFrameworkRequestPath(frameworkName)),
+        AggregatedFrameworkRequest.class);
   }
 
   public FrameworkRequest getFrameworkRequest(String frameworkName) throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.getFrameworkRequestPath(frameworkName));
-    }, FrameworkRequest.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.getFrameworkRequestPath(frameworkName)),
+        FrameworkRequest.class);
   }
 
   public LauncherStatus getLauncherStatus() throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.LAUNCHER_STATUS_PATH);
-    }, LauncherStatus.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.LAUNCHER_STATUS_PATH),
+        LauncherStatus.class);
   }
 
   public LauncherRequest getLauncherRequest() throws Exception {
-    return executeWithRetry(() -> {
-      return webClient.get(WebStructure.LAUNCHER_REQUEST_PATH);
-    }, LauncherRequest.class);
+    return executeWithRetry(() -> webClient.get(
+        WebStructure.LAUNCHER_REQUEST_PATH),
+        LauncherRequest.class);
   }
 
   public void putDataDeploymentVersion(UpdateDataDeploymentVersionRequest updateDataDeploymentVersionRequest) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(updateDataDeploymentVersionRequest);
-      return webClient.put(
-          WebStructure.DATA_DEPLOYMENT_VERSION_PATH,
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(updateDataDeploymentVersionRequest));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.DATA_DEPLOYMENT_VERSION_PATH,
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(updateDataDeploymentVersionRequest)));
   }
 
   public void putClusterConfiguration(ClusterConfiguration clusterConfiguration) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(clusterConfiguration);
-      return webClient.put(
-          WebStructure.CLUSTER_CONFIGURATION_PATH,
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(clusterConfiguration));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.CLUSTER_CONFIGURATION_PATH,
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(clusterConfiguration)));
   }
 
   public void putAclConfiguration(AclConfiguration aclConfiguration) throws Exception {
-    executeWithRetry(() -> {
-      CommonValidation.validate(aclConfiguration);
-      return webClient.put(
-          WebStructure.ACL_CONFIGURATION_PATH,
-          ContentType.APPLICATION_JSON,
-          WebCommon.toJson(aclConfiguration));
-    });
+    executeWithRetry(() -> webClient.put(
+        WebStructure.ACL_CONFIGURATION_PATH,
+        ContentType.APPLICATION_JSON,
+        WebCommon.toJson(aclConfiguration)));
   }
 
   private Boolean shouldRetryCommon(WebClientOutput output) {

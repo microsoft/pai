@@ -110,10 +110,14 @@ public class ExitDiagnostics {
     DEF.put(ExitStatusKey.AM_KILLED_BY_USER, new ExitStatusValue(
         ExitStatusKey.AM_KILLED_BY_USER.toInt(),
         "AM Killed by User", ExitType.TRANSIENT_NORMAL));
-    // AM Internal TransientError: hdfs error, env error...
-    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR, new ExitStatusValue(
-        ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR.toInt(),
-        "AM internal transient error", ExitType.TRANSIENT_NORMAL));
+    // AM Internal TransientNormalError: hdfs error, env error...
+    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR, new ExitStatusValue(
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR.toInt(),
+        "AM internal transient normal error", ExitType.TRANSIENT_NORMAL));
+    // AM Internal TransientConflictError: gang allocation timeout...
+    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR, new ExitStatusValue(
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR.toInt(),
+        "AM internal transient conflict error", ExitType.TRANSIENT_CONFLICT));
     // AM Internal NonTransientError: requested resource exceeded cluster max resource...
     DEF.put(ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR.toInt(),
@@ -146,7 +150,8 @@ public class ExitDiagnostics {
         "Container aborted by the system, such as AM released, node lost, application completed, RM unreserved, etc.", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.CONTAINER_EXPIRED, new ExitStatusValue(
         -100,
-        mustContain("Container expired since it was unused") + " , maybe not enough containers can be allocated in time", ExitType.TRANSIENT_CONFLICT));
+        mustContain("Container expired since it was unused") +
+            " , maybe not enough containers can be allocated in time, please retry later", ExitType.TRANSIENT_CONFLICT));
     DEF.put(ExitStatusKey.CONTAINER_NODE_DISKS_FAILED, new ExitStatusValue(
         -101,
         "Container early discarded by NodeManager due to local bad disk, maybe no capacity left on the disk", ExitType.TRANSIENT_NORMAL));

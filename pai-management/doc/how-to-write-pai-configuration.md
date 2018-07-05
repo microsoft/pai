@@ -12,7 +12,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
 - [Set up cluster-configuration.yaml](#cluster_configuration)
 - [Set up k8s-role-definition.yaml](#k8s_role_definition)
 - [Set up kubernetes-configuration.yaml](#kubernetes_configuration)
-- [Set up serivices-configuration.yaml](#services_configuration)
+- [Set up services-configuration.yaml](#services_configuration)
 - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
 
 ## Set up cluster-configuration.yaml <a name="cluster_configuration"></a>
@@ -29,7 +29,7 @@ default-machine-properties:
   sshport: port
 ```
 
-Set the default value of username, password, and sshport in default-machine-properties. PAI will use these default values to access cluter machines. User can override the default access information for each machine in [machine-list](#m_list).
+Set the default value of username, password, and sshport in default-machine-properties. PAI will use these default values to access cluster machines. User can override the default access information for each machine in [machine-list](#m_list).
 
 ### ```machine-sku```
 
@@ -94,7 +94,7 @@ machine-list:
 - ```hostname```: Required. You could the hostname by the command ```echo `hostname` ``` on the host.
 - ```hostip```: Required. The ip address of the corresponding host.
 - ```machine-type```: Required. The sku name defined in the ```machine-sku```.
-- ```etcdid```: K8s-Master Required. The etcd is part of kuberentes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.
+- ```etcdid```: K8s-Master Required. The etcd is part of kubernetes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.
 - ```sshport, username, password```: Optional. Used if this machine's account and port is different from the default properties. Or you can remove them.
 - ```k8s-role```: Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](#k8s-high-availability-configuration).
 - ```dashboard```: Select one node to set this field. And set the value as ``` "true" ```.
@@ -133,7 +133,7 @@ kubernetes:
 
 ### ```User *must* set the following fields to bootstrap a cluster ```
 
-- ```cluster-dns```: Find the namesever address in  /etc/resolv.conf
+- ```cluster-dns```: Find the nameserver address in  /etc/resolv.conf
 - ```load-balance-ip```: If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).
 
 ### ```Some values could use the default value```
@@ -147,7 +147,7 @@ kubernetes:
 - ```kube-controller-manager-version```: The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)
 - ```dashboard-version```: The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)
 
-## Set up serivices-configuration.yaml <a name="services_configuration"></a>
+## Set up services-configuration.yaml <a name="services_configuration"></a>
 
 An example services-configuration.yaml file is available [here](../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
 
@@ -206,7 +206,8 @@ Users can browse to https://hub.docker.com/r/openpai to see all the repositories
 ```YAML
 hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
-  custom-hadoop-binary-path: /pathHadoop/
+  # Notice: the name should be hadoop-{hadoop-version}.tar.gz
+  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
   hadoop-version: 2.7.2
   virtualClusters:
     default:

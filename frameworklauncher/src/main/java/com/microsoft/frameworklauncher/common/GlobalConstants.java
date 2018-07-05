@@ -19,8 +19,6 @@ package com.microsoft.frameworklauncher.common;
 
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
-  public static final String LOGGER_CONFIG_FILE = "log4j.properties";
-  public static final String CONTAINER_IP_LIST_FILE = "ContainerIpList.ini";
   public static final String FRAMEWORK_INFO_FILE = "FrameworkInfo.json";
   public static final int USING_UNLIMITED_VALUE = -1;
   public static final int USING_EXTENDED_UNLIMITED_VALUE = -2;

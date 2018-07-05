@@ -35,6 +35,11 @@ public class FrameworkStateDefinition {
           FrameworkState.FRAMEWORK_COMPLETED
       )));
 
+  public static final Set<FrameworkState> OUTSTANDING_STATES = Collections.unmodifiableSet(
+      new HashSet<>(Arrays.asList(
+          FrameworkState.FRAMEWORK_WAITING
+      )));
+
   public static final Set<FrameworkState> APPLICATION_LIVE_ASSOCIATED_STATES = Collections.unmodifiableSet(
       new HashSet<>(Arrays.asList(
           FrameworkState.APPLICATION_CREATED,

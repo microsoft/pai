@@ -77,7 +77,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                 "password": quick_start_config["ssh-password"],
                 "sshport": quick_start_config["ssh-port"]
             },
-            "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2")
+            "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2 | head -n 1")
         quick_start_config["dns"] = result_stdout.strip()
     #
     # Auto-complete missing configuration items: Part 2 -- hostnames.
