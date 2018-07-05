@@ -52,7 +52,7 @@ class TestGPUExporter(unittest.TestCase):
 
     def tearDown(self):
         try:
-            #os.chdir(os.path.abspath(".."))
+            os.chdir(os.path.abspath(".."))
         except:
             pass
 

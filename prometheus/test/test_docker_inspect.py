@@ -17,8 +17,8 @@
 
 import os
 import unittest
-import sys
-sys.path.append("..")
+#import sys
+#sys.path.append("..")
 from exporter.docker_inspect import parse_docker_inspect
 
 class TestDockerInspect(unittest.TestCase):

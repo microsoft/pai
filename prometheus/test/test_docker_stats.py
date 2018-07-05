@@ -17,8 +17,8 @@
 
 import os
 import unittest
-import sys
-sys.path.append("..")
+#import sys
+#sys.path.append("..")
 from exporter.docker_stats import parse_docker_stats
 from exporter.docker_stats import convert_to_byte
 from exporter.docker_stats import parse_usage_limit
