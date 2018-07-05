@@ -53,7 +53,7 @@ class TestGPUExporter(unittest.TestCase):
         nvidia_smi_result = file.read()
         output_dir = "data"
         nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result, output_dir)
-        target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '3': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '2': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '5': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '4': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
+        target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
         pass
 
