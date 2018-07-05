@@ -558,12 +558,12 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
 
       // Initialize new Framework: Add or NonRolling Upgrade Framework
       if (!frameworkStatuses.containsKey(frameworkName)) {
-        LOGGER.logDebug(logPrefix + "Add new Framework");
+        LOGGER.logInfo(logPrefix + "Add new Framework");
         addFramework(frameworkRequest);
       } else {
         FrameworkStatus frameworkStatus = frameworkStatuses.get(frameworkName);
         if (!frameworkStatus.getFrameworkVersion().equals(frameworkVersion)) {
-          LOGGER.logDebug(logPrefix + "NonRolling Upgrade Framework");
+          LOGGER.logInfo(logPrefix + "NonRolling Upgrade Framework");
           upgradeFramework(frameworkRequest);
         }
       }
@@ -582,7 +582,7 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
           frameworkName, frameworkVersion);
 
       if (!frameworkRequests.containsKey(frameworkName)) {
-        LOGGER.logDebug(logPrefix + "Remove Framework permanently");
+        LOGGER.logInfo(logPrefix + "Remove Framework permanently");
         removeFramework(frameworkName, false);
       }
     }

@@ -840,7 +840,7 @@ public class ApplicationMaster extends AbstractService {
       if (fancyRetryPolicy) {
         // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
         // Leave exit due to others to NormalRetryPolicy
-        LOGGER.logWarning(logPrefix +
+        LOGGER.logInfo(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
@@ -859,7 +859,7 @@ public class ApplicationMaster extends AbstractService {
       return;
     } else {
       if (exitType == ExitType.SUCCEEDED) {
-        LOGGER.logWarning(completeTaskLogPrefix +
+        LOGGER.logInfo(completeTaskLogPrefix +
             "Task exited due to %s.", exitType);
         completeTask(taskStatus);
         return;

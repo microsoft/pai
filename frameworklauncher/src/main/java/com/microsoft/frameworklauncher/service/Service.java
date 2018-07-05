@@ -744,7 +744,7 @@ public class Service extends AbstractService {
       if (fancyRetryPolicy) {
         // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
         // Leave exit due to others to NormalRetryPolicy
-        LOGGER.logWarning(logPrefix +
+        LOGGER.logInfo(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
@@ -763,7 +763,7 @@ public class Service extends AbstractService {
       return;
     } else {
       if (exitType == ExitType.SUCCEEDED) {
-        LOGGER.logWarning(completeFrameworkLogPrefix +
+        LOGGER.logInfo(completeFrameworkLogPrefix +
             "Framework exited due to %s.", exitType);
         completeFramework(frameworkStatus);
         return;
