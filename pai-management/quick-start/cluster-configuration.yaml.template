@@ -46,10 +46,7 @@ machine-list:
     pai-master: "true"
   {%- else %}
     k8s-role: worker
-    pai-worker: "true"
   {%- endif %}
-  {%- if loop.length == 1 %}
     pai-worker: "true"
-  {%- endif %}
     node-exporter: "true"
 {%- endfor %}
