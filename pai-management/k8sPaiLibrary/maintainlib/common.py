@@ -160,6 +160,8 @@ def sftp_paramiko(src, dst, filename, host_config):
     stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
     stdin.write(password + '\n')
     stdin.flush()
+    for response_msg in stdout:
+        print(response_msg.encode('utf-8').strip('\n'))
 
     ssh.close()
 
@@ -206,7 +208,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     result_stdout = ""
     for response_msg in stdout:
         result_stdout += response_msg
-        print(response_msg.strip('\n'))
+        print(response_msg.encode('utf-8').strip('\n'))
     result_stderr = ""
     for response_msg in stderr:
         result_stderr += response_msg
@@ -237,6 +239,8 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     stdin.write(password + '\n')
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
+    for response_msg in stdout:
+        print (response_msg.encode('utf-8').strip('\n'))
 
     ssh.close()
     return True
