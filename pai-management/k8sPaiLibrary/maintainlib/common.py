@@ -29,6 +29,7 @@ import tarfile
 import socket
 import logging
 import time
+import etcd
 import logging.config
 
 
@@ -331,3 +332,68 @@ def maintain_package_cleaner(node_config):
         "rm -rf parcel-center/{0}".format(node_config['nodename']),
         "Failed to remove parcel-center/{0}".format(node_config['nodename'])
     )
+
+
+
+def get_etcd_leader_node(cluster_config):
+
+    # Get leader node.
+    host_list = list()
+
+    for host in cluster_config['mastermachinelist']:
+        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+
+    client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
+
+    etcdid = client.leader['name']
+    for host in cluster_config['mastermachinelist']:
+        if etcdid == cluster_config['mastermachinelist'][host]['etcdid']:
+            logger.debug("Current leader of etcd-cluster: {0}".format(cluster_config['mastermachinelist'][host]))
+            return cluster_config['mastermachinelist'][host]
+
+    logger.error("Can't find the leader of etcd.")
+    return None
+
+
+
+def get_new_etcd_peer_ip_list(cluster_config, new_node_config):
+
+    etcd_cluster_ips_peer = ""
+    separated = ""
+
+    host_list = list()
+    for host in cluster_config['mastermachinelist']:
+        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+
+    client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
+
+    member_dict = client.members
+    for member_hash in member_dict:
+
+        etcd_id = member_dict[member_hash]['name']
+        peer_url = member_dict[member_hash]['peerURLs'][0]
+
+        if etcd_id == "":
+            # new member before announcing, etcdid will be empty.
+            continue
+
+    if new_node_config != None:
+
+        ip_peer = "{0}={1}".format(etcd_id, peer_url)
+        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+        separated = ","
+
+        new_etcd_id = new_node_config['etcdid']
+        peer_url = new_node_config['hostip']
+        ip_peer = "{0}=http://{1}:2380".format(new_etcd_id, peer_url)
+        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+
+        logger.debug("New etcd-initial-cluster: {0}".format(etcd_cluster_ips_peer))
+
+    return etcd_cluster_ips_peer
+
+
+
+def get_etcd_peer_ip_list(cluster_config):
+
+    return get_new_etcd_peer_ip_list(cluster_config)
