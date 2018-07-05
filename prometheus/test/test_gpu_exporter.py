@@ -17,38 +17,20 @@
 
 import os
 import unittest
-import sys
 import yaml
 import logging
 import logging.config
-#sys.path.append("..")
-print(sys.path)
-#from exporter import gpu_exporter
+from exporter import gpu_exporter
 
 class TestGPUExporter(unittest.TestCase):
     """
-    Test docker_inspect.py
+    Test gpu_exporter.py
     """
     def setUp(self):
         try:
-
             os.chdir(os.path.abspath("test"))
-
         except:
-
             pass
-
-        configuration_path = "test_logging.yaml"
-
-        if os.path.exists(configuration_path):
-            with open(configuration_path, 'rt') as f:
-                logging_configuration = yaml.safe_load(f.read())
-
-            logging.config.dictConfig(logging_configuration)
-
-            self.logger = logging.getLogger()
-
-        os.chdir(os.path.abspath(".."))
 
     def tearDown(self):
         try:
@@ -57,18 +39,13 @@ class TestGPUExporter(unittest.TestCase):
             pass
 
     def test_parse_smi_xml_result(self):
-        import sys
-        #sys.path.append("..")
-        #logger = logging.getLogger()
-        self.logger.info(sys.path)
-        from exporter import gpu_exporter
-        # sample_path = "data/nvidia_smi_sample.xml"
-        # file = open(sample_path, "r")
-        # nvidia_smi_result = file.read()
-        # output_dir = "data"
-        # nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result, output_dir)
-        # target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '3': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '2': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '5': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '4': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
-        # self.assertEqual(target_smi_info, nvidia_smi_parse_result)
+        sample_path = "data/nvidia_smi_sample.xml"
+        file = open(sample_path, "r")
+        nvidia_smi_result = file.read()
+        output_dir = "data"
+        nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result, output_dir)
+        target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '3': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '2': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '5': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '4': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
+        self.assertEqual(target_smi_info, nvidia_smi_parse_result)
         pass
 
 if __name__ == '__main__':
