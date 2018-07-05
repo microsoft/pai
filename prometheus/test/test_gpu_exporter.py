@@ -32,6 +32,15 @@ class TestGPUExporter(unittest.TestCase):
         except:
             pass
 
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+            logging.config.dictConfig(logging_configuration)
+            logging.getLogger()
+
+
     def tearDown(self):
         try:
             os.chdir(os.path.abspath(".."))

@@ -17,6 +17,9 @@
 
 import os
 import unittest
+import yaml
+import logging
+import logging.config
 from exporter.docker_inspect import parse_docker_inspect
 
 class TestDockerInspect(unittest.TestCase):
@@ -28,6 +31,15 @@ class TestDockerInspect(unittest.TestCase):
             os.chdir(os.path.abspath("test"))
         except:
             pass
+
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+            logging.config.dictConfig(logging_configuration)
+            logging.getLogger()
+
 
     def tearDown(self):
         try:

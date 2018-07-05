@@ -17,6 +17,9 @@
 
 import os
 import unittest
+import yaml
+import logging
+import logging.config
 from exporter.docker_stats import parse_docker_stats
 from exporter.docker_stats import convert_to_byte
 from exporter.docker_stats import parse_usage_limit
@@ -25,13 +28,21 @@ from exporter.docker_stats import parse_percentile
 
 class TestDockerStats(unittest.TestCase):
     """
-    Test docker_inspect.py
+    Test docker_stats.py
     """
     def setUp(self):
         try:
             os.chdir(os.path.abspath("test"))
         except:
             pass
+
+        configuration_path = "test_logging.yaml"
+
+        if os.path.exists(configuration_path):
+            with open(configuration_path, 'rt') as f:
+                logging_configuration = yaml.safe_load(f.read())
+            logging.config.dictConfig(logging_configuration)
+            logging.getLogger()
 
     def tearDown(self):
         try:
