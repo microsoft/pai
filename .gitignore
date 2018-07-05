@@ -21,3 +21,5 @@ tmp/
 dist/
 __pycache__
 *.pyc
+*.swp
+*.swo
