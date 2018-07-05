@@ -106,7 +106,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
    * REGION InternalUtils
    */
   private void pullStatus() throws Exception {
-    LOGGER.logInfo("Pulling AggregatedLauncherStatus");
+    LOGGER.logDebug("Pulling AggregatedLauncherStatus");
 
     Map<String, AggregatedFrameworkStatus> reusableAggFrameworkStatuses =
         getReusableAggregatedFrameworkStatuses();
@@ -122,7 +122,7 @@ public class StatusManager extends AbstractService { // THREAD SAFE
     newAggFrameworkStatuses.putAll(nonreusableAggFrameworkStatuses);
     aggFrameworkStatuses = CommonExts.asReadOnly(newAggFrameworkStatuses);
 
-    LOGGER.logInfo("Pulled AggregatedLauncherStatus: " +
+    LOGGER.logDebug("Pulled AggregatedLauncherStatus: " +
             "AggregatedFrameworkStatus Reused Percentage: [%s / %s]",
         reusableAggFrameworkStatuses.size(), aggFrameworkStatuses.size());
 
