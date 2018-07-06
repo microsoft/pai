@@ -27,6 +27,8 @@ import time
 import logging
 import logging.config
 
+from . import common as pai_common
+
 
 
 package_directory_remove = os.path.dirname(os.path.abspath(__file__))
@@ -53,19 +55,19 @@ class remove:
 
 
 
-    def prepare_package(self):
+    def prepare_package(self, node_config, jobname):
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, self.node_config, self.jobname)
-
-
-
-    def delete_packege(self):
-
-        common.maintain_package_cleaner(self.node_config)
+        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, jobname)
 
 
 
-    def job_executer(self):
+    def delete_packege(self, node_config):
+
+        common.maintain_package_cleaner(node_config)
+
+
+
+    def job_executer_clean_up_node(self):
 
         self.logger.info("{0} job begins !".format(self.jobname))
 
@@ -97,29 +99,122 @@ class remove:
 
 
 
-    def remote_host_cleaner(self):
+    def remote_host_cleaner(self, node_config, jobname):
 
-        commandline = "sudo rm -rf {0}*".format(self.jobname)
+        commandline = "sudo rm -rf {0}*".format(jobname)
 
-        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
+        if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             return
 
 
 
-    def run(self):
+    def job_execute_stop_etcd_on_target_node(self):
 
         self.logger.info("---- package wrapper is working now! ----")
-        self.prepare_package()
+        self.prepare_package(self.node_config, "stop-etcd-on-target-node")
         self.logger.info("---- package wrapper's work finished ----")
 
-        self.job_executer()
+        self.logger.info("Begin to execute the job : stop-etcd-on-target-node.")
+        self.logger.info("Stop the etcd server on host [{0}]".format(self.node_config['nodename']))
+
+        script_package = "stop-etcd-on-target-node.tar"
+        src_local = "parcel-center/{0}".format(self.node_config["nodename"])
+        dst_remote = common.get_user_dir(self.node_config)
+
+        if common.sftp_paramiko(src_local, dst_remote, script_package, self.node_config) == False:
+            return
+
+        commandline = "tar -xvf {0}.tar && sudo /bin/bash {0}/stop-etcd-server.sh".format("stop-etcd-on-target-node")
+
+        if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
+            return
+
+        self.logger.info("Successfully stoping etcd server on node {0}".format(self.node_config["nodename"]))
 
         if self.clean_flag == True:
             self.logger.info("---- package cleaner is working now! ----")
-            self.delete_packege()
+            self.delete_packege(self.node_config)
             self.logger.info("---- package cleaner's work finished! ----")
 
             self.logger.info("---- remote host cleaner is working now! ----")
-            self.remote_host_cleaner()
+            self.remote_host_cleaner(self.node_config, "stop-etcd-on-target-node")
+            self.logger.info("---- remote host cleaning job finished! ")
+
+
+
+    def job_execute_remove_node_from_etcd_cluster(self):
+
+        # Waiting for the bad node to remove from leader.
+        while True:
+
+            leader_node_config = pai_common.get_etcd_leader_node()
+
+            if leader_node_config == None:
+                self.logger.error("Failed to find the leader node in the etcd cluster")
+                return False
+
+            if leader_node_config['nodename'] != self.node_config['nodename']:
+                break
+
+        self.prepare_package(leader_node_config, "remove-node-from-etcd-cluster")
+
+        self.logger.info("Begin to execute the job : remove-node-from-etcd-cluster.")
+        self.logger.info("Update etcd cluster on host [{0}].".format(leader_node_config['nodename']))
+
+        script_package = "remove-node-from-etcd-cluster.tar"
+        src_local = "parcel-center/{0}".format(leader_node_config["nodename"])
+        dst_remote = common.get_user_dir(leader_node_config)
+
+        if common.sftp_paramiko(src_local, dst_remote, script_package, leader_node_config) == False:
+            return
+
+        commandline = "tar -xvf {0}.tar".format("remove-node-from-etcd-cluster")
+        if common.ssh_shell_with_password_input_paramiko(leader_node_config, commandline) == False:
+            return
+
+        commandline = "sudo /bin/bash {0}/{1}.sh {2} {3}".format("remove-node-from-etcd-cluster",
+                                                                 "remove-member-from-etcd-cluster",
+                                                                 self.node_config['hostip'],
+                                                                 self.node_config['etcdid'])
+        if common.ssh_shell_with_password_input_paramiko(leader_node_config, commandline) == False:
+            return
+
+        self.logger.info("Successfully remove target node from etcd cluster on node {0}".format(leader_node_config["nodename"]))
+
+        if self.clean_flag == True:
+            self.logger.info("---- package cleaner is working now! ----")
+            self.delete_packege(leader_node_config)
+            self.logger.info("---- package cleaner's work finished! ----")
+
+            self.logger.info("---- remote host cleaner is working now! ----")
+            self.remote_host_cleaner(leader_node_config, "remove-node-from-etcd-cluster")
+            self.logger.info("---- remote host cleaning job finished! ")
+
+
+    def run(self):
+
+        if self.node_config['k8s-role'] == "true":
+            self.logger.info("The target node is master node.")
+
+            self.logger.info("Task one before cleanup the node: stop target node's etcd.")
+            self.job_execute_stop_etcd_on_target_node()
+
+            self.logger.info("Task two before cleanup the node: remove target node from etcd cluster")
+            self.job_execute_remove_node_from_etcd_cluster()
+
+
+        self.logger.info("---- package wrapper is working now! ----")
+        self.prepare_package(self.node_config, self.jobname)
+        self.logger.info("---- package wrapper's work finished ----")
+
+        self.job_executer_clean_up_node()
+
+        if self.clean_flag == True:
+            self.logger.info("---- package cleaner is working now! ----")
+            self.delete_packege(self.node_config)
+            self.logger.info("---- package cleaner's work finished! ----")
+
+            self.logger.info("---- remote host cleaner is working now! ----")
+            self.remote_host_cleaner(self.node_config, self.jobname)
             self.logger.info("---- remote host cleaning job finished! ")
 
