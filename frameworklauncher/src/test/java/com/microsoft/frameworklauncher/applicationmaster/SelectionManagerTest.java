@@ -62,9 +62,7 @@ public class SelectionManagerTest {
     Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node4 = new Node("node4", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
-    Node node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0xFFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
     Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    Node node10 = new Node("node10", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
 
     MockApplicationMaster am = new MockApplicationMaster();
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
@@ -164,9 +162,9 @@ public class SelectionManagerTest {
     node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     node4 = new Node("node4", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
-    node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0x3L), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+    Node node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0x3L), ResourceDescriptor.newInstance(0, 0, 1, 1L));
     node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
-    node10 = new Node("node10", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+    Node node10 = new Node("node10", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
 
     SelectionManager packSelctionManager = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
 
