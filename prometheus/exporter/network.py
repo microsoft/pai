@@ -37,7 +37,9 @@ def convert_to_byte(data):
     else: 
         return number
 
-def parse_iftop(stats):
+# iftop return 2s, 10s, 40s connection duration data.
+# connectionBytesDuration only could be set as 40, 10 or 2. 
+def parse_iftop(stats, connectionBytesDuration = 40):
     connectionDic = {}
     data = [line.split(',') for line in stats.splitlines()]
 
@@ -71,8 +73,17 @@ def parse_iftop(stats):
             desIPPort = desAddress[0]
 
         connection = srcIPPort + "|" + desIPPort
-        lastOutDataSize = convert_to_byte(srcSplit[-3].strip())
-        lastInDataSize = convert_to_byte(desSplit[-3].strip())
+
+        index = -3
+        if connectionBytesDuration == 40:
+            index = -3
+        if connectionBytesDuration == 10:
+            index = -4
+        if connectionBytesDuration == 2:
+            index = -5   
+
+        lastOutDataSize = convert_to_byte(srcSplit[index].strip())
+        lastInDataSize = convert_to_byte(desSplit[index].strip())
         connectionDic[connection] = {"inSize": lastInDataSize, "outSize": lastOutDataSize, "src": srcIPPort, "out": desIPPort}
         index += 2
     return connectionDic

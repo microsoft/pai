@@ -56,7 +56,7 @@ def parse_from_env(envs):
 
     return envStr
 
-def gen_job_metrics(logDir, gpuMetrics, connectionDic):
+def gen_job_metrics(logDir, gpuMetrics, connectionDic, connectionBytesDurtion = 40):
     stats = docker_stats.stats()
     outputFile = open(logDir + "/job_exporter.prom", "w")
     for container in stats:
@@ -81,8 +81,11 @@ def gen_job_metrics(logDir, gpuMetrics, connectionDic):
         inSize, outSize = network.acc_per_container_network_metrics(connectionDic, pid)
         # iftop could get last 2s, 10s, 40s connection transform bytes.
         # leverage iftop cmd get last 40s connection transform bytes.So inSize / 40.
-        inBandwidth = inSize / 40
-        outBandwidth = outSize / 40
+        if connectionBytesDurtion != 40 and connectionBytesDurtion != 10 and connectionBytesDurtion != 2:
+            connectionBytesDurtion = 40
+
+        inBandwidth = inSize / connectionBytesDurtion
+        outBandwidth = outSize / connectionBytesDurtion
         containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, inBandwidth)
         containerNetOut = 'container_NetOut{{{0}}} {1}\n'.format(labelStr, outBandwidth)
         containerBlockIn = 'container_BlockIn{{{0}}} {1}\n'.format(labelStr, stats[container]["BlockIO"]["in"])
