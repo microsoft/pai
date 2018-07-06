@@ -377,11 +377,12 @@ def get_new_etcd_peer_ip_list(cluster_config, new_node_config):
             # new member before announcing, etcdid will be empty.
             continue
 
-    if new_node_config != None:
-
         ip_peer = "{0}={1}".format(etcd_id, peer_url)
         etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
         separated = ","
+
+
+    if new_node_config != None:
 
         new_etcd_id = new_node_config['etcdid']
         peer_url = new_node_config['hostip']

@@ -337,7 +337,7 @@ def pai_machine():
             add_worker.run()
 
             if host['k8s-role'] == 'master':
-                logger.error("Master Node is added, sleep 60s to wait it ready.")
+                logger.info("Master Node is added, sleep 60s to wait it ready.")
                 time.sleep(60)
 
 
