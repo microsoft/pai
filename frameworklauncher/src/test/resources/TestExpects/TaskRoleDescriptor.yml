@@ -1,6 +1,6 @@
 !!com.microsoft.frameworklauncher.common.model.TaskRoleDescriptor
 applicationCompletionPolicy: {minFailedTaskCount: 0, minSucceededTaskCount: 0}
-platformSpecificParameters: {samePortsAllocation: false, taskNodeGpuType: testString,
+platformSpecificParameters: {samePortAllocation: false, taskNodeGpuType: testString,
   taskNodeLabel: testString}
 scaleUnitNumber: 0
 scaleUnitTimeoutSec: 0

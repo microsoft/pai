@@ -54,7 +54,7 @@ public class ChangeAwareLogger {
 
     if (!changedLogLevels.containsKey(scope)) {
       throw new Exception(String.format(
-          "Scope [%1$s] is not initialized for before log it.", scope));
+          "Scope [%s] is not initialized for before log it.", scope));
     }
 
     if (lastLogs.containsKey(scope) && lastLogs.get(scope).equals(msg)) {
@@ -75,7 +75,7 @@ public class ChangeAwareLogger {
     }
 
     if (lastLogsCurrentSizeBytes > LAST_LOGS_MAX_SIZE_BYTES) {
-      LOGGER.logWarning("The current last log size %1$s exceed limit %2$s, clear it. " +
+      LOGGER.logWarning("The current last log size %s exceed limit %s, clear it. " +
               "Future info logs may contain unchanged log.",
           lastLogsCurrentSizeBytes, LAST_LOGS_MAX_SIZE_BYTES);
 

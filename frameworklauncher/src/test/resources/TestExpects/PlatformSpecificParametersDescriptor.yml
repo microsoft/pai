@@ -20,7 +20,7 @@ amType: DEFAULT
 antiaffinityAllocation: false
 containerConnectionMaxExceedCount: 0
 containerConnectionMaxLostCount: 0
-generateContainerIpList: false
+gangAllocation: false
 queue: testString
 skipLocalTriedResource: false
 taskNodeGpuType: testString

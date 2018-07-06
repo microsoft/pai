@@ -56,7 +56,7 @@ public class StopStatus {
 
   public String toString() {
     return String.format(
-        "code = [%1$s], needUnregister = [%2$s], diagnostics = [%3$s], Exception = [%4$s]",
+        "code = [%s], needUnregister = [%s], diagnostics = [%s], Exception = [%s]",
         code, needUnregister, diagnostics, exception);
   }
 }

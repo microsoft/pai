@@ -24,7 +24,8 @@ public enum ExitType implements Serializable {
   SUCCEEDED,
 
   // Failed, and it can ensure that it will success within a finite retry times:
-  // such as hdfs error, env error, machine error, connection error...
+  // such as dependent components shutdown, machine error, network error,
+  // configuration error, environment error...
   TRANSIENT_NORMAL,
 
   // A special TRANSIENT_NORMAL which indicate the exit due to resource conflict

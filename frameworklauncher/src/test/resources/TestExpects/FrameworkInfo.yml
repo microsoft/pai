@@ -29,7 +29,7 @@ aggregatedFrameworkRequest:
         antiaffinityAllocation: false
         containerConnectionMaxExceedCount: 0
         containerConnectionMaxLostCount: 0
-        generateContainerIpList: false
+        gangAllocation: false
         queue: testString
         skipLocalTriedResource: false
         taskNodeGpuType: testString
@@ -41,7 +41,7 @@ aggregatedFrameworkRequest:
       taskRoles:
         testString:
           applicationCompletionPolicy: {minFailedTaskCount: 0, minSucceededTaskCount: 0}
-          platformSpecificParameters: {samePortsAllocation: false, taskNodeGpuType: testString,
+          platformSpecificParameters: {samePortAllocation: false, taskNodeGpuType: testString,
             taskNodeLabel: testString}
           scaleUnitNumber: 0
           scaleUnitTimeoutSec: 0

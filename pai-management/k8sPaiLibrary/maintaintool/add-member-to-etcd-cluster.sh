@@ -1,4 +1,4 @@
-!!com.microsoft.frameworklauncher.common.model.LauncherConfiguration
+#!/bin/bash
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,31 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Common Setup
-zkConnectString: {ZOOKEEPER_ADDRESS}:2181
-zkRootDir: /Launcher
-hdfsRootDir: /Launcher
+bad_member_ip=$1
+bad_member_etcd_id=$2
 
-# Service Setup
-serviceRMResyncIntervalSec: 20
-serviceRequestPullIntervalSec: 20
+target_id=`docker ps --filter "name=container_etcd-server" -q`
 
-# Application Setup
-applicationRetrieveDiagnosticsRetryIntervalSec: 20
-applicationRetrieveDiagnosticsMaxRetryCount: 15
-applicationTransientConflictMinDelaySec: 600
-applicationTransientConflictMaxDelaySec: 3600
-
-# Framework Setup
-frameworkCompletedRetainSec: 2592000
-
-# ApplicationMaster Setup
-amRmResyncFrequency: 6
-amRequestPullIntervalSec: 20
-amStatusPushIntervalSec: 20
-amFrameworkInfoPublishIntervalSec: 20
-amGangAllocationTimeoutSec: 1100
-
-# WebServer Setup
-webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}
-webServerStatusPullIntervalSec: 20
+docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380

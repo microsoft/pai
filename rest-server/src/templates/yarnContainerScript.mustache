@@ -23,7 +23,7 @@
 docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
-exec 13>$LOG_DIRS/YarnContainerDebug.log
+exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
 function exit_handler()
@@ -194,7 +194,7 @@ fi
 
 # Prepare docker debug log
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
-ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LOG_DIRS/DockerContainerDebug.log
+ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
 
 # Pull docker image and run

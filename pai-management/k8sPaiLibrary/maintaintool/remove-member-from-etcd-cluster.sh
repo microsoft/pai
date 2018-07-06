@@ -27,10 +27,3 @@ echo etcd bad member hash code: $bad_member_hash
 
 docker exec -it $target_id etcdctl member remove $bad_member_hash
 echo etcd bad member $bad_member_hash is removed from cluster
-
-
-docker exec -it $target_id etcdctl member add $bad_member_etcd_id http://$bad_member_ip:2380
-
-
-
-

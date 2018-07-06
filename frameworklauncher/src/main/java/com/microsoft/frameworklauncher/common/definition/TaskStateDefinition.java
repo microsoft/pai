@@ -35,6 +35,12 @@ public class TaskStateDefinition {
           TaskState.TASK_COMPLETED
       )));
 
+  public static final Set<TaskState> OUTSTANDING_STATES = Collections.unmodifiableSet(
+      new HashSet<>(Arrays.asList(
+          TaskState.TASK_WAITING,
+          TaskState.CONTAINER_REQUESTED
+      )));
+
   public static final Set<TaskState> CONTAINER_LIVE_ASSOCIATED_STATES = Collections.unmodifiableSet(
       new HashSet<>(Arrays.asList(
           TaskState.CONTAINER_ALLOCATED,
