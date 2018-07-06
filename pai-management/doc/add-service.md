@@ -48,7 +48,7 @@ It will not guide you to write a dockerfile. If you a new developer of docker, p
 
 In this tutorial, we have prepared the docker image in the path following. Note the file ```image.yaml``` isn't part of docker image. It's pai's configuration file.
 
-[Hbase docker image code](add-service/src/hbase)
+[Hbase docker image code](example/add-service/src/hbase)
 
 
 #### Write PAI's Image Configuration <a name="Image_Configuration"></a>
