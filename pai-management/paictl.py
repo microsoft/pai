@@ -19,6 +19,7 @@
 
 from __future__ import print_function
 
+import time
 import sys
 import argparse
 import logging
@@ -335,11 +336,9 @@ def pai_machine():
             add_worker = add.add(cluster_object_model_k8s, host, True)
             add_worker.run()
 
-
-
-
-
-
+            if host['k8s-role'] == 'master':
+                time.sleep(60)
+                logger.error("Master Node is added, sleep 60s to wait it ready.")
 
 
 
