@@ -48,31 +48,25 @@ public class Node implements Comparable<Node> {
         ResourceDescriptor.fromResource(nodeReport.getUsed()));
   }
 
-  // Compare two node's AvailableResource,  order is Gpu, Cpu, Memory
+  // Compare two node gpu resource.
+  // Fist compare two nodes total Gpu resource,
+  // Then compare two nodes available Gpu resource.
   @Override
   public int compareTo(Node other) {
     if (other == null) {
       return -1;
     }
 
-    ResourceDescriptor thisAvailableResource = this.getAvailableResource();
-    ResourceDescriptor otherAvailableResource = other.getAvailableResource();
-
-    if (thisAvailableResource.getGpuNumber() > otherAvailableResource.getGpuNumber())
+    if (this.getTotalResource().getGpuNumber() > other.getTotalResource().getGpuNumber()) {
       return 1;
-    if (thisAvailableResource.getGpuNumber() < otherAvailableResource.getGpuNumber()) {
+    }
+    if (this.getTotalResource().getGpuNumber() < other.getTotalResource().getGpuNumber()) {
       return -1;
     }
-    if (thisAvailableResource.getCpuNumber() > otherAvailableResource.getCpuNumber()) {
+    if (this.getAvailableResource().getGpuNumber() > other.getAvailableResource().getGpuNumber()) {
       return 1;
     }
-    if (thisAvailableResource.getCpuNumber() < otherAvailableResource.getCpuNumber()) {
-      return -1;
-    }
-    if (thisAvailableResource.getMemoryMB() > otherAvailableResource.getMemoryMB()) {
-      return 1;
-    }
-    if (thisAvailableResource.getMemoryMB() < otherAvailableResource.getMemoryMB()) {
+    if (this.getAvailableResource().getGpuNumber() < other.getAvailableResource().getGpuNumber()) {
       return -1;
     }
     return 0;
