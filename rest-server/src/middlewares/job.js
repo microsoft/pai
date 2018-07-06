@@ -18,8 +18,8 @@
 
 // module dependencies
 const param = require('./parameter');
-const logger = require('../config/logger');
 const jobConfig = require('../config/job');
+const createError = require('../util/error');
 
 
 const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
@@ -29,13 +29,8 @@ const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
   }
   const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
   if (killAllOnCompletedTaskNumber > tasksNumber) {
-    const errorType = 'ParameterValidationError';
     const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
-    logger.warn('[%s] %s', errorType, errorMessage);
-    return res.status(500).json({
-      error: errorType,
-      message: errorMessage,
-    });
+    next(createError('Bad Request', 'ERR_INVALID_PARAMETERS', errorMessage));
   } else {
     next();
   }

@@ -24,6 +24,7 @@ const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
+const createError = require('../util/error');
 
 const Hdfs = require('../util/hdfs');
 
@@ -80,6 +81,9 @@ class Job {
         try {
           const resJson = typeof res.body === 'object' ?
             res.body : JSON.parse(res.body);
+          if (res.status !== 200) {
+            return next(null, createError(res.status, 'ERR_UNKNOWN', res.raw_body));
+          }
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['succeededRetriedCount', 'transientNormalRetriedCount', 'transientConflictRetriedCount',
@@ -119,9 +123,9 @@ class Job {
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
-            next(null, new Error('JobNotFound'));
+            next(null, createError('Not Found', 'ERR_NO_JOB', `Job ${name} not found.`));
           } else {
-            next(null, new Error('InternalServerError'));
+            next(null, createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
           }
         } catch (error) {
           next(null, error);
@@ -137,32 +141,23 @@ class Job {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
-      if (!error) {
-        this._initializeJobContextRootFolders((error, result) => {
-          if (!error) {
-            this._prepareJobContext(name, data, (error, result) => {
-              if (!error) {
-                unirest.put(launcherConfig.frameworkPath(name))
-                  .headers(launcherConfig.webserviceRequestHeaders)
-                  .send(this.generateFrameworkDescription(data))
-                  .end((res) => {
-                    if (res.status === 202) {
-                      next();
-                    } else {
-                      next(new Error('[Launcher] ' + res.status + ' ' + JSON.stringify(res.body)));
-                    }
-                  });
+      if (error) return next(error);
+      this._initializeJobContextRootFolders((error, result) => {
+        if (error) return next(error);
+        this._prepareJobContext(name, data, (error, result) => {
+          if (error) return next(error);
+          unirest.put(launcherConfig.frameworkPath(name))
+            .headers(launcherConfig.webserviceRequestHeaders)
+            .send(this.generateFrameworkDescription(data))
+            .end((res) => {
+              if (res.status === 202) {
+                next();
               } else {
-                next(error);
+                next(createError(res.status, 'ERR_UNKNOWN', res.raw_body));
               }
             });
-          } else {
-            next(error);
-          }
         });
-      } else {
-        next(error);
-      }
+      });
     });
   }
 
@@ -172,14 +167,19 @@ class Job {
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
-        if (!requestResJson.frameworkDescriptor) {
-          next(new Error('unknown job'));
+        if (requestRes.status !== 200) {
+          next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.delete(launcherConfig.frameworkPath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
-            .end(() => next());
+            .end((requestRes) => {
+              if (requestRes.status !== 202) {
+                return next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+              }
+              next();
+            });
         } else {
-          next(new Error('can not delete other user\'s job'));
+          next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${data.username} is not allowed to remove job ${name}.`));
         }
       });
   }
@@ -190,15 +190,20 @@ class Job {
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
-        if (!requestResJson.frameworkDescriptor) {
-          next(new Error('unknown job'));
+        if (requestRes.status !== 200) {
+          next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .send({'executionType': data.value})
-            .end((res) => next());
+            .end((requestRes) => {
+              if (requestRes.status !== 202) {
+                return next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+              }
+              next();
+            });
         } else {
-          next(new Error('can not execute other user\'s job'));
+          next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${data.username} is not allowed to execute job ${name}.`));
         }
       });
   }

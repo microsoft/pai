@@ -22,8 +22,8 @@ const config = require('../config/index');
 const dbUtility = require('../util/dbUtil');
 const etcdConfig = require('../config/etcd');
 const logger = require('../config/logger');
-const VirtualCluster = require('./vc');
 const createError = require('../util/error');
+const VirtualCluster = require('./vc');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -187,7 +187,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
 
 const checkUserVc = (username, virtualCluster, callback) => {
   if (typeof username === 'undefined') {
-    callback(new Error('user does not exist'), false);
+    callback(createError('Unauthorized', 'ERR_UNAUTHORIZED_USER', 'Guest is not allowed to do this operation.'));
   } else {
     virtualCluster = (!virtualCluster) ? 'default' : virtualCluster;
     if (virtualCluster === 'default') {
@@ -195,16 +195,17 @@ const checkUserVc = (username, virtualCluster, callback) => {
     } else {
       VirtualCluster.prototype.getVcList((vcList, err) => {
         if (err) {
-          logger.warn('get virtual cluster list error\n%s', err.stack);
+          return callback(err);
         } else if (!vcList) {
+          // Unreachable
           logger.warn('list virtual clusters error, no virtual cluster found');
         } else {
           if (!vcList.hasOwnProperty(virtualCluster)) {
-            return callback(new Error('VirtualClusterNotFound'), false);
+            return callback(createError('Not Found', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${virtualCluster} is not found.`));
           }
-          db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
-            if (errMsg || !res) {
-              callback(new Error('VirtualClusterNotFoundInDatabase'), false);
+          db.get(etcdConfig.userVirtualClusterPath(username), null, (err, res) => {
+            if (err) {
+              return callback(err);
             } else {
               let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
               for (let item of userVirtualClusters) {
@@ -212,7 +213,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
                   return callback(null, true);
                 }
               }
-              callback(new Error('NoRightAccessVirtualCluster'), false);
+              callback(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${username} is not allowed to do operation in ${virtualCluster}`));
             }
           });
         }

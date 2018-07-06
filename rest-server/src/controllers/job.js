@@ -17,6 +17,7 @@
 
 // module dependencies
 const Job = require('../models/job');
+const createError = require('../util/error');
 const logger = require('../config/logger');
 
 /**
@@ -25,28 +26,16 @@ const logger = require('../config/logger');
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
     if (error) {
-      if (error.message === 'JobNotFound') {
+      if (error.code === 'ERR_NO_JOB') {
         if (req.method !== 'PUT') {
-          logger.warn('load job %s error, could not find job', jobName);
-          return res.status(404).json({
-            error: 'JobNotFound',
-            message: `could not find job ${jobName}`,
-          });
+          return next(error);
         }
       } else {
-        logger.warn('internal server error');
-        return res.status(500).json({
-          error: 'InternalServerError',
-          message: 'internal server error',
-        });
+        return next(createError.unknown(error));
       }
     } else {
       if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
-        logger.warn('duplicate job %s', jobName);
-        return res.status(400).json({
-          error: 'DuplicateJobSubmission',
-          message: `job already exists: '${jobName}'`,
-        });
+        return next(createError('Conflict', 'ERR_CONFLICT_JOB', `Job name ${jobName} already exists`));
       }
     }
     req.job = job;
@@ -58,22 +47,14 @@ const init = (req, res, next) => {
   const jobName = req.body.jobName;
   new Job(jobName, (job, error) => {
     if (error) {
-      if (error.message === 'JobNotFound') {
+      if (error.code === 'ERR_NO_JOB') {
         req.job = job;
         next();
       } else {
-        logger.warn('internal server error');
-        return res.status(500).json({
-          error: 'InternalServerError',
-          message: 'internal server error',
-        });
+        return next(createError.unknown(error));
       }
     } else {
-      logger.warn('duplicate job %s', jobName);
-      return res.status(400).json({
-        error: 'DuplicateJobSubmission',
-        message: `job already exists: '${jobName}'`,
-      });
+      return next(createError('Conflict', 'ERR_CONFLICT_JOB', `Job name ${jobName} already exists`));
     }
   });
 };
@@ -81,15 +62,12 @@ const init = (req, res, next) => {
 /**
  * Get list of jobs.
  */
-const list = (req, res) => {
+const list = (req, res, next) => {
   Job.prototype.getJobList(req._query, (jobList, err) => {
     if (err) {
-      logger.warn('list jobs error\n%s', err.stack);
-      return res.status(500).json({
-        error: 'GetJobListError',
-        message: 'get job list error',
-      });
+      return next(createError.unknown(err));
     } else if (jobList === undefined) {
+      // Unreachable
       logger.warn('list jobs error, no job found');
       return res.status(500).json({
         error: 'JobListNotFound',
@@ -111,35 +89,14 @@ const get = (req, res) => {
 /**
  * Submit or update job.
  */
-const update = (req, res) => {
+const update = (req, res, next) => {
   let name = req.job.name;
   let data = req.body;
   data.originalData = req.originalBody;
   data.userName = req.user.username;
   Job.prototype.putJob(name, data, (err) => {
     if (err) {
-      logger.warn('update job %s error\n%s', name, err.stack);
-      if (err.message === 'VirtualClusterNotFound') {
-        return res.status(500).json({
-          error: 'JobUpdateWithInvalidVirtualCluster',
-          message: `job update error: could not find virtual cluster ${data.virtualCluster}`,
-        });
-      } else if (err.message === 'NoRightAccessVirtualCluster') {
-        return res.status(401).json({
-          error: 'JobUpdateWithNoRightVirtualCluster',
-          message: `job update error: no virtual cluster right to access ${data.virtualCluster}`,
-        });
-      } else if (err.message === 'VirtualClusterNotFoundInDatabase') {
-        return res.status(404).json({
-          error: 'VirtualClusterNotFoundInDatabase',
-          message: `job update error: search virtual cluster from db failed`,
-        });
-      } else {
-        return res.status(500).json({
-          error: 'JobUpdateError',
-          message: err.message,
-        });
-      }
+      return next(createError.unknown(err));
     } else {
       return res.status(202).json({
         message: `update job ${name} successfully`,
@@ -151,16 +108,12 @@ const update = (req, res) => {
 /**
  * Remove job.
  */
-const remove = (req, res) => {
+const remove = (req, res, next) => {
   req.body.username = req.user.username;
   req.body.admin = req.user.admin;
   Job.prototype.deleteJob(req.job.name, req.body, (err) => {
     if (err) {
-      logger.warn('delete job %s error\n%s', req.job.name, err.stack);
-      return res.status(403).json({
-        error: 'JobDeleteError',
-        message: 'job deleted error, cannot delete other user\'s job',
-      });
+      return next(createError.unknown(err));
     } else {
       return res.status(202).json({
         message: `deleted job ${req.job.name} successfully`,
@@ -177,9 +130,7 @@ const execute = (req, res, next) => {
   req.body.admin = req.user.admin;
   Job.prototype.putJobExecutionType(req.job.name, req.body, (err) => {
     if (err) {
-      logger.warn('execute job %s error\n%s', req.job.name, err.stack);
-      err.message = err.message || 'job execute error';
-      next(err);
+      return next(createError.unknown(err));
     } else {
       return res.status(202).json({
         message: `execute job ${req.job.name} successfully`,
@@ -191,7 +142,7 @@ const execute = (req, res, next) => {
 /**
  * Get job config json string.
  */
-const getConfig = (req, res) => {
+const getConfig = (req, res, next) => {
   Job.prototype.getJobConfig(
     req.job.jobStatus.username,
     req.job.name,
@@ -199,15 +150,9 @@ const getConfig = (req, res) => {
       if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        return res.status(404).json({
-          error: 'ConfigFileNotFound',
-          message: error.message,
-        });
+        return next(createError('Not Found', 'ERR_NO_JOB_CONFIG', `Config of job ${req.job.name} not found.`));
       } else {
-        return res.status(500).json({
-          error: 'InternalServerError',
-          message: error.message,
-        });
+        return next(createError.unknown(error));
       }
     }
   );
@@ -216,7 +161,7 @@ const getConfig = (req, res) => {
 /**
  * Get job SSH info.
  */
-const getSshInfo = (req, res) => {
+const getSshInfo = (req, res, next) => {
   Job.prototype.getJobSshInfo(
     req.job.jobStatus.username,
     req.job.name,
@@ -225,15 +170,9 @@ const getSshInfo = (req, res) => {
       if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        return res.status(404).json({
-          error: 'SshInfoNotFound',
-          message: error.message,
-        });
+        return next(createError('Not Found', 'ERR_NO_JOB_SSH', `SSH of job ${req.job.name} not found.`));
       } else {
-        return res.status(500).json({
-          error: 'InternalServerError',
-          message: error.message,
-        });
+        return next(createError.unknown(error));
       }
     }
   );

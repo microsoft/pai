@@ -324,9 +324,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(400);
+        global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('DuplicateJobSubmission');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_CONFLICT_JOB');
         done();
       });
   });
@@ -339,7 +339,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('InternalServerError');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_UNKNOWN');
         done();
       });
   });
@@ -352,9 +352,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: could not find virtual cluster non-exist-vc');
+        global.chai.expect(res.body.code, 'response error code').equal('ERR_NO_VIRTUAL_CLUSTER');
         done();
       });
   });
@@ -366,9 +366,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');
+        global.chai.expect(res.body.code, 'response error code').equal('ERR_FORBIDDEN_USER');
         done();
       });
   });
@@ -381,9 +381,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(jobConfig)
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('killAllOnCompletedTaskNumber should not be greater than tasks number.');
+        global.chai.expect(res.body.code, 'response code').equal('ERR_INVALID_PARAMETERS');
         done();
       });
   });
@@ -395,10 +395,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
-        console.log(res);
-        global.chai.expect(res, 'status code').to.have.status(404);
+        global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: search virtual cluster from db failed');
+        global.chai.expect(res.body.code, 'response error code').equal('ERR_UNKNOWN');
         done();
       });
   });
