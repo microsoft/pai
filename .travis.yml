@@ -7,9 +7,14 @@ matrix:
       before_install:
         - cd pai-management
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes markdown
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes
       script:
         - python -m unittest discover test/
+    - language: python
+      python: 2.7
+      install:
+        - pip install markdown
+      script:
         - python utilities/doc_checker.py .
     - language: java
       jdk: oraclejdk8

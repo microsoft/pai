@@ -1,11 +1,9 @@
 import sys
-import logging
 import os
 import codecs
 import urlparse
 import markdown # https://python-markdown.github.io/
 
-logger = logging.getLogger(__name__)
 
 class LinkChecker(markdown.treeprocessors.Treeprocessor):
     def __init__(self, dir_name, file_name, *args, **kwargs):
@@ -22,15 +20,15 @@ class LinkChecker(markdown.treeprocessors.Treeprocessor):
                 url = urlparse.urlparse(link)
 
                 # TODO check remot links
-                if url.netloc == "": # local link
+                if url.scheme == "" and url.netloc == "": # local link
                     path = os.path.join(self.dir_name, url.path)
                     if url.path == "" and url.fragment != "":
+                        # ignore current file fragment checks
                         continue
 
-                    # TODO check fragment
-
                     if not os.path.exists(path):
-                        print "link %s in file %s doesn't exist" % (link, os.path.join(self.dir_name, self.file_name))
+                        sys.stderr.write("%s has broken link %s\n" %
+                                (os.path.join(self.dir_name, self.file_name), link))
                         self.has_error = True
 
 
@@ -43,13 +41,12 @@ class LinkCheckerExtension(markdown.Extension):
 
     def extendMarkdown(self, md, md_globals):
         md.treeprocessors.add(
-            "link_checker", LinkChecker(self.dir_name, self.file_name, md), ">inline"
-        )
+            "link_checker", LinkChecker(self.dir_name, self.file_name, md), ">inline")
 
 
 def check(doc_path):
     """ check doc file in `doc_path`. return True on error occurs,
-    broken links will be outputed to stdout """
+    broken links will be outputed to stderr """
     dir_name = os.path.dirname(doc_path)
     file_name = os.path.basename(doc_path)
 
@@ -62,7 +59,7 @@ def check(doc_path):
 
 def check_all(doc_root):
     """ check_all iteratively checks docs link. return True on error occurs,
-    broken links will be outputed to stdout """
+    broken links will be outputed to stderr """
     has_error = False
     for root, dirs, files in os.walk(doc_root):
         for name in files:
