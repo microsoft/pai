@@ -329,11 +329,12 @@ def pai_machine():
             host['nodename'] = host['hostip']
 
 
-    if option == "start":
+    if option == "add":
 
         for host in node_list['machine-list']:
             add_worker = add.add(cluster_object_model_k8s, host, True)
             add_worker.run()
+
 
 
 
