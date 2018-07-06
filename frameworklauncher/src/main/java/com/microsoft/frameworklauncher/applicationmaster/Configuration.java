@@ -82,7 +82,6 @@ public class Configuration {
   }
 
   public void initializeDependOnZKStoreConfig(ZookeeperStore zkStore) throws Exception {
-    // ConverterUtils depends on the JVM inited by ZooKeeperClient
     ApplicationAttemptId attemptId = ConverterUtils.toContainerId(getAmContainerId()).getApplicationAttemptId();
     this.attemptId = attemptId.toString();
     applicationId = attemptId.getApplicationId().toString();
