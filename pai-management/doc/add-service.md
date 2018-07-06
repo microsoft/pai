@@ -203,9 +203,9 @@ This configuration consists of 7 parts.
     - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
     - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
 - Example
-    - [Hadoop Service's node-label.sh](../bootstrap/hadoop-service/node-label.sh.template)
-    - [Hadoop name node](../bootstrap/hadoop-service/hadoop-name-node.yaml.template)
-    - [Hadoop data node](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
+    - [Hadoop-name-node's node-label.sh](../bootstrap/hadoop-name-node/node-label.sh.template)
+    - [Hadoop name node](../bootstrap/hadoop-name-node/hadoop-name-node.yaml.template)
+    - [Hadoop data node](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
 
 
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
