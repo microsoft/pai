@@ -23,11 +23,11 @@ import docker_stats
 import docker_inspect
 import gpu_exporter
 import time
-import logging  
+import logging
 import network
 from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger("gpu_expoter")  
+logger = logging.getLogger("gpu_expoter")
 
 def parse_from_labels(labels):
     gpuIds = []
@@ -79,6 +79,8 @@ def gen_job_metrics(logDir, gpuMetrics, connectionDic):
         containerMemUsage = 'container_MemUsage{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["usage"])
         containerMemLimit = 'container_MemLimit{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["limit"])
         inSize, outSize = network.acc_per_container_network_metrics(connectionDic, pid)
+        # iftop could get last 2s, 10s, 40s connection transform bytes.
+        # leverage iftop cmd get last 40s connection transform bytes.So inSize / 40.
         inBandwidth = inSize / 40
         outBandwidth = outSize / 40
         containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, inBandwidth)
@@ -98,11 +100,11 @@ def gen_job_metrics(logDir, gpuMetrics, connectionDic):
 def main(argv):
     logDir = argv[0]
     timeSleep = int(argv[1])
-    logger.setLevel(logging.INFO)  
-    fh = RotatingFileHandler(logDir + "/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)  
-    fh.setLevel(logging.INFO) 
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-    fh.setFormatter(formatter)   
+    logger.setLevel(logging.INFO)
+    fh = RotatingFileHandler(logDir + "/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    fh.setFormatter(formatter)
     logger.addHandler(fh)
 
     iter = 0
