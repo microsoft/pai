@@ -48,7 +48,7 @@ It will not guide you to write a dockerfile. If you a new developer of docker, p
 
 In this tutorial, we have prepared the docker image in the path following. Note the file ```image.yaml``` isn't part of docker image. It's pai's configuration file.
 
-[Hbase docker image code](add-service/src/hbase)
+[Hbase docker image code](example/add-service/src/hbase)
 
 
 #### Write PAI's Image Configuration <a name="Image_Configuration"></a>
@@ -203,9 +203,9 @@ This configuration consists of 7 parts.
     - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
     - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
 - Example
-    - [Hadoop Service's node-label.sh](../bootstrap/hadoop-service/node-label.sh.template)
-    - [Hadoop name node](../bootstrap/hadoop-service/hadoop-name-node.yaml.template)
-    - [Hadoop data node](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
+    - [Hadoop-name-node's node-label.sh](../bootstrap/hadoop-name-node/node-label.sh.template)
+    - [Hadoop name node](../bootstrap/hadoop-name-node/hadoop-name-node.yaml.template)
+    - [Hadoop data node](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
 
 
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
@@ -213,7 +213,7 @@ This configuration consists of 7 parts.
     - DaemonSet can ensure there will be one and only one service pod on the target nodes. Hadoop and other similar service could benefits from this object a lot.
     - Take advantage of node-label and daemonSet, we can deploy hadoop easily.
 - Example
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
 
 [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 - example
@@ -225,7 +225,7 @@ This configuration consists of 7 parts.
     - Some batch job which does't have the demands to running on a specific nodes could created by this object. And when the job is succeed, the status of the pod will be completed. This status could be a notify that the job is finished.
 
 - Example
-    - [A batch job to set hdfs permission](../bootstrap/hadoop-service/)
+    - [A batch job to set hdfs permission](../bootstrap/hadoop-batch-job/)
 
 
 [Configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
@@ -234,8 +234,8 @@ This configuration consists of 7 parts.
     - With the configmap's mount function, we could take advantage of one image in many different ways. For example, hadoop-run image could starts different service with different script got from configmap.
 
 - Example
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
-    - [Hadoop service's configmap](../bootstrap/hadoop-service/hadoop-configuration)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
+    - [Hadoop service's configmap](../bootstrap/hadoop-data-node/hadoop-data-node-configuration)
 
 [readness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
 
@@ -244,8 +244,8 @@ This configuration consists of 7 parts.
 
 
 - Examples
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
-    - [Hadoop service's start script](../bootstrap/hadoop-service/start.sh)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
+    - [Hadoop service's start script](../bootstrap/hadoop-data-node/start.sh)
     - [The status checking tool](../k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 
