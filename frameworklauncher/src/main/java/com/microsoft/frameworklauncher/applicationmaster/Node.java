@@ -51,6 +51,7 @@ public class Node implements Comparable<Node> {
   // Compare two node gpu resource.
   // First compare two nodes available Gpu resource.
   // Then compare two nodes total Gpu resource,
+  // Third, compare two nodes CPU and then memory.
   @Override
   public int compareTo(Node other) {
     if (other == null) {
