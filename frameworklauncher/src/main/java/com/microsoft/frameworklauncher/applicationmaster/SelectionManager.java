@@ -177,8 +177,8 @@ public class SelectionManager { // THREAD SAFE
       if (gpuAttribute == 0) {
         gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
-      LOGGER.logDebug("selectNodes: Select: " + node.getHost() + " node avaliableGpuAttribute:" +
-          CommonExts.toStringWithBits(node.getAvailableResource().getGpuAttribute()) + " gpuAttribute:" + CommonExts.toStringWithBits(gpuAttribute));
+      LOGGER.logDebug("selectNodes: Selected candidate: " + node.getHost() + " Node Available gpuAttribute:" +
+          CommonExts.toStringWithBits(node.getAvailableResource().getGpuAttribute()) + " Selected gpuAttribute:" + CommonExts.toStringWithBits(gpuAttribute));
       result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
     }
     return result;
@@ -196,7 +196,7 @@ public class SelectionManager { // THREAD SAFE
       SelectionResult result = new SelectionResult();
       result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
       result.setOptimizedResource(optimizedRequestResource);
-      LOGGER.logDebug("selectSingleNode: Select: " + candidateNode + " optimizedRequestResource:" + optimizedRequestResource);
+      LOGGER.logDebug("selectSingleNode: Selected: " + candidateNode + " optimizedRequestResource:" + optimizedRequestResource);
       return result;
     }
     return results;

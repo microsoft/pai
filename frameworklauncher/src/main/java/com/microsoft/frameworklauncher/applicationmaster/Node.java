@@ -49,26 +49,50 @@ public class Node implements Comparable<Node> {
   }
 
   // Compare two node gpu resource.
-  // Fist compare two nodes total Gpu resource,
-  // Then compare two nodes available Gpu resource.
+  // First compare two nodes available Gpu resource.
+  // Then compare two nodes total Gpu resource,
   @Override
   public int compareTo(Node other) {
     if (other == null) {
       return -1;
     }
 
-    if (this.getTotalResource().getGpuNumber() > other.getTotalResource().getGpuNumber()) {
+    ResourceDescriptor thisAvailableResource = this.getAvailableResource();
+    ResourceDescriptor otherAvailableResource = other.getAvailableResource();
+
+    ResourceDescriptor thisTotalResource = this.getTotalResource();
+    ResourceDescriptor otherTotalResource = other.getTotalResource();
+
+    // Packing first, the available Gpu first.
+    if (thisAvailableResource.getGpuNumber() > otherAvailableResource.getGpuNumber()) {
       return 1;
     }
-    if (this.getTotalResource().getGpuNumber() < other.getTotalResource().getGpuNumber()) {
+    if (thisAvailableResource.getGpuNumber() < otherAvailableResource.getGpuNumber()) {
       return -1;
     }
-    if (this.getAvailableResource().getGpuNumber() > other.getAvailableResource().getGpuNumber()) {
+
+    // If the available Gpu is the same, compare the totalResource, use the small node first.
+    if (thisTotalResource.getGpuNumber() > otherTotalResource.getGpuNumber()) {
       return 1;
     }
-    if (this.getAvailableResource().getGpuNumber() < other.getAvailableResource().getGpuNumber()) {
+    if (thisTotalResource.getGpuNumber() < otherTotalResource.getGpuNumber()) {
       return -1;
     }
+
+    // If the Gpu are the same, compare the available Cpu and memory.
+    if (thisAvailableResource.getCpuNumber() > otherAvailableResource.getCpuNumber()) {
+      return 1;
+    }
+    if (thisAvailableResource.getCpuNumber() < otherAvailableResource.getCpuNumber()) {
+      return -1;
+    }
+    if (thisAvailableResource.getMemoryMB() > otherAvailableResource.getMemoryMB()) {
+      return 1;
+    }
+    if (thisAvailableResource.getMemoryMB() < otherAvailableResource.getMemoryMB()) {
+      return -1;
+    }
+
     return 0;
   }
 
