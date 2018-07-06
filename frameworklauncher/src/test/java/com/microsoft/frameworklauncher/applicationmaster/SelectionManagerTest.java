@@ -320,7 +320,7 @@ public class SelectionManagerTest {
     Assert.assertEquals(result.getNodeHosts().get(0), "node2");
     Assert.assertEquals(result.getNodeHosts().get(1), "node6");
 
-    // If available/Total GPUs are the same, choose the node with fewer CPU and Memory.
+    // If available/total GPUs are the same, choose the node with fewer CPU and Memory.
     result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null, 1, null, null);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(result.getNodeHosts().get(0), "node8");
