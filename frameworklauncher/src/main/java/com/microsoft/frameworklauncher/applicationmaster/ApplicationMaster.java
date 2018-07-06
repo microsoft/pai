@@ -394,11 +394,11 @@ public class ApplicationMaster extends AbstractService {
 
     return String.format("" +
             "%4$sContainerLogHttpAddress: %1$s\n" +
-            "%4$sAppCacheNetworkPath: %2$s\n" +
-            "%4$sContainerLogNetworkPath: %3$s",
+            "%4$sContainerLogNetworkPath: %2$s\n" +
+            "%4$sContainerCacheNetworkPath: %3$s",
         logHttpAddress,
-        HadoopUtils.getAppCacheNetworkPath(hostName, conf.getAmLocalDirs()),
         HadoopUtils.getContainerLogNetworkPath(hostName, conf.getAmLogDirs(), containerId),
+        HadoopUtils.getContainerCacheNetworkPath(hostName, conf.getAmLocalDirs(), containerId),
         linePrefix);
   }
 
@@ -585,6 +585,8 @@ public class ApplicationMaster extends AbstractService {
 
     // SetupLocalEnvironment
     Map<String, String> localEnvs = new HashMap<>();
+    localEnvs.put(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR, ApplicationConstants.LOG_DIR_EXPANSION_VAR);
+
     localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, user.getName());
 
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_NAME, conf.getFrameworkName());
@@ -611,7 +613,7 @@ public class ApplicationMaster extends AbstractService {
     String command = String.format(
         "%1$s 1>%2$sstdout 2>%2$sstderr",
         entryPoint,
-        ApplicationConstants.LOG_DIR_EXPANSION_VAR + File.separator);
+        GlobalConstants.REF_ENV_VAR_LAUNCHER_LOG_DIR + File.separator);
 
     ContainerLaunchContext launchContext = Records.newRecord(ContainerLaunchContext.class);
     launchContext.setLocalResources(localResources);
