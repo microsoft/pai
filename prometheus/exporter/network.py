@@ -41,7 +41,7 @@ def parse_iftop(stats):
     connectionDic = {}
     data = [line.split(',') for line in stats.splitlines()]
 
-    while True and len(data) > 0:
+    while len(data) > 0:
         item = data.pop(0)
 
         if len(item) > 0 and "------------" in item[0]:
@@ -150,7 +150,7 @@ def main(argv):
     timeSleep = 3
     iter = 0
     pid = [argv]
-    while(True):
+    while True :
         connectionDic = iftop()
         for id in pid:
             print(id)
