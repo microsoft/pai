@@ -33,7 +33,6 @@ import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
-import org.mortbay.log.Log;
 
 import java.util.*;
 
@@ -178,7 +177,7 @@ public class SelectionManager { // THREAD SAFE
       if (gpuAttribute == 0) {
         gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
-      Log.debug("Select: " + node.getHost() + " GpuNumber:" + requestResource.getGpuNumber() + " gpuAttribute:" + gpuAttribute);
+      LOGGER.logDebug("selectNodes: Select: " + node.getHost() + " node avaliable GPU:" + CommonExts.toStringWithBits(node.getAvailableResource().getGpuAttribute()) + " gpuAttribute:" + CommonExts.toStringWithBits(gpuAttribute));
       result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
     }
     return result;
@@ -186,7 +185,7 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    if (results.getNodeHosts().size() > 1) {
+    if (results.getNodeHosts().size() > 0) {
       // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
       ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
       String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
@@ -194,8 +193,9 @@ public class SelectionManager { // THREAD SAFE
 
       // re-create single node result object.
       SelectionResult result = new SelectionResult();
-      result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
+      result.addSelection(candidateNode, optimizedRequestResource.getGpuAttribute(), results.getOverlapPorts());
       result.setOptimizedResource(optimizedRequestResource);
+      LOGGER.logDebug("selectSingleNode: Select: " + candidateNode + " optimizedRequestResource:" + optimizedRequestResource);
       return result;
     }
     return results;

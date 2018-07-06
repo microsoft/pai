@@ -62,7 +62,9 @@ public class SelectionManagerTest {
     Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node4 = new Node("node4", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+    Node node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0xFFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
     Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node10 = new Node("node10", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
 
     MockApplicationMaster am = new MockApplicationMaster();
     FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
@@ -155,6 +157,47 @@ public class SelectionManagerTest {
 
     Assert.assertEquals(result.getNodeHosts().get(0), "node6");
     sm.addNode(node6);
+
+    //test packing logic
+
+    node1 = new Node("node1", null, ResourceDescriptor.newInstance(200, 200, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node4 = new Node("node4", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+    node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0x3L), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+    node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    node10 = new Node("node10", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+
+    SelectionManager packSelctionManager = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
+
+    packSelctionManager.addNode(node1);
+    packSelctionManager.addNode(node2);
+    packSelctionManager.addNode(node3);
+    packSelctionManager.addNode(node4);
+    packSelctionManager.addNode(node5);
+    packSelctionManager.addNode(node6);
+    packSelctionManager.addNode(node10);
+
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node5");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node1");
+
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node10");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node1");
+
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node2");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node6");
+
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null, 1, null, null);
+    Assert.assertEquals(1, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node3");
+
+
 
     //Allocation with Gpu type label
     Set<String> tag = new HashSet<>();
