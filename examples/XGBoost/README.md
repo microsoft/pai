@@ -88,10 +88,10 @@ If you have built your image and pushed it to Docker Hub, replace our pre-built 
 
 Here's one configuration file example to train a model on the [forest cover type](https://archive.ics.uci.edu/ml/datasets/covertype) dataset using GPU acceleration:
 
-### [gpu-_hist](https://github.com/dmlc/xgboost/blob/master/demo/gpu_acceleration/cover_type.py)
+### [gpu_hist](https://github.com/dmlc/xgboost/blob/master/demo/gpu_acceleration/cover_type.py)
 ```json
 {
-  "jobName": "xgboost-gpu_hist",
+  "jobName": "xgboost_gpu_hist",
   "image": "openpai/pai.example.xgboost",
   "taskRoles": [
     {

@@ -1,5 +1,5 @@
 {
-  "jobName": "xgboost-gpu_hist",
+  "jobName": "xgboost_gpu_hist",
   "image": "openpai/pai.example.xgboost",
   "taskRoles": [
     {
