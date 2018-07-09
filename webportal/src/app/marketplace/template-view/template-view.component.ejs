@@ -1,0 +1,20 @@
+<section class='content-header'>
+  <%= breadcrumb({ breadcrumbTitle: "Marketplace" }) %>
+</section>
+
+<section class="content">
+<div class="box">
+  <div class="box-header row">
+    <div class="col-md-10">
+      <ul class="list-inline" id="recommend-list"></ul>
+    </div>
+    <div class="col-md-2" id="operation-list">
+      <button type="button" class="btn btn-success">Share My Template!</button>
+    </div>
+  </div>
+  <div id="view-table" class="box-body">
+    <%= templateTable({ templates: [] }) %>
+  </div>
+</div>
+<%= loading() %>
+</section>

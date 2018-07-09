@@ -16,25 +16,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-require('bootstrap');
-require('admin-lte');
-require('bootstrap/dist/css/bootstrap.min.css');
-require('admin-lte/dist/css/AdminLTE.min.css');
-require('admin-lte/dist/css/skins/_all-skins.min.css');
-require('font-awesome/css/font-awesome.min.css');
-require('./layout.component.scss');
-const userAuthComponent = require('../user/user-auth/user-auth.component.js');
-const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
-const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
+require('./template-import.component.scss');
 
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
+const loadingComponent = require('../../job/loading/loading.component.ejs');
+const templateImportComponent = require('./template-import.component.ejs');
+const loading = require('../../job/loading/loading.component');
 
-const userLoginNavHtml = userLoginNavComponent({cookies});
+const templateViewHtml = templateImportComponent({
+  breadcrumb: breadcrumbComponent,
+  loading: loadingComponent
+});
 
-window.userLogout = userLogoutComponent.userLogout;
+const resizeContentWrapper = () => {
+  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+};
 
-$('#navbar').html(userLoginNavHtml);
-$('#sidebar-menu--submit-job').hide();
-if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--cluster-view').hide();
-}
+$('#content-wrapper').html(templateViewHtml);
+
+$(document).ready(() => {
+  window.onresize = function(event) {
+    resizeContentWrapper();
+  };
+  resizeContentWrapper();
+  $('#sidebar-menu--template-import').addClass('active');
+});
+
+module.exports = {};
