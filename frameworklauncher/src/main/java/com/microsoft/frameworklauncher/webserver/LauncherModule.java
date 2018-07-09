@@ -18,11 +18,14 @@
 package com.microsoft.frameworklauncher.webserver;
 
 import com.google.inject.Inject;
+import com.microsoft.frameworklauncher.common.GlobalConstants;
 import com.microsoft.frameworklauncher.common.exceptions.AuthorizationException;
 import com.microsoft.frameworklauncher.common.exceptions.BadRequestException;
 import com.microsoft.frameworklauncher.common.exts.CommonExts;
 import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import com.microsoft.frameworklauncher.common.model.*;
+import com.microsoft.frameworklauncher.common.utils.CommonUtils;
+import com.microsoft.frameworklauncher.common.utils.CompressionUtils;
 import com.microsoft.frameworklauncher.common.utils.DnsUtils;
 import com.microsoft.frameworklauncher.common.validation.CommonValidation;
 import com.microsoft.frameworklauncher.common.web.WebCommon;
@@ -178,14 +181,14 @@ public class LauncherModule {
 
   @GET
   // Default to WebStructure.ROOT_PATH
-  @Produces({MediaType.TEXT_PLAIN})
+  @Produces({MediaType.APPLICATION_JSON})
   public String getRootActiveMessage() {
     return "Active at " + DnsUtils.getLocalHost() + ": " + DnsUtils.getLocalIp();
   }
 
   @GET
   @Path(WebStructure.VERSION_PATH)
-  @Produces({MediaType.TEXT_PLAIN})
+  @Produces({MediaType.APPLICATION_JSON})
   public String getVersionActiveMessage() {
     return getRootActiveMessage();
   }
@@ -247,8 +250,7 @@ public class LauncherModule {
   @GET
   @Path(WebStructure.CLUSTER_CONFIGURATION_PATH)
   @Produces({MediaType.APPLICATION_JSON})
-  public ClusterConfiguration getClusterConfiguration(
-      @Context HttpServletRequest hsr) throws Exception {
+  public ClusterConfiguration getClusterConfiguration() throws Exception {
     return requestManager.getClusterConfiguration();
   }
 
@@ -275,8 +277,7 @@ public class LauncherModule {
   @GET
   @Path(WebStructure.ACL_CONFIGURATION_PATH)
   @Produces({MediaType.APPLICATION_JSON})
-  public AclConfiguration getAclConfiguration(
-      @Context HttpServletRequest hsr) throws Exception {
+  public AclConfiguration getAclConfiguration() throws Exception {
     return requestManager.getAclConfiguration();
   }
 
@@ -545,5 +546,32 @@ public class LauncherModule {
       @PathParam(WebStructure.FRAMEWORK_NAME_PATH_PARAM) String frameworkName)
       throws Exception {
     return requestManager.getFrameworkRequest(frameworkName);
+  }
+
+  @GET
+  @Path(WebStructure.LOG_ROOT_PATH)
+  @Produces({MediaType.APPLICATION_JSON})
+  public Set<String> getLogs() throws Exception {
+    String launcherLogDir = System.getProperty(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR);
+    return CommonUtils.listFiles(launcherLogDir);
+  }
+
+  // Still Produces APPLICATION_JSON since LauncherExceptionHandler's Response can
+  // only be serialized by Json.
+  // However, it does not conflict with attachment Content-Disposition, since the content
+  // will be downloaded instead of parsed.
+  @GET
+  @Path(WebStructure.LOG_PATH)
+  @Produces({MediaType.APPLICATION_JSON})
+  public Response getLog(
+      @PathParam(WebStructure.LOG_NAME_PATH_PARAM) String logName)
+      throws Exception {
+    String launcherLogDir = System.getProperty(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR);
+    String logPath = CommonUtils.getFilePath(launcherLogDir, logName);
+    byte[] logPayload = CompressionUtils.compress(CommonUtils.readBinaryFile(logPath));
+    return Response
+        .ok(logPayload)
+        .header("Content-Disposition", "attachment; filename=\"" + logName + ".gz\"")
+        .build();
   }
 }

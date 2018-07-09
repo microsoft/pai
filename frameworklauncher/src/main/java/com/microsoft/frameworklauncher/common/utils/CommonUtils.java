@@ -26,7 +26,9 @@ import org.apache.hadoop.util.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 
@@ -122,6 +124,12 @@ public class CommonUtils {
     return value;
   }
 
+  public static String getFilePath(String parentFilePath, String fileName) {
+    return (org.apache.commons.lang.StringUtils.stripEnd(parentFilePath, File.separator) +
+        File.separator +
+        org.apache.commons.lang.StringUtils.stripStart(fileName, File.separator));
+  }
+
   public static String writeFile(String filePath, String content) throws Exception {
     FileUtils.writeStringToFile(new File(filePath), content);
     return filePath;
@@ -129,6 +137,18 @@ public class CommonUtils {
 
   public static String readFile(String filePath) throws Exception {
     return FileUtils.readFileToString(new File(filePath));
+  }
+
+  public static byte[] readBinaryFile(String filePath) throws Exception {
+    return FileUtils.readFileToByteArray(new File(filePath));
+  }
+
+  public static Set<String> listFiles(String dirPath) throws Exception {
+    Set<String> fileNames = new HashSet<>();
+    for (File file : FileUtils.listFiles(new File(dirPath), null, false)) {
+      fileNames.add(file.getName());
+    }
+    return fileNames;
   }
 
   public static byte[] subArray(byte[] array, int startIndex, int length) {
