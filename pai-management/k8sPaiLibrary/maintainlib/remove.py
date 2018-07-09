@@ -199,7 +199,7 @@ class remove:
 
     def run(self):
 
-        if self.node_config['k8s-role'] == "true":
+        if self.node_config['k8s-role'] == 'master':
             self.logger.info("The target node is master node.")
 
             self.logger.info("Task one before cleanup the node: stop target node's etcd.")
