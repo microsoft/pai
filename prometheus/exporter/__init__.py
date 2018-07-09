@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,14 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-pushd "${0%/*}"
-if [ "$LAUNCHER_LOG_DIR" = "" ]; then
-  export LAUNCHER_LOG_DIR=./logs
-fi
-
-export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin
-export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native
-export HADOOP_CLASSPATH=$(hadoop classpath)
-java -DLAUNCHER_LOG_DIR=$LAUNCHER_LOG_DIR -cp *:$CLASSPATH:$HADOOP_CLASSPATH com.microsoft.frameworklauncher.service.Bootstrap
-popd

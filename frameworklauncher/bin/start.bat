@@ -26,5 +26,5 @@ if not defined LAUNCHER_LOG_DIR (
 
 set PATH=%PATH%;%HADOOP_HOME%\bin;%JAVA_HOME%\bin
 for /f %%i in ('hadoop classpath') do set HADOOP_CLASSPATH=%%i
-java -DLOG_DIRS=%LAUNCHER_LOG_DIR% -cp *;%CLASSPATH%;%HADOOP_CLASSPATH% com.microsoft.frameworklauncher.service.Bootstrap
+java -DLAUNCHER_LOG_DIR=%LAUNCHER_LOG_DIR% -cp *;%CLASSPATH%;%HADOOP_CLASSPATH% com.microsoft.frameworklauncher.service.Bootstrap
 popd

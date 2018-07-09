@@ -1,0 +1,100 @@
+[
+    {
+        "Id": "8c3f365e97e07ea7adbedfcbc794ee06a2dc5d986d5509d4f3f5b72277e827d8",
+        "Created": "2018-04-08T06:23:12.893146Z",
+        "Path": "/bin/bash",
+        "Args": [
+            "-c"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 95539,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2018-04-08T06:23:14.0915086Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "",
+        "Name": "/trialslot_nnimain_d65bc5ac-container_e25_1522829300813_1943_01_000002",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "unconfined",
+        "ExecIDs": null,
+        "GraphDriver": {
+            "Data": {},
+            "Name": "overlay2"
+        },
+        "Config": {
+            "Hostname": "paigcr-a-gpu-1058",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "APP_ID=application_1522829300813_1943",
+                "FRAMEWORK_NAME=trialslot_nnimain_d65bc5ac",
+                "HADOOP_USER_NAME=openmindstudio",
+                "PAI_TASK_INDEX=0",
+                "PAI_CONTAINER_HOST_IP=10.151.40.199",
+                "PAI_CONTAINER_ID=container_e25_1522829300813_1943_01_000002",
+                "PATH=/usr/local/node/bin:/usr/local/yarn/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/hadoop/bin:/usr/local/hadoop/sbin",
+                "CUDA_VERSION=8.0.61",
+                "NVIDIA_CUDA_VERSION=8.0.61",
+                "CUDA_PKG_VERSION=8-0=8.0.61-1",
+                "LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server",
+                "NVIDIA_VISIBLE_DEVICES=all",
+                "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+                "LIBRARY_PATH=/usr/local/cuda/lib64/stubs:",
+                "CUDNN_VERSION=6.0.21",
+                "HADOOP_VERSION=2.7.2",
+                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                "HADOOP_INSTALL=/usr/local/hadoop",
+                "HADOOP_PREFIX=/usr/local/hadoop",
+                "HADOOP_BIN_DIR=/usr/local/hadoop/bin",
+                "HADOOP_SBIN_DIR=/usr/local/hadoop/sbin",
+                "HADOOP_HDFS_HOME=/usr/local/hadoop",
+                "HADOOP_COMMON_LIB_NATIVE_DIR=/usr/local/hadoop/lib/native",
+                "HADOOP_OPTS=-Djava.library.path=/usr/local/hadoop/lib/native",
+                "NNI_ROOT_DIR=/root",
+                "NNI_DATA_DIR=/root/data",
+                "NNI_LOG_DIR=/root/log"
+            ],
+            "Cmd": [
+                "-c"
+            ],
+            "Image": "openpai.azurecr.io/nni_v0.0.1",
+            "Volumes": null,
+            "WorkingDir": "/root",
+            "Entrypoint": [
+                "/bin/bash"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "GPU_ID": "0,1,",
+                "HADOOP_VERSION": "2.7.2",
+                "PAI_CURRENT_TASK_ROLE_NAME": "tuner",
+                "PAI_HOSTNAME": "paigcr-a-gpu-1058",
+                "PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac",
+                "PAI_USER_NAME": "openmindstudio",
+                "com.nvidia.build.id": "32579957",
+                "com.nvidia.build.ref": "88bc4e08cac2668ec821eead444e5ede2cafcf25",
+                "com.nvidia.cuda.version": "8.0.61",
+                "com.nvidia.cudnn.version": "6.0.21",
+                "com.nvidia.volumes.needed": "nvidia_driver",
+                "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>"
+            }
+        }
+    }
+]

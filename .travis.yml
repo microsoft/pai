@@ -12,6 +12,14 @@ matrix:
         - python -m unittest discover test/
     - language: python
       python: 2.7
+      before_install:
+        - cd prometheus
+      install:
+        - pip install paramiko pyyaml jinja2
+      script:
+        - python -m unittest discover test/
+    - language: python
+      python: 2.7
       install:
         - pip install markdown
       script:

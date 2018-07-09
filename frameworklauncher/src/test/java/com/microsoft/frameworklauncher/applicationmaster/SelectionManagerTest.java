@@ -269,6 +269,66 @@ public class SelectionManagerTest {
   }
 
   @Test
+  public void testSelectionPolicyPacking() throws Exception {
+
+    MockApplicationMaster am = new MockApplicationMaster();
+    FeatureTestUtils.initZK(MockZookeeperStore.newInstanceWithClean(FeatureTestUtils.ZK_BASE_DIR));
+    am.initialize();
+
+    am.setRequestManager(mock(RequestManager.class));
+    when(am.requestManager.getPlatParams()).thenReturn(new PlatformSpecificParametersDescriptor());
+
+    //test packing logic
+
+    Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(200, 200, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node3 = new Node("node3", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node4 = new Node("node4", null, ResourceDescriptor.newInstance(200, 200, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 4, 0xFL));
+    Node node5 = new Node("node5", null, ResourceDescriptor.newInstance(200, 200, 2, 0x3L), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+    Node node6 = new Node("node6", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node7 = new Node("node7", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 1, 1L));
+    Node node8 = new Node("node8", null, ResourceDescriptor.newInstance(198, 198, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+    Node node9 = new Node("node9", null, ResourceDescriptor.newInstance(198, 199, 8, 0xFFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
+
+
+    SelectionManager packSelctionManager = new SelectionManager(am, am.conf, am.statusManager, am.requestManager);
+    packSelctionManager.addNode(node1);
+    packSelctionManager.addNode(node2);
+    packSelctionManager.addNode(node3);
+    packSelctionManager.addNode(node4);
+    packSelctionManager.addNode(node5);
+    packSelctionManager.addNode(node6);
+    packSelctionManager.addNode(node7);
+    packSelctionManager.addNode(node8);
+    packSelctionManager.addNode(node9);
+
+    // Packing job by available resource:  Node5 has 1 GPUs available, Node1 has 2 GPUs available, Both Node1 and Node5 only have 2 GPU in total.
+    SelectionResult result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 1, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node5");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node1");
+
+    // Packing job by available resource: Node7 has 3 GPUs available, Node1 has 2 GPUs available, Node7 has 4 GPUs in total.
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 2, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node7");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node1");
+
+    // If available GPUs are the same, choose the smaller nodes: both node2 and node6 only have 4 GPUs in total.
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 4, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node2");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node6");
+
+    // If available/total GPUs are the same, choose the node with fewer CPU and Memory.
+    result = packSelctionManager.select(ResourceDescriptor.newInstance(1, 1, 8, 0L), null, null, 1, null, null);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(result.getNodeHosts().get(0), "node8");
+    Assert.assertEquals(result.getNodeHosts().get(1), "node9");
+
+  }
+
+  @Test
   public void testSelectionManagerWithPorts() throws Exception {
     List<ValueRange> ports = new ArrayList<>();
     ports.add(ValueRange.newInstance(2005, 2010));
