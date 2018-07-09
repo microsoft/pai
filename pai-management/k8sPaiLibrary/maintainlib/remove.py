@@ -147,7 +147,7 @@ class remove:
         # Waiting for the bad node to remove from leader.
         while True:
 
-            leader_node_config = pai_common.get_etcd_leader_node()
+            leader_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
 
             if leader_node_config == None:
                 self.logger.error("Failed to find the leader node in the etcd cluster")
