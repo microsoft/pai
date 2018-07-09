@@ -10,7 +10,8 @@ const to_template_summary = (data) =>{
         var d = data['job'];
         res['name'] = d['name'];
         res['type'] = 'job';
-        res['contributor'] = [d['contributor']]; // todo split the contributor string?    
+        res['version'] = d['version'];
+        res['contributors'] = [d['contributor']]; // todo split the contributor string?    
         res['description'] = d['description'];
     }
     if ('prerequisites' in data) {
@@ -18,7 +19,7 @@ const to_template_summary = (data) =>{
             var d = data['prerequisites'][key];
             var item = {
                 'name': d['name'],
-                'version': d['protocol_version'],
+                'version': d['version']
             };
             switch (d['type']) {
                 case "data":
