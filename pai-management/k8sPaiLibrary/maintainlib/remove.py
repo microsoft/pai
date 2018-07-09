@@ -129,12 +129,6 @@ class remove:
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             return
 
-        commandline = "kubectl delete pod etcd-server-pod-{0}".format(self.node_config['nodename'])
-        common.execute_shell(
-            commandline,
-            "Failed to delete pod etcd-server-pod-{0}".format(self.node_config['nodename'])
-        )
-
         self.logger.info("Successfully stoping etcd server on node {0}".format(self.node_config["nodename"]))
 
         if self.clean_flag == True:
