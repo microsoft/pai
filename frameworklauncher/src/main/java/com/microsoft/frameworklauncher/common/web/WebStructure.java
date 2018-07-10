@@ -26,10 +26,12 @@ public class WebStructure {
   public static final String FRAMEWORK_NAME_PATH_PARAM = "FrameworkName";
   public static final String TASK_ROLE_NAME_PATH_PARAM = "TaskRoleName";
   public static final String CONTAINER_ID_PATH_PARAM = "ContainerId";
+  public static final String LOG_NAME_PATH_PARAM = "LogName";
 
   private static final String FRAMEWORK_NAME_PATH_PARAM_PLACEMENT = "{" + FRAMEWORK_NAME_PATH_PARAM + "}";
   private static final String TASK_ROLE_NAME_PATH_PARAM_PLACEMENT = "{" + TASK_ROLE_NAME_PATH_PARAM + "}";
   private static final String CONTAINER_ID_PATH_PARAM_PLACEMENT = "{" + CONTAINER_ID_PATH_PARAM + "}";
+  private static final String LOG_NAME_PATH_PARAM_PLACEMENT = "{" + LOG_NAME_PATH_PARAM + "}";
 
   public static final String ROOT_PATH = "/";
   public static final String VERSION_PATH = ROOT_PATH + "v1";
@@ -49,6 +51,8 @@ public class WebStructure {
   public static final String APPLICATION_PROGRESS_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "ApplicationProgress";
   public static final String AGGREGATED_FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "AggregatedFrameworkRequest";
   public static final String FRAMEWORK_REQUEST_PATH = FRAMEWORK_PATH + PATH_SEPARATOR + "FrameworkRequest";
+  public static final String LOG_ROOT_PATH = VERSION_PATH + PATH_SEPARATOR + "Logs";
+  public static final String LOG_PATH = LOG_ROOT_PATH + PATH_SEPARATOR + LOG_NAME_PATH_PARAM_PLACEMENT;
 
   public static final String REQUEST_PARAM_LAUNCH_CLIENT_TYPE = WebCommon.REQUEST_HEADER_LAUNCH_CLIENT_TYPE;
   public static final String REQUEST_PARAM_USER_NAME = WebCommon.REQUEST_HEADER_USER_NAME;

@@ -37,7 +37,8 @@ from paiLibrary.paiService import service_management_delete
 from paiLibrary.paiService import service_management_refresh
 from paiLibrary.paiCluster import cluster_util
 
-from k8sPaiLibrary.maintainlib import add
+from k8sPaiLibrary.maintainlib import add as k8s_add
+from k8sPaiLibrary.maintainlib import remove as k8s_remove
 
 
 logger = logging.getLogger(__name__)
@@ -289,9 +290,8 @@ def pai_machine_info():
 
     logger.error("The command is wrong.")
     logger.error("Add New Machine Node into cluster     :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    #logger.error("Remove Machine Node from cluster      :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Remove Machine Node from cluster      :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     #logger.error("Repair Issue Machine Node in cluster  :  paictl.py machine repair -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    #logger.error("Repair Issue k8s node in cluster      :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
 
 
 
@@ -304,7 +304,7 @@ def pai_machine():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["add"]:
+    if option not in ["add", "remove"]:
         pai_machine_info()
         return
 
@@ -333,11 +333,22 @@ def pai_machine():
     if option == "add":
 
         for host in node_list['machine-list']:
-            add_worker = add.add(cluster_object_model_k8s, host, True)
+            add_worker = k8s_add.add(cluster_object_model_k8s, host, True)
             add_worker.run()
 
             if host['k8s-role'] == 'master':
                 logger.info("Master Node is added, sleep 60s to wait it ready.")
+                time.sleep(60)
+
+
+    if option == "remove":
+
+        for host in node_list['machine-list']:
+            add_worker = k8s_remove.remove(cluster_object_model_k8s, host, True)
+            add_worker.run()
+
+            if host['k8s-role'] == 'master':
+                logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
 
 
