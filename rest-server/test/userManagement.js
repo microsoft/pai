@@ -799,6 +799,19 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
     });
   });
 
+  it('Case 3 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        done();
+      });
+  });
+
 });
 
 
