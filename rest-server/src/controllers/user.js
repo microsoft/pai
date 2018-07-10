@@ -41,7 +41,7 @@ const update = (req, res, next) => {
       }
     });
   } else {
-    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allowed to do this operation.`));
   }
 };
 
@@ -60,7 +60,7 @@ const remove = (req, res, next) => {
       });
     });
   } else {
-    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allowed to do this operation.`));
   }
 };
 
@@ -126,7 +126,7 @@ const getUserList = (req, res, next) => {
       return res.status(200).json(userList);
     });
   } else {
-    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
+    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allowed to do this operation.`));
   }
 };
 
