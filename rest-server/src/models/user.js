@@ -59,11 +59,7 @@ const update = (username, password, admin, modify, callback) => {
             if (err) {
               return callback(err);
             }
-            if (typeof admin !== 'undefined') {
-              setUserAdmin(admin, username, callback);
-            } else {
-              callback(null);
-            }
+            setUserAdmin(admin, username, callback);
           });
         } else {
           db.set(etcdConfig.userPath(username), null, {dir: true}, (err) => {

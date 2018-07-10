@@ -26,7 +26,8 @@ const userPutInputSchema = Joi.object().keys({
   password: Joi.string()
     .min(6)
     .required(),
-  admin: Joi.boolean(),
+  admin: Joi.boolean()
+    .required(),
   modify: Joi.boolean()
     .required(),
 }).required();
