@@ -94,6 +94,30 @@ describe('Add new user: put /api/v1/user', () => {
         }
       });
 
+    nock(etcdHosts)
+      .get('/v2/keys/users/exist_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/exist_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/exist_user/admin',
+              'value': 'true',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/exist_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
   });
 
   //
@@ -139,6 +163,19 @@ describe('Add new user: put /api/v1/user', () => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        done();
+      });
+  });
+
+  it('Case 4 (Negative): Should fail to add user with exist name.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'exist_user', 'password': '123456', 'admin': true, 'modify': false })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(409);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('ERR_CONFLICT_USER');
         done();
       });
   });
