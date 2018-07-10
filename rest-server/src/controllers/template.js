@@ -1,6 +1,9 @@
+const appRoot = require('app-root-path');
+const path = require('path');
+
 const yaml = require('js-yaml');
 const fs = require('fs');
-const basePath = './pai_templates';
+const basePath = path.join(appRoot.path, 'marketplace');
 
 // parse the json data to template summary format.
 const to_template_summary = (data) =>{

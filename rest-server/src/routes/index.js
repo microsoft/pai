@@ -23,7 +23,7 @@ const tokenRouter = require('./token');
 const userRouter = require('./user');
 const jobRouter = require('./job');
 const vcRouter = require('./vc');
-const templateRouter = require('./pai-template');
+const templateRouter = require('./template');
 
 const router = new express.Router();
 
