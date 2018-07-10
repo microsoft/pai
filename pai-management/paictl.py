@@ -270,6 +270,7 @@ def pai_build():
 
     config_path = args.config_path
     image_name = args.image_name
+
     cluster_object_model = load_cluster_objectModel_service(config_path)
 
     image_list = None
