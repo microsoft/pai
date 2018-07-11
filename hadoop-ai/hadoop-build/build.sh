@@ -35,3 +35,7 @@ cp /hadoop/hadoop-dist/target/hadoop-2.7.2.tar.gz /hadoop-binary
 
 echo "Successfully build hadoop 2.7.2 AI"
 
+
+
+# When Changing the patch id, please update the filename here.
+touch /hadoop-binary/12931129-done
