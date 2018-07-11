@@ -17,6 +17,9 @@
 
 require('./template-import.component.scss');
 require('json-editor'); /* global JSONEditor */
+// for model start
+require('bootstrap/js/modal.js');
+// for model end
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const templateImportComponent = require('./template-import.component.ejs');
@@ -24,12 +27,21 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./template-import.schema.js');
+// for model start
+const userEditModalComponent = require('./submit-modal-component.ejs');
+// for model end
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent
 });
 
+// for model start
+const showEditInfo = () => {
+  $('#modalPlaceHolder').html(userEditModalComponent);
+  $('#userEditModal').modal('show');
+};
+// for model end
 let editor;
 let jobDefaultConfig;
 
@@ -115,7 +127,9 @@ const loadEditor = () => {
   });
   jobDefaultConfig = editor.getValue();
 };
-
+// for model start
+window.showEditInfo = showEditInfo;
+// for model end
 const resize = () => {
   let heights = window.innerHeight;
   $('#editor-holder')[0].style.height = heights - 300 + 'px';
@@ -142,7 +156,8 @@ $(document).ready(() => {
     $('#fileUpload').val('');
   });
   $(document).on('click', '#submitJob', () => {
-    alert('dddd');
+    // alert('dddd');
+    showEditInfo();
   });
   $(document).on('click', '#fileExport', () => {
     exportFile(JSON.stringify(editor.getValue(), null, 4),
@@ -155,5 +170,5 @@ $(document).ready(() => {
   };
 });
 
-module.exports = {submitJob};
+module.exports = {submitJob, showEditInfo};
 

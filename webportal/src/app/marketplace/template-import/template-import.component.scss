@@ -24,3 +24,20 @@ textarea {
 .disinline>div.one{
     margin-right: 8px;
 }
+
+// model button location
+.label-para{
+    margin-bottom: 12px;
+}
+
+.button-collection{
+    text-align: center;
+}
+
+.button-collection>button{
+    margin-right: 10px;
+}
+
+.button-collection>.last-btn{
+    margin-right: 0;
+}
