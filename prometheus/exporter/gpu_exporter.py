@@ -1,4 +1,3 @@
-
 #!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -21,33 +20,37 @@ import subprocess
 import sys
 from xml.dom import minidom
 import os
-import logging  
-logger = logging.getLogger("gpu_expoter")  
+import logging
+logger = logging.getLogger("gpu_expoter")
 
 def parse_smi_xml_result(smi, logDir):
     xmldoc = minidom.parseString(smi)
     gpuList = xmldoc.getElementsByTagName('gpu')
-    logger.info(len(gpuList))
+
     gpu_count = len(gpuList)
     logger.info("gpu numbers" + str(gpu_count))
     nvidiasmi_attached_gpus = "nvidiasmi_attached_gpus {0}\n".format(gpu_count)
-    outputFile = open(logDir + "/gpu_exporter.prom", "w")
-    outputFile.write(nvidiasmi_attached_gpus)
-    outPut = {}
-    for gpu in gpuList:
-        minorNumber = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
-        gpuUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
-        gpuMemUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
-        gpuUtilStr = 'nvidiasmi_utilization_gpu{{minor_number=\"{0}\"}} {1}\n'.format(minorNumber, gpuUtil)
-        MemUtilStr = 'nvidiasmi_utilization_memory{{minor_number=\"{0}\"}} {1}\n'.format(minorNumber, gpuMemUtil)
-        outputFile.write(gpuUtilStr)
-        outputFile.write(MemUtilStr)
-        outPut[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
+
+    with open(logDir + "/gpu_exporter.prom", "w") as outputFile:
+        outputFile.write(nvidiasmi_attached_gpus)
+        outPut = {}
+
+        for gpu in gpuList:
+            minorNumber = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
+            gpuUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
+            gpuMemUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
+            gpuUtilStr = 'nvidiasmi_utilization_gpu{{minor_number=\"{0}\"}} {1}\n'.format(minorNumber, gpuUtil)
+            MemUtilStr = 'nvidiasmi_utilization_memory{{minor_number=\"{0}\"}} {1}\n'.format(minorNumber, gpuMemUtil)
+            outputFile.write(gpuUtilStr)
+            outputFile.write(MemUtilStr)
+            outPut[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
+
     return outPut
 
 def gen_gpu_metrics_from_smi(logDir):
+    """ in some cases, nvidia-smi may block indefinitely, caller should be aware of this """
     try:
-        logger.info("gen_gpu_metrics_from_smi")  
+        logger.info("call nvidia-smi to get gpu metrics")
         cmd = "nvidia-smi -q -x"
         smi_output = subprocess.check_output([cmd], shell=True)
         return parse_smi_xml_result(smi_output, logDir)

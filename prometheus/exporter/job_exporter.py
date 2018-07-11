@@ -17,21 +17,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess
+import threading
 import json
 import sys
+import time
+import logging
+import datetime
+from Queue import Queue
+from Queue import Empty
+
 import docker_stats
 import docker_inspect
 import gpu_exporter
-import time
-import logging  
 from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger("gpu_expoter")  
-logger.setLevel(logging.INFO)  
-fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)  
-fh.setLevel(logging.INFO) 
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-fh.setFormatter(formatter)   
+logger = logging.getLogger("gpu_expoter")
+logger.setLevel(logging.INFO)
+fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 def parse_from_labels(labels):
@@ -96,22 +101,55 @@ def gen_job_metrics(logDir, gpuMetrics):
         outputFile.write(containerBlockOut)
         outputFile.write(containerMemPerc)
 
+def try_get_gpu_metrics(semaphore, logDir):
+    """ gen_gpu_metrics_from_smi may block indefinitely, so we wrap call in thread.
+    Also, to avoid having too much threads, use semaphore to ensure only 1 thread is running """
+    if semaphore.acquire(False):
+        def wrapper(queue):
+            """ wrapper assume semaphore already acquired, will release semaphore on exit """
+            result = None
+            start = datetime.datetime.now()
+
+            try:
+                result = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
+            except Exception as e:
+                logger.warn("get gpu metrics failed")
+                logger.exception(e)
+            finally:
+                logger.info("get gpu metrics spent %s", datetime.datetime.now() - start)
+                semaphore.release()
+                queue.put(result)
+
+        queue = Queue(1)
+        t = threading.Thread(target=wrapper, args=(queue,), name="gpu-metrices-getter")
+        t.start()
+        try:
+            result = queue.get(block=True, timeout=3)
+            return result
+        except Empty:
+            return None
+    else:
+        logger.warn("another thread is running")
+
+    return None
+
 def main(argv):
     logDir = argv[0]
     timeSleep = int(argv[1])
     iter = 0
-    while(True):
+
+    semaphore = threading.Semaphore(1)
+
+    while True:
         try:
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
             # collect GPU metrics
-            gpuMetrics = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
+            gpuMetrics = try_get_gpu_metrics(semaphore, logDir)
             # join with docker stats metrics and docker inspect labels
             gen_job_metrics(logDir, gpuMetrics)
-        except:
-            exception = sys.exc_info()
-            for e in exception:
-                logger.error("job exporter error {}".format(e))
+        except Exception as e:
+            logger.exception(e)
         time.sleep(timeSleep)
 
 
