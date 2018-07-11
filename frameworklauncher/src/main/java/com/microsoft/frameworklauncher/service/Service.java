@@ -288,6 +288,7 @@ public class Service extends AbstractService {
     }
     classpath.append(ApplicationConstants.CLASS_PATH_SEPARATOR).append(ApplicationConstants.Environment.CLASSPATH.$$());
     localEnvs.put(GlobalConstants.ENV_VAR_CLASSPATH, classpath.toString());
+    localEnvs.put(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR, ApplicationConstants.LOG_DIR_EXPANSION_VAR);
 
     // Use the user for LauncherAM the same as LauncherService, since they are all Launcher executables.
     localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, loggedInUser.getName());
@@ -303,12 +304,12 @@ public class Service extends AbstractService {
     // SetupEntryPoint
     Vector<CharSequence> vargs = new Vector<>(30);
     vargs.add(ApplicationConstants.Environment.JAVA_HOME.$$() + "/bin/java");
-    vargs.add("-DLOG_DIRS=$LOG_DIRS");
+    vargs.add("-D" + GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR + "=" + GlobalConstants.REF_ENV_VAR_LAUNCHER_LOG_DIR);
     vargs.add("-Xmx" + amResource.getMemory() + "m");
     vargs.add(GlobalConstants.MAIN_CLASS_APPLICATION_MASTER);
     vargs.add(String.format(
         "1>%1$sstdout 2>%1$sstderr",
-        ApplicationConstants.LOG_DIR_EXPANSION_VAR + File.separator));
+        GlobalConstants.REF_ENV_VAR_LAUNCHER_LOG_DIR + File.separator));
 
     StringBuilder command = new StringBuilder();
     for (CharSequence str : vargs) {
@@ -744,7 +745,7 @@ public class Service extends AbstractService {
       if (fancyRetryPolicy) {
         // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
         // Leave exit due to others to NormalRetryPolicy
-        LOGGER.logWarning(logPrefix +
+        LOGGER.logInfo(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
@@ -763,7 +764,7 @@ public class Service extends AbstractService {
       return;
     } else {
       if (exitType == ExitType.SUCCEEDED) {
-        LOGGER.logWarning(completeFrameworkLogPrefix +
+        LOGGER.logInfo(completeFrameworkLogPrefix +
             "Framework exited due to %s.", exitType);
         completeFramework(frameworkStatus);
         return;

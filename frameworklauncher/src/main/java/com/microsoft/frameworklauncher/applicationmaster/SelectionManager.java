@@ -177,6 +177,8 @@ public class SelectionManager { // THREAD SAFE
       if (gpuAttribute == 0) {
         gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
+      LOGGER.logDebug("selectNodes: Selected candidate: " + node.getHost() + " Node Available gpuAttribute:" +
+          CommonExts.toStringWithBits(node.getAvailableResource().getGpuAttribute()) + " Selected gpuAttribute:" + CommonExts.toStringWithBits(gpuAttribute));
       result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
     }
     return result;
@@ -184,7 +186,7 @@ public class SelectionManager { // THREAD SAFE
 
   public synchronized SelectionResult selectSingleNode(String taskRoleName) throws NotAvailableException {
     SelectionResult results = select(taskRoleName);
-    if (results.getNodeHosts().size() > 1) {
+    if (results.getNodeHosts().size() > 0) {
       // Random pick a host from the result set to avoid conflicted requests for concurrent container requests from different jobs
       ResourceDescriptor optimizedRequestResource = results.getOptimizedResource();
       String candidateNode = results.getNodeHosts().get(CommonUtils.getRandomNumber(0, results.getNodeHosts().size() - 1));
@@ -194,6 +196,7 @@ public class SelectionManager { // THREAD SAFE
       SelectionResult result = new SelectionResult();
       result.addSelection(candidateNode, results.getGpuAttribute(candidateNode), results.getOverlapPorts());
       result.setOptimizedResource(optimizedRequestResource);
+      LOGGER.logDebug("selectSingleNode: Selected: " + candidateNode + " optimizedRequestResource:" + optimizedRequestResource);
       return result;
     }
     return results;

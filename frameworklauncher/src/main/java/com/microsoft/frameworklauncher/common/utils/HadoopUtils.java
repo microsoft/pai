@@ -315,7 +315,7 @@ public class HadoopUtils {
     }
   }
 
-  public static String getAppCacheNetworkPath(String nodeHostName, String amLocalDirs) {
+  public static String getContainerCacheNetworkPath(String nodeHostName, String amLocalDirs, String containerId) {
     if (Shell.WINDOWS) {
       String sharedLocalDirs;
       if (amLocalDirs.startsWith("D:")) {
@@ -323,9 +323,9 @@ public class HadoopUtils {
       } else {
         sharedLocalDirs = "drived" + amLocalDirs.replace("/", "\\");
       }
-      return String.format("\\\\%s\\%s", nodeHostName, sharedLocalDirs);
+      return String.format("\\\\%s\\%s\\%s", nodeHostName, sharedLocalDirs, containerId);
     } else {
-      return String.format("%s:%s", nodeHostName, amLocalDirs);
+      return String.format("%s:%s/%s", nodeHostName, amLocalDirs, containerId);
     }
   }
 

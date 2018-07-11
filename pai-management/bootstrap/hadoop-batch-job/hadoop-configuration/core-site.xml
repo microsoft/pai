@@ -35,4 +35,10 @@
   </description>
 </property>
 
+
+    <property>
+        <name>ipc.server.max.response.size</name>
+        <value>5242880</value>
+    </property>
+
 </configuration>

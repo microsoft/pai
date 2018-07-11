@@ -6,11 +6,12 @@
  - [Fix crashed etcd instance](#etcd_fix)
 
 
-## Add new worker nodes to pai cluster <a name="add_worker_new_node"></a>
+## Add new nodes (master or worker) to pai cluster <a name="add_worker_new_node"></a>
 
 ### Note:
 - You should guarantee that all the new node's os should be ubuntu 16.04 LTS.
 - You should prepare a configuration yaml file to describe the node you want to add. More information about the configuration file, please refer to this [link](https://github.com/Microsoft/pai/blob/master/pai-management/node-list-example.yaml).
+- Add master node can't achieve the goal that expend a No-HA cluster into HA. If you wanna add a master node, please deploy your cluster in HA mode first.
 
 ### Steps:
 ```bash
@@ -19,12 +20,12 @@
 ./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Add new node from nodelist.yaml
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a add
+./paictl.py machine add -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
 
 
-## Remove worker nodes from pai cluster <a name="remove_worker_node"></a>
+## Remove nodes (worker or master) from pai cluster <a name="remove_worker_node"></a>
 
 
 ### Note:
@@ -37,7 +38,7 @@
 ./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Remove node from nodelist.yaml
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a remove
+./paictl.py machine remove -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
 

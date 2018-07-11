@@ -14,32 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-remove-node:
-
-    file-list:
-    - name: kubernetes-cleanup.sh
-      src: k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
-      dst: remove-node
-
-
-
-stop-etcd-on-target-node:
-
-    file-list:
-    - name: stop-etcd-server.sh
-      src: k8sPaiLibrary/maintaintool/stop-etcd-server.sh
-      dst: stop-etcd-on-target-node
-
-
-
-remove-node-from-etcd-cluster:
-
-    template-list:
-    - name: remove-member-from-etcd-cluster.sh
-      src: k8sPaiLibrary/maintaintool/remove-member-from-etcd-cluster.sh
-      dst: remove-node-from-etcd-cluster
-
-
-
