@@ -70,6 +70,7 @@ docker push your_docker_registry/pai.run.tensorflow
       "taskNumber": Integer,
       "cpuNumber":  Integer,
       "memoryMB":   Integer,
+      "shmMB":      Integer,
       "gpuNumber":  Integer,
       "portList": [
         {
@@ -102,7 +103,8 @@ docker push your_docker_registry/pai.run.tensorflow
 | `taskRole.name`                | String in `^[A-Za-z0-9._~]+$` format, required | task role 名称，各 task role 名称不能重复 |
 | `taskRole.taskNumber`          | Integer, required          | task 数量，不得少于一个 |
 | `taskRole.cpuNumber`           | Integer, required          | 每个 task 的 CPU 数量，大于等于 1|
-| `taskRole.memoryMB`            | Integer, required         | 每个 task 的存储空间，大于等于 100  |
+| `taskRole.memoryMB`            | Integer, required         | 每个 task 的内存空间，大于等于 100  |
+| `taskRole.shmMB`               | Integer, optional         | 每个 task 的共享内存空间，不大于该 task 的内存空间  |
 | `taskRole.gpuNumber`           | Integer, required          | 每个 task 的 GPU 数量， 大于等于 0  | 
 | `taskRole.portList`            | List, optional             | job 中用到的 `portType` 列表                |
 | `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | 端口类型的标签名 |
@@ -140,10 +142,10 @@ Docker 容器中可访问的环境变量的完整列表如下：
 | PAI_OUTPUT_DIR                     | 即配置文件中的 `outputDir`，或是  `outputDir` 没有指定时自动生成的目录 |
 | PAI_CODE_DIR                       | 即配置文件中的 `codeDir`                |
 | PAI_CURRENT_TASK_ROLE_NAME         | 当前 task role 的名称，即配置文件中的 `taskRole.name`  |
-| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | 当前 task role 的 task 数量，即配置文件中的
- `taskRole.taskNumber`  |
+| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | 当前 task role 的 task 数量，即配置文件中的 `taskRole.taskNumber`  |
 | PAI_CURRENT_TASK_ROLE_CPU_COUNT    | 当前 task role 的 CPU 数量，即配置文件中的 `taskRole.cpuNumber`  |
-| PAI_CURRENT_TASK_ROLE_MEM_MB       |当前 task role 的存储空间，即配置文件中的  `taskRole.memoryMB`  |
+| PAI_CURRENT_TASK_ROLE_MEM_MB       |当前 task role 的内存空间，即配置文件中的  `taskRole.memoryMB`  |
+| PAI_CURRENT_TASK_ROLE_SHM_MB       |当前 task role 的共享内存空间，即配置文件中的  `taskRole.shmMB` |
 | PAI_CURRENT_TASK_ROLE_GPU_COUNT    | 当前 task role 的 GPU 数量，即配置文件中的 `taskRole.gpuNumber`  |
 | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | task role 中当前 task 的索引，从 0 开始 |
 | PAI_JOB_TASK_COUNT                 | 配置文件中的 task 数量      |
