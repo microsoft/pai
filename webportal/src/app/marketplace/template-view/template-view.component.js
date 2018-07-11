@@ -133,7 +133,7 @@ const loadTemplates = function() {
         searchable: false,
         render: function(qs, type) {
           return '<button class="btn btn-default btn-sm" onclick="window.location.href=\'/import.html'
-            + qs + '\'">Import</button>';
+            + qs + '\'">Use</button>';
         }
       },
     ],

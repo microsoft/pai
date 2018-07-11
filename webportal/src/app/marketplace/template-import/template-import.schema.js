@@ -24,61 +24,63 @@ const taskSchema = {
     disable_edit_json: true,
   },
   properties: {
-    Role: {
+    role: {
       type: 'string',
     },
-    Instances: {
+    instances: {
+
       type: 'number',
       minimum: 0,
       multipleOf: 1,
     },
-    Data: {
+    data: {
       type: 'string',
     },
-    CPU: {
+    cpu: {
       type: 'string',
       minimum: 0,
       multipleOf: 1,
     },
-    Script: {
-      type: 'number',
+    script: {
+      type: 'string',
     },
-    GPU: {
+    gpu: {
       type: 'string',
       multipleOf: 1,
     },
-    Docker: {
+    dockerimage: {
       type: 'string',
     },
-    MemoryMB: {
+    memoryMB: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
     },
-    Env: {
+    env: {
       type: 'string',
       format: 'textarea',
       multipleOf: 1,
     },
-    Command: {
+    command: {
       type: 'string',
       format: 'textarea',
       multipleOf: 1,
     },
   },
   required: [
-    'Role',
-    'Instances',
-    'Data',
-    'CPU',
-    'Script',
-    'GPU',
-    'Docker',
-    'MemoryMB',
-    'Env',
-    'Command'
+    'role',
+    'instances',
+    'data',
+    'cpu',
+    'script',
+    'gpu',
+    'dockerimage',
+    'memoryMB',
+    'env',
+    'command'
   ],
 };
+
 // submit_job [data]
 const dataSchema = {
   type: 'object',
@@ -88,34 +90,34 @@ const dataSchema = {
     disable_edit_json: true,
   },
   properties: {
-    Name: {
+    name: {
       type: 'string'
     },
-    Version: {
+    version: {
       type: 'string',
       multipleOf: 1,
     },
-    Contributor: {
+    contributor: {
       type: 'string'
     },
-    ProtocolVersion: {
+    protocol_version: {
       type: 'string',
       multipleOf: 1,
     },
-    URI: {
+    uri: {
       type: 'string'
     },
-    Action: {
+    action: {
       type: 'string'
     },
   },
   required: [
-    'Name',
-    'Version',
-    'Contributor',
-    'ProtocolVersion',
-    'URI',
-    'Action'
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri',
+    'action'
   ]
 };
 // submit_job [script]
@@ -128,31 +130,31 @@ const scriptSchema = {
     disable_edit_json: true,
   },
   properties: {
-    Name: {
+    name: {
       type: 'string'
     },
-    Version: {
+    version: {
       type: 'string',
       multipleOf: 1,
     },
-    Contributor: {
+    contributor: {
       type: 'string'
     },
-    'Protocol Version': {
+    protocol_version: {
       type: 'string',
       multipleOf: 1
     },
-    URI: {
+    uri: {
       type: 'string',
       multipleOf: 1
     }
   },
   required: [
-    'Name',
-    'Version',
-    'Contributor',
-    'Protocol Version',
-    'URI'
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri'
   ]
 };
 // submit_job [job]
@@ -164,31 +166,31 @@ const jobBlockSchema = {
     disable_edit_json: true,
   },
   properties: {
-    Name: {
+    name: {
       type: 'string'
     },
-    Version: {
+    version: {
       type: 'string',
       multipleOf: 1,
     },
-    Contributor: {
+    contributor: {
       type: 'string'
     },
-    'Protocol Version': {
+    protocol_version: {
       type: 'string',
       multipleOf: 1,
     },
-    Experiment: {
+    experiment: {
       type: 'string'
     },
-    Parameters: {
+    parameters: {
       type: 'string',
       format: 'textarea',
       options: {
         expand_height: true,
       },
     },
-    task: {
+    tasks: {
       type: 'array',
       format: 'grid',
       items: taskSchema,
@@ -197,13 +199,13 @@ const jobBlockSchema = {
     },
   },
   required: [
-    'Name',
-    'Version',
-    'Contributor',
-    'Protocol Version',
-    'Experiment',
-    'Parameters',
-    'task'
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'experiment',
+    'parameters',
+    'tasks'
   ]
 };
 // submit_job [docker]
@@ -215,34 +217,34 @@ const dockerSchema = {
     disable_edit_json: true,
   },
   properties: {
-    Name: {
+    name: {
       type: 'string'
     },
-    Version: {
+    version: {
       type: 'string',
       multipleOf: 1,
     },
-    Contributor: {
+    contributor: {
       type: 'string'
     },
-    'Protocol Version': {
+    protocol_version: {
       type: 'string',
       multipleOf: 1,
     },
-    URI: {
+    uri: {
       type: 'string'
     },
-    Features: {
+    features: {
       type: 'string'
     },
   },
   required: [
-    'Name',
-    'Version',
-    'Contributor',
-    'Protocol Version',
-    'URI',
-    'Features'
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri',
+    'features'
   ]
 };
 // submit_job child collection

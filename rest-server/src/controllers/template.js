@@ -1,3 +1,5 @@
+
+
 const appRoot = require('app-root-path');
 const path = require('path');
 
@@ -7,10 +9,9 @@ const basePath = path.join(appRoot.path, 'marketplace');
 
 // parse the json data to template summary format.
 const to_template_summary = (data) =>{
-    res = { 'datasets': [], 'scripts': [], 'dockers': [], }
+    let res = { 'datasets': [], 'scripts': [], 'dockers': [], };
     if ('job' in data) {
-        //console.log('in');       
-        var d = data['job'];
+        let d = data['job'];
         res['name'] = d['name'];
         res['type'] = 'job';
         res['version'] = d['version'];
@@ -19,8 +20,8 @@ const to_template_summary = (data) =>{
     }
     if ('prerequisites' in data) {
         Object.keys(data['prerequisites']).forEach(function (key) {
-            var d = data['prerequisites'][key];
-            var item = {
+            let d = data['prerequisites'][key];
+            let item = {
                 'name': d['name'],
                 'version': d['version']
             };
@@ -41,7 +42,7 @@ const to_template_summary = (data) =>{
 };
 
 const list = (req, res) => {
-    var templateList = []
+    let templateList = []
     fs.readdirSync(basePath).forEach(filename => {
         templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
     });
@@ -49,22 +50,44 @@ const list = (req, res) => {
 };
 
 const recommend = (req, res) => {
-    var count = req.param('count', 3);
-    var filenames = fs.readdirSync(basePath);
+    let count = req.param('count', 3);
+    let filenames = fs.readdirSync(basePath);
     if (count > filenames.length){
         return res.status(404).json({
             'message': 'The value of the "count" parameter must be less than the number of templates',
         });
     }
     else {
-        var templateList = [];
-        for (var i = 0; i < count; ++i)
-            templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/` + filenames[i], 'utf8'))));
+        let templateList = [];
+        for (let i = 0; i < count; ++i)
+            templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
         return res.status(200).json(templateList);
     }
 };
 
+
+const get_template_by_name_and_version = (req, res) =>{
+    let name = req.param('name');
+    let version = req.param('version');
+
+    let filenames = fs.readdirSync(basePath);
+    for (let i = 0; i < filenames.length; ++i){
+        let data = yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'));
+        if ('job' in data) {
+            let d = data['job'];
+            if(d['name'] == name && d['version'] == version){
+                return res.status(200).json(data);
+            }
+        }
+    }
+    return res.status(404).json({
+        'message': 'Not Found',
+    });
+}
+
+
 module.exports = { 
     list,
-    recommend
+    recommend,
+    get_template_by_name_and_version
 };
