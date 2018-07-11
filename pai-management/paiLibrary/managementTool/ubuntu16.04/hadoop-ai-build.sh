@@ -21,6 +21,14 @@ pushd $(dirname "$0") > /dev/null
 
 hadoopbinarypath=$1
 
+
+[[ -f "$hadoopbinarypath/12931129-done" ]] &&
+{
+    echo "Hadoop ai with patch 12931129 has been built"
+    echo "Skip this build precess"
+    exit 0
+}
+
 [[ ! -f "$hadoopbinarypath" ]] ||
 {
 
