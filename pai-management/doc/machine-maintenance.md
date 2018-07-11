@@ -85,5 +85,5 @@ Note: please be sure that there is only one node (infra node container etcd) on 
 ./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Destroy whole cluster.
-./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
+./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
