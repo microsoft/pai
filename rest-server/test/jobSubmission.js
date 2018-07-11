@@ -186,7 +186,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   }
 
-  const prepareNockForCaseN07 = (jobName) => {
+  const prepareNockForCaseN08 = (jobName) => {
       global.nock(global.launcherWebserviceUri)
         .get(`/v1/Frameworks/${jobName}`)
         .reply(
@@ -236,6 +236,8 @@ describe('Submit job: POST /api/v1/jobs', () => {
           'index':51
         });
   }
+
+  const prepareNockForCaseN09 = prepareNockForCaseN03;
 
 
   //
@@ -389,7 +391,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
   });
 
   it('[N-08] should submit job failed when db does not have vc field', (done) => {
-    prepareNockForCaseN07('new_job_vc_not_found');
+    prepareNockForCaseN08('new_job_vc_not_found');
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -398,6 +400,20 @@ describe('Submit job: POST /api/v1/jobs', () => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.code, 'response error code').equal('ERR_UNKNOWN');
+        done();
+      });
+  });
+
+  it('[N-09] Duplicated job name using PUT method', (done) => {
+    prepareNockForCaseN09();
+    global.chai.request(global.server)
+      .put('/api/v1/jobs/job1')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(409);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_CONFLICT_JOB');
         done();
       });
   });
