@@ -15,13 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
   name: watchdog
 spec:
+  selector:
+    matchLabels:
+      app: watchdog
   template:
     metadata:
       labels:
