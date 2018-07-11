@@ -15,31 +15,145 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 require('./template-import.component.scss');
-
+require('json-editor'); /* global JSONEditor */
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const templateImportComponent = require('./template-import.component.ejs');
 const loading = require('../../job/loading/loading.component');
+const webportalConfig = require('../../config/webportal.config.json');
+const userAuth = require('../../user/user-auth/user-auth.component');
+const jobSchema = require('./template-import.schema.js');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent
 });
 
-const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
+let editor;
+let jobDefaultConfig;
+
+const isValidJson = (str) => {
+  let valid = true;
+  let errors = null;
+  try {
+    let json = JSON.parse(str);
+    errors = editor.validate(json);
+    if (errors.length) {
+      valid = false;
+      errors = errors[0].path.replace('root.', '') + ': ' + errors[0].message;
+    }
+  } catch (e) {
+    errors = e.message;
+    valid = false;
+  }
+  if (!valid) {
+    alert('Please upload a valid json file: ' + errors);
+  }
+  return valid;
 };
 
-$('#content-wrapper').html(templateViewHtml);
+const exportFile = (data, filename, type) => {
+  let file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) { // IE10+
+    window.navigator.msSaveOrOpenBlob(file, filename);
+  } else { // Others
+    let a = document.createElement('a');
+    let url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+};
 
+const submitJob = (jobConfig) => {
+  userAuth.checkToken((token) => {
+    loading.showLoading();
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
+      data: JSON.stringify(jobConfig),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'PUT',
+      dataType: 'json',
+      success: (data) => {
+        loading.hideLoading();
+        if (data.error) {
+          alert(data.message);
+          $('#submitHint').text(data.message);
+        } else {
+          alert('submit success');
+          $('#submitHint').text('submitted successfully!');
+        }
+        window.location.replace('/view.html');
+      },
+      error: (xhr, textStatus, error) => {
+        loading.hideLoading();
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
+    });
+  });
+};
+
+const loadEditor = () => {
+  let element = $('#editor-holder')[0];
+  editor = new JSONEditor(element, {
+    schema: jobSchema,
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    no_additional_properties: true,
+    show_errors: 'always',
+  });
+  jobDefaultConfig = editor.getValue();
+};
+
+const resize = () => {
+  let heights = window.innerHeight;
+  $('#editor-holder')[0].style.height = heights - 300 + 'px';
+};
+
+$('#sidebar-menu--submit-job').addClass('active');
+
+$('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
-  window.onresize = function(event) {
-    resizeContentWrapper();
+  loadEditor();
+  editor.on('change', () => {
+    $('#submitJob').prop('disabled', (editor.validate().length != 0));
+  });
+
+  $(document).on('change', '#fileUpload', (event) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const jobConfig = event.target.result;
+      if (isValidJson(jobConfig)) {
+        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(jobConfig)));
+      }
+    };
+    reader.readAsText(event.target.files[0]);
+    $('#fileUpload').val('');
+  });
+  $(document).on('click', '#submitJob', () => {
+    alert('dddd');
+  });
+  $(document).on('click', '#fileExport', () => {
+    exportFile(JSON.stringify(editor.getValue(), null, 4),
+      (editor.getEditor('root.jobName').getValue() || 'jobconfig') + '.json',
+      'application/json');
+  });
+  resize();
+  window.onresize = function() {
+    resize();
   };
-  resizeContentWrapper();
-  $('#sidebar-menu--template-import').addClass('active');
 });
 
-module.exports = {};
+module.exports = {submitJob};
+
