@@ -175,7 +175,7 @@ public class SelectionManager { // THREAD SAFE
       Node node = candidateNodes.get(i);
       Long gpuAttribute = requestResource.getGpuAttribute();
       if (gpuAttribute == 0) {
-        gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
+        //gpuAttribute = selectCandidateGpuAttribute(node, requestResource.getGpuNumber());
       }
       LOGGER.logDebug("selectNodes: Select: " + node.getHost() + " node avaliable GPU:" + CommonExts.toStringWithBits(node.getAvailableResource().getGpuAttribute()) + " gpuAttribute:" + CommonExts.toStringWithBits(gpuAttribute));
       result.addSelection(node.getHost(), gpuAttribute, node.getAvailableResource().getPortRanges());
