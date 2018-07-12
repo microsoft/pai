@@ -509,7 +509,7 @@ def pai_cluster():
             elif user_input == "Y":
                 break
             else:
-                print " Please type Y or N."
+                print(" Please type Y or N.")
 
         logger.info("Begin to clean up whole cluster.")
         cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
