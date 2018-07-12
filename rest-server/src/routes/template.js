@@ -1,5 +1,6 @@
 // module dependencies
 const express = require('express');
+const tokenConfig = require('../config/token');
 const templateController = require('../controllers/template.js');
 const templateConfig = require('../config/template.js');
 const param = require('../middlewares/parameter');
@@ -8,7 +9,8 @@ const router = new express.Router();
 
 router.route('/')
     /** GET /api/v1/template - List all available templates */
-    .get(templateController.list);
+    .get(templateController.list)
+    .post(tokenConfig.check, templateController.share);
 
 router.route('/:name/:version')
     /** GET /api/v1/template/:name/:version - Return the template by name and version*/

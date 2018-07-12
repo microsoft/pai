@@ -23,25 +23,30 @@ require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
 require('./template-view.component.scss');
 
+const yaml = require('js-yaml');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const templateViewComponent = require('./template-view.component.ejs');
 const templateTableComponent = require('./template-table.component.ejs');
+const resourceTableComponent = require('./resource-table.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
+const userAuth = require('../../user/user-auth/user-auth.component');
 
-let table = null;
+let templateTable = null;
+let resourceTable = null;
 
 const templateViewHtml = templateViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  templateTable: templateTableComponent
+  templateTable: templateTableComponent,
+  resourceTable: resourceTableComponent
 });
 
 const generateQueryString = function(data) {
   return '?name=' + encodeURIComponent(data.name) + '&version='
     + encodeURIComponent(data.version);
-}
+};
 
 const loadRecommended = function() {
   $.getJSON(`${webportalConfig.restServerUri}/api/v1/template/recommend`,
@@ -60,7 +65,7 @@ const loadRecommended = function() {
       });
     }
   );
-}
+};
 
 const extractAndFormat = function(propertyName) {
   return function(row, type, val, meta) {
@@ -70,15 +75,15 @@ const extractAndFormat = function(propertyName) {
     });
     return array.join(',');
   }
-}
+};
 
 const loadTemplates = function() {
+  $('#view-table').html(templateTableComponent());
   const $table = $('#template-table')
-    .html(templateTableComponent({})) // Clear data
     .on('preXhr.dt', loading.showLoading)
     .on('xhr.dt', loading.hideLoading);
 
-  table = $table.dataTable({
+  templateTable = $table.dataTable({
     ajax: {
       url: `${webportalConfig.restServerUri}/api/v1/template`,
       type: 'GET',
@@ -145,27 +150,143 @@ const loadTemplates = function() {
     'deferRender': true,
     'autoWidth': false,
   }).api();
-}
+};
 
-const resizeContentWrapper = () => {
+const resizeContentWrapper = function(event) {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  if (table != null) {
+  if (templateTable != null) {
     $('.dataTables_scrollBody').css('height', (($(window).height() - 265)) + 'px');
-    table.columns.adjust().draw();
+    templateTable.columns.adjust().draw();
   }
 };
+
+const analyzeFile = function(source) {
+  $('#form-table').html(resourceTableComponent());
+  resourceTable = null;
+  if (source.files && source.files[0]) {
+    if (window.FileReader) {
+      var file = source.files[0];
+      var fr = new FileReader();
+      fr.onload = function(e) {
+        if (e.target.result) {
+          try {
+            var data = yaml.safeLoad(e.target.result);
+            resources = [
+              {
+                'name': data.job.name,
+                'type': 'job',
+                'version': data.job.version
+              }
+            ];
+            data.prerequisites.forEach(function (element) {
+              resources.push({
+                'name': element.name,
+                'type': element.type,
+                'version': element.version
+              });
+            });
+            resourceTable = $('#resource-table').DataTable({
+              data: resources,
+              columns: [
+                {
+                  title: 'Name',
+                  data: 'name'
+                },
+                {
+                  title: 'Type',
+                  data: 'type'
+                },
+                {
+                  title: 'Version',
+                  data: 'version'
+                },
+                {
+                  title: 'Include',
+                  data: null,
+                  orderable: false,
+                  searchable: false,
+                  render: function(data, type) {
+                    return `<input type="checkbox" name="included" value="${data.name}:${data.version}" checked="checked" />`;
+                  }
+                }
+              ],
+              'order': [
+                [0, 'asc']
+              ],
+              'autoWidth': false,
+              'deferRender': true,
+              'paging': false,
+              'info': false,
+              'searching': false
+            });
+            resourceTable.originData = data;
+            resourceTable.originFileName = file.name;
+            return;
+          } catch (e) {
+            if (e.message) {
+              return alert(e);
+            }
+          }
+        }
+        alert('Failed to read the selected file.');
+      };
+      fr.readAsText(file);
+    } else {
+      alert('The browser does not support preview text file!');
+    }
+  }
+};
+
+const submitTemplate = function(source) {
+  var ajaxData = {
+    'template': resourceTable.originData,
+    'included': [],
+    'filename': resourceTable.originFileName
+  }
+  $('[name="included"]').each(function(index, element) {
+    if (element.checked) {
+      ajaxData['included'].push(element.value);
+    }
+  });
+
+  //$('#shareModal').modal('hide');
+  if (resourceTable != null) {
+    //loading.showLoading();
+    userAuth.checkToken((token) => {
+      $.ajax({
+        type: "POST",
+        url: `${webportalConfig.restServerUri}/api/v1/template`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: ajaxData,
+        dataType: 'json',
+        success: function() {
+          alert('success!');
+          //loading.hideLoading();
+        },
+        error: function(xhr, status, error) {
+          var res = JSON.parse(xhr.responseText);
+          alert(res.message ? res.message : res.toString());
+          //loading.hideLoading();
+        }
+      });
+    });
+  }
+};
+
+window.analyzeFile = analyzeFile;
+window.onresize = resizeContentWrapper;
+window.submitTemplate = submitTemplate;
 
 $('#content-wrapper').html(templateViewHtml);
 
 $(document).ready(() => {
-  window.onresize = function(event) {
-    resizeContentWrapper();
-  };
-  resizeContentWrapper();
   $('#sidebar-menu--template-view').addClass('active');
+  $('#content-wrapper').css({'overflow': 'hidden'});
+  resizeContentWrapper();
   loadTemplates();
   loadRecommended();
-  $('#content-wrapper').css({'overflow': 'hidden'});
 });
 
 module.exports = {loadTemplates};
