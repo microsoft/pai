@@ -34,6 +34,7 @@ const userLoginNavHtml = userLoginNavComponent({cookies});
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
+$('#sidebar-menu--submit-job').hide();
 if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
 }

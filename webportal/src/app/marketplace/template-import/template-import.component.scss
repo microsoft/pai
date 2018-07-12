@@ -1,0 +1,43 @@
+input[type=submit]#submitJob,#saves {
+    width: 100px;
+    margin-top: 20px;
+}
+
+div#editor-holder {
+    overflow: auto;
+}
+
+textarea {
+    resize: both;
+}
+
+// save and submit inline
+.disinline{
+    width: 300px;
+    margin: 0 auto;
+}
+
+.disinline>div{
+    display: inline-block;
+}
+
+.disinline>div.one{
+    margin-right: 8px;
+}
+
+// model button location
+.label-para{
+    margin-bottom: 12px;
+}
+
+.button-collection{
+    text-align: center;
+}
+
+.button-collection>button{
+    margin-right: 10px;
+}
+
+.button-collection>.last-btn{
+    margin-right: 0;
+}
