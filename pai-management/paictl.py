@@ -502,6 +502,8 @@ def pai_cluster():
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
 
+        count_input = 0
+
         while True:
             user_input = input("Do you want to continue this operation? (Y/N) ")
             if user_input == "N":
@@ -510,6 +512,10 @@ def pai_cluster():
                 break
             else:
                 print(" Please type Y or N.")
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return
 
         logger.info("Begin to clean up whole cluster.")
         cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
