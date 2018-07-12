@@ -113,7 +113,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
-| `taskRole.shmMB`               | Integer, optional          | Shared memory for one task in the task role, no more than memory size |
+| `taskRole.shmMB`               | Integer, optional          | Shared memory for one task in the task role, no more than memory size. The default value is 64MB |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.portList`            | List, optional             | List of `portType` to use                |
 | `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
