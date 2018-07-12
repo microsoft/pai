@@ -33,7 +33,7 @@ job :
     retryCount: 1 
 
   tasks :
-    - name : worker
+    - name: worker
       data : spacev_input, spacev_config
       dockerimage : spacev_example
       resource: 

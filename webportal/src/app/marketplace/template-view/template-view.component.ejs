@@ -9,11 +9,39 @@
       <ul class="list-inline" id="recommend-list"></ul>
     </div>
     <div class="col-md-2" id="operation-list">
-      <button type="button" class="btn btn-success">Share My Template!</button>
+      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareModal">Share My Template!</button>
     </div>
   </div>
   <div id="view-table" class="box-body">
-    <%= templateTable({ templates: [] }) %>
+    <%= templateTable() %>
+  </div>
+</div>
+<div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="modalLable" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalLable">
+          Share My Template
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <input class="btn btn-default" id="jobTemplateFile" type="file" accept=".yaml" onchange="analyzeFile(this)">
+          <p class="help-block">The file path of the job template to submit.</p>
+        </div>
+        <div class="form-group" id="form-table">
+            <%= resourceTable() %>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="submitTemplate(this)">
+          Submit
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="exitButton">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 <%= loading() %>

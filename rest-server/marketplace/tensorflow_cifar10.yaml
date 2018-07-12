@@ -37,7 +37,7 @@ job :
     retryCount: 0 
 
   tasks :
-    - name : worker
+    - name: worker
       data : cifar10
       script : tensorflow_cnnbenchmarks
       dockerimage : tf_example
