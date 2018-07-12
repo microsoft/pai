@@ -51,6 +51,10 @@ const jobConfigSchema = Joi.object().keys({
         memoryMB: Joi.number()
           .integer()
           .default(100),
+        shmMB: Joi.number()
+          .integer()
+          .max(Joi.ref('memoryMB'))
+          .default(64),
         gpuNumber: Joi.number()
           .integer()
           .default(0),
