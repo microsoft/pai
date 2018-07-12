@@ -505,7 +505,7 @@ def pai_cluster():
         count_input = 0
 
         while True:
-            user_input = input("Do you want to continue this operation? (Y/N) ")
+            user_input = raw_input("Do you want to continue this operation? (Y/N) ")
             if user_input == "N":
                 return
             elif user_input == "Y":
