@@ -29,7 +29,7 @@ const createUnknownError = exports.unknown = (cause) => {
         return cause;
     }
     const message = cause instanceof Error ? cause.message : String(cause);
-    const error = createError('Internal Server Error', 'ERR_UNKNOWN', message);
+    const error = createError('Internal Server Error', 'UnknownError', message);
     if (cause instanceof Error) {
         error.stack = cause.stack;
     } else {

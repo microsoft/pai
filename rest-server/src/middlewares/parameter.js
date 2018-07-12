@@ -27,7 +27,7 @@ const validate = (schema) => {
   return (req, res, next) => {
     Joi.validate(req.body, schema, (err, value) => {
       if (err) {
-        next(createError('Bad Request', 'ERR_INVALID_PARAMETERS', err.message));
+        next(createError('Bad Request', 'InvalidParametersError', err.message));
       } else {
         req.originalBody = req.body;
         req.body = value;
