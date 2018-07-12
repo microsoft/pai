@@ -40,7 +40,7 @@ def parse_usage_limit(data):
 
 def convert_to_byte(data):
     data = data.lower()
-    number = float(re.findall(r"\d+", data)[0])
+    number = float(re.findall(r"[0-9.]+", data)[0])
     if "tb" in data:
         return number * 10 ** 12
     elif "gb" in data:
