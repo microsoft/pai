@@ -55,9 +55,9 @@ Steps:
 
 ### Deploy to a PAI Cluster
 
-The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process. 
+The [readme](../pai-management/README.md) introduces the overall installation process. 
 
-The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) should be correctly configured:
+The following parameters in the [clusterconfig.yaml](../cluster-configuration/cluster-configuration.yaml) should be correctly configured:
 
 - `rest_server_uri`: String. The root url of the REST server.
 - `k8s_api_server_uri`: String. The root url of Kubernetes's API server.
