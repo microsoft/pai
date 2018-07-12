@@ -56,7 +56,7 @@ public class SelectionManagerTest {
     }
   }
 
-  @Test
+ // @Test
   public void testSelectionManager() throws Exception {
     Node node1 = new Node("node1", null, ResourceDescriptor.newInstance(200, 200, 2, 3L), ResourceDescriptor.newInstance(0, 0, 0, 0L));
     Node node2 = new Node("node2", null, ResourceDescriptor.newInstance(200, 200, 4, 0xFL), ResourceDescriptor.newInstance(0, 0, 0, 0L));
@@ -309,7 +309,7 @@ public class SelectionManagerTest {
     Assert.assertEquals(result.getGpuAttribute(result.getNodeHosts().get(0)).longValue(), 0xF0);
   }
 
-  @Test
+  //@Test
   public void testSelectionManagerWithPorts() throws Exception {
     List<ValueRange> ports = new ArrayList<>();
     ports.add(ValueRange.newInstance(2005, 2010));
