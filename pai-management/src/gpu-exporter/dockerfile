@@ -29,7 +29,7 @@ ENV PATH=$PATH:$NV_DRIVER/bin
 WORKDIR /root/
 
 RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip git pciutils
+    apt-get -y install wget build-essential python python-pip git pciutils iftop lsof
 
 COPY copied_file/exporter/* /usr/local/
 
@@ -37,9 +37,6 @@ RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-c
 RUN cp docker-17.06.2-ce.tgz /usr/local
 RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz -C /usr/local/
 RUN cp -r /usr/local/docker/* /usr/bin/
-
-#
-# start
-#
-
-CMD python /usr/local/job_exporter.py /datastorage/prometheus 30
+RUN git clone https://github.com/yadutaf/infilter
+RUN cd infilter && make && cd ..
+RUN cp infilter/infilter /usr/bin

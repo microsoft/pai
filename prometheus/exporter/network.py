@@ -1,0 +1,174 @@
+#!/usr/bin/python
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import subprocess
+import json
+import sys
+import re
+import time
+import logging  
+logger = logging.getLogger("gpu_expoter")  
+
+def convert_to_byte(data):
+    number = float(re.findall(r"(\d+(\.\d+)?)", data)[0][0])
+    if "T" in data:
+        return number * 1024 * 1024 * 1024 * 1024
+    elif "G" in data:
+        return number * 1024 * 1024 * 1024
+    elif "M" in data:
+        return number * 1024 * 1024
+    elif "K" in data:
+        return number * 1024
+    else: 
+        return number
+
+# iftop return 2s, 10s, 40s connection duration data.
+# connectionBytesDuration only could be set as 40, 10 or 2. 
+def parse_iftop(stats, connectionBytesDuration = 40):
+    connectionDic = {}
+    data = [line.split(',') for line in stats.splitlines()]
+
+    while len(data) > 0:
+        item = data.pop(0)
+
+        if len(item) > 0 and "------------" in item[0]:
+            break
+
+    index = 0
+
+    while index < len(data):
+
+        if len(data[index]) > 0 and "------------" in data[index][0]:
+            break
+
+        srcStr = data[index][0]
+        desStr = data[index + 1][0]
+        srcSplit = srcStr.split("B")
+        desSplit = desStr.split("B")
+        srcAddress = re.findall(r'[0-9]+(?:\.[0-9]+){3}:[0-9]+', srcSplit[0])
+        srcIPPort = ""
+
+        if len(srcAddress) > 0:
+            srcIPPort = srcAddress[0]
+
+        desAddress = re.findall(r'[0-9]+(?:\.[0-9]+){3}:[0-9]+', desSplit[0])
+        desIPPort = ""
+
+        if len(desAddress) > 0:
+            desIPPort = desAddress[0]
+
+        connection = srcIPPort + "|" + desIPPort
+
+        index = -3
+        if connectionBytesDuration == 40:
+            index = -3
+        if connectionBytesDuration == 10:
+            index = -4
+        if connectionBytesDuration == 2:
+            index = -5   
+
+        lastOutDataSize = convert_to_byte(srcSplit[index].strip())
+        lastInDataSize = convert_to_byte(desSplit[index].strip())
+        connectionDic[connection] = {"inSize": lastInDataSize, "outSize": lastOutDataSize, "src": srcIPPort, "out": desIPPort}
+        index += 2
+    return connectionDic
+
+def iftop():
+    try:
+        iftopCMD = "iftop -t -P -s 1 -L 10000 -B -n -N"
+        iftopResult = subprocess.check_output([iftopCMD], shell=True)
+        result = parse_iftop(iftopResult)
+        return result
+    except: 
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter iftop error {}".format(e))
+        connectionDic = {}
+        return connectionDic
+
+def parse_lsof(stats):
+    connections = {}
+    data = stats.splitlines()
+    data.pop(0)
+    index = 0
+
+    for ditem in data:
+        srcDes = re.findall(r'[0-9]+(?:\.[0-9]+){3}:[0-9]+', ditem)
+        srcStr = ""
+        desStr = ""
+        srcDesStr = ""
+
+        if 2 == len(srcDes):
+            srcStr = srcDes[0]
+            desStr = srcDes[1]
+            srcDesStr = srcStr + "|" + desStr
+            connections[srcDesStr] = {"src": srcStr, "des": desStr}
+    return connections
+
+def lsof(containerPID):
+    try:
+        lsofCMD = "infilter {} /usr/bin/lsof -i -n".format(containerPID)
+        isofResult = subprocess.check_output([lsofCMD], shell=True)
+        result = parse_lsof(isofResult)
+        return result
+    except:
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter lsof error {}".format(e))
+        connections = {}
+        return connections
+
+def acc_per_container_network_metrics(connectionDic, pid):
+    try:
+        connections = lsof(pid)
+        accInBytes = 0
+        accOutBytes = 0
+
+        for conn in connections:
+            inBytes = 0
+            outBytes = 0
+            if conn in connectionDic:
+                inBytes = connectionDic[conn]["inSize"]
+                accInBytes += inBytes
+            if conn in connectionDic:
+                outBytes = connectionDic[conn]["outSize"]
+                accOutBytes += outBytes
+        return accInBytes, accOutBytes
+    except: 
+        exception = sys.exc_info()
+        for e in exception:
+            logger.error("exporter acc_per_container_network_metrics error {}".format(e))
+        accInBytes = 0
+        accOutBytes = 0
+        return 0, 0
+
+def main(argv):
+    timeSleep = 3
+    iter = 0
+    pid = [argv]
+    while True :
+        connectionDic = iftop()
+        for id in pid:
+            print(id)
+            inSize, outSize = acc_per_container_network_metrics(connectionDic, id)
+            print("pid {}, results: inBytes{}, outBytes{}".format(id, inSize, outSize))
+        time.sleep(timeSleep)
+
+# execute cmd example: python .\network.py 
+if __name__ == "__main__":
+    main(sys.argv[1:])

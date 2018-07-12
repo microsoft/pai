@@ -23,16 +23,11 @@ import docker_stats
 import docker_inspect
 import gpu_exporter
 import time
-import logging  
+import logging
+import network
 from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger("gpu_expoter")  
-logger.setLevel(logging.INFO)  
-fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)  
-fh.setLevel(logging.INFO) 
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")  
-fh.setFormatter(formatter)   
-logger.addHandler(fh)
+logger = logging.getLogger("gpu_expoter")
 
 def parse_from_labels(labels):
     gpuIds = []
@@ -61,13 +56,14 @@ def parse_from_env(envs):
 
     return envStr
 
-def gen_job_metrics(logDir, gpuMetrics):
+def gen_job_metrics(logDir, gpuMetrics, connectionDic, connectionBytesDurtion = 40):
     stats = docker_stats.stats()
     outputFile = open(logDir + "/job_exporter.prom", "w")
     for container in stats:
         inspectInfo = docker_inspect.inspect(container)
         if not inspectInfo["labels"]:
             continue
+        pid = inspectInfo["pid"]
         gpuIds, labelStr = parse_from_labels(inspectInfo["labels"])
         envStr = parse_from_env(inspectInfo["env"])
         labelStr = labelStr + envStr
@@ -82,8 +78,16 @@ def gen_job_metrics(logDir, gpuMetrics):
         containerCPUPerc = 'container_CPUPerc{{{0}}} {1}\n'.format(labelStr, stats[container]["CPUPerc"])
         containerMemUsage = 'container_MemUsage{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["usage"])
         containerMemLimit = 'container_MemLimit{{{0}}} {1}\n'.format(labelStr, stats[container]["MemUsage_Limit"]["limit"])
-        containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, stats[container]["NetIO"]["in"])
-        containerNetOut = 'container_NetOut{{{0}}} {1}\n'.format(labelStr, stats[container]["NetIO"]["out"])
+        inSize, outSize = network.acc_per_container_network_metrics(connectionDic, pid)
+        # iftop could get last 2s, 10s, 40s connection transform bytes.
+        # leverage iftop cmd get last 40s connection transform bytes.So inSize / 40.
+        if connectionBytesDurtion != 40 and connectionBytesDurtion != 10 and connectionBytesDurtion != 2:
+            connectionBytesDurtion = 40
+
+        inBandwidth = inSize / connectionBytesDurtion
+        outBandwidth = outSize / connectionBytesDurtion
+        containerNetIn = 'container_NetIn{{{0}}} {1}\n'.format(labelStr, inBandwidth)
+        containerNetOut = 'container_NetOut{{{0}}} {1}\n'.format(labelStr, outBandwidth)
         containerBlockIn = 'container_BlockIn{{{0}}} {1}\n'.format(labelStr, stats[container]["BlockIO"]["in"])
         containerBlockOut = 'container_BlockOut{{{0}}} {1}\n'.format(labelStr, stats[container]["BlockIO"]["out"])
         containerMemPerc = 'container_MemPerc{{{0}}} {1}\n'.format(labelStr, stats[container]["MemPerc"])
@@ -99,6 +103,13 @@ def gen_job_metrics(logDir, gpuMetrics):
 def main(argv):
     logDir = argv[0]
     timeSleep = int(argv[1])
+    logger.setLevel(logging.INFO)
+    fh = RotatingFileHandler(logDir + "/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
     iter = 0
     while(True):
         try:
@@ -106,8 +117,10 @@ def main(argv):
             iter += 1
             # collect GPU metrics
             gpuMetrics = gpu_exporter.gen_gpu_metrics_from_smi(logDir)
+            # collection connection metrics
+            connectionDic = network.iftop()
             # join with docker stats metrics and docker inspect labels
-            gen_job_metrics(logDir, gpuMetrics)
+            gen_job_metrics(logDir, gpuMetrics, connectionDic)
         except:
             exception = sys.exc_info()
             for e in exception:
