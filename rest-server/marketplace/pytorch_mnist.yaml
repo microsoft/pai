@@ -29,7 +29,7 @@ job :
     retryCount: 0 
 
   tasks :
-    worker :
+    - name: worker
       script : pytorch_examples
       dockerimage : pt_example
       resource: 

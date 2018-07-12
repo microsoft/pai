@@ -27,7 +27,7 @@ job :
     retryCount: 1 
 
   tasks :
-    worker :
+    - name : worker
       data : cifar10_model
       dockerimage : tf_serving_example
       resource: 

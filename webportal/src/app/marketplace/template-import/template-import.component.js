@@ -49,10 +49,9 @@ const restApi2JsonEditor = (data) => {
         let d = data['job'];
         let tasks = d['tasks'];
         d['tasks'] = [];
-        Object.keys(tasks).forEach(key => {
-            let task = tasks[key];
+        tasks.forEach(task => {
             d['tasks'].push({
-                'role': key,
+                'role': task['name'],
                 'instances': 1, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
                 'data': task['data'],
                 'cpu': task['resource']['resoucePerInstance']['cpu'],
@@ -65,7 +64,6 @@ const restApi2JsonEditor = (data) => {
             });
         });
         res['job'] = d;
-
     }
     if ('prerequisites' in data) {
         Object.keys(data['prerequisites']).forEach(function (key) {
