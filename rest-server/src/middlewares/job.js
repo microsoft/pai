@@ -20,6 +20,8 @@
 const param = require('./parameter');
 const logger = require('../config/logger');
 const jobConfig = require('../config/job');
+const converter = require('./converter');
+const jobConfig_v2 = require('../config/job_v2');
 
 
 const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
@@ -42,6 +44,7 @@ const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
 };
 
 const submission = [
+  converter.convert(jobConfig_v2.schema),
   param.validate(jobConfig.schema),
   checkKillAllOnCompletedTaskNumber,
 ];
