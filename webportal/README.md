@@ -6,8 +6,8 @@ Cluster operator can also see and manage cluster state through web portal.
 
 ## Deployment
 
-The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process, including that of the web portal. 
-The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) are of interest to web portal:
+The [readme](../pai-management/README.md) in service deployment introduces the overall installation process, including that of the web portal. 
+The following parameters in the [cluster-configuration.yaml](../cluster-configuration/cluster-configuration.yaml) are of interest to web portal:
 
 * `REST_SERVER_URI`: String, root url of the rest server, for example, http://10.0.3.9:9186
 * `GRAFANA_URI`: String, root url of the grafana portal, for example, http://10.0.3.9:9090
