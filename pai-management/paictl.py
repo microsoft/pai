@@ -475,11 +475,45 @@ def pai_cluster():
             args.quick_start_config_file,
             args.configuration_directory,
             args.force)
-    #elif option == "k8s-clean":
-    #    # just use 'k8s-clean' for testing temporarily  .
-    #    logger.info("Begin to clean up whole cluster.")
-    #    cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
-    #    logger.info("Clean up job finished")
+    elif option == "k8s-clean":
+        # just use 'k8s-clean' for testing temporarily  .
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-p', '--config-path', dest="config_path", required=True, help="path of cluster configuration file")
+        args = parser.parse_args(sys.argv[1:])
+        config_path = args.config_path
+        cluster_config = cluster_object_model_generate_k8s(config_path)
+
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----------     Dangerous Operation!!!    ---------------")
+        logger.warning("------     Your k8s Cluster will be destroyed    -------")
+        logger.warning("------     PAI service on k8s will be stopped    -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----------    ETCD data will be cleaned.    ------------")
+        logger.warning("-----    If you wanna keep pai's user data.    ---------")
+        logger.warning("-----         Please backup etcd data.         ---------")
+        logger.warning("-----      And restore it after k8s-bootup     ---------")
+        logger.warning("---     And restore it before deploy pai service    ----")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----    Please ensure you wanna do this operator, ------")
+        logger.warning("-------        after knowing all risk above.     -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+
+        while True:
+            user_input = input("Do you want to continue this operation? (Y/N) ")
+            if user_input == "N":
+                return
+            elif user_input == "Y":
+                break
+            else:
+                print " Please type Y or N."
+
+        logger.info("Begin to clean up whole cluster.")
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+        logger.info("Clean up job finished")
 
 
 
