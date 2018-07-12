@@ -1,0 +1,64 @@
+prerequisites : 
+  - protocol_version : v2
+    name : cifar10
+    type : data
+    version : x.y.z
+    contributor : xxx
+    description: cifar10 dataset, image classification
+    uri : [ https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz ]
+  - protocol_version : v2
+    name : tensorflow_cnnbenchmarks
+    type : script
+    version : x.y.z
+    contributor : xxx
+    description: tensorflow benchmarks
+    uri : https://github.com/tensorflow/benchmarks
+  - protocol_version : v2
+    name : tf_example
+    type : dockerimage
+    version : x.y.z
+    contributor : xxx
+    description: python3.5, tensorflow
+    uri : paiexample/pai.example.tensorflow
+
+job : 
+  protocol_version: v2
+  name : cifar10_tensorflow
+  type : job
+  version : x.y.z
+  contributor : xxx
+  description : image classification, ficar10 dataset, tensorflow, distributed training
+  parameters :
+    model : resnet50
+    batchsize: 32
+    num_of_ps: 2
+    num_of_worker: 2
+    killAllOnCompletedTaskNumber: 2 
+    retryCount: 0 
+
+  tasks :
+    worker :
+      data : cifar10
+      script : tensorflow_cnnbenchmarks
+      dockerimage : tf_example
+      resource: 
+        instances : $job.parameters.num_of_worker
+        resoucePerInstance: {cpu: 2, memoryMB: 16384, gpu: 4}
+      env:
+        PYTHONPATH : $job.tasks.worker.script/scripts/tf_cnn_benchmarks
+      command:
+        - python $job.tasks.worker.script/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$job.tasks.worker.data --data_name=$job.tasks.worker.data --train_dir=cifar10_output --model=$job.parameters.model --batch_size=$job.parameters.batchsize"
+    
+    ps_server :
+      data : cifar10
+      script : tensorflow_cnnbenchmarks
+      dockerimage : tf_example
+      resource :
+        instances : $parameters.num_of_ps,
+        resoucePerInstance : { cpu: 2, memoryMB: 8192, gpu: 0 }
+        
+      env :
+        PYTHONPATH : $job.tasks.worker.script/scripts/tf_cnn_benchmarks
+                
+      command:
+        - python $job.tasks.worker.script/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$job.tasks.worker.data --data_name=$job.tasks.worker.data --train_dir=cifar10_output --model=$job.parameters.model --batch_size=$job.parameters.batchsize"

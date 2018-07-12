@@ -20,6 +20,7 @@
 const Joi = require('joi');
 const logger = require('../config/logger');
 
+
 /**
  * Validate parameters.
  */
@@ -43,5 +44,28 @@ const validate = (schema) => {
   };
 };
 
+
+const getMethodValidate = (schema) => {
+  return (req, res, next) => {
+    // in get mehtod, it should use req.query instead.
+    Joi.validate(req.query, schema, (err, value) => {
+      if (err) {
+        const errorType = 'ParameterValidationError';
+        const errorMessage = 'Could not validate request data.\n' + err.stack;
+        logger.warn('[%s] %s', errorType, errorMessage);
+        return res.status(500).json({
+          error: errorType,
+          message: errorMessage,
+        });
+      } else {
+        next();
+      }
+    });
+  };
+};
+
 // module exports
-module.exports = {validate};
+module.exports = {
+  validate,
+  getMethodValidate
+};
