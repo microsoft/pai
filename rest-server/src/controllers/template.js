@@ -25,7 +25,7 @@ const logger = require('../config/logger');
 const basePath = path.join(appRoot.path, 'marketplace');
 
 // parse the json data to template summary format.
-const toTemplateSummary = (data) =>{
+const to_template_summary = (data) =>{
     let res = {'datasets': [], 'scripts': [], 'dockers': []};
     if ('job' in data) {
         let d = data['job'];
@@ -61,7 +61,7 @@ const toTemplateSummary = (data) =>{
 const list = (req, res) => {
     let templateList = [];
     fs.readdirSync(basePath).forEach((filename) => {
-        templateList.push(toTemplateSummary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
+        templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
     });
     return res.status(200).json(templateList);
 };
@@ -76,7 +76,7 @@ const recommend = (req, res) => {
     } else {
         let templateList = [];
         for (let i = 0; i < count; ++i) {
-            templateList.push(toTemplateSummary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
+            templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
         }
         return res.status(200).json(templateList);
     }
