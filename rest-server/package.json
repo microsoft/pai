@@ -25,8 +25,9 @@
     "npm": "3.10.10"
   },
   "dependencies": {
-    "async": "2.5.0",
+    "ajv": "6.5.2",
     "app-root-path": "2.0.1",
+    "async": "2.5.0",
     "chai": "4.1.2",
     "chai-http": "3.0.0",
     "compression": "1.7.1",

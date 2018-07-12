@@ -5,14 +5,14 @@ prerequisites :
     version : x.y.z
     contributor : xxx
     description: vectors
-    uri : [ hdfs://xxx/spacev_input ]
+    uri : hdfs://xxx/spacev_input
   - protocol_version : v2
     name : spacev_config
     type : data
     version : x.y.z
     contributor : xxx
     description: configs
-    uri : [ hdfs://xxx/spacev_config ]
+    uri : hdfs://xxx/spacev_config
   - protocol_version : v2
     name : spacev_example
     type : dockerimage
