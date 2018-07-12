@@ -41,7 +41,7 @@ const jobConfigSchema = Joi.object().keys({
           .allow('')
           .default(''),
         uri: Joi.string()
-          .required()
+          .required(),
     })),
   job: Joi.object().keys({
     protocol_version: Joi.string()
@@ -62,21 +62,7 @@ const jobConfigSchema = Joi.object().keys({
     description: Joi.string()
       .allow('')
       .default(''),
-    parameters: Joi.object().keys({
-      killAllOnCompletedTaskNumber: Joi.number()
-        .integer()
-        .default(1),
-      retryCount: Joi.number()
-        .integer()
-        .min(-2)
-        .default(0),
-      virtualCluster: Joi.string()
-        .allow('')
-        .default('default'),
-      gpuType: Joi.string()
-        .allow('')
-        .default(''),
-      }),
+    parameters: Joi.object(),
     tasks: Joi.array()
       .items(Joi.object().keys({
         name: Joi.string()
@@ -121,9 +107,11 @@ const jobConfigSchema = Joi.object().keys({
           }),
         }),
         env: Joi.object(),
-        command: Joi.array(),
-    })), 
-  }),
+        command: Joi.array()
+          .items(Joi.string())
+          .required(),
+      })).required(),
+  }).required(),
 }).required();
 
 // module exports

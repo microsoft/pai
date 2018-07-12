@@ -67,5 +67,5 @@ const getMethodValidate = (schema) => {
 // module exports
 module.exports = {
   validate,
-  getMethodValidate
+  getMethodValidate,
 };

@@ -21,10 +21,11 @@ const param = require('./parameter');
 const logger = require('../config/logger');
 const jobConfig = require('../config/job');
 const converter = require('./converter');
-const jobConfig_v2 = require('../config/job_v2');
+const jobConfigV2 = require('../config/job_v2');
 
 
 const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
+  logger.info(req.body);
   let tasksNumber = 0;
   for (let i = 0; i < req.body.taskRoles.length; i ++) {
     tasksNumber += req.body.taskRoles[i].taskNumber;
@@ -44,7 +45,7 @@ const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
 };
 
 const submission = [
-  converter.convert(jobConfig_v2.schema),
+  converter.convert(jobConfigV2.schema),
   param.validate(jobConfig.schema),
   checkKillAllOnCompletedTaskNumber,
 ];

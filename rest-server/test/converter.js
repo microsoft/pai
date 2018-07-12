@@ -14,74 +14,76 @@
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-yaml = require('js-yaml')
-fs = require('fs')
+const yaml = require('js-yaml');
+const fs = require('fs');
+const logger = require('../src/config/logger');
 
 describe('Submit job: POST /api/v1/jobs', () => {
-    afterEach(function() {
-      if (!nock.isDone()) {
-        this.test.error(new Error('Not all nock interceptors were used!'));
-        nock.cleanAll();
-      }
-    });
-  
-    //
-    // Define data
-    //
-  
-    const validToken = global.jwt.sign(
-      {
-        username: 'user1',
-        admin: false,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: 60,
-      }
-    );
-  
-    const invalidToken = '';
-  
-    //
-    // Define functions to prepare nock interceptors
-    //
-  
-    const prepareNockForCaseP01 = (jobName) => {
-      global.nock(global.launcherWebserviceUri)
-        .get(`/v1/Frameworks/${jobName}`)
-        .reply(
-          404,
-          {}
-        );
-      global.nock(global.launcherWebserviceUri)
-        .put(`/v1/Frameworks/${jobName}`)
-        .reply(
-          202,
-          {}
-        );
-      global.nock(global.webhdfsUri)
-        .put(/op=MKDIR/)
-        .times(6)
-        .reply(
-          200,
-          {}
-        );
-      global.nock(global.webhdfsUri)
-        .put(/op=CREATE/)
-        .times(4)
-        .reply(
-          201,
-          {}
-        );
+  afterEach(function() {
+    if (!nock.isDone()) {
+      this.test.error(new Error('Not all nock interceptors were used!'));
+      nock.cleanAll();
+    }
+  });
+
+  //
+  // Define data
+  //
+
+  const validToken = global.jwt.sign(
+    {
+      username: 'user1',
+      admin: false,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: 60,
+    }
+  );
+
+  const invalidToken = '';
+
+  //
+  // Define functions to prepare nock interceptors
+  //
+
+  const prepareNockForCaseP01 = (jobName) => {
+    global.nock(global.launcherWebserviceUri)
+      .get(`/v1/Frameworks/${jobName}`)
+      .reply(
+        404,
+        {}
+      );
+    global.nock(global.launcherWebserviceUri)
+      .put(`/v1/Frameworks/${jobName}`)
+      .reply(
+        202,
+        {}
+      );
+    global.nock(global.webhdfsUri)
+      .put(/op=MKDIR/)
+      .times(6)
+      .reply(
+        200,
+        {}
+      );
+    global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(4)
+      .reply(
+        201,
+        {}
+      );
     };
-  
+
     //
     // Positive cases
     //
   
     it('[P-01] Submit a job to the default vc', (done) => {
       prepareNockForCaseP01('new_job');
-      let jobConfig = yaml.safeLoad(fs.readFileSync("../../examples/yaml/cifar10-tensorflow-distributed.yaml", 'utf8'));
+      let jobConfig = yaml.load(fs.readFileSync("marketplace/tensorflow_cifar10.yaml", {encoding: 'utf-8'}));
+      jobConfig = JSON.stringify(jobConfig, null, 2);
       global.chai.request(global.server)
         .post('/api/v1/jobs')
         .set('Authorization', 'Bearer ' + validToken)
@@ -97,20 +99,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
     //
     // Negative cases
     //
-  
-    it('[N-01] Invalid token', (done) => {
-      global.chai.request(global.server)
-        .post('/api/v1/jobs')
-        .set('Authorization', 'Bearer ' + invalidToken)
-        .send({})
-        .end((err, res) => {
-          global.chai.expect(res, 'status code').to.have.status(401);
-          global.chai.expect(res, 'response format').be.json;
-          global.chai.expect(res.body.message, 'response message').equal('No authorization token was found');
-          done();
-        });
-    });
-  
+    /*
     it('[N-02] Schema checking failed', (done) => {
       global.chai.request(global.server)
         .post('/api/v1/jobs')
@@ -123,5 +112,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
           done();
         });
     });
+    */
   });
   

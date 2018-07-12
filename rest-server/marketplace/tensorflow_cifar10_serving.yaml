@@ -5,7 +5,7 @@ prerequisites :
     version : x.y.z
     contributor : xxx
     description: cifar10 model, image classification
-    uri : [ hdfs://xxx/cifar10_model ]
+    uri : hdfs://xxx/cifar10_model
   - protocol_version : v2
     name : tf_serving_example
     type : dockerimage
@@ -27,7 +27,7 @@ job :
     retryCount: 1 
 
   tasks :
-    worker :
+    - name : worker
       data : cifar10_model
       dockerimage : tf_serving_example
       resource: 
