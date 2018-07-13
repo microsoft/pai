@@ -115,7 +115,8 @@ const share = (req, res) => {
     let template = data.template;
     let job = template.job;
     if (!get_template(job.name, job.version)) {
-        fs.writeFile(`${basePath}/${data.filename}`, yaml.safeDump(template), function(error) {
+        let filename = new Date().getTime() + '.yaml';
+        fs.writeFile(`${basePath}/${filename}`, yaml.safeDump(template), function(error) {
             if (error) {
                 logger.error(error);
                 res.status(500).json({
