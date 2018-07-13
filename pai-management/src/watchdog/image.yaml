@@ -22,6 +22,3 @@ copy-list:
     dst: src/watchdog/copied_file
   - src: ../cluster-configuration/cluster-configuration.yaml
     dst: src/watchdog/copied_file
-
-template-list:
-  - dockerfile
