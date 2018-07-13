@@ -33,7 +33,7 @@ const get = (req, res, next) => {
       return next(createError.unknown(err));
     }
     if (!state) {
-      return next(createError('Bad Request', 'ERR_INCORRECT_PASSWORD', 'Password is incorrect'));
+      return next(createError('Bad Request', 'IncorrectPasswordError', 'Password is incorrect'));
     }
     jwt.sign({
       username: username,

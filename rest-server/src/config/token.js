@@ -27,7 +27,7 @@ const jwtCheck = new express.Router();
 jwtCheck.use(jwt({
   secret: config.jwtSecret,
 }), (err, req, res, next) => {
-  next(createError('Unauthorized', 'ERR_UNAUTHORIZED_USER', 'Guest is not allowed to do this operation.'));
+  next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
 });
 
 // define input schema

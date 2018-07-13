@@ -103,7 +103,7 @@ describe('user token test: post /api/v1/token', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_INCORRECT_PASSWORD');
+        global.chai.expect(res.body.code, 'response code').equal('IncorrectPasswordError');
         done();
       });
   });
@@ -116,7 +116,7 @@ describe('user token test: post /api/v1/token', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
