@@ -15,7 +15,7 @@ A tool to manage your pai cluster.
     - [ Start service(s) ](#Service_Start)
     - [ Stop service(s) ](#Service_Stop)
     - [ Delete service(s) ](#Service_Delete)
-    - [ Upgrade service(s) ](#Service_Upgrade)
+    - [ Refresh service(s) ](#Service_Refresh)
 - [ Bootstrap your cluster ](#Cluster)
     - [ Bootstrap your cluster (K8S + Service) with cluster-configuration ](#Cluster_Boot)
     - [ Bootstrap Kubernetes ](#Cluster_K8s_Boot)
@@ -49,13 +49,6 @@ python paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-nam
 
 ## Maintain machines <a name="Machine"></a>
 
-### Repair machines that have problems <a name="Machine_Repair"></a>
-
-```
-python paictl.py machine repair -p /path/to/cluster-configuration/dir -l machine-list.yaml
-```
-
-- See an example of the machine list [here](#Machine_Nodelist_Example).
 
 ### Add machines to the cluster <a name="Machine_Add"></a>
 
@@ -103,10 +96,10 @@ python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n servi
 - Delete all services by default.
 - If the option `-n` is set, only the specified service will be deleted.
 
-### Upgrade service(s) <a name="Service_Upgrade"></a>
+### Refresh service(s) <a name="Service_Refresh"></a>
 
 ```
-python paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
 - Refresh all the labels on each node.
@@ -115,20 +108,10 @@ python paictl.py service upgrade -p /path/to/cluster-configuration/dir [ -n serv
 
 ## Maintain your cluster <a name="Cluster"></a>
 
-### Bootstrap the whole cluster (K8S + Service) with cluster-configuration <a name="Cluster_Boot"></a>
-
-```
-python paictl.py cluster bootstrap -p /path/to/clsuster-configuration/dir
-```
-
-- Install kubectl in the deployment box.
-- Bootstrap Kubernetes in the specified cluster.
-- Bootstrap all infrastructure services in the specified cluster.
-
 ### Bootstrap Kubernetes <a name="Cluster_K8s_Boot"></a>
 
 ```
-python paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
+python paictl.py cluster k8s-bootup -p /path/to/cluster-configuration/dir
 ```
 
 - Install kubectl in the deployment box.
@@ -137,19 +120,10 @@ python paictl.py cluster start-kubernetes -p /path/to/cluster-configuration/dir
 ### Stop Kubernetes <a name="Cluster_K8s_Stop"></a>
 
 ```
-python paictl.py cluster stop-kubernetes -p /path/to/cluster-configuration/dir
+python paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir
 ```
 
 - Stop Kubernetes in the specified cluster.
-
-### Upgrade Kubernetes <a name="Cluster_K8s_upgrade"></a>
-
-```
-python paictl.py cluster upgrade-kubernetes -p /path/to/cluster-configuration/dir
-```
-
-- Stop all infrastructure services in the specified cluster.
-- Upgrade Kubernetes to a newer version.
 
 ### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
 
@@ -161,14 +135,6 @@ python paictl.py cluster generate-configuration -p /path/to/machinelist.csv
 - All configuration files of cluster-configuration will be generated to the local folder, and then be used for bootstrapping the whole cluster.
 - By default, in the generated configuration, a single-master Kubernetes is configured by default.
 - Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
-
-## Install kubectl <a name="Kubectl"></a>
-
-```
-python paictl.py utility install-kubectl -p /path/to/cluster-configuration/dir
-```
-
-- The `kubectl` is a prerequisite to do all maintenance operations. If you find that `kubectl` has not been installed or correctly configured in your maintenance box, you have to install it first.
 
 ## Appendix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
 
