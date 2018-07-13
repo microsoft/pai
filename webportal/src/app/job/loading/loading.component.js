@@ -21,11 +21,17 @@ require('./loading.component.scss');
 
 
 const showLoading = () => {
-  $('#mask').show();
+  var target = $('#mask');
+  if (target.length) {
+    target.show();
+  }
 };
 
 const hideLoading = () => {
-  $('#mask').hide();
+  var target = $('#mask');
+  if (target.length) {
+    target.hide();
+  }
 };
 
 module.exports = {showLoading, hideLoading};
