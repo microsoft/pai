@@ -82,7 +82,49 @@ const restApi2JsonEditor = (data) => {
         })
     }
     return res;
-}
+};
+
+const jsonEditor2RestApi = (data) => {
+    let res = {
+        'prerequisites':[],
+    };
+    if ('job' in data) {
+        let jobs = data['job']; // is a array, but I assume only one job.
+        jobs.forEach(job => {
+            let tasks = job['tasks'];
+            job['parameters'] = JSON.parse(job['parameters']);
+            job['tasks'] = [];
+            tasks.forEach(task=>{
+                job['tasks'].push({
+                    'name': task['role'],
+                    'data': task['data'],
+                    'dockerimage':  task['dockerimage'],
+                    'command': JSON.parse(task['command']),
+                    'script': task['script'],
+                    'env': JSON.parse(task['env']),
+                    'resource':{
+                        'instances': task['instances'],
+                        'resourcePerInstance': {
+                            'cpu': task['cpu'],
+                            'gpu': task['gpu'],
+                            'memoryMB': task['memoryMB']
+                        }
+                    }
+                });
+            });
+            res['job'] = job;
+        });
+    }
+
+    ['data', 'script', 'docker'].forEach(t =>{
+        data[t].forEach(d=>{
+            d['type'] = t == 'docker'? 'dockerimage': t;
+            res['prerequisites'].push(d); // Warning: may add features or action field.
+        });
+    });
+    console.log(res);
+    return res;
+};
 
 
 let editor;
@@ -230,7 +272,7 @@ $(document).ready(() => {
     };
 
     $(document).on('click', '#single', () => {
-        submitJob(editor.getValue());
+        submitJob(jsonEditor2RestApi(editor.getValue()));
     });
 });
 
