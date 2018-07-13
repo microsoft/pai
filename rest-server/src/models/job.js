@@ -82,7 +82,7 @@ class Job {
           const resJson = typeof res.body === 'object' ?
             res.body : JSON.parse(res.body);
           if (res.status !== 200) {
-            return next(null, createError(res.status, 'ERR_UNKNOWN', res.raw_body));
+            return next(null, createError(res.status, 'UnknownError', res.raw_body));
           }
           const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
@@ -123,9 +123,9 @@ class Job {
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
-            next(null, createError('Not Found', 'ERR_NO_JOB', `Job ${name} not found.`));
+            next(null, createError('Not Found', 'NoJobError', `Job ${name} not found.`));
           } else {
-            next(null, createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+            next(null, createError(requestRes.status, 'UnknownError', requestRes.raw_body));
           }
         } catch (error) {
           next(null, error);
@@ -153,7 +153,7 @@ class Job {
               if (res.status === 202) {
                 next();
               } else {
-                next(createError(res.status, 'ERR_UNKNOWN', res.raw_body));
+                next(createError(res.status, 'UnknownError', res.raw_body));
               }
             });
         });
@@ -168,18 +168,18 @@ class Job {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
-          next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+          next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.delete(launcherConfig.frameworkPath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .end((requestRes) => {
               if (requestRes.status !== 202) {
-                return next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+                return next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
               }
               next();
             });
         } else {
-          next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${data.username} is not allowed to remove job ${name}.`));
+          next(createError('Forbidden', 'ForbiddenUserError', `User ${data.username} is not allowed to remove job ${name}.`));
         }
       });
   }
@@ -191,19 +191,19 @@ class Job {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
-          next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+          next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
           unirest.put(launcherConfig.frameworkExecutionTypePath(name))
             .headers(launcherConfig.webserviceRequestHeaders)
             .send({'executionType': data.value})
             .end((requestRes) => {
               if (requestRes.status !== 202) {
-                return next(createError(requestRes.status, 'ERR_UNKNOWN', requestRes.raw_body));
+                return next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
               }
               next();
             });
         } else {
-          next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${data.username} is not allowed to execute job ${name}.`));
+          next(createError('Forbidden', 'ForbiddenUserError', `User ${data.username} is not allowed to execute job ${name}.`));
         }
       });
   }

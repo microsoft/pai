@@ -112,7 +112,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(403);
-        expect(res.body.code).to.equal('ERR_FORBIDDEN_USER');
+        expect(res.body.code).to.equal('ForbiddenUserError');
         done();
       });
   });
@@ -131,7 +131,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
         expect(res).to.have.status(404);
-        expect(res.body.code).to.equal('ERR_NO_JOB');
+        expect(res.body.code).to.equal('NoJobError');
         done();
       });
   });

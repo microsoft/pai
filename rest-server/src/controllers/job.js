@@ -26,7 +26,7 @@ const logger = require('../config/logger');
 const load = (req, res, next, jobName) => {
   new Job(jobName, (job, error) => {
     if (error) {
-      if (error.code === 'ERR_NO_JOB') {
+      if (error.code === 'NoJobError') {
         if (req.method !== 'PUT') {
           return next(error);
         }
@@ -35,7 +35,7 @@ const load = (req, res, next, jobName) => {
       }
     } else {
       if (job.jobStatus.state !== 'JOB_NOT_FOUND' && req.method === 'PUT' && req.path === `/${jobName}`) {
-        return next(createError('Conflict', 'ERR_CONFLICT_JOB', `Job name ${jobName} already exists`));
+        return next(createError('Conflict', 'ConflictJobError', `Job name ${jobName} already exists`));
       }
     }
     req.job = job;
@@ -47,14 +47,14 @@ const init = (req, res, next) => {
   const jobName = req.body.jobName;
   new Job(jobName, (job, error) => {
     if (error) {
-      if (error.code === 'ERR_NO_JOB') {
+      if (error.code === 'NoJobError') {
         req.job = job;
         next();
       } else {
         return next(createError.unknown(error));
       }
     } else {
-      return next(createError('Conflict', 'ERR_CONFLICT_JOB', `Job name ${jobName} already exists`));
+      return next(createError('Conflict', 'ConflictJobError', `Job name ${jobName} already exists`));
     }
   });
 };
@@ -150,7 +150,7 @@ const getConfig = (req, res, next) => {
       if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        return next(createError('Not Found', 'ERR_NO_JOB_CONFIG', `Config of job ${req.job.name} not found.`));
+        return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} not found.`));
       } else {
         return next(createError.unknown(error));
       }
@@ -170,7 +170,7 @@ const getSshInfo = (req, res, next) => {
       if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        return next(createError('Not Found', 'ERR_NO_JOB_SSH', `SSH of job ${req.job.name} not found.`));
+        return next(createError('Not Found', 'NoJobSshError', `SSH of job ${req.job.name} not found.`));
       } else {
         return next(createError.unknown(error));
       }

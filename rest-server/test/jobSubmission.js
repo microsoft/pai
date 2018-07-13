@@ -328,7 +328,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_CONFLICT_JOB');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ConflictJobError');
         done();
       });
   });
@@ -341,7 +341,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_UNKNOWN');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('UnknownError');
         done();
       });
   });
@@ -356,7 +356,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response error code').equal('ERR_NO_VIRTUAL_CLUSTER');
+        global.chai.expect(res.body.code, 'response error code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -370,7 +370,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response error code').equal('ERR_FORBIDDEN_USER');
+        global.chai.expect(res.body.code, 'response error code').equal('ForbiddenUserError');
         done();
       });
   });
@@ -385,7 +385,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_INVALID_PARAMETERS');
+        global.chai.expect(res.body.code, 'response code').equal('InvalidParametersError');
         done();
       });
   });
@@ -399,7 +399,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response error code').equal('ERR_UNKNOWN');
+        global.chai.expect(res.body.code, 'response error code').equal('UnknownError');
         done();
       });
   });
@@ -413,7 +413,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ERR_CONFLICT_JOB');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ConflictJobError');
         done();
       });
   });

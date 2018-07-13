@@ -187,7 +187,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
 
 const checkUserVc = (username, virtualCluster, callback) => {
   if (typeof username === 'undefined') {
-    callback(createError('Unauthorized', 'ERR_UNAUTHORIZED_USER', 'Guest is not allowed to do this operation.'));
+    callback(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   } else {
     virtualCluster = (!virtualCluster) ? 'default' : virtualCluster;
     if (virtualCluster === 'default') {
@@ -201,7 +201,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
           logger.warn('list virtual clusters error, no virtual cluster found');
         } else {
           if (!vcList.hasOwnProperty(virtualCluster)) {
-            return callback(createError('Not Found', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${virtualCluster} is not found.`));
+            return callback(createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${virtualCluster} is not found.`));
           }
           db.get(etcdConfig.userVirtualClusterPath(username), null, (err, res) => {
             if (err) {
@@ -213,7 +213,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
                   return callback(null, true);
                 }
               }
-              callback(createError('Forbidden', 'ERR_FORBIDDEN_USER', `User ${username} is not allowed to do operation in ${virtualCluster}`));
+              callback(createError('Forbidden', 'ForbiddenUserError', `User ${username} is not allowed to do operation in ${virtualCluster}`));
             }
           });
         }

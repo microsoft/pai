@@ -30,7 +30,7 @@ const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
   const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
   if (killAllOnCompletedTaskNumber > tasksNumber) {
     const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
-    next(createError('Bad Request', 'ERR_INVALID_PARAMETERS', errorMessage));
+    next(createError('Bad Request', 'InvalidParametersError', errorMessage));
   } else {
     next();
   }
