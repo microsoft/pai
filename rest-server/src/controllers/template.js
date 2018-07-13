@@ -25,7 +25,7 @@ const logger = require('../config/logger');
 const basePath = path.join(appRoot.path, 'marketplace');
 
 // parse the json data to template summary format.
-const to_template_summary = (data) =>{
+const toTemplateSummary = (data) =>{
     let res = {'datasets': [], 'scripts': [], 'dockers': []};
     if ('job' in data) {
         let d = data['job'];
@@ -61,7 +61,7 @@ const to_template_summary = (data) =>{
 const list = (req, res) => {
     let templateList = [];
     fs.readdirSync(basePath).forEach((filename) => {
-        templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
+        templateList.push(toTemplateSummary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
     });
     return res.status(200).json(templateList);
 };
@@ -76,17 +76,17 @@ const recommend = (req, res) => {
     } else {
         let templateList = [];
         for (let i = 0; i < count; ++i) {
-            templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
+            templateList.push(toTemplateSummary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
         }
         return res.status(200).json(templateList);
     }
 };
 
-const get_template_by_name_and_version = (req, res) =>{
+const getTemplateByNameAndVersion = (req, res) =>{
     let name = req.param('name');
     let version = req.param('version');
 
-    let data = get_template(name, version);
+    let data = getTemplate(name, version);
     if (data) {
         return res.status(200).json(data);
     } else {
@@ -94,44 +94,44 @@ const get_template_by_name_and_version = (req, res) =>{
             'message': 'Not Found',
         });
     }
-}
+};
 
-const get_template = function(name, version) {
+const getTemplate = function(name, version) {
     let filenames = fs.readdirSync(basePath);
     for (let i = 0; i < filenames.length; ++i) {
         let data = yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'));
         if ('job' in data) {
             let d = data['job'];
-            if(d['name'] == name && d['version'] == version){
+            if (d['name'] == name && d['version'] == version) {
                 return data;
             }
         }
     }
     return null;
-}
+};
 
 const share = (req, res) => {
     let data = req.body;
     let template = data.template;
     let job = template.job;
-    if (!get_template(job.name, job.version)) {
+    if (!getTemplate(job.name, job.version)) {
         let filename = new Date().getTime() + '.yaml';
         fs.writeFile(`${basePath}/${filename}`, yaml.safeDump(template), function(error) {
             if (error) {
                 logger.error(error);
                 res.status(500).json({
-                    message: 'IO error happened when stroing template.'
+                    message: 'IO error happened when stroing template.',
                 });
             } else {
                 res.status(201).json({
                     name: job.name,
-                    version: job.version
+                    version: job.version,
                 });
             }
         });
     } else {
         res.status(400).json({
-            message: `The template titled "${job.name}:${job.version} has already existed.".`
+            message: `The template titled "${job.name}:${job.version} has already existed.".`,
         });
     }
 };
@@ -139,6 +139,6 @@ const share = (req, res) => {
 module.exports = {
     list,
     recommend,
-    get_template_by_name_and_version,
-    share
+    getTemplateByNameAndVersion,
+    share,
 };
