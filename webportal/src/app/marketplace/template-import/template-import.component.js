@@ -54,11 +54,11 @@ const restApi2JsonEditor = (data) => {
                 'role': task['name'],
                 'instances': 1, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
                 'data': task['data'],
-                'cpu': task['resource']['resoucePerInstance']['cpu'],
+                'cpu': task['resource']['resourcePerInstance']['cpu'],
                 'script': task['script'],
-                'gpu': task['resource']['resoucePerInstance']['gpu'],
+                'gpu': task['resource']['resourcePerInstance']['gpu'],
                 'dockerimage': task['dockerimage'],
-                'memoryMB': task['resource']['resoucePerInstance']['memoryMB'],
+                'memoryMB': task['resource']['resourcePerInstance']['memoryMB'],
                 'env': task['env'],
                 'command': task['command'],
             });
@@ -217,7 +217,6 @@ $(document).ready(() => {
         $('#fileUpload').val('');
     });
     $(document).on('click', '#submitJob', () => {
-        // alert('dddd');
         showEditInfo();
     });
     $(document).on('click', '#fileExport', () => {
@@ -229,6 +228,10 @@ $(document).ready(() => {
     window.onresize = function () {
         resize();
     };
+
+    $(document).on('click', '#single', () => {
+        submitJob(editor.getValue());
+    });
 });
 
 module.exports = { submitJob, showEditInfo };
