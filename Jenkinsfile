@@ -14,71 +14,35 @@ pipeline {
 
       }
       steps {
-        sh '/mnt/cleanAndPrepare.sh'
-        sh '/mnt/genSingleBoxQuickStart.sh'
-        sh '''#! /bin/bash
-#printenv
-
-set -x
-
-cat << EOF_DEV_BOX > script.sh
-
-set -x
-
-rm -rf /cluster-configuration/cluster-configuration.yaml
-rm -rf /cluster-configuration/k8s-role-definition.yaml
-rm -rf /cluster-configuration/kubernetes-configuration.yaml
-rm -rf /cluster-configuration/services-configuration.yaml
-rm -rf /pathHadoop/*
-cd /pai/pai-management
-
-# Choose the branch
-if [[ $GIT_BRANCH == "PR*" ]];
-    export PR_ID=$(echo $GIT_BRANCH | cut -d\'-\' -f 2)
-    git fetch origin pull/$PR_ID/head:$GIT_BRANCH
-    git checkout $GIT_BRANCH
-then
-    git fetch origin $GIT_BRANCH
-    git checkout --track origin/$GIT_BRANCH
-    git reset --hard origin/$GIT_BRANCH
-fi
-
-# Image tag
-#export IMAGE_TAG=${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}
-#echo "Image tag: $IMAGE_TAG"
-
-# Step 1. Generate config
-#export CONFIG_PATH=/cluster-configuration
-./paictl.py cluster generate-configuration -i /cluster-configuration/quick-start.yaml -o /cluster-configuration
-
-sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
-
-EOF_DEV_BOX
-
-# Working in your dev-box
-sudo docker exec -i dev-box /bin/bash <script.sh
-
-'''
-        sh '/mnt/setupIntRegistry.sh'
         sh '''#! /bin/bash
 
-cat << EOF_DEV_BOX > script.sh
-
 set -x
 
-cd /pai/pai-management/
+# prepare
+/mnt/cleanAndPrepare.sh
+
+# set CONFIG_PATH
+CONFIG_PATH=/mnt/pathConfiguration
+sudo chmod 777 $CONFIG_PATH
+
+# work directory
+cd pai-management/
+
+# generate SingleBox quick-start.yaml
+/mnt/genSingleBoxQuickStart.sh && echo \'Setup Registry!\'
+
+# generate config
+./paictl.py cluster generate-configuration -i $CONFIG_PATH/quick-start.yaml -o $CONFIG_PATH
+# update image tag
+sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" $CONFIG_PATH/services-configuration.yaml
+# setup registry
+/mnt/setupIntRegistry.sh
 
 # build images
-./paictl.py image build -p /cluster-configuration
+sudo ./paictl.py image build -p $CONFIG_PATH
 
 # push images
-./paictl.py image push -p /cluster-configuration
-
-EOF_DEV_BOX
-
-# Working in your dev-box
-sudo docker exec -i dev-box /bin/bash <script.sh
-
+sudo ./paictl.py image push -p $CONFIG_PATH
 '''
       }
     }
