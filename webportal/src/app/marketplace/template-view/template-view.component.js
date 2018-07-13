@@ -165,7 +165,7 @@ $('#btn-share').click(function(event) {
 $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'hidden'});
-  window.dispatchEvent(new Event('resize'));
   loadTemplates();
   loadRecommended();
+  window.dispatchEvent(new Event('resize'));
 });
