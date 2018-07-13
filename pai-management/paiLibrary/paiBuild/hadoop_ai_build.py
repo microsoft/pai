@@ -43,7 +43,7 @@ class hadoop_ai_build:
         self.logger.info("Hadoop AI will be built soon.")
         self.logger.info("The hadoop AI binary will be found at the path [ {0} ]".format(self.hadoop_customize_path))
 
-        commandline = "./paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(self.os_type, self.hadoop_customize_path)
+        commandline = "/bin/bash paiLibrary/managementTool/{0}/hadoop-ai-build.sh {1}".format(self.os_type, self.hadoop_customize_path)
         error_msg = "Failed to build hadoop-ai."
         linux_shell.execute_shell(commandline, error_msg)
 
