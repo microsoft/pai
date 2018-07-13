@@ -38,7 +38,7 @@ job :
       dockerimage : spacev_example
       resource: 
         instances : $job.parameters.num_of_worker
-        resoucePerInstance: {cpu: 16, memoryMB: 8192, gpu: 0}
+        resourcePerInstance: {cpu: 16, memoryMB: 8192, gpu: 0}
       env:
         
       command:

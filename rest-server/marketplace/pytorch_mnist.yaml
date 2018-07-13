@@ -34,7 +34,7 @@ job :
       dockerimage : pt_example
       resource: 
         instances : $job.parameters.num_of_worker
-        resoucePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
+        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
       env:
         PYTHONPATH : $job.tasks.worker.script/mnist
       command:
