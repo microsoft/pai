@@ -163,7 +163,7 @@ EOF
 ./paictl.py service delete -p /cluster-configuration
 
 # clean k8s first
-./k8sClusterManagement.py -p /cluster-configuration -a clean
+./paictl.py cluster k8s-clean -p /cluster-configuration
 
 # Step 2. Boot up Kubernetes
 # install k8s
@@ -294,7 +294,7 @@ EOF
 ./paictl.py service delete -p /cluster-configuration
 
 # clean k8s first
-./k8sClusterManagement.py -p /cluster-configuration -a clean
+./paictl.py cluster k8s-clean -p /cluster-configuration
 
 # Step 2. Boot up Kubernetes
 # install k8s
