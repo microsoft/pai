@@ -42,6 +42,9 @@ spec:
         - mountPath: /datastorage/prometheus
           name: collector-mount
         name: watchdog
+        env:
+        - name: K8S_API_SERVER_URI
+          value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
       volumes:
         - name: collector-mount
           hostPath:
