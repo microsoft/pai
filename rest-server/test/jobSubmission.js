@@ -59,7 +59,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       );
     global.nock(global.webhdfsUri)
       .put(/op=MKDIR/)
-      .times(6)
+      .times(5)
       .reply(
         200,
         {}
@@ -395,7 +395,6 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
-        console.log(res);
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.message, 'response message').equal('job update error: search virtual cluster from db failed');
