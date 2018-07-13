@@ -62,6 +62,9 @@ const jobConfigSchema = Joi.object().keys({
     description: Joi.string()
       .allow('')
       .default(''),
+    experiment: Joi.string()
+      .allow('')
+      .default(''),
     parameters: Joi.object(),
     tasks: Joi.array()
       .items(Joi.object().keys({

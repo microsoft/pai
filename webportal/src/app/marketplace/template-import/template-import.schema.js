@@ -105,10 +105,10 @@ const dataSchema = {
       multipleOf: 1,
     },
     uri: {
-      type: 'string'
+      type: 'string',
     },
-    action: {
-      type: 'string'
+    description: {
+      type: 'string',
     },
   },
   required: [
@@ -117,7 +117,7 @@ const dataSchema = {
     'contributor',
     'protocol_version',
     'uri',
-    'action'
+    'description',
   ]
 };
 // submit_job [script]
@@ -147,14 +147,18 @@ const scriptSchema = {
     uri: {
       type: 'string',
       multipleOf: 1
-    }
+    },
+    description: {
+      type: 'string',
+    },
   },
   required: [
     'name',
     'version',
     'contributor',
     'protocol_version',
-    'uri'
+    'uri',
+    'description',
   ]
 };
 // submit_job [job]
@@ -180,6 +184,9 @@ const jobBlockSchema = {
       type: 'string',
       multipleOf: 1,
     },
+    description: {
+      type: 'string',
+    },
     experiment: {
       type: 'string'
     },
@@ -203,6 +210,7 @@ const jobBlockSchema = {
     'version',
     'contributor',
     'protocol_version',
+    'description',
     'experiment',
     'parameters',
     'tasks'
@@ -232,10 +240,10 @@ const dockerSchema = {
       multipleOf: 1,
     },
     uri: {
-      type: 'string'
+      type: 'string',
     },
-    features: {
-      type: 'string'
+    description: {
+      type: 'string',
     },
   },
   required: [
@@ -244,7 +252,7 @@ const dockerSchema = {
     'contributor',
     'protocol_version',
     'uri',
-    'features'
+    'description',
   ]
 };
 // submit_job child collection

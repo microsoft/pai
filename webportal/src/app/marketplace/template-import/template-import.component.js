@@ -50,9 +50,24 @@ const restApi2JsonEditor = (data) => {
         let tasks = d['tasks'];
         d['tasks'] = [];
         tasks.forEach(task => {
+            let val = 1;
+            if (typeof task['resource']['instances'] == 'string') {
+                let paths = task['resource']['instances'].substring(1).split('.');
+                val = data;
+                for (let i = 0; i < paths.length && val != undefined; i++) {
+                    if (paths[i] in val) {
+                        val = val[paths[i]];
+                    } else {
+                        val = val.filter((element) => element.name == paths[i]).pop();
+                    }
+                }
+                if (typeof val != 'number') {
+                    val = 1;
+                }
+            }
             d['tasks'].push({
                 'role': task['name'],
-                'instances': 1, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
+                'instances': val, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
                 'data': task['data'],
                 'cpu': task['resource']['resourcePerInstance']['cpu'],
                 'script': task['script'],
@@ -91,6 +106,7 @@ const jsonEditor2RestApi = (data) => {
     if ('job' in data) {
         let jobs = data['job']; // is a array, but I assume only one job.
         jobs.forEach(job => {
+            job['type'] = 'job';
             let tasks = job['tasks'];
             job['parameters'] = JSON.parse(job['parameters']);
             job['tasks'] = [];
@@ -172,7 +188,7 @@ const submitJob = (jobConfig) => {
     userAuth.checkToken((token) => {
         loading.showLoading();
         $.ajax({
-            url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
+            url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.job.name}`,
             data: JSON.stringify(jobConfig),
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -236,7 +252,7 @@ $(document).ready(() => {
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                data = restApi2JsonEditor(data)
+                data = restApi2JsonEditor(data);
                 // console.log(data);
                 editor.setValue(data);
             }
