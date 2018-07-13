@@ -8,7 +8,6 @@ A tool to manage your pai cluster.
     - [ Build infrastructure image(s) ](#Image_Build)
     - [ Push infrastructure image(s) ](#Image_Push)
 - [ Maintain machines ](#Machine)
-    - [ Repair machines that have problems ](#Machine_Repair)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
 - [ Maintain your service ](#Service)
@@ -17,12 +16,9 @@ A tool to manage your pai cluster.
     - [ Delete service(s) ](#Service_Delete)
     - [ Refresh service(s) ](#Service_Refresh)
 - [ Bootstrap your cluster ](#Cluster)
-    - [ Bootstrap your cluster (K8S + Service) with cluster-configuration ](#Cluster_Boot)
     - [ Bootstrap Kubernetes ](#Cluster_K8s_Boot)
     - [ Stop Kubernetes ](#Cluster_K8s_Stop)
-    - [ Upgrade Kubernetes ](#Cluster_K8s_upgrade)
     - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
-- [ Install kubectl ](#Kubectl)
 - [ Appendix: An example of the `machine-list` file ](#Machine_Nodelist_Example)
 
 ## Manage infrastructure images <a name="Image"></a>
