@@ -149,7 +149,7 @@ describe('Add new user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
@@ -162,7 +162,7 @@ describe('Add new user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });
@@ -175,7 +175,7 @@ describe('Add new user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_CONFLICT_USER');
+        global.chai.expect(res.body.code, 'response code').equal('ConflictUserError');
         done();
       });
   });
@@ -318,7 +318,7 @@ describe('update user: put /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
@@ -341,7 +341,7 @@ describe('update user: put /api/v1/user', () => {
       .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
-        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });
@@ -486,7 +486,7 @@ describe('delete user : delete /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_REMOVE_ADMIN');
+        global.chai.expect(res.body.code, 'response code').equal('RemoveAdminError');
         done();
       });
   });
@@ -499,7 +499,7 @@ describe('delete user : delete /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
@@ -917,7 +917,7 @@ describe('get user info list : get /api/v1/user', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });

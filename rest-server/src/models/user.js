@@ -46,7 +46,7 @@ const update = (username, password, admin, modify, callback) => {
   db.has(etcdConfig.userPath(username), null, (_, res) => {
     if (res !== modify) {
       const status = res ? 'Conflict' : 'Not found';
-      const code = res ? 'ERR_CONFLICT_USER' : 'ERR_NO_USER';
+      const code = res ? 'ConflictUserError' : 'NoUserError';
       const message = res ? `User name ${username} already exists.` : `User ${username} not found.`;
       callback(createError(status, code, message));
     } else {
@@ -87,14 +87,14 @@ const setUserAdmin = (admin, username, callback) => {
 const remove = (username, callback) => {
   db.has(etcdConfig.userPath(username), null, (_, res) => {
     if (!res) {
-      callback(createError('Not Found', 'ERR_NO_USER', `User ${username} not found.`));
+      callback(createError('Not Found', 'NoUserError', `User ${username} not found.`));
     }
     db.get(etcdConfig.userAdminPath(username), null, (err, res) => {
       if (err) {
         return callback(err);
       }
       if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
-        callback(createError('Forbidden', 'ERR_REMOVE_ADMIN', `Admin ${username} is not allowed to remove.`));
+        callback(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
       } else {
         db.delete(etcdConfig.userPath(username), {recursive: true}, callback);
       }
