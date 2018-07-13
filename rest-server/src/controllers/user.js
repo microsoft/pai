@@ -96,7 +96,7 @@ const updateUserVc = (req, res, next) => {
       }
     });
   } else {
-    next(createError('Forbidden', 'ERR_FORBIDDEN_USER', `Non-admin is not allow to do this operation.`));
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
   }
 };
 

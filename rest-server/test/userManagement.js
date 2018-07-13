@@ -751,7 +751,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_VIRTUAL_CLUSTER');
+        global.chai.expect(res.body.code, 'response code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -781,7 +781,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_NO_VIRTUAL_CLUSTER');
+        global.chai.expect(res.body.code, 'response code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -794,7 +794,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
     .end((err, res) => {
       global.chai.expect(res, 'status code').to.have.status(404);
       global.chai.expect(res, 'response format').be.json;
-      global.chai.expect(res.body.code, 'response code').equal('ERR_NO_USER');
+      global.chai.expect(res.body.code, 'response code').equal('NoUserError');
       done();
     });
   });
@@ -807,7 +807,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ERR_FORBIDDEN_USER');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });

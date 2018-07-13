@@ -141,7 +141,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
     if (err) {
       if (err.errorCode === 100) {
         // "Key not found" refer to https://coreos.com/etcd/docs/latest/v2/errorcode.html
-        return callback(createError('Not Found', 'ERR_NO_USER', `User ${username} not found.`));
+        return callback(createError('Not Found', 'NoUserError', `User ${username} not found.`));
       } else {
         return callback(err);
       }
@@ -164,7 +164,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
             addUserWithInvalidVc = item;
             break;
           } else {
-            return callback(createError('Bad Request', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${item} not found.`));
+            return callback(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${item} not found.`));
           }
         }
       }
@@ -177,7 +177,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
           return callback(err);
         }
         if (addUserWithInvalidVc != null) {
-          return callback(createError('Bad Request', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${addUserWithInvalidVc} not found.`));
+          return callback(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${addUserWithInvalidVc} not found.`));
         }
         callback(null, true);
       });

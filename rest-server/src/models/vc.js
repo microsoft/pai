@@ -30,7 +30,7 @@ class VirtualCluster {
             this[key] = vcList[name][key];
           }
         } else {
-          error = createError('Not Found', 'ERR_NO_VIRTUAL_CLUSTER', `Virtual cluster ${name} not found.`);
+          error = createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${name} not found.`);
         }
       }
       next(this, error);
@@ -72,7 +72,7 @@ class VirtualCluster {
             const vcInfo = this.getCapacitySchedulerInfo(schedulerInfo);
             next(vcInfo, null);
           } else {
-            next(null, createError('Internal Server Error', 'ERR_BAD_CONFIGURATION', `Scheduler type ${schedulerInfo.type} is not supported.`));
+            next(null, createError('Internal Server Error', 'BadConfigurationError', `Scheduler type ${schedulerInfo.type} is not supported.`));
           }
         } catch (error) {
           next(null, error);

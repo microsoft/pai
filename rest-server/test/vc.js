@@ -315,7 +315,7 @@ describe('VC API /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(404);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('code', 'ERR_NO_VIRTUAL_CLUSTER');
+        expect(res.body).to.have.property('code', 'NoVirtualClusterError');
         done();
       });
   });
@@ -350,7 +350,7 @@ describe('VC API /api/v1/virtual-clusters', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(500);
         expect(res, 'json response').be.json;
-        expect(res.body).to.have.property('code', 'ERR_BAD_CONFIGURATION');
+        expect(res.body).to.have.property('code', 'BadConfigurationError');
         done();
       });
   });
