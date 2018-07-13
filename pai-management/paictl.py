@@ -244,6 +244,49 @@ def cluster_object_model_generate_k8s(config_path):
 ## TODO: Please remove all function above, after cluster_object_model is finsied.
 #########
 
+# True : continue
+# False: exit
+def kubectl_env_checking(cluster_object_mode):
+
+    kubectl_conf_ck_worker = kubectl_conf_check.kubectl_conf_check(cluster_object_mode)
+    if kubectl_conf_ck_worker.check() == False:
+        count_input = 0
+
+        while True:
+            user_input = raw_input("Do you want to re-install kubectl by paictl? (Y/N) ")
+
+            if user_input == "N":
+                count_quit = 0
+                while True:
+                    quit_or_not = raw_input("Do you want to quit by this operation? (Y/N) ")
+                    if quit_or_not == "Y":
+                        return False
+                    elif quit_or_not == "N":
+                        return True
+                    else:
+                        print(" Please type Y or N.")
+                    count_quit = count_quit + 1
+                    if count_quit == 3:
+                        logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                        return False
+
+            elif user_input == "Y":
+                kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_mode)
+                kubectl_install_worker.run()
+                return True
+
+            else:
+                print(" Please type Y or N.")
+
+
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return False
+    return True
+
+
+
 
 def pai_build_info():
 
@@ -326,26 +369,8 @@ def pai_machine():
     cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
     node_list = file_handler.load_yaml_config(node_lists_path)
 
-
-    kubectl_conf_ck_worker = kubectl_conf_check.kubectl_conf_check(cluster_object_model_k8s)
-    if kubectl_conf_ck_worker.check() == False:
-        count_input = 0
-
-        while True:
-            user_input = raw_input("Do you want to re-install kubectl by paictl? (Y/N) ")
-            if user_input == "N":
-                break
-            elif user_input == "Y":
-                kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
-                kubectl_install_worker.run()
-                break
-            else:
-                print(" Please type Y or N.")
-            count_input = count_input + 1
-            if count_input == 3:
-                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
-                return
-
+    if kubectl_env_checking(cluster_object_model_k8s) == False:
+        return
 
     for host in node_list['machine-list']:
 
@@ -435,26 +460,8 @@ def pai_service():
 
     # Tricky ,  re-install kubectl first.
     # TODO: install kubectl-install here.
-
-    kubectl_conf_ck_worker = kubectl_conf_check.kubectl_conf_check(cluster_object_model_k8s)
-    if kubectl_conf_ck_worker.check() == False:
-        count_input = 0
-
-        while True:
-            user_input = raw_input("Do you want to re-install kubectl by paictl? (Y/N) ")
-            if user_input == "N":
-                break
-            elif user_input == "Y":
-                kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
-                kubectl_install_worker.run()
-                break
-            else:
-                print(" Please type Y or N.")
-            count_input = count_input + 1
-            if count_input == 3:
-                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
-                return
-
+    if kubectl_env_checking(cluster_object_model_k8s) == False:
+        return
 
     if option == "start":
         service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
