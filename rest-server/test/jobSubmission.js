@@ -373,9 +373,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   });
 
-  it('[N-07] killAllOnCompletedTaskNumber is greater than tasks number.', (done) => {
-    const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_killAllOnCompletedTaskNumber'}));
-    jobConfig.killAllOnCompletedTaskNumber = 2;
+  it('[N-07] minFailedTaskCount or minSucceededTaskCount is greater than tasks number.', (done) => {
+    const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_minFailedTaskCount'}));
+    jobConfig.taskRoles[0].minFailedTaskCount = 2;
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
@@ -383,7 +383,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('killAllOnCompletedTaskNumber should not be greater than tasks number.');
+        global.chai.expect(res.body.message, 'response message').equal('Could not validate request data: minFailedTaskCount or minSucceededTaskCount should not be greater than tasks number.');
         done();
       });
   });

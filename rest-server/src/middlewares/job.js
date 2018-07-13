@@ -18,32 +18,28 @@
 
 // module dependencies
 const param = require('./parameter');
-const logger = require('../config/logger');
 const jobConfig = require('../config/job');
 
 
-const checkKillAllOnCompletedTaskNumber = (req, res, next) => {
-  let tasksNumber = 0;
+const checkMinTaskNumber = (req, res, next) => {
   for (let i = 0; i < req.body.taskRoles.length; i ++) {
-    tasksNumber += req.body.taskRoles[i].taskNumber;
-  }
-  const killAllOnCompletedTaskNumber = req.body.killAllOnCompletedTaskNumber;
-  if (killAllOnCompletedTaskNumber > tasksNumber) {
-    const errorType = 'ParameterValidationError';
-    const errorMessage = 'killAllOnCompletedTaskNumber should not be greater than tasks number.';
-    logger.warn('[%s] %s', errorType, errorMessage);
-    return res.status(500).json({
-      error: errorType,
-      message: errorMessage,
-    });
-  } else {
-    next();
+    const taskNumber = req.body.taskRoles[i].taskNumber;
+    const minFailedTaskCount = req.body.taskRoles[i].minFailedTaskCount || 0;
+    const minSucceededTaskCount = req.body.taskRoles[i].minSucceededTaskCount || 0;
+    if (minFailedTaskCount > taskNumber || minSucceededTaskCount > taskNumber) {
+      const err = new Error('Could not validate request data: ' +
+        'minFailedTaskCount or minSucceededTaskCount should not be greater than tasks number.');
+      err.status = 500;
+      next(err);
+    } else {
+      next();
+    }
   }
 };
 
 const submission = [
   param.validate(jobConfig.schema),
-  checkKillAllOnCompletedTaskNumber,
+  checkMinTaskNumber,
 ];
 
 const query = (req, res, next) => {

@@ -74,15 +74,20 @@ const jobConfigSchema = Joi.object().keys({
           .default([]),
         command: Joi.string()
           .required(),
+        minFailedTaskCount: Joi.number()
+          .integer()
+          .min(1)
+          .optional(),
+        minSucceededTaskCount: Joi.number()
+          .integer()
+          .min(1)
+          .optional(),
       }))
     .min(1)
     .required(),
   gpuType: Joi.string()
     .allow('')
     .default(''),
-  killAllOnCompletedTaskNumber: Joi.number()
-    .integer()
-    .default(1),
   virtualCluster: Joi.string()
     .allow('')
     .default('default'),
