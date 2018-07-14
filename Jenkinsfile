@@ -119,6 +119,13 @@ fi
 
 # update image tag
 sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+
+# setup vc
+sed -i "66s/.*/  virtualClusters:/" /cluster-configuration/services-configuration.yaml
+sed -i "67s/.*/    default:/" /cluster-configuration/services-configuration.yaml
+sed -i "68s/.*/      description: Default VC./" /cluster-configuration/services-configuration.yaml
+sed -i "69s/.*/      capacity: 100/" /cluster-configuration/services-configuration.yaml
+
 # setup registry
 /cluster-configuration/setupIntRegistry.sh
 
@@ -210,6 +217,13 @@ git reset --hard origin/${GIT_BRANCH}
 
 # update image tag
 sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+
+# setup vc
+sed -i "66s/.*/  virtualClusters:/" /cluster-configuration/services-configuration.yaml
+sed -i "67s/.*/    default:/" /cluster-configuration/services-configuration.yaml
+sed -i "68s/.*/      description: Default VC./" /cluster-configuration/services-configuration.yaml
+sed -i "69s/.*/      capacity: 100/" /cluster-configuration/services-configuration.yaml
+
 # setup registry
 /cluster-configuration/setupIntRegistry.sh
 
