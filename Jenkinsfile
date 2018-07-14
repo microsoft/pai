@@ -117,53 +117,18 @@ fi
 #export CONFIG_PATH=/cluster-configuration
 ./paictl.py cluster generate-configuration -i /quick-start.yaml -o /cluster-configuration
 
-cat << EOF > /cluster-configuration/services-configuration.yaml
-
-cluster:
-  clusterid: pai-example
-  nvidia-drivers-version: 384.111
-  docker-verison: 17.06.2
-  data-path: "/mnt/datastorage"
-  docker-registry-info:
-    docker-namespace: paiclusterint
-    docker-registry-domain: openpai.azurecr.io
-    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}
-    secret-name: pai-secret
-
-hadoop:
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
-  hadoop-version: 2.7.2
-
-frameworklauncher:
-  frameworklauncher-port: 9086
-
-restserver:
-  server-port: 9186
-  jwt-secret: pai-secret
-  default-pai-admin-username: admin
-  default-pai-admin-password: admin-password
-
-webportal:
-  server-port: 9286
-
-grafana:
-  grafana-port: 3000
-
-prometheus:
-  prometheus-port: 9091
-  node-exporter-port: 9100
-
-pylon:
-  port: 80
-
-
-EOF
+# update image tag
+sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+# setup registry
+/cluster-configuration/setupIntRegistry.sh
 
 # delete service for next install
 ./paictl.py service delete -p /cluster-configuration
 
 # clean k8s first
-./paictl.py cluster k8s-clean -p /cluster-configuration
+./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+Y
+EOF
 
 # Step 2. Boot up Kubernetes
 # install k8s
@@ -232,7 +197,7 @@ git checkout --track origin/${GIT_BRANCH}
 git reset --hard origin/${GIT_BRANCH}
 
 # Image tag
-#export IMAGE_TAG=${GIT_BRANCH/\\\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}
+#export IMAGE_TAG=${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}
 #echo "Image tag: $IMAGE_TAG"
 
 # generate quick-start.yaml
@@ -243,58 +208,18 @@ git reset --hard origin/${GIT_BRANCH}
 #export CONFIG_PATH=/cluster-configuration
 ./paictl.py cluster generate-configuration -i /quick-start.yaml -o /cluster-configuration
 
-cat << EOF > /cluster-configuration/services-configuration.yaml
-
-cluster:
-  clusterid: pai-example
-  nvidia-drivers-version: 384.111
-  docker-verison: 17.06.2
-  data-path: "/mnt/datastorage"
-  docker-registry-info:
-    docker-namespace: paiclusterint
-    docker-registry-domain: openpai.azurecr.io
-    docker-tag: ${GIT_BRANCH/\\\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}
-    secret-name: pai-secret
-
-hadoop:
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
-  hadoop-version: 2.7.2
-  virtualClusters:
-   default:
-     description: Default VC.
-     capacity: 100
-
-
-frameworklauncher:
-  frameworklauncher-port: 9086
-
-restserver:
-  server-port: 9186
-  jwt-secret: pai-secret
-  default-pai-admin-username: admin
-  default-pai-admin-password: admin-password
-
-webportal:
-  server-port: 9286
-
-grafana:
-  grafana-port: 3000
-
-prometheus:
-  prometheus-port: 9091
-  node-exporter-port: 9100
-
-pylon:
-  port: 80
-
-
-EOF
+# update image tag
+sed -i "46s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+# setup registry
+/cluster-configuration/setupIntRegistry.sh
 
 # delete service for next install
 ./paictl.py service delete -p /cluster-configuration
 
 # clean k8s first
-./paictl.py cluster k8s-clean -p /cluster-configuration
+./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+Y
+EOF
 
 # Step 2. Boot up Kubernetes
 # install k8s
