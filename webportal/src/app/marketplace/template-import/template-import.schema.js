@@ -18,7 +18,7 @@
 // the end of job: [task plate]
 const taskSchema = {
   type: 'array',
-  format: 'table',
+  format: 'grid',
   propertyOrder: 1002,
   options: {
     disable_edit_json: true,
@@ -27,9 +27,11 @@ const taskSchema = {
   },
   items: {
     type: 'object',
-    headerTemplate: "{{ self.name }}",
+    headerTemplate: "{{ self.role }}",
     format: 'grid',
-    // default pack up form
+    options: {
+      disable_edit_json: true,
+    },
     properties: {
       role: {
         type: 'string',
@@ -64,9 +66,17 @@ const taskSchema = {
       },
       env: {
         type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
       },
       command: {
         type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
       },
     },
     required: [

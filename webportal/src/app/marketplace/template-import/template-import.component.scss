@@ -43,7 +43,6 @@ textarea {
     margin-right: 0;
 }
 
-
 .panel-body .box-body div[data-schemaid] >h3:first-child{
     display: none; 
 }
@@ -61,9 +60,12 @@ textarea {
     border: none;
 }
 
-
 .panel-body .box-body div[data-schemaid] div.well.well-sm div div div.row{
-    margin-left: 15px;
+    margin-left: 10px;
+}
+ 
+.panel-body .box-body div[data-schemaid] div.well.well-sm  div.well.well-sm  div.well.well-sm h3{
+    padding-left: 25px;
 }
 
 .panel-body .box-body div[data-schemaid] div.well.well-sm >.btn-group{

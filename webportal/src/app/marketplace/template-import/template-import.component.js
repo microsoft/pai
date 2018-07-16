@@ -157,7 +157,6 @@ let jobDefaultConfigs = {};
 
 
 const submitJob = (jobConfig) => {
-  return;
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
