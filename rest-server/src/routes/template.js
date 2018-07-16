@@ -14,7 +14,7 @@ router.route('/')
 
 router.route('/:name/:version')
     /** GET /api/v1/template/:name/:version - Return the template by name and version*/
-    .get(templateController.get_template_by_name_and_version);
+    .get(templateController.getTemplateByNameAndVersion);
 
 router.route('/recommend')
     /** GET /api/v1/template/recommend - Return the hottest templates in last month */

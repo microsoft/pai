@@ -9,6 +9,7 @@ div#editor-holder {
 
 textarea {
     resize: both;
+    min-height: 80px;
 }
 
 // save and submit inline
@@ -40,4 +41,39 @@ textarea {
 
 .button-collection>.last-btn{
     margin-right: 0;
+}
+
+
+.panel-body .box-body div[data-schemaid] >h3:first-child{
+    display: none; 
+}
+
+.panel-body .box-body div[data-schemaid] .well{
+    border: none;
+    border-radius: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background-color: transparent !important;
+    margin-bottom: 0;
+}
+
+.panel-body .box-body div[data-schemaid] div.well.well-sm .table-bordered > tbody  td{
+    border: none;
+}
+
+
+.panel-body .box-body div[data-schemaid] div.well.well-sm div div div.row{
+    margin-left: 15px;
+}
+
+.panel-body .box-body div[data-schemaid] div.well.well-sm >.btn-group{
+    margin-top: 20px;
+}
+
+.panel-body{
+    padding-top:0;
+}
+
+.panel-title{
+    font-size: 24px;
 }
