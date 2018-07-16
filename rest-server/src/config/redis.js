@@ -18,14 +18,39 @@
 
 const Joi = require('joi');
 
-const recommendCountSchema = Joi.object().keys({
-  'count': Joi.number()
-    .integer()
-    .min(0),
+/*
+   Redis data schema:
+   - marketplace:used.count = sortedlist ($count, $name)
+   - marketplace:head.index = hash ($name -> $latestVersion)
+   - marketplace:template:${name} = hash ($version -> $content)
+ */
+let redisConfig = {
+  connectionUrl: process.env.REDIS_URI,
+  keyPrefix: "marketplace:",
+  usedCountKey: "used.count",
+  headIndexKey: "head.index",
+  templateKey: function(name) {
+    return "template:" + name;
+  },
+};
+
+const redisConfigSchema = Joi.object().keys({
+  connectionUrl: Joi.string()
+    .required(),
+  keyPrefix: Joi.string()
+    .required(),
+  usedCountKey: Joi.string()
+    .required(),
+  headIndexKey: Joi.string()
+    .required(),
+  templateKey: Joi.func()
+    .arity(1)
+    .required(),
 });
 
+const {error, value} = Joi.validate(redisConfig, redisConfigSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
 
-// module exports
-module.exports = {
-  recommendCountSchema: recommendCountSchema,
-};
+module.exports = value;

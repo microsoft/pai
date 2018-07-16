@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -16,16 +13,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const Joi = require('joi');
+const redisLib = require('redis');
+const logger = require('../config/logger');
 
-const recommendCountSchema = Joi.object().keys({
-  'count': Joi.number()
-    .integer()
-    .min(0),
-});
+const createClient = function(connectionUrl, options) {
+  let client = redisLib.createClient(connectionUrl, options);
+  client.on('ready', () => logger.info("redis is connected"));
+  return client;
+}
 
-
-// module exports
-module.exports = {
-  recommendCountSchema: recommendCountSchema,
-};
+module.exports = createClient;

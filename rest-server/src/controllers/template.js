@@ -16,13 +16,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const appRoot = require('app-root-path');
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
 const logger = require('../config/logger');
-
-const basePath = path.join(appRoot.path, 'marketplace');
+const template = require('../models/template');
 
 // parse the json data to template summary format.
 const to_template_summary = (data) =>{
@@ -59,86 +54,86 @@ const to_template_summary = (data) =>{
 };
 
 const list = (req, res) => {
-    let templateList = [];
-    fs.readdirSync(basePath).forEach((filename) => {
-        templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filename}`, 'utf8'))));
+    template.getTemplateList((err, list) => {
+        if (err) {
+            return res.status(500).json({
+                'message': err.toString(),
+            });
+        }
+        let templateList = [];
+        list.forEach((item) => {
+            templateList.push(to_template_summary(item));
+        });
+        return res.status(200).json(templateList);
     });
-    return res.status(200).json(templateList);
 };
 
 const recommend = (req, res) => {
     let count = req.param('count', 3);
-    let filenames = fs.readdirSync(basePath);
-    if (count > filenames.length) {
-        return res.status(404).json({
-            'message': 'The value of the "count" parameter must be less than the number of templates',
-        });
-    } else {
+    template.getTemplateList((err, list) => {
+        if (err) {
+            return res.status(500).json({
+                'message': err.toString(),
+            });
+        }
+        if (count > list.length) {
+            count = list.length;
+        }
         let templateList = [];
         for (let i = 0; i < count; ++i) {
-            templateList.push(to_template_summary(yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'))));
+            templateList.push(to_template_summary(list[i]));
         }
         return res.status(200).json(templateList);
-    }
+    });
 };
 
-const get_template_by_name_and_version = (req, res) =>{
+const fetch = (req, res) =>{
     let name = req.param('name');
     let version = req.param('version');
-
-    let data = get_template(name, version);
-    if (data) {
-        return res.status(200).json(data);
-    } else {
-        return res.status(404).json({
-            'message': 'Not Found',
-        });
-    }
-}
-
-const get_template = function(name, version) {
-    let filenames = fs.readdirSync(basePath);
-    for (let i = 0; i < filenames.length; ++i) {
-        let data = yaml.safeLoad(fs.readFileSync(`${basePath}/${filenames[i]}`, 'utf8'));
-        if ('job' in data) {
-            let d = data['job'];
-            if(d['name'] == name && d['version'] == version){
-                return data;
-            }
+    template.getTemplate(name, version, (err, item) => {
+        if (err) {
+            return res.status(404).json({
+                'message': 'Not Found',
+            });
         }
-    }
-    return null;
+        return res.status(200).json(item);
+    });
 }
 
 const share = (req, res) => {
-    let data = req.body;
-    let template = data.template;
-    let job = template.job;
-    if (!get_template(job.name, job.version)) {
-        let filename = new Date().getTime() + '.yaml';
-        fs.writeFile(`${basePath}/${filename}`, yaml.safeDump(template), function(error) {
-            if (error) {
-                logger.error(error);
-                res.status(500).json({
+    let content = req.body.template;
+    let name = content.job.name;
+    let version = content.job.version;
+    template.hasTemplate(name, version, (err, has) => {
+        if (err) {
+            logger.error(err);
+            return res.status(500).json({
+                message: 'IO error happened when detecting template.'
+            });
+        }
+        if (has) {
+            return res.status(400).json({
+                message: `The template titled "${name}:${version} has already existed.".`
+            });
+        }
+        template.saveTemplate(name, version, content, (err, num) => {
+            if (err) {
+                logger.error(err);
+                return res.status(500).json({
                     message: 'IO error happened when stroing template.'
                 });
-            } else {
-                res.status(201).json({
-                    name: job.name,
-                    version: job.version
-                });
             }
+            res.status(201).json({
+                name: name,
+                version: version
+            });
         });
-    } else {
-        res.status(400).json({
-            message: `The template titled "${job.name}:${job.version} has already existed.".`
-        });
-    }
+    });
 };
 
 module.exports = {
     list,
     recommend,
-    get_template_by_name_and_version,
+    fetch,
     share
 };
