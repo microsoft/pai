@@ -39,6 +39,9 @@ from paiLibrary.paiCluster import cluster_util
 
 from k8sPaiLibrary.maintainlib import add as k8s_add
 from k8sPaiLibrary.maintainlib import remove as k8s_remove
+from k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
+from k8sPaiLibrary.maintainlib import kubectl_conf_check
+from k8sPaiLibrary.maintainlib import kubectl_install
 
 
 logger = logging.getLogger(__name__)
@@ -241,6 +244,49 @@ def cluster_object_model_generate_k8s(config_path):
 ## TODO: Please remove all function above, after cluster_object_model is finsied.
 #########
 
+# True : continue
+# False: exit
+def kubectl_env_checking(cluster_object_mode):
+
+    kubectl_conf_ck_worker = kubectl_conf_check.kubectl_conf_check(cluster_object_mode)
+    if kubectl_conf_ck_worker.check() == False:
+        count_input = 0
+
+        while True:
+            user_input = raw_input("Do you want to re-install kubectl by paictl? (Y/N) ")
+
+            if user_input == "N":
+                count_quit = 0
+                while True:
+                    quit_or_not = raw_input("Do you want to quit by this operation? (Y/N) ")
+                    if quit_or_not == "Y":
+                        return False
+                    elif quit_or_not == "N":
+                        return True
+                    else:
+                        print(" Please type Y or N.")
+                    count_quit = count_quit + 1
+                    if count_quit == 3:
+                        logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                        return False
+
+            elif user_input == "Y":
+                kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_mode)
+                kubectl_install_worker.run()
+                return True
+
+            else:
+                print(" Please type Y or N.")
+
+
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return False
+    return True
+
+
+
 
 def pai_build_info():
 
@@ -289,8 +335,9 @@ def pai_build():
 def pai_machine_info():
 
     logger.error("The command is wrong.")
-    logger.error("Add New Machine Node into cluster     :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    logger.error("Remove Machine Node from cluster      :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Add New Machine Node into cluster :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Remove Machine Node from cluster  :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+    logger.error("Repair Error Etcd Node in cluster :  paictl.py machine etcd-fix -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     #logger.error("Repair Issue Machine Node in cluster  :  paictl.py machine repair -p /path/to/configuration/ -l /path/to/nodelist.yaml")
 
 
@@ -304,7 +351,7 @@ def pai_machine():
     option = sys.argv[1]
     del sys.argv[1]
 
-    if option not in ["add", "remove"]:
+    if option not in ["add", "remove", "etcd-fix"]:
         pai_machine_info()
         return
 
@@ -322,7 +369,8 @@ def pai_machine():
     cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
     node_list = file_handler.load_yaml_config(node_lists_path)
 
-
+    if kubectl_env_checking(cluster_object_model_k8s) == False:
+        return
 
     for host in node_list['machine-list']:
 
@@ -350,6 +398,21 @@ def pai_machine():
             if host['k8s-role'] == 'master':
                 logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
+
+
+    if option == "etcd-fix":
+
+        if len(node_list['machine-list']) > 1:
+            logger.error("etcd-fix can't fix more than one machine everytime. Please fix them one by one!")
+            sys.exit(1)
+
+        for host in node_list['machine-list']:
+            etcd_fix_worker = k8s_etcd_fix.etcdfix(cluster_object_model_k8s, host, True)
+            etcd_fix_worker.run()
+
+        logger.info("Etcd has been fixed.")
+
+
 
 
 
@@ -397,6 +460,8 @@ def pai_service():
 
     # Tricky ,  re-install kubectl first.
     # TODO: install kubectl-install here.
+    if kubectl_env_checking(cluster_object_model_k8s) == False:
+        return
 
     if option == "start":
         service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
@@ -419,7 +484,8 @@ def pai_service():
 def pai_cluster_info():
 
     logger.error("The command is wrong.")
-    logger.error("Bootup kubernetes cluster: paictl.py cluster k8s-bootup -p /path/to/cluster-configuration/dir")
+    logger.error("Bootup kubernetes cluster : paictl.py cluster k8s-bootup -p /path/to/cluster-configuration/dir")
+    logger.error("Destroy kubernetes cluster: paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir")
 
 
 
@@ -458,11 +524,51 @@ def pai_cluster():
             args.quick_start_config_file,
             args.configuration_directory,
             args.force)
-    #elif option == "k8s-clean":
-    #    # just use 'k8s-clean' for testing temporarily  .
-    #    logger.info("Begin to clean up whole cluster.")
-    #    cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
-    #    logger.info("Clean up job finished")
+    elif option == "k8s-clean":
+        # just use 'k8s-clean' for testing temporarily  .
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-p', '--config-path', dest="config_path", required=True, help="path of cluster configuration file")
+        args = parser.parse_args(sys.argv[1:])
+        config_path = args.config_path
+        cluster_config = cluster_object_model_generate_k8s(config_path)
+
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----------     Dangerous Operation!!!    ---------------")
+        logger.warning("------     Your k8s Cluster will be destroyed    -------")
+        logger.warning("------     PAI service on k8s will be stopped    -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----------    ETCD data will be cleaned.    ------------")
+        logger.warning("-----    If you wanna keep pai's user data.    ---------")
+        logger.warning("-----         Please backup etcd data.         ---------")
+        logger.warning("-----      And restore it after k8s-bootup     ---------")
+        logger.warning("---     And restore it before deploy pai service    ----")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----    Please ensure you wanna do this operator, ------")
+        logger.warning("-------        after knowing all risk above.     -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+
+        count_input = 0
+
+        while True:
+            user_input = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input == "N":
+                return
+            elif user_input == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return
+
+        logger.info("Begin to clean up whole cluster.")
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+        logger.info("Clean up job finished")
 
 
 

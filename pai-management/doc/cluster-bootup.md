@@ -88,7 +88,7 @@ Note that the quick start approach does not provide high availability and custom
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
 ```
-paictl.py cluster k8s-bootup \
+python paictl.py cluster k8s-bootup \
   -p /path/to/cluster-configuration/dir
 ```
 

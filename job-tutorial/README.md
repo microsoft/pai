@@ -79,6 +79,7 @@ A json file describe detailed configuration required for a job submission. The d
       "taskNumber": Integer,
       "cpuNumber":  Integer,
       "memoryMB":   Integer,
+      "shmMB":      Integer,
       "gpuNumber":  Integer,
       "portList": [
         {
@@ -112,6 +113,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
 | `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
 | `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
+| `taskRole.shmMB`               | Integer, optional          | Shared memory for one task in the task role, no more than memory size. The default value is 64MB |
 | `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
 | `taskRole.portList`            | List, optional             | List of `portType` to use                |
 | `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
@@ -135,10 +137,10 @@ password
 
 ## Runtime environment
 
-Each task in a job runs in one Docker container. 
+Each task in a job runs in one Docker container.
 For a multi-task job, one task might communicate with others.
-So a task need to be aware of other tasks' runtime information such as IP, port, etc. 
-The system exposes such runtime information as environment variables to each task's Docker container. 
+So a task need to be aware of other tasks' runtime information such as IP, port, etc.
+The system exposes such runtime information as environment variables to each task's Docker container.
 For mutual communication, user can write code in the container to access those runtime environment variables.
 Those environment variables can also be used in the job config file.
 
@@ -158,6 +160,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `taskRole.taskNumber` of current task role |
 | PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `taskRole.cpuNumber` of current task role  |
 | PAI_CURRENT_TASK_ROLE_MEM_MB       | `taskRole.memoryMB` of current task role   |
+| PAI_CURRENT_TASK_ROLE_SHM_MB       | `taskRole.shmMB` of current task role      |
 | PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `taskRole.gpuNumber` of current task role  |
 | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | Index of current task in current task role, starting from 0 |
 | PAI_JOB_TASK_COUNT                 | Total tasks' number in config file       |
