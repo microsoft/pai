@@ -17,185 +17,285 @@
 
 // the end of job: [task plate]
 const taskSchema = {
-  type: 'object',
-  title: 'task',
+  type: 'array',
   format: 'grid',
+  propertyOrder: 1002,
   options: {
     disable_edit_json: true,
+    disable_array_delete_last_row: true,
+    disable_array_delete_all_rows: true,
   },
-  properties: {
-    role: {
-      type: 'string',
+  items: {
+    type: 'object',
+    headerTemplate: "{{ self.role }}",
+    format: 'grid',
+    options: {
+      disable_edit_json: true,
     },
-    instances: {
-
-      type: 'number',
-      minimum: 0,
-      multipleOf: 1,
+    properties: {
+      role: {
+        type: 'string',
+      },
+      instances: {
+        type: 'number',
+        minimum: 0,
+        multipleOf: 1,
+      },
+      data: {
+        type: 'string',
+      },
+      cpu: {
+        type: 'number',
+        minimum: 0,
+        multipleOf: 1,
+      },
+      script: {
+        type: 'string',
+      },
+      gpu: {
+        type: 'number',
+        multipleOf: 1,
+      },
+      dockerimage: {
+        type: 'string',
+      },
+      memoryMB: {
+        type: 'number',
+        minimum: 0,
+        multipleOf: 1,
+      },
+      env: {
+        type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
+      },
+      command: {
+        type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
+      },
     },
-    data: {
-      type: 'string',
-    },
-    cpu: {
-      type: 'string',
-      minimum: 0,
-      multipleOf: 1,
-    },
-    script: {
-      type: 'string',
-    },
-    gpu: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    dockerimage: {
-      type: 'string',
-    },
-    memoryMB: {
-      type: 'number',
-      minimum: 0,
-      multipleOf: 1,
-    },
-    env: {
-      type: 'string',
-      format: 'textarea',
-      multipleOf: 1,
-    },
-    command: {
-      type: 'string',
-      format: 'textarea',
-      multipleOf: 1,
-    },
-  },
-  required: [
-    'role',
-    'instances',
-    'data',
-    'cpu',
-    'script',
-    'gpu',
-    'dockerimage',
-    'memoryMB',
-    'env',
-    'command'
-  ],
+    required: [
+      'role',
+      'instances',
+      'data',
+      'cpu',
+      'script',
+      'gpu',
+      'dockerimage',
+      'memoryMB',
+      'env',
+      'command'
+    ],
+  }
 };
 
 // submit_job [data]
 const dataSchema = {
-  type: 'object',
-  title: 'data',
+  type: 'array',
+  // minItems: 1,
   format: 'grid',
+  propertyOrder: 1002,
   options: {
-    disable_edit_json: true,
+    disable_array_delete_last_row: true,
+    disable_array_delete_all_rows: true,
   },
-  properties: {
-    name: {
-      type: 'string'
+  items: {
+    headerTemplate: "{{ self.name }}",
+    type: 'object',
+    format: 'grid',
+    options: {
+      disable_edit_json: true,
+      collapsed: true,
     },
-    version: {
-      type: 'string',
-      multipleOf: 1,
+    properties: {
+      name: {
+        type: 'string'
+      },
+      version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      contributor: {
+        type: 'string'
+      },
+      protocol_version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      uri: {
+        type: 'string'
+      },
+      description: {
+        type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
+      }
     },
-    contributor: {
-      type: 'string'
-    },
-    protocol_version: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    uri: {
-      type: 'string'
-    },
-    action: {
-      type: 'string'
-    },
-  },
-  required: [
-    'name',
-    'version',
-    'contributor',
-    'protocol_version',
-    'uri',
-    'action'
-  ]
+    required: [
+      'name',
+      'version',
+      'contributor',
+      'protocol_version',
+      'uri',
+      'description'
+    ]
+  }
 };
 // submit_job [script]
 const scriptSchema = {
-  type: 'object',
-  title: 'script',
+  type: 'array',
+  // minItems: 1,
   format: 'grid',
-  // JSON can not edit
+  propertyOrder: 1002,
   options: {
-    disable_edit_json: true,
+    disable_array_delete_last_row: true,
+    disable_array_delete_all_rows: true,
   },
-  properties: {
-    name: {
-      type: 'string'
+  items: {
+    headerTemplate: "{{ self.name }}",
+    type: 'object',
+    format: 'grid',
+    // JSON can not edit
+    options: {
+      disable_edit_json: true,
+      collapsed: true,
     },
-    version: {
-      type: 'string',
-      multipleOf: 1,
+    properties: {
+      name: {
+        type: 'string'
+      },
+      version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      contributor: {
+        type: 'string'
+      },
+      protocol_version: {
+        type: 'string',
+        multipleOf: 1
+      },
+      uri: {
+        type: 'string',
+        multipleOf: 1
+      }
     },
-    contributor: {
-      type: 'string'
-    },
-    protocol_version: {
-      type: 'string',
-      multipleOf: 1
-    },
-    uri: {
-      type: 'string',
-      multipleOf: 1
-    }
-  },
-  required: [
-    'name',
-    'version',
-    'contributor',
-    'protocol_version',
-    'uri'
-  ]
+    required: [
+      'name',
+      'version',
+      'contributor',
+      'protocol_version',
+      'uri'
+    ]
+  }
 };
-// submit_job [job]
-const jobBlockSchema = {
-  type: 'object',
-  title: 'job',
+
+// submit_job [docker]
+const dockerSchema = {
+  type: 'array',
+  // minItems: 1,
+  // as tabs render [form,tabs,table] 
   format: 'grid',
+  propertyOrder: 1002,
   options: {
-    disable_edit_json: true,
+    disable_array_delete_last_row: true,
+    disable_array_delete_all_rows: true,
   },
-  properties: {
-    name: {
-      type: 'string'
+  items: {
+    headerTemplate: "{{ self.name }}",
+    type: 'object',
+    format: 'grid',
+    options: {
+      disable_edit_json: true,
+      collapsed: true,
     },
-    version: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    contributor: {
-      type: 'string'
-    },
-    protocol_version: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    experiment: {
-      type: 'string'
-    },
-    parameters: {
-      type: 'string',
-      format: 'textarea',
-      options: {
-        expand_height: true,
+    properties: {
+      name: {
+        type: 'string'
+      },
+      version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      contributor: {
+        type: 'string'
+      },
+      protocol_version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      uri: {
+        type: 'string'
+      },
+      description: {
+        type: 'string'
       },
     },
-    tasks: {
-      type: 'array',
-      format: 'grid',
-      items: taskSchema,
-      propertyOrder: 1002,
-      description: 'List of task',
+    required: [
+      'name',
+      'version',
+      'contributor',
+      'protocol_version',
+      'uri',
+      'description'
+    ]
+  }
+};
+
+// submit_job [job]
+const jobSchema = {
+  type: 'array',
+  // minItems: 1,
+  format: 'grid',
+  propertyOrder: 1002,
+  options: {
+    disable_array_delete_last_row: true,
+    disable_array_delete_all_rows: true,
+  },
+  items: {
+    headerTemplate: "{{ self.name }}",
+    type: 'object',
+    format: 'grid',
+    options: {
+      disable_edit_json: true,
+      collapsed: true,
+    },
+    properties: {
+      name: {
+        type: 'string'
+      },
+      version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      contributor: {
+        type: 'string'
+      },
+      protocol_version: {
+        type: 'string',
+        multipleOf: 1,
+      },
+      experiment: {
+        type: 'string'
+      },
+      description: {
+        type: 'string'
+      },
+      parameters: {
+        type: 'string',
+        format: 'textarea',
+        options: {
+          expand_height: true,
+        },
+      },
+      tasks: taskSchema
     },
   },
   required: [
@@ -203,103 +303,16 @@ const jobBlockSchema = {
     'version',
     'contributor',
     'protocol_version',
+    'description',
     'experiment',
     'parameters',
     'tasks'
   ]
 };
-// submit_job [docker]
-const dockerSchema = {
-  type: 'object',
-  title: 'docker',
-  format: 'grid',
-  options: {
-    disable_edit_json: true,
-  },
-  properties: {
-    name: {
-      type: 'string'
-    },
-    version: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    contributor: {
-      type: 'string'
-    },
-    protocol_version: {
-      type: 'string',
-      multipleOf: 1,
-    },
-    uri: {
-      type: 'string'
-    },
-    features: {
-      type: 'string'
-    },
-  },
-  required: [
-    'name',
-    'version',
-    'contributor',
-    'protocol_version',
-    'uri',
-    'features'
-  ]
-};
-// submit_job child collection
-const submit_child = {
-  data: {
-    type: 'array',
-    minItems: 1,
-    // as tabs render [form,tabs,table] 
-    format: 'tabs',
-    items: dataSchema,
-    propertyOrder: 1002,
-    description: 'List of data',
-  },
-  script: {
-    type: 'array',
-    minItems: 1,
-    format: 'tabs',
-    items: scriptSchema,
-    propertyOrder: 1002,
-    description: 'List of script',
-  },
-  docker: {
-    type: 'array',
-    minItems: 1,
-    format: 'tabs',
-    items: dockerSchema,
-    propertyOrder: 1002,
-    description: 'List of docker',
-  },
-  job: {
-    type: 'array',
-    minItems: 1,
-    format: 'tabs',
-    items: jobBlockSchema,
-    propertyOrder: 1002,
-    description: 'List of docker',
-  }
-}
 
-// submit job complete json file
-const jobSchema = {
-  type: 'object',
-  format: 'grid',
-  title: 'Submit Form',
-  // JSON button display
-  // options: {
-  //   disable_edit_json: true,
-  // },
-  properties: submit_child,
-  required: [
-    'data',
-    'docker',
-    'script',
-    'job'
-  ]
+module.exports = {
+  dataSchema,
+  scriptSchema,
+  dockerSchema,
+  jobSchema,
 };
-
-module.exports = jobSchema;

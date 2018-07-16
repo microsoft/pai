@@ -20,120 +20,125 @@ const logger = require('../config/logger');
 const template = require('../models/template');
 
 // parse the json data to template summary format.
-const to_template_summary = (data) =>{
-    let res = {'datasets': [], 'scripts': [], 'dockers': []};
-    if ('job' in data) {
-        let d = data['job'];
-        res['name'] = d['name'];
-        res['type'] = 'job';
-        res['version'] = d['version'];
-        res['contributors'] = [d['contributor']]; // todo split the contributor string?
-        res['description'] = d['description'];
-    }
-    if ('prerequisites' in data) {
-        Object.keys(data['prerequisites']).forEach(function(key) {
-            let d = data['prerequisites'][key];
-            let item = {
-                'name': d['name'],
-                'version': d['version'],
-            };
-            switch (d['type']) {
-                case 'data':
-                    res['datasets'].push(item);
-                    break;
-                case 'script':
-                    res['scripts'].push(item);
-                    break;
-                case 'dockerimage':
-                    res['dockers'].push(item);
-                    break;
-            }
-        });
-    }
-    return res;
+const toTemplateSummary = (data) => {
+  let res = {
+    'datasets': [],
+    'scripts': [],
+    'dockers': [],
+  };
+  
+  if ('job' in data) {
+    let d = data['job'];
+    res['name'] = d['name'];
+    res['type'] = 'job';
+    res['version'] = d['version'];
+    res['contributors'] = [d['contributor']]; // todo split the contributor string?
+    res['description'] = d['description'];
+  }
+  if ('prerequisites' in data) {
+    Object.keys(data['prerequisites']).forEach((key) => {
+      let d = data['prerequisites'][key];
+      let item = {
+        'name': d['name'],
+        'version': d['version'],
+      };
+      switch (d['type']) {
+        case 'data':
+          res['datasets'].push(item);
+          break;
+        case 'script':
+          res['scripts'].push(item);
+          break;
+        case 'dockerimage':
+          res['dockers'].push(item);
+          break;
+      }
+    });
+  }
+  return res;
 };
 
 const list = (req, res) => {
-    template.getTemplateList((err, list) => {
-        if (err) {
-            return res.status(500).json({
-                'message': err.toString(),
-            });
-        }
-        let templateList = [];
-        list.forEach((item) => {
-            templateList.push(to_template_summary(item));
-        });
-        return res.status(200).json(templateList);
+  template.getTemplateList((err, list) => {
+    if (err) {
+      return res.status(500).json({
+        'message': err.toString(),
+      });
+    }
+    let templateList = [];
+    list.forEach((item) => {
+      templateList.push(toTemplateSummary(item));
     });
+    return res.status(200).json(templateList);
+  });
 };
 
 const recommend = (req, res) => {
-    let count = req.param('count', 3);
-    template.getTemplateList((err, list) => {
-        if (err) {
-            return res.status(500).json({
-                'message': err.toString(),
-            });
-        }
-        if (count > list.length) {
-            count = list.length;
-        }
-        let templateList = [];
-        for (let i = 0; i < count; ++i) {
-            templateList.push(to_template_summary(list[i]));
-        }
-        return res.status(200).json(templateList);
-    });
+  let count = req.param('count', 3);
+  template.getTemplateList((err, list) => {
+    if (err) {
+      return res.status(500).json({
+        'message': err.toString(),
+      });
+    }
+    if (count > list.length) {
+      count = list.length;
+    }
+    let templateList = [];
+    for (let i = 0; i < count; ++i) {
+      templateList.push(toTemplateSummary(list[i]));
+    }
+    return res.status(200).json(templateList);
+  });
 };
 
-const fetch = (req, res) =>{
-    let name = req.param('name');
-    let version = req.param('version');
-    template.getTemplate(name, version, (err, item) => {
-        if (err) {
-            return res.status(404).json({
-                'message': 'Not Found',
-            });
-        }
-        return res.status(200).json(item);
-    });
-}
+const fetch = (req, res) => {
+  let name = req.param('name');
+  let version = req.param('version');
+  template.getTemplate(name, version, (err, item) => {
+    if (err) {
+      return res.status(404).json({
+        'message': 'Not Found',
+      });
+    }
+    return res.status(200).json(item);
+  });
+};
 
 const share = (req, res) => {
-    let content = req.body.template;
-    let name = content.job.name;
-    let version = content.job.version;
-    template.hasTemplate(name, version, (err, has) => {
-        if (err) {
-            logger.error(err);
-            return res.status(500).json({
-                message: 'IO error happened when detecting template.'
-            });
-        }
-        if (has) {
-            return res.status(400).json({
-                message: `The template titled "${name}:${version} has already existed.".`
-            });
-        }
-        template.saveTemplate(name, version, content, (err, num) => {
-            if (err) {
-                logger.error(err);
-                return res.status(500).json({
-                    message: 'IO error happened when stroing template.'
-                });
-            }
-            res.status(201).json({
-                name: name,
-                version: version
-            });
+  let content = req.body.template;
+  let name = content.job.name;
+  let version = content.job.version;
+  template.hasTemplate(name, version, (err, has) => {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        message: 'IO error happened when detecting template.'
+      });
+    }
+    if (has) {
+      return res.status(400).json({
+        message: `The template titled "${name}:${version} has already existed.".`
+      });
+    }
+    template.saveTemplate(name, version, content, (err, num) => {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          message: 'IO error happened when stroing template.'
         });
+      }
+      res.status(201).json({
+        name: name,
+        version: version
+      });
     });
+  });
 };
 
 module.exports = {
-    list,
-    recommend,
-    fetch,
-    share
+  list,
+  recommend,
+  fetch,
+  share
 };

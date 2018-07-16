@@ -37,6 +37,5 @@ router.route('/recommend')
     /** GET /api/v1/template/recommend - Return the hottest templates in last month */
     .get(param.getMethodValidate(templateConfig.recommendCountSchema), templateController.recommend);
 
-
 // module exports
 module.exports = router;
