@@ -26,8 +26,8 @@ const jobConfigSchema = Joi.object().keys({
           .allow('')
           .default('v2'),
         name: Joi.string()
-          .regex(/^[A-Za-z0-9\-._~]+$/)
-          .required(),
+          .allow('')
+          .default(''),
         type: Joi.string()
           .regex(/data|script|dockerimage/)
           .required(),
@@ -41,7 +41,8 @@ const jobConfigSchema = Joi.object().keys({
           .allow('')
           .default(''),
         uri: Joi.string()
-          .required(),
+          .allow('')
+          .default(''),
     })),
   job: Joi.object().keys({
     protocol_version: Joi.string()
@@ -93,23 +94,25 @@ const jobConfigSchema = Joi.object().keys({
             gpu: Joi.number()
               .integer()
               .default(0),
-            portList: Joi.array()
-              .items(Joi.object().keys({
-                label: Joi.string()
-                  .regex(/^[A-Za-z0-9._~]+$/)
-                  .required(),
-                beginAt: Joi.number()
-                  .integer()
-                  .default(0),
-                portNumber: Joi.number()
-                  .integer()
-                 .default(1),
-              }))
-              .optional()
-              .default([]),
+          portList: Joi.array()
+            .items(Joi.object().keys({
+              label: Joi.string()
+                .regex(/^[A-Za-z0-9._~]+$/)
+                .required(),
+              beginAt: Joi.number()
+                .integer()
+                .default(0),
+              portNumber: Joi.number()
+                .integer()
+               .default(1),
+            }))
+            .optional()
+            .default([]),
           }),
         }),
-        env: Joi.object(),
+        env: Joi.object()
+          .optional()
+          .default({}),
         command: Joi.array()
           .items(Joi.string())
           .required(),

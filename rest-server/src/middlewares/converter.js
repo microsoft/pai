@@ -125,13 +125,13 @@ const convert = (schema) => {
 
           value.job.tasks.forEach((task) => {
             let commands = [];
-            if (task.data) {
+            if (task.data != '') {
               commands = commands.concat(getCommands(prerequisitesMap['data'][task.data], dataDir));
               for (let i = 0; i < task.command.length; i++) {
                 task.command[i] = task.command[i].replace(task.data, dataDir + '/' + task.data);
               }
             }
-            if (task.script) {
+            if (task.script != '') {
               commands = commands.concat(getCommands(prerequisitesMap['script'][task.script], codeDir));
               for (let i = 0; i < task.command.length; i++) {
                 task.command[i] = task.command[i].replace(task.script, codeDir + '/' + task.script);
@@ -139,10 +139,10 @@ const convert = (schema) => {
             }
             commands.push('export CURRENT_DIR=`pwd`');
             Object.keys(task.env).forEach((env) => {
-              if (task.env[env].indexOf(task.script) >= 0) {
+              if (task.script != '' && task.env[env].indexOf(task.script) >= 0) {
                 task.env[env] = task.env[env].replace(task.script, '$CURRENT_DIR/' + codeDir + '/' + task.script);
               }
-              if (task.env[env].indexOf(task.data) >= 0) {
+              if (task.data != '' && task.env[env].indexOf(task.data) >= 0) {
                 task.env[env] = task.env[env].replace(task.data, '$CURRENT_DIR/' + dataDir + '/' + task.data);
               }
               commands.push('export ' + env + '=' + task.env[env]);
@@ -153,6 +153,7 @@ const convert = (schema) => {
                             cpuNumber: task.resource.resourcePerInstance.cpu,
                             memoryMB: task.resource.resourcePerInstance.memoryMB,
                             gpuNumber: task.resource.resourcePerInstance.gpu,
+                            portList: task.resource.portList,
                             command: commands,
             };
             if ('portList' in task.resource.resourcePerInstance) {

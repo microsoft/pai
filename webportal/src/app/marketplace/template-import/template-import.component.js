@@ -111,13 +111,17 @@ const jsonEditor2RestApi = (data) => {
             job['parameters'] = JSON.parse(job['parameters']);
             job['tasks'] = [];
             tasks.forEach(task=>{
+                let env = {}
+                if ('env' in task && task['env'] != '') {
+                    env = JSON.parse(task['env']);
+                }
                 job['tasks'].push({
                     'name': task['role'],
                     'data': task['data'],
                     'dockerimage':  task['dockerimage'],
                     'command': JSON.parse(task['command']),
                     'script': task['script'],
-                    'env': JSON.parse(task['env']),
+                    'env': env,
                     'resource':{
                         'instances': task['instances'],
                         'resourcePerInstance': {

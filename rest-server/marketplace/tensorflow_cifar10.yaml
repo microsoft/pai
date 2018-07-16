@@ -31,9 +31,9 @@ job :
   parameters :
     model : resnet20
     batchsize: 32
-    num_of_ps: 2
-    num_of_worker: 2
-    killAllOnCompletedTaskNumber: 2 
+    num_of_ps: 1
+    num_of_worker: 1
+    killAllOnCompletedTaskNumber: 1 
     retryCount: 0 
 
   tasks :
