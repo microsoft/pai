@@ -21,14 +21,14 @@ require('./loading.component.scss');
 
 
 const showLoading = () => {
-  var target = $('#mask');
+  let target = $('#mask');
   if (target.length) {
     target.show();
   }
 };
 
 const hideLoading = () => {
-  var target = $('#mask');
+  let target = $('#mask');
   if (target.length) {
     target.hide();
   }

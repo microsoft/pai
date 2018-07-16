@@ -77,7 +77,7 @@ const taskSchema = {
     'dockerimage',
     'memoryMB',
     'env',
-    'command'
+    'command',
   ],
 };
 
@@ -91,14 +91,14 @@ const dataSchema = {
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
@@ -118,7 +118,7 @@ const dataSchema = {
     'protocol_version',
     'uri',
     'description',
-  ]
+  ],
 };
 // submit_job [script]
 const scriptSchema = {
@@ -131,22 +131,22 @@ const scriptSchema = {
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
-      multipleOf: 1
+      multipleOf: 1,
     },
     uri: {
       type: 'string',
-      multipleOf: 1
+      multipleOf: 1,
     },
     description: {
       type: 'string',
@@ -159,7 +159,7 @@ const scriptSchema = {
     'protocol_version',
     'uri',
     'description',
-  ]
+  ],
 };
 // submit_job [job]
 const jobBlockSchema = {
@@ -171,14 +171,14 @@ const jobBlockSchema = {
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
@@ -188,7 +188,7 @@ const jobBlockSchema = {
       type: 'string',
     },
     experiment: {
-      type: 'string'
+      type: 'string',
     },
     parameters: {
       type: 'string',
@@ -213,8 +213,8 @@ const jobBlockSchema = {
     'description',
     'experiment',
     'parameters',
-    'tasks'
-  ]
+    'tasks',
+  ],
 };
 // submit_job [docker]
 const dockerSchema = {
@@ -226,14 +226,14 @@ const dockerSchema = {
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
@@ -253,14 +253,13 @@ const dockerSchema = {
     'protocol_version',
     'uri',
     'description',
-  ]
+  ],
 };
 // submit_job child collection
-const submit_child = {
+const submitChild = {
   data: {
     type: 'array',
     minItems: 1,
-    // as tabs render [form,tabs,table] 
     format: 'tabs',
     items: dataSchema,
     propertyOrder: 1002,
@@ -289,8 +288,8 @@ const submit_child = {
     items: jobBlockSchema,
     propertyOrder: 1002,
     description: 'List of docker',
-  }
-}
+  },
+};
 
 // submit job complete json file
 const jobSchema = {
@@ -301,13 +300,13 @@ const jobSchema = {
   // options: {
   //   disable_edit_json: true,
   // },
-  properties: submit_child,
+  properties: submitChild,
   required: [
     'data',
     'docker',
     'script',
-    'job'
-  ]
+    'job',
+  ],
 };
 
 module.exports = jobSchema;

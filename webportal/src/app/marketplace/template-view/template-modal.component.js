@@ -26,44 +26,44 @@ let resourceTable = null;
 
 const initializeComponent = function() {
   $('#file-template').change(function(event) {
-    var source = event.target;
-    resourceTable = null;
+    let source = event.target;
+    let resourceTable = null;
     if (source.files && source.files[0]) {
       if (window.FileReader) {
-        var file = source.files[0];
-        var fr = new FileReader();
+        let file = source.files[0];
+        let fr = new FileReader();
         fr.onload = function(e) {
           if (e.target.result) {
             try {
-              var data = yaml.safeLoad(e.target.result);
-              resources = [
+              let data = yaml.safeLoad(e.target.result);
+              let resources = [
                 {
                   'name': data.job.name,
                   'type': 'job',
-                  'version': data.job.version
-                }
+                  'version': data.job.version,
+                },
               ];
-              data.prerequisites.forEach(function (element) {
+              data.prerequisites.forEach(function(element) {
                 resources.push({
                   'name': element.name,
                   'type': element.type,
-                  'version': element.version
+                  'version': element.version,
                 });
               });
-              resourceTable = $('#resource-table').DataTable({
-                data: resources,
-                columns: [
+              resourceTable = $('#resource-table').dataTable({
+                'data': resources,
+                'columns': [
                   {
                     title: 'Name',
-                    data: 'name'
+                    data: 'name',
                   },
                   {
                     title: 'Type',
-                    data: 'type'
+                    data: 'type',
                   },
                   {
                     title: 'Version',
-                    data: 'version'
+                    data: 'version',
                   },
                   {
                     title: 'Include',
@@ -72,17 +72,17 @@ const initializeComponent = function() {
                     searchable: false,
                     render: function(data, type) {
                       return `<input type="checkbox" name="included" value="${data.name}:${data.version}" checked="checked" />`;
-                    }
-                  }
+                    },
+                  },
                 ],
                 'order': [
-                  [0, 'asc']
+                  [0, 'asc'],
                 ],
                 'autoWidth': false,
                 'deferRender': true,
                 'paging': false,
                 'info': false,
-                'searching': false
+                'searching': false,
               });
               resourceTable.originData = data;
               return;
@@ -100,24 +100,24 @@ const initializeComponent = function() {
       }
     }
   });
-  
+
   $('#btn-submit').click(function(event) {
     if (resourceTable) {
-      var ajaxData = {
+      let ajaxData = {
         'template': resourceTable.originData,
-        'included': []
-      }
+        'included': [],
+      };
       $('[name="included"]').each(function(index, element) {
         if (element.checked) {
           ajaxData['included'].push(element.value);
         }
       });
-  
+
       $('#shareModal').modal('hide');
       loading.showLoading();
       userAuth.checkToken((token) => {
         $.ajax({
-          type: "POST",
+          type: 'POST',
           url: `${webportalConfig.restServerUri}/api/v1/template`,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -131,9 +131,9 @@ const initializeComponent = function() {
           },
           error: function(xhr, status, error) {
             loading.hideLoading();
-            var res = JSON.parse(xhr.responseText);
+            let res = JSON.parse(xhr.responseText);
             alert(res.message ? res.message : res.toString());
-          }
+          },
         });
       });
     } else {
@@ -142,4 +142,4 @@ const initializeComponent = function() {
   });
 };
 
-module.exports = {generateHtml, initializeComponent}
+module.exports = {generateHtml, initializeComponent};
