@@ -61,6 +61,7 @@ const toTemplateSummary = (data) => {
 const list = (req, res) => {
   template.getTemplateList((err, list) => {
     if (err) {
+      logger.error(err);
       return res.status(500).json({
         'message': err.toString(),
       });
@@ -75,8 +76,9 @@ const list = (req, res) => {
 
 const recommend = (req, res) => {
   let count = req.param('count', 3);
-  template.getTemplateList((err, list) => {
+  template.getRankedTemplateList(0, 3, (err, list) => {
     if (err) {
+      logger.error(err);
       return res.status(500).json({
         'message': err.toString(),
       });
@@ -97,6 +99,7 @@ const fetch = (req, res) => {
   let version = req.param('version');
   template.getTemplate(name, version, (err, item) => {
     if (err) {
+      logger.error(err);
       return res.status(404).json({
         'message': 'Not Found',
       });

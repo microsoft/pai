@@ -32,12 +32,55 @@ const hasTemplate = function(name, version, callback) {
   });
 };
 
+const getRankedTemplateList = function(offset, count, callback) {
+  client.zrevrange(redisConfig.usedCountKey, offset, offset + count, 'WITHSCORES', (err, list) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      console.log(list);
+      let cmds = [];
+      let rank = [];
+      for (let i = 0; i < list.length; i += 2) {
+        let name = list[i];
+        let count = list[i + 1];
+        cmds.push(['hget', redisConfig.headIndexKey, name]);
+        rank.push({'name': name, 'count': count});
+      }
+      client.multi(cmds).exec((err, versionList) => {
+        if (err) {
+          callback(err, null);
+        } else {
+          let cmds = [];
+          for (let i = 0; i < versionList.length; i++) {
+            let version = versionList[i];
+            cmds.push(['hget', redisConfig.templateKey(rank[i].name), version]);
+            rank[i].version = version;
+          }
+          client.multi(cmds).exec((err, templateList) => {
+            if (err) {
+              callback(err, null);
+            } else {
+              let result = [];
+              for (let i = 0; i < templateList.length; i++) {
+                let item = yaml.safeLoad(templateList[i]);
+                item.count = rank[i].count;
+                result.push(item);
+              }
+              callback(null, result);
+            }
+          });
+        }
+      });
+    }
+  });
+};
+
 const getTemplateList = function(callback) {
   client.hgetall(redisConfig.headIndexKey, (err, hash) => {
     if (err) {
       callback(err, null);
     } else {
-      cmds = []
+      let cmds = []
       for (let name in hash) {
         let version = hash[name];
         cmds.push(['hget', redisConfig.templateKey(name), version]);
@@ -87,4 +130,4 @@ const saveTemplate = function(name, version, template, callback) {
   });
 };
 
-module.exports = {hasTemplate, getTemplateList, getTemplate, saveTemplate}
+module.exports = {hasTemplate, getRankedTemplateList, getTemplateList, getTemplate, saveTemplate}
