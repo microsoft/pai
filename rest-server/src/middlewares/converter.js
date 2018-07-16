@@ -22,14 +22,19 @@ const logger = require('../config/logger');
 
 const getCommands = (element, path) => {
     let items = element.uri.split(',');
-    let res = [];
+    let res = ['mkdir ' + path];
     if (items.length > 1) {
       res.push('mkdir ' + path + '/' + element.name);
     }
     for (let i = 0; i < items.length; i++) {
       let uriname = items[i].substring(items[i].lastIndexOf('/') + 1);
       if (items[i].indexOf('github') >= 0) {
-        res.push('git clone ' + items[i]);
+        let uris = items[i].split('@');
+        res.push('git clone ' + uris[0]);
+        if (uris.length > 1) {
+          uriname = uriname.substring(0, uriname.length - uris[1].length - 1);
+          res.push('cd ' + uriname + '; git checkout ' + uris[1] + '; cd ..');
+        }
         res.push('mv ' + uriname + ' ' + path + '/' + element.name);
       } else if (element.uri.indexOf('http') == 0) {
         res.push('wget ' + items[i]);
@@ -38,8 +43,9 @@ const getCommands = (element, path) => {
           uriname = uriname.substring(0, uriname.length - 3);
         }
         if (uriname.indexOf('.tar') >= 0) {
-          res.push('tar xvf ' + uriname);
-          uriname = uriname.substring(0, uriname.length - 4);
+          res.push('mkdir ' + element.name);
+          res.push('tar xvf ' + uriname + ' -C ' + element.name + ' --strip-components 1');
+          uriname = element.name;
         }
         if (uriname.indexOf('.zip') >= 0) {
           res.push('unzip ' + uriname);
@@ -108,9 +114,9 @@ const convert = (schema) => {
           let newbody = {};
           newbody.jobName = value.job.name;
           newbody.image = prerequisitesMap.dockerimage[Object.keys(prerequisitesMap.dockerimage)[0]].uri;
-          newbody.dataDir = '$PAI_DEFAULT_FS_URI/path/data';
-          newbody.outputDir = '$PAI_DEFAULT_FS_URI/path/output';
-          newbody.codeDir = '$PAI_DEFAULT_FS_URI/path/code';
+          let dataDir = 'data';
+          let codeDir = 'code';
+          newbody.outputDir = '$PAI_DEFAULT_FS_URI/marketplace';
           newbody.killAllOnCompletedTaskNumber = value.job.parameters.killAllOnCompletedTaskNumber ? value.job.parameters.killAllOnCompletedTaskNumber: 1;
           newbody.gpuType = value.job.parameters.gpuType ? value.job.parameters.gpuType: '';
           newbody.virtualCluster = value.job.parameters.virtualCluster ? value.job.parameters.virtualCluster: 'default';
@@ -118,27 +124,28 @@ const convert = (schema) => {
           newbody.taskRoles = [];
 
           value.job.tasks.forEach((task) => {
-            let commands = ['cd $PAI_DEFAULT_FS_URI/path/'];
-            if (task.data) {
-              commands = commands.concat(getCommands(prerequisitesMap['data'][task.data], newbody.dataDir));
+            let commands = [];
+            if (task.data != '') {
+              commands = commands.concat(getCommands(prerequisitesMap['data'][task.data], dataDir));
               for (let i = 0; i < task.command.length; i++) {
-                task.command[i] = task.command[i].replace(task.data, newbody.dataDir + '/' + task.data);
+                task.command[i] = task.command[i].replace(task.data, dataDir + '/' + task.data);
               }
             }
-            if (task.script) {
-              commands = commands.concat(getCommands(prerequisitesMap['script'][task.script], newbody.codeDir));
+            if (task.script != '') {
+              commands = commands.concat(getCommands(prerequisitesMap['script'][task.script], codeDir));
               for (let i = 0; i < task.command.length; i++) {
-                task.command[i] = task.command[i].replace(task.script, newbody.codeDir + '/' + task.script);
+                task.command[i] = task.command[i].replace(task.script, codeDir + '/' + task.script);
               }
             }
+            commands.push('export CURRENT_DIR=`pwd`');
             Object.keys(task.env).forEach((env) => {
-              if (task.env[env].indexOf(task.script) >= 0) {
-                task.env[env] = task.env[env].replace(task.script, newbody.codeDir + '/' + task.script);
+              if (task.script != '' && task.env[env].indexOf(task.script) >= 0) {
+                task.env[env] = task.env[env].replace(task.script, '$CURRENT_DIR/' + codeDir + '/' + task.script);
               }
-              if (task.env[env].indexOf(task.data) >= 0) {
-                task.env[env] = task.env[env].replace(task.data, newbody.dataDir + '/' + task.data);
+              if (task.data != '' && task.env[env].indexOf(task.data) >= 0) {
+                task.env[env] = task.env[env].replace(task.data, '$CURRENT_DIR/' + dataDir + '/' + task.data);
               }
-              commands.push('Export ' + env + '=' + task.env[env]);
+              commands.push('export ' + env + '=' + task.env[env]);
             });
             commands = commands.concat(task.command).join(';');
             let taskRole = {name: task.name,
@@ -146,6 +153,7 @@ const convert = (schema) => {
                             cpuNumber: task.resource.resourcePerInstance.cpu,
                             memoryMB: task.resource.resourcePerInstance.memoryMB,
                             gpuNumber: task.resource.resourcePerInstance.gpu,
+                            portList: task.resource.portList,
                             command: commands,
             };
             if ('portList' in task.resource.resourcePerInstance) {
