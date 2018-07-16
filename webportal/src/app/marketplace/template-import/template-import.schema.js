@@ -185,14 +185,18 @@ const scriptSchema = {
       uri: {
         type: 'string',
         multipleOf: 1
-      }
+      },
+      description: {
+        type: 'string',
+      },
     },
     required: [
       'name',
       'version',
       'contributor',
       'protocol_version',
-      'uri'
+      'uri',
+      'description',
     ]
   }
 };
@@ -218,7 +222,7 @@ const dockerSchema = {
     },
     properties: {
       name: {
-        type: 'string'
+        type: 'string',
       },
       version: {
         type: 'string',
@@ -232,10 +236,10 @@ const dockerSchema = {
         multipleOf: 1,
       },
       uri: {
-        type: 'string'
+        type: 'string',
       },
       description: {
-        type: 'string'
+        type: 'string',
       },
     },
     required: [
@@ -244,7 +248,7 @@ const dockerSchema = {
       'contributor',
       'protocol_version',
       'uri',
-      'description'
+      'description',
     ]
   }
 };
@@ -295,7 +299,7 @@ const jobSchema = {
           expand_height: true,
         },
       },
-      tasks: taskSchema
+      tasks: taskSchema,
     },
   },
   required: [
@@ -306,7 +310,7 @@ const jobSchema = {
     'description',
     'experiment',
     'parameters',
-    'tasks'
+    'tasks',
   ]
 };
 

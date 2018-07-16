@@ -36,7 +36,7 @@ let templateTable = null;
 $('#content-wrapper').html(templateViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  templateTable: templateTableComponent
+  templateTable: templateTableComponent,
 }));
 
 const generateQueryString = function(data) {
@@ -48,7 +48,7 @@ const loadRecommended = function() {
   $.getJSON(`${webportalConfig.restServerUri}/api/v1/template/recommend`,
     function(data) {
       data.forEach(function(item) {
-        var qs = generateQueryString(item);
+        let qs = generateQueryString(item);
         $('#recommend-list').append(`
           <li>
             <button class="btn btn-danger" type="button"
@@ -65,12 +65,12 @@ const loadRecommended = function() {
 
 const extractAndFormat = function(propertyName) {
   return function(row, type, val, meta) {
-    var array = [];
+    let array = [];
     row[propertyName].forEach(function(item) {
       array.push(item.name + ':' + item.version);
     });
     return array.join(',');
-  }
+  };
 };
 
 const loadTemplates = function() {
@@ -80,7 +80,7 @@ const loadTemplates = function() {
     .on('xhr.dt', loading.hideLoading);
 
   templateTable = $table.dataTable({
-    ajax: {
+    'ajax': {
       url: `${webportalConfig.restServerUri}/api/v1/template`,
       type: 'GET',
       dataSrc: (data) => {
@@ -94,38 +94,38 @@ const loadTemplates = function() {
     'columns': [
       {
         title: 'Template',
-        data: 'name'
+        data: 'name',
       },
       {
         title: 'Version',
-        data: 'version'
+        data: 'version',
       },
       {
         title: 'Constributor',
         data: function(data, type, set, meta) {
           return data['contributors'].join(',');
         },
-        orderable: false
+        orderable: false,
       },
       {
         title: 'Datasets',
         data: extractAndFormat('datasets'),
-        orderable: false
+        orderable: false,
       },
       {
         title: 'Scripts',
         data: extractAndFormat('scripts'),
-        orderable: false
+        orderable: false,
       },
       {
         title: 'Dockers',
         data: extractAndFormat('dockers'),
-        orderable: false
+        orderable: false,
       },
       {
         title: 'Description',
         data: 'description',
-        orderable: false
+        orderable: false,
       },
       {
         title: 'Operation',
@@ -135,11 +135,11 @@ const loadTemplates = function() {
         render: function(qs, type) {
           return '<button class="btn btn-default btn-sm" onclick="window.location.href=\'/import.html'
             + qs + '\'">Use</button>';
-        }
+        },
       },
     ],
     'order': [
-      [0, 'asc']
+      [0, 'asc'],
     ],
     'scrollY': (($(window).height() - 265)) + 'px',
     'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],

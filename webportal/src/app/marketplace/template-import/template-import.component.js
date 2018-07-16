@@ -35,7 +35,7 @@ const userEditModalComponent = require('./submit-modal-component.ejs');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
-  loading: loadingComponent
+  loading: loadingComponent,
 });
 
 // for model start
@@ -46,15 +46,30 @@ const showEditInfo = () => {
 // for model end
 
 const restApi2JsonEditor = (data) => {
-  let res = { 'data': [], 'script': [], 'docker': [] };
+  let res = {'data': [], 'script': [], 'docker': []};
   if ('job' in data) {
     let d = data['job'];
     let tasks = d['tasks'];
     d['tasks'] = [];
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
+      let val = 1;
+      if (typeof task['resource']['instances'] == 'string') {
+        let paths = task['resource']['instances'].substring(1).split('.');
+        val = data;
+        for (let i = 0; i < paths.length && val != undefined; i++) {
+          if (paths[i] in val) {
+            val = val[paths[i]];
+          } else {
+            val = val.filter((element) => element.name == paths[i]).pop();
+          }
+        }
+        if (typeof val != 'number') {
+          val = 1;
+        }
+      }
       d['tasks'].push({
         'role': task['name'],
-        'instances': 1, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
+        'instances': val, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
         'data': task['data'],
         'cpu': task['resource']['resourcePerInstance']['cpu'],
         'script': task['script'],
@@ -68,26 +83,25 @@ const restApi2JsonEditor = (data) => {
     res['job'] = d;
   }
   if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function (key) {
+    Object.keys(data['prerequisites']).forEach(function(key) {
       let item = data['prerequisites'][key];
       switch (item['type']) {
-        case "data":
+        case 'data':
           res['data'].push(item);
           break;
-        case "script":
+        case 'script':
           res['script'].push(item);
           break;
-        case "dockerimage":
+        case 'dockerimage':
           res['docker'].push(item);
           break;
       }
-    })
+    });
   }
   return res;
 };
 
-
-const tryStringToJson = (s)=>{
+const tryStringToJson = (s) => {
   // if s is empty, using JSON.parse(s) will be error.
   let res = {};
   try {
@@ -98,10 +112,9 @@ const tryStringToJson = (s)=>{
   return res;
 };
 
-
 const jsonEditor2RestApi = (editors) => {
   let data = {};
-  Object.keys(editors).forEach((key)=>{
+  Object.keys(editors).forEach((key) => {
     data[key] = editors[key].getValue();
   });
   let res = {
@@ -109,18 +122,19 @@ const jsonEditor2RestApi = (editors) => {
   };
   if ('job' in data) {
     let jobs = data['job']; // is a array, but I assume only one job.
-    jobs.forEach(job => {
+    jobs.forEach((job) => {
+      job['type'] = 'job';
       let tasks = job['tasks'];
       job['parameters'] = tryStringToJson(job['parameters']);
       job['tasks'] = [];
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         job['tasks'].push({
           'name': task['role'],
           'data': task['data'],
           'dockerimage': task['dockerimage'],
           'command': tryStringToJson(task['command']),
           'script': task['script'],
-          'env': tryStringToJson(task['env']),
+          'env': ('env' in task && task['env'] != '') ? tryStringToJson(task['env']) : {},
           'resource': {
             'instances': task['instances'],
             'resourcePerInstance': {
@@ -135,8 +149,8 @@ const jsonEditor2RestApi = (editors) => {
     });
   }
 
-  ['data', 'script', 'docker'].forEach(t => {
-    data[t].forEach(d => {
+  ['data', 'script', 'docker'].forEach((t) => {
+    data[t].forEach((d) => {
       d['type'] = t == 'docker' ? 'dockerimage' : t;
       res['prerequisites'].push(d); 
     });
@@ -160,7 +174,7 @@ const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
+      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.job.name}`,
       data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -205,7 +219,7 @@ const loadEditor = () => {
   })
 };
 
-const initTableContent = () =>{
+const initTableContent = () => {
   // using AJAX to fill the table content.
   const searchParams = new URLSearchParams(window.location.search);
   let name = searchParams.get('name');
@@ -254,7 +268,6 @@ const initTableContent = () =>{
   }
 };
 
-
 // for model start
 window.showEditInfo = showEditInfo;
 // for model end
@@ -292,5 +305,5 @@ $(document).ready(() => {
   });
 });
 
-module.exports = { submitJob, showEditInfo };
+module.exports = {submitJob, showEditInfo};
 

@@ -102,24 +102,24 @@ const initializeComponent = function() {
       }
     });
   });
-  
+
   $('#btn-submit').click(function(event) {
     if (resourceTable) {
-      var ajaxData = {
+      let ajaxData = {
         'template': resourceTable.originData,
-        'included': []
-      }
+        'included': [],
+      };
       $('[name="included"]').each(function(index, element) {
         if (element.checked) {
           ajaxData['included'].push(element.value);
         }
       });
-  
+
       $('#shareModal').modal('hide');
       loading.showLoading();
       userAuth.checkToken((token) => {
         $.ajax({
-          type: "POST",
+          type: 'POST',
           url: `${webportalConfig.restServerUri}/api/v1/template`,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -133,9 +133,9 @@ const initializeComponent = function() {
           },
           error: function(xhr, status, error) {
             loading.hideLoading();
-            var res = JSON.parse(xhr.responseText);
+            let res = JSON.parse(xhr.responseText);
             alert(res.message ? res.message : res.toString());
-          }
+          },
         });
       });
     } else {
@@ -144,4 +144,4 @@ const initializeComponent = function() {
   });
 };
 
-module.exports = {generateHtml, initializeComponent}
+module.exports = {generateHtml, initializeComponent};

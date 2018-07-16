@@ -37,7 +37,6 @@ const getRankedTemplateList = function(offset, count, callback) {
     if (err) {
       callback(err, null);
     } else {
-      console.log(list);
       let cmds = [];
       let rank = [];
       for (let i = 0; i < list.length; i += 2) {
