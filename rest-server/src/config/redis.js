@@ -16,26 +16,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const express = require('express');
-const tokenConfig = require('../config/token');
-const templateController = require('../controllers/template.js');
-const templateConfig = require('../config/template.js');
-const param = require('../middlewares/parameter');
+const Joi = require('joi');
 
-const router = new express.Router();
+/*
+   Redis data schema:
+   - marketplace:used.count = sortedlist ($count, $name)
+   - marketplace:head.index = hash ($name -> $latestVersion)
+   - marketplace:template:${name} = hash ($version -> $content)
+ */
+let redisConfig = {
+  connectionUrl: process.env.REDIS_URI,
+  keyPrefix: 'marketplace:',
+  usedCountKey: 'used.count',
+  headIndexKey: 'head.index',
+  templateKey: function(name) {
+    return 'template:' + name;
+  },
+};
 
-router.route('/')
-    /** GET /api/v1/template - List all available templates */
-    .get(templateController.list)
-    .post(tokenConfig.check, templateController.share);
+const redisConfigSchema = Joi.object().keys({
+  connectionUrl: Joi.string()
+    .required(),
+  keyPrefix: Joi.string()
+    .required(),
+  usedCountKey: Joi.string()
+    .required(),
+  headIndexKey: Joi.string()
+    .required(),
+  templateKey: Joi.func()
+    .arity(1)
+    .required(),
+});
 
-router.route('/:name/:version')
-    /** GET /api/v1/template/:name/:version - Return the template by name and version*/
-    .get(templateController.fetch);
+const {error, value} = Joi.validate(redisConfig, redisConfigSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
 
-router.route('/recommend')
-    /** GET /api/v1/template/recommend - Return the hottest templates in last month */
-    .get(param.getMethodValidate(templateConfig.recommendCountSchema), templateController.recommend);
-
-// module exports
-module.exports = router;
+module.exports = value;
