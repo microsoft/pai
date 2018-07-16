@@ -52,9 +52,32 @@ spec:
         args:
           - '--collector.textfile.directory=/datastorage/prometheus'
           - '--no-collector.arp'
+          - '--no-collector.bcache'
+          - '--no-collector.bonding'
+          - '--no-collector.boottime'
+          - '--no-collector.conntrack'
+#- '--no-collector.cpu' Exposes CPU statistics.
+#- '--no-collector.diskstats' Exposes disk I/O statistics.
           - '--no-collector.edac'
           - '--no-collector.entropy'
+          - '--no-collector.exec'
+#- '--no-collector.filefd' Exposes file descriptor statistics from /proc/sys/fs/file-nr
+#- '--no-collector.filesystem' Exposes filesystem statistics, such as disk space used.
+          - '--no-collector.hwmon'
           - '--no-collector.infiniband'
+          - '--no-collector.ipvs'
+#- '--no-collector.loadavg' Exposes load average.
+          - '--no-collector.mdadm'
+#- '--no-collector.meminfo' Exposes memory statistics.
+          - '--no-collector.netdev'
+#- '--no-collector.netstat' Exposes network statistics from /proc/net/netstat. This is the same information as netstat -s.
+          - '--no-collector.nfs'
+          - '--no-collector.nfsd'
+          - '--no-collector.sockstat'
+          - '--no-collector.stat'
+          - '--no-collector.time'
+          - '--no-collector.timex'
+          - '--no-collector.uname'
           - '--no-collector.vmstat'
           - '--no-collector.wifi'
           - '--no-collector.xfs'
