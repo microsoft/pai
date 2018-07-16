@@ -18,8 +18,8 @@ const logger = require('../config/logger');
 
 const createClient = function(connectionUrl, options) {
   let client = redisLib.createClient(connectionUrl, options);
-  client.on('ready', () => logger.info("redis is connected"));
+  client.on('ready', () => logger.info('redis is connected'));
   return client;
-}
+};
 
 module.exports = createClient;

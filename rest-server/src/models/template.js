@@ -79,16 +79,18 @@ const getTemplateList = function(callback) {
     if (err) {
       callback(err, null);
     } else {
-      let cmds = []
+      let cmds = [];
       for (let name in hash) {
-        let version = hash[name];
-        cmds.push(['hget', redisConfig.templateKey(name), version]);
+        if (hash.hasOwnProperty(name)) {
+          let version = hash[name];
+          cmds.push(['hget', redisConfig.templateKey(name), version]);
+        }
       }
       client.multi(cmds).exec((err, replies) => {
         if (err) {
           callback(err, null);
         } else {
-          list = []
+          let list = [];
           replies.forEach(function(element) {
             list.push(yaml.safeLoad(element));
           });
@@ -129,4 +131,4 @@ const saveTemplate = function(name, version, template, callback) {
   });
 };
 
-module.exports = {hasTemplate, getRankedTemplateList, getTemplateList, getTemplate, saveTemplate}
+module.exports = {hasTemplate, getRankedTemplateList, getTemplateList, getTemplate, saveTemplate};

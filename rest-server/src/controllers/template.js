@@ -26,7 +26,6 @@ const toTemplateSummary = (data) => {
     'scripts': [],
     'dockers': [],
   };
-  
   if ('job' in data) {
     let d = data['job'];
     res['name'] = d['name'];
@@ -116,24 +115,24 @@ const share = (req, res) => {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        message: 'IO error happened when detecting template.'
+        message: 'IO error happened when detecting template.',
       });
     }
     if (has) {
       return res.status(400).json({
-        message: `The template titled "${name}:${version} has already existed.".`
+        message: `The template titled "${name}:${version} has already existed.".`,
       });
     }
     template.saveTemplate(name, version, content, (err, num) => {
       if (err) {
         logger.error(err);
         return res.status(500).json({
-          message: 'IO error happened when stroing template.'
+          message: 'IO error happened when stroing template.',
         });
       }
       res.status(201).json({
         name: name,
-        version: version
+        version: version,
       });
     });
   });
@@ -143,5 +142,5 @@ module.exports = {
   list,
   recommend,
   fetch,
-  share
+  share,
 };

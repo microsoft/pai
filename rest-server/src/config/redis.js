@@ -26,11 +26,11 @@ const Joi = require('joi');
  */
 let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
-  keyPrefix: "marketplace:",
-  usedCountKey: "used.count",
-  headIndexKey: "head.index",
+  keyPrefix: 'marketplace:',
+  usedCountKey: 'used.count',
+  headIndexKey: 'head.index',
   templateKey: function(name) {
-    return "template:" + name;
+    return 'template:' + name;
   },
 };
 
