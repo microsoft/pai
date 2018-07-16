@@ -15,8 +15,67 @@
           <input class="btn btn-default" id="upMarket" type="file">
         </div>
       </div>
+      <!-- data, script, docker, job, task containier-->
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-data" id="data-title">
+                Data
+              </a>
+            </h3>
+          </div>
+          <div id="collapse-data" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="box-body" id="editor-data-holder" />
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-script" id="script-title">
+                Script
+              </a>
+            </h4>
+          </div>
+          <div id="collapse-script" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="box-body" id="editor-script-holder" />
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-docker" id="docker-title">
+                Docker
+              </a>
+            </h4>
+          </div>
+          <div id="collapse-docker" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="box-body" id="editor-docker-holder" />
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-job" id="job-title">
+                Job
+              </a>
+            </h4>
+          </div>
+          <div id="collapse-job" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="box-body" id="editor-job-holder" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- submit form and taskRples -->
-      <div class="box-body" id="editor-holder" />
       <div class="row disinline">
         <div class="one">
           <input class="btn btn-success center-block" id="saves" type="submit" value="save">
