@@ -20,8 +20,10 @@ import subprocess
 import json
 import sys
 import re
+import datetime
 import logging
-logger = logging.getLogger("gpu_expoter")
+
+logger = logging.getLogger(__name__)
 
 def parse_percentile(data):
     return data.replace("%", "")
@@ -82,13 +84,18 @@ def parse_docker_stats(stats):
     return containerStats
 
 def stats():
+    start = datetime.datetime.now()
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
-        dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
-        dockerStats = parse_docker_stats(dockerDockerStats)
-        return dockerStats
+        logger.info("ready to run docker stats")
+        dockerDockerStats = subprocess.check_output([
+            "docker", "stats", "--no-stream", "--format",
+            "table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
+        return parse_docker_stats(dockerDockerStats)
     except subprocess.CalledProcessError as e:
         logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    finally:
+        end = datetime.datetime.now()
+        logger.info("docker state spent %s", end - start)
 
 def main(argv):
     stats()
