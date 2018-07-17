@@ -95,7 +95,6 @@ const parseParameter = (value) => {
 const convert = (schema) => {
     return (req, res, next) => {
       req.body = parseParameter(req.body);
-      // logger.info(req.body);
       Joi.validate(req.body, schema, (err, value) => {
         if (err) {
           const errorType = 'ParameterValidationError';
@@ -156,8 +155,8 @@ const convert = (schema) => {
                             portList: task.resource.portList,
                             command: commands,
             };
-            if ('portList' in task.resource.resourcePerInstance) {
-              taskRole.portList = task.resource.resourcePerInstance.portList;
+            if ('portList' in task.resource) {
+              taskRole.portList = task.resource.portList;
             }
             newbody.taskRoles.push(taskRole);
           });

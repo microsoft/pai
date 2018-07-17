@@ -143,7 +143,4 @@ const save = function(template, callback) {
   });
 }
 
-function getUsedKey(template) {
-}
-
 module.exports = {has, top, load, save};

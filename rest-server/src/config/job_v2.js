@@ -94,6 +94,7 @@ const jobConfigSchema = Joi.object().keys({
             gpu: Joi.number()
               .integer()
               .default(0),
+          }),
           portList: Joi.array()
             .items(Joi.object().keys({
               label: Joi.string()
@@ -108,7 +109,6 @@ const jobConfigSchema = Joi.object().keys({
             }))
             .optional()
             .default([]),
-          }),
         }),
         env: Joi.object()
           .optional()

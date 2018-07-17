@@ -29,7 +29,7 @@ router.route('/')
   .post(tokenConfig.check, templateController.share);
 
 router.route('/:type')
-    /** GET /api/v1/template/:type - List top 10 templates of the given type */
+  /** GET /api/v1/template/:type - List top 10 templates of the given type */
   .get(templateController.list)
 
 router.route('/:name/:version')

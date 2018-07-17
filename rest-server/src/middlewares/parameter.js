@@ -49,7 +49,6 @@ const getMethodValidate = (schema) => {
   return (req, res, next) => {
     // in get mehtod, it should use req.query instead.
     Joi.validate(req.query, schema, (err, value) => {
-      console.log(req.query);
       if (err) {
         const errorType = 'ParameterValidationError';
         const errorMessage = 'Could not validate request data.\n' + err.stack;

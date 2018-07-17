@@ -16,7 +16,7 @@ job :
   description : image classification, mnist dataset, tensorflow, serving
   parameters :
     num_of_worker: 1
-    retryCount: 0 
+    retryCount: -2
 
   tasks :
     - name : worker

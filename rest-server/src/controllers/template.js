@@ -119,8 +119,9 @@ const share = (req, res) => {
     }
     template.save(content, function(err, num) {
       if (err) {
+        logger.error(err);
         return res.status(500).json({
-          message: 'IO error happened when stroing template.',
+          message: 'IO error happened when stroing the job template.',
         });
       }
       let created = [];
