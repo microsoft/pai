@@ -37,7 +37,7 @@ def parse_docker_inspect(jsonStr):
     if jsonObject[0]["Config"]["Labels"]:
         for key in jsonObject[0]["Config"]["Labels"]:
             if key in targetLabel:
-                labelKey = "container_label_{0}".formate(key.replace(".", "_"))
+                labelKey = "container_label_{0}".format(key.replace(".", "_"))
                 labelVal = jsonObject[0]["Config"]["Labels"][key]
                 labels[labelKey] = labelVal
 
