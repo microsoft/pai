@@ -25,80 +25,82 @@ const loading = require('../../job/loading/loading.component');
 let resourceTable = null;
 
 const initializeComponent = function() {
-  $('#file-template').change(function(event) {
-    let source = event.target;
-    let resourceTable = null;
-    if (source.files && source.files[0]) {
-      if (window.FileReader) {
-        let file = source.files[0];
-        let fr = new FileReader();
-        fr.onload = function(e) {
-          if (e.target.result) {
-            try {
-              let data = yaml.safeLoad(e.target.result);
-              let resources = [
-                {
-                  'name': data.job.name,
-                  'type': 'job',
-                  'version': data.job.version,
-                },
-              ];
-              data.prerequisites.forEach(function(element) {
-                resources.push({
-                  'name': element.name,
-                  'type': element.type,
-                  'version': element.version,
+  userAuth.checkToken((token) => {
+    $('#file-template').change(function(event) {
+      var source = event.target;
+      resourceTable = null;
+      if (source.files && source.files[0]) {
+        if (window.FileReader) {
+          var file = source.files[0];
+          var fr = new FileReader();
+          fr.onload = function(e) {
+            if (e.target.result) {
+              try {
+                var data = yaml.safeLoad(e.target.result);
+                resources = [
+                  {
+                    'name': data.job.name,
+                    'type': 'job',
+                    'version': data.job.version
+                  }
+                ];
+                data.prerequisites.forEach(function (element) {
+                  resources.push({
+                    'name': element.name,
+                    'type': element.type,
+                    'version': element.version
+                  });
                 });
-              });
-              resourceTable = $('#resource-table').dataTable({
-                'data': resources,
-                'columns': [
-                  {
-                    title: 'Name',
-                    data: 'name',
-                  },
-                  {
-                    title: 'Type',
-                    data: 'type',
-                  },
-                  {
-                    title: 'Version',
-                    data: 'version',
-                  },
-                  {
-                    title: 'Include',
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type) {
-                      return `<input type="checkbox" name="included" value="${data.name}:${data.version}" checked="checked" />`;
+                resourceTable = $('#resource-table').DataTable({
+                  data: resources,
+                  columns: [
+                    {
+                      title: 'Name',
+                      data: 'name'
                     },
-                  },
-                ],
-                'order': [
-                  [0, 'asc'],
-                ],
-                'autoWidth': false,
-                'deferRender': true,
-                'paging': false,
-                'info': false,
-                'searching': false,
-              });
-              resourceTable.originData = data;
-              return;
-            } catch (e) {
-              if (e.message) {
-                return alert(e);
+                    {
+                      title: 'Type',
+                      data: 'type'
+                    },
+                    {
+                      title: 'Version',
+                      data: 'version'
+                    },
+                    {
+                      title: 'Include',
+                      data: null,
+                      orderable: false,
+                      searchable: false,
+                      render: function(data, type) {
+                        return `<input type="checkbox" name="included" value="${data.name}:${data.version}" checked="checked" />`;
+                      }
+                    }
+                  ],
+                  'order': [
+                    [0, 'asc']
+                  ],
+                  'autoWidth': false,
+                  'deferRender': true,
+                  'paging': false,
+                  'info': false,
+                  'searching': false
+                });
+                resourceTable.originData = data;
+                return;
+              } catch (e) {
+                if (e.message) {
+                  return alert(e);
+                }
               }
             }
-          }
-          alert('Failed to read the selected file.');
-        };
-        fr.readAsText(file);
-      } else {
-        alert('The browser does not support preview text file!');
+            alert('Failed to read the selected file.');
+          };
+          fr.readAsText(file);
+        } else {
+          alert('The browser does not support preview text file!');
+        }
       }
-    }
+    });
   });
 
   $('#btn-submit').click(function(event) {

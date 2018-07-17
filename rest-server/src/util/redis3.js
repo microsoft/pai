@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation
-// All rights reserved.
-//
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -16,26 +13,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const express = require('express');
-const tokenConfig = require('../config/token');
-const templateController = require('../controllers/template.js');
-const templateConfig = require('../config/template.js');
-const param = require('../middlewares/parameter');
+const redisLib = require('redis');
+const logger = require('../config/logger');
 
-const router = new express.Router();
+const createClient = function(connectionUrl, options) {
+  let client = redisLib.createClient(connectionUrl, options);
+  client.on('ready', () => logger.info('redis is connected'));
+  return client;
+};
 
-router.route('/')
-    /** GET /api/v1/template - List all available templates */
-    .get(templateController.list)
-    .post(tokenConfig.check, templateController.share);
-
-router.route('/:name/:version')
-    /** GET /api/v1/template/:name/:version - Return the template by name and version*/
-    .get(templateController.fetch);
-
-router.route('/recommend')
-    /** GET /api/v1/template/recommend - Return the hottest templates in last month */
-    .get(param.getMethodValidate(templateConfig.recommendCountSchema), templateController.recommend);
-
-// module exports
-module.exports = router;
+module.exports = createClient;

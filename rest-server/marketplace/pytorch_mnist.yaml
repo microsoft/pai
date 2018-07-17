@@ -39,4 +39,3 @@ job :
         PYTHONPATH : $job.tasks.worker.script/mnist
       command:
         - python $job.tasks.worker.script/mnist/main.py --epochs $job.parameters.epochs --lr $job.parameters.lr --batch-size $job.parameters.batchsize
-
