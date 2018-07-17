@@ -215,13 +215,14 @@ public class ExitDiagnostics {
     // UserApplication Reserved ExitCodes
     DEF.put(ExitStatusKey.USER_APP_FORCE_KILLED, new ExitStatusValue(
         137,
-        "UserApplication's process force killed by others, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
+        "UserApplication was force killed by SIGKILL signal, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.USER_APP_TERMINATED, new ExitStatusValue(
         143,
-        "UserApplication's process terminated by others, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
+        "UserApplication was terminated by SIGTERM signal, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.USER_APP_LOST, new ExitStatusValue(
         154,
-        "UserApplication's process exited without exitcode, maybe machine unexpected shutdown", ExitType.TRANSIENT_NORMAL));
+        "UserApplication exited but its exitcode cannot be found in exitcode file, " +
+            "maybe machine unexpected shutdown, disk cleaned up or disk failed", ExitType.TRANSIENT_NORMAL));
 
     /// <summary>
     /// Agent ExitStatus
