@@ -278,32 +278,26 @@ $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
-  loadEditor();
-  initTableContent();
-
-  Object.keys(editors).forEach((key)=>{
-    let editor = editors[key];
-    let enabled = true;
-    editor.on('change', () => {
-      // console.log(editor.validate());
-      enabled &= (editor.validate().length == 0);
+  userAuth.checkToken(function(token) {
+    loadEditor();
+    initTableContent();
+  
+    Object.keys(editors).forEach((key)=>{
+      let editor = editors[key];
+      let enabled = true;
+      editor.on('change', () => {
+        enabled &= (editor.validate().length == 0);
+      });
+      $('#submitJob').prop('disabled', !enabled);
     });
-    $('#submitJob').prop('disabled', !enabled);
-  });
-
-  // $(document).on('change', '#fileUpload', (event) => {
-  //   
-  // });
-  // $(document).on('click', '#fileExport', () => {
-  //   exportFile(jsonEditor2RestApi(editors));
-  // });
-
-  $(document).on('click', '#submitJob', () => {
-    showEditInfo();
-  });
-
-  $(document).on('click', '#single', () => {
-    submitJob(jsonEditor2RestApi(editors));
+  
+    $(document).on('click', '#submitJob', () => {
+      showEditInfo();
+    });
+  
+    $(document).on('click', '#single', () => {
+      submitJob(jsonEditor2RestApi(editors));
+    });
   });
 });
 

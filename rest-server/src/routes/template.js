@@ -19,23 +19,22 @@
 const express = require('express');
 const tokenConfig = require('../config/token');
 const templateController = require('../controllers/template.js');
-const templateConfig = require('../config/template.js');
-const param = require('../middlewares/parameter');
 
 const router = new express.Router();
 
 router.route('/')
-    /** GET /api/v1/template - List all available templates */
-    .get(templateController.list)
-    .post(tokenConfig.check, templateController.share);
+  /** GET /api/v1/template - List top 10 job templates */
+  .get(templateController.listJobs)
+  /** POST /api/v1/template - Share the job and its resources as template */
+  .post(tokenConfig.check, templateController.share);
+
+router.route('/:type')
+  /** GET /api/v1/template/:type - List top 10 templates of the given type */
+  .get(templateController.list);
 
 router.route('/:name/:version')
-    /** GET /api/v1/template/:name/:version - Return the template by name and version*/
-    .get(templateController.fetch);
-
-router.route('/recommend')
-    /** GET /api/v1/template/recommend - Return the hottest templates in last month */
-    .get(param.getMethodValidate(templateConfig.recommendCountSchema), templateController.recommend);
+  /** GET /api/v1/template/:name/:version - Return the template by name and version*/
+  .get(templateController.fetch);
 
 // module exports
 module.exports = router;

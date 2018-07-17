@@ -37,13 +37,7 @@ const initializeComponent = function() {
             if (e.target.result) {
               try {
                 var data = yaml.safeLoad(e.target.result);
-                resources = [
-                  {
-                    'name': data.job.name,
-                    'type': 'job',
-                    'version': data.job.version
-                  }
-                ];
+                resources = [];
                 data.prerequisites.forEach(function (element) {
                   resources.push({
                     'name': element.name,
