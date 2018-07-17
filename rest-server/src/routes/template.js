@@ -30,7 +30,7 @@ router.route('/')
 
 router.route('/:type')
   /** GET /api/v1/template/:type - List top 10 templates of the given type */
-  .get(templateController.list)
+  .get(templateController.list);
 
 router.route('/:name/:version')
   /** GET /api/v1/template/:name/:version - Return the template by name and version*/

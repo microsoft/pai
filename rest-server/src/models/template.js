@@ -105,7 +105,9 @@ const load = function(name, version, callback) {
 };
 
 const save = function(template, callback) {
-  let usedKey = null, name = null, version = null;
+  let usedKey = null;
+  let name = null;
+  let version = null;
   if (template.job) {
     usedKey = redisConfig.jobUsedKey;
     name = template.job.name;
@@ -141,6 +143,6 @@ const save = function(template, callback) {
       });
     }
   });
-}
+};
 
 module.exports = {has, top, load, save};
