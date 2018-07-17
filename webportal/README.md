@@ -6,17 +6,13 @@ Cluster operator can also see and manage cluster state through web portal.
 
 ## Deployment
 
-The [readme](../pai-management/README.md) introduces the overall installation process, including that of the web portal. 
-The following parameters in the [cluster-configuration.yaml](../cluster-configuration/cluster-configuration.yaml) are of interest to web portal:
+The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md). To configure web portal, change the following field(s) in the `webportal` section in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
 
-* `REST_SERVER_URI`: String, root url of the rest server, for example, http://10.0.3.9:9186
-* `GRAFANA_URI`: String, root url of the grafana portal, for example, http://10.0.3.9:9090
-* `K8S_DASHBOARD_URI`: String, root url of the kubernetes dashboard. For example, http://10.0.3.9:9090
-* `SERVER_PORT`: Int, the port to use when launching WebPortal, for example, 9286 for default
+* `server-port`: Integer. The network port to access the web portal. The default value is 9286.
 
 ## Usage
 
-### Submit job
+### Submit a job
 
 Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [job tutorial](../job-tutorial/README.md).
 
@@ -34,4 +30,4 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 
 ### Read documents
 
-Click the tab "Documents" to read a tutorial of submitting a job.
+Click the tab "Documents" to read the tutorial of submitting a job.
