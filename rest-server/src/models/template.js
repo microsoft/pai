@@ -32,8 +32,25 @@ const has = function(name, version, callback) {
   });
 };
 
-const getRankedTemplateList = function(offset, count, callback) {
-  client.zrevrange(redisConfig.jobUsedKey, offset, offset + count, 'WITHSCORES', (err, list) => {
+const top = function(type, offset, count, callback) {
+  let key = null;
+  switch (type) {
+    case 'script':
+      key = redisConfig.scriptUsedKey;
+      break;
+    case 'data':
+      key = redisConfig.dataUsedKey;
+      break;
+    case 'dockerimage':
+      key = redisConfig.dockerUsedKey;
+      break;
+    case 'job':
+      key = redisConfig.jobUsedKey;
+      break;
+    default:
+      return callback(new Error('Unknown template type'), null);
+  }
+  client.zrevrange(key, offset, offset + count, 'WITHSCORES', (err, list) => {
     if (err) {
       callback(err, null);
     } else {
@@ -74,37 +91,7 @@ const getRankedTemplateList = function(offset, count, callback) {
   });
 };
 
-const getTemplateList = function(callback) {
-  client.hgetall(redisConfig.headIndexKey, (err, hash) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      let cmds = [];
-      for (let name in hash) {
-        if (hash.hasOwnProperty(name)) {
-          let version = hash[name];
-          cmds.push(['hget', redisConfig.templateKey(name), version]);
-        }
-      }
-      client.multi(cmds).exec((err, replies) => {
-        if (err) {
-          callback(err, null);
-        } else {
-          let list = [];
-          replies.forEach(function(element) {
-            let item = yaml.safeLoad(element);
-            if (item.job) {
-              list.push(item);
-            }
-          });
-          callback(null, list);
-        }
-      });
-    }
-  });
-};
-
-const getTemplate = function(name, version, callback) {
+const load = function(name, version, callback) {
   client.hget(redisConfig.templateKey(name), version, (err, res) => {
     if (err) {
       callback(err, null);
@@ -118,43 +105,45 @@ const getTemplate = function(name, version, callback) {
 };
 
 const save = function(template, callback) {
-  let [key, name, version] = getUsedKey(template);
-  if (key) {
-    client.hset(redisConfig.templateKey(name), version, JSON.stringify(template), (err, num) => {
-      if (err) {
-        callback(err, null);
-      } else {
-        client.hset(redisConfig.headIndexKey, name, version, (err, num) => {
-          if (err) {
-            callback(err, null);
-          } else {
-            console.log(key);
-            client.zadd(key, 'NX', 1, name);
-            callback(null, num);
-          }
-        });
-      }
-    });
-  } else {
-    callback(new Error('Unknown template type'), null);
-  }
-}
-
-function getUsedKey(template) {
+  let usedKey = null, name = null, version = null;
   if (template.job) {
-    return [redisConfig.jobUsedKey, template.job.name, template.job.version];
+    usedKey = redisConfig.jobUsedKey;
+    name = template.job.name;
+    version = template.job.version;
   } else {
     switch (template.type) {
       case 'script':
-        return [redisConfig.scriptUsedKey, template.name, template.version];
+        usedKey = redisConfig.scriptUsedKey;
+        break;
       case 'data':
-        return [redisConfig.dataUsedKey, template.name, template.version];
+        usedKey = redisConfig.dataUsedKey;
+        break;
       case 'dockerimage':
-        return [redisConfig.dockerUsedKey, template.name, template.version];
+        usedKey = redisConfig.dockerUsedKey;
+        break;
       default:
-        return [null, null, null];
+        return callback(new Error('Unknown template type'), null);
     }
+    name = template.name;
+    version = template.version;
   }
+  client.hset(redisConfig.templateKey(name), version, JSON.stringify(template), (err, num) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      client.hset(redisConfig.headIndexKey, name, version, (err, num) => {
+        if (err) {
+          callback(err, null);
+        } else {
+          client.zadd(usedKey, 'NX', 1, name);
+          callback(null, num);
+        }
+      });
+    }
+  });
 }
 
-module.exports = {has, getRankedTemplateList, getTemplateList, getTemplate, save};
+function getUsedKey(template) {
+}
+
+module.exports = {has, top, load, save};

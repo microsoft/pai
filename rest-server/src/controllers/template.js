@@ -57,8 +57,8 @@ const toTemplateSummary = (data) => {
   return res;
 };
 
-const list = (req, res) => {
-  template.getTemplateList((err, list) => {
+const listJobs = (req, res) => {
+  template.top('job', 0, 10, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -66,37 +66,31 @@ const list = (req, res) => {
       });
     }
     let templateList = [];
-    list.forEach((item) => {
-      templateList.push(toTemplateSummary(item));
+    list.forEach((element) => {
+      let item = toTemplateSummary(element);
+      item.used = element.count;
+      templateList.push(item);
     });
     return res.status(200).json(templateList);
   });
 };
 
-const recommend = (req, res) => {
-  let count = req.param('count', 3);
-  template.getRankedTemplateList(0, 3, (err, list) => {
+const list = (req, res) => {
+  template.top(req.params.type, 0, 10, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
         'message': err.toString(),
       });
     }
-    if (count > list.length) {
-      count = list.length;
-    }
-    let templateList = [];
-    for (let i = 0; i < count; ++i) {
-      templateList.push(toTemplateSummary(list[i]));
-    }
-    return res.status(200).json(templateList);
+    return res.status(200).json(list);
   });
 };
 
 const fetch = (req, res) => {
   let name = req.param('name');
   let version = req.param('version');
-  template.getTemplate(name, version, (err, item) => {
+  template.load(name, version, (err, item) => {
     if (err) {
       logger.error(err);
       return res.status(404).json({
@@ -174,13 +168,9 @@ const share = (req, res) => {
   });
 };
 
-function getUniqueKey(name, version) {
-  return name + ':' + version;
-}
-
 module.exports = {
+  listJobs,
   list,
-  recommend,
   fetch,
   share,
 };
