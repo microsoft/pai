@@ -38,10 +38,9 @@ logger = logging.getLogger(__name__)
 
 def parse_from_labels(labels):
     gpuIds = []
-    otherLabels = []
+    otherLabels = {}
 
     for key, val in labels.items():
-        logger.info(label)
         if "container_label_GPU_ID" == key:
             s2 = val.replace("\"", "").split(",")
             for id in s2:
