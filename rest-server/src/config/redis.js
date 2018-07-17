@@ -20,14 +20,20 @@ const Joi = require('joi');
 
 /*
    Redis data schema:
-   - marketplace:used.count = sortedlist ($count, $name)
+   - marketplace:job.used = sortedlist ($count, $name)
+   - marketplace:script.used = sortedlist ($count, $name)
+   - marketplace:data.used = sortedlist ($count, $name)
+   - marketplace:docker.used = sortedlist ($count, $name)
    - marketplace:head.index = hash ($name -> $latestVersion)
    - marketplace:template:${name} = hash ($version -> $content)
  */
 let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
   keyPrefix: 'marketplace:',
-  usedCountKey: 'used.count',
+  jobUsedKey: 'job.used',
+  scriptUsedKey: 'script.used',
+  dataUsedKey: 'data.used',
+  dockerUsedKey: 'docker.used',
   headIndexKey: 'head.index',
   templateKey: function(name) {
     return 'template:' + name;
@@ -39,7 +45,13 @@ const redisConfigSchema = Joi.object().keys({
     .required(),
   keyPrefix: Joi.string()
     .required(),
-  usedCountKey: Joi.string()
+  jobUsedKey: Joi.string()
+    .required(),
+  scriptUsedKey: Joi.string()
+    .required(),
+  dataUsedKey: Joi.string()
+    .required(),
+  dockerUsedKey: Joi.string()
     .required(),
   headIndexKey: Joi.string()
     .required(),

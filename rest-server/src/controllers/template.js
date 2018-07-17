@@ -111,32 +111,72 @@ const share = (req, res) => {
   let content = req.body.template;
   let name = content.job.name;
   let version = content.job.version;
-  template.hasTemplate(name, version, (err, has) => {
+  template.has(name, version, function(err, has) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        message: 'IO error happened when detecting template.',
+        message: 'Failed to detect the job template.',
       });
     }
     if (has) {
       return res.status(400).json({
-        message: `The template titled "${name}:${version} has already existed.".`,
+        message: `The job template titled "${name}:${version} has already existed.".`,
       });
     }
-    template.saveTemplate(name, version, content, (err, num) => {
+    template.save(content, function(err, num) {
       if (err) {
-        logger.error(err);
         return res.status(500).json({
           message: 'IO error happened when stroing template.',
         });
       }
-      res.status(201).json({
-        name: name,
-        version: version,
+      let created = [];
+      let existed = [];
+      let failed = [];
+      content.prerequisites.forEach(function(item) {
+        template.has(item.name, item.version, function(err, has) {
+          if (err) {
+            logger.error(err);
+            failed.push({
+              'name': item.name,
+              'version': item.version,
+              'message': err.message ? err.message : err.toString(),
+            });
+          } else if (has) {
+            existed.push({
+              'name': item.name,
+              'version': item.version,
+            });
+          } else {
+            template.save(item, function(err, num) {
+              if (err) {
+                logger.error(err);
+                failed.push({
+                  'name': item.name,
+                  'version': item.version,
+                  'message': err.message ? err.message : err.toString(),
+                });
+              } else {
+                created.push({
+                  'name': item.name,
+                  'version': item.version,
+                });
+              }
+            });
+          }
+        });
+      });
+      res.status(200).json({
+        'created': created,
+        'existed': existed,
+        'failed': failed,
       });
     });
   });
 };
+
+function getUniqueKey(name, version) {
+  return name + ':' + version;
+}
 
 module.exports = {
   list,
