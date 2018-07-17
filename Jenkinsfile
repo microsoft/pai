@@ -88,7 +88,8 @@ rm -rf /cluster-configuration/cluster-configuration.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
-rm -rf /pathHadoop/*
+# TODO don't clean, for cache
+#rm -rf /pathHadoop/*
 cd /pai/pai-management
 
 # Choose the branch
