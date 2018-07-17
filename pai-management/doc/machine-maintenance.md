@@ -6,25 +6,23 @@
  - [Fix crashed etcd instance](#etcd_fix)
 
 
-## Add new worker nodes to pai cluster <a name="add_worker_new_node"></a>
+## Add new nodes (master or worker) to pai cluster <a name="add_worker_new_node"></a>
 
 ### Note:
 - You should guarantee that all the new node's os should be ubuntu 16.04 LTS.
 - You should prepare a configuration yaml file to describe the node you want to add. More information about the configuration file, please refer to this [link](https://github.com/Microsoft/pai/blob/master/pai-management/node-list-example.yaml).
+- Add master node can't achieve the goal that expend a No-HA cluster into HA. If you wanna add a master node, please deploy your cluster in HA mode first.
 
 ### Steps:
 ```bash
 
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
 # Add new node from nodelist.yaml
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a add
+./paictl.py machine add -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
 
 
-## Remove worker nodes from pai cluster <a name="remove_worker_node"></a>
+## Remove nodes (worker or master) from pai cluster <a name="remove_worker_node"></a>
 
 
 ### Note:
@@ -33,11 +31,8 @@
 ### Steps:
 ```bash
 
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
 # Remove node from nodelist.yaml
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a remove
+./paictl.py machine remove -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
 
@@ -45,18 +40,8 @@
 
 If some nodes in your cluster is unhealthy, you should repair them. The node status could be found by kubectl, kubernetes dashboard or other service.
 
-### Note:
-- You should prepare a configuration yaml file to describe the node you want to repair. More information about the configuration file, please refer to this [link](https://github.com/Microsoft/pai/blob/master/pai-management/node-list-example.yaml).
-
-### Steps:
-```bash
-
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
-# Repair node from nodelist.yaml
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a repair
-```
+- First,  remove the node.
+- Second, re-add this node.
 
 ## Destroy whole cluster <a name="destroy_cluster"></a>
 
@@ -67,11 +52,8 @@ If some nodes in your cluster is unhealthy, you should repair them. The node sta
 ### Steps:
 
 ```
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
 # Destroy whole cluster.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a clean
+./paictl.py cluster k8s-clean -p /path/to/configuration/directory
 ```
 
 ## Fix crashed etcd instance <a name="etcd_fix"></a>
@@ -80,9 +62,7 @@ If the etcd node in your cluster crashed and k8s failed to restart it. you could
 Note: please be sure that there is only one node (infra node container etcd) on the nodelist.
 
 ```
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Destroy whole cluster.
-./k8sClusterManagement.py -p /path/to/configuration/directory -f /path/to/your/newnodelist.yaml -a etcdfix
+./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```

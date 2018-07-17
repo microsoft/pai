@@ -140,6 +140,7 @@ PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}}
 PAI_CURRENT_TASK_ROLE_TASK_COUNT={{{ taskData.taskNumber }}}
 PAI_CURRENT_TASK_ROLE_CPU_COUNT={{{ taskData.cpuNumber }}}
 PAI_CURRENT_TASK_ROLE_MEM_MB={{{ taskData.memoryMB }}}
+PAI_CURRENT_TASK_ROLE_SHM_MB={{{ taskData.shmMB }}}
 PAI_CURRENT_TASK_ROLE_GPU_COUNT={{{ taskData.gpuNumber }}}
 PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$TASK_INDEX
 PAI_JOB_TASK_COUNT={{{ tasksNumber }}}
@@ -208,6 +209,7 @@ docker run --name $docker_name \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
   --memory={{{ taskData.memoryMB }}}m \
+  --shm-size={{{ taskData.shmMB }}}m \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \

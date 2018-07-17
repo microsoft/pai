@@ -82,6 +82,13 @@ const taskRoleSchema = {
       exclusiveMinimum: false,
       description: 'Memory for one task in the task role, no less than 100',
     },
+    shmMB: {
+      type: 'number',
+      multipleOf: 1,
+      minimum: 64,
+      exclusiveMinimum: false,
+      description: 'Shared memory for one task in the task role, no more than memory size',
+    },
     gpuNumber: {
       type: 'number',
       multipleOf: 1,

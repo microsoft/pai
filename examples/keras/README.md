@@ -49,7 +49,7 @@ We need to build a Keras image to run Keras workload on PAI, this can be done in
     $ cd -
     ```
 
-You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.cntk)/[tensorflow](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow) base image as Keras backend.
+You can also directly use [cntk](../cntk/Dockerfile.example.cntk)/[tensorflow](../tensorflow/Dockerfile.example.tensorflow) base image as Keras backend.
 
 2. Prepare Keras envoriment in a [Dockerfile](./Dockerfile.example.keras.tensorflow_backend) using tensorflow base image as Keras backend.
 
