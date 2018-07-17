@@ -1,0 +1,30 @@
+prerequisites : 
+  - protocol_version : v2
+    name : tf_serving_example
+    type : dockerimage
+    version : x.y.z
+    contributor : xxx
+    description: python3.5, tensorflow
+    uri : openpai/pai.example.tensorflow-serving
+
+job : 
+  protocol_version: v2
+  name : mnist_tensorflow_serving
+  type : job
+  version : 1.0.0
+  contributor : xxx
+  description : image classification, mnist dataset, tensorflow, serving
+  parameters :
+    num_of_worker: 1
+    retryCount: -2
+
+  tasks :
+    - name : worker
+      dockerimage : tf_serving_example
+      resource: 
+        instances : $job.parameters.num_of_worker
+        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
+        portList: [{label: model_server, beginAt: 0, portNumber: 1}]
+      command:
+        - bazel-bin/tensorflow_serving/example/mnist_saved_model /tmp/mnist_model
+        - while :; do tensorflow_model_server --port=$PAI_CONTAINER_HOST_model_server_PORT_LIST --model_name=mnist --model_base_path=/tmp/mnist_model; done

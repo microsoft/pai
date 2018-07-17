@@ -55,6 +55,8 @@ const config = {
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    template: './src/app/marketplace/template-view/template-view.component.js',
+    import: './src/app/marketplace/template-import/template-import.component.js'
   },
   output: {
     path: helpers.root('dist'),
@@ -283,6 +285,22 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'docs']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'template.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'template']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'import.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'import']
     })
   ],
   node: {

@@ -279,7 +279,7 @@ if (config.env !== 'test') {
         if (errMsg) {
           logger.warn('get user list failed');
         } else {
-          logger.warn(res);
+          logger.info('etcd is ok and %d user accounts are retrieved', res.length);
         }
       });
     }
