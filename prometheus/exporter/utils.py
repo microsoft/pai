@@ -51,10 +51,8 @@ def check_output(*args, **kwargs):
     kwargs["stderr"] = subprocess.PIPE
     process = subprocess.Popen(*args, **kwargs)
     outs = []
-    errs = []
 
     while process.poll() is None:
         out, err = process.communicate()
         outs.append(out)
-        errs.append(err)
-    return "".join(outs), "".join(errs)
+    return "".join(outs)

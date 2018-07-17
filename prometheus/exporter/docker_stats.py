@@ -23,6 +23,8 @@ import re
 import datetime
 import logging
 
+import utils
+
 logger = logging.getLogger(__name__)
 
 def parse_percentile(data):
@@ -87,7 +89,7 @@ def stats():
     start = datetime.datetime.now()
     try:
         logger.info("ready to run docker stats")
-        dockerDockerStats = subprocess.check_output([
+        dockerDockerStats = utils.check_output([
             "docker", "stats", "--no-stream", "--format",
             "table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
         return parse_docker_stats(dockerDockerStats)

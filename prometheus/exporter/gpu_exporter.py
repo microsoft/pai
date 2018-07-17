@@ -22,6 +22,7 @@ from xml.dom import minidom
 import os
 import logging
 
+import utils
 from utils import Metric
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ def collect_gpu_info():
     try:
         logger.info("call nvidia-smi to get gpu metrics")
 
-        smi_output = subprocess.check_output(["nvidia-smi", "-q", "-x"])
+        smi_output = utils.check_output(["nvidia-smi", "-q", "-x"])
 
         return parse_smi_xml_result(smi_output)
     except subprocess.CalledProcessError as e:

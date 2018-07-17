@@ -22,6 +22,8 @@ import sys
 import datetime
 import logging
 
+import utils
+
 logger = logging.getLogger(__name__)
 
 targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
@@ -53,7 +55,7 @@ def inspect(containerId):
     start = datetime.datetime.now()
     try:
         logger.info("ready to run docker inspect")
-        dockerDockerInspect = subprocess.check_output(["docker", "inspect", containerId])
+        dockerDockerInspect = utils.check_output(["docker", "inspect", containerId])
         inspectInfo = parse_docker_inspect(dockerDockerInspect)
 
         logger.info(inspectInfo)
