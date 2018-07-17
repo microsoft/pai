@@ -35,34 +35,68 @@ const taskSchema = {
     properties: {
       role: {
         type: 'string',
+        propertyOrder: 1,
       },
       instances: {
         type: 'number',
         minimum: 0,
         multipleOf: 1,
+        propertyOrder: 5,
+      },
+      portList: {
+        type: 'array',
+        format: 'table',
+        propertyOrder: 9,
+        options: {
+          disable_array_delete_last_row: true,
+          disable_array_delete_all_rows: true,
+        },
+        items: {
+          type: 'object',
+          options: {
+            disable_edit_json: true,
+          },
+          properties: {
+            label: {
+              type: 'string',
+            },
+            beginAt: {
+              type: 'number',
+            },
+            portNumber: {
+              type: 'number',
+            }
+          },
+        },
       },
       data: {
         type: 'string',
+        propertyOrder: 2,
       },
       cpu: {
         type: 'number',
         minimum: 0,
         multipleOf: 1,
+        propertyOrder: 6,
       },
       script: {
         type: 'string',
+        propertyOrder: 3,
       },
       gpu: {
         type: 'number',
         multipleOf: 1,
+        propertyOrder: 8,
       },
       dockerimage: {
         type: 'string',
+        propertyOrder: 4,
       },
       memoryMB: {
         type: 'number',
         minimum: 0,
         multipleOf: 1,
+        propertyOrder: 7,
       },
       env: {
         type: 'string',
@@ -70,6 +104,7 @@ const taskSchema = {
         options: {
           expand_height: true,
         },
+        propertyOrder: 10,
       },
       command: {
         type: 'string',
@@ -77,6 +112,7 @@ const taskSchema = {
         options: {
           expand_height: true,
         },
+        propertyOrder: 11,
       },
     },
     required: [
@@ -132,11 +168,7 @@ const dataSchema = {
       },
       description: {
         type: 'string',
-        format: 'textarea',
-        options: {
-          expand_height: true,
-        },
-      }
+      },
     },
     required: [
       'name',

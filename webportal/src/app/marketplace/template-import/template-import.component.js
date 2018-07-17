@@ -71,12 +71,13 @@ const restApi2JsonEditor = (data) => {
         'role': task['name'],
         'instances': val, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
         'data': task['data'],
+        'portList': ('portList' in task['resource']) ? task['resource']['portList'] : [],
         'cpu': task['resource']['resourcePerInstance']['cpu'],
         'script': task['script'],
         'gpu': task['resource']['resourcePerInstance']['gpu'],
         'dockerimage': task['dockerimage'],
         'memoryMB': task['resource']['resourcePerInstance']['memoryMB'],
-        'env': task['env'],
+        'env': ('env' in task) ? task['env']: {},
         'command': task['command'],
       });
     });
@@ -134,14 +135,15 @@ const jsonEditor2RestApi = (editors) => {
           'dockerimage': task['dockerimage'],
           'command': tryStringToJson(task['command']),
           'script': task['script'],
-          'env': ('env' in task && task['env'] != '') ? tryStringToJson(task['env']) : {},
+          'env': tryStringToJson(task['env']),
           'resource': {
             'instances': task['instances'],
             'resourcePerInstance': {
               'cpu': task['cpu'],
               'gpu': task['gpu'],
               'memoryMB': task['memoryMB']
-            }
+            },
+            'portList': task['portList'],
           }
         });
       });

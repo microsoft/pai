@@ -27,7 +27,7 @@ job :
   type : job
   version : x.y.z
   contributor : xxx
-  description : image classification, ficar10 dataset, tensorflow, distributed training
+  description : image classification, cifar10 dataset, tensorflow, distributed training
   parameters :
     model : resnet20
     batchsize: 32
