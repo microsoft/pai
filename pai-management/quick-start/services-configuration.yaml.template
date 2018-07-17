@@ -63,10 +63,10 @@ hadoop:
   #     member list of 'default' VC when it is created.
   #   - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
   #     been explicitly specified here.
-  #virtualClusters:
-  #  default:
-  #    description: Default VC.
-  #    capacity: 40
+  virtualClusters:
+    default:
+      description: Default VC.
+      capacity: 40
   #  vc1:
   #    description: VC for Alice's team.
   #    capacity: 20
