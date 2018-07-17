@@ -169,7 +169,8 @@ def main(argv):
 
             # join with docker stats metrics and docker inspect labels
             jobMetrics = collect_job_metrics(gpuInfos)
-            utils.export_metrics_to_file(jobMetricsPath, jobMetrics)
+            if jobMetrics is not None:
+                utils.export_metrics_to_file(jobMetricsPath, jobMetrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
 
