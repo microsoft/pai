@@ -83,7 +83,7 @@
         <compute_mode>Default</compute_mode>
         <utilization>
             <gpu_util>100 %</gpu_util>
-            <memory_util>100 %</memory_util>
+            <memory_util>99 %</memory_util>
             <encoder_util>0 %</encoder_util>
             <decoder_util>0 %</decoder_util>
         </utilization>
@@ -299,8 +299,8 @@
         </bar1_memory_usage>
         <compute_mode>Default</compute_mode>
         <utilization>
-            <gpu_util>100 %</gpu_util>
-            <memory_util>100 %</memory_util>
+            <gpu_util>98 %</gpu_util>
+            <memory_util>97 %</memory_util>
             <encoder_util>0 %</encoder_util>
             <decoder_util>0 %</decoder_util>
         </utilization>

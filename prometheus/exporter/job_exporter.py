@@ -16,17 +16,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import subprocess
-import threading
 import copy
-import json
 import sys
 import time
 import logging
 from logging.handlers import RotatingFileHandler
-import datetime
-from Queue import Queue
-from Queue import Empty
 
 import docker_stats
 import docker_inspect
@@ -88,64 +82,6 @@ def collect_job_metrics(gpuInfos):
 
     return result
 
-class Singleton(object):
-    """ wrapper around gpu metrics getter, because getter may block
-        indefinitely, so we wrap call in thread.
-        Also, to avoid having too much threads, use semaphore to ensure only 1
-        thread is running """
-    def __init__(self, getter, get_timeout_s=3, old_data_timeout_s=60):
-        self.getter = getter
-        self.get_timeout_s = get_timeout_s
-        self.old_data_timeout_s = datetime.timedelta(seconds=old_data_timeout_s)
-
-        self.semaphore = threading.Semaphore(1)
-        self.queue = Queue(1)
-        self.old_metrics = None
-        self.old_metrics_time = datetime.datetime.now()
-
-    def try_get(self):
-        if self.semaphore.acquire(False):
-            def wrapper(semaphore, queue):
-                """ wrapper assume semaphore already acquired, will release semaphore on exit """
-                result = None
-
-                try:
-                    try:
-                        # remove result put by previous thread but didn't get by main thread
-                        queue.get(block=False)
-                    except Empty:
-                        pass
-
-                    start = datetime.datetime.now()
-                    result = self.getter()
-                except Exception as e:
-                    logger.warn("get gpu metrics failed")
-                    logger.exception(e)
-                finally:
-                    logger.info("get gpu metrics spent %s", datetime.datetime.now() - start)
-                    semaphore.release()
-                    queue.put(result)
-
-            t = threading.Thread(target=wrapper, name="gpu-metrices-getter",
-                    args=(self.semaphore, self.queue))
-            t.start()
-        else:
-            logger.warn("gpu-metrics-getter is still running")
-
-        try:
-            self.old_metrics = self.queue.get(block=True, timeout=self.get_timeout_s)
-            self.old_metrics_time = datetime.datetime.now()
-            return self.old_metrics
-        except Empty:
-            pass
-
-        now = datetime.datetime.now()
-        if now - self.old_metrics_time < self.old_data_timeout_s:
-            return self.old_metrics
-
-        logger.info("gpu info is too old")
-        return None
-
 def main(argv):
     logDir = argv[0]
     gpuMetricsPath = logDir + "/gpu_exporter.prom"
@@ -154,7 +90,7 @@ def main(argv):
     timeSleep = int(argv[1])
     iter = 0
 
-    singleton = Singleton(gpu_exporter.collect_gpu_info)
+    singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
 
     while True:
         try:
