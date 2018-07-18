@@ -21,6 +21,7 @@ import yaml
 import logging
 import logging.config
 from exporter import gpu_exporter
+from exporter.utils import Metric
 
 class TestGPUExporter(unittest.TestCase):
     """
@@ -52,9 +53,25 @@ class TestGPUExporter(unittest.TestCase):
         file = open(sample_path, "r")
         nvidia_smi_result = file.read()
         nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result)
-        target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
+        target_smi_info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
+                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
-        pass
+
+    def test_convert_gpu_info_to_metrics(self):
+        info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
+                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
+        metrics = gpu_exporter.convert_gpu_info_to_metrics(info)
+        self.assertEqual(5, len(metrics))
+
+        self.assertIn(Metric("nvidiasmi_attached_gpus", {}, 2), metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_gpu", {"minor_number": "0"}, "100"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_memory", {"minor_number": "0"}, "99"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_gpu", {"minor_number": "1"}, "98"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_memory", {"minor_number": "1"}, "97"),
+                metrics)
 
 if __name__ == '__main__':
     unittest.main()
