@@ -42,7 +42,6 @@ for i = 1, table.getn(selected), 2 do
 end
 return result
 `;
-  console.log(lua);
   client.eval(lua, '0', function(err, res) {
     if (err) {
       callback(err, null);
@@ -68,7 +67,7 @@ const load = function(name, version, callback) {
     } else {
       let template = yaml.safeLoad(res);
       if (res) {
-        let usedKey = config.getUsedKey(template.job ? 'job' : template.type)
+        let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
         client.zincrby(usedKey, 1, name);
       }
       callback(null, template);
@@ -81,6 +80,7 @@ const load = function(name, version, callback) {
  * The second element in the callback argument list means whether <name, version> duplicates.
  */
 const save = function(template, callback) {
+  let usedKey = null;
   let name = null;
   let version = null;
   if (template.job) {

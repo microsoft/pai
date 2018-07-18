@@ -31,7 +31,7 @@ let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
   keyPrefix: 'marketplace:',
   getUsedKey: function(type) {
-    return type + ".used";
+    return type + '.used';
   },
   headIndexKey: 'head.index',
   templateKeyPrefix: 'template:',
