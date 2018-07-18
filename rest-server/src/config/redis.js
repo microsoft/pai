@@ -30,13 +30,13 @@ const Joi = require('joi');
 let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
   keyPrefix: 'marketplace:',
-  jobUsedKey: 'job.used',
-  scriptUsedKey: 'script.used',
-  dataUsedKey: 'data.used',
-  dockerUsedKey: 'docker.used',
+  getUsedKey: function(type) {
+    return type + '.used';
+  },
   headIndexKey: 'head.index',
-  templateKey: function(name) {
-    return 'template:' + name;
+  templateKeyPrefix: 'template:',
+  getTemplateKey: function(name) {
+    return this.templateKeyPrefix + name;
   },
 };
 
@@ -45,17 +45,14 @@ const redisConfigSchema = Joi.object().keys({
     .required(),
   keyPrefix: Joi.string()
     .required(),
-  jobUsedKey: Joi.string()
-    .required(),
-  scriptUsedKey: Joi.string()
-    .required(),
-  dataUsedKey: Joi.string()
-    .required(),
-  dockerUsedKey: Joi.string()
+  getUsedKey: Joi.func()
+    .arity(1)
     .required(),
   headIndexKey: Joi.string()
     .required(),
-  templateKey: Joi.func()
+  templateKeyPrefix: Joi.string()
+    .required(),
+  getTemplateKey: Joi.func()
     .arity(1)
     .required(),
 });
