@@ -57,8 +57,8 @@ const toTemplateSummary = (data) => {
   return res;
 };
 
-const list = (req, res) => {
-  template.getTemplateList((err, list) => {
+const listJobs = (req, res) => {
+  template.top('job', 0, 10, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -66,37 +66,31 @@ const list = (req, res) => {
       });
     }
     let templateList = [];
-    list.forEach((item) => {
-      templateList.push(toTemplateSummary(item));
+    list.forEach((element) => {
+      let item = toTemplateSummary(element);
+      item.used = element.count;
+      templateList.push(item);
     });
     return res.status(200).json(templateList);
   });
 };
 
-const recommend = (req, res) => {
-  let count = req.param('count', 3);
-  template.getRankedTemplateList(0, 3, (err, list) => {
+const list = (req, res) => {
+  template.top(req.params.type, 0, 10, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
         'message': err.toString(),
       });
     }
-    if (count > list.length) {
-      count = list.length;
-    }
-    let templateList = [];
-    for (let i = 0; i < count; ++i) {
-      templateList.push(toTemplateSummary(list[i]));
-    }
-    return res.status(200).json(templateList);
+    return res.status(200).json(list);
   });
 };
 
 const fetch = (req, res) => {
   let name = req.param('name');
   let version = req.param('version');
-  template.getTemplate(name, version, (err, item) => {
+  template.load(name, version, (err, item) => {
     if (err) {
       logger.error(err);
       return res.status(404).json({
@@ -111,36 +105,73 @@ const share = (req, res) => {
   let content = req.body.template;
   let name = content.job.name;
   let version = content.job.version;
-  template.hasTemplate(name, version, (err, has) => {
+  template.has(name, version, function(err, has) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        message: 'IO error happened when detecting template.',
+        message: 'Failed to detect the job template.',
       });
     }
     if (has) {
       return res.status(400).json({
-        message: `The template titled "${name}:${version} has already existed.".`,
+        message: `The job template titled "${name}:${version} has already existed.".`,
       });
     }
-    template.saveTemplate(name, version, content, (err, num) => {
+    template.save(content, function(err, num) {
       if (err) {
         logger.error(err);
         return res.status(500).json({
-          message: 'IO error happened when stroing template.',
+          message: 'IO error happened when stroing the job template.',
         });
       }
-      res.status(201).json({
-        name: name,
-        version: version,
+      let created = [];
+      let existed = [];
+      let failed = [];
+      content.prerequisites.forEach(function(item) {
+        template.has(item.name, item.version, function(err, has) {
+          if (err) {
+            logger.error(err);
+            failed.push({
+              'name': item.name,
+              'version': item.version,
+              'message': err.message ? err.message : err.toString(),
+            });
+          } else if (has) {
+            existed.push({
+              'name': item.name,
+              'version': item.version,
+            });
+          } else {
+            template.save(item, function(err, num) {
+              if (err) {
+                logger.error(err);
+                failed.push({
+                  'name': item.name,
+                  'version': item.version,
+                  'message': err.message ? err.message : err.toString(),
+                });
+              } else {
+                created.push({
+                  'name': item.name,
+                  'version': item.version,
+                });
+              }
+            });
+          }
+        });
+      });
+      res.status(200).json({
+        'created': created,
+        'existed': existed,
+        'failed': failed,
       });
     });
   });
 };
 
 module.exports = {
+  listJobs,
   list,
-  recommend,
   fetch,
   share,
 };

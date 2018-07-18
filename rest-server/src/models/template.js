@@ -22,7 +22,7 @@ const redis3 = require('../util/redis3');
 
 const client = redis3(redisConfig.connectionUrl, {prefix: redisConfig.keyPrefix});
 
-const hasTemplate = function(name, version, callback) {
+const has = function(name, version, callback) {
   client.hexists(redisConfig.templateKey(name), version, (err, num) => {
     if (err) {
       callback(err, null);
@@ -32,8 +32,25 @@ const hasTemplate = function(name, version, callback) {
   });
 };
 
-const getRankedTemplateList = function(offset, count, callback) {
-  client.zrevrange(redisConfig.usedCountKey, offset, offset + count, 'WITHSCORES', (err, list) => {
+const top = function(type, offset, count, callback) {
+  let key = null;
+  switch (type) {
+    case 'script':
+      key = redisConfig.scriptUsedKey;
+      break;
+    case 'data':
+      key = redisConfig.dataUsedKey;
+      break;
+    case 'dockerimage':
+      key = redisConfig.dockerUsedKey;
+      break;
+    case 'job':
+      key = redisConfig.jobUsedKey;
+      break;
+    default:
+      return callback(new Error('Unknown template type'), null);
+  }
+  client.zrevrange(key, offset, offset + count, 'WITHSCORES', (err, list) => {
     if (err) {
       callback(err, null);
     } else {
@@ -74,48 +91,45 @@ const getRankedTemplateList = function(offset, count, callback) {
   });
 };
 
-const getTemplateList = function(callback) {
-  client.hgetall(redisConfig.headIndexKey, (err, hash) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      let cmds = [];
-      for (let name in hash) {
-        if (hash.hasOwnProperty(name)) {
-          let version = hash[name];
-          cmds.push(['hget', redisConfig.templateKey(name), version]);
-        }
-      }
-      client.multi(cmds).exec((err, replies) => {
-        if (err) {
-          callback(err, null);
-        } else {
-          let list = [];
-          replies.forEach(function(element) {
-            list.push(yaml.safeLoad(element));
-          });
-          callback(null, list);
-        }
-      });
-    }
-  });
-};
-
-const getTemplate = function(name, version, callback) {
+const load = function(name, version, callback) {
   client.hget(redisConfig.templateKey(name), version, (err, res) => {
     if (err) {
       callback(err, null);
     } else {
       if (res) {
-        client.zincrby(redisConfig.usedCountKey, 1, name);
+        client.zincrby(redisConfig.jobUsedKey, 1, name);
       }
       callback(null, yaml.safeLoad(res));
     }
   });
 };
 
-const saveTemplate = function(name, version, template, callback) {
-  client.hset(redisConfig.templateKey(name), version, JSON.stringify(template), (err, res) => {
+const save = function(template, callback) {
+  let usedKey = null;
+  let name = null;
+  let version = null;
+  if (template.job) {
+    usedKey = redisConfig.jobUsedKey;
+    name = template.job.name;
+    version = template.job.version;
+  } else {
+    switch (template.type) {
+      case 'script':
+        usedKey = redisConfig.scriptUsedKey;
+        break;
+      case 'data':
+        usedKey = redisConfig.dataUsedKey;
+        break;
+      case 'dockerimage':
+        usedKey = redisConfig.dockerUsedKey;
+        break;
+      default:
+        return callback(new Error('Unknown template type'), null);
+    }
+    name = template.name;
+    version = template.version;
+  }
+  client.hset(redisConfig.templateKey(name), version, JSON.stringify(template), (err, num) => {
     if (err) {
       callback(err, null);
     } else {
@@ -123,7 +137,7 @@ const saveTemplate = function(name, version, template, callback) {
         if (err) {
           callback(err, null);
         } else {
-          client.zadd(redisConfig.usedCountKey, 'NX', 1, name);
+          client.zadd(usedKey, 'NX', 1, name);
           callback(null, num);
         }
       });
@@ -131,4 +145,4 @@ const saveTemplate = function(name, version, template, callback) {
   });
 };
 
-module.exports = {hasTemplate, getRankedTemplateList, getTemplateList, getTemplate, saveTemplate};
+module.exports = {has, top, load, save};

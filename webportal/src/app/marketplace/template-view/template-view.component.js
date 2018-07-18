@@ -44,25 +44,6 @@ const generateQueryString = function(data) {
     + encodeURIComponent(data.version);
 };
 
-const loadRecommended = function() {
-  $.getJSON(`${webportalConfig.restServerUri}/api/v1/template/recommend`,
-    function(data) {
-      data.forEach(function(item) {
-        let qs = generateQueryString(item);
-        $('#recommend-list').append(`
-          <li>
-            <button class="btn btn-danger" type="button"
-              onclick="window.location.href='/import.html${qs}'">
-              <span class="badge">Hot</span>
-              ${item.name} - ${item.type}
-            </button>
-          </li>
-        `);
-      });
-    }
-  );
-};
-
 const extractAndFormat = function(propertyName) {
   return function(row, type, val, meta) {
     let array = [];
@@ -97,8 +78,8 @@ const loadTemplates = function() {
         data: 'name',
       },
       {
-        title: 'Version',
-        data: 'version',
+        title: 'Used',
+        data: 'used',
       },
       {
         title: 'Constributor',
@@ -139,7 +120,7 @@ const loadTemplates = function() {
       },
     ],
     'order': [
-      [0, 'asc'],
+      [1, 'desc'],
     ],
     'scrollY': (($(window).height() - 265)) + 'px',
     'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
@@ -166,6 +147,5 @@ $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'hidden'});
   loadTemplates();
-  loadRecommended();
   window.dispatchEvent(new Event('resize'));
 });
