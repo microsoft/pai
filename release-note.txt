@@ -1,0 +1,17 @@
+Release v0.6.1 release notes.
+
+New features:
+    The 'paictl' tool: Introducing paictl, the universal deployment/management tool with the functionalities of image building, service start/stop, k8s bootup/clean, and configuration generation.
+    Single-box deployment: Support deploying on a single machine.
+    New UI for user management: Now the console for administrators to manage PAI users has got a new UI.
+    Documentation: Significant changes on documents -- more comprehensive, more structured, and easier to follow.
+
+Improvements:
+    Faster loading of the job list UI: Now the page gets 5x faster than before when loading its content.
+
+Bug fixes: (Omitted here)
+
+Known issues:
+    #827 Deploy PAI master and worker on the same node may lead to resource competition.
+    #813 Still in investigation. Install PAI on some old kernel may fail.
+    #713 Yarn can't use all the resources (for example GPUs) listed on PAI dashboard, it's some kind of misleading.
