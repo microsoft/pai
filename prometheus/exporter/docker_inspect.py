@@ -19,45 +19,59 @@
 import subprocess
 import json
 import sys
-import logging  
-logger = logging.getLogger("gpu_expoter")  
+import datetime
+import logging
+
+import utils
+
+logger = logging.getLogger(__name__)
+
 targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
 targetEnv = {"PAI_TASK_INDEX"}
 
 def parse_docker_inspect(jsonStr):
     jsonObject = json.loads(jsonStr)
-    labels = []
-    envs = []
-    inspectMetrics = {}
+    labels = {}
+    envs = {}
 
     if jsonObject[0]["Config"]["Labels"]:
         for key in jsonObject[0]["Config"]["Labels"]:
             if key in targetLabel:
-                labels.append("container_label_{0}=\"{1}\"".format(key.replace(".", "_"), jsonObject[0]["Config"]["Labels"][key]))
-            
+                labelKey = "container_label_{0}".format(key.replace(".", "_"))
+                labelVal = jsonObject[0]["Config"]["Labels"][key]
+                labels[labelKey] = labelVal
+
     if jsonObject[0]["Config"]["Env"]:
         for env in jsonObject[0]["Config"]["Env"]:
             envItem = env.split("=")
             if envItem[0] in targetEnv:
-                envs.append("container_env_{0}=\"{1}\"".format(envItem[0].replace(".", "_"), envItem[1]))
-    
-    inspectMetrics = {"env": envs, "labels": labels}
-    return inspectMetrics
-    
+                envKey = "container_env_{0}".format(envItem[0].replace(".", "_"))
+                envVal = envItem[1]
+                envs[envKey] = envVal
+
+    return {"env": envs, "labels": labels}
+
 def inspect(containerId):
+    start = datetime.datetime.now()
     try:
-        dockerInspectCMD = "docker inspect " + containerId
-        dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
+        logger.info("ready to run docker inspect")
+        dockerDockerInspect = utils.check_output(["docker", "inspect", containerId])
         inspectInfo = parse_docker_inspect(dockerDockerInspect)
+
         logger.info(inspectInfo)
+
         return inspectInfo
     except subprocess.CalledProcessError as e:
-        logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+        logger.exception("command '%s' return with error (code %d): %s",
+                e.cmd, e.returncode, e.output)
+    finally:
+        end = datetime.datetime.now()
+        logger.info("docker inspect spent %s", end - start)
 
 def main(argv):
     containerId = argv[0]
-    inspect(containerId)
+    print inspect(containerId)
 
-# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3 
+# execute cmd example: python .\docker_inspect.py 33a22dcd4ba3
 if __name__ == "__main__":
     main(sys.argv[1:])
