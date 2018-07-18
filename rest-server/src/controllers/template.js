@@ -19,62 +19,6 @@
 const logger = require('../config/logger');
 const template = require('../models/template');
 
-// parse the json data to template summary format.
-const toTemplateSummary = (data) => {
-  let res = {
-    'datasets': [],
-    'scripts': [],
-    'dockers': [],
-  };
-  if ('job' in data) {
-    let d = data['job'];
-    res['name'] = d['name'];
-    res['type'] = 'job';
-    res['version'] = d['version'];
-    res['contributors'] = [d['contributor']]; // todo split the contributor string?
-    res['description'] = d['description'];
-  }
-  if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach((key) => {
-      let d = data['prerequisites'][key];
-      let item = {
-        'name': d['name'],
-        'version': d['version'],
-      };
-      switch (d['type']) {
-        case 'data':
-          res['datasets'].push(item);
-          break;
-        case 'script':
-          res['scripts'].push(item);
-          break;
-        case 'dockerimage':
-          res['dockers'].push(item);
-          break;
-      }
-    });
-  }
-  return res;
-};
-
-const listJobs = (req, res) => {
-  template.top('job', 0, 10, function(err, list) {
-    if (err) {
-      logger.error(err);
-      return res.status(500).json({
-        'message': err.toString(),
-      });
-    }
-    let templateList = [];
-    list.forEach((element) => {
-      let item = toTemplateSummary(element);
-      item.used = element.count;
-      templateList.push(item);
-    });
-    return res.status(200).json(templateList);
-  });
-};
-
 const list = (req, res) => {
   template.top(req.params.type, 0, 10, function(err, list) {
     if (err) {
@@ -170,7 +114,6 @@ const share = (req, res) => {
 };
 
 module.exports = {
-  listJobs,
   list,
   fetch,
   share,

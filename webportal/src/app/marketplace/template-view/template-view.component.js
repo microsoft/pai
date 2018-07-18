@@ -39,11 +39,6 @@ $('#content-wrapper').html(templateViewComponent({
   templateTable: templateTableComponent,
 }));
 
-const generateQueryString = function(data) {
-  return '?name=' + encodeURIComponent(data.name) + '&version='
-    + encodeURIComponent(data.version);
-};
-
 const extractAndFormat = function(propertyName) {
   return function(row, type, val, meta) {
     let array = [];
@@ -62,13 +57,17 @@ const loadTemplates = function() {
 
   templateTable = $table.dataTable({
     'ajax': {
-      url: `${webportalConfig.restServerUri}/api/v1/template`,
+      url: `${webportalConfig.restServerUri}/api/v1/template/job`,
       type: 'GET',
       dataSrc: (data) => {
         if (data.code) {
           alert(data.message);
         } else {
-          return data;
+          let list = [];
+          data.forEach(function(item) {
+            list.push(toJobSummary(item));
+          });
+          return list;
         }
       },
     },
@@ -83,10 +82,7 @@ const loadTemplates = function() {
       },
       {
         title: 'Constributor',
-        data: function(data, type, set, meta) {
-          return data['contributors'].join(',');
-        },
-        orderable: false,
+        data: 'contributor',
       },
       {
         title: 'Datasets',
@@ -99,8 +95,8 @@ const loadTemplates = function() {
         orderable: false,
       },
       {
-        title: 'Dockers',
-        data: extractAndFormat('dockers'),
+        title: 'Docker Images',
+        data: extractAndFormat('dockerimages'),
         orderable: false,
       },
       {
@@ -110,7 +106,10 @@ const loadTemplates = function() {
       },
       {
         title: 'Operation',
-        data: generateQueryString,
+        data: function(job, type, val, meta) {
+          return '?name=' + encodeURIComponent(job.name)
+            + '&version=' + encodeURIComponent(job.version);
+        },
         orderable: false,
         searchable: false,
         render: function(qs, type) {
@@ -127,6 +126,36 @@ const loadTemplates = function() {
     'deferRender': true,
     'autoWidth': false,
   }).api();
+};
+
+const toJobSummary = (template) => {
+  let datasets = [];
+  let scripts = [];
+  let dockerimages = [];
+  template.prerequisites.forEach((item) => {
+    switch (item.type) {
+      case 'data':
+        datasets.push(item);
+        break;
+      case 'script':
+        scripts.push(item);
+        break;
+      case 'dockerimage':
+        dockerimages.push(item);
+        break;
+    }
+  });
+  let job = template.job;
+  return {
+    'name': job.name,
+    'version': job.version,
+    'contributor': job.contributor,
+    'description': job.description,
+    'used': template.count,
+    'datasets': datasets,
+    'scripts': scripts,
+    'dockerimages': dockerimages,
+  };
 };
 
 $(window).resize(function(event) {

@@ -23,8 +23,6 @@ const templateController = require('../controllers/template.js');
 const router = new express.Router();
 
 router.route('/')
-  /** GET /api/v1/template - List top 10 job templates */
-  .get(templateController.listJobs)
   /** POST /api/v1/template - Share the job and its resources as template */
   .post(tokenConfig.check, templateController.share);
 
