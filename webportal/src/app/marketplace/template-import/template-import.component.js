@@ -18,10 +18,9 @@
 
 require('./template-import.component.scss');
 require('json-editor'); /* global JSONEditor */
-// for model start
 require('bootstrap/js/modal.js');
-// for model end
 
+const yaml = require('js-yaml');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const templateImportComponent = require('./template-import.component.ejs');
@@ -293,6 +292,18 @@ $(document).ready(() => {
   
     $(document).on('click', '#submitJob', () => {
       showEditInfo();
+    });
+
+    $(document).on('click', '#saveTemplate', () => {
+      let template = yaml.safeDump(jsonEditor2RestApi(editors));
+      var toDownload = new Blob([template], {type: 'application/octet-stream'});
+      url = URL.createObjectURL(toDownload);
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'template.yaml');
+      var event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      link.dispatchEvent(event);
     });
   
     $(document).on('click', '#single', () => {
