@@ -22,16 +22,9 @@ const redis3 = require('../util/redis3');
 
 const client = redis3(config.connectionUrl, {prefix: config.keyPrefix});
 
-const has = function(name, version, callback) {
-  client.hexists(config.getTemplateKey(name), version, (err, num) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, num > 0);
-    }
-  });
-};
-
+/**
+ * Get the top K templates of range [offset, offset + count) by the given type.
+ */
 const top = function(type, offset, count, callback) {
   let typeUsedKey = config.getUsedKey(type);
   let lua = `
@@ -49,6 +42,7 @@ for i = 1, table.getn(selected), 2 do
 end
 return result
 `;
+  console.log(lua);
   client.eval(lua, '0', function(err, res) {
     if (err) {
       callback(err, null);
@@ -64,6 +58,9 @@ return result
   });
 };
 
+/**
+ * Load a template.
+ */
 const load = function(name, version, callback) {
   client.hget(config.getTemplateKey(name), version, (err, res) => {
     if (err) {
@@ -79,8 +76,11 @@ const load = function(name, version, callback) {
   });
 };
 
+/**
+ * Save the template.
+ * The second element in the callback argument list means whether <name, version> duplicates.
+ */
 const save = function(template, callback) {
-  let usedKey = null;
   let name = null;
   let version = null;
   if (template.job) {
@@ -92,20 +92,25 @@ const save = function(template, callback) {
     name = template.name;
     version = template.version;
   }
-  client.hset(config.getTemplateKey(name), version, JSON.stringify(template), (err, num) => {
+  client.hsetnx(config.getTemplateKey(name), version, JSON.stringify(template), (err, num) => {
     if (err) {
       callback(err, null);
     } else {
-      client.hset(config.headIndexKey, name, version, (err, num) => {
-        if (err) {
-          callback(err, null);
-        } else {
-          client.zadd(usedKey, 'NX', 1, name);
-          callback(null, num);
-        }
-      });
+      if (num == 0) {
+        // The key is duplicated
+        callback(null, true);
+      } else {
+        client.hset(config.headIndexKey, name, version, (err, num) => {
+          if (err) {
+            callback(err, null);
+          } else {
+            client.zadd(usedKey, 'NX', 0, name);
+            callback(null, false);
+          }
+        });
+      }
     }
   });
 };
 
-module.exports = {has, top, load, save};
+module.exports = {top, load, save};

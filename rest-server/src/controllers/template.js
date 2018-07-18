@@ -46,10 +46,8 @@ const fetch = (req, res) => {
 };
 
 const share = (req, res) => {
-  let content = req.body.template;
-  let name = content.job.name;
-  let version = content.job.version;
-  template.has(name, version, function(err, has) {
+  let job = req.body.template;
+  template.save(job, function(err, has) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -58,57 +56,38 @@ const share = (req, res) => {
     }
     if (has) {
       return res.status(400).json({
-        message: `The job template titled "${name}:${version} has already existed.".`,
+        message: 'The job template has already existed.',
       });
     }
-    template.save(content, function(err, num) {
-      if (err) {
-        logger.error(err);
-        return res.status(500).json({
-          message: 'IO error happened when stroing the job template.',
-        });
-      }
-      let created = [];
-      let existed = [];
-      let failed = [];
-      content.prerequisites.forEach(function(item) {
-        template.has(item.name, item.version, function(err, has) {
-          if (err) {
-            logger.error(err);
-            failed.push({
-              'name': item.name,
-              'version': item.version,
-              'message': err.message ? err.message : err.toString(),
-            });
-          } else if (has) {
-            existed.push({
-              'name': item.name,
-              'version': item.version,
-            });
-          } else {
-            template.save(item, function(err, num) {
-              if (err) {
-                logger.error(err);
-                failed.push({
-                  'name': item.name,
-                  'version': item.version,
-                  'message': err.message ? err.message : err.toString(),
-                });
-              } else {
-                created.push({
-                  'name': item.name,
-                  'version': item.version,
-                });
-              }
-            });
-          }
-        });
+    let created = [];
+    let existed = [];
+    let failed = [];
+    job.prerequisites.forEach(function(item) {
+      template.save(item, function(err, has) {
+        if (err) {
+          logger.error(err);
+          failed.push({
+            'name': item.name,
+            'version': item.version,
+            'message': err.message ? err.message : err.toString(),
+          });
+        } else if (has) {
+          existed.push({
+            'name': item.name,
+            'version': item.version,
+          });
+        } else {
+          created.push({
+            'name': item.name,
+            'version': item.version,
+          });
+        }
       });
-      res.status(200).json({
-        'created': created,
-        'existed': existed,
-        'failed': failed,
-      });
+    });
+    res.status(200).json({
+      'created': created,
+      'existed': existed,
+      'failed': failed,
     });
   });
 };
