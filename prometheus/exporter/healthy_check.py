@@ -17,10 +17,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import subprocess
 import sys
-import logging  
+import logging
 from logging.handlers import RotatingFileHandler
 import os
 import re
+
+import utils
 
 logger = logging.getLogger("node_exporter probe")  
 logger.setLevel(logging.INFO)  
@@ -34,7 +36,7 @@ def main():
     runTimeException = []
     gpuExists = False
     try:
-        gpuOutput = subprocess.check_output(["lspci"], shell=True)
+        gpuOutput = utils.check_output(["lspci"], shell=True)
         r = re.search("[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*", gpuOutput, flags=0)
         if r is not None:
             gpuExists = True
@@ -47,7 +49,7 @@ def main():
     if gpuExists:
         try:
             nvidiaCMD= "nvidia-smi -q -x"
-            smiOutput = subprocess.check_output([nvidiaCMD], shell=True)
+            smiOutput = utils.check_output([nvidiaCMD], shell=True)
         except subprocess.CalledProcessError as e:
             err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
             shortErr = "nvidiasmi"
@@ -56,7 +58,7 @@ def main():
 
     try:
         dockerInspectCMD = "docker inspect --help" 
-        dockerDockerInspect = subprocess.check_output([dockerInspectCMD], shell=True)
+        dockerDockerInspect = utils.check_output([dockerInspectCMD], shell=True)
     except subprocess.CalledProcessError as e:
         err = "command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output)
         shortErr = "dockerinspect"

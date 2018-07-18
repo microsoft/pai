@@ -34,7 +34,7 @@ spec:
       nodeSelector:
         node-exporter: "true"
       containers:
-      - image: prom/node-exporter:v0.15.2
+      - image: prom/node-exporter:v0.16.0
         imagePullPolicy: Always
         readinessProbe:
           httpGet:
@@ -54,13 +54,11 @@ spec:
           - '--no-collector.arp'
           - '--no-collector.bcache'
           - '--no-collector.bonding'
-          - '--no-collector.boottime'
           - '--no-collector.conntrack'
 #- '--no-collector.cpu' Exposes CPU statistics.
 #- '--no-collector.diskstats' Exposes disk I/O statistics.
           - '--no-collector.edac'
           - '--no-collector.entropy'
-          - '--no-collector.exec'
 #- '--no-collector.filefd' Exposes file descriptor statistics from /proc/sys/fs/file-nr
 #- '--no-collector.filesystem' Exposes filesystem statistics, such as disk space used.
           - '--no-collector.hwmon'
