@@ -17,7 +17,6 @@
 
 // module dependencies
 const userModel = require('../models/user');
-const logger = require('../config/logger');
 const createError = require('../util/error');
 
 /**
