@@ -17,7 +17,8 @@
 
 import { HttpError } from "http-errors";
 
-declare type Status = 
+declare type Status =
+    number |
     'Bad Request' |
     'Conflict' |
     'Forbidden' |

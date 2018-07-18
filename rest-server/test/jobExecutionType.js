@@ -18,16 +18,16 @@
 
 // test
 describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
-  afterEach(function() {
+  after(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Split mocks into each cases and enable the following error with afterEach.
+      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   // Mock launcher webservice
-  beforeEach(() => {
+  before(() => {
     let frameworkDetail = {
       'summarizedFrameworkInfo': {
         'executionType': 'START',
@@ -92,10 +92,14 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
           },
         },
       })
-      .put('/v1/Frameworks/test1/executionType', {
-        'value': 'STOP',
+      .put('/v1/Frameworks/test1/ExecutionType', {
+        'executionType': 'STOP',
       })
-      .reply(200, null);
+      .reply(202, null)
+      .put('/v1/Frameworks/test2/ExecutionType', {
+        'executionType': 'STOP',
+      })
+      .reply(202, null);
   });
 
   // PUT /api/v1/jobs/:jobName/executionType
