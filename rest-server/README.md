@@ -104,17 +104,38 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     ```
     {
       "token": "your access token",
-      "user": "username"
+      "user": "username",
+      "admin": true if user is admin
     }
     ```
 
-    *Response if an error occured*
+    *Response if user does not exist*
     ```
-    Status: 401
+    Status: 400
 
     {
-      "error": "AuthenticationFailed",
-      "message": "authentication failed"
+      "code": "NoUserError",
+      "message": "User ... not found."
+    }
+    ```
+
+    *Response if password is incorrect*
+    ```
+    Status: 400
+
+    {
+      "code": "IncorrectPassworkError",
+      "message": "Password is incorrect"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -146,13 +167,53 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if an error occured*
+	  *Response if not authorized*
+    ```
+    Status: 401
+
+    {
+      "code": "UnauthorizedUserError",
+      "message": "Guest is not allowed to do this operation"
+    }
+    ```
+
+	  *Response if current user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation."
+    }
+    ```
+
+    *Response if updated user does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoUserError",
+      "message": "User ... not found."
+    }
+    ```
+
+    *Response if created user has a duplicate name*
+    ```
+    Status: 409
+
+    {
+      "code": "ConflictUserError",
+      "message": "User name ... already exists."
+    }
+    ```
+
+    *Response if a server error occured*
     ```
     Status: 500
 
     {
-      "error": "UpdateFailed",
-      "message": "update failed"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -175,30 +236,60 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
-	Status: 200
-	
+	  Status: 200
+
     {
       "message": "remove successfully"
     }
     ```
 
-    *Response if an error occured*
-    ```
-    Status: 500
-
-    {
-      "error": "RemoveFailed",
-      "message": "remove failed"
-    }
-    ```
-	
-	*Response if not authorized*
+	  *Response if not authorized*
     ```
     Status: 401
 
     {
-      "error": "NotAuthorized",
-      "message": "not authorized"
+      "code": "UnauthorizedUserError",
+      "message": "Guest is not allowed to do this operation"
+    }
+    ```
+
+	  *Response if user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation"
+    }
+    ```
+
+	  *Response if an admin will be removed*
+    ```
+    Status: 403
+
+    {
+      "code": "RemoveAdminError",
+      "message": "Admin ... is not allowed to remove."
+    }
+    ```
+
+    *Response if updated user does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoUserError",
+      "message": "User ... not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -228,13 +319,13 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if a server error occured*
+    *Response if the virtual cluster does not exist.*
     ```
-    Status: 500
+    Status: 400
 
     {
-      "error": "UpdateVcFailed",
-      "message": "update user virtual cluster failed"
+      "code": "NoVirtualClusterError",
+      "message": "Virtual cluster ... is not found."
     }
     ```
 
@@ -243,8 +334,38 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 401
 
     {
-      "error": "NotAuthorized",
-      "message": "not authorized"
+      "code": "UnauthorizedUserError",
+      "message": "Guest is not allowed to do this operation"
+    }
+    ```
+
+	  *Response if user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation"
+    }
+    ```
+
+    *Response if user does not exist.*
+    ```
+    Status: 404
+
+    {
+      "code": "NoUserError",
+      "message": "User ... not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -276,8 +397,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "GetJobListError",
-      "message": "get job list error"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -312,8 +433,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 404
 
     {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
+      "code": "NoJobError",
+      "message": "Job ... not found."
     }
     ```
 
@@ -322,8 +443,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -350,23 +471,43 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-    *Response if there is a duplicated job submission*
+    *Response if the virtual cluster does not exist.*
     ```
     Status: 400
-    
+
     {
-      "error": "JobUpdateError",
-      "message": "job update error"
+      "code": "NoVirtualClusterError",
+      "message": "Virtual cluster ... is not found."
     }
     ```
-    
+
+	  *Response if user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "User ... is not allowed to add job to ..."
+    }
+    ```
+
+    *Response if there is a duplicated job submission*
+    ```
+    Status: 409
+
+    {
+      "code": "ConflictJobError",
+      "message": "Job name ... already exists."
+    }
+    ```
+
     *Response if a server error occured*
     ```
     Status: 500
 
     {
-      "error": "JobUpdateError",
-      "message": "job update error"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -393,8 +534,18 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 404
 
     {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
+      "code": "NoJobError",
+      "message": "Job ... not found."
+    }
+    ```
+
+    *Response if the job config does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobConfigError",
+      "message": "Config of job ... not found."
     }
     ```
 
@@ -403,8 +554,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "InternalServerError",
-      "message": "<depends on the error>"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -442,8 +593,18 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 404
 
     {
-      "error": "JobNotFound",
-      "message": "could not find job $jobName"
+      "code": "NoJobError",
+      "message": "Job ... not found."
+    }
+    ```
+
+    *Response if the job SSH info does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobSshError",
+      "message": "SSH of job ... not found."
     }
     ```
 
@@ -452,8 +613,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "InternalServerError",
-      "message": "<depends on the error>"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
 
@@ -483,14 +644,25 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobError",
+      "message": "Job ... not found."
+    }
+    ```
+
     *Response if a server error occured*
     ```
     Status: 500
 
     {
-      "error": "JobExecuteError",
-      "message": "job execute error"
+      "code": "UnknownError",
+      "message": "..."
     }
+    ```
 
 11. `GET virtual-clusters`
 
@@ -504,7 +676,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     *Response if succeeded*
     ```
     {
-      "vc1": 
+      "vc1":
       {
       }
       ...
@@ -516,11 +688,11 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "GetVirtualClusterListError",
-      "message": "get virtual cluster list error"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
-    
+
 12. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
@@ -542,7 +714,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
       "numActiveJobs":0,
       "numJobs":0,
       "numPendingJobs":0,
-      "resourcesUsed":{  
+      "resourcesUsed":{
        "memory":0,
        "vCores":0,
        "GPUs":0
@@ -555,8 +727,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 404
 
     {
-      "error": "VirtualClusterNotFound",
-      "message": "could not find virtual cluster $vcName"
+      "code": "NoVirtualClusterError",
+      "message": "Virtual cluster ... is not found."
     }
     ```
 
@@ -565,7 +737,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 500
 
     {
-      "error": "InternalServerError",
-      "message": "internal server error"
+      "code": "UnknownError",
+      "message": "..."
     }
     ```
