@@ -10,11 +10,12 @@ OpenPAI is an open source platform that provides complete AI model training and 
 # Table of Contents
 1. [When to consider OpenPAI](#when-to-consider-openpai)
 2. [Why choose OpenPAI](#why-choose-openpai)
-3. [How to deploy](#how-to-deploy)
-4. [How to use](#how-to-use)
-5. [Resources](#resources)
-6. [Get Involved](#get-involved)
-7. [Contributing](#contributing)
+3. [An Open AI Platform for R&D and Education](#rd)
+4. [How to deploy](#how-to-deploy)
+5. [How to use](#how-to-use)
+6. [Resources](#resources)
+7. [Get Involved](#get-involved)
+8. [Contributing](#contributing)
 
 ## When to consider OpenPAI
 1. When your organization need a better utilization of AI computing resources (GPU/CPU etc.). On demand allocates resources. 
@@ -38,6 +39,13 @@ Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardwa
 
 OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate. 
 
+## <span id="rd">An Open AI Platform for R&D and Education</span> 
+
+One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. PAI is architected in a modular way. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
+
+PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
+We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
+Contributions from academia and industry are all highly welcome.
 
 ## How to deploy
 #### 1 Prerequisites
