@@ -44,7 +44,7 @@ OpenPAI is a most complete solution for deep learning, support virtual cluster, 
 Before start, you need to meet the following requirements:
 
 - Ubuntu 16.04
-- Assign each server static IP address. Network reachable between servers.
+- Assign each server a static IP address. Network is reachable between servers.
 - Server can access the external network. Have access to a Docker registry service (e.g., Docker hub) to store the Docker images for the services to be deployed.
 - All machines' SSH service is enabled, share the same username / password and have sudo privilege.
 - Need to enable NTP service.
