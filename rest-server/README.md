@@ -125,7 +125,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "IncorrectPassworkError",
-      "message": "Password is incorrect"
+      "message": "Password is incorrect."
     }
     ```
 
@@ -173,7 +173,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnauthorizedUserError",
-      "message": "Guest is not allowed to do this operation"
+      "message": "Guest is not allowed to do this operation."
     }
     ```
 
@@ -249,7 +249,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnauthorizedUserError",
-      "message": "Guest is not allowed to do this operation"
+      "message": "Guest is not allowed to do this operation."
     }
     ```
 
@@ -259,7 +259,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "ForbiddenUserError",
-      "message": "Non-admin is not allow to do this operation"
+      "message": "Non-admin is not allow to do this operation."
     }
     ```
 
@@ -335,7 +335,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnauthorizedUserError",
-      "message": "Guest is not allowed to do this operation"
+      "message": "Guest is not allowed to do this operation."
     }
     ```
 
@@ -345,7 +345,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "ForbiddenUserError",
-      "message": "Non-admin is not allow to do this operation"
+      "message": "Non-admin is not allow to do this operation."
     }
     ```
 
