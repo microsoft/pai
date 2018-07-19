@@ -10,7 +10,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 # Table of Contents
 1. [When to consider OpenPAI](#when-to-consider-openpai)
 2. [Why choose OpenPAI](#why-choose-openpai)
-3. [An Open AI Platform for R&D and Education](#rd)
+3. [An Open AI Platform for R&D and Education](#an-open-ai-platform-for-rd-and-education)
 4. [How to deploy](#how-to-deploy)
 5. [How to use](#how-to-use)
 6. [Resources](#resources)
@@ -39,7 +39,7 @@ Pre-built docker for popular AI frameworks. Easy to include heterogeneous hardwa
 
 OpenPAI is a most complete solution for deep learning, support virtual cluster, compatible Hadoop / kubernetes eco-system, complete training pipeline at one cluster etc. OpenPAI is architected in a modular way: different module can be plugged in as appropriate. 
 
-## <span id="rd">An Open AI Platform for R&D and Education</span> 
+## An Open AI Platform for R&D and Education
 
 One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. PAI is architected in a modular way. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
 
