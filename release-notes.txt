@@ -2,7 +2,7 @@ Release v0.6.1 release notes.
 
 New features:
     The 'paictl' tool: Introducing paictl, the deployment/management tool with the functionalities of image building, service start/stop, k8s bootup/clean, and configuration generation.
-    Single-box deployment: Support single-box deployment for evaluation purpose..
+    Single-box deployment: Support single-box deployment for evaluation purpose.
     New UI for user management: Now the console for administrators to manage PAI users has got a new UI.
     Documentation: Significant changes on documents -- more comprehensive, more structured, and easier to follow.
 
