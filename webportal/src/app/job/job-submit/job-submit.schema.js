@@ -140,6 +140,7 @@ const jobSchema = {
     },
     image: {
       type: 'string',
+      pattern: '^\\S+$',
       propertyOrder: 110,
       options: {
         grid_columns: 4,
@@ -221,7 +222,7 @@ const jobSchema = {
       options: {
         grid_columns: 3,
       },
-      description: 'List of taskRole, one task role at least',
+      description: 'Job retry count, no less than 0',
       default: 0,
     },
     taskRoles: {
