@@ -44,7 +44,6 @@ docker run \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
-  --image-gc-high-threshold=98 \
-  --image-gc-low-threshold=95 \
   --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
+  --eviction-hard=memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5% \
   --v=2
