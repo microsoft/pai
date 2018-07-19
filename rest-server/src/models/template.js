@@ -22,8 +22,8 @@ const redis3 = require('../util/redis3');
 
 const client = redis3(redisConfig.connectionUrl, {prefix: redisConfig.keyPrefix});
 
-const has = function(name, version, callback) {
-  client.hexists(redisConfig.templateKey(name), version, (err, num) => {
+const has = function(type, name, version, callback) {
+  client.hexists(redisConfig.templateKey(type + '.' + name), version, (err, num) => {
     if (err) {
       callback(err, null);
     } else {
@@ -69,7 +69,7 @@ const top = function(type, offset, count, callback) {
           let cmds = [];
           for (let i = 0; i < versionList.length; i++) {
             let version = versionList[i];
-            cmds.push(['hget', redisConfig.templateKey(rank[i].name), version]);
+            cmds.push(['hget', redisConfig.templateKey(type + '.' + rank[i].name), version]);
             rank[i].version = version;
           }
           client.multi(cmds).exec((err, templateList) => {
@@ -78,7 +78,15 @@ const top = function(type, offset, count, callback) {
             } else {
               let result = [];
               for (let i = 0; i < templateList.length; i++) {
+                if (templateList[i] == null) continue;
+
                 let item = yaml.safeLoad(templateList[i]);
+                if (type == 'job') {  
+                  item.type = item['job']['type'];
+                  item.name = item['job']['name'];
+                  item.version = item['job']['version'];
+                  item.description = item['job']['description'];
+                }
                 item.count = rank[i].count;
                 result.push(item);
               }
@@ -91,8 +99,8 @@ const top = function(type, offset, count, callback) {
   });
 };
 
-const load = function(name, version, callback) {
-  client.hget(redisConfig.templateKey(name), version, (err, res) => {
+const load = function(type, name, version, callback) {
+  client.hget(redisConfig.templateKey(type + '.' + name), version, (err, res) => {
     if (err) {
       callback(err, null);
     } else {
@@ -112,6 +120,7 @@ const save = function(template, callback) {
     usedKey = redisConfig.jobUsedKey;
     name = template.job.name;
     version = template.job.version;
+    type = 'job';
   } else {
     switch (template.type) {
       case 'script':
@@ -128,8 +137,9 @@ const save = function(template, callback) {
     }
     name = template.name;
     version = template.version;
+    type = template.type;
   }
-  client.hset(redisConfig.templateKey(name), version, JSON.stringify(template), (err, num) => {
+  client.hset(redisConfig.templateKey(type + '.' + name), version, JSON.stringify(template), (err, num) => {
     if (err) {
       callback(err, null);
     } else {

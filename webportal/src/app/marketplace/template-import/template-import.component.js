@@ -208,13 +208,13 @@ const loadEditor = () => {
   Object.keys(editors).forEach((key)=>{
     let element = document.getElementById(`editor-${key}-holder`);
     let editor = new JSONEditor(element, {
-      schema: jobSchema[`${key}Schema`],
-      theme: 'bootstrap3',
-      iconlib: 'bootstrap3',
-      disable_array_reorder: true,
-      no_additional_properties: true,
-      show_errors: 'always',
-      disable_properties: true,
+    schema: jobSchema[`${key}Schema`],
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    no_additional_properties: true,
+    show_errors: 'always',
+    disable_properties: true,
     });
     jobDefaultConfigs[key] = editor.getValue();
     editors[key] = editor;
@@ -224,46 +224,56 @@ const loadEditor = () => {
 const initTableContent = () => {
   // using AJAX to fill the table content.
   const searchParams = new URLSearchParams(window.location.search);
+  let type = searchParams.get('type');
   let name = searchParams.get('name');
   let version = searchParams.get('version');
   if (name != null && version != null) {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/template/${name}/${version}`,
+      url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
       type: 'GET',
       dataType: 'json',
       success: function (data) {
-        data = restApi2JsonEditor(data)
-        console.log(data);
-        Object.keys(editors).forEach((key)=>{
-            let editor = editors[key];
-            editor.setValue(data[key]);
+        if (type != 'job') data = {'prerequisites': [data]};
+        data = restApi2JsonEditor(data);
+        
+        Object.keys(editors).forEach((key) => {
+          let editor = editors[key];
 
-            // -------defind the new add button.
-            let t = $(`#editor-${key}-holder > div > div.well.well-sm > div.btn-group`);
-            let d =  document.createElement("div");
-            d.className = "btn-group";
-            d.style.cssText  = "display: inline-block;";
-            d.innerHTML = t.html();
-            t.remove();
-            d.e = editor.editors.root;
-            // console.log(d);
-            d.addEventListener("click", (t) => {
-              t.preventDefault(),
-              t.stopPropagation();
-              let e = d.e;
-              // console.log(e);
-              var i = e.rows.length;
-              e.row_cache[i] ? (e.rows[i] = e.row_cache[i],
-              e.rows[i].setValue(e.rows[i].getDefault(), !0),
-              e.rows[i].container.style.display = "",
-              e.rows[i].tab && (e.rows[i].tab.style.display = ""),
-              e.rows[i].register()) : e.addRow(),
-              e.active_tab = e.rows[i].tab,
-              e.refreshTabs(),
-              e.refreshValue(),
-              e.onChange(!0)
-            });
-            $(`#${key}-title`).append(d);
+          const val = cookies.get('editor_' + key);
+          if (val) {
+            editor.setValue(JSON.parse(val));
+          }
+          if (key in data) {
+            editor.setValue(editor.getValue().concat(data[key]));
+          }
+          cookies.set('editor_' + key, JSON.stringify(editor.getValue()), {expires: 10});
+
+          // -------defind the new add button.
+          let t = $(`#editor-${key}-holder > div > div.well.well-sm > div.btn-group`);
+          let d =  document.createElement("div");
+          d.className = "btn-group";
+          d.style.cssText  = "display: inline-block;";
+          d.innerHTML = t.html();
+          t.remove();
+          d.e = editor.editors.root;
+          // console.log(d);
+          d.addEventListener("click", (t) => {
+            t.preventDefault(),
+            t.stopPropagation();
+            let e = d.e;
+            // console.log(e);
+            var i = e.rows.length;
+            e.row_cache[i] ? (e.rows[i] = e.row_cache[i],
+            e.rows[i].setValue(e.rows[i].getDefault(), !0),
+            e.rows[i].container.style.display = "",
+            e.rows[i].tab && (e.rows[i].tab.style.display = ""),
+            e.rows[i].register()) : e.addRow(),
+            e.active_tab = e.rows[i].tab,
+            e.refreshTabs(),
+            e.refreshValue(),
+            e.onChange(!0)
+          });
+          $(`#${key}-title`).append(d);
         });
       }
     });

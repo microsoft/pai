@@ -88,9 +88,10 @@ const list = (req, res) => {
 };
 
 const fetch = (req, res) => {
+  let type = req.param('type');
   let name = req.param('name');
   let version = req.param('version');
-  template.load(name, version, (err, item) => {
+  template.load(type, name, version, (err, item) => {
     if (err) {
       logger.error(err);
       return res.status(404).json({
@@ -105,7 +106,8 @@ const share = (req, res) => {
   let content = req.body.template;
   let name = content.job.name;
   let version = content.job.version;
-  template.has(name, version, function(err, has) {
+  let type = content.job.type;
+  template.has(type, name, version, function(err, has) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -128,7 +130,7 @@ const share = (req, res) => {
       let existed = [];
       let failed = [];
       content.prerequisites.forEach(function(item) {
-        template.has(item.name, item.version, function(err, has) {
+        template.has(item.type, item.name, item.version, function(err, has) {
           if (err) {
             logger.error(err);
             failed.push({
