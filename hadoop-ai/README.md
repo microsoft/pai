@@ -13,12 +13,16 @@ A 64-bits bitmap is added to yarn Resource, which indicates both GPU usage and l
 
 We add the Port support to Hadoop 2.7.2 to enable Port allocation. Client(application master) can submit request with specific port ranges
 
-the AI enhancement patch was upload to: 
+The AI enhancement patch was upload to:
 https://issues.apache.org/jira/browse/YARN-7481
- 
+
+Usually there will have multiple patch files, the newest one is the last known good patch. We also integrated the AI enhancement to hadoop-2.9.0, so you will find patchs with name start with hadoop-2.9.0
+
+
 
 ## How to Build in Linux environment
 
+   Let's use hadoop-2.7.2 patch as an example, hadoop-2.9.0 patch has the similar steps.
   there are two ways to build:
 
   **quick build**
@@ -59,7 +63,7 @@ https://issues.apache.org/jira/browse/YARN-7481
 	
  4. Build the official hadoop in your linux develop environment
 
-   	Run command “mvn package -Pdist,native -DskipTests -Dtar”
+   	Run command “mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar”
    
     Please make sure you can pass result before move to next steps, you can search the internet to find how to set up the environment and build the official hadoop.
    
