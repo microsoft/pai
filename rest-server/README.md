@@ -115,7 +115,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User ... not found."
+      "message": "User $username not found."
     }
     ```
 
@@ -135,7 +135,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -193,7 +193,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User ... not found."
+      "message": "User $username not found."
     }
     ```
 
@@ -203,7 +203,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "ConflictUserError",
-      "message": "User name ... already exists."
+      "message": "User name $username already exists."
     }
     ```
 
@@ -213,7 +213,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -269,7 +269,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "RemoveAdminError",
-      "message": "Admin ... is not allowed to remove."
+      "message": "Admin $username is not allowed to remove."
     }
     ```
 
@@ -279,7 +279,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User ... not found."
+      "message": "User $username not found."
     }
     ```
 
@@ -289,7 +289,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -325,7 +325,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoVirtualClusterError",
-      "message": "Virtual cluster ... is not found."
+      "message": "Virtual cluster $vcname is not found."
     }
     ```
 
@@ -355,7 +355,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User ... not found."
+      "message": "User $username not found."
     }
     ```
 
@@ -365,7 +365,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -398,7 +398,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -434,7 +434,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job ... not found."
+      "message": "Job $jobname not found."
     }
     ```
 
@@ -444,7 +444,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -477,7 +477,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoVirtualClusterError",
-      "message": "Virtual cluster ... is not found."
+      "message": "Virtual cluster $vcname is not found."
     }
     ```
 
@@ -487,7 +487,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "ForbiddenUserError",
-      "message": "User ... is not allowed to add job to ..."
+      "message": "User $username is not allowed to add job to $vcname
     }
     ```
 
@@ -497,7 +497,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "ConflictJobError",
-      "message": "Job name ... already exists."
+      "message": "Job name $jobname already exists."
     }
     ```
 
@@ -507,7 +507,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -535,7 +535,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job ... not found."
+      "message": "Job $jobname not found."
     }
     ```
 
@@ -545,7 +545,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobConfigError",
-      "message": "Config of job ... not found."
+      "message": "Config of job $jobname not found."
     }
     ```
 
@@ -555,7 +555,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -594,7 +594,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job ... not found."
+      "message": "Job $jobname not found."
     }
     ```
 
@@ -604,7 +604,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobSshError",
-      "message": "SSH of job ... not found."
+      "message": "SSH of job $jobname not found."
     }
     ```
 
@@ -614,7 +614,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -650,7 +650,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job ... not found."
+      "message": "Job $jobname not found."
     }
     ```
 
@@ -660,7 +660,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -689,7 +689,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
 
@@ -728,7 +728,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoVirtualClusterError",
-      "message": "Virtual cluster ... is not found."
+      "message": "Virtual cluster $vcname is not found."
     }
     ```
 
@@ -738,6 +738,6 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "UnknownError",
-      "message": "..."
+      "message": "*Upstream error messages*"
     }
     ```
