@@ -25,10 +25,11 @@ const loading = require('../../job/loading/loading.component');
 let resourceTable = null;
 
 const initializeComponent = function() {
+  resetTable();
   userAuth.checkToken((token) => {
     $('#file-template').change(function(event) {
       var source = event.target;
-      resourceTable = null;
+      resetTable();
       if (source.files && source.files[0]) {
         if (window.FileReader) {
           var file = source.files[0];
@@ -78,7 +79,7 @@ const initializeComponent = function() {
                   'paging': false,
                   'info': false,
                   'searching': false
-                });
+                }).draw();
                 resourceTable.originData = data;
                 return;
               } catch (e) {
@@ -137,5 +138,12 @@ const initializeComponent = function() {
     }
   });
 };
+
+function resetTable() {
+  $('#form-table').html('<table id="resource-table" class="table table-bordered table-hover table-condensed"></table>');
+  if (resourceTable) {
+    resourceTable = null;
+  }
+}
 
 module.exports = {generateHtml, initializeComponent};
