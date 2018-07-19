@@ -56,7 +56,7 @@ Before start, you need to meet the following requirements:
 
 ## How to use
 - Training  
-You can queue a training job, and wait it complete. Also you can request a dedicated resource on-demand, to work with an interactive environment like Jupyter notebook. In both scenarios, you need to submit a job with different configurations
+You can queue a training job and wait it complete. Also, you can request a dedicated resource on-demand, to work with an interactive environment like Jupyter notebook. In both scenarios, you need to submit a job with different configurations
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
     - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
@@ -73,7 +73,7 @@ You can queue a training job, and wait it complete. Also you can request a dedic
 The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
 
 ## Get Involved
-- [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at stackoverflow under tag: openpai
+- [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issues:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issues/ bugs/ new features, please submit it at Github 
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
