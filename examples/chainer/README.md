@@ -55,7 +55,7 @@ We need to build a Chainer image with GPU support to run Chainer workload on PAI
     FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
     #set LC_ALL
-    RUN export LC_ALL=C
+    ENV LC_ALL C
 
     # install git
     RUN apt-get -y update && apt-get -y install git
