@@ -17,142 +17,100 @@
 
 
 const yaml = require('js-yaml');
-const redisConfig = require('../config/redis');
+const config = require('../config/redis');
 const redis3 = require('../util/redis3');
 
-const client = redis3(redisConfig.connectionUrl, {prefix: redisConfig.keyPrefix});
+const client = redis3(config.connectionUrl, { prefix: config.keyPrefix });
 
-const has = function(type, name, version, callback) {
-  client.hexists(redisConfig.templateKey(type + '.' + name), version, (err, num) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, num > 0);
-    }
-  });
-};
-
-const top = function(type, offset, count, callback) {
-  let key = null;
-  switch (type) {
-    case 'script':
-      key = redisConfig.scriptUsedKey;
-      break;
-    case 'data':
-      key = redisConfig.dataUsedKey;
-      break;
-    case 'dockerimage':
-      key = redisConfig.dockerUsedKey;
-      break;
-    case 'job':
-      key = redisConfig.jobUsedKey;
-      break;
-    default:
-      return callback(new Error('Unknown template type'), null);
-  }
-  client.zrevrange(key, offset, offset + count, 'WITHSCORES', (err, list) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      let cmds = [];
-      let rank = [];
-      for (let i = 0; i < list.length; i += 2) {
-        let name = list[i];
-        let count = list[i + 1];
-        cmds.push(['hget', redisConfig.headIndexKey, name]);
-        rank.push({'name': name, 'count': count});
-      }
-      client.multi(cmds).exec((err, versionList) => {
+/**
+ * Get the top K templates of range [offset, offset + count) by the given type.
+ */
+const top = function (type, offset, count, callback) {
+    let typeUsedKey = config.getUsedKey(type);
+    let lua = `
+local prefix = "${config.keyPrefix}"
+local selected = redis.call("ZREVRANGE", prefix.."${typeUsedKey}", ${offset}, ${count}, "WITHSCORES")
+local name, count, version, content = "", 0, "", ""
+local result = {}
+for i = 1, table.getn(selected), 2 do
+  name = selected[i]
+  count = selected[i + 1]
+  version = redis.call("HGET", prefix.."${config.headIndexKey}", name)
+  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}"..name, version)
+  result[i] = content
+  result[i + 1] = count
+end
+return result
+`;
+    client.eval(lua, '0', function (err, res) {
         if (err) {
-          callback(err, null);
+            callback(err, null);
         } else {
-          let cmds = [];
-          for (let i = 0; i < versionList.length; i++) {
-            let version = versionList[i];
-            cmds.push(['hget', redisConfig.templateKey(type + '.' + rank[i].name), version]);
-            rank[i].version = version;
-          }
-          client.multi(cmds).exec((err, templateList) => {
-            if (err) {
-              callback(err, null);
-            } else {
-              let result = [];
-              for (let i = 0; i < templateList.length; i++) {
-                if (templateList[i] == null) continue;
-
-                let item = yaml.safeLoad(templateList[i]);
-                if (type == 'job') {  
-                  item.type = item['job']['type'];
-                  item.name = item['job']['name'];
-                  item.version = item['job']['version'];
-                  item.description = item['job']['description'];
-                }
-                item.count = rank[i].count;
-                result.push(item);
-              }
-              callback(null, result);
+            let list = [];
+            for (let i = 0; i < res.length; i += 2) {
+                let item = yaml.safeLoad(res[i]);
+                item.count = res[i + 1];
+                list.push(item);
             }
-          });
+            callback(null, list);
         }
-      });
-    }
-  });
+    });
 };
 
-const load = function(type, name, version, callback) {
-  client.hget(redisConfig.templateKey(type + '.' + name), version, (err, res) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      if (res) {
-        client.zincrby(redisConfig.jobUsedKey, 1, name);
-      }
-      callback(null, yaml.safeLoad(res));
-    }
-  });
-};
-
-const save = function(template, callback) {
-  let usedKey = null;
-  let name = null;
-  let version = null;
-  if (template.job) {
-    usedKey = redisConfig.jobUsedKey;
-    name = template.job.name;
-    version = template.job.version;
-    type = 'job';
-  } else {
-    switch (template.type) {
-      case 'script':
-        usedKey = redisConfig.scriptUsedKey;
-        break;
-      case 'data':
-        usedKey = redisConfig.dataUsedKey;
-        break;
-      case 'dockerimage':
-        usedKey = redisConfig.dockerUsedKey;
-        break;
-      default:
-        return callback(new Error('Unknown template type'), null);
-    }
-    name = template.name;
-    version = template.version;
-    type = template.type;
-  }
-  client.hset(redisConfig.templateKey(type + '.' + name), version, JSON.stringify(template), (err, num) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      client.hset(redisConfig.headIndexKey, name, version, (err, num) => {
+/**
+ * Load a template.
+ */
+const load = function (name, version, callback) {
+    client.hget(config.getTemplateKey(name), version, (err, res) => {
         if (err) {
-          callback(err, null);
+            callback(err, null);
         } else {
-          client.zadd(usedKey, 'NX', 1, name);
-          callback(null, num);
+            let template = yaml.safeLoad(res);
+            if (res) {
+                let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
+                client.zincrby(usedKey, 1, name);
+            }
+            callback(null, template);
         }
-      });
-    }
-  });
+    });
 };
 
-module.exports = {has, top, load, save};
+/**
+ * Save the template.
+ * The second element in the callback argument list means whether <name, version> duplicates.
+ */
+const save = function (template, callback) {
+    let usedKey = null;
+    let name = null;
+    let version = null;
+    if (template.job) {
+        usedKey = config.getUsedKey('job');
+        name = template.job.name;
+        version = template.job.version;
+    } else {
+        usedKey = config.getUsedKey(template.type);
+        name = template.name;
+        version = template.version;
+    }
+    client.hsetnx(config.getTemplateKey(name), version, JSON.stringify(template), (err, num) => {
+        if (err) {
+            callback(err, null);
+        } else {
+            if (num == 0) {
+                // The key is duplicated
+                callback(null, true);
+            } else {
+                client.hset(config.headIndexKey, name, version, (err, num) => {
+                    if (err) {
+                        callback(err, null);
+                    } else {
+                        client.zadd(usedKey, 'NX', 0, name);
+                        callback(null, false);
+                    }
+                });
+            }
+        }
+    });
+};
+
+module.exports = { top, load, save };
