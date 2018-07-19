@@ -36,7 +36,7 @@ for i = 1, table.getn(selected), 2 do
   name = selected[i]
   count = selected[i + 1]
   version = redis.call("HGET", prefix.."${config.headIndexKey}", name)
-  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}"..name, version)
+  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}${type}."..name, version)
   result[i] = content
   result[i + 1] = count
 end
@@ -48,7 +48,14 @@ return result
     } else {
       let list = [];
       for (let i = 0; i < res.length; i += 2) {
+        if (res[i] == null) continue;
         let item = yaml.safeLoad(res[i]);
+        if (type == 'job') {  
+          item.type = item['job']['type'];
+          item.name = item['job']['name'];
+          item.version = item['job']['version'];
+          item.description = item['job']['description'];
+        }
         item.count = res[i + 1];
         list.push(item);
       }
@@ -60,8 +67,8 @@ return result
 /**
  * Load a template.
  */
-const load = function(name, version, callback) {
-  client.hget(config.getTemplateKey(name), version, (err, res) => {
+const load = function(type, name, version, callback) {
+  client.hget(config.getTemplateKey(type + '.' + name), version, (err, res) => {
     if (err) {
       callback(err, null);
     } else {
@@ -83,16 +90,19 @@ const save = function(template, callback) {
   let usedKey = null;
   let name = null;
   let version = null;
+  let type = null;
   if (template.job) {
     usedKey = config.getUsedKey('job');
     name = template.job.name;
     version = template.job.version;
+    type = 'job';
   } else {
     usedKey = config.getUsedKey(template.type);
     name = template.name;
     version = template.version;
+    type = template.type;
   }
-  client.hsetnx(config.getTemplateKey(name), version, JSON.stringify(template), (err, num) => {
+  client.hsetnx(config.getTemplateKey(type + '.' + name), version, JSON.stringify(template), (err, num) => {
     if (err) {
       callback(err, null);
     } else {

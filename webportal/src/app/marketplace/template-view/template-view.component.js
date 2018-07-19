@@ -31,43 +31,38 @@ const templateModalComponent = require('./template-modal.component');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 
-let templateTable = null;
+let tables = {'#job-table': null,
+              '#data-table': null,
+              '#script-table': null,
+              '#dockerimage-table': null,
+            };
 
 $('#content-wrapper').html(templateViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  templateTable: templateTableComponent,
+  template: templateTableComponent,
 }));
 
-const extractAndFormat = function(propertyName) {
-  return function(row, type, val, meta) {
-    let array = [];
-    row[propertyName].forEach(function(item) {
-      array.push(item.name + ':' + item.version);
-    });
-    return array.join(',');
-  };
+const generateQueryString = function(data) {
+  return '?type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
+    + encodeURIComponent(data.version);
 };
 
-const loadTemplates = function() {
-  $('#view-table').html(templateTableComponent());
-  const $table = $('#template-table')
+const loadTemplates = function(name) {
+  const tablename = '#' + name + '-table';
+  const $table = $(tablename)
     .on('preXhr.dt', loading.showLoading)
     .on('xhr.dt', loading.hideLoading);
 
-  templateTable = $table.dataTable({
+  tables[tablename] = $table.dataTable({
     'ajax': {
-      url: `${webportalConfig.restServerUri}/api/v1/template/job`,
+      url: `${webportalConfig.restServerUri}/api/v1/template/${name}`,
       type: 'GET',
       dataSrc: (data) => {
         if (data.code) {
           alert(data.message);
         } else {
-          let list = [];
-          data.forEach(function(item) {
-            list.push(toJobSummary(item));
-          });
-          return list;
+          return data;
         }
       },
     },
@@ -78,26 +73,7 @@ const loadTemplates = function() {
       },
       {
         title: 'Used',
-        data: 'used',
-      },
-      {
-        title: 'Constributor',
-        data: 'contributor',
-      },
-      {
-        title: 'Datasets',
-        data: extractAndFormat('datasets'),
-        orderable: false,
-      },
-      {
-        title: 'Scripts',
-        data: extractAndFormat('scripts'),
-        orderable: false,
-      },
-      {
-        title: 'Docker Images',
-        data: extractAndFormat('dockerimages'),
-        orderable: false,
+        data: 'count',
       },
       {
         title: 'Description',
@@ -106,10 +82,7 @@ const loadTemplates = function() {
       },
       {
         title: 'Operation',
-        data: function(job, type, val, meta) {
-          return '?name=' + encodeURIComponent(job.name)
-            + '&version=' + encodeURIComponent(job.version);
-        },
+        data: generateQueryString,
         orderable: false,
         searchable: false,
         render: function(qs, type) {
@@ -121,49 +94,20 @@ const loadTemplates = function() {
     'order': [
       [1, 'desc'],
     ],
-    'scrollY': (($(window).height() - 265)) + 'px',
+    //'scrollY': (($(window).height() - 265)) + 'px',
     'lengthMenu': [[20, 50, 100, -1], [20, 50, 100, 'All']],
     'deferRender': true,
     'autoWidth': false,
   }).api();
 };
 
-const toJobSummary = (template) => {
-  let datasets = [];
-  let scripts = [];
-  let dockerimages = [];
-  template.prerequisites.forEach((item) => {
-    switch (item.type) {
-      case 'data':
-        datasets.push(item);
-        break;
-      case 'script':
-        scripts.push(item);
-        break;
-      case 'dockerimage':
-        dockerimages.push(item);
-        break;
+$(window).resize(function(event) {
+  $('#content-wrapper').css({'height': (($(window).height() - 200)) + 'px'});
+  Object.keys(tables).forEach((name) => {
+    if (tables[name] != null) {
+      tables[name].columns.adjust().draw();
     }
   });
-  let job = template.job;
-  return {
-    'name': job.name,
-    'version': job.version,
-    'contributor': job.contributor,
-    'description': job.description,
-    'used': template.count,
-    'datasets': datasets,
-    'scripts': scripts,
-    'dockerimages': dockerimages,
-  };
-};
-
-$(window).resize(function(event) {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  if (templateTable != null) {
-    $('.dataTables_scrollBody').css('height', (($(window).height() - 315)) + 'px');
-    templateTable.columns.adjust().draw();
-  }
 });
 
 $('#btn-share').click(function(event) {
@@ -175,6 +119,10 @@ $('#btn-share').click(function(event) {
 $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'hidden'});
-  loadTemplates();
+  $('#table-view').html(templateTableComponent());
+  loadTemplates('job');
+  loadTemplates('data');
+  loadTemplates('script');
+  loadTemplates('dockerimage');
   window.dispatchEvent(new Event('resize'));
 });

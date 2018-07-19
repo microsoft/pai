@@ -32,9 +32,10 @@ const list = (req, res) => {
 };
 
 const fetch = (req, res) => {
+  let type = req.param('type');
   let name = req.param('name');
   let version = req.param('version');
-  template.load(name, version, (err, item) => {
+  template.load(type, name, version, (err, item) => {
     if (err) {
       logger.error(err);
       return res.status(404).json({

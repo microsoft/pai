@@ -6,3 +6,35 @@
   font-size: 20px;
   text-align: right;
 }
+
+.search-container {
+  clear: both;
+}
+
+.search-container input[type=text] {
+  padding: 6px;
+  margin-top: 8px;
+  margin-right: 0px;
+  width: 500px;
+  font-size: 17px;
+  border: 1px solid #ccc;
+}
+
+.search-container button {
+  padding: 6px 10px;
+  margin-top: 8px;
+  margin-left: 0px;
+  margin-right: 16px;
+  background: #ddd;
+  font-size: 17px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+div.dataTables_filter, div.dataTables_info, div.dataTables_length, div.dataTables_paginate {
+  display: none; 
+}
+
+table.dataTable th {
+  display: none;
+} 
