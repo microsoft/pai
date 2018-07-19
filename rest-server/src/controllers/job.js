@@ -170,7 +170,7 @@ const getSshInfo = (req, res, next) => {
       if (!error) {
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
-        return next(createError('Not Found', 'NoJobSshError', `SSH of job ${req.job.name} not found.`));
+        return next(createError('Not Found', 'NoJobSshInfoError', `SSH info of job ${req.job.name} not found.`));
       } else {
         return next(createError.unknown(error));
       }

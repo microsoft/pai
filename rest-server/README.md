@@ -603,8 +603,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     Status: 404
 
     {
-      "code": "NoJobSshError",
-      "message": "SSH of job $jobname not found."
+      "code": "NoJobSshInfoError",
+      "message": "SSH info of job $jobname not found."
     }
     ```
 
