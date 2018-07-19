@@ -22,12 +22,12 @@ Usually there will have multiple patch files, the newest one is the last known g
 
 ## How to Build in Linux environment
 
-   Let's use hadoop-2.7.2 patch as an example, hadoop-2.9.0 patch has the similar steps.
+   Let's use hadoop-2.9.0 patch as an example, hadoop-2.7.2 patch has the similar steps.
   there are two ways to build:
 
   **quick build**
 
-   Please refer to this [readme](./hadoop-build/README.md) to get the quick way to do the build.
+   Please refer to this [readme](./hadoop-build/README.md) to get the quick way(automation) to do the build.
   
 
    **Step by step build**
@@ -53,13 +53,13 @@ Usually there will have multiple patch files, the newest one is the last known g
 
  2. Download hadoop AI Enhancement
 
-    Please download "hadoop-2.7.2-gpu-port.patch" from https://issues.apache.org/jira/browse/YARN-7481 to your local.
+    Please download "hadoop-2.9.0.gpu-port.patch" from https://issues.apache.org/jira/browse/YARN-7481 to your local.
    
- 3. Get hadoop 2.7.2 source code     
+ 3. Get hadoop 2.9.0 source code
     
 	       git clone https://github.com/apache/hadoop.git
 	       cd hadoop
-	       git checkout branch-2.7.2
+	       git checkout branch-2.9.0
 	
  4. Build the official hadoop in your linux develop environment
 
@@ -72,16 +72,16 @@ Usually there will have multiple patch files, the newest one is the last known g
    
     copy the downloaded file into your linux hadoop root folder and run:
 
-    git apply hadoop-2.7.2.port-gpu.patch
+    git apply hadoop-2.9.0.port-gpu.patch
 
-    if you see the output below you have successfully applied this patch
+    if you see the output similar with below information, it means you have successfully applied this patch
 
-		../../hadoop-2.7.2.port-gpu:276: trailing whitespace.
-		../../hadoop-2.7.2.port-gpu:1630: trailing whitespace.
-		../../hadoop-2.7.2.port-gpu:1631: trailing whitespace.
+		../../hadoop-2.9.0.port-gpu:276: trailing whitespace.
+		../../hadoop-2.9.0.port-gpu:1630: trailing whitespace.
+		../../hadoop-2.9.0.port-gpu:1631: trailing whitespace.
 		  public static final long REFRESH_GPU_INTERVAL_MS = 60 * 1000;
-		../../hadoop-2.7.2.port-gpu:1632: trailing whitespace.
-		../../hadoop-2.7.2.port-gpu:1640: trailing whitespace.
+		../../hadoop-2.9.0.port-gpu:1632: trailing whitespace.
+		../../hadoop-2.9.0.port-gpu:1640: trailing whitespace.
 		          Pattern.compile("^\\s*([0-9]{1,2})\\s*,\\s*([0-9]*)\\s*MiB,\\s*([0-9]+)\\s*MiB");
 		warning: squelched 94 whitespace errors
 		warning: 99 lines add whitespace errors.
@@ -89,11 +89,15 @@ Usually there will have multiple patch files, the newest one is the last known g
    
 6. Build hadoop AI enhancement
   
-     	Run command “mvn package -Pdist,native -DskipTests -Dtar”
+     	Run command “mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar”
 
-     you will get the `hadoop-2.7.2.tar.gz` under `hadoop-dist/target` folder if everything is good. 
+      You will get the `hadoop-2.9.0.tar.gz` under `hadoop-dist/target` folder if everything is good.
 
-     use `hadoop-2.7.2.tar.gz` to set your hadoop path to deploy into your cluster.  
+      Use hadoop-2.9.0.tar.gz to udpate the hadoop-binary settings in services-configuration.yaml under your cluster configs path:
+
+                custom-hadoop-binary-path: ***/hadoop-dist/target/hadoop-2.9.0.tar.gz
+                hadoop-version: 2.9.0
+
    
 
 ## Yarn Interface ##
