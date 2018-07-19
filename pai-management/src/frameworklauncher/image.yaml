@@ -19,5 +19,3 @@
 copy-list:
   - src: ../frameworklauncher
     dst: src/frameworklauncher/copied_file
-
-prerequisite: hadoop-run
