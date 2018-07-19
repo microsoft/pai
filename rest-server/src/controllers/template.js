@@ -20,80 +20,81 @@ const logger = require('../config/logger');
 const template = require('../models/template');
 
 const list = (req, res) => {
-    template.top(req.params.type, 0, 10, function (err, list) {
-        if (err) {
-            logger.error(err);
-            return res.status(500).json({
-                'message': err.toString(),
-            });
-        }
-        return res.status(200).json(list);
-    });
+  template.top(req.params.type, 0, 10, function(err, list) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        'message': err.toString(),
+      });
+    }
+    return res.status(200).json(list);
+  });
 };
 
 const fetch = (req, res) => {
-    let name = req.param('name');
-    let version = req.param('version');
-    template.load(name, version, (err, item) => {
-        if (err) {
-            logger.error(err);
-            return res.status(404).json({
-                'message': 'Not Found',
-            });
-        }
-        return res.status(200).json(item);
-    });
+  let type = req.param('type');
+  let name = req.param('name');
+  let version = req.param('version');
+  template.load(type, name, version, (err, item) => {
+    if (err) {
+      logger.error(err);
+      return res.status(404).json({
+        'message': 'Not Found',
+      });
+    }
+    return res.status(200).json(item);
+  });
 };
 
 const share = (req, res) => {
-    let job = req.body.template;
-    template.save(job, function (err, has) {
+  let job = req.body.template;
+  template.save(job, function(err, has) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        message: 'Failed to detect the job template.',
+      });
+    }
+    if (has) {
+      return res.status(400).json({
+        message: 'The job template has already existed.',
+      });
+    }
+    let created = [];
+    let existed = [];
+    let failed = [];
+    job.prerequisites.forEach(function(item) {
+      template.save(item, function(err, has) {
         if (err) {
-            logger.error(err);
-            return res.status(500).json({
-                message: 'Failed to detect the job template.',
-            });
+          logger.error(err);
+          failed.push({
+            'name': item.name,
+            'version': item.version,
+            'message': err.message ? err.message : err.toString(),
+          });
+        } else if (has) {
+          existed.push({
+            'name': item.name,
+            'version': item.version,
+          });
+        } else {
+          created.push({
+            'name': item.name,
+            'version': item.version,
+          });
         }
-        if (has) {
-            return res.status(400).json({
-                message: 'The job template has already existed.',
-            });
-        }
-        let created = [];
-        let existed = [];
-        let failed = [];
-        job.prerequisites.forEach(function (item) {
-            template.save(item, function (err, has) {
-                if (err) {
-                    logger.error(err);
-                    failed.push({
-                        'name': item.name,
-                        'version': item.version,
-                        'message': err.message ? err.message : err.toString(),
-                    });
-                } else if (has) {
-                    existed.push({
-                        'name': item.name,
-                        'version': item.version,
-                    });
-                } else {
-                    created.push({
-                        'name': item.name,
-                        'version': item.version,
-                    });
-                }
-            });
-        });
-        res.status(200).json({
-            'created': created,
-            'existed': existed,
-            'failed': failed,
-        });
+      });
     });
+    res.status(200).json({
+      'created': created,
+      'existed': existed,
+      'failed': failed,
+    });
+  });
 };
 
 module.exports = {
-    list,
-    fetch,
-    share,
+  list,
+  fetch,
+  share,
 };

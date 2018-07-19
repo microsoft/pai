@@ -20,14 +20,14 @@ const yaml = require('js-yaml');
 const config = require('../config/redis');
 const redis3 = require('../util/redis3');
 
-const client = redis3(config.connectionUrl, { prefix: config.keyPrefix });
+const client = redis3(config.connectionUrl, {prefix: config.keyPrefix});
 
 /**
  * Get the top K templates of range [offset, offset + count) by the given type.
  */
-const top = function (type, offset, count, callback) {
-    let typeUsedKey = config.getUsedKey(type);
-    let lua = `
+const top = function(type, offset, count, callback) {
+  let typeUsedKey = config.getUsedKey(type);
+  let lua = `
 local prefix = "${config.keyPrefix}"
 local selected = redis.call("ZREVRANGE", prefix.."${typeUsedKey}", ${offset}, ${count}, "WITHSCORES")
 local name, count, version, content = "", 0, "", ""
@@ -36,81 +36,91 @@ for i = 1, table.getn(selected), 2 do
   name = selected[i]
   count = selected[i + 1]
   version = redis.call("HGET", prefix.."${config.headIndexKey}", name)
-  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}"..name, version)
+  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}${type}."..name, version)
   result[i] = content
   result[i + 1] = count
 end
 return result
 `;
-    client.eval(lua, '0', function (err, res) {
-        if (err) {
-            callback(err, null);
-        } else {
-            let list = [];
-            for (let i = 0; i < res.length; i += 2) {
-                let item = yaml.safeLoad(res[i]);
-                item.count = res[i + 1];
-                list.push(item);
-            }
-            callback(null, list);
+  client.eval(lua, '0', function(err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      let list = [];
+      for (let i = 0; i < res.length; i += 2) {
+        if (res[i] == null) continue;
+        let item = yaml.safeLoad(res[i]);
+        if (type == 'job') {  
+          item.type = item['job']['type'];
+          item.name = item['job']['name'];
+          item.version = item['job']['version'];
+          item.description = item['job']['description'];
         }
-    });
+        item.count = res[i + 1];
+        list.push(item);
+      }
+      callback(null, list);
+    }
+  });
 };
 
 /**
  * Load a template.
  */
-const load = function (name, version, callback) {
-    client.hget(config.getTemplateKey(name), version, (err, res) => {
-        if (err) {
-            callback(err, null);
-        } else {
-            let template = yaml.safeLoad(res);
-            if (res) {
-                let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
-                client.zincrby(usedKey, 1, name);
-            }
-            callback(null, template);
-        }
-    });
+const load = function(type, name, version, callback) {
+  client.hget(config.getTemplateKey(type + '.' + name), version, (err, res) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      let template = yaml.safeLoad(res);
+      if (res) {
+        let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
+        client.zincrby(usedKey, 1, name);
+      }
+      callback(null, template);
+    }
+  });
 };
 
 /**
  * Save the template.
  * The second element in the callback argument list means whether <name, version> duplicates.
  */
-const save = function (template, callback) {
-    let usedKey = null;
-    let name = null;
-    let version = null;
-    if (template.job) {
-        usedKey = config.getUsedKey('job');
-        name = template.job.name;
-        version = template.job.version;
+const save = function(template, callback) {
+  let usedKey = null;
+  let name = null;
+  let version = null;
+  let type = null;
+  if (template.job) {
+    usedKey = config.getUsedKey('job');
+    name = template.job.name;
+    version = template.job.version;
+    type = 'job';
+  } else {
+    usedKey = config.getUsedKey(template.type);
+    name = template.name;
+    version = template.version;
+    type = template.type;
+  }
+  client.hsetnx(config.getTemplateKey(type + '.' + name), version, JSON.stringify(template), (err, num) => {
+    if (err) {
+      callback(err, null);
     } else {
-        usedKey = config.getUsedKey(template.type);
-        name = template.name;
-        version = template.version;
-    }
-    client.hsetnx(config.getTemplateKey(name), version, JSON.stringify(template), (err, num) => {
-        if (err) {
+      if (num == 0) {
+        // The key is duplicated
+        callback(null, true);
+      } else {
+        client.hset(config.headIndexKey, name, version, (err, num) => {
+          if (err) {
             callback(err, null);
-        } else {
-            if (num == 0) {
-                // The key is duplicated
-                callback(null, true);
-            } else {
-                client.hset(config.headIndexKey, name, version, (err, num) => {
-                    if (err) {
-                        callback(err, null);
-                    } else {
-                        client.zadd(usedKey, 'NX', 0, name);
-                        callback(null, false);
-                    }
-                });
-            }
-        }
-    });
+          } else {
+            client.zadd(usedKey, 'NX', 0, name);
+            callback(null, false);
+          }
+        });
+      }
+    }
+  });
 };
 
-module.exports = { top, load, save };
+module.exports = {top, load, save};

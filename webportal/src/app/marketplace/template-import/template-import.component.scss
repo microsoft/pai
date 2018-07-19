@@ -1,4 +1,4 @@
-input[type=submit]#submitJob,#saves {
+input[type=submit]#submitJob,#saveTemplate {
     width: 100px;
     margin-top: 20px;
 }
@@ -14,7 +14,7 @@ textarea {
 
 // save and submit inline
 .disinline{
-    width: 300px;
+    text-align: center;
     margin: 0 auto;
 }
 
