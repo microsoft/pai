@@ -114,7 +114,17 @@ $(window).resize(function(event) {
 
 const generateUI = function(type, data) {
   let htmlstr = '';
+  let itemNum = 0;
+  let itemLimit = parseInt(($(window).width() - 230) / 200 - 2);
+  console.log(itemLimit);
   data.forEach((item) => {
+    if (itemNum % itemLimit == 0) {
+      if (itemNum == 0) {
+        htmlstr += '<div class=\"item active\">' + '<div class=\"row\">';
+      } else {
+        htmlstr += '</div></div><div class=\"item\">' + '<div class=\"row\">';
+      }
+    }
     htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
                 '<div class=\"card\">' + 
                 '<div class=\"img-container\">' +
@@ -135,12 +145,11 @@ const generateUI = function(type, data) {
                 '</div>' + 
                 '</div>' + 
                 '</a>';
+    itemNum += 1;
   });
-  htmlstr += '<div class=\"col-xs-2\">' + 
-              '<button class=\"btn btn-default\" type=\"summit\">' + 
-              '<i class=\"glyphicon glyphicon-chevron-right\"></i>' + 
-              '</button>' + 
-              '</div>';
+  if (itemNum != 0) {
+    htmlstr += '</div></div>';
+  }
   return htmlstr;
 };
 
