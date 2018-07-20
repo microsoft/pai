@@ -74,7 +74,7 @@ Take hbase image's configuration here as an example to explain.
 #    dst: src/xxxxxx/copied_file
 ```
 
-Configuration only consists copy-list part. if you don't need this you can just ignore it.
+Configuration only consists copy-list part. if you don't need you can just ignore it.
 
 - ```copy-list``` part:
     - In project, we only keep one replica of source code or tool and we won't replace too much replicas in each image's directory. So this parts tell paictl the path to copy the file.
