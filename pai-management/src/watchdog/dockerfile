@@ -28,6 +28,7 @@ RUN apt-get update && \
     pip install requests paramiko python-etcd
 
 COPY copied_file/exporter/watchdog.py /usr/local/
+COPY copied_file/exporter/utils.py /usr/local/
 COPY copied_file/common.py /usr/local
 COPY copied_file/cluster-configuration.yaml /usr/local
 
