@@ -29,31 +29,34 @@ const Joi = require('joi');
  */
 let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
-  keyPrefix: 'marketplace:',
   getUsedKey: function(type) {
-    return type + '.used';
+    return `marketplace:${type}.used`;
   },
-  headIndexKey: 'head.index',
-  templateKeyPrefix: 'template:',
-  getTemplateKey: function(name) {
-    return this.templateKeyPrefix + name;
+  getIndexKey: function(type) {
+    return `marketplace:${type}.index`;
+  },
+  getTemplateKeyPrefix: function(type) {
+    return `marketplace:template:${type}.`;
+  },
+  getTemplateKey: function(type, name) {
+    return this.getTemplateKeyPrefix(type) + name;
   },
 };
 
 const redisConfigSchema = Joi.object().keys({
   connectionUrl: Joi.string()
     .required(),
-  keyPrefix: Joi.string()
-    .required(),
   getUsedKey: Joi.func()
     .arity(1)
     .required(),
-  headIndexKey: Joi.string()
+  getIndexKey: Joi.func()
+    .arity(1)
     .required(),
-  templateKeyPrefix: Joi.string()
+  getTemplateKeyPrefix: Joi.func()
+    .arity(1)
     .required(),
   getTemplateKey: Joi.func()
-    .arity(1)
+    .arity(2)
     .required(),
 });
 

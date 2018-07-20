@@ -20,23 +20,24 @@ const yaml = require('js-yaml');
 const config = require('../config/redis');
 const redis3 = require('../util/redis3');
 
-const client = redis3(config.connectionUrl, {prefix: config.keyPrefix});
+const client = redis3(config.connectionUrl);
 
 /**
  * Get the top K templates of range [offset, offset + count) by the given type.
  */
 const top = function(type, offset, count, callback) {
   let typeUsedKey = config.getUsedKey(type);
+  let typeIndexKey = config.getIndexKey(type);
+  let templatePrefix = config.getTemplateKeyPrefix(type);
   let lua = `
-local prefix = "${config.keyPrefix}"
-local selected = redis.call("ZREVRANGE", prefix.."${typeUsedKey}", ${offset}, ${count}, "WITHSCORES")
+local selected = redis.call("ZREVRANGE", "${typeUsedKey}", ${offset}, ${count}, "WITHSCORES")
 local name, count, version, content = "", 0, "", ""
 local result = {}
 for i = 1, table.getn(selected), 2 do
   name = selected[i]
   count = selected[i + 1]
-  version = redis.call("HGET", prefix.."${config.headIndexKey}", name)
-  content = redis.call("HGET", prefix.."${config.templateKeyPrefix}${type}."..name, version)
+  version = redis.call("HGET", "${typeIndexKey}", name)
+  content = redis.call("HGET", "${templatePrefix}"..name, version)
   result[i] = content
   result[i + 1] = count
 end
@@ -68,7 +69,7 @@ return result
  * Load a template.
  */
 const load = function(type, name, version, callback) {
-  client.hget(config.getTemplateKey(type + '.' + name), version, (err, res) => {
+  client.hget(config.getTemplateKey(type, name), version, (err, res) => {
     if (err) {
       callback(err, null);
     } else {
@@ -102,7 +103,7 @@ const save = function(template, callback) {
     version = template.version;
     type = template.type;
   }
-  client.hsetnx(config.getTemplateKey(type + '.' + name), version, JSON.stringify(template), (err, num) => {
+  client.hsetnx(config.getTemplateKey(type, name), version, JSON.stringify(template), (err, num) => {
     if (err) {
       callback(err, null);
     } else {
@@ -110,7 +111,7 @@ const save = function(template, callback) {
         // The key is duplicated
         callback(null, true);
       } else {
-        client.hset(config.headIndexKey, name, version, (err, num) => {
+        client.hset(config.getIndexKey(type), name, version, (err, num) => {
           if (err) {
             callback(err, null);
           } else {
