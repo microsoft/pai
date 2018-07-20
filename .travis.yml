@@ -7,7 +7,7 @@ matrix:
       before_install:
         - cd pai-management
       install:
-        - pip install paramiko pyyaml jinja2 python-etcd kubernetes
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes requests
       script:
         - python -m unittest discover test/
     - language: python
