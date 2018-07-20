@@ -49,7 +49,12 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-alert
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-configmap
+      - name: rules-volume
+        configMap:
+          name: prometheus-alert
