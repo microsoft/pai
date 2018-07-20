@@ -112,6 +112,38 @@ $(window).resize(function(event) {
 });
 */
 
+const generateUI = function(type, data) {
+  let htmlstr = '';
+  data.forEach((item) => {
+    htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
+                '<div class=\"card\">' + 
+                '<div class=\"img-container\">' +
+                '<img src=\"/assets/img/' + type + '.png\" height=\"100%\">' +
+                '</div>' +
+                '<div class=\"text-container\">' +
+                '<span class=\"item-title\">' + item.name + '</span>' +
+                '<span class=\"item-dsp\">' + item.description + '</span>' + 
+                '<div class=\"star-rating\">';
+    for (let i = 0; i < 4; i++) {
+      htmlstr += '<span class=\"fa fa-star span-left\"></span>';
+    }
+    for (let i = 4; i < 5; i++) {
+      htmlstr += '<span class=\"fa fa-star-o span-left\"></span>'
+    }
+    htmlstr += '<span class=\"fa fa-download span-right\">' + item.count + '</span>' +
+                '</div>' + 
+                '</div>' + 
+                '</div>' + 
+                '</a>';
+  });
+  htmlstr += '<div class=\"col-xs-2\">' + 
+              '<button class=\"btn btn-default\" type=\"summit\">' + 
+              '<i class=\"glyphicon glyphicon-chevron-right\"></i>' + 
+              '</button>' + 
+              '</div>';
+  return htmlstr;
+};
+
 const loadTemplates = function(name) {
   const tablename = '#' + name + '-table';
   const $table = $(tablename)
@@ -123,35 +155,7 @@ const loadTemplates = function(name) {
     type: 'GET',
     dataType: 'json',
     success: function (data) {
-      let htmlstr = '';
-      data.forEach((item) => {
-        htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
-                   '<div class=\"card\">' + 
-                   '<div class=\"img-container\">' +
-                   '<img src=\"/assets/img/' + name + '.png\" height=\"100%\">' +
-                   '</div>' +
-                   '<div class=\"text-container\">' +
-                   '<span class=\"item-title\">' + item.name + '</span>' +
-                   '<span class=\"item-dsp\">' + item.description + '</span>' + 
-                   '<div class=\"star-rating\">';
-        for (let i = 0; i < 4; i++) {
-          htmlstr += '<span class=\"fa fa-star span-left\"></span>';
-        }
-        for (let i = 4; i < 5; i++) {
-          htmlstr += '<span class=\"fa fa-star-o span-left\"></span>'
-        }
-        htmlstr += '<span class=\"fa fa-download span-right\">' + item.count + '</span>' +
-                   '</div>' + 
-                   '</div>' + 
-                   '</div>' + 
-                   '</a>';
-      });
-      htmlstr += '<div class=\"col-xs-2\">' + 
-                 '<button class=\"btn btn-default\" type=\"summit\">' + 
-                 '<i class=\"glyphicon glyphicon-chevron-right\"></i>' + 
-                 '</button>' + 
-                 '</div>';
-      $(tablename).html(htmlstr);
+      $(tablename).html(generateUI(name, data));
     }
   });
 };
@@ -164,6 +168,42 @@ $('#btn-share').click(function(event) {
   $('#modalPlaceHolder').html(templateModalComponent.generateHtml());
   templateModalComponent.initializeComponent();
   $('#shareModal').modal('show');
+});
+
+$('#btn-search').click(function(event) {
+  $.ajax({
+    url: `${webportalConfig.restServerUri}/api/v1/template?query=` + $('#search').val(),
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      let categories = {'data': [], 'dockerimage': [], 'script': [], 'job': []};
+      data.forEach((item) => {
+          categories[item.type].push(item);
+      });
+      Object.keys(categories).forEach((type) => {
+        $('#' + type + '-table').html(generateUI(type, categories[type]));
+      }); 
+    }
+  });
+});
+
+$('#search').on('keyup', function (e) {
+  if (e.keyCode == 13) {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/template?query=` + $('#search').val(),
+      type: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        let categories = {'data': [], 'dockerimage': [], 'script': [], 'job': []};
+        data.forEach((item) => {
+            categories[item.type].push(item);
+        });
+        Object.keys(categories).forEach((type) => {
+          $('#' + type + '-table').html(generateUI(type, categories[type]));
+        }); 
+      }
+    });
+  }
 });
 
 $(document).ready(() => {

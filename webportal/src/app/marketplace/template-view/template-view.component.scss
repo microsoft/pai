@@ -35,6 +35,7 @@
   margin-left: 1px;
   width: 182px;
   height: 200px;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -43,20 +44,18 @@
 }
 
 .card .img-container {
-  text-align: center;
   padding: 16px 0;
   height: 108px;
 }
 
 .card .text-container {
-  padding: 0 10px;
-  text-align: center;
+  margin: 0 10px;
   font-family: wf_segoe-ui,-apple-system,".SFNSText-Regular","San Francisco","Roboto","Helvetica Neue","Lucida Grande",sans-serif;
   color: grey;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  width: 170px;
+  width: 162px;
 }
 
 .card .text-container .item-title {
