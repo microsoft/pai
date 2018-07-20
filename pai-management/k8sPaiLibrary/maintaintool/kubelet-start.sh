@@ -33,5 +33,13 @@ if [ -d "$staticpod" ]; then
 
 fi
 
+manifestpath="/etc/kubernetes/manifests"
+if [ ! -d "$manifestpath" ]; then
+
+    mkdir -p $manifestpath
+
+fi
+
+
 chmod u+x $scriptPath/kubelet.sh
 ./$scriptPath/kubelet.sh
