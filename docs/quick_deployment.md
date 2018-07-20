@@ -5,7 +5,7 @@ OpenPAI can be deployed on a single server.
 ## Step 0. Prepare the dev-box
 
 It is recommended to perform the operations below in a dev box.
-Please refer to this [section](https://github.com/Microsoft/pai/blob/master/pai-management/doc/how-to-setup-dev-box.md) for the details of setting up a dev-box.
+Please refer to this [section](../pai-management/doc/how-to-setup-dev-box.md) for the details of setting up a dev-box.
 
 ## Step 1. Prepare the quick-start.yaml file <a name="step-1a"></a>
 
@@ -53,14 +53,14 @@ k8s-role-definition.yaml
 kubernetes-configuration.yaml
 serivices-configuration.yaml
 ```
-Please refer to this [section](https://github.com/Microsoft/pai/blob/master/pai-management/doc/how-to-write-pai-configuration.md) for the details of the configuration files.
+Please refer to this [section](../pai-management/doc/how-to-write-pai-configuration.md) for the details of the configuration files.
 
 ## Step 3. Boot up Kubernetes
 
 Use the four yaml files to boot up k8s.
-Please refer to this [section](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md#step-2) for details.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#step-2) for details.
 
 ## Step 4. Start all OpenPAI services
 
 After k8s starts, boot up all OpenPAI services.
-Please refer to this [section](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md#step-3) for details.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#step-3) for details.

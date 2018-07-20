@@ -51,7 +51,7 @@ Before start, you need to meet the following requirements:
 
 #### 2 Deploy OpenPAI
 ##### 2.1 [Quick deploy with default settings](./docs/quick_deployment.md)
-##### 2.2 [Customized deploy](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md)
+##### 2.2 [Customized deploy](./pai-management/doc/cluster-bootup.md)
 
 ## How to use
 - Training  
@@ -59,14 +59,12 @@ You can queue a training job and wait it complete. Also, you can request a dedic
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
     - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
-    - [Job templates](https://github.com/Microsoft/pai/blob/master/examples/README.md)
-    - [How to request on-demand resource with job submitting](https://github.com/Microsoft/pai/blob/master/examples/jupyter/README.md)
+    - [Job templates](./examples/README.md)
+    - [How to request on-demand resource with job submitting](./examples/jupyter/README.md)
 - Cluster administration    
-    - [Deployment infrastructure](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md)
+    - [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
     - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
-    - Monitoring
-- Share model, data, environments
-- TO BE align with When you want to run complete training pipeline in one place 
+    - [Monitoring](./webportal/README.md)
 
 ## Resources
 The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
