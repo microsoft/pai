@@ -71,7 +71,7 @@ The OpenPAI user [documentations](./docs/documentation.md) provides in-depth ins
 
 ## Get Involved
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
-- [Report an issues:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issues/ bugs/ new features, please submit it at Github 
+- [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 ## How to contribute
 #### Contributor License Agreement
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
