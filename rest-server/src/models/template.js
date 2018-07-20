@@ -22,6 +22,56 @@ const redis3 = require('../util/redis3');
 
 const client = redis3(config.connectionUrl);
 
+const filter = function(query, callback) {
+  let lua = `
+local index, result = 1, {}
+
+local function filter(ttype)
+  local list = redis.call("ZRANGE", "marketplace:"..ttype..".used", 0, -1, "WITHSCORES")
+  local name, count, version, content = "", 0, "", ""
+  for i = 1, table.getn(list), 2 do
+    name = list[i]
+    count = list[i + 1]
+    if (string.match(name, "${query}")) then
+      version = redis.call("HGET", "marketplace:"..ttype..".index", name)
+      content = redis.call("HGET", "marketplace:template:"..ttype.."."..name, version)
+      result[index] = content
+      result[index + 1] = count
+      index = index + 2
+    end
+  end
+end
+
+local targets = {"job", "data", "script", "dockerimage"}
+for key, value in ipairs(targets) do
+   filter(value)
+end
+return result
+`;
+  console.log(lua);
+  client.eval(lua, 0, function(err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      let list = [];
+      for (let i = 0; i < res.length; i += 2) {
+        if (res[i]) {
+          let item = yaml.safeLoad(res[i]);
+          if (item.job) {
+            item.type = item.job.type;
+            item.name = item.job.name;
+            item.version = item.job.version;
+            item.description = item.job.description;
+          }
+          item.count = res[i + 1];
+          list.push(item);
+        }
+      }
+      callback(null, list);
+    }
+  });
+}
+
 /**
  * Get the top K templates of range [offset, offset + count) by the given type.
  */
@@ -43,22 +93,23 @@ for i = 1, table.getn(selected), 2 do
 end
 return result
 `;
-  client.eval(lua, '0', function(err, res) {
+  client.eval(lua, 0, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
       let list = [];
       for (let i = 0; i < res.length; i += 2) {
-        if (res[i] == null) continue;
-        let item = yaml.safeLoad(res[i]);
-        if (type == 'job') {  
-          item.type = item['job']['type'];
-          item.name = item['job']['name'];
-          item.version = item['job']['version'];
-          item.description = item['job']['description'];
+        if (res[i]) {
+          let item = yaml.safeLoad(res[i]);
+          if (type == 'job') {  
+            item.type = item.job.type;
+            item.name = item.job.name;
+            item.version = item.job.version;
+            item.description = item.job.description;
+          }
+          item.count = res[i + 1];
+          list.push(item);
         }
-        item.count = res[i + 1];
-        list.push(item);
       }
       callback(null, list);
     }
@@ -124,4 +175,4 @@ const save = function(template, callback) {
   });
 };
 
-module.exports = {top, load, save};
+module.exports = {filter, top, load, save};
