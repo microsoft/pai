@@ -14,7 +14,7 @@ OpenPAI is an open source platform that provides complete AI model training and 
 4. [How to use](#how-to-use)
 5. [Resources](#resources)
 6. [Get Involved](#get-involved)
-7. [Contributing](#contributing)
+7. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
 1. When your organization need a better utilization of AI computing resources (GPU/CPU etc.). On demand allocates resources. 
@@ -74,22 +74,11 @@ The OpenPAI user [documentations](./docs/documentation.md) provides in-depth ins
 ## Get Involved
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issues:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issues/ bugs/ new features, please submit it at Github 
-## Contributing
-One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
-
-PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
-We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
-Contributions from academia and industry are all highly welcome.
-
+## How to contribute
+#### Contributor License Agreement
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-#### Who should consider contributing to OpenPAI?
-- Folks who want to add support for other ML and DL frameworks
-- Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
-- Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
-
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
@@ -98,3 +87,15 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+#### Who should consider contributing to OpenPAI?
+- Folks who want to add support for other ML and DL frameworks
+- Folks who want to make OpenPAI a richer AI platform (e.g. support for more ML pipelines, hyperparameter tuning)
+- Folks who want to write tutorials/blog posts showing how to use OpenPAI to solve AI problems
+
+#### Contributors
+One key purpose of PAI is to support the highly diversified requirements from academia and industry. PAI is completely open: it is under the MIT license. This makes PAI particularly attractive to evaluate various research ideas, which include but not limited to the [components](./docs/research_education.md).
+
+PAI operates in an open model. It is initially designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/) and [Microsoft Search Technology Center (STC)](https://www.microsoft.com/en-us/ard/company/introduction.aspx) platform team.
+We are glad to have [Peking University](http://eecs.pku.edu.cn/EN/), [Xi'an Jiaotong University](http://www.aiar.xjtu.edu.cn/), [Zhejiang University](http://www.cesc.zju.edu.cn/index_e.htm), and [University of Science and Technology of China](http://eeis.ustc.edu.cn/) join us to develop the platform jointly.
+Contributions from academia and industry are all highly welcome.
