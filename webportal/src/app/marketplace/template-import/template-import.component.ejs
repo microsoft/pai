@@ -1,94 +1,135 @@
-<section class='content-header'>
-  <%= breadcrumb({ breadcrumbTitle: "Submit Job" }) %>
-</section>
+<div class="container">
+  <section class='content-header'>
+    <%= breadcrumb({ breadcrumbTitle: "Submit Job" }) %>
+  </section>
 
-<section class="content">
-  <div class="box box-primary">
-    <div class="box-body">
-      <div class="row">
-        <div class="form-group col-md-4">
-          <label for="fileUpload">From file</label>
-          <input class="btn btn-default" id="fileUpload" type="file">
-        </div>
-        <div class="form-group col-md-4">
-          <label for="upMarket">From market</label>
-          <input class="btn btn-default" id="upMarket" type="file">
+  <section class="content">
+    <!-- Model(Job) component-->
+    <div class="panel panel-default">
+      <div class="panel-heading  component-heading">
+        <div class="panel-title">
+          Job
+          <div class="pull-right">
+            <div data-toggle="collapse" data-parent="#accordion" href="#collapse-job" id="job-title">
+              <i class="glyphicon glyphicon-chevron-down"></i>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- data, script, docker, job, task containier-->
-      <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-data" id="data-title">
-                Data
-              </a>
-            </h3>
+      <div id="collapse-job" class="panel-collapse collapse in">
+        <div class="row component">
+          <div class="col-md-2 component-image">
+            <img src="/assets/img/job.png" alt="model-logo" class="img-responsive"></img>
           </div>
-          <div id="collapse-data" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="box-body" id="editor-data-holder" />
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-script" id="script-title">
-                Script
-              </a>
-            </h4>
-          </div>
-          <div id="collapse-script" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="box-body" id="editor-script-holder" />
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-docker" id="docker-title">
-                Docker
-              </a>
-            </h4>
-          </div>
-          <div id="collapse-docker" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="box-body" id="editor-docker-holder" />
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse-job" id="job-title">
-                Job
-              </a>
-            </h4>
-          </div>
-          <div id="collapse-job" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="box-body" id="editor-job-holder" />
+          <div class="col-md-10 component-summary">
+            <h3> Job Name </h3>
+            <div class="contributor"> Contributor </div>
+            <div class="description"> This is a Job. </p>
+              <!-- <div class="box-body" id="editor-job-holder" /> -->
             </div>
           </div>
         </div>
       </div>
 
-      <!-- submit form and taskRples -->
-      <div class="row disinline">
-        <div class="one">
-          <input class="btn btn-success center-block" id="saveTemplate" type="submit" value="Save">
-          <p id="save" class="help-block"></p>
+    </div>
+
+    <!-- Data component -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Data
+          <div class="pull-right">
+            <div data-toggle="collapse" data-parent="#accordion" href="#collapse-data" id="data-title">
+              <i class="glyphicon glyphicon-chevron-down"></i>
+            </div>
+          </div>
+        </h3>
+      </div>
+      <div id="collapse-data" class="panel-collapse collapse in">
+        <div class="row component">
+          <div class="col-md-2 component-image">
+            <img src="/assets/img/data.png" alt="model-logo" class="img-responsive"></img>
+          </div>
+          <div class="col-md-10 component-summary">
+            <h3> Data Name </h3>
+            <div class="contributor"> Contributor </div>
+            <div class="description"> This is a data. </p>
+              <!-- <div class="box-body" id="editor-data-holder" /> -->
+            </div>
+          </div>
         </div>
-        <div>
-          <input class="btn btn-success center-block" id="submitJob" type="submit" value="Submit">
-          <p id="submitHint" class="help-block"></p>
+      </div>
+    </div>
+
+    <!-- Docker component -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          Docker
+          <div class="pull-right">
+            <div data-toggle="collapse" data-parent="#accordion" href="#collapse-docker" id="docker-title">
+              <i class="glyphicon glyphicon-chevron-down"></i>
+            </div>
+          </div>
+        </h4>
+      </div>
+      <div id="collapse-docker" class="panel-collapse collapse in">
+        <div class="row component">
+          <div class="col-md-2 component-image">
+            <img src="/assets/img/dockerimage.png" alt="model-logo" class="img-responsive"></img>
+          </div>
+          <div class="col-md-10 component-summary">
+            <h3> Docker Name </h3>
+            <div class="contributor"> Contributor </div>
+            <div class="description"> This is a docker. </p>
+              <!-- <div class="box-body" id="editor-docker-holder" /> -->
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Script component -->
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Script
+          <div class="pull-right">
+            <div data-toggle="collapse" data-parent="#accordion" href="#collapse-script" id="script-title">
+              <i class="glyphicon glyphicon-chevron-down"></i>
+            </div>
+          </div>
+        </h3>
+      </div>
+      <div id="collapse-script" class="panel-collapse collapse in">
+        <div class="row component">
+          <div class="col-md-2 component-image">
+            <img src="/assets/img/script.png" alt="model-logo" class="img-responsive"></img>
+          </div>
+          <div class="col-md-10 component-summary">
+            <h3> Script Name </h3>
+            <div class="contributor"> Contributor </div>
+            <div class="description"> This is a Script. </p>
+              <!-- <div class="box-body" id="editor-Script-holder" /> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- submit form and taskRples -->
+    <div class="row disinline">
+      <div class="one">
+        <input class="btn btn-success center-block" id="saves" type="submit" value="Save as">
+        <p id="save" class="help-block"></p>
+      </div>
+      <div>
+        <input class="btn btn-success center-block" id="submitJob" type="submit" value="Run">
+        <p id="submitHint" class="help-block"></p>
       </div>
     </div>
     <!-- modal for submit job -->
     <div id="modalPlaceHolder" class="box-body" />
-  </div>
-  <%= loading() %>
-</section>
+    <%= loading() %>
+  </section>
+</div>

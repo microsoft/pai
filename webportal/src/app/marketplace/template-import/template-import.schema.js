@@ -46,7 +46,7 @@ const taskSchema = {
       portList: {
         type: 'array',
         format: 'table',
-        propertyOrder: 9,
+        propertyOrder: 11,
         options: {
           disable_array_delete_last_row: true,
           disable_array_delete_all_rows: true,
@@ -104,7 +104,7 @@ const taskSchema = {
         options: {
           expand_height: true,
         },
-        propertyOrder: 10,
+        propertyOrder: 9,
       },
       command: {
         type: 'string',
@@ -112,7 +112,7 @@ const taskSchema = {
         options: {
           expand_height: true,
         },
-        propertyOrder: 11,
+        propertyOrder: 10,
       },
     },
     required: [
@@ -288,7 +288,7 @@ const dockerSchema = {
 // submit_job [job]
 const jobSchema = {
   type: 'array',
-  // minItems: 1,
+  minItems: 1,
   format: 'grid',
   propertyOrder: 1002,
   options: {
@@ -305,30 +305,46 @@ const jobSchema = {
     },
     properties: {
       name: {
-        type: 'string'
+        type: 'string',
+        propertyOrder: 1,
       },
       version: {
         type: 'string',
         multipleOf: 1,
-      },
-      contributor: {
-        type: 'string'
+        propertyOrder: 2,
       },
       protocol_version: {
         type: 'string',
         multipleOf: 1,
+        propertyOrder: 3,
       },
-      experiment: {
-        type: 'string'
+      contributor: {
+        type: 'string',
+        propertyOrder: 4,
       },
       description: {
-        type: 'string'
+        type: 'string',
+        propertyOrder: 5,
       },
       parameters: {
-        type: 'string',
-        format: 'textarea',
+        type: 'array',
+        format: 'table',
+        propertyOrder: 6,
         options: {
-          expand_height: true,
+          disable_array_delete_last_row: true,
+          disable_array_delete_all_rows: true,
+          disable_edit_json: false,
+        },
+        items:{
+          type: 'object',
+          properties:{
+            name:{
+              type: 'string',
+            },
+            value:{
+              type: 'string',
+            }
+          }
         },
       },
       tasks: taskSchema,
