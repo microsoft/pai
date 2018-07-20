@@ -5,7 +5,7 @@
 
   <section class="content">
     <!-- Model(Job) component-->
-    <div class="panel panel-default">
+    <div class="panel panel-default shadow">
       <div class="panel-heading  component-heading">
         <div class="panel-title">
           Job
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Data component -->
-    <div class="panel panel-default">
+    <div class="panel panel-default shadow">
       <div class="panel-heading">
         <h3 class="panel-title">
           Data
@@ -62,7 +62,7 @@
     </div>
 
     <!-- Docker component -->
-    <div class="panel panel-default">
+    <div class="panel panel-default shadow">
       <div class="panel-heading">
         <h4 class="panel-title">
           Docker
@@ -90,7 +90,7 @@
     </div>
 
     <!-- Script component -->
-    <div class="panel panel-default">
+    <div class="panel panel-default shadow">
       <div class="panel-heading">
         <h3 class="panel-title">
           Script
@@ -117,8 +117,54 @@
       </div>
     </div>
 
+    <!-- Add new item component -->
+    <h4 style="margin: 50px auto 30px;"> Add new item </h4>
+
+    <div class="row" style="margin-bottom: 50px;">
+      <div class="col-md-3">
+        <div class="add-new-item shadow">
+          <div class="add-new-item-content">
+            <p>
+              <i class="glyphicon glyphicon-plus"></i>
+            </p>
+            <p>Add Job</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="add-new-item shadow">
+          <div class="add-new-item-content">
+            <p>
+              <i class="glyphicon glyphicon-plus"></i>
+            </p>
+            <p>Add Job</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="add-new-item shadow">
+          <div class="add-new-item-content">
+            <p>
+              <i class="glyphicon glyphicon-plus"></i>
+            </p>
+            <p>Add Job</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="add-new-item shadow">
+          <div class="add-new-item-content">
+            <p>
+              <i class="glyphicon glyphicon-plus"></i>
+            </p>
+            <p>Add Job</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- submit form and taskRples -->
-    <div class="row disinline">
+    <div class="row disinline submit-container">
       <div class="one">
         <input class="btn btn-success center-block" id="saves" type="submit" value="Save as">
         <p id="save" class="help-block"></p>
@@ -128,6 +174,8 @@
         <p id="submitHint" class="help-block"></p>
       </div>
     </div>
+
+
     <!-- modal for submit job -->
     <div id="modalPlaceHolder" class="box-body" />
     <%= loading() %>
