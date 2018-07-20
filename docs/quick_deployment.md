@@ -1,7 +1,5 @@
 # OpenPAI Quick Deployment
 
-OpenPAI can be deployed on a single server.
-
 ## Step 0. Prepare the dev-box
 
 It is recommended to perform the operations below in a dev box.

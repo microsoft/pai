@@ -55,7 +55,7 @@ Before start, you need to meet the following requirements:
 
 ## How to use
 - Training  
-You can queue a training job and wait it complete. Also, you can request a dedicated resource on-demand, to work with an interactive environment like Jupyter notebook. In both scenarios, you need to submit a job with different configurations
+You can queue a training job and wait it complete. Also, you can request a dedicated resource on-demand, to work with an interactive environment like Jupyter Notebook. In both scenarios, you need to submit a job with different configurations
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
     - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
