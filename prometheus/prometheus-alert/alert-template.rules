@@ -1,7 +1,3 @@
-#!/bin/bash
-
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,16 +15,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh
-
-kubectl create -f prometheus-configmap.yaml
-kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert
-kubectl create -f node-exporter-ds.yaml
-kubectl create -f prometheus-deployment.yaml
-kubectl create -f watchdog-ds.yaml
-
-popd > /dev/null
+# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+# Rule Introduction: Any node whose cpu utilization is higher than 75% for 2 minutes duration
+#ALERT NodeCPUUsage
+#  IF (100 - (avg by (instance) (irate(node_cpu{name="node-exporter",mode="idle"}[5m])) * 100)) > 75
+#  FOR 2m
+#  LABELS {
+#    severity="page"
+#  }
+#  ANNOTATIONS {
+#    SUMMARY = "{{$labels.instance}}: High CPU usage detected",
+#    DESCRIPTION = "{{$labels.instance}}: CPU usage is above 75% (current value is: {{ $value }})"
+#  }
