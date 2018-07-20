@@ -75,7 +75,7 @@ spec:
           - '--no-collector.stat'
           - '--no-collector.time'
           - '--no-collector.timex'
-          - '--no-collector.uname'
+#- '--no-collector.uname'
           - '--no-collector.vmstat'
           - '--no-collector.wifi'
           - '--no-collector.xfs'
