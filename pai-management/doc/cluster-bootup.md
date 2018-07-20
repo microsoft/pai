@@ -9,6 +9,7 @@ Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
 
 - [Overview](#overview)
+- [Before all: Please choose a PAI stable release](#choose-a-pai-release)
 - [Step 1a. Prepare PAI configuration: Manual approach](#step-1a)
 - [Step 1b. Prepare PAI configuration: Using `paictl` tool for a quickstart deployment](#step-1b)
 - [Step 2. Boot up Kubernetes](#step-2)
@@ -35,6 +36,15 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
     - (For novice users) or be done using the `paictl` tool.
 - Step 2. Boot up Kubernetes.
 - Step 3. Start all PAI services.
+
+## Before all: please choose a PAI stable release <a name="choose-a-pai-release"></a>
+
+**Notice: You should always deploy a stable release of PAI.** Currently latest stable release is v0.6.1.
+
+Please make sure:
+
+- Refer to the right doc. For release v0.6.1 it should be [here](https://github.com/Microsoft/pai/blob/pai-0.6.y/pai-management/doc/cluster-bootup.md).
+- Work on the right code. Please checkout PAI source code with tag 'v0.6.1' in dev-box.
 
 ## Step 1a. Prepare PAI configuration: Manual approach <a name="step-1a"></a>
 
@@ -80,7 +90,7 @@ machines:
 ssh-username: pai-admin
 ssh-password: pai-admin-password
 ```
-An example quick-start.yaml file is available [here](../quick-start/quick-start-example.yaml). 
+An example quick-start.yaml file is available [here](../quick-start/quick-start-example.yaml).
 Note that the quick start approach does not provide high availability and customized deployment, which is done through the [manual approach](#step-1a).
 
 ## Step 2. Boot up Kubernetes <a name="step-2"></a>
