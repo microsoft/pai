@@ -45,5 +45,5 @@ docker run \
   --allow-privileged=true \
   --logtostderr=true \
   --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
-  --eviction-hard=memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5% \
+  --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
   --v=2
