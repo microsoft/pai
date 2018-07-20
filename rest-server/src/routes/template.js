@@ -24,7 +24,9 @@ const router = new express.Router();
 
 router.route('/')
   /** POST /api/v1/template - Share the job and its resources as template */
-  .post(tokenConfig.check, templateController.share);
+  .post(tokenConfig.check, templateController.share)
+  /** GET /api/v1/template?query=XXX */
+  .get(templateController.search);
 
 router.route('/:type')
   /** GET /api/v1/template/:type - List top 10 templates of the given type */

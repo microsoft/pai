@@ -19,6 +19,25 @@
 const logger = require('../config/logger');
 const template = require('../models/template');
 
+const search = (req, res) => {
+  let query = req.query.query;
+  if (query) {
+    template.filter(query, function(err, list) {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          'message': 'Failed to scan templates.'
+        });
+      }
+      return res.status(200).json(list);
+    });
+  } else {
+    return res.status(400).json({
+      'message': 'Failed to extract "query" parameter in the request.'
+    });
+  }
+};
+
 const list = (req, res) => {
   template.top(req.params.type, 0, 10, function(err, list) {
     if (err) {
@@ -32,9 +51,24 @@ const list = (req, res) => {
 };
 
 const fetch = (req, res) => {
-  let type = req.param('type');
-  let name = req.param('name');
-  let version = req.param('version');
+  let type = req.params.type;
+  if (!type) {
+    return res.status(400).json({
+      'message': 'Failed to extract "type" parameter in the request.'
+    });
+  }
+  let name = req.params.name;
+  if (!type) {
+    return res.status(400).json({
+      'message': 'Failed to extract "name" parameter in the request.'
+    });
+  }
+  let version = req.params.version;
+  if (!type) {
+    return res.status(400).json({
+      'message': 'Failed to extract "version" parameter in the request.'
+    });
+  }
   template.load(type, name, version, (err, item) => {
     if (err) {
       logger.error(err);
@@ -94,6 +128,7 @@ const share = (req, res) => {
 };
 
 module.exports = {
+  search,
   list,
   fetch,
   share,
