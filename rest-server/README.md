@@ -167,7 +167,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if not authorized*
+    *Response if not authorized*
     ```
     Status: 401
 
@@ -177,7 +177,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if current user has no permission*
+    *Response if current user has no permission*
     ```
     Status: 403
 
@@ -236,14 +236,14 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
-	  Status: 200
+    Status: 200
 
     {
       "message": "remove successfully"
     }
     ```
 
-	  *Response if not authorized*
+    *Response if not authorized*
     ```
     Status: 401
 
@@ -253,7 +253,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if user has no permission*
+    *Response if user has no permission*
     ```
     Status: 403
 
@@ -263,7 +263,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if an admin will be removed*
+    *Response if an admin will be removed*
     ```
     Status: 403
 
@@ -339,7 +339,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if user has no permission*
+    *Response if user has no permission*
     ```
     Status: 403
 
@@ -481,7 +481,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
     }
     ```
 
-	  *Response if user has no permission*
+    *Response if user has no permission*
     ```
     Status: 403
 
