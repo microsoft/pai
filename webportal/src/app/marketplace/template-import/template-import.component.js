@@ -107,7 +107,7 @@ const tryStringToJson = (s) => {
   try {
     res = JSON.parse(s);
   } catch (e) {
-      
+
   }
   return res;
 };
@@ -125,7 +125,12 @@ const jsonEditor2RestApi = (editors) => {
     jobs.forEach((job) => {
       job['type'] = 'job';
       let tasks = job['tasks'];
-      job['parameters'] = tryStringToJson(job['parameters']);
+      let parameters = job['parameters'];
+      job['parameters'] = {};
+      parameters.forEach((t) => {
+        job['parameters'][t['name']] = t['value'];
+      });
+
       job['tasks'] = [];
       tasks.forEach((task) => {
         job['tasks'].push({
@@ -153,7 +158,7 @@ const jsonEditor2RestApi = (editors) => {
   ['data', 'script', 'docker'].forEach((t) => {
     data[t].forEach((d) => {
       d['type'] = t == 'docker' ? 'dockerimage' : t;
-      res['prerequisites'].push(d); 
+      res['prerequisites'].push(d);
     });
   });
   console.log(res);
@@ -207,17 +212,17 @@ const loadEditor = () => {
   Object.keys(editors).forEach((key)=>{
     let element = document.getElementById(`editor-${key}-holder`);
     let editor = new JSONEditor(element, {
-    schema: jobSchema[`${key}Schema`],
-    theme: 'bootstrap3',
-    iconlib: 'bootstrap3',
-    disable_array_reorder: true,
-    no_additional_properties: true,
-    show_errors: 'always',
-    disable_properties: true,
+      schema: jobSchema[`${key}Schema`],
+      theme: 'bootstrap3',
+      iconlib: 'bootstrap3',
+      disable_array_reorder: true,
+      no_additional_properties: true,
+      show_errors: 'always',
+      disable_properties: true,
     });
     jobDefaultConfigs[key] = editor.getValue();
     editors[key] = editor;
-  })
+  });
 };
 
 const initTableContent = () => {
@@ -234,7 +239,7 @@ const initTableContent = () => {
       success: function (data) {
         if (type != 'job') data = {'prerequisites': [data]};
         data = restApi2JsonEditor(data);
-        
+
         Object.keys(editors).forEach((key) => {
           let editor = editors[key];
 
@@ -246,33 +251,6 @@ const initTableContent = () => {
             editor.setValue(editor.getValue().concat(data[key]));
           }
           cookies.set('editor_' + key, JSON.stringify(editor.getValue()), {expires: 10});
-
-          // -------defind the new add button.
-          let t = $(`#editor-${key}-holder > div > div.well.well-sm > div.btn-group`);
-          let d =  document.createElement("div");
-          d.className = "btn-group";
-          d.style.cssText  = "display: inline-block;";
-          d.innerHTML = t.html();
-          t.remove();
-          d.e = editor.editors.root;
-          // console.log(d);
-          d.addEventListener("click", (t) => {
-            t.preventDefault(),
-            t.stopPropagation();
-            let e = d.e;
-            // console.log(e);
-            var i = e.rows.length;
-            e.row_cache[i] ? (e.rows[i] = e.row_cache[i],
-            e.rows[i].setValue(e.rows[i].getDefault(), !0),
-            e.rows[i].container.style.display = "",
-            e.rows[i].tab && (e.rows[i].tab.style.display = ""),
-            e.rows[i].register()) : e.addRow(),
-            e.active_tab = e.rows[i].tab,
-            e.refreshTabs(),
-            e.refreshValue(),
-            e.onChange(!0)
-          });
-          $(`#${key}-title`).append(d);
         });
       }
     });
@@ -287,39 +265,39 @@ $('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
-  userAuth.checkToken(function(token) {
-    loadEditor();
-    initTableContent();
-  
-    Object.keys(editors).forEach((key)=>{
-      let editor = editors[key];
-      let enabled = true;
-      editor.on('change', () => {
-        enabled &= (editor.validate().length == 0);
-      });
-      $('#submitJob').prop('disabled', !enabled);
-    });
-  
-    $(document).on('click', '#submitJob', () => {
-      showEditInfo();
-    });
+  // userAuth.checkToken(function(token) {
+  loadEditor();
+  initTableContent();
 
-    $(document).on('click', '#saveTemplate', () => {
-      let template = yaml.safeDump(jsonEditor2RestApi(editors));
-      var toDownload = new Blob([template], {type: 'application/octet-stream'});
-      url = URL.createObjectURL(toDownload);
-      var link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'template.yaml');
-      var event = document.createEvent('MouseEvents');
-      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-      link.dispatchEvent(event);
+  Object.keys(editors).forEach((key)=>{
+    let editor = editors[key];
+    let enabled = true;
+    editor.on('change', () => {
+      enabled &= (editor.validate().length == 0);
     });
-  
-    $(document).on('click', '#single', () => {
-      submitJob(jsonEditor2RestApi(editors));
-    });
+    $('#submitJob').prop('disabled', !enabled);
   });
+
+  $(document).on('click', '#submitJob', () => {
+    showEditInfo();
+  });
+
+  $(document).on('click', '#saveTemplate', () => {
+    let template = yaml.safeDump(jsonEditor2RestApi(editors));
+    var toDownload = new Blob([template], {type: 'application/octet-stream'});
+    url = URL.createObjectURL(toDownload);
+    var link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'template.yaml');
+    var event = document.createEvent('MouseEvents');
+    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    link.dispatchEvent(event);
+  });
+
+  $(document).on('click', '#single', () => {
+    submitJob(jsonEditor2RestApi(editors));
+  });
+  // });
 });
 
 module.exports = {submitJob, showEditInfo};
