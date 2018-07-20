@@ -48,6 +48,7 @@ const generateQueryString = function(data) {
     + encodeURIComponent(data.version);
 };
 
+/*
 const loadTemplates = function(name) {
   const tablename = '#' + name + '-table';
   const $table = $(tablename)
@@ -109,6 +110,55 @@ $(window).resize(function(event) {
     }
   });
 });
+*/
+
+const loadTemplates = function(name) {
+  const tablename = '#' + name + '-table';
+  const $table = $(tablename)
+    .on('preXhr.dt', loading.showLoading)
+    .on('xhr.dt', loading.hideLoading);
+
+  $.ajax({
+    url: `${webportalConfig.restServerUri}/api/v1/template/${name}`,
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      let htmlstr = '';
+      data.forEach((item) => {
+        htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
+                   '<div class=\"card\">' + 
+                   '<div class=\"img-container\">' +
+                   '<img src=\"/assets/img/' + name + '.png\" height=\"100%\">' +
+                   '</div>' +
+                   '<div class=\"text-container\">' +
+                   '<span class=\"item-title\">' + item.name + '</span>' +
+                   '<span class=\"item-dsp\">' + item.description + '</span>' + 
+                   '<div class=\"star-rating\">';
+        for (let i = 0; i < 4; i++) {
+          htmlstr += '<span class=\"fa fa-star span-left\"></span>';
+        }
+        for (let i = 4; i < 5; i++) {
+          htmlstr += '<span class=\"fa fa-star-o span-left\"></span>'
+        }
+        htmlstr += '<span class=\"fa fa-download span-right\">' + item.count + '</span>' +
+                   '</div>' + 
+                   '</div>' + 
+                   '</div>' + 
+                   '</a>';
+      });
+      htmlstr += '<div class=\"col-xs-2\">' + 
+                 '<button class=\"btn btn-default\" type=\"summit\">' + 
+                 '<i class=\"glyphicon glyphicon-chevron-right\"></i>' + 
+                 '</button>' + 
+                 '</div>';
+      $(tablename).html(htmlstr);
+    }
+  });
+};
+
+$(window).resize(function(event) {
+  $('#content-wrapper').css({'height': (($(window).height() - 200)) + 'px'});
+});
 
 $('#btn-share').click(function(event) {
   $('#modalPlaceHolder').html(templateModalComponent.generateHtml());
@@ -118,7 +168,7 @@ $('#btn-share').click(function(event) {
 
 $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
-  $('#content-wrapper').css({'overflow': 'hidden'});
+  $('#content-wrapper').css({'overflow': 'auto'});
   $('#table-view').html(templateTableComponent());
   loadTemplates('job');
   loadTemplates('data');
