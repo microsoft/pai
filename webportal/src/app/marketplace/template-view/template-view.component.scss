@@ -22,7 +22,7 @@
   margin-right: 8vw; 
 }
 
-.row {
+#table-view .row {
   padding-right: 50px;
   padding-left: 50px;
   padding-top: 10px;
@@ -114,10 +114,10 @@
   line-height: 25px;
 }
 
-div.dataTables_filter, div.dataTables_info, div.dataTables_length, div.dataTables_paginate {
-  display: none; 
+#table-view .dataTables_filter, .dataTables_info, .dataTables_length, .dataTables_paginate {
+  display: none;
 }
 
-table.dataTable th {
+#table-view .dataTable th {
   display: none;
 } 
