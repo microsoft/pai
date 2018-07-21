@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const yaml = require('js-yaml');
 const config = require('../config/redis');
 const redis3 = require('../util/redis3');
 
@@ -28,13 +27,18 @@ local index, result = 1, {}
 
 local function filter(ttype)
   local list = redis.call("ZRANGE", "marketplace:"..ttype..".used", 0, -1, "WITHSCORES")
-  local name, count, version, content = "", 0, "", ""
+  local name, count, version, content, template = "", 0, "", "", nil
+  local pattern = "${query}"
   for i = 1, table.getn(list), 2 do
     name = list[i]
     count = list[i + 1]
-    if (string.match(name, "${query}")) then
-      version = redis.call("HGET", "marketplace:"..ttype..".index", name)
-      content = redis.call("HGET", "marketplace:template:"..ttype.."."..name, version)
+    version = redis.call("HGET", "marketplace:"..ttype..".index", name)
+    content = redis.call("HGET", "marketplace:template:"..ttype.."."..name, version)
+    template = cjson.decode(content)
+    if (template["job"] ~= nil) then
+      template = template["job"]
+    end
+    if (string.match(template["name"], pattern) or string.match(template["description"], pattern)) then
       result[index] = content
       result[index + 1] = count
       index = index + 2
@@ -44,7 +48,7 @@ end
 
 local targets = {"job", "data", "script", "dockerimage"}
 for key, value in ipairs(targets) do
-   filter(value)
+  filter(value)
 end
 return result
 `;
@@ -56,7 +60,7 @@ return result
       let list = [];
       for (let i = 0; i < res.length; i += 2) {
         if (res[i]) {
-          let item = yaml.safeLoad(res[i]);
+          let item = JSON.parse(res[i]);
           if (item.job) {
             item.type = item.job.type;
             item.name = item.job.name;
@@ -100,7 +104,7 @@ return result
       let list = [];
       for (let i = 0; i < res.length; i += 2) {
         if (res[i]) {
-          let item = yaml.safeLoad(res[i]);
+          let item = JSON.parse(res[i]);
           if (type == 'job') {  
             item.type = item.job.type;
             item.name = item.job.name;
@@ -124,7 +128,7 @@ const load = function(type, name, version, callback) {
     if (err) {
       callback(err, null);
     } else {
-      let template = yaml.safeLoad(res);
+      let template = JSON.parse(res);
       if (res) {
         let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
         client.zincrby(usedKey, 1, name);
