@@ -1,0 +1,25 @@
+<!-- Job/Data/Script/Docker component-->
+<div class="panel panel-default shadow">
+  <div class="panel-heading component-heading">
+    <div class="panel-title">
+      <ul class="nav nav-tabs" id="<%= type %>-title">
+        <%= titleLayout({'name': name, 'type':type, 'id':id, 'active': ''}) %>
+        <div class="pull-right">
+          <div data-toggle="collapse" data-parent="#accordion" href="#collapse-<%= type%>" id="script-title">
+            <i class="glyphicon glyphicon-chevron-down"></i>
+          </div>
+        </div>
+      </ul>
+    </div>
+  </div>
+  <div id="collapse-<%= type %>" class="panel-collapse collapse in">
+    <div class="row component">
+      <div class="col-md-2 component-image">
+        <img src="/assets/img/<%= type %>.png" alt="model-logo" class="img-responsive"></img>
+      </div>
+      <div class="tab-content"  id="<%= type %>-summary">
+        <%= summaryLayout({'name': name, 'type':type, 'id':id, 'contributor':contributor, 'active': 'active'}) %>
+      </div>
+    </div>
+  </div>
+</div>
