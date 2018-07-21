@@ -38,7 +38,7 @@ $('#content-wrapper').html(templateViewComponent({
 }));
 
 const generateQueryString = function(data) {
-  return '?type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
+  return 'type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
     + encodeURIComponent(data.version);
 };
 

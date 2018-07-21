@@ -16,21 +16,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-require('bootstrap/js/modal.js');
-require('datatables.net/js/jquery.dataTables.js');
-require('datatables.net-bs/js/dataTables.bootstrap.js');
-require('datatables.net-bs/css/dataTables.bootstrap.css');
-require('datatables.net-plugins/sorting/natural.js');
 require('./template-view.component.scss');
 require('./template-detail.component.scss');
 require('./overview.scss');
 require('./rating.scss');
 
+const webportalConfig = require('../../config/webportal.config.json');
 const detailComponent = require('./template-detail.component.ejs');
 const overviewComponent = require('./overview.ejs');
 const qaComponent = require('./qa.ejs');
 const ratingComponent = require('./rating.ejs');
 const experComponent = require('./experiments.ejs');
+
+const loadSummary = function() {
+  const searchParams = new URLSearchParams(window.location.search);
+  let type = searchParams.get('type');
+  let name = searchParams.get('name');
+  let version = searchParams.get('version');
+  if (!type || !name || !version) {
+    window.location.href = "/template.html"
+  } else {
+    $('#btn-use').click(function(event) {
+      window.location.href = "/import.html" + window.location.search
+    });
+    $('#txt-name').text(name);
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
+      type: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        var template = data.job ? data.job : data;
+        $('#txt-contributor').text(template.contributor);
+        $('#txt-description').text(template.description);
+      }
+    });
+  }
+}
 
 $('#content-wrapper').html(detailComponent());
 $('#main_con').html(overviewComponent());
@@ -53,5 +74,6 @@ $(document).ready(() => {
       case 3: $('#main_con').html(experComponent());break;
     }
   });
+  loadSummary();
   window.dispatchEvent(new Event('resize'));
 });
