@@ -52,7 +52,6 @@ for key, value in ipairs(targets) do
 end
 return result
 `;
-  console.log(lua);
   client.eval(lua, 0, function(err, res) {
     if (err) {
       callback(err, null);
@@ -74,7 +73,7 @@ return result
       callback(null, list);
     }
   });
-}
+};
 
 /**
  * Get the top K templates of range [offset, offset + count) by the given type.
@@ -105,7 +104,7 @@ return result
       for (let i = 0; i < res.length; i += 2) {
         if (res[i]) {
           let item = JSON.parse(res[i]);
-          if (type == 'job') {  
+          if (type == 'job') {
             item.type = item.job.type;
             item.name = item.job.name;
             item.version = item.job.version;
