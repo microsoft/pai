@@ -32,7 +32,10 @@ const userEditModalComponent = require('./submit-modal-component.ejs');
 const userChooseMainLayout = require('./template-import-user-choose-layout/main-layout.ejs');
 const userChooseSummaryLayout = require('./template-import-user-choose-layout/summary-layout.ejs');
 const userChooseTitleLayout = require('./template-import-user-choose-layout/title-layout.ejs');
-
+const addModalComponent = require('./add-modal.component.ejs');
+const userAddLayout = require('./template-import-user-choose-layout/add-layout.ejs');
+const userrecommandLayout = require('./template-import-user-choose-layout/recommand-layout.ejs');
+const templateView = require('../template-view/template-view.component');
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
@@ -44,6 +47,13 @@ const showEditInfo = () => {
   $('#userEditModal').modal('show');
 };
 // for model end
+
+const showAddModal = (type) => {
+  $('#modalPlaceHolder').html(addModalComponent);
+  $('#itemPlaceHolder').html();
+  $('#recommandPlaceHolder').html(templateView.loadTemplates(type, 'recommand-'));
+  $('#addModal').modal('show');
+};
 
 const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
@@ -309,6 +319,9 @@ $(document).ready(() => {
   // loadEditor();
   initContent();
 
+  $(document).on('click', "#add-job-btn", () => {
+  
+  });
   // Object.keys(editors).forEach((key)=>{
   //   let editor = editors[key];
   //   let enabled = true;
