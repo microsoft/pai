@@ -263,3 +263,28 @@
 .box-expr {
   text-align: center;
 }
+
+.qa-content {
+  width: 100%;
+  margin: 20px;
+  .media-left img {
+    width: 50px;
+  }
+  .media {
+    margin: 5px;
+    padding: 5px;
+  }
+  .media-question {
+    border-bottom: 1px solid #eaeaea;
+    border-width: 1px 0;
+  }
+  .media-answer {
+    margin-top: 10px;
+    border-top: 1px solid #eaeaea;
+    border-width: 1px 0;
+  }
+  .flag {
+    float: right;
+    margin-right: 20px;
+  }
+}

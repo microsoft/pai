@@ -84,6 +84,58 @@ const loadSummary = () => {
               categories: ['Programming Languages', 'Snippets', 'Other'],
               tags: ['c#', 'javascript', 'keybindings', 'python', 'ruby', 'rust'],
             },
+            qas: [
+              {
+                question: {
+                  name: 'Jake Shivers',
+                  avatar: '/assets/img/pic1.png',
+                  date: '2018/7/6',
+                  content: 'I cannot get the installer to get past Installing...". I have VS 2017 (15.7), and have rebooted my machine several times. What do I need to do to get this thing to install?',
+                },
+                answer: {
+                  name: 'Microsoft',
+                  avatar: '/assets/img/pic5.png',
+                  date: '2018/7/6',
+                  content: 'Thanks for reporting this issue! We need more data to investigate your problem. Please use Visual Studio\'s "Send Feedback -> Report a Problem" tool to file a ticket which will also collect the diagnostic data.',
+                },
+              },
+              {
+                question: {
+                  name: 'Shawn Branham',
+                  avatar: '/assets/img/pic2.png',
+                  date: '2018/7/5',
+                  content: 'I\'m trying to share when merging code and resolving merge conflicts but it says "The participant is not currently editing and shared document". Does anyone know Fb how to get around this so we can collaborate on the merge conflicts?',
+                },
+                answer: {
+                  name: 'Microsoft',
+                  avatar: '/assets/img/pic5.png',
+                  date: '2018/7/6',
+                  content: 'Hey Shawn! This message indicates that you\'re trying to follow someone, but they aren\'t currently editing a document that is part of the shared project.',
+                },
+              },
+              {
+                question: {
+                  name: 'Aimore Sa',
+                  avatar: '/assets/img/pic3.png',
+                  date: '2018/6/18',
+                  content: 'Does it work on VS for Mac? I tried to find this extension but I did not find it on my VS 2017 Mac',
+                },
+                answer: {
+                  name: 'Microsoft',
+                  avatar: '/assets/img/pic5.png',
+                  date: '2018/6/18',
+                  content: 'Hey! Live Share is currently only supported in Visual Studio Code and Visual Studio 2017 on Windows. We have a backlog item for adding support for Visual Studio on Mac. which you can track progress of here: https://github.com/MicrosoftDocs/live-share/issues/91.',
+                },
+              },
+              {
+                question: {
+                  name: 'slashelement',
+                  avatar: '/assets/img/pic4.png',
+                  date: '2018/5/17',
+                  content: 'I get this error 17/05/2018 19:32:44 - VSIXInstaller.NoApplicableSKUsException: This extension is not installable on any currently installed products. at VSIXInstaller.App.GetInstallableData(String vsixPath, Boolean isRepairSupported, lEnumerablel& skuData) at VSIXInstaller.Appinitialize',
+                },
+              },
+            ],
             reviews: [
               {
                 name: 'Santiago Bazan',
