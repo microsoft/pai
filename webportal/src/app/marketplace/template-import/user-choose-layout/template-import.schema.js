@@ -21,6 +21,7 @@ const taskSchema = {
   format: 'grid',
   propertyOrder: 1002,
   options: {
+    collapsed: true,
     disable_edit_json: true,
     disable_array_delete_last_row: true,
     disable_array_delete_all_rows: true,

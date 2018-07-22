@@ -47,28 +47,35 @@ textarea {
     display: none; 
 }
 
-.panel-body .box-body div[data-schemaid] .well{
+.json-editor-modal .modal-content{
+    background-color: rgb(245, 245, 245);
+}
+
+.modal-body div.well{
     border: none;
-    border-radius: none;
     -webkit-box-shadow: none;
     box-shadow: none;
     background-color: transparent !important;
-    margin-bottom: 0;
 }
 
-.panel-body .box-body div[data-schemaid] div.well.well-sm .table-bordered > tbody  td{
+.modal-body div.well.well-sm .table-bordered > tbody  td{
     border: none;
 }
 
-.panel-body .box-body div[data-schemaid] div.well.well-sm div div div.row{
-    margin-left: 10px;
+.modal-body div.well div.well{
+    padding-left: 20px;
 }
- 
-.panel-body .box-body div[data-schemaid] div.well.well-sm  div.well.well-sm  div.well.well-sm h3{
-    padding-left: 25px;
+
+.modal-body >div div[data-schemaid] >h3{
+    margin-top: 0;
 }
 
 .panel-body .box-body div[data-schemaid] div.well.well-sm >.btn-group{
+    margin-top: 20px;
+}
+
+
+.modal-body  .box-body div[data-schemaid] div.well.well-sm >.btn-group{
     margin-top: 20px;
 }
 
