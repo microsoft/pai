@@ -16,17 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-require('./template-view.component.scss');
 require('./template-detail.component.scss');
-require('./overview.scss');
-require('./rating.scss');
 
+const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const webportalConfig = require('../../config/webportal.config.json');
 const detailComponent = require('./template-detail.component.ejs');
-const overviewComponent = require('./overview.ejs');
-const qaComponent = require('./qa.ejs');
-const ratingComponent = require('./rating.ejs');
-const experComponent = require('./experiments.ejs');
 
 const loadSummary = function() {
   const searchParams = new URLSearchParams(window.location.search);
@@ -36,9 +30,6 @@ const loadSummary = function() {
   if (!type || !name || !version) {
     window.location.href = "/template.html"
   } else {
-    $('#btn-use').click(function(event) {
-      window.location.href = "/import.html" + window.location.search
-    });
     $('#txt-name').text(name);
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
@@ -50,30 +41,30 @@ const loadSummary = function() {
         $('#txt-description').text(template.description);
       }
     });
+    $('#btn-use').click(function(event) {
+      window.location.href = "/import.html" + window.location.search
+    });
   }
 }
 
-$('#content-wrapper').html(detailComponent());
-$('#main_con').html(overviewComponent());
-
-$(window).resize(function(event) {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-});
+$('#content-wrapper').html(detailComponent({
+  breadcrumbHtml: breadcrumbComponent({
+    breadcrumbTitle: 'Template',
+    pages: [
+      {
+        title: 'Marketplace',
+        path: '/template.html'
+      },
+      {
+        title: 'Template',
+        path: '#'
+      },
+    ]
+  }),
+}));
 
 // detail page start
 $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
-  $('#content-wrapper').css({'overflow': 'auto'});
-  $('.nav li').click(function () {
-    $(this).addClass('active').siblings().removeClass('active');
-    let pan = $(this).index();
-    switch (pan) {
-      case 0: $('#main_con').html(overviewComponent());break;
-      case 1: $('#main_con').html(qaComponent());break;
-      case 2: $('#main_con').html(ratingComponent());break;
-      case 3: $('#main_con').html(experComponent());break;
-    }
-  });
   loadSummary();
-  window.dispatchEvent(new Event('resize'));
 });
