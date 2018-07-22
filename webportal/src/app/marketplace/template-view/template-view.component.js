@@ -55,7 +55,7 @@ const generateUI = function(type, data) {
         htmlstr += '</div></div><div class=\"item\">' + '<div class=\"row\">';
       }
     }
-    htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
+    htmlstr += '<a id=\"' + type + '-' + item.name + '-' + item.version + '\" href=\"/detail.html?' + generateQueryString(item) + '\">' +
                 '<div class=\"card\">' + 
                 '<div class=\"img-container\">' +
                 '<img src=\"/assets/img/' + type + '.png\" height=\"100%\">' +
@@ -97,9 +97,9 @@ const loadTemplates = function(name, tableprefix) {
   });
 };
 
-const search = function(event, types, tableprefix) {
+const search = function(event, types, tableprefix, searchinput) {
   if (!event.keyCode || event.keyCode == 13) {
-    var query = $('#search').val();
+    var query = $(searchinput).val();
     if (query) {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/template?query=` + encodeURIComponent(query),
@@ -111,7 +111,9 @@ const search = function(event, types, tableprefix) {
             categories[item] = [];
           })
           data.forEach((item) => {
+            if (item.type in categories) {
               categories[item.type].push(item);
+            }
           });
           Object.keys(categories).forEach((type) => {
             $('#' + tableprefix + type + '-table').html(generateUI(type, categories[type]));
@@ -125,8 +127,12 @@ const search = function(event, types, tableprefix) {
   }
 };
 
-$('#btn-search').click(search, ['data', 'dockerimage', 'script', 'job'], '');
-$('#search').on('keyup', search, ['data', 'dockerimage', 'script', 'job'], '');
+$('#btn-search').click((event) => {
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', '#search');
+});
+$('#search').on('keyup', (event) => {
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', '#search');
+});
 
 $(window).resize(function(event) {
   $('#content-wrapper').css({'height': (($(window).height() - 200)) + 'px'});

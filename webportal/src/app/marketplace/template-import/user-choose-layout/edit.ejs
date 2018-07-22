@@ -1,5 +1,5 @@
 <!-- Modal -->
-<div id="<%= type %><%= id %>-modal" class="modal fade json-editor-modal" tabindex="-1" role="dialog" aria-labelledby="userEditModalLabel">
+<div id="<%= type %><%= id %>-modal" class="modal fade json-editor-modal" tabindex="-1" role="dialog" aria-labelledby="userEditModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -9,8 +9,8 @@
         <div id="<%= type %><%= id %>-json-editor-holder"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+        <button type="button" class="btn btn-default" id="edit-close">Close</button>
+        <button type="button" class="btn btn-primary" id="edit-save">Save</button>
       </div>
     </div>
   </div>

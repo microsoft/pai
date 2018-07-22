@@ -1,4 +1,4 @@
-<div class="tab-pane fade in" id="<%= type %><%= id %>">
+<div class="tab-pane fade in <%= active %>" id="<%= name %><%= type %><%= id %><%= contributor %><%= description %>">
   <div class="col-md-10 component-summary">
     <div class="input-group">
       <input class="form-control" type="text" placeholder="Search.." id="add-search">
@@ -6,7 +6,7 @@
         <button class="btn btn-info" type="submit" id="btn-add-search"><i class="glyphicon glyphicon-search"></i></button>
       </span>
     </div>
-    <button class="btn btn-info center-block" style="margin-top:20px;width:150px" id="btn-add-upload">Upload</button>
-    <button class="btn btn-info center-block" style="margin-top:20px;width:150px" id="btn-add-customize">Customize</button>
+    <button class="btn btn-info center-block" style="margin-top:20px;width:200px" id="btn-add-upload">Upload</button>
+    <button class="btn btn-info center-block" style="margin-top:20px;width:200px" id="btn-add-customize">Customize</button>
   </div>
 </div>

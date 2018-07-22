@@ -17,6 +17,7 @@
 
 
 require('./template-import.component.scss');
+require('../template-view/template-view.component.scss');
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/modal.js');
 
@@ -33,14 +34,88 @@ const userEditModalComponent = require('./user-choose-layout/edit.ejs');
 const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
 const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
 const userChooseTitleLayout = require('./user-choose-layout/title-layout.ejs');
-const addModalComponent = require('./add-modal.component.ejs');
-const userAddLayout = require('./template-import-user-choose-layout/add-layout.ejs');
-const userrecommandLayout = require('./template-import-user-choose-layout/recommand-layout.ejs');
+const userAddModalComponent = require('./add-modal.component.ejs');
+const userAddItemLayout = require('./user-choose-layout/add-layout.ejs');
+const userRecommandLayout = require('./user-choose-layout/recommand-layout.ejs');
+const templateView = require('../template-view/template-view.component');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
+
+let addEditor = null;
+let finalEditor = null;
+const showAddModal = (type) => {
+  console.log(type);
+  addEditor = null;
+  finalEditor = null;
+  $('#addModalPlaceHolder').html(userAddModalComponent);
+  $('#itemPlaceHolder').html(userChooseMainLayout({
+    name: type,
+    contributor: '',
+    description: '',
+    type: type,
+    id: 1,
+    summaryLayout: userAddItemLayout,
+    titleLayout: userChooseTitleLayout,
+  }));
+  $('#recommandPlaceHolder').html(userRecommandLayout({
+    type: type,
+  }));
+  templateView.loadTemplates(type, 'recommand-');
+  $('#btn-add-search').click((event) => {
+    templateView.search(event, [type], 'recommand-', '#add-search');
+  });
+  $('#add-search').on('keyup', (event) => {
+    templateView.search(event, [type], 'recommand-', '#add-search');
+  });
+  $('#btn-add-upload').click(() => {
+
+  });
+  $('#btn-add-customize').click(() => {
+    let id = userChooseTemplateValues[type].length;
+    $('#editPlaceHolder').html(userEditModalComponent({
+      type: type,
+      id: id
+    }));
+    addEditor = loadEditor(null, type, id);
+
+    $('#edit-save').click((event) => {
+      finalEditor = addEditor;
+      data = finalEditor.getValue();
+      $('#itemPlaceHolder').html(userChooseMainLayout({
+        name: data.name,
+        contributor: data.contributor,
+        description: data.description,
+        type: type,
+        id: 1,
+        summaryLayout: userChooseSummaryLayout,
+        titleLayout: userChooseTitleLayout,
+      }));
+      $(`#${type}${id}-modal`).modal('hide');
+    });
+
+    $('#edit-close').click((event) => {
+      $(`#${type}${id}-modal`).modal('hide');
+    });
+
+    $(`#${type}${id}-modal`).modal('show');
+  });
+  $('#btn-add-modal').click((event) => {
+    if (finalEditor != null) {
+      let d = finalEditor.getValue();
+      console.log(d);
+      if (type != 'job') { // job is a object, others is an array.
+        insertNewChooseResult([d], type);
+      }
+      else { // job
+        insertNewChooseResult(d, type);
+      }
+    }
+  });
+  $('#addModal').modal('show');
+};
 
 const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
@@ -259,8 +334,12 @@ const loadEditor = (d, type, id) => {
     disable_properties: true,
   });
   jobDefaultConfigs[type] = editor.getValue();
-  editor.setValue(d);
-  editors[type].push(editor);
+  if (d) {
+    editor.setValue(d);
+    editors[type].push(editor);
+  } else {
+    return editor;
+  }
 };
 
 const insertNewChooseResult = (d, type) => {
@@ -343,8 +422,9 @@ $(document).ready(() => {
       event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
       link.dispatchEvent(event);
     });
-    $(document).on('click', "#add-job-btn", () => {
 
+    $(document).on('click', "#add-data-btn", () => {
+      showAddModal('data');
     });
   });
 });
