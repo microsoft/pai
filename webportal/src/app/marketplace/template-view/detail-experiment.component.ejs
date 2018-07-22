@@ -3,7 +3,15 @@
 </div>
 
 <% for (let i = 0; i < data.length; i ++) { %>
-  <div class="box box-primary">
+  <div class="box
+      <% if (data[i].status == "SUCCEEDED") { %>
+        box-success
+      <% } else if (data[i].status == "FAILED") { %>
+        box-danger
+      <% } else { %>
+        box-primary
+      <% } %>
+      ">
     <div class="box-header with-border">
       <div class="media pull-left">
         <div class="media-left">
@@ -13,14 +21,14 @@
           <div class="clearfix">
             <div class="row pull-right">
               <button class="btn
-                <% if (data[i].status == "SUCCEEDED") { %>
-                  btn-success
-                <% } else if (data[i].status == "FAILED") { %>
-                  btn-danger
-                <% } else { %>
-                  btn-primary
-                <% } %>
-                btn-lg btn-display">
+                  <% if (data[i].status == "SUCCEEDED") { %>
+                    btn-success
+                  <% } else if (data[i].status == "FAILED") { %>
+                    btn-danger
+                  <% } else { %>
+                    btn-primary
+                  <% } %>
+                  btn-lg btn-display">
                 <%= data[i].status %>
               </button>
               <button class="btn btn-success btn-lg btn-display"><%= data[i].number[0] %></button>

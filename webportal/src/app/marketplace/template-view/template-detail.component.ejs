@@ -12,7 +12,7 @@
   <table>
     <tr>
       <td>
-        <img class="logo" src="${require('../../../assets/img/favicon.ico')}" alt="">
+        <img class="logo" src="/assets/img/job.png">
       </td>
       <td>
         <div class="detail">
@@ -20,14 +20,15 @@
           <ul class="star">
             <li class="pro_name" id="txt-contributor"><%= detail.contributor %></li>
             <li class="one">|</li>
-            <li>12 uses</li>
+            <li><%= detail.uses %> uses</li>
             <li class="two">|</li>
             <li>
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-              <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+              <% for (let j = 0; j < detail.star; j ++) { %>
+                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <% } %>
+              <% for (let j = detail.star; j < 5; j ++) { %>
+                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+              <% } %>
             </li>
           </ul>
           <p id="txt-description"><%= detail.description %></p>
@@ -58,13 +59,13 @@
 
 <div class="tab-content">
   <div role="tabpanel" class="tab-pane active" id="tab-ov">
-    <%= overview({}) %>
+    <%= overview({ data: detail.overview }) %>
   </div>
   <div role="tabpanel" class="tab-pane" id="tab-qa">
     <%= qa({}) %>
   </div>
   <div role="tabpanel" class="tab-pane" id="tab-rr">
-    <%= review({}) %>
+    <%= review({ data: detail.reviews }) %>
   </div>
   <div role="tabpanel" class="tab-pane" id="tab-ex">
     <%= experiment({ data: detail.experiments }) %>
