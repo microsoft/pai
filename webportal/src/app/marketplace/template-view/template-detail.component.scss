@@ -54,6 +54,28 @@
 
 .tab-content {
   background: white;
+  height: 100%;
+  padding-bottom: 100px;
+}
+
+.tab-header {
+  border-bottom: 1px solid #eaeaea;
+  border-width: 1px 0;
+  height: 54px;
+  width: 100%;
+  padding-bottom: 10px;
+  h4 {
+    float: left;
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    margin-left: 26px;
+    margin-top: 18px;
+  }
+  button {
+    float: right;
+    margin-top: 7px;
+  }
 }
 
 .clear {
@@ -175,25 +197,6 @@
   }
 }
 
-.rr-header {
-  border-bottom: 1px solid #eaeaea;
-  border-width: 1px 0;
-  height: 54px;
-  width: 100%;
-  padding-bottom: 10px;
-  h4 {
-    float: left;
-    display: block;
-    font-size: 18px;
-    font-weight: 600;
-    margin-left: 26px;
-    margin-top: 18px;
-  }
-  button {
-    float: right;
-    margin-top: 7px;
-  }
-}
 .rr-content {
   width: 100%;
   tr {
@@ -233,4 +236,29 @@
     margin-top: 5px;
     margin-right: 20px;
   }
+}
+
+.clearfix {
+  margin: 20px 50px;
+}
+
+.btn-display {
+  border: none;
+  padding: 10px;
+  margin: 10px;
+}
+
+.btn-collapsed {
+  margin-left: 60px;
+  margin-right: 0px;
+}
+[data-toggle="collapse"].collapsed .btn-opened {
+  display: none;
+}
+[data-toggle="collapse"]:not(.collapsed) .btn-closed {
+  display: none;
+}
+
+.box-expr {
+  text-align: center;
 }

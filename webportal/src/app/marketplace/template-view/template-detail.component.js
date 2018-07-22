@@ -54,6 +54,35 @@ const loadSummary = () => {
             version,
             description: template.description,
             contributor: template.contributor,
+            experiments: [
+              {
+                name: 'Cifar10',
+                type: 'BATCH',
+                duration: '10h 12m 5s',
+                time: '6/28/2018 3:51:04 PM',
+                status: 'RUNNING',
+                number: [7, 1],
+                visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+              },
+              {
+                name: 'Cifar10',
+                type: 'BATCH',
+                duration: '10h 12m 5s',
+                time: '6/28/2018 3:51:04 PM',
+                status: 'RUNNING',
+                number: [7, 1],
+                visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+              },
+              {
+                name: 'Cifar10',
+                type: 'BATCH',
+                duration: '10h 12m 5s',
+                time: '6/28/2018 3:51:04 PM',
+                status: 'SUCCEEDED',
+                number: [7, 1],
+                visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+              },
+            ],
           },
         });
         $('#content-wrapper').html(templateDetailHtml);
