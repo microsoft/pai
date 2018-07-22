@@ -225,6 +225,42 @@ const loadEditor = () => {
   });
 };
 
+const insertNewContent = (d, key) => {
+  let newItem = userChooseMainLayout({
+    name: d['name'],
+    contributor: d['contributor'],
+    description: d['description'],
+    type: key,
+    id: 1,
+    summaryLayout: userChooseSummaryLayout,
+    titleLayout: userChooseTitleLayout,
+  });
+  $('#user-choose-holder').append(newItem);
+  userChooseTemplateValues[key].push(d);
+};
+
+const insertNewTitleAndSummary = (d, key) => {
+  let newTitle = userChooseTitleLayout({
+    name: d['name'],
+    type: key,
+    id: userChooseTemplateValues[key].length + 1,
+    active: '',
+  });
+  $(`#${key}-title`).append(newTitle);
+
+  let newSummary = userChooseSummaryLayout({
+    name: d['name'],
+    contributor: d['contributor'],
+    description: d['description'],
+    type: key,
+    id: userChooseTemplateValues[key].length + 1,
+    active: '',
+  });
+  $(`#${key}-summary`).append(newSummary);
+  userChooseTemplateValues[key].push(d);
+
+};
+
 const initContent = () => {
   // using AJAX to fill the table content.
   const searchParams = new URLSearchParams(window.location.search);
@@ -246,50 +282,11 @@ const initContent = () => {
         Object.keys(userChooseTemplateValues).forEach((key) => {
           if (key != 'job') { // job is a object, others is an array.
             data[key].forEach((d) => {
-              if (userChooseTemplateValues[key].length) {
-                if ($(`#${key}-title`).length) {
-                  let newTitle = userChooseTitleLayout({
-                    name: d['name'],
-                    type: key,
-                    id: userChooseTemplateValues[key].length + 1,
-                    active: '',
-                  });
-                  $(`#${key}-title`).append(newTitle);
-
-                  let newSummary = userChooseSummaryLayout({
-                    name: d['name'],
-                    contributor: d['contributor'],
-                    type: key,
-                    id: userChooseTemplateValues[key].length + 1,
-                    active: '',
-                  });
-                  $(`#${key}-summary`).append(newSummary);
-                }
-              }
-              else {
-                let newItem = userChooseMainLayout({
-                  name: d['name'],
-                  contributor: d['contributor'],
-                  type: key,
-                  id: 1,
-                  summaryLayout: userChooseSummaryLayout,
-                  titleLayout: userChooseTitleLayout,
-                });
-                $('#user-choose-holder').append(newItem);
-              }
-              userChooseTemplateValues[key].push(d);
+              userChooseTemplateValues[key].length ? insertNewTitleAndSummary(d, key) : insertNewContent(d, key);
             });
           }
-          else {
-            let newItem = userChooseMainLayout({
-              name: data[key]['name'],
-              contributor: data[key]['contributor'],
-              type: key,
-              id: 1,
-              summaryLayout: userChooseSummaryLayout,
-              titleLayout: userChooseTitleLayout,
-            });
-            $('#user-choose-holder').append(newItem);
+          else { // job
+            insertNewContent(data[key], key);
           }
         });
       }
