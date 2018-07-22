@@ -39,13 +39,6 @@ const templateViewHtml = templateImportComponent({
   loading: loadingComponent,
 });
 
-// for model start
-const showEditInfo = () => {
-  $('#modalPlaceHolder').html(userSubmitModalComponent);
-  $('#userSumbitModal').modal('show');
-};
-// for model end
-
 const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
   if ('job' in data) {
@@ -115,16 +108,13 @@ const tryStringToJson = (s) => {
 };
 
 const jsonEditor2RestApi = (editors) => {
-  let data = {};
-  Object.keys(editors).forEach((key) => {
-    data[key] = editors[key].getValue();
-  });
   let res = {
     'prerequisites': [],
   };
-  if ('job' in data) {
-    let jobs = data['job']; // is a array, but I assume only one job.
+  if ('job' in editors) {
+    let jobs = editors['job']; // is a array, but I assume only one job.
     jobs.forEach((job) => {
+      job = job.getValue();
       job['type'] = 'job';
       let tasks = job['tasks'];
       let parameters = job['parameters'];
@@ -158,8 +148,10 @@ const jsonEditor2RestApi = (editors) => {
   }
 
   ['data', 'script', 'dockerimage'].forEach((t) => {
-    data[t].forEach((d) => {
-      res['prerequisites'].push(d);
+    editors[t].forEach((d) => {
+      let curData = d.getValue();
+      curData['type'] = t;
+      res['prerequisites'].push(curData);
     });
   });
   console.log(res);
@@ -314,48 +306,43 @@ const initContent = () => {
   }
 };
 
-// for model start
-window.showEditInfo = showEditInfo;
-// for model end
-
-$('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
-  // userAuth.checkToken(function(token) {
-  // loadEditor();
-  initContent();
+  userAuth.checkToken(function(token) {
+    initContent();
 
-  // Object.keys(editors).forEach((key)=>{
-  //   let editor = editors[key];
-  //   let enabled = true;
-  //   editor.on('change', () => {
-  //     enabled &= (editor.validate().length == 0);
-  //   });
-  //   $('#submitJob').prop('disabled', !enabled);
-  // });
+    // Object.keys(editors).forEach((key)=>{
+    //   let editor = editors[key];
+    //   let enabled = true;
+    //   editor.on('change', () => {
+    //     enabled &= (editor.validate().length == 0);
+    //   });
+    //   $('#submitJob').prop('disabled', !enabled);
+    // });
 
-  // $(document).on('click', '#submitJob', () => {
-  //   showEditInfo();
-  // });
+    $('#submitModalPlaceHolder').html(userSubmitModalComponent);
+    $(document).on('click', '#submitJob', () => {
+      $('#userSumbitModal').modal('show');
+    });
 
-  // $(document).on('click', '#saveTemplate', () => {
-  //   let template = yaml.safeDump(jsonEditor2RestApi(editors));
-  //   var toDownload = new Blob([template], {type: 'application/octet-stream'});
-  //   url = URL.createObjectURL(toDownload);
-  //   var link = document.createElement('a');
-  //   link.setAttribute('href', url);
-  //   link.setAttribute('download', 'template.yaml');
-  //   var event = document.createEvent('MouseEvents');
-  //   event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-  //   link.dispatchEvent(event);
-  // });
+    $(document).on('click', '#single', () => {
+      submitJob(jsonEditor2RestApi(editors));
+    });
 
-  // $(document).on('click', '#single', () => {
-  //   submitJob(jsonEditor2RestApi(editors));
-  // });
-  // });
+    $(document).on('click', '#saveTemplate', () => {
+      let template = yaml.safeDump(jsonEditor2RestApi(editors));
+      let toDownload = new Blob([template], {type: 'application/octet-stream'});
+      url = URL.createObjectURL(toDownload);
+      let link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'template.yaml');
+      let event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      link.dispatchEvent(event);
+    });
+  });
 });
 
-module.exports = { submitJob, showEditInfo };
+module.exports = { submitJob };
 
