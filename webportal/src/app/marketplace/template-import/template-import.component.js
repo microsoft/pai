@@ -46,10 +46,11 @@ const templateViewHtml = templateImportComponent({
 
 let addEditor = null;
 let finalEditor = null;
+let id = -1;
 const showAddModal = (type) => {
-  console.log(type);
   addEditor = null;
   finalEditor = null;
+  id = -1;
   $('#addModalPlaceHolder').html(userAddModalComponent);
   $('#itemPlaceHolder').html(userChooseMainLayout({
     name: type,
@@ -64,53 +65,69 @@ const showAddModal = (type) => {
     type: type,
   }));
   templateView.loadTemplates(type, 'recommand-');
+
   $('#btn-add-search').click((event) => {
-    templateView.search(event, [type], 'recommand-', '#add-search');
+    templateView.search(event, [type], 'recommand-', $('#add-search').val());
   });
   $('#add-search').on('keyup', (event) => {
-    templateView.search(event, [type], 'recommand-', '#add-search');
+    templateView.search(event, [type], 'recommand-', $('#add-search').val());
   });
+
   $('#btn-add-upload').click(() => {
 
   });
   $('#btn-add-customize').click(() => {
-    let id = userChooseTemplateValues[type].length;
+    id = userChooseTemplateValues[type].length + 1;
     $('#editPlaceHolder').html(userEditModalComponent({
       type: type,
       id: id
     }));
-    addEditor = loadEditor(null, type, id);
+ 
+    loadEditor(null, type, id);
 
-    $('#edit-save').click((event) => {
+    $(`#${type}${id}-modal .edit-save`).click(() => {
       finalEditor = addEditor;
       data = finalEditor.getValue();
+      $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
+      $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
+      
       $('#itemPlaceHolder').html(userChooseMainLayout({
         name: data.name,
         contributor: data.contributor,
         description: data.description,
         type: type,
-        id: 1,
+        id: id,
         summaryLayout: userChooseSummaryLayout,
         titleLayout: userChooseTitleLayout,
       }));
-      $(`#${type}${id}-modal`).modal('hide');
+      $(`#${type}${id} .user-edit`).on('click', () => {
+        console.log(`${type}${id}-modal`);
+        $(`#${type}${id}-modal`).modal('show');
+      });
     });
-
-    $('#edit-close').click((event) => {
-      $(`#${type}${id}-modal`).modal('hide');
-    });
-
     $(`#${type}${id}-modal`).modal('show');
   });
-  $('#btn-add-modal').click((event) => {
+  $('#btn-add-modal').click(() => {
+    $('#btn-add-modal').attr('data-dismiss', 'modal');
+    $('#btn-add-modal').attr('aria-hidden', 'true');
+    $('#recommandPlaceHolder').html('');
     if (finalEditor != null) {
       let d = finalEditor.getValue();
-      console.log(d);
-      if (type != 'job') { // job is a object, others is an array.
-        insertNewChooseResult([d], type);
-      }
-      else { // job
-        insertNewChooseResult(d, type);
+      insertNewChooseResult(d, type);
+      let searchTypes = [];
+      Object.keys(userChooseTemplateValues).forEach((t) => {
+        if (userChooseTemplateValues[t].length == 0) {
+          searchTypes.push(t);
+        }
+      });
+      if (searchTypes.length != 0) {
+        $('#user-recommand-holder').html('<h2>Recommand</h2>');
+        searchTypes.forEach((t) => {
+          $('#user-recommand-holder').append(userRecommandLayout({
+            type: t,
+          }));
+        });
+        templateView.search(null, searchTypes, 'recommand-', d['description']);
       }
     }
   });
@@ -338,7 +355,7 @@ const loadEditor = (d, type, id) => {
     editor.setValue(d);
     editors[type].push(editor);
   } else {
-    return editor;
+    addEditor = editor;
   }
 };
 
@@ -423,8 +440,17 @@ $(document).ready(() => {
       link.dispatchEvent(event);
     });
 
+    $(document).on('click', "#add-job-btn", () => {
+      showAddModal('job');
+    });
     $(document).on('click', "#add-data-btn", () => {
       showAddModal('data');
+    });
+    $(document).on('click', "#add-script-btn", () => {
+      showAddModal('script');
+    });
+    $(document).on('click', "#add-docker-btn", () => {
+      showAddModal('dockerimage');
     });
   });
 });
