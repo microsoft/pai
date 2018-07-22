@@ -78,14 +78,49 @@ textarea {
 
 .panel-heading{
     color: #fff !important;
-    background-color: #2eadfa !important;   
+    padding: 0 !important;
 }
 
 .panel-title{
-    color: #fff !important;
     background-color: #2eadfa !important;   
     font-size: 20px;
 }
+
+.panel-title .nav-tabs{
+    border-bottom: none;
+}
+
+.panel-title .nav-tabs a,
+.panel-title .nav-tabs .active a,
+.panel-title .nav-tabs .active a:hover,
+.panel-title .nav-tabs .active a:focus{
+    border: none;
+    background-color: transparent !important;
+}
+
+
+.panel-title .nav-tabs li a{
+    color: #fff !important;
+    margin: 0 15px;
+}
+
+.panel-title .nav-tabs li{
+    border-right: 1.5px solid #fff;
+    border-left: 1.5px solid #fff;
+}
+
+.panel-title .nav-tabs li:nth-child(1){
+    border-left: none;
+}
+
+.panel-title .nav-tabs .active{
+    background-color: rgb(54,127,168);
+}
+
+.panel-title div.pull-right{
+    padding: 10px 15px;
+}
+
 
 .component{
     margin: 15px auto 25px;

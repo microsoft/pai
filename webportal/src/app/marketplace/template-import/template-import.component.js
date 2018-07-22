@@ -28,9 +28,10 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./template-import.schema.js');
-// for model start
 const userEditModalComponent = require('./submit-modal-component.ejs');
-// for model end
+const userChooseMainLayout = require('./template-import-user-choose-layout/main-layout.ejs');
+const userChooseSummaryLayout = require('./template-import-user-choose-layout/summary-layout.ejs');
+const userChooseTitleLayout = require('./template-import-user-choose-layout/title-layout.ejs');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
@@ -45,7 +46,7 @@ const showEditInfo = () => {
 // for model end
 
 const restApi2JsonEditor = (data) => {
-  let res = {'data': [], 'script': [], 'docker': []};
+  let res = { 'data': [], 'script': [], 'dockerimage': [] };
   if ('job' in data) {
     let d = data['job'];
     let tasks = d['tasks'];
@@ -76,14 +77,14 @@ const restApi2JsonEditor = (data) => {
         'gpu': task['resource']['resourcePerInstance']['gpu'],
         'dockerimage': task['dockerimage'],
         'memoryMB': task['resource']['resourcePerInstance']['memoryMB'],
-        'env': ('env' in task) ? task['env']: {},
+        'env': ('env' in task) ? task['env'] : {},
         'command': task['command'],
       });
     });
     res['job'] = d;
   }
   if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function(key) {
+    Object.keys(data['prerequisites']).forEach(function (key) {
       let item = data['prerequisites'][key];
       switch (item['type']) {
         case 'data':
@@ -93,7 +94,7 @@ const restApi2JsonEditor = (data) => {
           res['script'].push(item);
           break;
         case 'dockerimage':
-          res['docker'].push(item);
+          res['dockerimage'].push(item);
           break;
       }
     });
@@ -155,9 +156,8 @@ const jsonEditor2RestApi = (editors) => {
     });
   }
 
-  ['data', 'script', 'docker'].forEach((t) => {
+  ['data', 'script', 'dockerimage'].forEach((t) => {
     data[t].forEach((d) => {
-      d['type'] = t == 'docker' ? 'dockerimage' : t;
       res['prerequisites'].push(d);
     });
   });
@@ -166,11 +166,11 @@ const jsonEditor2RestApi = (editors) => {
 };
 
 
-let editors = {
-  'data': null,
-  'script': null,
-  'docker': null,
-  'job': null,
+let userChooseTemplateValues = {
+  'data': [],
+  'script': [],
+  'dockerimage': [],
+  'job': [],
 };
 
 let jobDefaultConfigs = {};
@@ -209,7 +209,7 @@ const submitJob = (jobConfig) => {
 };
 
 const loadEditor = () => {
-  Object.keys(editors).forEach((key)=>{
+  Object.keys(editors).forEach((key) => {
     let element = document.getElementById(`editor-${key}-holder`);
     let editor = new JSONEditor(element, {
       schema: jobSchema[`${key}Schema`],
@@ -225,7 +225,7 @@ const loadEditor = () => {
   });
 };
 
-const initTableContent = () => {
+const initContent = () => {
   // using AJAX to fill the table content.
   const searchParams = new URLSearchParams(window.location.search);
   let type = searchParams.get('type');
@@ -237,20 +237,60 @@ const initTableContent = () => {
       type: 'GET',
       dataType: 'json',
       success: function (data) {
-        if (type != 'job') data = {'prerequisites': [data]};
+        if (type != 'job') data = { 'prerequisites': [data] };
+
+        console.log(data);
         data = restApi2JsonEditor(data);
+        console.log(data);
 
-        Object.keys(editors).forEach((key) => {
-          let editor = editors[key];
+        Object.keys(userChooseTemplateValues).forEach((key) => {
+          if (key != 'job') { // job is a object, others is an array.
+            data[key].forEach((d) => {
+              if (userChooseTemplateValues[key].length) {
+                if ($(`#${key}-title`).length) {
+                  let newTitle = userChooseTitleLayout({
+                    name: d['name'],
+                    type: key,
+                    id: userChooseTemplateValues[key].length + 1,
+                    active: '',
+                  });
+                  $(`#${key}-title`).append(newTitle);
 
-          const val = cookies.get('editor_' + key);
-          if (val) {
-            editor.setValue(JSON.parse(val));
+                  let newSummary = userChooseSummaryLayout({
+                    name: d['name'],
+                    contributor: d['contributor'],
+                    type: key,
+                    id: userChooseTemplateValues[key].length + 1,
+                    active: '',
+                  });
+                  $(`#${key}-summary`).append(newSummary);
+                }
+              }
+              else {
+                let newItem = userChooseMainLayout({
+                  name: d['name'],
+                  contributor: d['contributor'],
+                  type: key,
+                  id: 1,
+                  summaryLayout: userChooseSummaryLayout,
+                  titleLayout: userChooseTitleLayout,
+                });
+                $('#user-choose-holder').append(newItem);
+              }
+              userChooseTemplateValues[key].push(d);
+            });
           }
-          if (key in data) {
-            editor.setValue(editor.getValue().concat(data[key]));
+          else {
+            let newItem = userChooseMainLayout({
+              name: data[key]['name'],
+              contributor: data[key]['contributor'],
+              type: key,
+              id: 1,
+              summaryLayout: userChooseSummaryLayout,
+              titleLayout: userChooseTitleLayout,
+            });
+            $('#user-choose-holder').append(newItem);
           }
-          cookies.set('editor_' + key, JSON.stringify(editor.getValue()), {expires: 10});
         });
       }
     });
@@ -266,39 +306,39 @@ $('#sidebar-menu--submit-job').addClass('active');
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
   // userAuth.checkToken(function(token) {
-  loadEditor();
-  initTableContent();
+  // loadEditor();
+  initContent();
 
-  Object.keys(editors).forEach((key)=>{
-    let editor = editors[key];
-    let enabled = true;
-    editor.on('change', () => {
-      enabled &= (editor.validate().length == 0);
-    });
-    $('#submitJob').prop('disabled', !enabled);
-  });
+  // Object.keys(editors).forEach((key)=>{
+  //   let editor = editors[key];
+  //   let enabled = true;
+  //   editor.on('change', () => {
+  //     enabled &= (editor.validate().length == 0);
+  //   });
+  //   $('#submitJob').prop('disabled', !enabled);
+  // });
 
-  $(document).on('click', '#submitJob', () => {
-    showEditInfo();
-  });
+  // $(document).on('click', '#submitJob', () => {
+  //   showEditInfo();
+  // });
 
-  $(document).on('click', '#saveTemplate', () => {
-    let template = yaml.safeDump(jsonEditor2RestApi(editors));
-    var toDownload = new Blob([template], {type: 'application/octet-stream'});
-    url = URL.createObjectURL(toDownload);
-    var link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'template.yaml');
-    var event = document.createEvent('MouseEvents');
-    event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-    link.dispatchEvent(event);
-  });
+  // $(document).on('click', '#saveTemplate', () => {
+  //   let template = yaml.safeDump(jsonEditor2RestApi(editors));
+  //   var toDownload = new Blob([template], {type: 'application/octet-stream'});
+  //   url = URL.createObjectURL(toDownload);
+  //   var link = document.createElement('a');
+  //   link.setAttribute('href', url);
+  //   link.setAttribute('download', 'template.yaml');
+  //   var event = document.createEvent('MouseEvents');
+  //   event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+  //   link.dispatchEvent(event);
+  // });
 
-  $(document).on('click', '#single', () => {
-    submitJob(jsonEditor2RestApi(editors));
-  });
+  // $(document).on('click', '#single', () => {
+  //   submitJob(jsonEditor2RestApi(editors));
+  // });
   // });
 });
 
-module.exports = {submitJob, showEditInfo};
+module.exports = { submitJob, showEditInfo };
 

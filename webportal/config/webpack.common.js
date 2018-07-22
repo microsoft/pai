@@ -56,6 +56,7 @@ const config = {
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
     template: './src/app/marketplace/template-view/template-view.component.js',
+    detail: './src/app/marketplace/template-view/template-detail.component.js',
     import: './src/app/marketplace/template-import/template-import.component.js'
   },
   output: {
@@ -301,6 +302,14 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'import']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'detail.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'detail']
     })
   ],
   node: {
@@ -308,7 +317,8 @@ const config = {
     fs: 'empty',
     process: true,
     module: false
-  }
+  },
+  devtool: 'source-map'
 };
 
 module.exports = config;
