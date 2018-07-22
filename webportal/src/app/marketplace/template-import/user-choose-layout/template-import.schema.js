@@ -21,6 +21,7 @@ const taskSchema = {
   format: 'grid',
   propertyOrder: 1002,
   options: {
+    collapsed: true,
     disable_edit_json: true,
     disable_array_delete_last_row: true,
     disable_array_delete_all_rows: true,
@@ -132,222 +133,34 @@ const taskSchema = {
 
 // submit_job [data]
 const dataSchema = {
-  type: 'array',
+  type: 'object',
   // minItems: 1,
   format: 'grid',
-  propertyOrder: 1002,
+  headerTemplate: "{{ self.name }}",
   options: {
-    disable_array_delete_last_row: true,
-    disable_array_delete_all_rows: true,
+    disable_edit_json: true,
+    disable_collapse: true,
   },
-  items: {
-    headerTemplate: "{{ self.name }}",
-    type: 'object',
-    format: 'grid',
-    options: {
-      disable_edit_json: true,
-      collapsed: true,
+  properties: {
+    name: {
+      type: 'string'
     },
-    properties: {
-      name: {
-        type: 'string'
-      },
-      version: {
-        type: 'string',
-        multipleOf: 1,
-      },
-      contributor: {
-        type: 'string'
-      },
-      protocol_version: {
-        type: 'string',
-        multipleOf: 1,
-      },
-      uri: {
-        type: 'string'
-      },
-      description: {
-        type: 'string',
-      },
+    version: {
+      type: 'string',
+      multipleOf: 1,
     },
-    required: [
-      'name',
-      'version',
-      'contributor',
-      'protocol_version',
-      'uri',
-      'description'
-    ]
-  }
-};
-// submit_job [script]
-const scriptSchema = {
-  type: 'array',
-  // minItems: 1,
-  format: 'grid',
-  propertyOrder: 1002,
-  options: {
-    disable_array_delete_last_row: true,
-    disable_array_delete_all_rows: true,
-  },
-  items: {
-    headerTemplate: "{{ self.name }}",
-    type: 'object',
-    format: 'grid',
-    // JSON can not edit
-    options: {
-      disable_edit_json: true,
-      collapsed: true,
+    contributor: {
+      type: 'string'
     },
-    properties: {
-      name: {
-        type: 'string'
-      },
-      version: {
-        type: 'string',
-        multipleOf: 1,
-      },
-      contributor: {
-        type: 'string'
-      },
-      protocol_version: {
-        type: 'string',
-        multipleOf: 1
-      },
-      uri: {
-        type: 'string',
-        multipleOf: 1
-      },
-      description: {
-        type: 'string',
-      },
+    protocol_version: {
+      type: 'string',
+      multipleOf: 1,
     },
-    required: [
-      'name',
-      'version',
-      'contributor',
-      'protocol_version',
-      'uri',
-      'description',
-    ]
-  }
-};
-
-// submit_job [docker]
-const dockerSchema = {
-  type: 'array',
-  // minItems: 1,
-  // as tabs render [form,tabs,table] 
-  format: 'grid',
-  propertyOrder: 1002,
-  options: {
-    disable_array_delete_last_row: true,
-    disable_array_delete_all_rows: true,
-  },
-  items: {
-    headerTemplate: "{{ self.name }}",
-    type: 'object',
-    format: 'grid',
-    options: {
-      disable_edit_json: true,
-      collapsed: true,
+    uri: {
+      type: 'string'
     },
-    properties: {
-      name: {
-        type: 'string',
-      },
-      version: {
-        type: 'string',
-        multipleOf: 1,
-      },
-      contributor: {
-        type: 'string'
-      },
-      protocol_version: {
-        type: 'string',
-        multipleOf: 1,
-      },
-      uri: {
-        type: 'string',
-      },
-      description: {
-        type: 'string',
-      },
-    },
-    required: [
-      'name',
-      'version',
-      'contributor',
-      'protocol_version',
-      'uri',
-      'description',
-    ]
-  }
-};
-
-// submit_job [job]
-const jobSchema = {
-  type: 'array',
-  minItems: 1,
-  format: 'grid',
-  propertyOrder: 1002,
-  options: {
-    disable_array_delete_last_row: true,
-    disable_array_delete_all_rows: true,
-  },
-  items: {
-    headerTemplate: "{{ self.name }}",
-    type: 'object',
-    format: 'grid',
-    options: {
-      disable_edit_json: true,
-      collapsed: true,
-    },
-    properties: {
-      name: {
-        type: 'string',
-        propertyOrder: 1,
-      },
-      version: {
-        type: 'string',
-        multipleOf: 1,
-        propertyOrder: 2,
-      },
-      protocol_version: {
-        type: 'string',
-        multipleOf: 1,
-        propertyOrder: 3,
-      },
-      contributor: {
-        type: 'string',
-        propertyOrder: 4,
-      },
-      description: {
-        type: 'string',
-        propertyOrder: 5,
-      },
-      parameters: {
-        type: 'array',
-        format: 'table',
-        propertyOrder: 6,
-        options: {
-          disable_array_delete_last_row: true,
-          disable_array_delete_all_rows: true,
-          disable_edit_json: false,
-        },
-        items:{
-          type: 'object',
-          properties:{
-            name:{
-              type: 'string',
-            },
-            value:{
-              type: 'string',
-            }
-          }
-        },
-      },
-      tasks: taskSchema,
+    description: {
+      type: 'string',
     },
   },
   required: [
@@ -355,8 +168,156 @@ const jobSchema = {
     'version',
     'contributor',
     'protocol_version',
+    'uri',
+    'description'
+  ]
+};
+
+// submit_job [script]
+const scriptSchema = {
+  type: 'object',
+  format: 'grid',
+  headerTemplate: "{{ self.name }}",
+  options: {
+    disable_edit_json: true,
+    disable_collapse: true,
+  },
+  properties: {
+    name: {
+      type: 'string'
+    },
+    version: {
+      type: 'string',
+      multipleOf: 1,
+    },
+    contributor: {
+      type: 'string'
+    },
+    protocol_version: {
+      type: 'string',
+      multipleOf: 1
+    },
+    uri: {
+      type: 'string',
+      multipleOf: 1
+    },
+    description: {
+      type: 'string',
+    },
+  },
+  required: [
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri',
     'description',
-    'experiment',
+  ]
+};
+
+// submit_job [dockerimage]
+const dockerimageSchema = {
+  type: 'object',
+  // as tabs render [form,tabs,table] 
+  format: 'grid',
+  headerTemplate: "{{ self.name }}",
+  options: {
+    disable_edit_json: true,
+    disable_collapse: true,
+  },
+  properties: {
+    name: {
+      type: 'string',
+    },
+    version: {
+      type: 'string',
+      multipleOf: 1,
+    },
+    contributor: {
+      type: 'string'
+    },
+    protocol_version: {
+      type: 'string',
+      multipleOf: 1,
+    },
+    uri: {
+      type: 'string',
+    },
+    description: {
+      type: 'string',
+    },
+  },
+  required: [
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri',
+    'description',
+  ]
+};
+
+// submit_job [job]
+const jobSchema = {
+  type: 'object',
+  format: 'grid',
+  headerTemplate: "{{ self.name }}",
+  options: {
+    disable_edit_json: true,
+    disable_collapse: true,
+  },
+  properties: {
+    name: {
+      type: 'string',
+      propertyOrder: 1,
+    },
+    version: {
+      type: 'string',
+      multipleOf: 1,
+      propertyOrder: 2,
+    },
+    protocol_version: {
+      type: 'string',
+      multipleOf: 1,
+      propertyOrder: 3,
+    },
+    contributor: {
+      type: 'string',
+      propertyOrder: 4,
+    },
+    description: {
+      type: 'string',
+      propertyOrder: 5,
+    },
+    parameters: {
+      type: 'array',
+      format: 'table',
+      propertyOrder: 6,
+      options: {
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        disable_edit_json: false,
+      },
+      items: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+          value: {
+            type: 'string',
+          }
+        }
+      },
+    },
+    tasks: taskSchema,
+  },
+  required: [
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'description',
     'parameters',
     'tasks',
   ]
@@ -365,6 +326,6 @@ const jobSchema = {
 module.exports = {
   dataSchema,
   scriptSchema,
-  dockerSchema,
+  dockerimageSchema,
   jobSchema,
 };

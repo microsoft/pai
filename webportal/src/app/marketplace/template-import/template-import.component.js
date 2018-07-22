@@ -27,28 +27,32 @@ const templateImportComponent = require('./template-import.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-const jobSchema = require('./template-import.schema.js');
-const userEditModalComponent = require('./submit-modal-component.ejs');
-const userChooseMainLayout = require('./template-import-user-choose-layout/main-layout.ejs');
-const userChooseSummaryLayout = require('./template-import-user-choose-layout/summary-layout.ejs');
-const userChooseTitleLayout = require('./template-import-user-choose-layout/title-layout.ejs');
+const jobSchema = require('./user-choose-layout/template-import.schema.js');
+const userSubmitModalComponent = require('./submit-modal-component.ejs');
+const userEditModalComponent = require('./user-choose-layout/edit.ejs');
+const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
+const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
+const userChooseTitleLayout = require('./user-choose-layout/title-layout.ejs');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
 
-// for model start
-const showEditInfo = () => {
-  $('#modalPlaceHolder').html(userEditModalComponent);
-  $('#userEditModal').modal('show');
-};
-// for model end
-
 const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
   if ('job' in data) {
     let d = data['job'];
+
+    let parameters = d['parameters'];
+    d['parameters'] = [];
+    Object.keys(parameters).forEach((key)=>{
+      d['parameters'].push({
+        name: key,
+        value: parameters[key],
+      });
+    });
+
     let tasks = d['tasks'];
     d['tasks'] = [];
     tasks.forEach((task) => {
@@ -69,7 +73,7 @@ const restApi2JsonEditor = (data) => {
       }
       d['tasks'].push({
         'role': task['name'],
-        'instances': val, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
+        'instances': val,
         'data': task['data'],
         'portList': ('portList' in task['resource']) ? task['resource']['portList'] : [],
         'cpu': task['resource']['resourcePerInstance']['cpu'],
@@ -86,17 +90,7 @@ const restApi2JsonEditor = (data) => {
   if ('prerequisites' in data) {
     Object.keys(data['prerequisites']).forEach(function (key) {
       let item = data['prerequisites'][key];
-      switch (item['type']) {
-        case 'data':
-          res['data'].push(item);
-          break;
-        case 'script':
-          res['script'].push(item);
-          break;
-        case 'dockerimage':
-          res['dockerimage'].push(item);
-          break;
-      }
+      res[item['type']].push(item);
     });
   }
   return res;
@@ -114,16 +108,13 @@ const tryStringToJson = (s) => {
 };
 
 const jsonEditor2RestApi = (editors) => {
-  let data = {};
-  Object.keys(editors).forEach((key) => {
-    data[key] = editors[key].getValue();
-  });
   let res = {
     'prerequisites': [],
   };
-  if ('job' in data) {
-    let jobs = data['job']; // is a array, but I assume only one job.
+  if ('job' in editors) {
+    let jobs = editors['job']; // is a array, but I assume only one job.
     jobs.forEach((job) => {
+      job = job.getValue();
       job['type'] = 'job';
       let tasks = job['tasks'];
       let parameters = job['parameters'];
@@ -157,8 +148,10 @@ const jsonEditor2RestApi = (editors) => {
   }
 
   ['data', 'script', 'dockerimage'].forEach((t) => {
-    data[t].forEach((d) => {
-      res['prerequisites'].push(d);
+    editors[t].forEach((d) => {
+      let curData = d.getValue();
+      curData['type'] = t;
+      res['prerequisites'].push(curData);
     });
   });
   console.log(res);
@@ -172,6 +165,13 @@ let userChooseTemplateValues = {
   'dockerimage': [],
   'job': [],
 };
+
+let editors = {
+  'data': [],
+  'script': [],
+  'dockerimage': [],
+  'job': [],
+}
 
 let jobDefaultConfigs = {};
 
@@ -208,22 +208,72 @@ const submitJob = (jobConfig) => {
   });
 };
 
-const loadEditor = () => {
-  Object.keys(editors).forEach((key) => {
-    let element = document.getElementById(`editor-${key}-holder`);
-    let editor = new JSONEditor(element, {
-      schema: jobSchema[`${key}Schema`],
-      theme: 'bootstrap3',
-      iconlib: 'bootstrap3',
-      disable_array_reorder: true,
-      no_additional_properties: true,
-      show_errors: 'always',
-      disable_properties: true,
-    });
-    jobDefaultConfigs[key] = editor.getValue();
-    editors[key] = editor;
+const insertNewContent = (d, key) => {
+  let newItem = userChooseMainLayout({
+    name: d['name'],
+    contributor: d['contributor'],
+    description: d['description'],
+    type: key,
+    id: 1,
+    summaryLayout: userChooseSummaryLayout,
+    titleLayout: userChooseTitleLayout,
   });
+  $('#user-choose-holder').append(newItem);
+  userChooseTemplateValues[key].push(d);
 };
+
+const insertNewTitleAndSummary = (d, key) => {
+  let newTitle = userChooseTitleLayout({
+    name: d['name'],
+    type: key,
+    id: userChooseTemplateValues[key].length + 1,
+    active: '',
+  });
+  $(`#${key}-title`).append(newTitle);
+
+  let newSummary = userChooseSummaryLayout({
+    name: d['name'],
+    contributor: d['contributor'],
+    description: d['description'],
+    type: key,
+    id: userChooseTemplateValues[key].length + 1,
+    active: '',
+  });
+  $(`#${key}-summary`).append(newSummary);
+  userChooseTemplateValues[key].push(d);
+};
+
+
+const loadEditor = (d, type, id) => {
+  let element = document.getElementById(`${type}${id}-json-editor-holder`);
+  let editor = new JSONEditor(element, {
+    schema: jobSchema[`${type}Schema`],
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    no_additional_properties: true,
+    show_errors: 'always',
+    disable_properties: true,
+  });
+  jobDefaultConfigs[type] = editor.getValue();
+  editor.setValue(d);
+  editors[type].push(editor);
+};
+
+const insertNewChooseResult = (d, type) => {
+  userChooseTemplateValues[type].length ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
+  let id = userChooseTemplateValues[type].length;
+  $('#user-choose-holder').append(userEditModalComponent({
+    type: type,
+    id: id
+  }));
+  loadEditor(d, type, id);
+
+  $(`#${type}${id} .user-edit`).on('click', () => {
+    console.log(`${type}${id}-modal`);
+    $(`#${type}${id}-modal`).modal('show');
+  });
+}
 
 const initContent = () => {
   // using AJAX to fill the table content.
@@ -239,57 +289,16 @@ const initContent = () => {
       success: function (data) {
         if (type != 'job') data = { 'prerequisites': [data] };
 
-        console.log(data);
         data = restApi2JsonEditor(data);
         console.log(data);
-
         Object.keys(userChooseTemplateValues).forEach((key) => {
           if (key != 'job') { // job is a object, others is an array.
             data[key].forEach((d) => {
-              if (userChooseTemplateValues[key].length) {
-                if ($(`#${key}-title`).length) {
-                  let newTitle = userChooseTitleLayout({
-                    name: d['name'],
-                    type: key,
-                    id: userChooseTemplateValues[key].length + 1,
-                    active: '',
-                  });
-                  $(`#${key}-title`).append(newTitle);
-
-                  let newSummary = userChooseSummaryLayout({
-                    name: d['name'],
-                    contributor: d['contributor'],
-                    type: key,
-                    id: userChooseTemplateValues[key].length + 1,
-                    active: '',
-                  });
-                  $(`#${key}-summary`).append(newSummary);
-                }
-              }
-              else {
-                let newItem = userChooseMainLayout({
-                  name: d['name'],
-                  contributor: d['contributor'],
-                  type: key,
-                  id: 1,
-                  summaryLayout: userChooseSummaryLayout,
-                  titleLayout: userChooseTitleLayout,
-                });
-                $('#user-choose-holder').append(newItem);
-              }
-              userChooseTemplateValues[key].push(d);
+              insertNewChooseResult(d, key);
             });
           }
-          else {
-            let newItem = userChooseMainLayout({
-              name: data[key]['name'],
-              contributor: data[key]['contributor'],
-              type: key,
-              id: 1,
-              summaryLayout: userChooseSummaryLayout,
-              titleLayout: userChooseTitleLayout,
-            });
-            $('#user-choose-holder').append(newItem);
+          else { // job
+            insertNewChooseResult(data[key], key);
           }
         });
       }
@@ -297,48 +306,43 @@ const initContent = () => {
   }
 };
 
-// for model start
-window.showEditInfo = showEditInfo;
-// for model end
-
-$('#sidebar-menu--submit-job').addClass('active');
 
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
-  // userAuth.checkToken(function(token) {
-  // loadEditor();
-  initContent();
+  userAuth.checkToken(function(token) {
+    initContent();
 
-  // Object.keys(editors).forEach((key)=>{
-  //   let editor = editors[key];
-  //   let enabled = true;
-  //   editor.on('change', () => {
-  //     enabled &= (editor.validate().length == 0);
-  //   });
-  //   $('#submitJob').prop('disabled', !enabled);
-  // });
+    // Object.keys(editors).forEach((key)=>{
+    //   let editor = editors[key];
+    //   let enabled = true;
+    //   editor.on('change', () => {
+    //     enabled &= (editor.validate().length == 0);
+    //   });
+    //   $('#submitJob').prop('disabled', !enabled);
+    // });
 
-  // $(document).on('click', '#submitJob', () => {
-  //   showEditInfo();
-  // });
+    $('#submitModalPlaceHolder').html(userSubmitModalComponent);
+    $(document).on('click', '#submitJob', () => {
+      $('#userSumbitModal').modal('show');
+    });
 
-  // $(document).on('click', '#saveTemplate', () => {
-  //   let template = yaml.safeDump(jsonEditor2RestApi(editors));
-  //   var toDownload = new Blob([template], {type: 'application/octet-stream'});
-  //   url = URL.createObjectURL(toDownload);
-  //   var link = document.createElement('a');
-  //   link.setAttribute('href', url);
-  //   link.setAttribute('download', 'template.yaml');
-  //   var event = document.createEvent('MouseEvents');
-  //   event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-  //   link.dispatchEvent(event);
-  // });
+    $(document).on('click', '#single', () => {
+      submitJob(jsonEditor2RestApi(editors));
+    });
 
-  // $(document).on('click', '#single', () => {
-  //   submitJob(jsonEditor2RestApi(editors));
-  // });
-  // });
+    $(document).on('click', '#saveTemplate', () => {
+      let template = yaml.safeDump(jsonEditor2RestApi(editors));
+      let toDownload = new Blob([template], {type: 'application/octet-stream'});
+      url = URL.createObjectURL(toDownload);
+      let link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'template.yaml');
+      let event = document.createEvent('MouseEvents');
+      event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+      link.dispatchEvent(event);
+    });
+  });
 });
 
-module.exports = { submitJob, showEditInfo };
+module.exports = { submitJob };
 
