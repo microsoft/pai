@@ -27,11 +27,12 @@ const templateImportComponent = require('./template-import.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
-const jobSchema = require('./template-import.schema.js');
-const userEditModalComponent = require('./submit-modal-component.ejs');
-const userChooseMainLayout = require('./template-import-user-choose-layout/main-layout.ejs');
-const userChooseSummaryLayout = require('./template-import-user-choose-layout/summary-layout.ejs');
-const userChooseTitleLayout = require('./template-import-user-choose-layout/title-layout.ejs');
+const jobSchema = require('./user-choose-layout/template-import.schema.js');
+const userSubmitModalComponent = require('./submit-modal-component.ejs');
+const userEditModalComponent = require('./user-choose-layout/edit.ejs');
+const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
+const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
+const userChooseTitleLayout = require('./user-choose-layout/title-layout.ejs');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
@@ -40,8 +41,8 @@ const templateViewHtml = templateImportComponent({
 
 // for model start
 const showEditInfo = () => {
-  $('#modalPlaceHolder').html(userEditModalComponent);
-  $('#userEditModal').modal('show');
+  $('#modalPlaceHolder').html(userSubmitModalComponent);
+  $('#userSumbitModal').modal('show');
 };
 // for model end
 
@@ -49,6 +50,16 @@ const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
   if ('job' in data) {
     let d = data['job'];
+
+    let parameters = d['parameters'];
+    d['parameters'] = [];
+    Object.keys(parameters).forEach((key)=>{
+      d['parameters'].push({
+        name: key,
+        value: parameters[key],
+      });
+    });
+
     let tasks = d['tasks'];
     d['tasks'] = [];
     tasks.forEach((task) => {
@@ -69,7 +80,7 @@ const restApi2JsonEditor = (data) => {
       }
       d['tasks'].push({
         'role': task['name'],
-        'instances': val, // the task['resource']['instances'] is a string like '$job.parameters.num_of_worker', not a int.
+        'instances': val,
         'data': task['data'],
         'portList': ('portList' in task['resource']) ? task['resource']['portList'] : [],
         'cpu': task['resource']['resourcePerInstance']['cpu'],
@@ -86,17 +97,7 @@ const restApi2JsonEditor = (data) => {
   if ('prerequisites' in data) {
     Object.keys(data['prerequisites']).forEach(function (key) {
       let item = data['prerequisites'][key];
-      switch (item['type']) {
-        case 'data':
-          res['data'].push(item);
-          break;
-        case 'script':
-          res['script'].push(item);
-          break;
-        case 'dockerimage':
-          res['dockerimage'].push(item);
-          break;
-      }
+      res[item['type']].push(item);
     });
   }
   return res;
@@ -173,6 +174,13 @@ let userChooseTemplateValues = {
   'job': [],
 };
 
+let editors = {
+  'data': [],
+  'script': [],
+  'dockerimage': [],
+  'job': [],
+}
+
 let jobDefaultConfigs = {};
 
 
@@ -205,23 +213,6 @@ const submitJob = (jobConfig) => {
         alert(res.message);
       },
     });
-  });
-};
-
-const loadEditor = () => {
-  Object.keys(editors).forEach((key) => {
-    let element = document.getElementById(`editor-${key}-holder`);
-    let editor = new JSONEditor(element, {
-      schema: jobSchema[`${key}Schema`],
-      theme: 'bootstrap3',
-      iconlib: 'bootstrap3',
-      disable_array_reorder: true,
-      no_additional_properties: true,
-      show_errors: 'always',
-      disable_properties: true,
-    });
-    jobDefaultConfigs[key] = editor.getValue();
-    editors[key] = editor;
   });
 };
 
@@ -258,8 +249,39 @@ const insertNewTitleAndSummary = (d, key) => {
   });
   $(`#${key}-summary`).append(newSummary);
   userChooseTemplateValues[key].push(d);
-
 };
+
+
+const loadEditor = (d, type, id) => {
+  let element = document.getElementById(`${type}${id}-json-editor-holder`);
+  let editor = new JSONEditor(element, {
+    schema: jobSchema[`${type}Schema`],
+    theme: 'bootstrap3',
+    iconlib: 'bootstrap3',
+    disable_array_reorder: true,
+    no_additional_properties: true,
+    show_errors: 'always',
+    disable_properties: true,
+  });
+  jobDefaultConfigs[type] = editor.getValue();
+  editor.setValue(d);
+  editors[type].push(editor);
+};
+
+const insertNewChooseResult = (d, type) => {
+  userChooseTemplateValues[type].length ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
+  let id = userChooseTemplateValues[type].length;
+  $('#user-choose-holder').append(userEditModalComponent({
+    type: type,
+    id: id
+  }));
+  loadEditor(d, type, id);
+
+  $(`#${type}${id} .user-edit`).on('click', () => {
+    console.log(`${type}${id}-modal`);
+    $(`#${type}${id}-modal`).modal('show');
+  });
+}
 
 const initContent = () => {
   // using AJAX to fill the table content.
@@ -275,18 +297,16 @@ const initContent = () => {
       success: function (data) {
         if (type != 'job') data = { 'prerequisites': [data] };
 
-        console.log(data);
         data = restApi2JsonEditor(data);
         console.log(data);
-
         Object.keys(userChooseTemplateValues).forEach((key) => {
           if (key != 'job') { // job is a object, others is an array.
             data[key].forEach((d) => {
-              userChooseTemplateValues[key].length ? insertNewTitleAndSummary(d, key) : insertNewContent(d, key);
+              insertNewChooseResult(d, key);
             });
           }
           else { // job
-            insertNewContent(data[key], key);
+            insertNewChooseResult(data[key], key);
           }
         });
       }
