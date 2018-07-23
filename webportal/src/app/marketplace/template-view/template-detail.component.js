@@ -178,6 +178,30 @@ const experimentData = [
   },
 ];
 
+const generateDetailHtml = (data) => {
+  const template = data.job ? data.job : data;
+  const templateDetailHtml = templateDetailComponent({
+    breadcrumb: breadcrumbComponent,
+    overview: detailOverviewComponent,
+    qa: detailQaComponent,
+    review: detailReviewComponent,
+    experiment: detailExperimentComponent,
+    detail: {
+      type: template.type,
+      name: template.name,
+      version: template.version,
+      uses: 120,
+      star: 4,
+      description: template.description,
+      contributor: template.contributor,
+      overview: overviewData,
+      qas: qaData,
+      reviews: reviewData,
+      experiments: experimentData,
+    },
+  });
+  return templateDetailHtml;
+}
 
 const loadSummary = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -192,28 +216,7 @@ const loadSummary = () => {
       type: 'GET',
       dataType: 'json',
       success: function(data) {
-        const template = data.job ? data.job : data;
-        const templateDetailHtml = templateDetailComponent({
-          breadcrumb: breadcrumbComponent,
-          overview: detailOverviewComponent,
-          qa: detailQaComponent,
-          review: detailReviewComponent,
-          experiment: detailExperimentComponent,
-          detail: {
-            type,
-            name,
-            version,
-            uses: 120,
-            star: 4,
-            description: template.description,
-            contributor: template.contributor,
-            overview: overviewData,
-            qas: qaData,
-            reviews: reviewData,
-            experiments: experimentData,
-          },
-        });
-        $('#content-wrapper').html(templateDetailHtml);
+        $('#content-wrapper').html(generateDetailHtml(data));
         $('#btn-use').click((event) => {
           window.location.href = "/import.html" + window.location.search;
         });

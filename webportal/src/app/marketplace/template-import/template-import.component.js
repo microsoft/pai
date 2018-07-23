@@ -47,6 +47,7 @@ const templateViewHtml = templateImportComponent({
 let addEditor = null;
 let finalEditor = null;
 let id = -1;
+let addModalActive = false;
 
 const saveTemplateOnAddModal = (type, id) => {
   finalEditor = addEditor;
@@ -94,17 +95,43 @@ const getTemplateByAJAX = (type, name, version, process) => {
 const replaceHrefs = () => {
   $('.cardhref').map(function() {
     $(this).removeAttr('href');
+    $(this).attr('data-toggle', 'tooltip');
+    $(this).attr('data-html', 'ture');
+    $(this).attr('data-placement', 'right');
     $(this).click(() => {
       let items = $(this).attr('id').split('-');
       getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
+        if (addModalActive == false) {
+          $('#user-recommand-holder').html('');
+          showAddModal(items[0]);
+        }
         addEditor.setValue(data);
-        saveTemplateOnAddModal(type, id);
+        saveTemplateOnAddModal(items[0], id);
       });
     });
+    let thisid = $(this).attr('id');
+    let tooltiphtml = '<h2>' + $(`#${thisid} .item-title`).val() + '</h2>' + 
+                      '<p>' + $(`#${thisid} .item-dsp`).html() + '</p>' +
+                      $(`#${thisid} .star-rating`).html();
+    console.log(tooltiphtml);
+    $(this).attr('title', tooltiphtml);
   });
+  //$('[data-toggle="tooltip"]').tooltip();
+  if (addModalActive == false) {
+    $('.recommand-container').map(function() {
+      let type = $(this).attr('id').substring(3);
+      if ($('#recommand-' + type + '-table').html() == '') {
+        $(this).remove();
+      }
+    });
+    if ($('#user-recommand-holder .recommand-container').length == 0) {
+      $('#user-recommand-holder').html('');
+    }
+  }
 };
 
 const showAddModal = (type) => {
+  addModalActive = true;
   addEditor = null;
   finalEditor = null;
   id = userChooseTemplateValues[type].length + 1;
@@ -148,7 +175,12 @@ const showAddModal = (type) => {
     $(`#${type}${id}-modal`).modal('show');
   });
 
+  $('#btn-close-add-modal').click(() => {
+    addModalActive = false;
+  });
+  
   $('#btn-add-modal').click(() => {
+    addModalActive = false;
     $('#btn-add-modal').attr('data-dismiss', 'modal');
     $('#btn-add-modal').attr('aria-hidden', 'true');
     $('#recommandPlaceHolder').html('');
@@ -172,30 +204,7 @@ const showAddModal = (type) => {
             type: t,
           }));
         });
-        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], () => {
-          $('.cardhref').map(function() {
-            $(this).removeAttr('href');
-            $(this).click(() => {
-              let items = $(this).attr('id').split('-');
-              getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
-                $('#user-recommand-holder').html('');
-                showAddModal(type);
-                addEditor.setValue(data);
-                saveTemplateOnAddModal(type, id);
-              });
-            });
-          });
-          let removeItems = 0;
-          searchTypes.forEach((t) => {
-            if ($('#recommand-' + t + '-table').html() == '') {
-              $('#recommand-' + t).empty();
-              removeItems += 1;
-            }
-          });
-          if (removeItems == searchTypes.length) {
-            $('#user-recommand-holder').html('');
-          } 
-        });
+        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], replaceHrefs);
       }
     }
   });
