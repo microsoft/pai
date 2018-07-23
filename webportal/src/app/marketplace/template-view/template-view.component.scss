@@ -18,30 +18,23 @@
 }
 
 .box-body {
-  margin-left: 8vw;
-  margin-right: 8vw; 
+  margin-left: 5vw;
+  margin-right: 5vw; 
 }
 
 .item .row {
-  padding-left: 30px;
-  padding-right: 30px;
   display: flex;
   align-items: center;
+  width: 75%;
   height: 230px;
-}
-
-.carousel {
-  margin-left: 30px;
-  margin-right: 30px;
+  margin: auto;
 }
 
 .left.carousel-control {
-  margin-left: -45px;
   color: grey;
 }
 
 .right.carousel-control {
-  margin-right: -45px !important;
   color: grey;
 }
 

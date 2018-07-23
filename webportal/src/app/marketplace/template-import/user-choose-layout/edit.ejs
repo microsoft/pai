@@ -1,16 +1,16 @@
 <!-- Modal -->
-<div id="<%= type %><%= id %>-modal" class="modal fade json-editor-modal" tabindex="-1" role="dialog" aria-labelledby="userEditModalLabel" aria-hidden="true">
+<div id="<%= type %><%= id %>-modal" class="modal fade json-editor-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title">Edit <%= type %></h4>
       </div>
       <div class="modal-body">
         <div id="<%= type %><%= id %>-json-editor-holder"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" id="edit-close">Close</button>
-        <button type="button" class="btn btn-primary" id="edit-save">Save</button>
+        <button type="button" class="btn btn-primary edit-save">Save</button>
       </div>
     </div>
   </div>

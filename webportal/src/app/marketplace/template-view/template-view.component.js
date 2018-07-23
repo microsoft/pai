@@ -97,9 +97,8 @@ const loadTemplates = function(name, tableprefix) {
   });
 };
 
-const search = function(event, types, tableprefix, searchinput) {
-  if (!event.keyCode || event.keyCode == 13) {
-    var query = $(searchinput).val();
+const search = function(event, types, tableprefix, query) {
+  if (event == null || !event.keyCode || event.keyCode == 13) {
     if (query) {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/template?query=` + encodeURIComponent(query),
@@ -128,10 +127,10 @@ const search = function(event, types, tableprefix, searchinput) {
 };
 
 $('#btn-search').click((event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], '', '#search');
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
 });
 $('#search').on('keyup', (event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], '', '#search');
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
 });
 
 $(window).resize(function(event) {
