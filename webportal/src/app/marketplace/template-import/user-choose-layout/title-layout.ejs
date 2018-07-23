@@ -1,5 +1,8 @@
-<li class="<%= active %>">
-  <a href="#<%= type %><%= id %>" data-toggle="tab">
-    <%= name %>
+<li class="<%= active %>" id="<%= type %><%= id %>-title">
+  <a href="#<%= type %><%= id %>-summary" data-toggle="tab">
+    <span><%= name %></span>
+    &nbsp;
+    <!-- <span class="glyphicon glyphicon-remove "></span> -->
+    <button type="button" class="close" id="<%= type %><%= id %>-remove-button">×</button>
   </a>
 </li>
