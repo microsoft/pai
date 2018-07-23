@@ -321,6 +321,9 @@ const insertNewContent = (d, key) => {
   });
   $('#user-choose-holder').append(newItem);
   userChooseTemplateValues[key].push(d);
+  $(`#panel-head-add-new-${key}`).on('click', (t)=>{
+    showAddModal(key);
+  });
 };
 
 const insertNewTitleAndSummary = (d, key) => {
