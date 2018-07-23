@@ -206,49 +206,55 @@ const jsonEditor2RestApi = (editors) => {
   let res = {
     'prerequisites': [],
   };
+  
+  ['data', 'script', 'dockerimage'].forEach((t) => {
+    editors[t].forEach((d) => {
+      if(d!=null){
+        let curData = d.getValue();
+        curData['type'] = t;
+        res['prerequisites'].push(curData);
+      }
+    });
+  });
+
   if ('job' in editors) {
     let jobs = editors['job']; // is a array, but I assume only one job.
     jobs.forEach((job) => {
-      job = job.getValue();
-      job['type'] = 'job';
-      let tasks = job['tasks'];
-      let parameters = job['parameters'];
-      job['parameters'] = {};
-      parameters.forEach((t) => {
-        job['parameters'][t['name']] = t['value'];
-      });
-
-      job['tasks'] = [];
-      tasks.forEach((task) => {
-        job['tasks'].push({
-          'name': task['role'],
-          'data': task['data'],
-          'dockerimage': task['dockerimage'],
-          'command': tryStringToJson(task['command']),
-          'script': task['script'],
-          'env': tryStringToJson(task['env']),
-          'resource': {
-            'instances': task['instances'],
-            'resourcePerInstance': {
-              'cpu': task['cpu'],
-              'gpu': task['gpu'],
-              'memoryMB': task['memoryMB']
-            },
-            'portList': task['portList'],
-          }
+      if(job != null){
+        job = job.getValue();
+        job['type'] = 'job';
+        let tasks = job['tasks'];
+        let parameters = job['parameters'];
+        job['parameters'] = {};
+        parameters.forEach((t) => {
+          job['parameters'][t['name']] = t['value'];
         });
-      });
-      res['job'] = job;
+
+        job['tasks'] = [];
+        tasks.forEach((task) => {
+          job['tasks'].push({
+            'name': task['role'],
+            'data': task['data'],
+            'dockerimage': task['dockerimage'],
+            'command': tryStringToJson(task['command']),
+            'script': task['script'],
+            'env': tryStringToJson(task['env']),
+            'resource': {
+              'instances': task['instances'],
+              'resourcePerInstance': {
+                'cpu': task['cpu'],
+                'gpu': task['gpu'],
+                'memoryMB': task['memoryMB']
+              },
+              'portList': task['portList'],
+            }
+          });
+        });
+        res['job'] = job;
+      }
     });
   }
 
-  ['data', 'script', 'dockerimage'].forEach((t) => {
-    editors[t].forEach((d) => {
-      let curData = d.getValue();
-      curData['type'] = t;
-      res['prerequisites'].push(curData);
-    });
-  });
   console.log(res);
   return res;
 };
@@ -370,8 +376,7 @@ const insertNewChooseResult = (d, type) => {
 
   let editor = loadEditor(d, type, id);
 
-  $(`#${type}${id} .user-edit`).on('click', () => {
-    // console.log(`${type}${id}-modal`);
+  $(`#${type}${id}-summary .user-edit`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
   });
 
@@ -380,13 +385,33 @@ const insertNewChooseResult = (d, type) => {
     ['name', 'contributor', 'description'].forEach((cur)=>{
       $(`#${type}${id}-${cur}`).text(val[cur]);
     });
-    $(`#${type}${id}-title`).text(val['name']);
+    $(`#${type}${id}-title > a > span`).text(val['name']);
   });
 
   $(`#${type}${id}-edit-save-button`).on('click', ()=>{
     $(`#${type}${id}-modal`).modal('hide');
   });
 
+  $(`#${type}${id}-remove-button`).on('click', (t)=>{
+    if($(`#${type}${id}-title`).hasClass("active")){
+      let i = 0;
+      for(; i < editors[type].length; ++i){
+        if(editors[type][i] && i != id - 1)
+          break;
+      }
+      if(i == editors[type].length){
+        $(`#user-choose-holder div.panel[content-type="${type}"`).remove();
+        editors[type] = [];
+      }
+      else{
+        $(`#${type}${i + 1}-title`).addClass("active");
+        $(`#${type}${i + 1}-summary`).addClass("active");
+      }
+    }
+    $(`#${type}${id}-title`).remove();
+    $(`#${type}${id}-summary`).remove();
+    editors[type][id - 1] = null;
+  });
 }
 
 const initContent = () => {
