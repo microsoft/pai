@@ -55,7 +55,7 @@ const generateUI = function(type, data) {
         htmlstr += '</div></div><div class=\"item\">' + '<div class=\"row\">';
       }
     }
-    htmlstr += '<a id=\"' + type + '-' + item.name + '-' + item.version + '\" href=\"/detail.html?' + generateQueryString(item) + '\">' +
+    htmlstr += '<a class=\"cardhref\" id=\"' + type + '-' + item.name + '-' + item.version + '\" href=\"/detail.html?' + generateQueryString(item) + '\">' +
                 '<div class=\"card\">' + 
                 '<div class=\"img-container\">' +
                 '<img src=\"/assets/img/' + type + '.png\" height=\"100%\">' +
@@ -83,8 +83,8 @@ const generateUI = function(type, data) {
   return htmlstr;
 };
 
-const loadTemplates = function(name, tableprefix) {
-  const tablename = '#' + tableprefix + name + '-table';
+const loadTemplates = function(name, generateTableName, postProcess) {
+  const tablename = generateTableName(name);
   $(tablename).on('preXhr.dt', loading.showLoading)
     .on('xhr.dt', loading.hideLoading);
   $.ajax({
@@ -93,11 +93,14 @@ const loadTemplates = function(name, tableprefix) {
     dataType: 'json',
     success: function (data) {
       $(tablename).html(generateUI(name, data));
+      if (postProcess) {
+        postProcess();
+      }
     }
   });
 };
 
-const search = function(event, types, tableprefix, query) {
+const search = function(event, types, generateTableName, query, postProcess) {
   if (event == null || !event.keyCode || event.keyCode == 13) {
     if (query) {
       $.ajax({
@@ -115,8 +118,11 @@ const search = function(event, types, tableprefix, query) {
             }
           });
           Object.keys(categories).forEach((type) => {
-            $('#' + tableprefix + type + '-table').html(generateUI(type, categories[type]));
-          }); 
+            $(generateTableName(type)).html(generateUI(type, categories[type]));
+          });
+          if (postProcess) {
+            postProcess();
+          } 
         }
       });
     } else {
@@ -127,10 +133,12 @@ const search = function(event, types, tableprefix, query) {
 };
 
 $('#btn-search').click((event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
+  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table'; }, 
+    $('#search').val(), null);
 });
 $('#search').on('keyup', (event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
+  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table'; }, 
+    $('#search').val(), null);
 });
 
 $(window).resize(function(event) {
@@ -147,10 +155,10 @@ $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
   $('#table-view').html(templateTableComponent());
-  loadTemplates('job', '');
-  loadTemplates('data', '');
-  loadTemplates('script', '');
-  loadTemplates('dockerimage', '');
+  loadTemplates('job', (type) => { return '#' + type + '-table'; }, null);
+  loadTemplates('data', (type) => { return '#' + type + '-table'; }, null);
+  loadTemplates('script', (type) => { return '#' + type + '-table'; }, null);
+  loadTemplates('dockerimage', (type) => { return '#' + type + '-table'; }, null);
   window.dispatchEvent(new Event('resize'));
 });
 

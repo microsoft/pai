@@ -47,65 +47,107 @@ const templateViewHtml = templateImportComponent({
 let addEditor = null;
 let finalEditor = null;
 let id = -1;
+
+const saveTemplateOnAddModal = (type, id) => {
+  finalEditor = addEditor;
+  data = finalEditor.getValue();
+  $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
+  $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
+  
+  $('#itemPlaceHolder').html(userChooseMainLayout({
+    name: data.name,
+    contributor: data.contributor,
+    description: data.description,
+    type: type,
+    id: id,
+    summaryLayout: userChooseSummaryLayout,
+    titleLayout: userChooseTitleLayout,
+  }));
+  $(`#${type}${id} .user-edit`).on('click', () => {
+    console.log(`${type}${id}-modal`);
+    $(`#${type}${id}-modal`).modal('show');
+  });
+};
+
+const getTemplateByAJAX = (type, name, version, process) => {
+  $.ajax({
+    url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      if (type != 'job') data = { 'prerequisites': [data] };
+      data = restApi2JsonEditor(data);
+      Object.keys(userChooseTemplateValues).forEach((key) => {
+        if (key != 'job') { // job is a object, others is an array.
+          data[key].forEach((d) => {
+            process(d, key);
+          });
+        }
+        else if (key in data) { // job
+          process(data[key], key);
+        }
+      });
+    }
+  });
+};
+
+const replaceHrefs = () => {
+  $('.cardhref').map(function() {
+    $(this).removeAttr('href');
+    $(this).click(() => {
+      let items = $(this).attr('id').split('-');
+      getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
+        addEditor.setValue(data);
+        saveTemplateOnAddModal(type, id);
+      });
+    });
+  });
+};
+
 const showAddModal = (type) => {
   addEditor = null;
   finalEditor = null;
-  id = -1;
+  id = userChooseTemplateValues[type].length + 1;
   $('#addModalPlaceHolder').html(userAddModalComponent);
+
+  $('#editPlaceHolder').html(userEditModalComponent({
+    type: type,
+    id: id,
+  }));
+  loadEditor(null, type, id);
+  $(`#${type}${id}-modal .edit-save`).click(() => {
+    saveTemplateOnAddModal(type, id);
+  });
+  
   $('#itemPlaceHolder').html(userChooseMainLayout({
     name: type,
     contributor: '',
     description: '',
     type: type,
-    id: 1,
+    id: id,
     summaryLayout: userAddItemLayout,
     titleLayout: userChooseTitleLayout,
   }));
   $('#recommandPlaceHolder').html(userRecommandLayout({
     type: type,
   }));
-  templateView.loadTemplates(type, 'recommand-');
+  templateView.loadTemplates(type, (type) => { return '#recommand-' + type + '-table'; }, replaceHrefs);
 
   $('#btn-add-search').click((event) => {
-    templateView.search(event, [type], 'recommand-', $('#add-search').val());
+    templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
   });
   $('#add-search').on('keyup', (event) => {
-    templateView.search(event, [type], 'recommand-', $('#add-search').val());
+    templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
   });
 
   $('#btn-add-upload').click(() => {
 
   });
+  
   $('#btn-add-customize').click(() => {
-    id = userChooseTemplateValues[type].length + 1;
-    $('#editPlaceHolder').html(userEditModalComponent({
-      type: type,
-      id: id
-    }));
- 
-    loadEditor(null, type, id);
-
-    $(`#${type}${id}-modal .edit-save`).click(() => {
-      finalEditor = addEditor;
-      data = finalEditor.getValue();
-      $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
-      $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
-      
-      $('#itemPlaceHolder').html(userChooseMainLayout({
-        name: data.name,
-        contributor: data.contributor,
-        description: data.description,
-        type: type,
-        id: id,
-        summaryLayout: userChooseSummaryLayout,
-        titleLayout: userChooseTitleLayout,
-      }));
-      $(`#${type}${id}-summary .user-edit`).on('click', () => {
-        $(`#${type}${id}-modal`).modal('show');
-      });
-    });
     $(`#${type}${id}-modal`).modal('show');
   });
+
   $('#btn-add-modal').click(() => {
     $('#btn-add-modal').attr('data-dismiss', 'modal');
     $('#btn-add-modal').attr('aria-hidden', 'true');
@@ -115,7 +157,11 @@ const showAddModal = (type) => {
       insertNewChooseResult(d, type);
       let searchTypes = [];
       Object.keys(userChooseTemplateValues).forEach((t) => {
-        if (userChooseTemplateValues[t].length == 0) {
+        let allEmpty = true;
+        editors[type].forEach((x) => {
+          if (x) allEmpty = false;
+        });
+        if (userChooseTemplateValues[t].length == 0 || allEmpty) {
           searchTypes.push(t);
         }
       });
@@ -126,7 +172,30 @@ const showAddModal = (type) => {
             type: t,
           }));
         });
-        templateView.search(null, searchTypes, 'recommand-', d['description']);
+        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], () => {
+          $('.cardhref').map(function() {
+            $(this).removeAttr('href');
+            $(this).click(() => {
+              let items = $(this).attr('id').split('-');
+              getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
+                $('#user-recommand-holder').html('');
+                showAddModal(type);
+                addEditor.setValue(data);
+                saveTemplateOnAddModal(type, id);
+              });
+            });
+          });
+          let removeItems = 0;
+          searchTypes.forEach((t) => {
+            if ($('#recommand-' + t + '-table').html() == '') {
+              $('#recommand-' + t).empty();
+              removeItems += 1;
+            }
+          });
+          if (removeItems == searchTypes.length) {
+            $('#user-recommand-holder').html('');
+          } 
+        });
       }
     }
   });
@@ -359,7 +428,7 @@ const loadEditor = (d, type, id) => {
     disable_properties: true,
   });
   jobDefaultConfigs[type] = editor.getValue();
-  if (d) {
+  if (d != null) {
     editor.setValue(d);
     editors[type].push(editor);
   } else {
@@ -369,7 +438,11 @@ const loadEditor = (d, type, id) => {
 };
 
 const insertNewChooseResult = (d, type) => {
-  userChooseTemplateValues[type].length ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
+  let allEmpty = true;
+  editors[type].forEach((x) => {
+    if (x) allEmpty = false;
+  });
+  (userChooseTemplateValues[type].length && !allEmpty) ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
   let id = userChooseTemplateValues[type].length;
   $('#user-choose-holder').append(userEditModalComponent({
     type: type,
@@ -423,30 +496,9 @@ const initContent = () => {
   let name = searchParams.get('name');
   let version = searchParams.get('version');
   if (name != null && version != null) {
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
-      type: 'GET',
-      dataType: 'json',
-      success: function (data) {
-        if (type != 'job') data = { 'prerequisites': [data] };
-
-        data = restApi2JsonEditor(data);
-        console.log(data);
-        Object.keys(userChooseTemplateValues).forEach((key) => {
-          if (key != 'job') { // job is a object, others is an array.
-            data[key].forEach((d) => {
-              insertNewChooseResult(d, key);
-            });
-          }
-          else { // job
-            insertNewChooseResult(data[key], key);
-          }
-        });
-      }
-    });
+    getTemplateByAJAX(type, name, version, insertNewChooseResult);
   }
 };
-
 
 $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
