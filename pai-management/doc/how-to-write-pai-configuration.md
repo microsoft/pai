@@ -207,8 +207,8 @@ Users can browse to https://hub.docker.com/r/openpai to see all the repositories
 hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
   # Notice: the name should be hadoop-{hadoop-version}.tar.gz
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
-  hadoop-version: 2.7.2
+  custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
+  hadoop-version: 2.9.0
   virtualClusters:
     default:
       description: default queue for all users.
@@ -225,7 +225,7 @@ hadoop:
 ```
 
 - ```custom-hadoop-binary-path```: please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).
-- ```hadoop-version```: please set this to ```2.7.2```.
+- ```hadoop-version```: please set this to ```2.9.0```.
 - ```virtualClusters```: hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.
 
 
