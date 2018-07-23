@@ -1,0 +1,53 @@
+<div class="tab-header">
+  <h4>Experiment</h4>
+</div>
+
+<% for (let i = 0; i < data.length; i ++) { %>
+  <div class="box
+      <% if (data[i].status == "SUCCEEDED") { %>
+        box-success
+      <% } else if (data[i].status == "FAILED") { %>
+        box-danger
+      <% } else { %>
+        box-primary
+      <% } %>
+      ">
+    <div class="box-header with-border">
+      <div class="media pull-left">
+        <div class="media-left">
+          <img src="/assets/img/job.png" class="media-object" height="80%">
+        </div>
+        <div class="media-body">
+          <div class="clearfix">
+            <div class="row pull-right">
+              <button class="btn
+                  <% if (data[i].status == "SUCCEEDED") { %>
+                    btn-success
+                  <% } else if (data[i].status == "FAILED") { %>
+                    btn-danger
+                  <% } else { %>
+                    btn-primary
+                  <% } %>
+                  btn-lg btn-display">
+                <%= data[i].status %>
+              </button>
+              <button class="btn btn-success btn-lg btn-display"><%= data[i].number[0] %></button>
+              <button class="btn btn-danger btn-lg btn-display"><%= data[i].number[1] %></button>
+              <button type="button" class="btn btn-collapsed collapsed" data-toggle="collapse" data-target="#expr<%= i %>">
+                <i class="fa fa-angle-up btn-opened"></i>
+                <i class="fa fa-angle-down btn-closed"></i>
+              </button>
+            </div>
+            <b><%= data[i].name %></b>
+            <br><br>
+            <small><%= data[i].type %> | <%= data[i].duration %> | <%= data[i].time %></small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="expr<%= i %>" class="box-expr collapse">
+      <!-- iframe style="display:block; width:100%; border:none;" src="https://projector.tensorflow.org"></iframe -->
+      <img src="<%= data[i].visualization %>" height="100%">
+    </div>
+  </div>
+<% } %>

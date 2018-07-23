@@ -1,0 +1,33 @@
+<div class="row">
+  <div class="tab-header">
+    <h4>Q & A</h4>
+    <button type="button" class="btn btn-primary">Ask a question</button>
+  </div>
+  <div class="qa-content">
+    <% for (let i = 0; i < data.length; i ++) { %>
+      <div class="media media-question">
+        <div class="media-left">
+          <img src="<%= data[i].question.avatar %>" class="media-object">
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading">
+            <small>By <%= data[i].question.name %> on <%= data[i].question.date %></small>
+            <div class="flag"><img src="/assets/img/flag.png"></div>
+          </h4>
+          <p><%= data[i].question.content %></p>
+          <% if ("answer" in data[i]) { %>
+            <div class="media media-answer">
+              <div class="media-left">
+                <img src="<%= data[i].answer.avatar %>" class="media-object">
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading"><small>By <%= data[i].answer.name %> on <%= data[i].answer.date %></i></small></h4>
+                <p><%= data[i].answer.content %></p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>

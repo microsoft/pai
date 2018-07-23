@@ -1,0 +1,31 @@
+<div class="panel-rr">
+  <div class="tab-header">
+    <h4>User Reviews</h4>
+    <button type="button" class="btn btn-primary">Write a review</button>
+  </div>
+  <table class="rr-content">
+    <% for (let i = 0; i < data.length; i ++) { %>
+      <tr>
+        <td class="picture">
+          <img src="<%= data[i].avatar %>">
+        </td>
+        <td class="talk_main">
+          <div>
+            <span class="talk_pic"><%= data[i].name %></span>
+            <% for (let j = 0; j < data[i].star; j ++) { %>
+              <span class="glyphicon glyphicon-star color_start" aria-hidden="true"></span>
+            <% } %>
+            <% for (let j = data[i].star; j < 5; j ++) { %>
+              <span class="glyphicon glyphicon-star-empty color_start" aria-hidden="true"></span>
+            <% } %>
+          </div>
+          <p class="talk_date"><%= data[i].date %></p>
+          <p class="talk_desc"><%= data[i].description %></p>
+        </td>
+        <td class="flag">
+          <img src="/assets/img/flag.png">
+        </td>
+      </tr>
+    <% } %>
+  </table>
+</div>
