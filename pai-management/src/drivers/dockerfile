@@ -64,7 +64,7 @@ RUN chmod u+x install-all-drivers
 RUN chmod u+x enable-nvidia-persistenced-mode.sh
 RUN dos2unix *
 
-ENV NVIDIA_VERSION={{ clusterconfig['clusterinfo']['nvidia_drivers_version'] }}
+ENV NVIDIA_VERSION=384.111
 
 RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
     chmod 750 ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
