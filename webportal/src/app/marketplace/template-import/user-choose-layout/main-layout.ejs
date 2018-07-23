@@ -1,9 +1,9 @@
 <!-- Job/Data/Script/Docker component-->
-<div class="panel panel-default shadow">
+<div class="panel panel-default shadow" content-type="<%= type %>">
   <div class="panel-heading component-heading">
     <div class="panel-title">
       <ul class="nav nav-tabs" id="<%= type %>-title">
-        <%= titleLayout({'name': name, 'type':type, 'id':id, 'active': ''}) %>
+        <%= titleLayout({'name': name, 'type':type, 'id':id, 'active': 'active'}) %>
         <div class="pull-right">
           <div data-toggle="collapse" data-parent="#accordion" href="#collapse-<%= type%>" id="script-title">
             <i class="glyphicon glyphicon-chevron-down"></i>
