@@ -214,10 +214,10 @@ const loadSummary = () => {
           },
         });
         $('#content-wrapper').html(templateDetailHtml);
+        $('#btn-use').click((event) => {
+          window.location.href = "/import.html" + window.location.search;
+        });
       }
-    });
-    $('#btn-use').click((event) => {
-      window.location.href = "/import.html" + window.location.search;
     });
   }
 };
