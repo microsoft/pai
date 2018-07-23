@@ -100,8 +100,7 @@ const showAddModal = (type) => {
         summaryLayout: userChooseSummaryLayout,
         titleLayout: userChooseTitleLayout,
       }));
-      $(`#${type}${id} .user-edit`).on('click', () => {
-        console.log(`${type}${id}-modal`);
+      $(`#${type}${id}-summary .user-edit`).on('click', () => {
         $(`#${type}${id}-modal`).modal('show');
       });
     });
