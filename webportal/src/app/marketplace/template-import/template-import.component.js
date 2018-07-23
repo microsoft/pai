@@ -357,6 +357,7 @@ const loadEditor = (d, type, id) => {
   } else {
     addEditor = editor;
   }
+  return editor;
 };
 
 const insertNewChooseResult = (d, type) => {
@@ -366,12 +367,26 @@ const insertNewChooseResult = (d, type) => {
     type: type,
     id: id
   }));
-  loadEditor(d, type, id);
+
+  let editor = loadEditor(d, type, id);
 
   $(`#${type}${id} .user-edit`).on('click', () => {
-    console.log(`${type}${id}-modal`);
+    // console.log(`${type}${id}-modal`);
     $(`#${type}${id}-modal`).modal('show');
   });
+
+  editor.on('change',function() {
+    let val = editor.getValue();
+    ['name', 'contributor', 'description'].forEach((cur)=>{
+      $(`#${type}${id}-${cur}`).text(val[cur]);
+    });
+    $(`#${type}${id}-title`).text(val['name']);
+  });
+
+  $(`#${type}${id}-edit-save-button`).on('click', ()=>{
+    $(`#${type}${id}-modal`).modal('hide');
+  });
+
 }
 
 const initContent = () => {
