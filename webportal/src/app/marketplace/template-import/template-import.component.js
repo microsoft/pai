@@ -76,9 +76,7 @@ const getTemplateByAJAX = (type, name, version, process) => {
     dataType: 'json',
     success: function (data) {
       if (type != 'job') data = { 'prerequisites': [data] };
-
       data = restApi2JsonEditor(data);
-      console.log(data);
       Object.keys(userChooseTemplateValues).forEach((key) => {
         if (key != 'job') { // job is a object, others is an array.
           data[key].forEach((d) => {
@@ -159,7 +157,11 @@ const showAddModal = (type) => {
       insertNewChooseResult(d, type);
       let searchTypes = [];
       Object.keys(userChooseTemplateValues).forEach((t) => {
-        if (userChooseTemplateValues[t].length == 0) {
+        let allEmpty = true;
+        editors[type].forEach((x) => {
+          if (x) allEmpty = false;
+        });
+        if (userChooseTemplateValues[t].length == 0 || allEmpty) {
           searchTypes.push(t);
         }
       });
@@ -433,7 +435,11 @@ const loadEditor = (d, type, id) => {
 };
 
 const insertNewChooseResult = (d, type) => {
-  userChooseTemplateValues[type].length ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
+  let allEmpty = true;
+  editors[type].forEach((x) => {
+    if (x) allEmpty = false;
+  });
+  (userChooseTemplateValues[type].length && !allEmpty) ? insertNewTitleAndSummary(d, type) : insertNewContent(d, type);
   let id = userChooseTemplateValues[type].length;
   $('#user-choose-holder').append(userEditModalComponent({
     type: type,
