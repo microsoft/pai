@@ -54,8 +54,8 @@ hadoop:
   # When needed, hadoop-ai would be downloaded and built under 'custom-hadoop-binary-path'.
   # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
   # Notice: the name should be hadoop-{hadoop-version}.tar.gz
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.7.2.tar.gz
-  hadoop-version: 2.7.2
+  custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
+  hadoop-version: 2.9.0
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
   #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
