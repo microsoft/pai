@@ -55,7 +55,7 @@ const generateUI = function(type, data) {
         htmlstr += '</div></div><div class=\"item\">' + '<div class=\"row\">';
       }
     }
-    htmlstr += '<a href=\"/detail.html?' + generateQueryString(item) + '\">' +
+    htmlstr += '<a id=\"' + type + '-' + item.name + '-' + item.version + '\" href=\"/detail.html?' + generateQueryString(item) + '\">' +
                 '<div class=\"card\">' + 
                 '<div class=\"img-container\">' +
                 '<img src=\"/assets/img/' + type + '.png\" height=\"100%\">' +
@@ -83,8 +83,8 @@ const generateUI = function(type, data) {
   return htmlstr;
 };
 
-const loadTemplates = function(name) {
-  const tablename = '#' + name + '-table';
+const loadTemplates = function(name, tableprefix) {
+  const tablename = '#' + tableprefix + name + '-table';
   $(tablename).on('preXhr.dt', loading.showLoading)
     .on('xhr.dt', loading.hideLoading);
   $.ajax({
@@ -97,21 +97,25 @@ const loadTemplates = function(name) {
   });
 };
 
-const search = function(event) {
-  if (!event.keyCode || event.keyCode == 13) {
-    var query = $('#search').val();
+const search = function(event, types, tableprefix, query) {
+  if (event == null || !event.keyCode || event.keyCode == 13) {
     if (query) {
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v1/template?query=` + encodeURIComponent(query),
         type: 'GET',
         dataType: 'json',
         success: function (data) {
-          let categories = {'data': [], 'dockerimage': [], 'script': [], 'job': []};
+          let categories = {};
+          types.forEach((item) => {
+            categories[item] = [];
+          })
           data.forEach((item) => {
+            if (item.type in categories) {
               categories[item.type].push(item);
+            }
           });
           Object.keys(categories).forEach((type) => {
-            $('#' + type + '-table').html(generateUI(type, categories[type]));
+            $('#' + tableprefix + type + '-table').html(generateUI(type, categories[type]));
           }); 
         }
       });
@@ -122,8 +126,12 @@ const search = function(event) {
   }
 };
 
-$('#btn-search').click(search);
-$('#search').on('keyup', search);
+$('#btn-search').click((event) => {
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
+});
+$('#search').on('keyup', (event) => {
+  search(event, ['data', 'dockerimage', 'script', 'job'], '', $('#search').val());
+});
 
 $(window).resize(function(event) {
   $('#content-wrapper').css({'height': (($(window).height() - 200)) + 'px'});
@@ -139,9 +147,11 @@ $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
   $('#table-view').html(templateTableComponent());
-  loadTemplates('job');
-  loadTemplates('data');
-  loadTemplates('script');
-  loadTemplates('dockerimage');
+  loadTemplates('job', '');
+  loadTemplates('data', '');
+  loadTemplates('script', '');
+  loadTemplates('dockerimage', '');
   window.dispatchEvent(new Event('resize'));
 });
+
+module.exports = { loadTemplates, search };

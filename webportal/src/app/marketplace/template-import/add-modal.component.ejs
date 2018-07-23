@@ -1,17 +1,20 @@
 <!-- Modal -->
-<div id="<%= type %><%= id %>-modal" class="modal fade json-editor-modal" tabindex="-1" role="dialog">
+<div id="addModal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title">Edit <%= type %></h4>
+        <h4 class="modal-title">Add a new item</h4>
       </div>
       <div class="modal-body">
-        <div id="<%= type %><%= id %>-json-editor-holder"></div>
+        <div id="itemPlaceHolder"></div>
+        <h2>Recommand</h2>
+        <div id="recommandPlaceHolder"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary edit-save">Save</button>
+        <button type="button" class="btn btn-primary" id="btn-add-modal">Add</button>
       </div>
     </div>
   </div>
 </div>
+<div id="editPlaceHolder"></div>

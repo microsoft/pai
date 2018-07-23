@@ -17,6 +17,7 @@
 
 
 require('./template-import.component.scss');
+require('../template-view/template-view.component.scss');
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/modal.js');
 
@@ -33,11 +34,105 @@ const userEditModalComponent = require('./user-choose-layout/edit.ejs');
 const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
 const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
 const userChooseTitleLayout = require('./user-choose-layout/title-layout.ejs');
+const userAddModalComponent = require('./add-modal.component.ejs');
+const userAddItemLayout = require('./user-choose-layout/add-layout.ejs');
+const userRecommandLayout = require('./user-choose-layout/recommand-layout.ejs');
+const templateView = require('../template-view/template-view.component');
 
 const templateViewHtml = templateImportComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
 });
+
+let addEditor = null;
+let finalEditor = null;
+let id = -1;
+const showAddModal = (type) => {
+  addEditor = null;
+  finalEditor = null;
+  id = -1;
+  $('#addModalPlaceHolder').html(userAddModalComponent);
+  $('#itemPlaceHolder').html(userChooseMainLayout({
+    name: type,
+    contributor: '',
+    description: '',
+    type: type,
+    id: 1,
+    summaryLayout: userAddItemLayout,
+    titleLayout: userChooseTitleLayout,
+  }));
+  $('#recommandPlaceHolder').html(userRecommandLayout({
+    type: type,
+  }));
+  templateView.loadTemplates(type, 'recommand-');
+
+  $('#btn-add-search').click((event) => {
+    templateView.search(event, [type], 'recommand-', $('#add-search').val());
+  });
+  $('#add-search').on('keyup', (event) => {
+    templateView.search(event, [type], 'recommand-', $('#add-search').val());
+  });
+
+  $('#btn-add-upload').click(() => {
+
+  });
+  $('#btn-add-customize').click(() => {
+    id = userChooseTemplateValues[type].length + 1;
+    $('#editPlaceHolder').html(userEditModalComponent({
+      type: type,
+      id: id
+    }));
+ 
+    loadEditor(null, type, id);
+
+    $(`#${type}${id}-modal .edit-save`).click(() => {
+      finalEditor = addEditor;
+      data = finalEditor.getValue();
+      $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
+      $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
+      
+      $('#itemPlaceHolder').html(userChooseMainLayout({
+        name: data.name,
+        contributor: data.contributor,
+        description: data.description,
+        type: type,
+        id: id,
+        summaryLayout: userChooseSummaryLayout,
+        titleLayout: userChooseTitleLayout,
+      }));
+      $(`#${type}${id} .user-edit`).on('click', () => {
+        console.log(`${type}${id}-modal`);
+        $(`#${type}${id}-modal`).modal('show');
+      });
+    });
+    $(`#${type}${id}-modal`).modal('show');
+  });
+  $('#btn-add-modal').click(() => {
+    $('#btn-add-modal').attr('data-dismiss', 'modal');
+    $('#btn-add-modal').attr('aria-hidden', 'true');
+    $('#recommandPlaceHolder').html('');
+    if (finalEditor != null) {
+      let d = finalEditor.getValue();
+      insertNewChooseResult(d, type);
+      let searchTypes = [];
+      Object.keys(userChooseTemplateValues).forEach((t) => {
+        if (userChooseTemplateValues[t].length == 0) {
+          searchTypes.push(t);
+        }
+      });
+      if (searchTypes.length != 0) {
+        $('#user-recommand-holder').html('<h2>Recommand</h2>');
+        searchTypes.forEach((t) => {
+          $('#user-recommand-holder').append(userRecommandLayout({
+            type: t,
+          }));
+        });
+        templateView.search(null, searchTypes, 'recommand-', d['description']);
+      }
+    }
+  });
+  $('#addModal').modal('show');
+};
 
 const restApi2JsonEditor = (data) => {
   let res = { 'data': [], 'script': [], 'dockerimage': [] };
@@ -256,8 +351,12 @@ const loadEditor = (d, type, id) => {
     disable_properties: true,
   });
   jobDefaultConfigs[type] = editor.getValue();
-  editor.setValue(d);
-  editors[type].push(editor);
+  if (d) {
+    editor.setValue(d);
+    editors[type].push(editor);
+  } else {
+    addEditor = editor;
+  }
 };
 
 const insertNewChooseResult = (d, type) => {
@@ -311,15 +410,14 @@ $('#content-wrapper').html(templateViewHtml);
 $(document).ready(() => {
   userAuth.checkToken(function(token) {
     initContent();
-
-    // Object.keys(editors).forEach((key)=>{
-    //   let editor = editors[key];
-    //   let enabled = true;
-    //   editor.on('change', () => {
-    //     enabled &= (editor.validate().length == 0);
-    //   });
-    //   $('#submitJob').prop('disabled', !enabled);
-    // });
+  // Object.keys(editors).forEach((key)=>{
+  //   let editor = editors[key];
+  //   let enabled = true;
+  //   editor.on('change', () => {
+  //     enabled &= (editor.validate().length == 0);
+  //   });
+  //   $('#submitJob').prop('disabled', !enabled);
+  // });
 
     $('#submitModalPlaceHolder').html(userSubmitModalComponent);
     $(document).on('click', '#submitJob', () => {
@@ -340,6 +438,19 @@ $(document).ready(() => {
       let event = document.createEvent('MouseEvents');
       event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
       link.dispatchEvent(event);
+    });
+
+    $(document).on('click', "#add-job-btn", () => {
+      showAddModal('job');
+    });
+    $(document).on('click', "#add-data-btn", () => {
+      showAddModal('data');
+    });
+    $(document).on('click', "#add-script-btn", () => {
+      showAddModal('script');
+    });
+    $(document).on('click', "#add-docker-btn", () => {
+      showAddModal('dockerimage');
     });
   });
 });

@@ -18,41 +18,30 @@
 }
 
 .box-body {
-  margin-left: 8vw;
-  margin-right: 8vw; 
+  margin-left: 5vw;
+  margin-right: 5vw; 
 }
 
-#table-view .row {
-  padding-right: 50px;
-  padding-left: 50px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+.item .row {
   display: flex;
   align-items: center;
+  width: 75%;
+  height: 230px;
+  margin: auto;
 }
 
-.media-carousel .carousel-control.left {
-  left: -12px;
+.left.carousel-control {
   color: grey;
-  height: 40px;
-  width : 40px;
-  margin-top: 80px;
 }
 
-.media-carousel .carousel-control.right {
-  right: -12px !important;
+.right.carousel-control {
   color: grey;
-  height: 40px;
-  width : 40px;
-  margin-top: 80px;
 }
 
 .card {
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
-  margin-right: 15px;
-  margin-top: 16px;
-  margin-left: 1px;
+  margin-right: 20px;
   width: 182px;
   height: 200px;
   text-align: center;
