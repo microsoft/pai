@@ -29,7 +29,6 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./user-choose-layout/template-import.schema.js');
-const userSubmitModalComponent = require('./submit-modal-component.ejs');
 const userEditModalComponent = require('./user-choose-layout/edit.ejs');
 const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
 const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
@@ -137,7 +136,6 @@ const showAddModal = (type, data_id=null) => {
     saveTemplateOnAddModal(type, id);
     console.log(editors[type]);
   });
-  
 
   // ----------- recommand ---------------
   $('#recommandPlaceHolder').html(userRecommandLayout({
@@ -372,7 +370,6 @@ const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     let successCnt = 0, errorCnt = 0;
-    console.log(jobConfig['job']);
     jobConfig['job'].forEach((job) => {
       curJob['job'] = job;
       $.ajax({
@@ -553,12 +550,7 @@ $(document).ready(() => {
   //   $('#submitJob').prop('disabled', !enabled);
   // });
 
-    $('#submitModalPlaceHolder').html(userSubmitModalComponent);
     $(document).on('click', '#submitJob', () => {
-      $('#userSumbitModal').modal('show');
-    });
-
-    $(document).on('click', '#single', () => {
       submitJob(jsonEditor2RestApi(editors));
     });
 
