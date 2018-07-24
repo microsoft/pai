@@ -179,8 +179,8 @@ const loadSummary = () => {
               avatar: `/assets/img/${item.type}.png`,
               contributor: item.contributor,
               description: item.description,
-              star: 3,
-              downloads: 66,
+              star: item.rating,
+              downloads: item.count,
             });
           });
         }

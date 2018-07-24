@@ -168,27 +168,38 @@ const load = function(type, name, version, use, callback) {
   }
   let contentKey = config.getTemplateKey(type, name);
   let lua = `
+local function addStats(resource, rtype, rname)
+  local count = redis.call("HGET", "marketplace:stats:"..rtype.."."..rname, "used.count")
+  local rsum = redis.call("HGET", "marketplace:stats:"..rtype.."."..rname, "rating.sum")
+  local rcnt = redis.call("HGET", "marketplace:stats:"..rtype.."."..rname, "rating.count")
+  if not count then
+    count = 0
+  end
+  local rating = 3
+  if rsum and rcnt then
+    rating = rsum / rcnt
+  end
+  resource["count"] = count
+  resource["rating"] = rating
+end
+
 local content = redis.call("HGET", "${contentKey}", "${version}")
-local count = redis.call("HGET", "${statsKey}", "used.count")
-local rsum = redis.call("HGET", "${statsKey}", "rating.sum")
-local rcnt = redis.call("HGET", "${statsKey}", "rating.count")
-local rating = 3
-if not count then
-  count = 0
+local template = cjson.decode(content)
+if template["job"] ~= nil then
+  addStats(template, template["job"]["type"], template["job"]["name"])
+  for id, resource in ipairs(template["prerequisites"]) do
+    addStats(resource, resource["type"], resource["name"])
+  end
+else
+  addStats(template, template["type"], template["name"])
 end
-if rsum and rcnt then
-  rating = rsum / rcnt
-end
-return {content, count, rating};
+return cjson.encode(template)
 `;
   client.eval(lua, 0, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
-      let template = JSON.parse(res[0]);
-      template.count = parseInt(res[1]);
-      template.rating = parseFloat(res[2]);
-      callback(null, template);
+      callback(null, JSON.parse(res));
     }
   });
 };
@@ -231,4 +242,20 @@ const save = function(template, callback) {
   });
 };
 
-module.exports = {filter, top, load, save};
+/**
+ * Provide rating for the template.
+ */
+const mark = function(type, name, rating, callback) {
+  client.multi([
+    ['HINCRBY', config.getStatsKey(type, name), 'rating.count', 1],
+    ['HINCRBY', config.getStatsKey(type, name), 'rating.sum', rating],
+  ]).exec(function (err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, res);
+    }
+  });
+}
+
+module.exports = {filter, top, load, save, mark};

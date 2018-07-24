@@ -37,20 +37,20 @@ $('#content-wrapper').html(templateViewComponent({
 }));
 
 const generateUI = function(type, data) {
-  let newdata = [];
-  data.forEach(function(item) {
-    newdata.push({
-      type: item.type,
-      name: item.name,
-      version: item.version,
-      avatar: `/assets/img/${item.type}.png`,
-      description: item.description,
-      contributor: item.contributor,
-      star: item.rating,
-      downloads: item.count,
+    let newdata = [];
+    data.forEach(function (item) {
+        newdata.push({
+            type: item.type,
+            name: item.name,
+            version: item.version,
+            avatar: `/assets/img/${item.type}.png`,
+            description: item.description,
+            contributor: item.contributor,
+            star: item.rating,
+            downloads: item.count,
+        });
     });
-  });
-  return viewCardComponent({ type: type, data: newdata });
+    return viewCardComponent({ type: type, data: newdata });
 } 
 
 const loadTemplates = function(name, generateTableName, postProcess) {
@@ -121,8 +121,9 @@ $('#btn-share').click(function(event) {
   $('#shareModal').modal('show');
 });
 
+$('#sidebar-menu--template-view').addClass('active');
+
 $(document).ready(() => {
-  $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
   loadTemplates('job', (type) => { return '#' + type + '-table-view'; }, null);
   loadTemplates('data', (type) => { return '#' + type + '-table-view'; }, null);

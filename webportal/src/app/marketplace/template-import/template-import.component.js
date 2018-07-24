@@ -538,6 +538,8 @@ const initContent = () => {
 };
 
 $('#content-wrapper').html(templateViewHtml);
+$('#sidebar-menu--template-view').removeClass('active');
+$('#sidebar-menu--template-import').addClass('active');
 $(document).ready(() => {
   userAuth.checkToken(function(token) {
     initContent();

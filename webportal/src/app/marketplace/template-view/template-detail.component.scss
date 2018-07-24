@@ -3,7 +3,7 @@
   .logo {
     width: 100px;
     height: 100px;
-    margin-top: 40px;
+    margin-top: 20px;
   }
   .detail {
     margin-left: 20px;
@@ -19,7 +19,7 @@
       margin-left: 0;
       li {
         float: left;
-        span:not(:last-child) {
+        span {
           color: #FDA501
         }
       }
@@ -112,15 +112,22 @@
       h5 {
         color: #141414;
         margin-left: 5px;
+        overflow: hidden;
       }
       .contributor {
+        color: #B8B8B8;
         line-height: 20px;
-        color: #B8B8B8
+        margin-left: 5px;
+      }
+      .float-right {
+        float: right;
+        margin-right: 9px;
       }
       p {
         line-height: 20px;
         color: #FDA501;
         margin-top: 5px;
+        margin-left: 5px;
       }
     }
     li:hover {

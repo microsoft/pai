@@ -1,9 +1,7 @@
 <div class="row">
   <div class="col-md-8 ov-left">
     <% if (data.prerequisites.length > 0) { %>
-    <ul>
     <%= card({data: data.prerequisites, type: "Prerequisites"}) %>
-    </ul>
     <div class="clear"></div>
     <% } %>
     <h4>Overview</h4>

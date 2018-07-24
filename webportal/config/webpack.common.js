@@ -46,6 +46,7 @@ const config = {
     userView: './src/app/user/user-view/user-view.component.js',
     login: './src/app/user/user-login/user-login.component.js',
     changePassword: './src/app/user/change-password/change-password.component.js',
+    userProfile: './src/app/user/user-profile/user-profile.component.js',
     dashboard: './src/app/dashboard/dashboard.component.js',
     submit: './src/app/job/job-submit/job-submit.component.js',
     view: './src/app/job/job-view/job-view.component.js',
@@ -214,6 +215,14 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'changePassword']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'user-profile.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'userProfile']
     }),
     new HtmlWebpackPlugin({
       title: 'Platform for AI',

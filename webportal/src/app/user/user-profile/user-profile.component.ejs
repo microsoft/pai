@@ -1,0 +1,120 @@
+<section class="content-header">
+  <%= breadcrumb({ breadcrumbTitle: "My Account" }) %>
+</section>
+
+<div class="template-account">
+  <table>
+    <tr>
+      <td>
+        <img class="logo" src="/assets/img/Bob.png">
+      </td>
+      <td>
+        <div class="detail">
+          <h2 id="txt-name">Bob</h2>
+          <div class="middle">Bob</div>
+          <p id="txt-description">
+            <span>information</span>
+            <span>|</span>
+            <span>information</span>
+            <span>|</span>
+            <span>information</span>
+          </p>
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- back: white -->
+<div class="user-main">
+  <!-- float box -->
+  <div class="descirp_jobs">
+    <h4>Recently used</h4>
+    <!-- box for model -->
+    <ul class="little">
+      <% for (let i = 0; i < recentData.length; i ++) { %>
+        <li>
+          <div align="center">
+            <img src=<%= recentData[i].avatar %> alt="">
+          </div>
+          <h5>
+            <%= recentData[i].name %>
+          </h5>
+          <div class="contributor">
+            <span>
+              <%= recentData[i].contributor %>
+            </span>
+            <span class="glyphicon glyphicon-download-alt float-right" aria-hidden="true">
+              <span><%= recentData[i].downloads %></span>
+            </span>
+          </div>
+          <p>
+            <% for (let j = 0; j < recentData[i].star; j ++) { %>
+              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <% } %>
+                <% for (let j = recentData[i].star; j < 5; j ++) { %>
+                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+                  <% } %>
+          </p>
+        </li>
+        <% } %>
+    </ul>
+    <!-- clear float -->
+    <div class="clear"></div>
+  </div>
+
+  <!-- ul -->
+  <ul class="nav nav-tabs mar-bott">
+    <li role="presentation" class="active">
+      <a href="#tab-ov" role="tab" data-toggle="tab">My assets</a>
+    </li>
+    <li role="presentation">
+      <a href="#tab-qa" role="tab" data-toggle="tab">People</a>
+    </li>
+    <li role="presentation">
+      <a href="#tab-rr" role="tab" data-toggle="tab">Projects</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <% for (let i = 0; i < data.length; i ++) { %>
+      <div role="tabpanel" class="tab-pane active" id="tab-ov">
+        <div class="panel shadow">
+          <div class="panel-heading">Model</div>
+          <div class="panel-body padd-box">
+            <div class="row model-img">
+              <div class="col-sm-2">
+                <img src=<%= data[i].image %> alt="">
+              </div>
+              <div class="col-sm-7">
+                <h3>
+                  <%= data[i].name %>
+                </h3>
+                <p>
+                  <%= data[i].author %>
+                </p>
+                <div>
+                  <%= data[i].description %>
+                </div>
+              </div>
+              <div class="col-sm-3 collect-btn">
+                <button type="button" class="btn btn-primary">Edit</button>
+                <br>
+                <button type="button" class="btn btn-primary">Share</button>
+                <br>
+                <button type="button" class="btn btn-primary">Delete</button>
+                <br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+        <div role="tabpanel" class="tab-pane" id="tab-qa">
+          222
+        </div>
+        <div role="tabpanel" class="tab-pane" id="tab-rr">
+          333
+        </div>
+
+  </div>

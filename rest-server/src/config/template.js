@@ -16,31 +16,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const express = require('express');
-const tokenConfig = require('../config/token');
-const templateConfig = require('../config/template.js');
-const templateController = require('../controllers/template.js');
-const param = require('../middlewares/parameter');
+const Joi = require('joi');
 
-const router = new express.Router();
+const postRatingInputSchema = Joi.object().keys({
+  rating: Joi.number()
+    .integer()
+    .min(0)
+    .max(5)
+    .required(),
+  comment: Joi.string()
+    .optional(),
+}).required();
 
-router.route('/')
-  /** POST /api/v1/template - Share the job and its resources as template */
-  .post(tokenConfig.check, templateController.share)
-  /** GET /api/v1/template?query=XXX */
-  .get(templateController.search);
-
-router.route('/:type')
-  /** GET /api/v1/template/:type - List top 10 templates of the given type */
-  .get(templateController.list);
-
-router.route('/:type/:name')
-  /** POST /api/v1/template/:type/:name - Provide rating info */
-  .post(tokenConfig.check, param.validate(templateConfig.postRatingInputSchema), templateController.rate);
-
-router.route('/:type/:name/:version')
-  /** GET /api/v1/template/:type/:name/:version[?use=1] - Return the template by name and version */
-  .get(templateController.fetch);
-
-// module exports
-module.exports = router;
+module.exports = {postRatingInputSchema}
