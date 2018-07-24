@@ -61,6 +61,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
 
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test1')
+      .twice()
       .reply(200, () => {
         frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test1';
         return frameworkDetail;
