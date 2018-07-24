@@ -148,6 +148,11 @@ const experimentData = [
   },
 ];
 
+const generateQueryString = function(data) {
+  return 'type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
+    + encodeURIComponent(data.version);
+};
+
 const loadSummary = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const type = searchParams.get('type');
@@ -176,6 +181,7 @@ const loadSummary = () => {
               contributor: item.contributor,
               star: item.rating,
               downloads: item.count,
+              link: '/detail.html?' + generateQueryString(item),
             });
           });
         }
