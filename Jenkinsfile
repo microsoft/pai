@@ -274,6 +274,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
                 script {
                   env.SINGLE_BOX_URL = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
                   echo "${SINGLE_BOX_URL}"
+                  env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
                 }
                 sh (
                   //returnStatus: true,
@@ -283,7 +284,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
 set -x
 #set -euxo pipefail
 
-declare -r PAI_ENDPOINT=${SINGLE_BOX_URL}
+#declare -r PAI_ENDPOINT=${SINGLE_BOX_URL}
 
 TOKEN=$(
     curl --silent --verbose \
@@ -351,6 +352,7 @@ done
                 script {
                   env.CLUSTER_URL = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
                   echo "${CLUSTER_URL}"
+                  env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
                 }
                 sh (
                   //returnStatus: true,
@@ -359,7 +361,7 @@ done
 set -x
 #set -euxo pipefail
 
-declare -r PAI_ENDPOINT=${SINGLE_BOX_URL}
+#declare -r PAI_ENDPOINT=${CLUSTER_URL}
 
 TOKEN=$(
     curl --silent --verbose \
