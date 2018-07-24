@@ -22,7 +22,7 @@ const createError = require('../util/error');
 const check = (username, password, callback) => {
   userModel.db.has(etcdConfig.userPath(username), null, (_, res) => {
     if (!res) {
-      return callback(createError('Bad Request', 'NoUserError', `User ${username} not found.`));
+      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
     }
     userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (err, res) => {
       if (err) {

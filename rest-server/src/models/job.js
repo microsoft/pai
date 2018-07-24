@@ -123,7 +123,7 @@ class Job {
           if (requestRes.status === 200) {
             next(this.generateJobDetail(requestResJson), null);
           } else if (requestRes.status === 404) {
-            next(null, createError('Not Found', 'NoJobError', `Job ${name} not found.`));
+            next(null, createError('Not Found', 'NoJobError', `Job ${name} is not found.`));
           } else {
             next(null, createError(requestRes.status, 'UnknownError', requestRes.raw_body));
           }

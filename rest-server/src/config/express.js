@@ -46,7 +46,7 @@ app.use('/api/v1', router);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  next(createError('Not Found', 'NoApiError', `API ${req.url} not found.`));
+  next(createError('Not Found', 'NoApiError', `API ${req.url} is not found.`));
 });
 
 // error handler

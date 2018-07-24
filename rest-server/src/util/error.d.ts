@@ -35,7 +35,7 @@ declare type Code =
     'NoApiError' |
     'NoJobError' |
     'NoJobConfigError' |
-    'NoJobSshError' |
+    'NoJobSshInfoError' |
     'NoUserError' |
     'NoVirtualClusterError' |
     'RemoveAdminError' |
