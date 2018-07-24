@@ -20,6 +20,7 @@ require('./template-import.component.scss');
 require('../template-view/template-view.component.scss');
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/modal.js');
+require('bootstrap/js/tooltip.js');
 
 const yaml = require('js-yaml');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
@@ -109,14 +110,13 @@ const replaceHrefs = () => {
         saveTemplateOnAddModal(items[0], id);
       });
     });
-    let thisid = $(this).attr('id');
-    let tooltiphtml = '<h2>' + $(`#${thisid} .item-title`).val() + '</h2>' + 
-                      '<p>' + $(`#${thisid} .item-dsp`).html() + '</p>' +
-                      $(`#${thisid} .star-rating`).html();
+    let tooltiphtml = '<h4>' + $(this).find('.item-title').html() + '</h4>' + 
+                      '<p>' + $(this).find('.item-dsp').html() + '</p>' +
+                      $(this).find('.star-rating').html();
     console.log(tooltiphtml);
     $(this).attr('title', tooltiphtml);
   });
-  //$('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').tooltip();
   if (addModalActive == false) {
     $('.recommand-container').map(function() {
       let type = $(this).attr('id').substring(3);
