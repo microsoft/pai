@@ -14,11 +14,16 @@ pipeline {
 set -x
 IFS=", " read -r -a labels <<< "$NODE_NAME"
 #echo ${labels[@]}
-echo ${labels[0]} > $WORKSPACE/BED.txt
+echo ${labels[0]} > ${WORKSPACE}/BED.txt
 ''',
             returnStdout: true
           )
-          env.BED = readFile("$WORKSPACE/BED.txt").trim()
+          env.BED = readFile("${WORKSPACE}/BED.txt").trim()
+
+          sh '''#!/bin/bash
+echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
+'''
+          env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
           echo "Select CI Cluster: ${BED}"
         }
         sh 'printenv'
@@ -68,7 +73,7 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" $CONFIG_PATH/services-configuration.yaml
+sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" $CONFIG_PATH/services-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
 
@@ -149,7 +154,7 @@ fi
 # Step 1. Generate config
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
@@ -236,7 +241,7 @@ fi
 # Step 1. Generate config
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID}/" /cluster-configuration/services-configuration.yaml
+sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
