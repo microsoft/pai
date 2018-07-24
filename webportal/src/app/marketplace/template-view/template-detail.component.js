@@ -28,6 +28,40 @@ const viewCardComponent = require('./view-cards.component.ejs');
 
 require('./template-view.component.scss');
 require('./template-detail.component.scss');
+require('bootstrap/js/modal.js');
+require('datatables.net/js/jquery.dataTables.js');
+require('datatables.net-bs/js/dataTables.bootstrap.js');
+require('datatables.net-bs/css/dataTables.bootstrap.css');
+require('datatables.net-plugins/sorting/natural.js');
+
+const overviewData = {
+  description: 'PowerShell Tools for Visual Studio brings the richness of the Visual Studio developent experience together with the power of PowerShell.',
+  prerequisites: [
+    {
+      name: 'Model Name',
+      avatar: '/assets/img/script.png',
+      contributor: 'Contributor',
+      star: 5,
+      downloads: '67,000',
+    },
+    {
+      name: 'Docker Name',
+      avatar: '/assets/img/dockerimage.png',
+      contributor: 'Contributor',
+      star: 4,
+      downloads: '66,000',
+    },
+    {
+      name: 'Data Name',
+      avatar: '/assets/img/data.png',
+      contributor: 'Contributor',
+      star: 5,
+      downloads: '68,000',
+    },
+  ],
+  categories: ['Programming Languages', 'Snippets', 'Other'],
+  tags: ['c#', 'javascript', 'keybindings', 'python', 'ruby', 'rust'],
+};
 
 const qaData = [
   {
@@ -207,6 +241,42 @@ const loadSummary = () => {
         $('#content-wrapper').html(templateDetailHtml);
         $('#btn-use').click((event) => {
           window.location.href = "/import.html" + window.location.search;
+        });
+        $('#btn-review').click(function(event){
+          $('#reviewModel').modal('show');
+        });
+        $('#btn-submitreview').click(function(event) {
+          var star = document.getElementsByName('rating');
+          for (var i = 0, length = star.length; i < length; i++)
+          {
+            if (star[i].checked)
+            {
+              // do whatever you want with the checked radio
+              var reviewStar = star[i].value;
+              // only one radio can be logically checked, don't check the rest
+              break;
+            }
+          }
+          var reviewContent = document.getElementById("review-content").value;
+
+          var currentdate = new Date(); 
+          var datetime = currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+          reviewData.concat({
+            description: reviewContent, 
+            star: reviewStar, 
+            name: 'Honey Lin',
+            avatar: '/assets/img/pic2.png',
+            date: datetime});
+
+          $('#reviewModel').modal('hide');
+          //$('.modal-backdrop').remove();
+          //$(document.body).removeClass("modal-open");
         });
       }
     });
