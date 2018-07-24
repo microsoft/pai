@@ -148,6 +148,11 @@ const experimentData = [
   },
 ];
 
+const generateQueryString = function(data) {
+  return 'type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
+    + encodeURIComponent(data.version);
+};
+
 const loadSummary = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const type = searchParams.get('type');
@@ -174,8 +179,9 @@ const loadSummary = () => {
               name: item.name,
               avatar: `/assets/img/${item.type}.png`,
               contributor: item.contributor,
-              star: 3,
-              downloads: 66,
+              star: item.rating,
+              downloads: item.count,
+              link: '/detail.html?' + generateQueryString(item),
             });
           });
         }

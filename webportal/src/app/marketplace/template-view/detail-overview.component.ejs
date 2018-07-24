@@ -4,16 +4,18 @@
     <h4>Prerequisites</h4>
     <ul>
       <% for (let i = 0; i < data.prerequisites.length; i ++) { %>
-        <li>
+      <li>
+        <a href="<%= data.prerequisites[i].link %>">
           <div align="center">
             <img src="<%= data.prerequisites[i].avatar %>">
           </div>
           <h5><%= data.prerequisites[i].name %></h5>
           <div class="contributor">
             <span><%= data.prerequisites[i].contributor %></span>
-            <span class="glyphicon glyphicon-download-alt" aria-hidden="true">
-              <%= data.prerequisites[i].downloads %>
-            </span>
+            <div class="float-right">
+              <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+              <span><%= data.prerequisites[i].downloads %></span>
+            </div>
           </div>
           <p>
             <% for (let j = 0; j < data.prerequisites[i].star; j ++) { %>
@@ -23,7 +25,8 @@
               <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
             <% } %>
           </p>
-        </li>
+        </a>
+      </li>
       <% } %>
     </ul>
     <div class="clear"></div>

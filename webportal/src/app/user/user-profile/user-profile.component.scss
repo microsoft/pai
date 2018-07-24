@@ -1,0 +1,184 @@
+.content-header>h1{
+    margin: 0;
+    font-size: 20px;
+    font-family: 800;
+    margin-left: 9%;
+    line-height: 70px;
+}
+
+.template-account {
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 20px;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+    td{
+        vertical-align: middle;
+        height: 160px;
+    }
+    .logo {
+      width: 160px;
+      height: 160px;
+    }
+    .detail {
+      margin-left: 20px;
+      height: 160px;
+      box-sizing: border-box;
+      h2 {
+        font-size: 26px;
+        font-weight: 600;
+        padding-right: 8px;
+        padding-top: 10px; 
+      }
+      .middle{
+          line-height: 42px;
+      }
+      p {
+        line-height: 34px;
+        font-size: 14px;
+        line-height: 42px;
+      }
+      .detail_btn button {
+        width: 100px;
+        height: 30px;
+        margin-right: 10px;
+      }
+    }
+  }
+  .template-account, .nav-tabs, .tab-pane {
+    margin: 0 auto;
+    width: 80%;
+  }
+  
+  .tab-content {
+    background: white;
+    height: 100%;
+    padding-bottom: 100px;
+  }
+  
+  .tab-header {
+    border-bottom: 1px solid #eaeaea;
+    border-width: 1px 0;
+    height: 54px;
+    width: 100%;
+    padding-bottom: 10px;
+    h4 {
+      float: left;
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      margin-left: 26px;
+      margin-top: 18px;
+    }
+    button {
+      float: right;
+      margin-top: 7px;
+    }
+  }
+  
+  .clear {
+    clear: both;
+    margin-bottom: 18px;
+  }
+
+  .mar-bott{
+    margin-bottom: 20px;
+  }
+
+//   user recently used
+.user-main{
+    background: white;
+}
+
+.descirp_jobs{
+    width: 80%;
+    margin: 0 auto;
+    margin-bottom: 26px;
+
+    h4{
+        font-size: 18px;
+        line-height: 3.2em;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 6px;
+        margin-top: 18px;
+    }
+}
+
+.little{
+    list-style: none;
+    margin-left: -38px;
+    margin-top: 22px;
+    li{
+        float: left;
+        width: 170px;
+        height: 190px;
+        margin-right: 20px;
+        padding: 0 10px;
+        box-sizing: border-box; 
+        box-shadow: 0 0 15px rgba(0,0,0,.19);
+        transition: all 1s;
+        img{
+            width: 76px;
+            height: 76px;
+            margin-top: 17px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        h5{
+            color: #141414;
+            margin-left: 5px;
+        }
+
+        .contributor{
+            line-height: 20px;
+            color: #B8B8B8;
+            .float-right{
+              float: right;
+              margin-right: 9px;
+            }
+            .float-right:before{
+              margin-right: -10px;
+              margin-left: 14px;
+            }
+        }
+
+        p{
+            line-height: 20px;
+            color: #FDA501;
+            margin-top: 5px;
+        }
+    }
+    li:hover{
+        transform: scale(1.04);
+    }
+}
+// user recently used end
+
+// my assets start
+.tab-content {
+  .panel {
+    .panel-heading{
+      background: #2EADFA;
+      color: white;
+    }
+  }
+  .shadow{
+    box-shadow: 0 4px 4px 0 rgba(0,0,0,.2),0 6px 20px 0 rgba(0,0,0,.1)!important;
+  }
+  .padd-box{
+    padding: 25px;
+  }
+}
+.model-img {
+  img{
+    max-width: 100px;
+    margin-left: 32px;
+  }
+}
+.collect-btn button{
+  width: 100px;
+  height: 30px;
+  margin-bottom: 10px;
+}
+// my assets end

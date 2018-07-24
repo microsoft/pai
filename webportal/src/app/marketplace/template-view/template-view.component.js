@@ -64,10 +64,10 @@ const generateUI = function(type, data) {
                 '<span class=\"item-title\">' + item.name + '</span>' +
                 '<span class=\"item-dsp\">' + item.description + '</span>' + 
                 '<div class=\"star-rating\">';
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < item.rating; i++) {
       htmlstr += '<span class=\"fa fa-star span-left\"></span>';
     }
-    for (let i = 4; i < 5; i++) {
+    for (let i = item.rating; i < 5; i++) {
       htmlstr += '<span class=\"fa fa-star-o span-left\"></span>'
     }
     htmlstr += '<span class=\"fa fa-download span-right\">' + item.count + '</span>' +
@@ -151,8 +151,9 @@ $('#btn-share').click(function(event) {
   $('#shareModal').modal('show');
 });
 
+$('#sidebar-menu--template-view').addClass('active');
+
 $(document).ready(() => {
-  $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
   $('#table-view').html(templateTableComponent());
   loadTemplates('job', (type) => { return '#' + type + '-table'; }, null);
