@@ -24,7 +24,9 @@ const detailOverviewComponent = require('./detail-overview.component.ejs');
 const detailQaComponent = require('./detail-qa.component.ejs');
 const detailReviewComponent = require('./detail-review.component.ejs');
 const detailExperimentComponent = require('./detail-experiment.component.ejs');
+const viewCardComponent = require('./view-cards.component.ejs');
 
+require('./template-view.component.scss');
 require('./template-detail.component.scss');
 
 const qaData = [
@@ -172,8 +174,11 @@ const loadSummary = () => {
           data.prerequisites.forEach(function(item) {
             overviewData.prerequisites.push({
               name: item.name,
+              type: item.type,
+              version: item.version,
               avatar: `/assets/img/${item.type}.png`,
               contributor: item.contributor,
+              description: item.description,
               star: 3,
               downloads: 66,
             });
@@ -185,10 +190,11 @@ const loadSummary = () => {
           qa: detailQaComponent,
           review: detailReviewComponent,
           experiment: detailExperimentComponent,
+          card: viewCardComponent,
           detail: {
-            type,
-            name,
-            version,
+            type: type,
+            name: name,
+            version: version,
             uses: data.count,
             star: Math.round(data.rating),
             contributor: template.contributor,

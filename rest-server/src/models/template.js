@@ -82,6 +82,7 @@ return result
             item.type = item.job.type;
             item.name = item.job.name;
             item.version = item.job.version;
+            item.contributor = item.job.contributor;
             item.description = item.job.description;
           }
           item.count = res[i + 1];
@@ -135,6 +136,7 @@ return result
             item.type = item.job.type;
             item.name = item.job.name;
             item.version = item.job.version;
+            item.contributor = item.job.contributor;
             item.description = item.job.description;
           }
           item.count = res[i + 1];

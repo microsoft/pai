@@ -26,62 +26,32 @@ require('./template-view.component.scss');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const templateViewComponent = require('./template-view.component.ejs');
-const templateTableComponent = require('./template-table.component.ejs');
 const templateModalComponent = require('./template-modal.component');
 const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
+const viewCardComponent = require('./view-cards.component.ejs');
 
 $('#content-wrapper').html(templateViewComponent({
   breadcrumb: breadcrumbComponent,
   loading: loadingComponent,
-  template: templateTableComponent,
 }));
 
-const generateQueryString = function(data) {
-  return 'type=' + encodeURIComponent(data.type) + '&name=' + encodeURIComponent(data.name) + '&version='
-    + encodeURIComponent(data.version);
-};
-
 const generateUI = function(type, data) {
-  let htmlstr = '';
-  let itemNum = 0;
-  let itemLimit = parseInt(($(window).width() - 230) / 200 - 2);
-  console.log(itemLimit);
-  data.forEach((item) => {
-    if (itemNum % itemLimit == 0) {
-      if (itemNum == 0) {
-        htmlstr += '<div class=\"item active\">' + '<div class=\"row\">';
-      } else {
-        htmlstr += '</div></div><div class=\"item\">' + '<div class=\"row\">';
-      }
-    }
-    htmlstr += '<a class=\"cardhref\" id=\"' + type + '-' + item.name + '-' + item.version + '\" href=\"/detail.html?' + generateQueryString(item) + '\">' +
-                '<div class=\"card\">' + 
-                '<div class=\"img-container\">' +
-                '<img src=\"/assets/img/' + type + '.png\" height=\"100%\">' +
-                '</div>' +
-                '<div class=\"text-container\">' +
-                '<span class=\"item-title\">' + item.name + '</span>' +
-                '<span class=\"item-dsp\">' + item.description + '</span>' + 
-                '<div class=\"star-rating\">';
-    for (let i = 0; i < 4; i++) {
-      htmlstr += '<span class=\"fa fa-star span-left\"></span>';
-    }
-    for (let i = 4; i < 5; i++) {
-      htmlstr += '<span class=\"fa fa-star-o span-left\"></span>'
-    }
-    htmlstr += '<span class=\"fa fa-download span-right\">' + item.count + '</span>' +
-                '</div>' + 
-                '</div>' + 
-                '</div>' + 
-                '</a>';
-    itemNum += 1;
+  let newdata = [];
+  data.forEach(function(item) {
+    newdata.push({
+      type: item.type,
+      name: item.name,
+      version: item.version,
+      avatar: `/assets/img/${item.type}.png`,
+      description: item.description,
+      contributor: item.contributor,
+      star: item.rating,
+      downloads: item.count,
+    });
   });
-  if (itemNum != 0) {
-    htmlstr += '</div></div>';
-  }
-  return htmlstr;
-};
+  return viewCardComponent({ type: type, data: newdata });
+} 
 
 const loadTemplates = function(name, generateTableName, postProcess) {
   const tablename = generateTableName(name);
@@ -133,11 +103,11 @@ const search = function(event, types, generateTableName, query, postProcess) {
 };
 
 $('#btn-search').click((event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table'; }, 
+  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table-view'; }, 
     $('#search').val(), null);
 });
 $('#search').on('keyup', (event) => {
-  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table'; }, 
+  search(event, ['data', 'dockerimage', 'script', 'job'], (type) => { return '#' + type + '-table-view'; }, 
     $('#search').val(), null);
 });
 
@@ -154,11 +124,10 @@ $('#btn-share').click(function(event) {
 $(document).ready(() => {
   $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
-  $('#table-view').html(templateTableComponent());
-  loadTemplates('job', (type) => { return '#' + type + '-table'; }, null);
-  loadTemplates('data', (type) => { return '#' + type + '-table'; }, null);
-  loadTemplates('script', (type) => { return '#' + type + '-table'; }, null);
-  loadTemplates('dockerimage', (type) => { return '#' + type + '-table'; }, null);
+  loadTemplates('job', (type) => { return '#' + type + '-table-view'; }, null);
+  loadTemplates('data', (type) => { return '#' + type + '-table-view'; }, null);
+  loadTemplates('script', (type) => { return '#' + type + '-table-view'; }, null);
+  loadTemplates('dockerimage', (type) => { return '#' + type + '-table-view'; }, null);
   window.dispatchEvent(new Event('resize'));
 });
 

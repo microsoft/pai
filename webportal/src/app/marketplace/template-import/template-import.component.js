@@ -36,7 +36,7 @@ const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs
 const userChooseTitleLayout = require('./user-choose-layout/title-layout.ejs');
 const userAddModalComponent = require('./add-modal.component.ejs');
 const userAddItemLayout = require('./user-choose-layout/add-layout.ejs');
-const userRecommandLayout = require('./user-choose-layout/recommand-layout.ejs');
+const userRecommandLayout = require('../template-view/view-cards.component.ejs');
 const templateView = require('../template-view/template-view.component');
 
 const templateViewHtml = templateImportComponent({
@@ -108,9 +108,7 @@ const replaceHrefs = () => {
         saveTemplateOnAddModal(items[0], id);
       });
     });
-    let tooltiphtml = '<h4>' + $(this).find('.item-title').html() + '</h4>' + 
-                      '<p>' + $(this).find('.item-dsp').html() + '</p>' +
-                      $(this).find('.star-rating').html();
+    let tooltiphtml = '<h5>' + $(this).find('.none').html() + '</h5>';
     console.log(tooltiphtml);
     $(this).attr('title', tooltiphtml);
   });
@@ -118,7 +116,7 @@ const replaceHrefs = () => {
   if (addModalActive == false) {
     $('.recommand-container').map(function() {
       let type = $(this).attr('id').substring(3);
-      if ($('#recommand-' + type + '-table').html() == '') {
+      if ($('#' + type + '-table').html() == '') {
         $(this).remove();
       }
     });
@@ -163,17 +161,13 @@ const showAddModal = (type, data_id=null) => {
   });
 
   // ----------- recommand ---------------
-  $('#recommandPlaceHolder').html(userRecommandLayout({
-    type: type,
-  }));
-
-  templateView.loadTemplates(type, (type) => { return '#recommand-' + type + '-table'; }, replaceHrefs);
+  templateView.loadTemplates(type, (type) => { return '#recommandPlaceHolder'; }, replaceHrefs);
 
   $('#btn-add-search').click((event) => {
-    templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
+    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs);
   });
   $('#add-search').on('keyup', (event) => {
-    templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
+    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs);
   });
 
   // ---------- some button listener ----------
@@ -197,6 +191,7 @@ const showAddModal = (type, data_id=null) => {
     if (finalEditor != null) {
       let d = finalEditor.getValue();
       insertNewChooseResult(d, type);
+
       let searchTypes = [];
       Object.keys(userChooseTemplateValues).forEach((t) => {
         let allEmpty = true;
@@ -208,13 +203,12 @@ const showAddModal = (type, data_id=null) => {
         }
       });
       if (searchTypes.length != 0) {
-        $('#user-recommand-holder').html('<h2>Recommand</h2>');
-        searchTypes.forEach((t) => {
-          $('#user-recommand-holder').append(userRecommandLayout({
-            type: t,
-          }));
-        });
-        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], replaceHrefs);
+        $('#user-recommand-holder').html('<h2>Recommand</h2>' + 
+        '<div id=\"job-table-view\"></div>' +
+        '<div id=\"data-table-view\"></div>' +
+        '<div id=\"script-table-view\"></div>' +
+        '<div id=\"dockerimage-table-view\"></div>');
+        templateView.search(null, searchTypes, (type) => { return '#' + type + '-table-view'; }, d['description'] + ' ' + d['name'], replaceHrefs);
       }
     }
   });
