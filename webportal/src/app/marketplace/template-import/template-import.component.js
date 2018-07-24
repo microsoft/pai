@@ -63,8 +63,7 @@ const saveTemplateOnAddModal = (type, id) => {
     summaryLayout: userChooseSummaryLayout,
     titleLayout: userChooseTitleLayout,
   }));
-  $(`#${type}${id} .user-edit`).on('click', () => {
-    console.log(`${type}${id}-modal`);
+  $(`#${type}${id}-summary .user-edit`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
   });
 };
@@ -104,33 +103,46 @@ const replaceHrefs = () => {
   });
 };
 
-const showAddModal = (type) => {
-  addEditor = null;
-  finalEditor = null;
-  id = userChooseTemplateValues[type].length + 1;
+const showAddModal = (type, data_id=null) => {
   $('#addModalPlaceHolder').html(userAddModalComponent);
 
+  // ---------- customize edit item ------------
+  addEditor = null;
+  finalEditor = null;
+  
+  id = userChooseTemplateValues[type].length + 1;
   $('#editPlaceHolder').html(userEditModalComponent({
     type: type,
     id: id,
   }));
-  loadEditor(null, type, id);
+
+  if(data_id == null){
+    addEditor = loadEditor(null, type, id);
+    $('#itemPlaceHolder').html(userChooseMainLayout({
+      name: type,
+      contributor: '',
+      description: '',
+      type: type,
+      id: id,
+      summaryLayout: userAddItemLayout,
+      titleLayout: userChooseTitleLayout,
+    }));
+  }
+  else{
+    addEditor = loadEditor(editors[type][data_id - 1].getValue(), type, id);
+    saveTemplateOnAddModal(type, id);
+  }
+
   $(`#${type}${id}-modal .edit-save`).click(() => {
     saveTemplateOnAddModal(type, id);
   });
   
-  $('#itemPlaceHolder').html(userChooseMainLayout({
-    name: type,
-    contributor: '',
-    description: '',
-    type: type,
-    id: id,
-    summaryLayout: userAddItemLayout,
-    titleLayout: userChooseTitleLayout,
-  }));
+
+  // ----------- recommand ---------------
   $('#recommandPlaceHolder').html(userRecommandLayout({
     type: type,
   }));
+
   templateView.loadTemplates(type, (type) => { return '#recommand-' + type + '-table'; }, replaceHrefs);
 
   $('#btn-add-search').click((event) => {
@@ -140,6 +152,7 @@ const showAddModal = (type) => {
     templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
   });
 
+  // ---------- some button listener ----------
   $('#btn-add-upload').click(() => {
 
   });
@@ -148,6 +161,7 @@ const showAddModal = (type) => {
     $(`#${type}${id}-modal`).modal('show');
   });
 
+  // --------- click add button to add item, and update the page --------
   $('#btn-add-modal').click(() => {
     $('#btn-add-modal').attr('data-dismiss', 'modal');
     $('#btn-add-modal').attr('aria-hidden', 'true');
@@ -431,8 +445,6 @@ const loadEditor = (d, type, id) => {
   if (d != null) {
     editor.setValue(d);
     editors[type].push(editor);
-  } else {
-    addEditor = editor;
   }
   return editor;
 };
@@ -467,7 +479,8 @@ const insertNewChooseResult = (d, type) => {
     $(`#${type}${id}-modal`).modal('hide');
   });
 
-  $(`#${type}${id}-remove-button`).on('click', (t)=>{
+  // 找到一个不为null的项 设为active，没有的话就删除整个框
+  $(`#${type}${id}-remove-button`).on('click', ()=>{
     if($(`#${type}${id}-title`).hasClass("active")){
       let i = 0;
       for(; i < editors[type].length; ++i){
@@ -486,6 +499,11 @@ const insertNewChooseResult = (d, type) => {
     $(`#${type}${id}-title`).remove();
     $(`#${type}${id}-summary`).remove();
     editors[type][id - 1] = null;
+  });
+
+
+  $(`#${type}${id}-quick-add-button`).on('click', ()=>{
+    showAddModal(type, id);
   });
 }
 
