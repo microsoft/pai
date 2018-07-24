@@ -279,6 +279,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
                   //returnStatus: true,
                   script: '''#!/bin/bash
 
+
 set -x
 #set -euxo pipefail
 
@@ -297,28 +298,25 @@ TOKEN=$(
 )
 
 # Submit a job
-
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
-
 curl --silent --verbose \
     --request POST \
     $PAI_ENDPOINT/rest-server/api/v1/jobs \
     --header "Authorization: Bearer $TOKEN" \
     --header 'Content-Type: application/json' \
     --data "{
-        \"jobName\": \"$JOB_NAME\",
-        \"image\": \"aiplatform/pai.run.cntk\",
-        \"taskRoles\": [
+        \\"jobName\\": \\"$JOB_NAME\\",
+        \\"image\\": \\"aiplatform/pai.run.cntk\\",
+        \\"taskRoles\\": [
             {
-                \"name\": \"Master\",
-                \"taskNumber\": 1,
-                \"cpuNumber\": 1,
-                \"memoryMB\": 256,
-                \"command\": \"/bin/bash --version\"
+                \\"name\\": \\"Master\\",
+                \\"taskNumber\\": 1,
+                \\"cpuNumber\\": 1,
+                \\"memoryMB\\": 256,
+                \\"command\\": \\"/bin/bash --version\\"
             }
         ]
     }"
-
 while :; do
     sleep 10
     STATUS=$(
@@ -328,6 +326,7 @@ while :; do
     if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
     if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
+
 
 '''
                 )
@@ -360,7 +359,7 @@ done
 set -x
 #set -euxo pipefail
 
-declare -r PAI_ENDPOINT=${CLUSTER_URL}
+declare -r PAI_ENDPOINT=${SINGLE_BOX_URL}
 
 TOKEN=$(
     curl --silent --verbose \
@@ -375,28 +374,25 @@ TOKEN=$(
 )
 
 # Submit a job
-
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
-
 curl --silent --verbose \
     --request POST \
     $PAI_ENDPOINT/rest-server/api/v1/jobs \
     --header "Authorization: Bearer $TOKEN" \
     --header 'Content-Type: application/json' \
     --data "{
-        \"jobName\": \"$JOB_NAME\",
-        \"image\": \"aiplatform/pai.run.cntk\",
-        \"taskRoles\": [
+        \\"jobName\\": \\"$JOB_NAME\\",
+        \\"image\\": \\"aiplatform/pai.run.cntk\\",
+        \\"taskRoles\\": [
             {
-                \"name\": \"Master\",
-                \"taskNumber\": 1,
-                \"cpuNumber\": 1,
-                \"memoryMB\": 256,
-                \"command\": \"/bin/bash --version\"
+                \\"name\\": \\"Master\\",
+                \\"taskNumber\\": 1,
+                \\"cpuNumber\\": 1,
+                \\"memoryMB\\": 256,
+                \\"command\\": \\"/bin/bash --version\\"
             }
         ]
     }"
-
 while :; do
     sleep 10
     STATUS=$(
@@ -406,6 +402,8 @@ while :; do
     if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
     if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
+
+
 '''
                 )
               } catch (err) {
