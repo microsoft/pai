@@ -69,7 +69,7 @@ const fetch = (req, res) => {
       'message': 'Failed to extract "version" parameter in the request.',
     });
   }
-  template.load(type, name, version, (err, item) => {
+  template.load(type, name, version, req.query.use, (err, item) => {
     if (err) {
       logger.error(err);
       return res.status(404).json({
@@ -90,7 +90,7 @@ const share = (req, res) => {
       });
     }
     if (has) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: 'The job template has already existed.',
       });
     }

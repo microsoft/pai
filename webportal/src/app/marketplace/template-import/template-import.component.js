@@ -70,7 +70,7 @@ const saveTemplateOnAddModal = (type, id) => {
 
 const getTemplateByAJAX = (type, name, version, process) => {
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
+    url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}?use=1`,
     type: 'GET',
     dataType: 'json',
     success: function (data) {
