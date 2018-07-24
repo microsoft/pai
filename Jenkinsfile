@@ -19,7 +19,7 @@ pipeline {
             script {
               try {
                 script {
-                  env.SINGLE_BOX_URL = "bed1"
+                  env.BED = "bed1"
                 }
                 script {
                   env.SINGLE_BOX_URL = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
