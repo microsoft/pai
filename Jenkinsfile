@@ -292,7 +292,7 @@ TOKEN=$(
             "username": "admin",
             "password": "admin-password",
             "expiration": 3600
-        }' \
+        }' \\
     | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
 )
 
@@ -370,7 +370,7 @@ TOKEN=$(
             "username": "admin",
             "password": "admin-password",
             "expiration": 3600
-        }' \
+        }' \\
     | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
 )
 
