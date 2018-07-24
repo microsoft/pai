@@ -56,11 +56,11 @@ curl --silent --verbose \
         'image': 'aiplatform/pai.run.cntk',
         'taskRoles': [
             {
-                'name': 'Master',
-                'taskNumber': 1,
-                'cpuNumber': 1,
-                'memoryMB': 256,
-                'command': '/bin/bash --version'
+                \\"name\\": \\"Master\\",
+                \\"taskNumber\\": 1,
+                \\"cpuNumber\\": 1,
+                \\"memoryMB\\": 256,
+                \\"command\\": \\"/bin/bash --version\\"
             }
         ]
     }"
