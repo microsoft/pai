@@ -121,8 +121,8 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.portType.beginAt`      | Integer, required          | The port to begin with in the port type, 0 for random selection |
 | `taskRole.portType.portNumber`   | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`               | String, required           | Executable command for tasks in the task role, can not be empty |
-| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to kill the entire job, no less than 1 or null, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
-| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, no less than 1 or null, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 

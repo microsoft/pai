@@ -101,14 +101,14 @@ const taskRoleSchema = {
       type: ['number', 'null'],
       minimum: 1,
       exclusiveMinimum: false,
-      description: 'Number of failed tasks to kill the entire job, no less than 1 or null',
+      description: 'Number of failed tasks to kill the entire job, null or no less than 1',
       default: 1,
     },
     minSucceededTaskCount: {
       type: ['number', 'null'],
       minimum: 1,
       exclusiveMinimum: false,
-      description: 'Number of succeeded tasks to kill the entire job, no less than 1 or null',
+      description: 'Number of succeeded tasks to kill the entire job, null or no less than 1',
       default: null,
     },
     command: {
