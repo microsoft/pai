@@ -184,7 +184,8 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 
 # Prepare docker bootstrap script
 mkdir -p "/tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID"
-hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID/docker_bootstrap.sh
+hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID/docker_bootstrap.sh \
+  || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
 mkdir -p "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID"
@@ -196,7 +197,8 @@ if [[ -n $PAI_CODE_DIR ]]; then
     echo "$PAI_CODE_DIR is larger than 10MB, exit."
     exit 1
   fi
-  hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" || exit 1
+  hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" \
+    || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
 fi
 
 
