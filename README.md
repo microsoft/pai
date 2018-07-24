@@ -17,9 +17,9 @@ OpenPAI is an open source platform that provides complete AI model training and 
 7. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
-1. When your organization need a better utilization of AI computing resources (GPU/CPU etc.). On demand allocates resources. 
-2. When your organization need an easy IT ops platform for AI.
-3. When your organization need to share and reuse common AI assets like Model, Data, Environment, etc.
+1. When your organization nedd to share powerful AI computing resources (GPU/FGPA farm, etc.) among teams.
+2. When your organization need to share and reuse common AI assets like Model, Data, Environment, etc.
+3. When your organization need an easy IT ops platform for AI.
 4. When you want to run complete training pipeline in one place. 
 
 
@@ -44,7 +44,7 @@ Before start, you need to meet the following requirements:
 
 - Ubuntu 16.04
 - Assign each server a static IP address. Network is reachable between servers.
-- Server can access the external network. Have access to a Docker registry service (e.g., Docker hub) to store the Docker images for the services to be deployed.
+- Server can access the external network, especially need to have access to a Docker registry service (e.g., Docker hub) to pull the Docker images for the services to be deployed.
 - All machines' SSH service is enabled, share the same username / password and have sudo privilege.
 - Need to enable NTP service.
 - Recommend no Docker installed or a Docker with api version >= 1.26.
@@ -54,16 +54,20 @@ Before start, you need to meet the following requirements:
 ##### 2.2 [Customized deploy](./pai-management/doc/cluster-bootup.md)
 
 ## How to use
-- Training  
-You can queue a training job and wait it complete. Also, you can request a dedicated resource on-demand, to work with an interactive environment like Jupyter Notebook. In both scenarios, you need to submit a job with different configurations
+### How to train jobs
+- How to write PAI jobs
+    - [Learn from Example Jobs](./examples/README.md)
+    - [Write job from scratch in deepth](./job-tutorial/README.md)
+- How to submit PAI jobs
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
     - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
-    - [Job templates](./examples/README.md)
-    - [How to request on-demand resource with job submitting](./examples/jupyter/README.md)
-- Cluster administration    
-    - [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
-    - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
+- How to request on-demand resource for in place training
+    - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
+    
+### Cluster administration    
+- [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
+- [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
     - [Monitoring](./webportal/README.md)
 
 ## Resources
