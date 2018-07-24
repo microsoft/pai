@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -15,29 +15,36 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-const userModel = require('./user');
-const etcdConfig = require('../config/etcd');
-const createError = require('../util/error');
+import { HttpError } from "http-errors";
 
-const check = (username, password, callback) => {
-  userModel.db.has(etcdConfig.userPath(username), null, (_, res) => {
-    if (!res) {
-      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
-    }
-    userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (err, res) => {
-      if (err) {
-        return callback(err);
-      }
-      userModel.encrypt(username, password, (err, derivedKey) => {
-        if (err) {
-          return callback(err);
-        }
-        callback(null,
-          derivedKey === res.get(etcdConfig.userPasswdPath(username)),
-          res.get(etcdConfig.userAdminPath(username)) === 'true');
-      });
-    });
-  });
-};
+declare type Status =
+    number |
+    'Bad Request' |
+    'Conflict' |
+    'Forbidden' |
+    'Internal Server Error' |
+    'Not Found' |
+    'Unauthorized';
+declare type Code =
+    'BadConfigurationError' |
+    'ConflictJobError' |
+    'ConflictUserError' |
+    'ForbiddenUserError' |
+    'IncorrectPasswordError' |
+    'InvalidParametersError' |
+    'NoApiError' |
+    'NoJobError' |
+    'NoJobConfigError' |
+    'NoJobSshInfoError' |
+    'NoUserError' |
+    'NoVirtualClusterError' |
+    'RemoveAdminError' |
+    'UnauthorizedUserError' |
+    'UnknownError';
 
-module.exports = {check};
+declare function createError(status: Status, code: Code, message: string): HttpError;
+declare namespace createError {
+    declare function unknown(cause: Error | string): HttpError;
+}
+
+export = createError;

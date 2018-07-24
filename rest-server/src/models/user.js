@@ -22,6 +22,7 @@ const config = require('../config/index');
 const dbUtility = require('../util/dbUtil');
 const etcdConfig = require('../config/etcd');
 const logger = require('../config/logger');
+const createError = require('../util/error');
 const VirtualCluster = require('./vc');
 
 const encrypt = (username, password, callback) => {
@@ -42,155 +43,121 @@ const db = dbUtility.getStorageObject('etcd2', {
 });
 
 const update = (username, password, admin, modify, callback) => {
-  if (typeof modify === 'undefined') {
-    callback(null, false);
-  } else {
-    db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
-      if (res !== modify) {
-        callback(null, false);
-      } else {
-        encrypt(username, password, (errMsg, derivedKey) => {
-          if (errMsg) {
-            callback(errMsg, false);
-          } else {
-            if (modify) {
-              db.set(etcdConfig.userPasswdPath(username), derivedKey, {prevExist: true}, (errMsg, res) => {
-                if (errMsg) {
-                  logger.warn('modify %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
-                  callback(errMsg, false);
-                } else {
-                  if (typeof admin !== 'undefined') {
-                    setUserAdmin(admin, username, (errMsg, res) => {
-                      callback(errMsg, res);
-                    });
-                  } else {
-                    callback(null, true);
-                  }
-                }
-              });
-            } else {
-              db.set(etcdConfig.userPath(username), null, {dir: true}, (errMsg, res) => {
-                if (errMsg) {
-                  logger.warn('create %s user directory failed. error message:%s', etcdConfig.userPath(username), errMsg);
-                  callback(errMsg, false);
-                }
-                db.set(etcdConfig.userPasswdPath(username), derivedKey, null, (errMsg, result) => {
-                  if (errMsg) {
-                    logger.warn('set %s password failed. error message:%s', etcdConfig.userPasswdPath(username), errMsg);
-                    callback(errMsg, false);
-                  } else {
-                    setUserAdmin(admin, username, (errMsg, res) => {
-                      callback(errMsg, res);
-                    });
-                  }
-                });
-              });
-            }
-          }
-        });
-      }
-    });
-  }
-};
-
-const setUserAdmin = (admin, username, callback) => {
-  let isAdmin = (typeof admin === 'undefined') ? false : admin;
-  db.set(etcdConfig.userAdminPath(username), isAdmin, null, (errMsg, res) => {
-    if (errMsg) {
-      logger.warn('set %s admin failed. error message:%s', etcdConfig.userAdminPath(username), errMsg);
-      callback(errMsg, false);
+  db.has(etcdConfig.userPath(username), null, (_, res) => {
+    if (res !== modify) {
+      const status = res ? 'Conflict' : 'Not found';
+      const code = res ? 'ConflictUserError' : 'NoUserError';
+      const message = res ? `User name ${username} already exists.` : `User ${username} not found.`;
+      callback(createError(status, code, message));
     } else {
-      callback(null, true);
+      encrypt(username, password, (err, derivedKey) => {
+        if (err) {
+          return callback(err);
+        }
+        if (modify) {
+          db.set(etcdConfig.userPasswdPath(username), derivedKey, {prevExist: true}, (err) => {
+            if (err) {
+              return callback(err);
+            }
+            if (admin !== undefined) {
+              setUserAdmin(admin, username, callback);
+            } else {
+              callback();
+            }
+          });
+        } else {
+          db.set(etcdConfig.userPath(username), null, {dir: true}, (err) => {
+            if (err) {
+              return callback(err);
+            }
+            db.set(etcdConfig.userPasswdPath(username), derivedKey, null, (err) => {
+              if (err) {
+                return callback(err);
+              }
+              setUserAdmin(admin, username, callback);
+            });
+          });
+        }
+      });
     }
   });
 };
 
+const setUserAdmin = (admin, username, callback) => {
+  let isAdmin = (typeof admin === 'undefined') ? false : admin;
+  db.set(etcdConfig.userAdminPath(username), isAdmin, null, callback);
+};
+
 const remove = (username, callback) => {
-  if (typeof username === 'undefined') {
-    callback(new Error('user does not exist'), false);
-  } else {
-    db.has(etcdConfig.userPath(username), null, (errMsg, res) => {
-      if (!res) {
-        callback(new Error('UserNotFoundInDatabase'), false);
+  db.has(etcdConfig.userPath(username), null, (_, res) => {
+    if (!res) {
+      callback(createError('Not Found', 'NoUserError', `User ${username} not found.`));
+    }
+    db.get(etcdConfig.userAdminPath(username), null, (err, res) => {
+      if (err) {
+        return callback(err);
+      }
+      if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
+        callback(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
       } else {
-        db.get(etcdConfig.userAdminPath(username), null, (errMsg, res) => {
-          if (errMsg) {
-            callback(new Error('NotFoundInDatabase'), false);
-            callback(errMsg, false);
-          } else {
-            if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
-              callback(new Error('can not delete admin user'), false);
-            } else {
-              db.delete(etcdConfig.userPath(username), {recursive: true}, (errMsg, result) => {
-                if (errMsg) {
-                  callback(new Error('delete user failed'), false);
-                }
-                callback(null, true);
-              });
-            }
-          }
-        });
+        db.delete(etcdConfig.userPath(username), {recursive: true}, callback);
       }
     });
-  }
+  });
 };
 
 const updateUserVc = (username, virtualClusters, callback) => {
-  if (typeof username === 'undefined') {
-    callback(new Error('user does not exist'), false);
-  } else {
-    db.get(etcdConfig.userPath(username), null, (errMsg, res) => {
-      if (errMsg) {
-        logger.warn('user %s not exists', etcdConfig.userPath(username));
-        callback(new Error('UserNotFoundInDatabase'), false);
+  db.get(etcdConfig.userPath(username), null, (err, res) => {
+    if (err) {
+      if (err.errorCode === 100) {
+        // "Key not found" refer to https://coreos.com/etcd/docs/latest/v2/errorcode.html
+        return callback(createError('Not Found', 'NoUserError', `User ${username} not found.`));
       } else {
-        VirtualCluster.prototype.getVcList((vcList, err) => {
-          if (err) {
-            callback(new Error('NoVirtualClusterFound'), false);
-            logger.warn('get virtual cluster list error\n%s', err.stack);
-          } else if (!vcList) {
-            callback(new Error('NoVirtualClusterFound'), false);
-            logger.warn('list virtual clusters error, no virtual cluster found');
-          } else {
-            let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true') ? Object.keys(vcList) : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
-            let addUserWithInvalidVc = false;
-            for (let item of updateVcList) {
-              if (!vcList.hasOwnProperty(item)) {
-                if (!res.has(etcdConfig.userVirtualClusterPath(username))) {
-                  updateVcList.length = 0;
-                  addUserWithInvalidVc = true;
-                  break;
-                } else {
-                  return callback(new Error('InvalidVirtualCluster'), false);
-                }
-              }
-            }
-            if (!updateVcList.includes('default')) { // always has 'default' queue
-              updateVcList.push('default');
-            }
-            updateVcList.sort();
-            db.set(etcdConfig.userVirtualClusterPath(username), updateVcList.toString(), null, (errMsg, res) => {
-              if (errMsg) {
-                logger.warn('update %s virtual cluster: %s failed, error message:%s', etcdConfig.userVirtualClusterPath(username), errMsg);
-                callback(new Error('UpdateDataFailed'), false);
-              } else {
-                if (addUserWithInvalidVc) {
-                  callback(new Error('InvalidVirtualCluster'), false);
-                } else {
-                  callback(null, true);
-                }
-              }
-            });
-          }
-        });
+        return callback(err);
       }
+    }
+    VirtualCluster.prototype.getVcList((vcList, err) => {
+      if (err) {
+        return callback(err);
+      }
+      if (!vcList) {
+        return callback(createError.unknown('There is no virtual clusters.'));
+      }
+      let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true')
+        ? Object.keys(vcList)
+        : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
+      let addUserWithInvalidVc = null;
+      for (let item of updateVcList) {
+        if (!vcList.hasOwnProperty(item)) {
+          if (!res.has(etcdConfig.userVirtualClusterPath(username))) {
+            updateVcList.length = 0;
+            addUserWithInvalidVc = item;
+            break;
+          } else {
+            return callback(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${item} not found.`));
+          }
+        }
+      }
+      if (!updateVcList.includes('default')) { // always has 'default' queue
+        updateVcList.push('default');
+      }
+      updateVcList.sort();
+      db.set(etcdConfig.userVirtualClusterPath(username), updateVcList.toString(), null, (err, res) => {
+        if (err) {
+          return callback(err);
+        }
+        if (addUserWithInvalidVc != null) {
+          return callback(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${addUserWithInvalidVc} not found.`));
+        }
+        callback(null, true);
+      });
     });
-  }
+  });
 };
 
 const checkUserVc = (username, virtualCluster, callback) => {
   if (typeof username === 'undefined') {
-    callback(new Error('user does not exist'), false);
+    callback(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   } else {
     virtualCluster = (!virtualCluster) ? 'default' : virtualCluster;
     if (virtualCluster === 'default') {
@@ -198,16 +165,17 @@ const checkUserVc = (username, virtualCluster, callback) => {
     } else {
       VirtualCluster.prototype.getVcList((vcList, err) => {
         if (err) {
-          logger.warn('get virtual cluster list error\n%s', err.stack);
+          return callback(err);
         } else if (!vcList) {
+          // Unreachable
           logger.warn('list virtual clusters error, no virtual cluster found');
         } else {
           if (!vcList.hasOwnProperty(virtualCluster)) {
-            return callback(new Error('VirtualClusterNotFound'), false);
+            return callback(createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${virtualCluster} is not found.`));
           }
-          db.get(etcdConfig.userVirtualClusterPath(username), null, (errMsg, res) => {
-            if (errMsg || !res) {
-              callback(new Error('VirtualClusterNotFoundInDatabase'), false);
+          db.get(etcdConfig.userVirtualClusterPath(username), null, (err, res) => {
+            if (err) {
+              return callback(err);
             } else {
               let userVirtualClusters = res.get(etcdConfig.userVirtualClusterPath(username)).trim().split(',');
               for (let item of userVirtualClusters) {
@@ -215,7 +183,7 @@ const checkUserVc = (username, virtualCluster, callback) => {
                   return callback(null, true);
                 }
               }
-              callback(new Error('NoRightAccessVirtualCluster'), false);
+              callback(createError('Forbidden', 'ForbiddenUserError', `User ${username} is not allowed to do operation in ${virtualCluster}`));
             }
           });
         }
@@ -224,24 +192,23 @@ const checkUserVc = (username, virtualCluster, callback) => {
   }
 };
 
-const getUserList = (next) => {
-  db.get(etcdConfig.storagePath(), {recursive: true}, (errMsg, res) => {
-    if (errMsg) {
-      next(new Error('UserListNotFound'), null);
-    } else {
-      const userInfoList = [];
-      res.forEach((value, key) => {
-        if (value === undefined && key !== etcdConfig.storagePath()) {
-          let userName = key.replace(etcdConfig.storagePath() + '/', '');
-          userInfoList.push({
-            username: userName,
-            admin: res.get(etcdConfig.userAdminPath(userName)),
-            virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
-          });
-        }
-      });
-      next(null, userInfoList);
+const getUserList = (callback) => {
+  db.get(etcdConfig.storagePath(), {recursive: true}, (err, res) => {
+    if (err) {
+      return callback(err);
     }
+    const userInfoList = [];
+    res.forEach((value, key) => {
+      if (value === undefined && key !== etcdConfig.storagePath()) {
+        let userName = key.replace(etcdConfig.storagePath() + '/', '');
+        userInfoList.push({
+          username: userName,
+          admin: res.get(etcdConfig.userAdminPath(userName)),
+          virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
+        });
+      }
+    });
+    callback(null, userInfoList);
   });
 };
 

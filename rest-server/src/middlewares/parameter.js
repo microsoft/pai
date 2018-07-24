@@ -18,7 +18,7 @@
 
 // module dependencies
 const Joi = require('joi');
-const logger = require('../config/logger');
+const createError = require('../util/error');
 
 /**
  * Validate parameters.
@@ -27,13 +27,7 @@ const validate = (schema) => {
   return (req, res, next) => {
     Joi.validate(req.body, schema, (err, value) => {
       if (err) {
-        const errorType = 'ParameterValidationError';
-        const errorMessage = 'Could not validate request data.\n' + err.stack;
-        logger.warn('[%s] %s', errorType, errorMessage);
-        return res.status(500).json({
-          error: errorType,
-          message: errorMessage,
-        });
+        next(createError('Bad Request', 'InvalidParametersError', err.message));
       } else {
         req.originalBody = req.body;
         req.body = value;
