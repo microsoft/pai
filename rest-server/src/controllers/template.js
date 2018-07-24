@@ -127,9 +127,28 @@ const share = (req, res) => {
   });
 };
 
+const rate = (req, res) => {
+  let type = req.params.type;
+  let name = req.params.name;
+  let rating = req.body.rating;
+  template.mark(type, name, rating, function(err) {
+    if (err) {
+      logger.error(err);
+      res.status(500).json({
+        message: 'Failed to save the comment.',
+      });
+    } else {
+      res.status(200).json({
+        message: 'Succeeded.'
+      });
+    }
+  });
+};
+
 module.exports = {
   search,
   list,
   fetch,
   share,
+  rate,
 };
