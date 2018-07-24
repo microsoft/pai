@@ -151,8 +151,9 @@ $('#btn-share').click(function(event) {
   $('#shareModal').modal('show');
 });
 
+$('#sidebar-menu--template-view').addClass('active');
+
 $(document).ready(() => {
-  $('#sidebar-menu--template-view').addClass('active');
   $('#content-wrapper').css({'overflow': 'auto'});
   $('#table-view').html(templateTableComponent());
   loadTemplates('job', (type) => { return '#' + type + '-table'; }, null);
