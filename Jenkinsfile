@@ -52,9 +52,9 @@ curl --silent --verbose \
     --header "Authorization: Bearer $TOKEN" \
     --header 'Content-Type: application/json' \
     --data "{
-        'jobName': '$JOB_NAME',
-        'image': 'aiplatform/pai.run.cntk',
-        'taskRoles': [
+        \\"jobName\\": \\"$JOB_NAME\\",
+        \\"image\\": \\"aiplatform/pai.run.cntk\\",
+        \\"taskRoles\\": [
             {
                 \\"name\\": \\"Master\\",
                 \\"taskNumber\\": 1,
