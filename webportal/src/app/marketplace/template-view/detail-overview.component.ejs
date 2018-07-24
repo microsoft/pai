@@ -1,5 +1,6 @@
 <div class="row">
   <div class="col-md-8 ov-left">
+    <% if (data.prerequisites.length > 0) { %>
     <h4>Prerequisites</h4>
     <ul>
       <% for (let i = 0; i < data.prerequisites.length; i ++) { %>
@@ -26,6 +27,7 @@
       <% } %>
     </ul>
     <div class="clear"></div>
+    <% } %>
     <h4>Overview</h4>
     <p><%= data.description %></p>
   </div>
