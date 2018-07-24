@@ -19,6 +19,7 @@
 // module dependencies
 const param = require('./parameter');
 const jobConfig = require('../config/job');
+const createError = require('../util/error');
 
 
 const checkMinTaskNumber = (req, res, next) => {
@@ -27,14 +28,11 @@ const checkMinTaskNumber = (req, res, next) => {
     const minFailedTaskCount = req.body.taskRoles[i].minFailedTaskCount || 0;
     const minSucceededTaskCount = req.body.taskRoles[i].minSucceededTaskCount || 0;
     if (minFailedTaskCount > taskNumber || minSucceededTaskCount > taskNumber) {
-      const err = new Error('Could not validate request data: ' +
-        'minFailedTaskCount or minSucceededTaskCount should not be greater than tasks number.');
-      err.status = 500;
-      next(err);
-    } else {
-      next();
+      const errorMessage = 'minFailedTaskCount or minSucceededTaskCount should not be greater than tasks number.';
+      next(createError('Bad Request', 'InvalidParametersError', errorMessage));
     }
   }
+  next();
 };
 
 const submission = [

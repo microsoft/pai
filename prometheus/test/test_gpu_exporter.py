@@ -21,6 +21,7 @@ import yaml
 import logging
 import logging.config
 from exporter import gpu_exporter
+from exporter.utils import Metric
 
 class TestGPUExporter(unittest.TestCase):
     """
@@ -51,11 +52,34 @@ class TestGPUExporter(unittest.TestCase):
         sample_path = "data/nvidia_smi_sample.xml"
         file = open(sample_path, "r")
         nvidia_smi_result = file.read()
-        output_dir = "data"
-        nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result, output_dir)
-        target_smi_info = {'1': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}, '0': {'gpuUtil': u'100', 'gpuMemUtil': u'100'}}
+        nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result)
+        target_smi_info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
+                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
-        pass
+
+    def test_convert_gpu_info_to_metrics(self):
+        info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
+                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
+        metrics = gpu_exporter.convert_gpu_info_to_metrics(info)
+        self.assertEqual(5, len(metrics))
+
+        self.assertIn(Metric("nvidiasmi_attached_gpus", {}, 2), metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_gpu", {"minor_number": "0"}, "100"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_memory", {"minor_number": "0"}, "99"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_gpu", {"minor_number": "1"}, "98"),
+                metrics)
+        self.assertIn(Metric("nvidiasmi_utilization_memory", {"minor_number": "1"}, "97"),
+                metrics)
+
+    def test_exporter_will_not_report_unsupported_gpu(self):
+        sample_path = "data/nvidia_smi_outdated_gpu.xml"
+        file = open(sample_path, "r")
+        nvidia_smi_result = file.read()
+        nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result)
+        self.assertEqual({}, nvidia_smi_parse_result)
+
 
 if __name__ == '__main__':
     unittest.main()

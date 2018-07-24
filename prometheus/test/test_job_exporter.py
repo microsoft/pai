@@ -16,9 +16,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import copy
 import unittest
 import yaml
-import threading
 import logging
 import logging.config
 from exporter import job_exporter
@@ -50,62 +50,14 @@ class TestJobExporter(unittest.TestCase):
         except:
             pass
 
-    def test_singleton_normal(self):
-        def getter():
-            return 100
+    def test_parse_from_labels(self):
+        labels = {"container_label_PAI_USER_NAME": "openmindstudio", "container_label_GPU_ID": "0,1,", "container_label_PAI_HOSTNAME": "paigcr-a-gpu-1058", "container_label_PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac", "container_label_PAI_CURRENT_TASK_ROLE_NAME": "tuner"}
+        gpuIds, otherLabels = job_exporter.parse_from_labels(labels)
+        self.assertEqual(["0", "1"], gpuIds,)
+        copied = copy.deepcopy(labels)
+        copied.pop("container_label_GPU_ID")
+        self.assertEqual(copied, otherLabels)
 
-        singleton = job_exporter.Singleton(getter)
-
-        for _ in xrange(10):
-            self.assertEqual(100, singleton.try_get())
-
-    def test_singleton_with_blocking_getter_no_old_data(self):
-        semaphore = threading.Semaphore(1)
-
-        def blocking_getter():
-            semaphore.acquire(blocking=True)
-            semaphore.release()
-            return 100
-
-        singleton = job_exporter.Singleton(blocking_getter, get_timeout_s=0.2, old_data_timeout_s=0)
-
-        for _ in xrange(3):
-            semaphore.acquire()
-
-            for _ in xrange(3):
-                self.assertIsNone(singleton.try_get())
-
-            semaphore.release()
-            self.assertEqual(100, singleton.try_get())
-
-    def test_singleton_with_blocking_getter_allow_old_data(self):
-        semaphore = threading.Semaphore(1)
-
-        def blocking_getter():
-            semaphore.acquire(blocking=True)
-            semaphore.release()
-            return 100
-
-        singleton = job_exporter.Singleton(blocking_getter, get_timeout_s=0.2, old_data_timeout_s=30)
-
-        semaphore.acquire()
-
-        for _ in xrange(3):
-            self.assertIsNone(singleton.try_get())
-
-        semaphore.release()
-        # let singleton cache one value
-        self.assertEqual(100, singleton.try_get())
-
-        for _ in xrange(3):
-            semaphore.acquire()
-
-            for _ in xrange(3):
-                # singleton returns old value
-                self.assertEqual(100, singleton.try_get())
-
-            semaphore.release()
-            self.assertEqual(100, singleton.try_get())
 
 if __name__ == '__main__':
     unittest.main()

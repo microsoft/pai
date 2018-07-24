@@ -16,9 +16,6 @@
 ### Steps:
 ```bash
 
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
 # Add new node from nodelist.yaml
 ./paictl.py machine add -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
@@ -33,9 +30,6 @@
 
 ### Steps:
 ```bash
-
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Remove node from nodelist.yaml
 ./paictl.py machine remove -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
@@ -58,9 +52,6 @@ If some nodes in your cluster is unhealthy, you should repair them. The node sta
 ### Steps:
 
 ```
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
-
 # Destroy whole cluster.
 ./paictl.py cluster k8s-clean -p /path/to/configuration/directory
 ```
@@ -71,8 +62,6 @@ If the etcd node in your cluster crashed and k8s failed to restart it. you could
 Note: please be sure that there is only one node (infra node container etcd) on the nodelist.
 
 ```
-# If the maintain-box is new, you should install kubectl first. Or you can skip the first step.
-./k8sClusterManagement.py -p /path/to/configuration/directory -a install_kubectl
 
 # Destroy whole cluster.
 ./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml

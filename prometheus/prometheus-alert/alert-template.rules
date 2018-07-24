@@ -15,25 +15,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
-
-#
-# Preparation
-#
-
-WORKDIR /root/
-
-RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip git python-yaml python-jinja2 && \
-    pip install requests && \
-    pip install paramiko 
-
-COPY copied_file/exporter/watchdog.py /usr/local/
-COPY copied_file/common.py /usr/local
-COPY copied_file/cluster-configuration.yaml /usr/local
-
-#
-# start
-#
-
-CMD python /usr/local/watchdog.py /datastorage/prometheus /usr/local/cluster-configuration.yaml 30 {{ clusterconfig['clusterinfo']['webportalinfo']['k8s_api_server_uri'] }}
+# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+# Rule Introduction: Any node whose cpu utilization is higher than 75% for 2 minutes duration
+#ALERT NodeCPUUsage
+#  IF (100 - (avg by (instance) (irate(node_cpu{name="node-exporter",mode="idle"}[5m])) * 100)) > 75
+#  FOR 2m
+#  LABELS {
+#    severity="page"
+#  }
+#  ANNOTATIONS {
+#    SUMMARY = "{{$labels.instance}}: High CPU usage detected",
+#    DESCRIPTION = "{{$labels.instance}}: CPU usage is above 75% (current value is: {{ $value }})"
+#  }

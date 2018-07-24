@@ -933,15 +933,15 @@ public class ApplicationMaster extends AbstractService {
 
   private Set<String> resyncTasksWithLiveContainers(Set<String> liveContainerIds) throws Exception {
     String logScope = "resyncTasksWithLiveContainers";
-    Set<String> retainContainerIds = new HashSet<>();
+    CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO, Level.DEBUG);
 
+    Set<String> retainContainerIds = new HashSet<>();
     if (liveContainerIds == null) {
-      LOGGER.logInfo(
+      CHANGE_AWARE_LOGGER.log(logScope,
           "Got null live Containers from RM, so RMResync is incomplete. " +
               "resetContainerConnectionLostCount for all tasks, since around this time RMResync must also be incomplete.");
       statusManager.resetContainerConnectionLostCount();
     } else {
-      CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO);
       CHANGE_AWARE_LOGGER.log(logScope,
           "Got %s live Containers from RM, start to resync them.",
           liveContainerIds.size());

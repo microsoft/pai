@@ -186,7 +186,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   }
 
-  const prepareNockForCaseN07 = (jobName) => {
+  const prepareNockForCaseN08 = (jobName) => {
       global.nock(global.launcherWebserviceUri)
         .get(`/v1/Frameworks/${jobName}`)
         .reply(
@@ -236,6 +236,8 @@ describe('Submit job: POST /api/v1/jobs', () => {
           'index':51
         });
   }
+
+  const prepareNockForCaseN09 = prepareNockForCaseN03;
 
 
   //
@@ -299,7 +301,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(401);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('No authorization token was found');
+        global.chai.expect(res.body.code, 'response code').equal('UnauthorizedUserError');
         done();
       });
   });
@@ -310,9 +312,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send({})
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('ParameterValidationError');
+        global.chai.expect(res.body, 'response body content').include({ code: 'InvalidParametersError' });
         done();
       });
   });
@@ -324,9 +326,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(400);
+        global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('DuplicateJobSubmission');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ConflictJobError');
         done();
       });
   });
@@ -339,7 +341,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(JSON.stringify(res.body), 'response body content').include('InternalServerError');
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('UnknownError');
         done();
       });
   });
@@ -352,9 +354,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_queue_vc_non_exist', 'virtualCluster': 'non-exist-vc'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: could not find virtual cluster non-exist-vc');
+        global.chai.expect(res.body.code, 'response error code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -366,9 +368,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_no_right', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: no virtual cluster right to access vc2');
+        global.chai.expect(res.body.code, 'response error code').equal('ForbiddenUserError');
         done();
       });
   });
@@ -381,23 +383,37 @@ describe('Submit job: POST /api/v1/jobs', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(jobConfig)
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('Could not validate request data: minFailedTaskCount or minSucceededTaskCount should not be greater than tasks number.');
+        global.chai.expect(res.body.code, 'response code').equal('InvalidParametersError');
         done();
       });
   });
 
   it('[N-08] should submit job failed when db does not have vc field', (done) => {
-    prepareNockForCaseN07('new_job_vc_not_found');
+    prepareNockForCaseN08('new_job_vc_not_found');
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_vc_not_found', 'virtualCluster': 'vc2'})))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(404);
+        global.chai.expect(res, 'status code').to.have.status(500);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('job update error: search virtual cluster from db failed');
+        global.chai.expect(res.body.code, 'response error code').equal('UnknownError');
+        done();
+      });
+  });
+
+  it('[N-09] Duplicated job name using PUT method', (done) => {
+    prepareNockForCaseN09();
+    global.chai.request(global.server)
+      .put('/api/v1/jobs/job1')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send(JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'})))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(409);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(JSON.stringify(res.body.code), 'response error code').include('ConflictJobError');
         done();
       });
   });

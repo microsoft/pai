@@ -99,5 +99,12 @@ const jobConfigSchema = Joi.object().keys({
     .default(0),
 }).required();
 
+const jobExecutionSchema = Joi.object().keys({
+  value: Joi.string().allow('START', 'STOP').required(),
+}).required();
+
 // module exports
-module.exports = {schema: jobConfigSchema};
+module.exports = {
+  schema: jobConfigSchema,
+  executionSchema: jobExecutionSchema,
+};

@@ -1,0 +1,17 @@
+env:
+  mocha: true
+globals:
+  jwt: true
+  mustache: true
+  nock: true
+  chai: true
+  assert: true
+  expect: true
+  should: true
+  server: true
+  webhdfsUri: true
+  launcherWebserviceUri: true
+  etcdHosts: true
+  yarnUri: true
+  jobConfigTemplate: true
+  frameworkDetailTemplate: true

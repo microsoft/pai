@@ -17,7 +17,7 @@
 
 // module dependencies
 const VirtualCluster = require('../models/vc');
-const logger = require('../config/logger');
+const createError = require('../util/error');
 
 /**
  * Load virtual cluster and append to req.
@@ -25,19 +25,7 @@ const logger = require('../config/logger');
 const load = (req, res, next, vcName) => {
   new VirtualCluster(vcName, (vcInfo, error) => {
     if (error) {
-      if (error.message === 'VirtualClusterNotFound') {
-        logger.warn('load virtual cluster %s error, could not find virtual cluster', vcName);
-        return res.status(404).json({
-          error: 'VirtualClusterNotFound',
-          message: `could not find virtual cluster ${vcName}`,
-        });
-      } else {
-        logger.warn('internal server error');
-        return res.status(500).json({
-          error: 'InternalServerError',
-          message: 'internal server error',
-        });
-      }
+      return next(createError.unknown(error));
     }
     req.vc = vcInfo;
     return next();
@@ -54,20 +42,17 @@ const get = (req, res) => {
 /**
  * Get all virtual clusters info.
  */
-const list = (req, res) => {
+const list = (req, res, next) => {
   VirtualCluster.prototype.getVcList((vcList, err) => {
     if (err) {
-      logger.warn('get virtual cluster list error\n%s', err.stack);
-      return res.status(500).json({
-        error: 'GetVirtualClusterListError',
-        message: 'get virtual cluster list error',
-      });
+      return next(createError.unknown(err));
     } else if (vcList === undefined) {
-      logger.warn('list virtual clusters error, no virtual cluster found');
-      return res.status(500).json({
-        error: 'VirtualClusterListNotFound',
-        message: 'could not find virtual cluster list',
-      });
+      // Unreachable
+      // logger.warn('list virtual clusters error, no virtual cluster found');
+      // return res.status(500).json({
+      //   error: 'VirtualClusterListNotFound',
+      //   message: 'could not find virtual cluster list',
+      // });
     } else {
       return res.status(200).json(vcList);
     }
