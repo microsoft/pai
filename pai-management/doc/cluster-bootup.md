@@ -39,12 +39,12 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 
 ## Before all: please choose a PAI stable release <a name="choose-a-pai-release"></a>
 
-**Notice: You should always deploy a stable release of PAI.** Currently latest stable release is v0.6.1.
+**Notice: You should always deploy a stable release of PAI.** You can check the [release list](https://github.com/Microsoft/pai/releases).
 
 Please make sure:
 
-- Refer to the right doc. For release v0.6.1 it should be [here](https://github.com/Microsoft/pai/blob/pai-0.6.y/pai-management/doc/cluster-bootup.md).
-- Work on the right code. Please checkout PAI source code with tag 'v0.6.1' in dev-box.
+- Work on the right code. Please checkout PAI source code with the latest release.
+- Refer to the right doc matching the release.
 
 ## Step 1a. Prepare PAI configuration: Manual approach <a name="step-1a"></a>
 
