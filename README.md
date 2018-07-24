@@ -68,7 +68,7 @@ Before start, you need to meet the following requirements:
 ### Cluster administration    
 - [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
-    - [Monitoring](./webportal/README.md)
+- [Monitoring](./webportal/README.md)
 
 ## Resources
 The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI

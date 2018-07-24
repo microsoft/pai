@@ -19,14 +19,7 @@ Table of contents:
 
 ## Overview <a name="overview"></a>
 
-We assume that the whole cluster has already been configured by the system maintainer to meet the following requirements:
-
-- A [dev-box](./how-to-setup-dev-box.md) has been set up and can access the cluster.
-- SSH service is enabled on each of the machines.
-- All machines share the same username / password for the SSH service on each of them.
-- The username that can be used to login to each machine should have sudo privilege.
-- All machines to be set up as masters should be in the same network segment.
-- A load balancer is prepared if there are multiple masters to be set up.
+We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../README.md#how-to-deploy).
 
 With the cluster being set up, the steps to bring PAI up on it are as follows:
 
