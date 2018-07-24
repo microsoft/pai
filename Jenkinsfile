@@ -51,19 +51,19 @@ curl --silent --verbose \
     $PAI_ENDPOINT/rest-server/api/v1/jobs \
     --header "Authorization: Bearer $TOKEN" \
     --header 'Content-Type: application/json' \
-    --data '{
-        \"jobName\": \"$JOB_NAME\",
-        \"image\": \"aiplatform/pai.run.cntk\",
-        \"taskRoles\": [
+    --data "{
+        'jobName': '$JOB_NAME',
+        'image': 'aiplatform/pai.run.cntk',
+        'taskRoles': [
             {
-                \"name\": \"Master\",
-                \"taskNumber\": 1,
-                \"cpuNumber\": 1,
-                \"memoryMB\": 256,
-                \"command\": \"/bin/bash --version\"
+                'name': 'Master',
+                'taskNumber': 1,
+                'cpuNumber': 1,
+                'memoryMB': 256,
+                'command': '/bin/bash --version'
             }
         ]
-    }'
+    }"
 while :; do
     sleep 10
     STATUS=$(
