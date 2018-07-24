@@ -102,6 +102,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       "token": "your access token",
       "user": "username",
@@ -162,6 +164,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 201
+
     {
       "message": "update successfully"
     }
@@ -387,6 +391,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       [ ... ]
     }
@@ -413,6 +419,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       name: "jobName",
       state: "jobState",
@@ -464,7 +472,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
-    Status: 201
+    Status: 202
 
     {
       "message": "update job $jobName successfully"
@@ -522,6 +530,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       "jobName": "test",
       "image": "pai.run.tensorflow",
@@ -570,6 +580,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       "containers": [
         {
@@ -675,6 +687,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       "vc1":
       {
@@ -704,6 +718,8 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Response if succeeded*
     ```
+    Status: 200
+
     {
       //capacity percentage this virtual cluster can use of entire cluster
       "capacity":50,
