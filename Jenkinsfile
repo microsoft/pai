@@ -284,7 +284,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
 set -x
 #set -euxo pipefail
 
-#declare -r PAI_ENDPOINT=${SINGLE_BOX_URL}
+sleep 300
 
 TOKEN=$(
     curl --silent --verbose \
@@ -361,7 +361,7 @@ done
 set -x
 #set -euxo pipefail
 
-#declare -r PAI_ENDPOINT=${CLUSTER_URL}
+sleep 300
 
 TOKEN=$(
     curl --silent --verbose \
