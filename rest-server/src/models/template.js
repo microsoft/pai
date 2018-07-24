@@ -23,12 +23,11 @@ const client = redis3(config.connectionUrl);
 
 const filter = function(query, callback) {
   let lua = `
-local index, result = 1, {}
+local result = {}
 
-local function filter(ttype)
+local function filter(ttype, terms)
   local list = redis.call("ZRANGE", "marketplace:"..ttype..".used", 0, -1, "WITHSCORES")
   local name, count, version, content, template = "", 0, "", "", nil
-  local pattern = "${query}"
   for i = 1, table.getn(list), 2 do
     name = list[i]
     count = list[i + 1]
@@ -38,17 +37,29 @@ local function filter(ttype)
     if (template["job"] ~= nil) then
       template = template["job"]
     end
-    if (string.match(template["name"], pattern) or string.match(template["description"], pattern)) then
-      result[index] = content
-      result[index + 1] = count
-      index = index + 2
+    for id, token in ipairs(terms) do
+      if (string.find(name, token) or string.find(template["description"], token)) then
+        table.insert(result, content)
+        table.insert(result, count)
+        break
+      end
     end
   end
 end
 
-local targets = {"job", "data", "script", "dockerimage"}
-for key, value in ipairs(targets) do
-  filter(value)
+local query = "${query}"
+if string.len(query) > 0 then
+  if string.len(query) > 100 then
+    query = string.sub(query, 1, 100)
+  end
+    local tofind = {}
+    for token in string.gmatch(query, "%a+") do
+       table.insert(tofind, token)
+    end
+    local targets = {"job", "data", "script", "dockerimage"}
+    for key, value in ipairs(targets) do
+      filter(value, tofind)
+    end
 end
 return result
 `;
