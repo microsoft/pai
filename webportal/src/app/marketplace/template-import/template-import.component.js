@@ -116,6 +116,8 @@ const replaceHrefs = () => {
   if (addModalActive == false) {
     $('.recommand-container').map(function() {
       let type = $(this).attr('id').substring(3);
+      console.log(type);
+      console.log($('#' + type + '-table').html());
       if ($('#' + type + '-table').html() == '') {
         $(this).remove();
       }
