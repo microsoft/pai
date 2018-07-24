@@ -20,12 +20,12 @@ const Joi = require('joi');
 
 /*
    Redis data schema:
-   - marketplace:job.used = sortedlist ($count, $name)
-   - marketplace:script.used = sortedlist ($count, $name)
-   - marketplace:data.used = sortedlist ($count, $name)
-   - marketplace:docker.used = sortedlist ($count, $name)
-   - marketplace:head.index = hash ($name -> $latestVersion)
-   - marketplace:template:${name} = hash ($version -> $content)
+   - marketplace:${type}.used = sorted set ($count, $name)
+   - marketplace:${type}.index = hash ($name -> $latestVersion)
+   - marketplace:template:${type}.${name} = hash ($version -> $content)
+   - marketplace:stats:${type}.${name} = hash ($indicator -> $value)
+   For an index entry, it sorts template names by its used count.
+   For a stats entry, it contains used (=used.count) and rating (=rating.sum/rating.count)
  */
 let redisConfig = {
   connectionUrl: process.env.REDIS_URI,
@@ -40,6 +40,12 @@ let redisConfig = {
   },
   getTemplateKey: function(type, name) {
     return this.getTemplateKeyPrefix(type) + name;
+  },
+  getStatsKeyPrefix: function(type) {
+    return `marketplace:stats:${type}.`;
+  },
+  getStatsKey: function(type, name) {
+    return this.getStatsKeyPrefix(type) + name;
   },
 };
 
@@ -56,6 +62,12 @@ const redisConfigSchema = Joi.object().keys({
     .arity(1)
     .required(),
   getTemplateKey: Joi.func()
+    .arity(2)
+    .required(),
+  getStatsKeyPrefix: Joi.func()
+    .arity(1)
+    .required(),
+  getStatsKey: Joi.func()
     .arity(2)
     .required(),
 });

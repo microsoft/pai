@@ -33,7 +33,7 @@ router.route('/:type')
   .get(templateController.list);
 
 router.route('/:type/:name/:version')
-  /** GET /api/v1/template/:type/:name/:version - Return the template by name and version*/
+  /** GET /api/v1/template/:type/:name/:version[?use=0] - Return the template by name and version*/
   .get(templateController.fetch);
 
 // module exports

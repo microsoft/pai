@@ -27,20 +27,27 @@ local result = {}
 
 local function filter(ttype, terms)
   local list = redis.call("ZRANGE", "marketplace:"..ttype..".used", 0, -1, "WITHSCORES")
-  local name, count, version, content, template = "", 0, "", "", nil
+  local name, count, version, content, template, rsum, rcnt = "", 0, "", "", nil, 0, 0
   for i = 1, table.getn(list), 2 do
     name = list[i]
     count = list[i + 1]
     version = redis.call("HGET", "marketplace:"..ttype..".index", name)
     content = redis.call("HGET", "marketplace:template:"..ttype.."."..name, version)
-    template = cjson.decode(content)
+    local template = cjson.decode(content)
     if (template["job"] ~= nil) then
       template = template["job"]
     end
     for id, token in ipairs(terms) do
       if (string.find(name, token) or string.find(template["description"], token)) then
+        rsum = redis.call("HGET", "marketplace:stats"..ttype.."."..name, "rating.sum")
+        rcnt = redis.call("HGET", "marketplace:stats"..ttype.."."..name, "rating.count")
         table.insert(result, content)
         table.insert(result, count)
+        if rsum and rcnt then
+          table.insert(result, rsum / rcnt)
+        else
+          table.insert(result, 3)
+        end
         break
       end
     end
@@ -68,7 +75,7 @@ return result
       callback(err, null);
     } else {
       let list = [];
-      for (let i = 0; i < res.length; i += 2) {
+      for (let i = 0; i < res.length; i += 3) {
         if (res[i]) {
           let item = JSON.parse(res[i]);
           if (item.job) {
@@ -78,6 +85,7 @@ return result
             item.description = item.job.description;
           }
           item.count = res[i + 1];
+          item.rating = res[i + 2];
           list.push(item);
         }
       }
@@ -90,20 +98,28 @@ return result
  * Get the top K templates of range [offset, offset + count) by the given type.
  */
 const top = function(type, offset, count, callback) {
-  let typeUsedKey = config.getUsedKey(type);
-  let typeIndexKey = config.getIndexKey(type);
+  let usedKey = config.getUsedKey(type);
+  let indexKey = config.getIndexKey(type);
+  let statsKeyPrefix = config.getStatsKeyPrefix(type);
   let templatePrefix = config.getTemplateKeyPrefix(type);
   let lua = `
-local selected = redis.call("ZREVRANGE", "${typeUsedKey}", ${offset}, ${count}, "WITHSCORES")
-local name, count, version, content = "", 0, "", ""
+local selected = redis.call("ZREVRANGE", "${usedKey}", ${offset}, ${count}, "WITHSCORES")
+local name, count, version, content, rsum, rcnt = "", 0, "", "", 0, 0
 local result = {}
 for i = 1, table.getn(selected), 2 do
   name = selected[i]
   count = selected[i + 1]
-  version = redis.call("HGET", "${typeIndexKey}", name)
+  version = redis.call("HGET", "${indexKey}", name)
   content = redis.call("HGET", "${templatePrefix}"..name, version)
-  result[i] = content
-  result[i + 1] = count
+  rsum = redis.call("HGET", "${statsKeyPrefix}"..name, "rating.sum")
+  rcnt = redis.call("HGET", "${statsKeyPrefix}"..name, "rating.count")
+  table.insert(result, content)
+  table.insert(result, count)
+  if rsum and rcnt then
+    table.insert(result, rsum / rcnt)
+  else
+    table.insert(result, 3)
+  end
 end
 return result
 `;
@@ -112,7 +128,7 @@ return result
       callback(err, null);
     } else {
       let list = [];
-      for (let i = 0; i < res.length; i += 2) {
+      for (let i = 0; i < res.length; i += 3) {
         if (res[i]) {
           let item = JSON.parse(res[i]);
           if (type == 'job') {
@@ -122,6 +138,7 @@ return result
             item.description = item.job.description;
           }
           item.count = res[i + 1];
+          item.rating = res[i + 2];
           list.push(item);
         }
       }
@@ -133,16 +150,42 @@ return result
 /**
  * Load a template.
  */
-const load = function(type, name, version, callback) {
-  client.hget(config.getTemplateKey(type, name), version, (err, res) => {
+const load = function(type, name, version, use, callback) {
+  let statsKey = config.getStatsKey(type, name);
+  let usedKey = config.getUsedKey(type);
+  if (use) {
+    client.multi([
+      ["HINCRBY", statsKey, "used.count", 1],
+      ["ZINCRBY", usedKey, 1, name],
+    ]).exec(function(err, res) {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+    });
+  }
+  let contentKey = config.getTemplateKey(type, name);
+  let lua = `
+local content = redis.call("HGET", "${contentKey}", "${version}")
+local count = redis.call("HGET", "${statsKey}", "used.count")
+local rsum = redis.call("HGET", "${statsKey}", "rating.sum")
+local rcnt = redis.call("HGET", "${statsKey}", "rating.count")
+local rating = 3
+if not count then
+  count = 0
+end
+if rsum and rcnt then
+  rating = rsum / rcnt
+end
+return {content, count, rating};
+`;
+  client.eval(lua, 0, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
-      let template = JSON.parse(res);
-      if (res) {
-        let usedKey = config.getUsedKey(template.job ? 'job' : template.type);
-        client.zincrby(usedKey, 1, name);
-      }
+      let template = JSON.parse(res[0]);
+      template.count = parseInt(res[1]);
+      template.rating = parseFloat(res[2]);
       callback(null, template);
     }
   });
@@ -153,17 +196,14 @@ const load = function(type, name, version, callback) {
  * The second element in the callback argument list means whether <name, version> duplicates.
  */
 const save = function(template, callback) {
-  let usedKey = null;
   let name = null;
   let version = null;
   let type = null;
   if (template.job) {
-    usedKey = config.getUsedKey('job');
     name = template.job.name;
     version = template.job.version;
     type = 'job';
   } else {
-    usedKey = config.getUsedKey(template.type);
     name = template.name;
     version = template.version;
     type = template.type;
@@ -176,11 +216,12 @@ const save = function(template, callback) {
         // The key is duplicated
         callback(null, true);
       } else {
+        console.log(name, version, type)
         client.hset(config.getIndexKey(type), name, version, (err, num) => {
           if (err) {
             callback(err, null);
           } else {
-            client.zadd(usedKey, 'NX', 0, name);
+            client.zadd(config.getUsedKey(type), 'NX', 0, name);
             callback(null, false);
           }
         });
