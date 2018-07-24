@@ -280,6 +280,15 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["prometheusinfo"]["node_exporter_port"] = \
             serviceDict["clusterinfo"]["prometheusinfo"]["node-exporter-port"]
 
+        alert_manager_hosts = []
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            if host.get("alert-manager") is None or host["alert-manager"].lower() != "true":
+                continue
+
+            alert_manager_hosts.append(host["hostip"])
+
+        serviceDict["clusterinfo"]["prometheusinfo"]["alert-manager-hosts"] = alert_manager_hosts
+
         # section
 
         serviceDict["clusterinfo"]["pyloninfo"] = \

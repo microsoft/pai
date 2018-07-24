@@ -109,6 +109,13 @@ prometheus:
   prometheus-port: 9091
   # port for node exporter
   node-exporter-port: 9100
+  alerting:
+    alert_manager_port: 9093
+    alert_receiver: alert@example.com
+    smtp_url: smtp.gmail.com:587
+    smtp_from: foo_bar@gmail.com
+    smtp_auth_username: user@gmail.com
+    smtp_auth_password: gmail_password
 
 
 pylon:
