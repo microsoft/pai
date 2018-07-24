@@ -20,6 +20,7 @@ require('./template-import.component.scss');
 require('../template-view/template-view.component.scss');
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/modal.js');
+require('bootstrap/js/tooltip.js');
 
 const yaml = require('js-yaml');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
@@ -46,6 +47,7 @@ const templateViewHtml = templateImportComponent({
 let addEditor = null;
 let finalEditor = null;
 let id = -1;
+let addModalActive = false;
 
 const saveTemplateOnAddModal = (type, id) => {
   finalEditor = addEditor;
@@ -92,24 +94,47 @@ const getTemplateByAJAX = (type, name, version, process) => {
 const replaceHrefs = () => {
   $('.cardhref').map(function() {
     $(this).removeAttr('href');
+    $(this).attr('data-toggle', 'tooltip');
+    $(this).attr('data-html', 'ture');
+    $(this).attr('data-placement', 'right');
     $(this).click(() => {
       let items = $(this).attr('id').split('-');
       getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
+        if (addModalActive == false) {
+          $('#user-recommand-holder').html('');
+          showAddModal(items[0]);
+        }
         addEditor.setValue(data);
-        saveTemplateOnAddModal(type, id);
+        saveTemplateOnAddModal(items[0], id);
       });
     });
+    let tooltiphtml = '<h4>' + $(this).find('.item-title').html() + '</h4>' + 
+                      '<p>' + $(this).find('.item-dsp').html() + '</p>' +
+                      $(this).find('.star-rating').html();
+    console.log(tooltiphtml);
+    $(this).attr('title', tooltiphtml);
   });
+  $('[data-toggle="tooltip"]').tooltip();
+  if (addModalActive == false) {
+    $('.recommand-container').map(function() {
+      let type = $(this).attr('id').substring(3);
+      if ($('#recommand-' + type + '-table').html() == '') {
+        $(this).remove();
+      }
+    });
+    if ($('#user-recommand-holder .recommand-container').length == 0) {
+      $('#user-recommand-holder').html('');
+    }
+  }
 };
 
 const showAddModal = (type, data_id=null) => {
-  $('#addModalPlaceHolder').html(userAddModalComponent);
-
-  // ---------- customize edit item ------------
+  addModalActive = true;
   addEditor = null;
   finalEditor = null;
-  
   id = userChooseTemplateValues[type].length + 1;
+  $('#addModalPlaceHolder').html(userAddModalComponent);
+  
   $('#editPlaceHolder').html(userEditModalComponent({
     type: type,
     id: id,
@@ -160,8 +185,12 @@ const showAddModal = (type, data_id=null) => {
     $(`#${type}${id}-modal`).modal('show');
   });
 
-  // --------- click add button to add item, and update the page --------
+  $('#btn-close-add-modal').click(() => {
+    addModalActive = false;
+  });
+  
   $('#btn-add-modal').click(() => {
+    addModalActive = false;
     $('#btn-add-modal').attr('data-dismiss', 'modal');
     $('#btn-add-modal').attr('aria-hidden', 'true');
     $('#recommandPlaceHolder').html('');
@@ -185,30 +214,7 @@ const showAddModal = (type, data_id=null) => {
             type: t,
           }));
         });
-        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], () => {
-          $('.cardhref').map(function() {
-            $(this).removeAttr('href');
-            $(this).click(() => {
-              let items = $(this).attr('id').split('-');
-              getTemplateByAJAX(items[0], items[1], items[2], (data, type) => {
-                $('#user-recommand-holder').html('');
-                showAddModal(type);
-                addEditor.setValue(data);
-                saveTemplateOnAddModal(type, id);
-              });
-            });
-          });
-          let removeItems = 0;
-          searchTypes.forEach((t) => {
-            if ($('#recommand-' + t + '-table').html() == '') {
-              $('#recommand-' + t).empty();
-              removeItems += 1;
-            }
-          });
-          if (removeItems == searchTypes.length) {
-            $('#user-recommand-holder').html('');
-          } 
-        });
+        templateView.search(null, searchTypes, (type) => { return '#recommand-' + type + '-table'; }, d['description'], replaceHrefs);
       }
     }
   });

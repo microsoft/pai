@@ -148,7 +148,6 @@ const experimentData = [
   },
 ];
 
-
 const loadSummary = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const type = searchParams.get('type');
