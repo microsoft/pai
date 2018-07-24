@@ -30,7 +30,6 @@ const loading = require('../../job/loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./user-choose-layout/template-import.schema.js');
-const userSubmitModalComponent = require('./submit-modal-component.ejs');
 const userEditModalComponent = require('./user-choose-layout/edit.ejs');
 const userChooseMainLayout = require('./user-choose-layout/main-layout.ejs');
 const userChooseSummaryLayout = require('./user-choose-layout/summary-layout.ejs');
@@ -52,7 +51,7 @@ let addModalActive = false;
 
 const saveTemplateOnAddModal = (type, id) => {
   finalEditor = addEditor;
-  data = finalEditor.getValue();
+  let data = finalEditor.getValue();
   $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
   $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
   
@@ -65,15 +64,14 @@ const saveTemplateOnAddModal = (type, id) => {
     summaryLayout: userChooseSummaryLayout,
     titleLayout: userChooseTitleLayout,
   }));
-  $(`#${type}${id} .user-edit`).on('click', () => {
-    console.log(`${type}${id}-modal`);
+  $(`#${type}${id}-summary .user-edit`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
   });
 };
 
 const getTemplateByAJAX = (type, name, version, process) => {
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}`,
+    url: `${webportalConfig.restServerUri}/api/v1/template/${type}/${name}/${version}?use=1`,
     type: 'GET',
     dataType: 'json',
     success: function (data) {
@@ -130,34 +128,45 @@ const replaceHrefs = () => {
   }
 };
 
-const showAddModal = (type) => {
+const showAddModal = (type, data_id=null) => {
   addModalActive = true;
   addEditor = null;
   finalEditor = null;
   id = userChooseTemplateValues[type].length + 1;
   $('#addModalPlaceHolder').html(userAddModalComponent);
-
+  
   $('#editPlaceHolder').html(userEditModalComponent({
     type: type,
     id: id,
   }));
-  loadEditor(null, type, id);
+
+  if(data_id == null){
+    addEditor = loadEditor(null, type, id);
+    $('#itemPlaceHolder').html(userChooseMainLayout({
+      name: type,
+      contributor: '',
+      description: '',
+      type: type,
+      id: id,
+      summaryLayout: userAddItemLayout,
+      titleLayout: userChooseTitleLayout,
+    }));
+  }
+  else{
+    addEditor = loadEditor(editors[type][data_id - 1].getValue(), type, id, false);
+    saveTemplateOnAddModal(type, id);
+  }
+  console.log(editors[type]);
   $(`#${type}${id}-modal .edit-save`).click(() => {
     saveTemplateOnAddModal(type, id);
+    console.log(editors[type]);
   });
-  
-  $('#itemPlaceHolder').html(userChooseMainLayout({
-    name: type,
-    contributor: '',
-    description: '',
-    type: type,
-    id: id,
-    summaryLayout: userAddItemLayout,
-    titleLayout: userChooseTitleLayout,
-  }));
+
+  // ----------- recommand ---------------
   $('#recommandPlaceHolder').html(userRecommandLayout({
     type: type,
   }));
+
   templateView.loadTemplates(type, (type) => { return '#recommand-' + type + '-table'; }, replaceHrefs);
 
   $('#btn-add-search').click((event) => {
@@ -167,6 +176,7 @@ const showAddModal = (type) => {
     templateView.search(event, [type], (type) => { return '#recommand-' + type + '-table'; }, $('#add-search').val(), replaceHrefs);
   });
 
+  // ---------- some button listener ----------
   $('#btn-add-upload').click(() => {
 
   });
@@ -282,11 +292,12 @@ const tryStringToJson = (s) => {
 const jsonEditor2RestApi = (editors) => {
   let res = {
     'prerequisites': [],
+    'job': [],
   };
   
   ['data', 'script', 'dockerimage'].forEach((t) => {
     editors[t].forEach((d) => {
-      if(d!=null){
+      if(d != null){
         let curData = d.getValue();
         curData['type'] = t;
         res['prerequisites'].push(curData);
@@ -295,10 +306,10 @@ const jsonEditor2RestApi = (editors) => {
   });
 
   if ('job' in editors) {
-    let jobs = editors['job']; // is a array, but I assume only one job.
-    jobs.forEach((job) => {
-      if(job != null){
-        job = job.getValue();
+    let jobs = editors['job'];
+    jobs.forEach((_job) => {
+      if(_job != null){
+        let job = JSON.parse(JSON.stringify(_job.getValue())); //deep copy 
         job['type'] = 'job';
         let tasks = job['tasks'];
         let parameters = job['parameters'];
@@ -327,11 +338,10 @@ const jsonEditor2RestApi = (editors) => {
             }
           });
         });
-        res['job'] = job;
+        res['job'].push(job);
       }
     });
   }
-
   console.log(res);
   return res;
 };
@@ -349,41 +359,60 @@ let editors = {
   'script': [],
   'dockerimage': [],
   'job': [],
-}
+};
 
 let jobDefaultConfigs = {};
 
-
 const submitJob = (jobConfig) => {
+  if(jobConfig['job'].length == 0){
+    alert("must have a job!");
+    return;
+  }
+  let curJob = {
+    'prerequisites': jobConfig['prerequisites'],
+    'job': null,
+  };
+
   userAuth.checkToken((token) => {
     loading.showLoading();
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.job.name}`,
-      data: JSON.stringify(jobConfig),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: 'application/json; charset=utf-8',
-      type: 'PUT',
-      dataType: 'json',
-      success: (data) => {
-        loading.hideLoading();
-        if (data.error) {
-          alert(data.message);
-          $('#submitHint').text(data.message);
-        } else {
-          alert('submit success');
-          $('#submitHint').text('submitted successfully!');
-        }
-        window.location.replace('/view.html');
-      },
-      error: (xhr, textStatus, error) => {
-        loading.hideLoading();
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-      },
+    let successCnt = 0, errorCnt = 0;
+    jobConfig['job'].forEach((job) => {
+      curJob['job'] = job;
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${curJob.job.name}`,
+        data: JSON.stringify(curJob),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        contentType: 'application/json; charset=utf-8',
+        async: false,
+        type: 'PUT',
+        dataType: 'json',
+        success: (data) => {
+          if (data.error) {
+            alert(data.message);
+            $('#submitHint').text(data.message);
+            errorCnt += 1;
+          } else {
+            // alert('submit success');
+            // $('#submitHint').text('submitted successfully!');
+            successCnt += 1;
+          }
+        },
+        error: (xhr, textStatus, error) => {
+          const res = JSON.parse(xhr.responseText);
+          alert(res.message);
+          errorCnt += 1;
+        },
+      });
     });
-  });
+
+    loading.hideLoading();
+    alert(`${successCnt} job summitted successfully, ${errorCnt} job summitted error`);
+    // if(successCnt != 0)
+    //   window.location.replace('/view.html');
+
+  });  
 };
 
 const insertNewContent = (d, key) => {
@@ -425,7 +454,7 @@ const insertNewTitleAndSummary = (d, key) => {
 };
 
 
-const loadEditor = (d, type, id) => {
+const loadEditor = (d, type, id, insertEditors=true) => {
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
     schema: jobSchema[`${type}Schema`],
@@ -439,9 +468,8 @@ const loadEditor = (d, type, id) => {
   jobDefaultConfigs[type] = editor.getValue();
   if (d != null) {
     editor.setValue(d);
-    editors[type].push(editor);
-  } else {
-    addEditor = editor;
+    if(insertEditors)
+      editors[type].push(editor);
   }
   return editor;
 };
@@ -476,7 +504,8 @@ const insertNewChooseResult = (d, type) => {
     $(`#${type}${id}-modal`).modal('hide');
   });
 
-  $(`#${type}${id}-remove-button`).on('click', (t)=>{
+  // 找到一个不为null的项 设为active，没有的话就删除整个框
+  $(`#${type}${id}-remove-button`).on('click', ()=>{
     if($(`#${type}${id}-title`).hasClass("active")){
       let i = 0;
       for(; i < editors[type].length; ++i){
@@ -495,6 +524,11 @@ const insertNewChooseResult = (d, type) => {
     $(`#${type}${id}-title`).remove();
     $(`#${type}${id}-summary`).remove();
     editors[type][id - 1] = null;
+  });
+
+
+  $(`#${type}${id}-quick-add-button`).on('click', ()=>{
+    showAddModal(type, id);
   });
 }
 
@@ -522,12 +556,7 @@ $(document).ready(() => {
   //   $('#submitJob').prop('disabled', !enabled);
   // });
 
-    $('#submitModalPlaceHolder').html(userSubmitModalComponent);
     $(document).on('click', '#submitJob', () => {
-      $('#userSumbitModal').modal('show');
-    });
-
-    $(document).on('click', '#single', () => {
       submitJob(jsonEditor2RestApi(editors));
     });
 

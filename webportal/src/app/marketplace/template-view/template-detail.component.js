@@ -27,36 +27,6 @@ const detailExperimentComponent = require('./detail-experiment.component.ejs');
 
 require('./template-detail.component.scss');
 
-
-const overviewData = {
-  description: 'PowerShell Tools for Visual Studio brings the richness of the Visual Studio developent experience together with the power of PowerShell.',
-  prerequisites: [
-    {
-      name: 'Model Name',
-      avatar: '/assets/img/script.png',
-      contributor: 'Contributor',
-      star: 5,
-      downloads: '67,000',
-    },
-    {
-      name: 'Docker Name',
-      avatar: '/assets/img/dockerimage.png',
-      contributor: 'Contributor',
-      star: 4,
-      downloads: '66,000',
-    },
-    {
-      name: 'Data Name',
-      avatar: '/assets/img/data.png',
-      contributor: 'Contributor',
-      star: 5,
-      downloads: '68,000',
-    },
-  ],
-  categories: ['Programming Languages', 'Snippets', 'Other'],
-  tags: ['c#', 'javascript', 'keybindings', 'python', 'ruby', 'rust'],
-};
-
 const qaData = [
   {
     question: {
@@ -178,31 +148,6 @@ const experimentData = [
   },
 ];
 
-const generateDetailHtml = (data) => {
-  const template = data.job ? data.job : data;
-  const templateDetailHtml = templateDetailComponent({
-    breadcrumb: breadcrumbComponent,
-    overview: detailOverviewComponent,
-    qa: detailQaComponent,
-    review: detailReviewComponent,
-    experiment: detailExperimentComponent,
-    detail: {
-      type: template.type,
-      name: template.name,
-      version: template.version,
-      uses: 120,
-      star: 4,
-      description: template.description,
-      contributor: template.contributor,
-      overview: overviewData,
-      qas: qaData,
-      reviews: reviewData,
-      experiments: experimentData,
-    },
-  });
-  return templateDetailHtml;
-}
-
 const loadSummary = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const type = searchParams.get('type');
@@ -216,7 +161,44 @@ const loadSummary = () => {
       type: 'GET',
       dataType: 'json',
       success: function(data) {
-        $('#content-wrapper').html(generateDetailHtml(data));
+        var template = data.job ? data.job : data;
+        var overviewData = {
+          description: template.description,
+          prerequisites: [],
+          categories: ['Deep Learning', 'Snippet', 'Resource'],
+          tags: ['pai', 'javascript', 'python', 'ruby', 'rust'],
+        };
+        if (data.prerequisites) {
+          data.prerequisites.forEach(function(item) {
+            overviewData.prerequisites.push({
+              name: item.name,
+              avatar: `/assets/img/${item.type}.png`,
+              contributor: item.contributor,
+              star: 3,
+              downloads: 66,
+            });
+          });
+        }
+        const templateDetailHtml = templateDetailComponent({
+          breadcrumb: breadcrumbComponent,
+          overview: detailOverviewComponent,
+          qa: detailQaComponent,
+          review: detailReviewComponent,
+          experiment: detailExperimentComponent,
+          detail: {
+            type,
+            name,
+            version,
+            uses: data.count,
+            star: Math.round(data.rating),
+            contributor: template.contributor,
+            overview: overviewData,
+            qas: qaData,
+            reviews: reviewData,
+            experiments: experimentData,
+          },
+        });
+        $('#content-wrapper').html(templateDetailHtml);
         $('#btn-use').click((event) => {
           window.location.href = "/import.html" + window.location.search;
         });
