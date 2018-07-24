@@ -192,7 +192,6 @@ const loadSummary = () => {
             version,
             uses: data.count,
             star: Math.round(data.rating),
-            description: template.description,
             contributor: template.contributor,
             overview: overviewData,
             qas: qaData,
