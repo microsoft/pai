@@ -415,8 +415,8 @@ class Job {
           },
         },
         'applicationCompletionPolicy': {
-          'minFailedTaskCount': data.taskRoles[i].minFailedTaskCount || 1,
-          'minSucceededTaskCount': data.taskRoles[i].minSucceededTaskCount || null,
+          'minFailedTaskCount': data.taskRoles[i].minFailedTaskCount,
+          'minSucceededTaskCount': data.taskRoles[i].minSucceededTaskCount,
         },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;

@@ -77,11 +77,13 @@ const jobConfigSchema = Joi.object().keys({
         minFailedTaskCount: Joi.number()
           .integer()
           .min(1)
-          .optional(),
+          .allow(null)
+          .default(1),
         minSucceededTaskCount: Joi.number()
           .integer()
           .min(1)
-          .optional(),
+          .allow(null)
+          .default(null),
       }))
     .min(1)
     .required(),
