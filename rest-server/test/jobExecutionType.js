@@ -154,7 +154,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       .set('Content-Type', 'text/unknown')
       .send('value=STOP')
       .end((err, res) => {
-        expect(res, 'status code').to.have.status(500);
+        expect(res, 'status code').to.have.status(400);
         done();
       });
   });
