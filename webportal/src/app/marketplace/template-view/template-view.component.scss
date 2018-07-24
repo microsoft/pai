@@ -1,10 +1,11 @@
-.table > tbody > tr > td {
-  vertical-align: middle;
-}
-
 .box-header {
   font-size: 20px;
   text-align: right;
+}
+
+.box-body {
+  margin-left: 5vw;
+  margin-right: 5vw; 
 }
 
 .input-group {
@@ -15,12 +16,7 @@
 
 .input-group:hover {
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.1);
-}
-
-.box-body {
-  margin-left: 5vw;
-  margin-right: 5vw; 
-}
+}  
 
 .item .row {
   display: flex;
@@ -81,11 +77,15 @@
   font-size: 12px;
 }
 
+.card .text-container .none {
+  display: none;
+}
+
 .star-rating {
   font-size: 16px;
   line-height: 25px;
 }
-.star-rating .fa-star {
+.star-rating .glyphicon-star {
   color: #FDA501;
 }
 
@@ -102,11 +102,3 @@
   height:25px;
   line-height: 25px;
 }
-
-#table-view .dataTables_filter, .dataTables_info, .dataTables_length, .dataTables_paginate {
-  display: none;
-}
-
-#table-view .dataTable th {
-  display: none;
-} 

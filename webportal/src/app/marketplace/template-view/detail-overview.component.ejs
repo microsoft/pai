@@ -1,34 +1,7 @@
 <div class="row">
   <div class="col-md-8 ov-left">
     <% if (data.prerequisites.length > 0) { %>
-    <h4>Prerequisites</h4>
-    <ul>
-      <% for (let i = 0; i < data.prerequisites.length; i ++) { %>
-      <li>
-        <a href="<%= data.prerequisites[i].link %>">
-          <div align="center">
-            <img src="<%= data.prerequisites[i].avatar %>">
-          </div>
-          <h5><%= data.prerequisites[i].name %></h5>
-          <div class="contributor">
-            <span><%= data.prerequisites[i].contributor %></span>
-            <div class="float-right">
-              <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-              <span><%= data.prerequisites[i].downloads %></span>
-            </div>
-          </div>
-          <p>
-            <% for (let j = 0; j < data.prerequisites[i].star; j ++) { %>
-              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-            <% } %>
-            <% for (let j = data.prerequisites[i].star; j < 5; j ++) { %>
-              <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-            <% } %>
-          </p>
-        </a>
-      </li>
-      <% } %>
-    </ul>
+    <%= card({data: data.prerequisites, type: "Prerequisites"}) %>
     <div class="clear"></div>
     <% } %>
     <h4>Overview</h4>
