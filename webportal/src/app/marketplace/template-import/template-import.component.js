@@ -50,7 +50,7 @@ let id = -1;
 
 const saveTemplateOnAddModal = (type, id) => {
   finalEditor = addEditor;
-  data = finalEditor.getValue();
+  let data = finalEditor.getValue();
   $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
   $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
   
@@ -129,12 +129,13 @@ const showAddModal = (type, data_id=null) => {
     }));
   }
   else{
-    addEditor = loadEditor(editors[type][data_id - 1].getValue(), type, id);
+    addEditor = loadEditor(editors[type][data_id - 1].getValue(), type, id, false);
     saveTemplateOnAddModal(type, id);
   }
-
+  console.log(editors[type]);
   $(`#${type}${id}-modal .edit-save`).click(() => {
     saveTemplateOnAddModal(type, id);
+    console.log(editors[type]);
   });
   
 
@@ -287,11 +288,12 @@ const tryStringToJson = (s) => {
 const jsonEditor2RestApi = (editors) => {
   let res = {
     'prerequisites': [],
+    'job': [],
   };
   
   ['data', 'script', 'dockerimage'].forEach((t) => {
     editors[t].forEach((d) => {
-      if(d!=null){
+      if(d != null){
         let curData = d.getValue();
         curData['type'] = t;
         res['prerequisites'].push(curData);
@@ -300,10 +302,10 @@ const jsonEditor2RestApi = (editors) => {
   });
 
   if ('job' in editors) {
-    let jobs = editors['job']; // is a array, but I assume only one job.
-    jobs.forEach((job) => {
-      if(job != null){
-        job = job.getValue();
+    let jobs = editors['job'];
+    jobs.forEach((_job) => {
+      if(_job != null){
+        let job = JSON.parse(JSON.stringify(_job.getValue())); //deep copy 
         job['type'] = 'job';
         let tasks = job['tasks'];
         let parameters = job['parameters'];
@@ -332,11 +334,10 @@ const jsonEditor2RestApi = (editors) => {
             }
           });
         });
-        res['job'] = job;
+        res['job'].push(job);
       }
     });
   }
-
   console.log(res);
   return res;
 };
@@ -354,41 +355,61 @@ let editors = {
   'script': [],
   'dockerimage': [],
   'job': [],
-}
+};
 
 let jobDefaultConfigs = {};
 
-
 const submitJob = (jobConfig) => {
+  if(jobConfig['job'].length == 0){
+    alert("must have a job!");
+    return;
+  }
+  let curJob = {
+    'prerequisites': jobConfig['prerequisites'],
+    'job': null,
+  };
+
   userAuth.checkToken((token) => {
     loading.showLoading();
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.job.name}`,
-      data: JSON.stringify(jobConfig),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: 'application/json; charset=utf-8',
-      type: 'PUT',
-      dataType: 'json',
-      success: (data) => {
-        loading.hideLoading();
-        if (data.error) {
-          alert(data.message);
-          $('#submitHint').text(data.message);
-        } else {
-          alert('submit success');
-          $('#submitHint').text('submitted successfully!');
-        }
-        window.location.replace('/view.html');
-      },
-      error: (xhr, textStatus, error) => {
-        loading.hideLoading();
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-      },
+    let successCnt = 0, errorCnt = 0;
+    console.log(jobConfig['job']);
+    jobConfig['job'].forEach((job) => {
+      curJob['job'] = job;
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v1/jobs/${curJob.job.name}`,
+        data: JSON.stringify(curJob),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        contentType: 'application/json; charset=utf-8',
+        async: false,
+        type: 'PUT',
+        dataType: 'json',
+        success: (data) => {
+          if (data.error) {
+            alert(data.message);
+            $('#submitHint').text(data.message);
+            errorCnt += 1;
+          } else {
+            // alert('submit success');
+            // $('#submitHint').text('submitted successfully!');
+            successCnt += 1;
+          }
+        },
+        error: (xhr, textStatus, error) => {
+          const res = JSON.parse(xhr.responseText);
+          alert(res.message);
+          errorCnt += 1;
+        },
+      });
     });
-  });
+
+    loading.hideLoading();
+    alert(`${successCnt} job summitted successfully, ${errorCnt} job summitted error`);
+    // if(successCnt != 0)
+    //   window.location.replace('/view.html');
+
+  });  
 };
 
 const insertNewContent = (d, key) => {
@@ -430,7 +451,7 @@ const insertNewTitleAndSummary = (d, key) => {
 };
 
 
-const loadEditor = (d, type, id) => {
+const loadEditor = (d, type, id, insertEditors=true) => {
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
     schema: jobSchema[`${type}Schema`],
@@ -444,7 +465,8 @@ const loadEditor = (d, type, id) => {
   jobDefaultConfigs[type] = editor.getValue();
   if (d != null) {
     editor.setValue(d);
-    editors[type].push(editor);
+    if(insertEditors)
+      editors[type].push(editor);
   }
   return editor;
 };
