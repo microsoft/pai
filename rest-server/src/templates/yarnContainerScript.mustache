@@ -189,6 +189,13 @@ hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/Docker
 # Prepare user code
 mkdir -p "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID"
 if [[ -n $PAI_CODE_DIR ]]; then
+  hdfs dfs -stat $PAI_CODE_DIR \
+    || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
+  code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
+  if [ $code_dir_size -gt 10000000 ]; then
+    echo "$PAI_CODE_DIR is larger than 10MB, exit."
+    exit 1
+  fi
   hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" || exit 1
 fi
 
@@ -200,7 +207,7 @@ ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER
 
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
-  || { echo 'Can not pull Docker image' ; exit 1; }
+  || { echo "Can not pull Docker image"; exit 1; }
 docker run --name $docker_name \
   --rm \
   --tty \
