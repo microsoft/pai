@@ -12,9 +12,10 @@
           <h5><%= data.prerequisites[i].name %></h5>
           <div class="contributor">
             <span><%= data.prerequisites[i].contributor %></span>
-            <span class="glyphicon glyphicon-download-alt" aria-hidden="true">
-              <%= data.prerequisites[i].downloads %>
-            </span>
+            <div class="float-right">
+              <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+              <span><%= data.prerequisites[i].downloads %></span>
+            </div>
           </div>
           <p>
             <% for (let j = 0; j < data.prerequisites[i].star; j ++) { %>
