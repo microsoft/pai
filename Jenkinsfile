@@ -51,7 +51,7 @@ curl --silent --verbose \
     $PAI_ENDPOINT/rest-server/api/v1/jobs \
     --header "Authorization: Bearer $TOKEN" \
     --header 'Content-Type: application/json' \
-    --data "{
+    --data '{
         \"jobName\": \"$JOB_NAME\",
         \"image\": \"aiplatform/pai.run.cntk\",
         \"taskRoles\": [
@@ -63,7 +63,7 @@ curl --silent --verbose \
                 \"command\": \"/bin/bash --version\"
             }
         ]
-    }"
+    }'
 while :; do
     sleep 10
     STATUS=$(
