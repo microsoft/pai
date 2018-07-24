@@ -3,11 +3,6 @@
 Monitoring all compoments in pai, provide insight on detectiving system/hardware failuring and
 analysing jobs performance.
 
-To accomplish the goal, this module should be:
-* Robust: monitoring should try its best to not crash. Other compoments/people relay on monitoring system to find root causes or trigger alert.
-* Minimize performance impact.
-* Minimize latency between metrics generation and metrics consumption.
-
 # Architecture
 
 ![Architecture](architecture.png)
