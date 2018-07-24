@@ -155,8 +155,8 @@ const load = function(type, name, version, use, callback) {
   let usedKey = config.getUsedKey(type);
   if (use) {
     client.multi([
-      ["HINCRBY", statsKey, "used.count", 1],
-      ["ZINCRBY", usedKey, 1, name],
+      ['HINCRBY', statsKey, 'used.count', 1],
+      ['ZINCRBY', usedKey, 1, name],
     ]).exec(function(err, res) {
       if (err) {
         callback(err, null);
@@ -216,7 +216,6 @@ const save = function(template, callback) {
         // The key is duplicated
         callback(null, true);
       } else {
-        console.log(name, version, type)
         client.hset(config.getIndexKey(type), name, version, (err, num) => {
           if (err) {
             callback(err, null);
