@@ -50,14 +50,14 @@ Before start, you need to meet the following requirements:
 - Recommend no Docker installed or a Docker with api version >= 1.26.
 
 #### 2 Deploy OpenPAI
-##### 2.1 [Quick deploy with default settings](./docs/quick_deployment.md)
-##### 2.2 [Customized deploy](./pai-management/doc/cluster-bootup.md)
+##### 2.1 [Quick deploy with default settings](./pai-management/doc/cluster-bootup.md#quickdeploy)
+##### 2.2 [Customized deploy](./pai-management/doc/cluster-bootup.md#customizeddeploy)
 
 ## How to use
 ### How to train jobs
 - How to write PAI jobs
     - [Learn from Example Jobs](./examples/README.md)
-    - [Write job from scratch in deepth](./job-tutorial/README.md)
+    - [Write job from scratch in deepth](./docs/job_tutorial.md)
 - How to submit PAI jobs
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
