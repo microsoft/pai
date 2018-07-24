@@ -30,7 +30,7 @@ class VirtualCluster {
             this[key] = vcList[name][key];
           }
         } else {
-          error = createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${name} not found.`);
+          error = createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${name} is not found.`);
         }
       }
       next(this, error);

@@ -117,7 +117,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User $username not found."
+      "message": "User $username is not found."
     }
     ```
 
@@ -197,7 +197,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User $username not found."
+      "message": "User $username is not found."
     }
     ```
 
@@ -283,7 +283,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User $username not found."
+      "message": "User $username is not found."
     }
     ```
 
@@ -359,7 +359,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoUserError",
-      "message": "User $username not found."
+      "message": "User $username is not found."
     }
     ```
 
@@ -442,7 +442,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job $jobname not found."
+      "message": "Job $jobname is not found."
     }
     ```
 
@@ -545,7 +545,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job $jobname not found."
+      "message": "Job $jobname is not found."
     }
     ```
 
@@ -555,7 +555,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobConfigError",
-      "message": "Config of job $jobname not found."
+      "message": "Config of job $jobname is not found."
     }
     ```
 
@@ -606,7 +606,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job $jobname not found."
+      "message": "Job $jobname is not found."
     }
     ```
 
@@ -616,7 +616,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobSshInfoError",
-      "message": "SSH info of job $jobname not found."
+      "message": "SSH info of job $jobname is not found."
     }
     ```
 
@@ -662,7 +662,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     {
       "code": "NoJobError",
-      "message": "Job $jobname not found."
+      "message": "Job $jobname is not found."
     }
     ```
 
