@@ -109,24 +109,6 @@ done
         }
       }
     }
-    stage('Pause on failure') {
-      agent {
-        node {
-          label 'dev-box'
-        }
-
-      }
-      steps {
-        script {
-          if(currentBuild.result == 'FAILURE'){
-            input (
-              message: 'Test failed! Would you like to clean the deployment now?'
-            )
-          }
-        }
-
-      }
-    }
   }
   options {
     disableConcurrentBuilds()
