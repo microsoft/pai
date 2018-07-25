@@ -109,7 +109,6 @@ const replaceHrefs = () => {
       });
     });
     let tooltiphtml = '<h5>' + $(this).find('.none').html() + '</h5>';
-    console.log(tooltiphtml);
     $(this).attr('title', tooltiphtml);
   });
   $('[data-toggle="tooltip"]').tooltip();
@@ -154,10 +153,8 @@ const showAddModal = (type, data_id=null) => {
     addEditor = loadEditor(editors[type][data_id - 1].getValue(), type, id, false);
     saveTemplateOnAddModal(type, id);
   }
-  console.log(editors[type]);
   $(`#${type}${id}-modal .edit-save`).click(() => {
     saveTemplateOnAddModal(type, id);
-    console.log(editors[type]);
   });
 
   // ----------- recommand ---------------
