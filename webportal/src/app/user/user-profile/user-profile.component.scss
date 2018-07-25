@@ -182,3 +182,28 @@
   margin-bottom: 10px;
 }
 // my assets end
+
+.clearfix {
+  margin: 20px 50px;
+}
+
+.btn-display {
+  border: none;
+  padding: 10px;
+  margin: 10px;
+}
+
+.btn-collapsed {
+  margin-left: 60px;
+  margin-right: 0px;
+}
+[data-toggle="collapse"].collapsed .btn-opened {
+  display: none;
+}
+[data-toggle="collapse"]:not(.collapsed) .btn-closed {
+  display: none;
+}
+
+.box-expr {
+  text-align: center;
+}

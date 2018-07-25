@@ -19,6 +19,7 @@
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const userProfileComponent = require('./user-profile.component.ejs');
+const detailExperimentComponent = require('../../marketplace/template-view/detail-experiment.component.ejs');
 require('./user-profile.component.scss');
 
 const recentlyData = [
@@ -91,10 +92,33 @@ const myAssestData = [
   }
 ];
 
+const experimentData = [
+  {
+    name: 'FaceNet on Pigs',
+    type: 'BATCH',
+    duration: '10h 12m 5s',
+    time: '7/25/2018 3:51:04 PM',
+    status: 'RUNNING',
+    number: [7, 1],
+    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+  },
+  {
+    name: 'ImageNet Benchmark',
+    type: 'BATCH',
+    duration: '10h 12m 5s',
+    time: '6/28/2018 3:51:04 PM',
+    status: 'SUCCEEDED',
+    number: [7, 1],
+    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+  },
+];
+
 const userProfileHtml = userProfileComponent({
   breadcrumb: breadcrumbComponent,
   recentData: recentlyData,
-  data: myAssestData
+  assetData: myAssestData,
+  experiment: detailExperimentComponent,
+  experimentData: experimentData,
 });
 
 $('#content-wrapper').html(userProfileHtml);
