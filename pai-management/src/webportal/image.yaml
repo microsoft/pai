@@ -17,7 +17,7 @@
 
 
 copy-list:
-  - src: ../job-tutorial
+  - src: ../docs
     dst: src/webportal/copied_file
   - src: ../examples
     dst:  src/webportal/copied_file
