@@ -129,7 +129,7 @@ const experimentData = [
     time: '6/28/2018 3:51:04 PM',
     status: 'RUNNING',
     number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    visualization: '/assets/img/loss_acc_per_DataSet.png',
   },
   {
     name: 'Cifar10',
@@ -138,7 +138,7 @@ const experimentData = [
     time: '6/28/2018 3:51:04 PM',
     status: 'RUNNING',
     number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    visualization: '/assets/img/loss_acc_per_Model.png',
   },
   {
     name: 'Cifar10',
@@ -218,7 +218,6 @@ const loadSummary = () => {
           {
             if (star[i].checked)
             {
-              // do whatever you want with the checked radio
               var reviewStar = star[i].value;
               // only one radio can be logically checked, don't check the rest
               break;
