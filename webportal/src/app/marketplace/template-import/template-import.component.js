@@ -158,13 +158,13 @@ const showAddModal = (type, data_id=null) => {
   });
 
   // ----------- recommand ---------------
-  templateView.loadTemplates(type, (type) => { return '#recommandPlaceHolder'; }, replaceHrefs);
+  templateView.loadTemplates(type, (type) => { return '#recommandPlaceHolder'; }, replaceHrefs, 3);
 
   $('#btn-add-search').click((event) => {
-    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs);
+    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs, 3);
   });
   $('#add-search').on('keyup', (event) => {
-    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs);
+    templateView.search(event, [type], (type) => { return '#recommandPlaceHolder'; }, $('#add-search').val(), replaceHrefs, 3);
   });
 
   // ---------- some button listener ----------
