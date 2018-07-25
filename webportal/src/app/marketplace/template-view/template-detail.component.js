@@ -28,6 +28,7 @@ const viewCardComponent = require('./view-cards.component.ejs');
 
 require('./template-view.component.scss');
 require('./template-detail.component.scss');
+require('bootstrap/js/modal.js');
 
 const qaData = [
   {
@@ -207,6 +208,42 @@ const loadSummary = () => {
         $('#content-wrapper').html(templateDetailHtml);
         $('#btn-use').click((event) => {
           window.location.href = "/import.html" + window.location.search;
+        });
+        $('#btn-review').click(function(event){
+          $('#reviewModel').modal('show');
+        });
+        $('#btn-submitreview').click(function(event) {
+          var star = document.getElementsByName('rating');
+          for (var i = 0, length = star.length; i < length; i++)
+          {
+            if (star[i].checked)
+            {
+              // do whatever you want with the checked radio
+              var reviewStar = star[i].value;
+              // only one radio can be logically checked, don't check the rest
+              break;
+            }
+          }
+          var reviewContent = document.getElementById("review-content").value;
+
+          var currentdate = new Date(); 
+          var datetime = currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+          reviewData.concat({
+            description: reviewContent, 
+            star: reviewStar, 
+            name: 'Honey Lin',
+            avatar: '/assets/img/pic2.png',
+            date: datetime});
+
+          $('#reviewModel').modal('hide');
+          //$('.modal-backdrop').remove();
+          //$(document.body).removeClass("modal-open");
         });
       }
     });

@@ -64,7 +64,7 @@ const saveTemplateOnAddModal = (type, id) => {
     summaryLayout: userChooseSummaryLayout,
     titleLayout: userChooseTitleLayout,
   }));
-  $(`#${type}${id}-summary .user-edit`).on('click', () => {
+  $(`#${type}${id}-edit-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
   });
 };
@@ -479,7 +479,7 @@ const insertNewChooseResult = (d, type) => {
 
   let editor = loadEditor(d, type, id);
 
-  $(`#${type}${id}-summary .user-edit`).on('click', () => {
+  $(`#${type}${id}-edit-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
   });
 
