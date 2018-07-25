@@ -5,48 +5,99 @@ This document introduces the detailed procedures to boot up PAI on a cluster. Pl
 Please refer to Section [single box deployment](./single-box-deployment.md) if user would like to deploy PAI on a single server.
 
 
-Table of contents:
+## Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
 
 - [Overview](#overview)
-- [Before all: Please choose a PAI stable release](#choose-a-pai-release)
-- [Step 1a. Prepare PAI configuration: Manual approach](#step-1a)
-- [Step 1b. Prepare PAI configuration: Using `paictl` tool for a quickstart deployment](#step-1b)
-- [Step 2. Boot up Kubernetes](#step-2)
-- [Step 3. Start all PAI services](#step-3)
+- [Quick deploy with default settings](#quickdeploy)
+- [Customized deploy](#customizeddeploy)
 - [Appendix: Default values in auto-generated configuration files](#appendix)
 
 <!-- /TOC -->
 
 ## Overview <a name="overview"></a>
 
-We assume that the whole cluster has already been configured by the system maintainer to meet the following requirements:
-
-- A [dev-box](./how-to-setup-dev-box.md) has been set up and can access the cluster.
-- SSH service is enabled on each of the machines.
-- All machines share the same username / password for the SSH service on each of them.
-- The username that can be used to login to each machine should have sudo privilege.
-- All machines to be set up as masters should be in the same network segment.
-- A load balancer is prepared if there are multiple masters to be set up.
+We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../README.md#how-to-deploy).
 
 With the cluster being set up, the steps to bring PAI up on it are as follows:
 
+- Step 0. Prepare dev-box
 - Step 1. Prepare PAI configuration.
     - (For advanced users) This step can either be done by writing the configuration files manually,
     - (For novice users) or be done using the `paictl` tool.
 - Step 2. Boot up Kubernetes.
 - Step 3. Start all PAI services.
 
-## Before all: please choose a PAI stable release <a name="choose-a-pai-release"></a>
+## Quick deploy with default settings <a name="quickdeploy"></a>
+### Step 0. Prepare the dev-box
+It is recommended to perform the operations below in a dev box.
+Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
 
-**Notice: You should always deploy a stable release of PAI.** You can check the [release list](https://github.com/Microsoft/pai/releases).
+### Step 1. Prepare the quick-start.yaml file <a name="step-1a"></a>
 
-Please make sure:
+An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
-- Work on the right code. Please checkout PAI source code with the latest release.
-- Refer to the right doc matching the release.
+```yaml
+# quick-start.yaml
 
-## Step 1a. Prepare PAI configuration: Manual approach <a name="step-1a"></a>
+# (Required) Please fill in the IP address of the server you would like to deploy OpenPAI
+machines:
+  - 192.168.1.11
+  - 192.168.1.12
+  - 192.168.1.13
+
+# (Required) Log-in info of all machines. System administrator should guarantee
+# that the username/password pair is valid and has sudo privilege.
+ssh-username: pai
+ssh-password: pai-password
+
+# (Optional, default=22) Port number of ssh service on each machine.
+#ssh-port: 22
+
+# (Optional, default=DNS of the first machine) Cluster DNS.
+#dns: <ip-of-dns>
+
+# (Optional, default=10.254.0.0/16) IP range used by Kubernetes. Note that
+# this IP range should NOT conflict with the current network.
+#service-cluster-ip-range: <ip-range-for-k8s>
+
+```
+
+### Step 2. Generate OpenPAI configuration files
+
+After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
+
+```
+python paictl.py cluster generate-configuration -i ~/quick-start.yaml -o ~/pai-config -f
+```
+
+The command will generate the following four yaml files.
+
+```
+cluster-configuration.yaml
+k8s-role-definition.yaml
+kubernetes-configuration.yaml
+serivices-configuration.yaml
+```
+Please refer to this [section](./how-to-write-pai-configuration.md) for the details of the configuration files.
+
+### Step 3. Boot up Kubernetes
+
+Use the four yaml files to boot up k8s.
+Please refer to this [section](./cluster-bootup.md#step-2) for details.
+
+### Step 4. Start all OpenPAI services
+
+After k8s starts, boot up all OpenPAI services.
+Please refer to this [section](./cluster-bootup.md#step-3) for details.
+
+## Customized deploy <a name="customizeddeploy"></a>
+### Step 0. Prepare the dev-box
+
+It is recommended to perform the operations below in a dev box.
+Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
+
+### Step 1. Prepare PAI configuration: Manual approach <a name="step-1a"></a>
 
 This method is for advanced users. PAI configuration consists of 4 YAML files:
 
@@ -59,41 +110,7 @@ There are two ways to prepare the above 4 PAI configuration files. The first one
 
 If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
 
-## Step 1b. Prepare PAI configuration: A quick start approach using `paictl` tool <a name="step-1b"></a>
-
-The second way, which is designed for fast deployment, is to generate a set of default configuration files from a very simple starting-point file using the `paictl` maintenance tool:
-
-```
-python paictl.py cluster generate-configuration \
-  -i quick-start.yaml \
-  -o /path/to/cluster-configuration/dir
-```
-
-The 4 configuration files will be stored into the `/path/to/cluster-configuration/dir` folder. Note that most of the fields in the 4 configuration fields are automatically generated using default values. See [Appendix](#appendix) for an incomplete list of these default values.
-
-The `quick-start.yaml` file consists of the following sections:
-
-- `machines` - The list of all machines. The first machine will be configured as the master, and all other machines will be configured as workers.
-- `ssh-username` and `ssh-password`: Log-in info of all machines.
-- (Optional, default=22) `ssh-port` - Port number of the SSH service on each machine.
-- (Optional, default=DNS of the first machine) `dns` - Cluster DNS.
-- (Optional, default=10.254.0.0/16) `service-cluster-ip-range` - IP range used by Kubernetes. Note that this IP range should NOT conflict with the current network.
-
-Example:
-
-```yaml
-machines:
-  - 192.168.1.11
-  - 192.168.1.12
-  - 192.168.1.13
-
-ssh-username: pai-admin
-ssh-password: pai-admin-password
-```
-An example quick-start.yaml file is available [here](../quick-start/quick-start-example.yaml).
-Note that the quick start approach does not provide high availability and customized deployment, which is done through the [manual approach](#step-1a).
-
-## Step 2. Boot up Kubernetes <a name="step-2"></a>
+### Step 2. Boot up Kubernetes <a name="step-2"></a>
 
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
@@ -114,7 +131,7 @@ http://<master>:9090
 ```
 where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
 
-## Step 3. Start all PAI services <a name="step-3"></a>
+### Step 3. Start all PAI services <a name="step-3"></a>
 
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
