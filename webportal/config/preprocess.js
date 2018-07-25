@@ -24,7 +24,7 @@ const webportalConfig = require('./webportal.config');
 
 // copy docs to app
 fse.copySync(
-    helpers.root('../docs/job-tutorial.md'),
+    helpers.root('../docs/job_tutorial.md'),
     helpers.root('src/app/job/job-docs/job-docs.md'));
 
 fse.copySync(
