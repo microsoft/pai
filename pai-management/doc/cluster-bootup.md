@@ -79,17 +79,17 @@ k8s-role-definition.yaml
 kubernetes-configuration.yaml
 serivices-configuration.yaml
 ```
-Please refer to this [section](../pai-management/doc/how-to-write-pai-configuration.md) for the details of the configuration files.
+Please refer to this [section](./how-to-write-pai-configuration.md) for the details of the configuration files.
 
 ### Step 3. Boot up Kubernetes
 
 Use the four yaml files to boot up k8s.
-Please refer to this [section](../pai-management/doc/cluster-bootup.md#step-2) for details.
+Please refer to this [section](./cluster-bootup.md#step-2) for details.
 
 ### Step 4. Start all OpenPAI services
 
 After k8s starts, boot up all OpenPAI services.
-Please refer to this [section](../pai-management/doc/cluster-bootup.md#step-3) for details.
+Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
 ## Customized deploy <a name="customizeddeploy"></a>
 ### Step 0. Prepare the dev-box
