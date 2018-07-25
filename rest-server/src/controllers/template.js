@@ -139,7 +139,7 @@ const rate = (req, res) => {
       });
     } else {
       res.status(200).json({
-        message: 'Succeeded.'
+        message: 'Succeeded.',
       });
     }
   });

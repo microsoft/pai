@@ -249,13 +249,13 @@ const mark = function(type, name, rating, callback) {
   client.multi([
     ['HINCRBY', config.getStatsKey(type, name), 'rating.count', 1],
     ['HINCRBY', config.getStatsKey(type, name), 'rating.sum', rating],
-  ]).exec(function (err, res) {
+  ]).exec(function(err, res) {
     if (err) {
       callback(err, null);
     } else {
       callback(null, res);
     }
   });
-}
+};
 
 module.exports = {filter, top, load, save, mark};

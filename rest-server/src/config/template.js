@@ -28,4 +28,4 @@ const postRatingInputSchema = Joi.object().keys({
     .optional(),
 }).required();
 
-module.exports = {postRatingInputSchema}
+module.exports = {postRatingInputSchema};
