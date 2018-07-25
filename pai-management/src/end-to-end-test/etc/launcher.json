@@ -3,9 +3,17 @@
   "user": {
     "name": "test"
   },
+  "retryPolicy": {
+    "maxRetryCount": 0,
+    "fancyRetryPolicy": true
+  },
   "taskRoles": {
     "Master": {
       "taskNumber": 10,
+      "taskRetryPolicy": {
+        "maxRetryCount": 0,
+        "fancyRetryPolicy": true
+      },
       "taskService": {
         "version": 23,
         "entryPoint": "echo 'TEST'",
