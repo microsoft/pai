@@ -400,8 +400,8 @@ const submitJob = (jobConfig) => {
 
     loading.hideLoading();
     alert(`${successCnt} job summitted successfully, ${errorCnt} job summitted error`);
-    // if(successCnt != 0)
-    //   window.location.replace('/view.html');
+    if(errorCnt == 0)
+      window.location.replace('/view.html');
 
   });  
 };
