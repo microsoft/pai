@@ -1,7 +1,7 @@
 <div class="panel-rr">
   <div class="tab-header">
     <h4>User Reviews</h4>
-    <button type="button" class="btn btn-primary">Write a review</button>
+    <button type="button" class="btn btn-primary" id="btn-review">Write a review</button>
   </div>
   <table class="rr-content">
     <% for (let i = 0; i < data.length; i ++) { %>
@@ -28,4 +28,46 @@
       </tr>
     <% } %>
   </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="reviewModel" role="dialog" tabindex="-1" aria-labelledby="modalLable" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+  
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalLable">
+          Write a Review
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-top: 15px; margin-left: 15px; margin-right: 15px;">
+          <!--<span class="glyphicon glyphicon-star reviewstar" aria-hidden="true"></span>
+          <span class="glyphicon glyphicon-star reviewstar" aria-hidden="true"></span>
+          <span class="glyphicon glyphicon-star reviewstar" aria-hidden="true"></span>
+          <span class="glyphicon glyphicon-star reviewstar" aria-hidden="true"></span>
+          <span class="glyphicon glyphicon-star reviewstar" aria-hidden="true"></span>-->
+          <ul class="rate-area" style="padding-left: 0px;">
+            <input type="radio" id="5-star" name="rating" value="5" /><label for="5-star" title="Amazing">5 stars</label>
+            <input type="radio" id="4-star" name="rating" value="4" /><label for="4-star" title="Good">4 stars</label>
+            <input type="radio" id="3-star" name="rating" value="3" /><label for="3-star" title="Average">3 stars</label>
+            <input type="radio" id="2-star" name="rating" value="2" /><label for="2-star" title="Not Good">2 stars</label>
+            <input type="radio" id="1-star" name="rating" value="1" /><label for="1-star" title="Bad">1 star</label>
+          </ul>
+          <br>
+          <br>
+          <textarea id="review-content" type="text" style="width: 504px; height: 206px;" placeholder="Please input your review..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-submitreview">
+          Submit
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

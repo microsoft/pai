@@ -1,0 +1,28 @@
+prerequisites : 
+  - protocol_version : v2
+    name : mxnet_example
+    type : dockerimage
+    version : 1.0
+    contributor : Bob
+    description:  Apache MXNet example
+    uri : openpai/pai.example.mxnet
+
+job : 
+  protocol_version: v2
+  name : mxnet-image-classification
+  type : job
+  version : 1.0
+  contributor : Bob
+  description : mxnet image classification example.
+  parameters :
+    num_of_worker: 1
+    retryCount: -2
+
+  tasks :
+    - name : main
+      dockerimage : mxnet_example
+      resource: 
+        instances : $job.parameters.num_of_worker
+        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
+      command:
+        - cd incubator-mxnet/example/image-classification && python train_mnist.py --network mlp

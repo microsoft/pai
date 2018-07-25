@@ -1,7 +1,7 @@
 <div class="row">
   <div class="tab-header">
     <h4>Q & A</h4>
-    <button type="button" class="btn btn-primary">Ask a question</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#AskQuestionModal">Ask a question</button>
   </div>
   <div class="qa-content">
     <% for (let i = 0; i < data.length; i ++) { %>
@@ -31,3 +31,32 @@
     <% } %>
   </div>
 </div>
+   
+<!-- Modal -->
+<div class="modal fade" id="AskQuestionModal" role="dialog" tabindex="-1" aria-labelledby="modalLable" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+  
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalLable">
+          Ask a Question
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-top: 15px; margin-left: 15px; margin-right: 15px;">
+          <textarea id="question" type="text" style="width: 504px; height: 206px;" placeholder="Please input your question..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-submitqa">
+          Submit
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

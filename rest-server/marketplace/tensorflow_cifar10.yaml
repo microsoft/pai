@@ -2,22 +2,22 @@ prerequisites :
   - protocol_version : v2
     name : cifar10
     type : data
-    version : x.y.z
-    contributor : xxx
+    version : 1.0
+    contributor : Qi Chen
     description: cifar10 dataset, image classification
     uri : https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
   - protocol_version : v2
     name : tensorflow_cnnbenchmarks
     type : script
-    version : x.y.z
-    contributor : xxx
+    version : 1.0
+    contributor : Qi Chen
     description: tensorflow benchmarks
     uri : https://github.com/tensorflow/benchmarks@6a33b4a4b5bda950bb7e45faf13120115cbfdb2f
   - protocol_version : v2
     name : tf_example
     type : dockerimage
-    version : x.y.z
-    contributor : xxx
+    version : 1.0
+    contributor : Qi Chen
     description: python3.5, tensorflow
     uri : openpai/pai.example.tensorflow
 
@@ -25,8 +25,8 @@ job :
   protocol_version: v2
   name : cifar10_tensorflow
   type : job
-  version : x.y.z
-  contributor : xxx
+  version : 1.0
+  contributor : Qi Chen
   description : image classification, cifar10 dataset, tensorflow, distributed training
   parameters :
     model : resnet20

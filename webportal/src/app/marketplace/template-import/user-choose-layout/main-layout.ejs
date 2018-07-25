@@ -18,8 +18,8 @@
       <div class="col-md-2 component-image">
         <img src="/assets/img/<%= type %>.png" alt="model-logo" class="img-responsive"></img>
       </div>
-      <div class="tab-content" id="<%= type %>-summary">
-        <%= summaryLayout({'name': name, 'type':type, 'id':id, 'contributor':contributor,  'description': description,'active': 'active'}) %>
+      <div class="tab-content col-md-10" id="<%= type %>-summary">
+          <%= summaryLayout({'name': name, 'type':type, 'id':id, 'contributor':contributor,  'description': description,'active': 'active'}) %>
       </div>
     </div>
   </div>
