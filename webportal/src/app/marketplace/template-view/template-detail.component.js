@@ -129,7 +129,7 @@ const experimentData = [
     time: '6/28/2018 3:51:04 PM',
     status: 'RUNNING',
     number: [7, 1],
-    visualization: '/assets/img/loss_acc.png',
+    visualization: '/assets/img/loss_acc_per_DataSet.png',
   },
   {
     name: 'Cifar10',
@@ -138,7 +138,7 @@ const experimentData = [
     time: '6/28/2018 3:51:04 PM',
     status: 'RUNNING',
     number: [7, 1],
-    visualization: '/assets/img/loss_acc.png',
+    visualization: '/assets/img/loss_acc_per_Model.png',
   },
   {
     name: 'Cifar10',

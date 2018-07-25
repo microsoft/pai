@@ -100,7 +100,7 @@ const experimentData = [
     time: '7/25/2018 3:51:04 PM',
     status: 'RUNNING',
     number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    visualization: '/assets/img/loss_acc_per_DataSet.png',
   },
   {
     name: 'ImageNet Benchmark',
@@ -109,7 +109,7 @@ const experimentData = [
     time: '6/28/2018 3:51:04 PM',
     status: 'SUCCEEDED',
     number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    visualization: '/assets/img/loss_acc_per_Model.png',
   },
 ];
 
