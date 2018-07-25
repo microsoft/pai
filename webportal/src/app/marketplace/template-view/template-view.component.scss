@@ -1,9 +1,9 @@
-.box-header {
+.content .box-header {
   font-size: 20px;
   text-align: right;
 }
 
-.box-body {
+.content .box-body {
   margin-left: 5vw;
   margin-right: 5vw; 
 }
@@ -24,6 +24,11 @@
   width: 75%;
   height: 230px;
   margin: auto;
+}
+
+.carousel {
+  margin-left: -50px;
+  margin-right: -50px;
 }
 
 .left.carousel-control {
