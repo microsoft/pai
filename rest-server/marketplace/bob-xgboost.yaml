@@ -1,0 +1,35 @@
+prerequisites : 
+  - protocol_version : v2
+    name : XGBoost
+    type : dockerimage
+    version : 1.0
+    contributor : Bob
+    description:  XGBoost example
+    uri : openpai/pai.example.xgboost
+  - protocol_version : v2
+    name : XGBoost example
+    type : script
+    version : 1.0
+    contributor : Bob
+    description: pytorch examples
+    uri : https://github.com/dmlc/xgboost/tree/master/demo
+    
+job : 
+  protocol_version: v2
+  name : xgboost_gpu_hist
+  type : job
+  version : 1.0.0
+  contributor : Bob
+  description : xgboost_gpu_hist example.
+  parameters :
+    num_of_worker: 1
+    retryCount: -2
+
+  tasks :
+    - name : main
+      dockerimage : XGBoost
+      resource: 
+        instances : $job.parameters.num_of_worker
+        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
+      command:
+        - pip install -q sklearn && python demo/gpu_acceleration/cover_type.py

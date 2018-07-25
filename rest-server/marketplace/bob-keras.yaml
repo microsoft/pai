@@ -1,0 +1,53 @@
+prerequisites : 
+  - protocol_version : v2
+    name : keras dockerimage
+    type : dockerimage
+    version : 1.0
+    contributor : Bob
+    uri : openpai/examples/keras/Dockerfile.example.keras.tensorflow_backend
+  - protocol_version : v2
+    name : keras mnist_irnn
+    type : script
+    version : 1.0
+    contributor : Bob
+    description:  keras dockerimage
+    uri : https://github.com/keras-team/keras/tree/master/examples/mnist_irnn.py
+  - protocol_version : v2
+    name : keras mnist_cnn
+    type : script
+    version : 1.0
+    contributor : Bob
+    description:  keras dockerimage
+    uri : https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py
+  - protocol_version : v2
+    name : keras siamese
+    type : script
+    version : 1.0
+    contributor : Keras
+    description:  keras dockerimage
+    uri : https://github.com/keras-team/keras/blob/master/examples/mnist_siamese.py
+
+job : 
+  protocol_version: v2
+  name : keras_tensorflow_backend_mnist
+  type : job
+  version : 1.0
+  contributor : Bob
+  description : keras test.
+  parameters :
+    epochs : 10
+    batchsize: 32
+    lr : 0.01
+    num_of_worker: 1
+    retryCount: 0 
+
+  tasks :
+    - name: mnist
+      dockerimage : keras dockerimage
+      resource: 
+        instances : $job.parameters.num_of_worker
+        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
+      env:
+        PYTHONPATH : $job.tasks.worker.script/mnist
+      command:
+        - python mnist_cnn.py

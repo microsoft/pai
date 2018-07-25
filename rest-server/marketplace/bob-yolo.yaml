@@ -1,26 +1,20 @@
 prerequisites : 
   - protocol_version : v2
-    name : pytorch_examples
-    type : script
-    version : 1.0
-    contributor : Qi Chen
-    description: pytorch examples
-    uri : https://github.com/pytorch/examples
-  - protocol_version : v2
-    name : pytorch_example
-    type : dockerimage
-    version : 1.0
-    contributor : Qi Chen
-    description: python3.5, pytorch
-    uri : openpai/pai.example.pytorch
+    name : VOC2007
+    type : data
+    version : 0.1
+    contributor : Bob
+    description: VOC2007 dataset. The training data provided consists of a set of images; each image has an annotation file giving a bounding box and object class label for each object in one of the twenty classes present in the image. Note that multiple objects from multiple classes may be present in the same image. Some example images can be viewed online. 
+    uri : http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+
 
 job : 
   protocol_version: v2
-  name : mnist_pytorch
+  name :  YOLO
   type : job
-  version : 1.0
-  contributor : Qi Chen
-  description : image classification, mnist dataset, pytorch
+  version : 0.1
+  contributor : Bob
+  description : You only look once! YOLO network for object detection.
   parameters :
     epochs : 10
     batchsize: 32
@@ -39,3 +33,4 @@ job :
         PYTHONPATH : $job.tasks.worker.script/mnist
       command:
         - python $job.tasks.worker.script/mnist/main.py --epochs $job.parameters.epochs --lr $job.parameters.lr --batch-size $job.parameters.batchsize
+

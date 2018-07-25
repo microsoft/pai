@@ -2,22 +2,21 @@ prerequisites :
   - protocol_version : v2
     name : spacev_input
     type : data
-    version : x.y.z
-    contributor : xxx
+    version : 0.9.0
+    contributor : Qi Chen
     description: vectors
     uri : hdfs://xxx/spacev_input
   - protocol_version : v2
     name : spacev_config
     type : data
-    version : x.y.z
-    contributor : xxx
+    version : 0.8.0
+    contributor : Qi Chen
     description: configs
     uri : hdfs://xxx/spacev_config
   - protocol_version : v2
     name : spacev_example
     type : dockerimage
-    version : x.y.z
-    contributor : xxx
+    version : 0.9.0
     description: spacev
     uri : openpai/pai.example.spacev
 
@@ -25,8 +24,8 @@ job :
   protocol_version: v2
   name : spacev_vectorsearch
   type : job
-  version : x.y.z
-  contributor : xxx
+  version : 0.9.0
+  contributor : Qi Chen
   description : spacev, vector search
   parameters :
     num_of_worker: 1

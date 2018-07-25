@@ -1,26 +1,20 @@
 prerequisites : 
   - protocol_version : v2
-    name : pytorch_examples
-    type : script
-    version : 1.0
-    contributor : Qi Chen
-    description: pytorch examples
-    uri : https://github.com/pytorch/examples
-  - protocol_version : v2
-    name : pytorch_example
-    type : dockerimage
-    version : 1.0
-    contributor : Qi Chen
-    description: python3.5, pytorch
-    uri : openpai/pai.example.pytorch
+    name : ImageNet
+    type : data
+    version : 0.1
+    contributor : Bob
+    description: Image classification.
+    uri : http://image-net.org/imagenet_data/urls/imagenet_fall11_urls.tgz
+
 
 job : 
   protocol_version: v2
-  name : mnist_pytorch
+  name :  VGG
   type : job
-  version : 1.0
-  contributor : Qi Chen
-  description : image classification, mnist dataset, pytorch
+  version : 0.1
+  contributor : Bob
+  description : VGG for image classification.
   parameters :
     epochs : 10
     batchsize: 32
@@ -39,3 +33,4 @@ job :
         PYTHONPATH : $job.tasks.worker.script/mnist
       command:
         - python $job.tasks.worker.script/mnist/main.py --epochs $job.parameters.epochs --lr $job.parameters.lr --batch-size $job.parameters.batchsize
+
