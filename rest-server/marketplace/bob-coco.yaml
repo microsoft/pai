@@ -7,13 +7,13 @@ prerequisites :
     description: COCO dataset, the common objects in Context
     uri : https://github.com/pytorch/examples
 
-
+    
 job : 
   protocol_version: v2
   name :  COCO-toy
   type : job
   version : 0.1
-  contributor : Microsoft
+  contributor : Bob
   description : COCO dataset test
   parameters :
     epochs : 10

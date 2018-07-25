@@ -4,7 +4,7 @@ prerequisites :
     type : data
     version : 0.1
     contributor : Bob
-    description: ImageNet dataset.
+    description:  Image classification.
     uri : http://image-net.org/imagenet_data/urls/imagenet_fall11_urls.tgz
 
 

@@ -4,6 +4,7 @@ prerequisites :
     type : dockerimage
     version : 1.0
     contributor : Bob
+    description: keras docker
     uri : openpai/examples/keras/Dockerfile.example.keras.tensorflow_backend
   - protocol_version : v2
     name : keras mnist_irnn

@@ -4,7 +4,7 @@ prerequisites :
     type : data
     version : 0.1
     contributor : Alice
-    description: Public Figures Face Database.
+    description: Public Figures Face Database.  Image classification.
     uri : http://www.cs.columbia.edu/CAVE/databases/pubfig/download/#dev
 
 
