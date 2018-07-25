@@ -29,10 +29,6 @@ const viewCardComponent = require('./view-cards.component.ejs');
 require('./template-view.component.scss');
 require('./template-detail.component.scss');
 require('bootstrap/js/modal.js');
-require('datatables.net/js/jquery.dataTables.js');
-require('datatables.net-bs/js/dataTables.bootstrap.js');
-require('datatables.net-bs/css/dataTables.bootstrap.css');
-require('datatables.net-plugins/sorting/natural.js');
 
 const qaData = [
   {
