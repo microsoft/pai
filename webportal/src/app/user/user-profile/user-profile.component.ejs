@@ -11,13 +11,13 @@
       <td>
         <div class="detail">
           <h2 id="txt-name">Bob</h2>
-          <div class="middle">Bob</div>
+          <div class="middle">Face recognition, Image classification</div>
           <p id="txt-description">
-            <span>information</span>
+            <span>No.5 Danling Street</span>
             <span>|</span>
-            <span>information</span>
+            <span>Haidian, Beijing</span>
             <span>|</span>
-            <span>information</span>
+            <span>bob@microsoft.com</span>
           </p>
         </div>
       </td>
@@ -72,49 +72,49 @@
       <a href="#tab-qa" role="tab" data-toggle="tab">People</a>
     </li>
     <li role="presentation">
-      <a href="#tab-rr" role="tab" data-toggle="tab">Projects</a>
+      <a href="#tab-ex" role="tab" data-toggle="tab">Experiments</a>
     </li>
   </ul>
 
   <div class="tab-content">
-    <% for (let i = 0; i < data.length; i ++) { %>
-      <div role="tabpanel" class="tab-pane active" id="tab-ov">
-        <div class="panel shadow">
-          <div class="panel-heading">Model</div>
-          <div class="panel-body padd-box">
-            <div class="row model-img">
-              <div class="col-sm-2">
-                <img src=<%= data[i].image %> alt="">
+    <div role="tabpanel" class="tab-pane active" id="tab-ov">
+    <% for (let i = 0; i < assetData.length; i ++) { %>
+      <div class="panel shadow">
+        <div class="panel-heading">Model</div>
+        <div class="panel-body padd-box">
+          <div class="row model-img">
+            <div class="col-sm-2">
+              <img src=<%= assetData[i].image %> alt="">
+            </div>
+            <div class="col-sm-7">
+              <h3>
+                <%= assetData[i].name %>
+              </h3>
+              <p>
+                <%= assetData[i].author %>
+              </p>
+              <div>
+                <%= assetData[i].description %>
               </div>
-              <div class="col-sm-7">
-                <h3>
-                  <%= data[i].name %>
-                </h3>
-                <p>
-                  <%= data[i].author %>
-                </p>
-                <div>
-                  <%= data[i].description %>
-                </div>
-              </div>
-              <div class="col-sm-3 collect-btn">
-                <button type="button" class="btn btn-primary">Edit</button>
-                <br>
-                <button type="button" class="btn btn-primary">Share</button>
-                <br>
-                <button type="button" class="btn btn-primary">Delete</button>
-                <br>
-              </div>
+            </div>
+            <div class="col-sm-3 collect-btn">
+              <button type="button" class="btn btn-primary">Edit</button>
+              <br>
+              <button type="button" class="btn btn-primary">Share</button>
+              <br>
+              <button type="button" class="btn btn-primary">Delete</button>
+              <br>
             </div>
           </div>
         </div>
       </div>
-      <% } %>
-        <div role="tabpanel" class="tab-pane" id="tab-qa">
-          222
-        </div>
-        <div role="tabpanel" class="tab-pane" id="tab-rr">
-          333
-        </div>
-
+    <% } %>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="tab-qa">
+      222
+    </div>
+    <div role="tabpanel" class="tab-pane" id="tab-ex">
+      <%= experiment({ data: experimentData }) %>
+    </div>
   </div>
+</div>
