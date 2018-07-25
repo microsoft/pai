@@ -94,7 +94,7 @@ const myAssestData = [
 
 const experimentData = [
   {
-    name: 'FaceNet on Pigs',
+    name: 'Model Comparison on Pigs',
     type: 'BATCH',
     duration: '10h 41m 15s',
     time: '7/25/2018 3:51:04 PM',
@@ -103,7 +103,7 @@ const experimentData = [
     visualization: '/assets/img/loss_acc_per_Model.png',
   },
   {
-    name: 'ImageNet Benchmark',
+    name: 'Dataset Comparison on FaceNet',
     type: 'BATCH',
     duration: '15h 12m 5s',
     time: '6/28/2018 3:51:04 PM',
