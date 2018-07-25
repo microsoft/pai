@@ -15,7 +15,7 @@ matrix:
       before_install:
         - cd prometheus
       install:
-        - pip install paramiko pyyaml jinja2
+        - pip install paramiko pyyaml jinja2 python-etcd requests
       script:
         - python -m unittest discover test/
     - language: python

@@ -788,7 +788,7 @@ public class Service extends AbstractService {
   private void resyncFrameworksWithLiveApplications(Map<String, ApplicationReport> liveApplicationReports) throws Exception {
     // Since Application is persistent in ZK by RM, so liveApplicationReports will never incomplete.
     String logScope = "resyncFrameworksWithLiveApplications";
-    CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO);
+    CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO, Level.DEBUG);
     CHANGE_AWARE_LOGGER.log(logScope,
         "Got %s live Applications from RM, start to resync them.",
         liveApplicationReports.size());

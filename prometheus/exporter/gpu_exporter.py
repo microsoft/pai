@@ -37,8 +37,14 @@ def parse_smi_xml_result(smi):
 
     for gpu in gpuList:
         minorNumber = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
-        gpuUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
-        gpuMemUtil = gpu.getElementsByTagName('utilization')[0].getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
+        utilization = gpu.getElementsByTagName("utilization")[0]
+
+        gpuUtil = utilization.getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
+        gpuMemUtil = utilization.getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
+
+        if gpuUtil == "N/A" or gpuMemUtil == "N/A":
+            continue
+
         result[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
 
     return result

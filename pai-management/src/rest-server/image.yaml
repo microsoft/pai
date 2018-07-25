@@ -22,5 +22,3 @@ copy-list:
   - src: ../rest-server
     dst: src/rest-server/copied_file
 
-template-list:
-  - dockerfile

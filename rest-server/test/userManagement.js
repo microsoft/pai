@@ -15,13 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-newUserTemplate = JSON.stringify({
-  'username': '{{username}}',
-  'password': '{{password}}',
-  'admin': '{{admin}}',
-  'modify': '{{modify}}',
-});
-
 deleteUserTemplate = JSON.stringify({
   'username': '{{username}}'
 });
@@ -39,18 +32,18 @@ const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false
 const invalidToken = '';
 
 describe('Add new user: put /api/v1/user', () => {
-  afterEach(function() {
+  after(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
-  beforeEach(() => {
+  before(() => {
 
     nock(etcdHosts)
       .get('/v2/keys/users/new_user')
+      .times(3)
       .reply(200, {
         'errorCode': 100,
         'message': 'Key not found',
@@ -60,6 +53,7 @@ describe('Add new user: put /api/v1/user', () => {
 
     nock(etcdHosts)
       .put('/v2/keys/users/new_user?dir=true')
+      .times(2)
       .reply(200, {
         'action': 'set',
         'node': {
@@ -72,6 +66,7 @@ describe('Add new user: put /api/v1/user', () => {
 
     nock(etcdHosts)
       .put('/v2/keys/users/new_user/passwd', { 'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12' })
+      .times(2)
       .reply(200, {
         'action': 'set',
         'node': {
@@ -94,6 +89,42 @@ describe('Add new user: put /api/v1/user', () => {
         }
       });
 
+    nock(etcdHosts)
+      .put('/v2/keys/users/new_user/admin', { 'value': 'false' })
+      .reply(200, {
+        'action': 'set',
+        'node': {
+          'key': '/users/new_user/admin',
+          'value': 'true',
+          'modifiedIndex': 4,
+          'createdIndex': 4
+        }
+      });
+
+    nock(etcdHosts)
+      .get('/v2/keys/users/exist_user')
+      .reply(200, {
+        'action': 'get',
+        'node': {
+          'key': '/users/exist_user',
+          'dir': true,
+          'nodes':
+            [{
+              'key': '/users/exist_user/admin',
+              'value': 'true',
+              'modifiedIndex': 6,
+              'createdIndex': 6
+            }, {
+              'key': '/users/exist_user/passwd',
+              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
+              'modifiedIndex': 7,
+              'createdIndex': 7
+            }],
+          'modifiedIndex': 8,
+          'createdIndex': 8
+        }
+      });
+
   });
 
   //
@@ -104,7 +135,20 @@ describe('Add new user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': false })))
+      .send({ 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': false })
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(201);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.message, 'response message').equal('update successfully');
+        done();
+      });
+  });
+
+  it('Case 2 (Positive): Add a user with modify is false.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send({ 'username': 'new_user', 'password': '123456', 'modify': false })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -117,58 +161,59 @@ describe('Add new user: put /api/v1/user', () => {
   // Negative cases
   //
 
-  it('Case 2 (Negative): Should fail to add new user with modify=true.', (done) => {
+  it('Case 3 (Negative): Should fail to add new user with modify=true.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': true })))
+      .send({ 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': true })
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user failed');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
 
-  it('Case 3 (Negative): Should fail to add user with non-admin token.', (done) => {
+  it('Case 4 (Negative): Should fail to add user with non-admin token.', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'test_user', 'password': '123456', 'admin': true, 'modify': false })))
+      .send({ 'username': 'test_user', 'password': '123456', 'admin': true, 'modify': false })
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
+        done();
+      });
+  });
+
+  it('Case 5 (Negative): Should fail to add user with exist name.', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user')
+      .set('Authorization', 'Bearer ' + validToken)
+      .send({ 'username': 'exist_user', 'password': '123456', 'admin': true, 'modify': false })
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(409);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('ConflictUserError');
         done();
       });
   });
 });
 
 describe('update user: put /api/v1/user', () => {
-  afterEach(function() {
+  after(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
-  beforeEach(() => {
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/update_user?dir=true')
-      .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/users/update_user',
-          'dir': true,
-          'modifiedIndex': 5,
-          'createdIndex': 5
-        }
-      });
+  before(() => {
 
     nock(etcdHosts)
       .get('/v2/keys/users/update_user')
+      .times(2)
       .reply(200, {
         'action': 'get',
         'node': {
@@ -194,6 +239,7 @@ describe('update user: put /api/v1/user', () => {
 
     nock(etcdHosts)
       .put('/v2/keys/users/update_user/passwd?prevExist=true', { 'value': '5e8f697ad7918d757e7c21c897bb4fccaa5ba1f3ecd11d3e61c6db7e1410f4d9ae4745accb97622ead6e38f91c328154af838098f5796c3de81fe7f6c14b817b' })
+      .times(2)
       .reply(200, {
         'action': 'update',
         'node': {
@@ -247,7 +293,7 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .send({ 'username': 'update_user', 'password': 'abcdef', 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -260,7 +306,7 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .send({ 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -277,11 +323,11 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .send({ 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update user failed');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
@@ -290,9 +336,9 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': null, 'admin': false, 'modify': true })))
+      .send({ 'username': 'new_user', 'password': null, 'admin': false, 'modify': true })
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         done();
       });
   });
@@ -301,9 +347,10 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
-      .send(JSON.parse(global.mustache.render(newUserTemplate, { 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })))
+      .send({ 'username': 'new_user', 'password': 'abcdef', 'admin': false, 'modify': true })
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });
@@ -446,9 +493,9 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.code, 'response code').equal('RemoveAdminError');
         done();
       });
   });
@@ -459,9 +506,9 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_exist_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('remove failed');
+        global.chai.expect(res.body.code, 'response code').equal('NoUserError');
         done();
       });
   });
@@ -472,7 +519,7 @@ describe('delete user : delete /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         done();
       });
   });
@@ -541,23 +588,41 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         }
       });
 
-    nock(etcdHosts)
-      .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/test_user/virtualClusters',
-          'value': 'default,vc1',
-          'modifiedIndex': 11,
-          'createdIndex': 11
-        },
-        'prevNode': {
-          'key': '/users/test_user/virtualClusters',
-          'value': 'default',
-          'modifiedIndex': 12,
-          'createdIndex': 12
-        }
-      });
+      nock(etcdHosts)
+        .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
+        .reply(200, {
+          'action': 'update',
+          'node': {
+            'key': '/users/test_user/virtualClusters',
+            'value': 'default,vc1',
+            'modifiedIndex': 11,
+            'createdIndex': 11
+          },
+          'prevNode': {
+            'key': '/users/test_user/virtualClusters',
+            'value': 'default',
+            'modifiedIndex': 12,
+            'createdIndex': 12
+          }
+        });
+
+        nock(etcdHosts)
+          .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default' })
+          .reply(200, {
+            'action': 'update',
+            'node': {
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default',
+              'modifiedIndex': 11,
+              'createdIndex': 11
+            },
+            'prevNode': {
+              'key': '/users/test_user/virtualClusters',
+              'value': 'default,vc1',
+              'modifiedIndex': 12,
+              'createdIndex': 12
+            }
+          });
 
     nock(etcdHosts)
       .get('/v2/keys/users/test_non_admin_user')
@@ -677,7 +742,14 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         }
       });
 
-
+      nock(etcdHosts)
+      .get('/v2/keys/users/non_exist_user')
+      .reply(200, {
+        'errorCode': 100,
+        'message': 'Key not found',
+        'cause': '/users/non_exist_user',
+        'index': 4242650
+      });
   });
 
   //
@@ -724,9 +796,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: update virtual cluster list to database failed');
+        global.chai.expect(res.body.code, 'response code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -754,9 +826,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(500);
+        global.chai.expect(res, 'status code').to.have.status(400);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find virtual cluster non_exist_vc');
+        global.chai.expect(res.body.code, 'response code').equal('NoVirtualClusterError');
         done();
       });
   });
@@ -767,11 +839,24 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
     .set('Authorization', 'Bearer ' + validToken)
     .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
     .end((err, res) => {
-      global.chai.expect(res, 'status code').to.have.status(500);
+      global.chai.expect(res, 'status code').to.have.status(404);
       global.chai.expect(res, 'response format').be.json;
-      global.chai.expect(res.body.message, 'response message').equal('update virtual cluster failed: could not find non_exist_user in database');
+      global.chai.expect(res.body.code, 'response code').equal('NoUserError');
       done();
     });
+  });
+
+  it('Case 3 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
+    global.chai.request(global.server)
+      .put('/api/v1/user/test_user/virtualClusters')
+      .set('Authorization', 'Bearer ' + nonAdminToken)
+      .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
+      .end((err, res) => {
+        global.chai.expect(res, 'status code').to.have.status(403);
+        global.chai.expect(res, 'response format').be.json;
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
+        done();
+      });
   });
 
 });
@@ -877,9 +962,9 @@ describe('get user info list : get /api/v1/user', () => {
       .get('/api/v1/user')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(401);
+        global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.message, 'response message').equal('not authorized');
+        global.chai.expect(res.body.code, 'response code').equal('ForbiddenUserError');
         done();
       });
   });

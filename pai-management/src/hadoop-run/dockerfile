@@ -17,12 +17,12 @@
 
 FROM base-image
 
-ENV HADOOP_VERSION=hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}
+ENV HADOOP_VERSION=hadoop-2.9.0
 
 RUN apt-get -y install zookeeper libsnappy-dev
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY hadoop/hadoop-{{ clusterconfig['clusterinfo']['hadoopinfo']['hadoopversion'] }}.tar.gz /usr/local/
+COPY hadoop/hadoop-2.9.0.tar.gz /usr/local/
 
 RUN tar -xzf /usr/local/$HADOOP_VERSION.tar.gz -C /usr/local/ && \
     cd /usr/local && \
@@ -54,9 +54,9 @@ RUN chmod a+x /usr/local/start.sh
 
 # Only node manager need this.#
 #COPY docker-17.06.2-ce.tgz /usr/local
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-{{ clusterconfig['clusterinfo']['dockerverison'] }}-ce.tgz
-RUN cp docker-{{ clusterconfig['clusterinfo']['dockerverison'] }}-ce.tgz /usr/local
-RUN tar xzvf /usr/local/docker-{{ clusterconfig['clusterinfo']['dockerverison'] }}-ce.tgz
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+RUN cp docker-17.06.2-ce.tgz /usr/local
+RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
 
 ENV NV_DRIVER=/var/drivers/nvidia/current
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64

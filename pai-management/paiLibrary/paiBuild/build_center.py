@@ -63,6 +63,17 @@ class build_center:
 
         return image_list
 
+    def get_base_image(self, image_name):
+        file_path = "src/{0}/dockerfile".format(image_name)
+        with open(file_path, 'r') as fin:
+            for line in fin:
+                if line.strip().startswith("FROM"):
+                    _, image = line.split()
+                    if image.split(':')[0] in self.get_image_list():
+                       return image
+                    break
+        return None
+
 
     def hadoop_binary_prepare(self):
 
@@ -112,7 +123,7 @@ class build_center:
             self.docker_cli
         )
 
-        base_image = image_build_worker.get_dependency()
+        base_image = self.get_base_image(image_name)
         if base_image != None:
             self.build(base_image)
 

@@ -21,6 +21,8 @@ const express = require('express');
 const tokenConfig = require('../config/token');
 const jobController = require('../controllers/job');
 const jobParam = require('../middlewares/job');
+const jobConfig = require('../config/job');
+const param = require('../middlewares/parameter');
 
 
 const router = new express.Router();
@@ -44,7 +46,7 @@ router.route('/:jobName')
 
 
 router.route('/:jobName/executionType')
-    .put(tokenConfig.check, jobController.execute);
+    .put(param.validate(jobConfig.executionSchema), tokenConfig.check, jobController.execute);
 
 router.route('/:jobName/config')
     .get(jobController.getConfig);

@@ -30,16 +30,16 @@ kubernetes:
   # The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr.
   docker-registry: gcr.io/google_containers
   # http://gcr.io/google_containers/hyperkube. Or the tag in your registry.
-  hyperkube-version: v1.9.4
+  hyperkube-version: v1.9.9
   # http://gcr.io/google_containers/etcd. Or the tag in your registry.
   # If you are not familiar with etcd, please don't change it.
   etcd-version: 3.2.17
   # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
-  apiserver-version: v1.9.4
+  apiserver-version: v1.9.9
   # http://gcr.io/google_containers/kube-scheduler. Or the tag in your registry.
-  kube-scheduler-version: v1.9.4
+  kube-scheduler-version: v1.9.9
   # http://gcr.io/google_containers/kube-controller-manager
-  kube-controller-manager-version:  v1.9.4
+  kube-controller-manager-version:  v1.9.9
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
   dashboard-version: v1.8.3
 

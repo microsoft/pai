@@ -30,7 +30,6 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 
 ## Quick deploy with default settings <a name="quickdeploy"></a>
 ### Step 0. Prepare the dev-box
-
 It is recommended to perform the operations below in a dev box.
 Please refer to this [section](../pai-management/doc/how-to-setup-dev-box.md) for the details of setting up a dev-box.
 
