@@ -10,7 +10,6 @@ A tool to manage your pai cluster.
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
-    - [ Fix cruashed etcd node ](#etcd_fix)
 - [ Maintain your service ](#Service)
     - [ Start service(s) ](#Service_Start)
     - [ Stop service(s) ](#Service_Stop)
@@ -62,16 +61,6 @@ python paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine
 ```
 
 - See an example of the machine list [here](#Machine_Nodelist_Example).
-
-
-### Fix cruashed etcd node <a name="etcd_fix"></a>
-
-```
-python paictl.py machine etcd-fix -p /path/to/cluster-configuration/dir -l machine-list.yaml
-```
-
-- See an example of the machine list [here](#Machine_Nodelist_Example).
-- This operation could only fix one node each time.
 
 ## Maintain infrastructure services <a name="Service"></a>
 
@@ -152,9 +141,9 @@ machine-list:
       hostip: 192.168.1.11
       machine-type: D8SV3
       etcdid: etcdid1
-      sshport: PORT (Optional)
-      username: username
-      password: password
+      #sshport: PORT (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
       k8s-role: master
       dashboard: "true"
       zkid: "1"
@@ -164,8 +153,8 @@ machine-list:
       hostip: 192.168.1.12
       machine-type: NC24R
       #sshport: PORT (Optional)
-      username: username (Optional)
-      password: password (Optional)
+      #username: username (Optional)
+      #password: password (Optional)
       k8s-role: worker
       pai-worker: "true"
 ```

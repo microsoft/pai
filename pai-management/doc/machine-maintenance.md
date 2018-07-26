@@ -1,6 +1,8 @@
 #  How to maintain Machine In You Cluster
  - [Add new worker nodes to your cluster](#add_worker_new_node)
  - [Remove worker nodes from your cluster](#remove_worker_node)
+ - [Repair worker nodes in your cluster](#repair_worker_node)
+ - [Destroy whole pai cluster](#destroy_cluster)
  - [Fix crashed etcd instance](#etcd_fix)
 
 
@@ -13,6 +15,8 @@
 
 ### Steps:
 ```bash
+
+# Add new node from nodelist.yaml
 ./paictl.py machine add -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
@@ -26,17 +30,39 @@
 
 ### Steps:
 ```bash
+
+# Remove node from nodelist.yaml
 ./paictl.py machine remove -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
 
-## Fix crashed etcd instance <a name="etcd_fix"></a>
-- If the etcd node in your cluster crashed and k8s failed to restart it. you could fix the etcd node and restart it by the following command.
 
-### Note
-- please be sure that there is only one node (infra node container etcd) on the nodelist.
+## Repair worker nodes in your cluster <a name="repair_worker_node"></a>
+
+If some nodes in your cluster is unhealthy, you should repair them. The node status could be found by kubectl, kubernetes dashboard or other service.
+
+- First,  remove the node.
+- Second, re-add this node.
+
+## Destroy whole cluster <a name="destroy_cluster"></a>
+
+
+### Note:
+- This method will delete all kubernetes related data of pai in your cluster.
 
 ### Steps:
 
-```bash
+```
+# Destroy whole cluster.
+./paictl.py cluster k8s-clean -p /path/to/configuration/directory
+```
+
+## Fix crashed etcd instance <a name="etcd_fix"></a>
+If the etcd node in your cluster crashed and k8s failed to restart it. you could fix the etcd node and restart it by the following command.
+
+Note: please be sure that there is only one node (infra node container etcd) on the nodelist.
+
+```
+
+# Destroy whole cluster.
 ./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
