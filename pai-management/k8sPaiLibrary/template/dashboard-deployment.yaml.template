@@ -44,13 +44,13 @@ spec:
         args:
           - --apiserver-host=http://{{ clusterconfig['api-servers-ip'] }}:8080
         resources:
-          # keep request = limit to keep this container in guaranteed class
+          # the ideal cpu setting will be 3.5, according to our experiment. If the server hosting k8s dashboard has enough resource, user can change this setting to a larger value.
           limits:
-            cpu: 100m
-            memory: 300Mi
+            cpu: "1"
+            memory: 3000Mi
           requests:
-            cpu: 100m
-            memory: 100Mi
+            cpu: "0.5"
+            memory: 1000Mi
         ports:
         - containerPort: 9090
         livenessProbe:

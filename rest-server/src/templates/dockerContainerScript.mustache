@@ -26,7 +26,7 @@ BASH_XTRACEFD=17
 function exit_handler()
 {
   printf "%s %s\n" \
-    "[DEBUG]" "EXIT signal received in docker container, exiting ..."
+    "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
   kill 0
 }
 

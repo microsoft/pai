@@ -105,4 +105,4 @@ Here's one configuration file example to train a model on the [forest cover type
   ]
 }
 ```
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
