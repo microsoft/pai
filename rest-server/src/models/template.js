@@ -90,6 +90,9 @@ return result
           list.push(item);
         }
       }
+      list.sort((a, b) => {
+        return b.count - a.count;
+      });
       callback(null, list);
     }
   });

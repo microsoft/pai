@@ -4,15 +4,8 @@ prerequisites :
     type : data
     version : 0.1
     contributor : Bob
-    description: VOC2012 dataset. 
-    uri : http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
-  - protocol_version : v2
-    name : VOC 2007
-    type : data
-    version : 0.1
-    contributor : Bob
-    description: VOC2007 dataset.
-    uri : http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+    description: VOC2012 dataset. Object detection.
+    uri : http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
 
 
 job : 
@@ -22,22 +15,5 @@ job :
   version : 0.1
   contributor : Bob
   description : SSD network for object detection.
-  parameters :
-    epochs : 10
-    batchsize: 32
-    lr : 0.01
-    num_of_worker: 1
-    retryCount: 0 
 
-  tasks :
-    - name: worker
-      script : pytorch_examples
-      dockerimage : pytorch_example
-      resource: 
-        instances : $job.parameters.num_of_worker
-        resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
-      env:
-        PYTHONPATH : $job.tasks.worker.script/mnist
-      command:
-        - python $job.tasks.worker.script/mnist/main.py --epochs $job.parameters.epochs --lr $job.parameters.lr --batch-size $job.parameters.batchsize
 

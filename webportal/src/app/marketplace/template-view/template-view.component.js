@@ -36,7 +36,7 @@ $('#content-wrapper').html(templateViewComponent({
   loading: loadingComponent,
 }));
 
-const generateUI = function(type, data) {
+const generateUI = function(type, data, limit) {
     let newdata = [];
     data.forEach(function (item) {
         newdata.push({
@@ -50,10 +50,10 @@ const generateUI = function(type, data) {
             downloads: item.count,
         });
     });
-    return viewCardComponent({ type: type, data: newdata });
+    return viewCardComponent({ type: type, data: newdata, limit: limit });
 } 
 
-const loadTemplates = function(name, generateTableName, postProcess) {
+const loadTemplates = function(name, generateTableName, postProcess, limit = 4) {
   const tablename = generateTableName(name);
   $(tablename).on('preXhr.dt', loading.showLoading)
     .on('xhr.dt', loading.hideLoading);
@@ -62,7 +62,7 @@ const loadTemplates = function(name, generateTableName, postProcess) {
     type: 'GET',
     dataType: 'json',
     success: function (data) {
-      $(tablename).html(generateUI(name, data));
+      $(tablename).html(generateUI(name, data, limit));
       if (postProcess) {
         postProcess();
       }
@@ -70,7 +70,7 @@ const loadTemplates = function(name, generateTableName, postProcess) {
   });
 };
 
-const search = function(event, types, generateTableName, query, postProcess) {
+const search = function(event, types, generateTableName, query, postProcess, limit = 4) {
   if (event == null || !event.keyCode || event.keyCode == 13) {
     if (query) {
       $.ajax({
@@ -88,7 +88,7 @@ const search = function(event, types, generateTableName, query, postProcess) {
             }
           });
           Object.keys(categories).forEach((type) => {
-            $(generateTableName(type)).html(generateUI(type, categories[type]));
+            $(generateTableName(type)).html(generateUI(type, categories[type], limit));
           });
           if (postProcess) {
             postProcess();

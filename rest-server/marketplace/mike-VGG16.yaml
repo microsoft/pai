@@ -1,0 +1,17 @@
+prerequisites : 
+  - protocol_version : v2
+    name : VGG16
+    type : script
+    version : 1.0
+    contributor : Mike
+    description:  vgg model for image classification
+    uri : https://github.com/machrisaa/tensorflow-vgg
+
+job : 
+  protocol_version: v2
+  name : VGG16
+  type : job
+  version : 1.0
+  contributor : Mike
+  description : VGG model for image classification.
+ 
