@@ -56,8 +56,6 @@ else
 
     apt-get -y install docker-ce
 
-    cp $scriptPath/docker-daemon.json
-
     sudo docker run hello-world
 
     if command -v docker >/dev/null 2>&1; then
