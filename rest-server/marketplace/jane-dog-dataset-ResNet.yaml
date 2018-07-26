@@ -1,0 +1,25 @@
+prerequisites : 
+  - protocol_version : v2
+    name : Dog Dataset
+    type : data
+    version : 0.1
+    contributor : Jane
+    description: Dog images, Image classification.
+    uri : http://www.cs.columbia.edu/CAVE/databases/pubfig/download/#dev
+  - protocol_version : v2
+    name : ResNet
+    type : script
+    version : 0.1
+    contributor : Bob
+    description: ResNet model. Image classification.
+    uri : https://github.com/KaimingHe/deep-residual-networks
+
+job : 
+  protocol_version: v2
+  name :  resnet for dog
+  type : job
+  version : 0.1
+  contributor : Jane
+  description : resnet for dog image classification.
+
+

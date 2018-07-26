@@ -1,0 +1,26 @@
+prerequisites : 
+  - protocol_version : v2
+    name : ImageNet
+    type : data
+    version : 0.1
+    contributor : Amy
+    description: ImageNet dataset, Image classification.
+    uri : http://www.image-net.org/api/text/imagenet.synset.geturls?wnid=n03489162
+
+  - protocol_version: v2
+    name : DenseNet
+    type : script
+    version: 0.1
+    contributor : Amy
+    description: Image classification, DenseNet network.
+    uri : https://github.com/liuzhuang13/DenseNet
+    
+job : 
+  protocol_version: v2
+  name :  DenseNet
+  type : job
+  version : 0.1
+  contributor : Amy
+  description : densenet for image classification.
+
+

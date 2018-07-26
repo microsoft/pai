@@ -1,0 +1,19 @@
+prerequisites : 
+  - protocol_version : v2
+    name : Cat Dataset
+    type : data
+    version : 0.1
+    contributor : Jane
+    description: cat images, image classification.
+    uri : http://www.cs.columbia.edu/CAVE/databases/pubfig/download/#dev
+
+
+job : 
+  protocol_version: v2
+  name :  facenet for cat
+  type : job
+  version : 0.1
+  contributor : Jane
+  description : facenet for cat image classification.
+
+

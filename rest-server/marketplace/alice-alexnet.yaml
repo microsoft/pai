@@ -1,0 +1,18 @@
+prerequisites :
+  - protocol_version : v2
+    name : AlexNet
+    type : script
+    version : 0.1
+    contributor : Alice
+    description: AlexNet for Image classification.
+    uri : https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet
+    
+job : 
+  protocol_version: v2
+  name :  AlexNet
+  type : job
+  version : 0.1
+  contributor : Alice
+  description : AlexNet for image classification.
+
+

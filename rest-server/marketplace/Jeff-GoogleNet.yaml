@@ -1,0 +1,16 @@
+prerequisites : 
+  - protocol_version: v2
+    name : GoogleNet
+    type : script
+    version: 0.1
+    contributor : Jeff
+    description: Image classification, GoogleNet network.
+    uri : https://github.com/machrisaa/tensorflow-vgg
+job : 
+  protocol_version: v2
+  name :  GoogleNet
+  type : job
+  version : 0.1
+  contributor : Jeff
+  description : GoogleNet for image classification.
+  
