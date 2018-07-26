@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-8 ov-left">
     <% if (data.prerequisites.length > 0) { %>
-    <%= card({data: data.prerequisites, type: "Prerequisites"}) %>
+    <%= card({data: data.prerequisites, type: "Prerequisites", limit: 3}) %>
     <div class="clear"></div>
     <% } %>
     <h3>Overview</h3>
