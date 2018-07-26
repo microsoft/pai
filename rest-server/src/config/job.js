@@ -90,6 +90,9 @@ const jobConfigSchema = Joi.object().keys({
   gpuType: Joi.string()
     .allow('')
     .default(''),
+  killAllOnCompletedTaskNumber: Joi.number()
+    .integer()
+    .optional(),
   virtualCluster: Joi.string()
     .allow('')
     .default('default'),
