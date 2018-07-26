@@ -71,7 +71,7 @@ fi
     mkdir -p /etc/docker
 }
 
-[[ ! -f "/etc/docker" ]] &&
+[[ ! -f "/etc/docker/daemon.json" ]] &&
 {
     cp $scriptPath/docker-daemon.json /etc/docker/daemon.json
 }
