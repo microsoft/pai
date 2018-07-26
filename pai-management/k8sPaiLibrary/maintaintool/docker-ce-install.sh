@@ -56,13 +56,6 @@ else
 
     apt-get -y install docker-ce
 
-
-    [[ ! -d "/etc/docker" ]] &&
-    {
-        mkdir -p /etc/docker
-    }
-
-
     cp $scriptPath/docker-daemon.json
 
     sudo docker run hello-world
@@ -74,3 +67,24 @@ else
         exit 1
     fi
 fi
+
+[[ ! -d "/etc/docker" ]] &&
+{
+    mkdir -p /etc/docker
+}
+
+[[ ! -f "/etc/docker" ]] &&
+{
+    cp $scriptPath/docker-daemon.json /etc/docker/daemon.json
+}
+
+python $scriptPath/docker-config-update.py -s $scriptPath/docker-daemon.json -d /etc/docker/daemon.json
+
+systemctl restart docker
+
+
+
+
+
+
+

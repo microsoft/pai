@@ -92,7 +92,7 @@ class deploy:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(node_config['hostip']))
             return
 
-        commandline = "sudo ./{0}/docker-ce-install.sh".format(job_name)
+        commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(job_name)
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(node_config['hostip']))
             return
