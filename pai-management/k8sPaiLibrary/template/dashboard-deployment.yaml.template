@@ -46,8 +46,10 @@ spec:
         resources:
           # keep request = limit to keep this container in guaranteed class
           limits:
+            cpu: "1"
             memory: 3000Mi
           requests:
+            cpu: "0.5"
             memory: 1000Mi
         ports:
         - containerPort: 9090
