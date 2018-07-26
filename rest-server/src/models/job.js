@@ -371,7 +371,6 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const fancyRetryPolicy = (data.retryCount !== -2);
-    const minSucceededTaskCount = (data.killAllOnCompletedTaskNumber > 0) ? 1 : null;
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
