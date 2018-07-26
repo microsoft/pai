@@ -94,22 +94,22 @@ const myAssestData = [
 
 const experimentData = [
   {
-    name: 'FaceNet on Pigs',
+    name: 'Model Comparison on Pigs',
     type: 'BATCH',
-    duration: '10h 12m 5s',
+    duration: '10h 41m 15s',
     time: '7/25/2018 3:51:04 PM',
     status: 'RUNNING',
-    number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    number: [3, 0],
+    visualization: '/assets/img/loss_acc_per_Model.png',
   },
   {
-    name: 'ImageNet Benchmark',
+    name: 'Dataset Comparison on FaceNet',
     type: 'BATCH',
-    duration: '10h 12m 5s',
+    duration: '15h 12m 5s',
     time: '6/28/2018 3:51:04 PM',
     status: 'SUCCEEDED',
-    number: [7, 1],
-    visualization: 'https://www.tensorflow.org/images/mnist_tensorboard.png',
+    number: [2, 0],
+    visualization: '/assets/img/loss_acc_per_DataSet.png',
   },
 ];
 
