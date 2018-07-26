@@ -17,6 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+scriptPath=$1
+
+# Install python for json join tool.
+if command -v python >/dev/null 2>&1; then
+    echo python has been installed. And skip python install.
+else
+    apt-get update
+    apt-get -y install python
+    if command -v python >/dev/null 2>&1; then
+        echo Successfully install python
+    else
+        echo Failed install python
+        exit 1
+    fi
+fi
 
 # Prepare docker for remote host
 if command -v docker >/dev/null 2>&1; then
@@ -40,6 +55,15 @@ else
     apt-get update
 
     apt-get -y install docker-ce
+
+
+    [[ ! -d "/etc/docker" ]] &&
+    {
+        mkdir -p /etc/docker
+    }
+
+
+    cp $scriptPath/docker-daemon.json
 
     sudo docker run hello-world
 
