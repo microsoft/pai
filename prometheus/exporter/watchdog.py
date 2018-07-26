@@ -33,158 +33,168 @@ from utils import Metric
 
 logger = logging.getLogger(__name__)
 
-class Service:
-    kube_pod_status_probe_not_ready = 0
-    kube_pod_status_phase_failed = 0
-    kube_pod_status_phase_unknown = 0
-    pod_container_status_waiting = 0
-    pod_container_status_terminated = 0
-    pod_container_status_not_ready = 0
-    pod_container_status_restart_total = 0
+
+class MetricEntity(object):
+    """ interface that has one method that can convert this obj into Metric """
+    def to_metric(self):
+        pass
+
+
+class PaiPod(MetricEntity):
+    """ represent a pod count, all fields except condition_map should of type string """
+
+    def __init__(self, name, phase, host_ip, condition_map):
+        self.name = name
+        self.phase = phase
+        self.host_ip = host_ip # maybe None
+        self.condition_map = condition_map
+
+    def to_metric(self):
+        label = {"name": self.name, "phase": self.phase}
+
+        if self.host_ip is not None:
+            label["host_ip"] = self.host_ip
+
+        for k, v in self.condition_map.items():
+            label[k] = v
+
+        return Metric("pai_pod_count", label, 1)
+
+
+class PaiContainer(MetricEntity):
+    """ represent a container count, all fields should of type string """
+
+    def __init__(self, service_name, name, state, ready):
+        self.service_name = service_name
+        self.name = name
+        self.state = state
+        self.ready = ready
+
+    def to_metric(self):
+        label = {"service_name": self.service_name, "name": self.name, "state": self.state,
+                "ready": self.ready}
+        return Metric("pai_container_count", label, 1)
+
+
+class PaiNode(MetricEntity):
+    """ will output metric like
+    pai_node_count{name="1.2.3.4", out_of_disk="true", memory_pressure="true"} 1 """
+
+    def __init__(self, name, condition_map):
+        self.name = name
+        self.condition_map = condition_map
+
+    def to_metric(self):
+        label = {"name": self.name}
+        for k, v in self.condition_map.items():
+            label[k] = v
+
+        return Metric("pai_node_count", label, 1)
+
+
+def catch_exception(fn, msg, default, *args, **kwargs):
+    """ wrap fn call with try catch, makes watchdog more robust """
+    try:
+        return fn(*args, **kwargs)
+    except Exception as e:
+        logger.exception(msg)
+        return default
+
+
+def keep_not_none(item):
+    """ used in filter to keep item that is not None """
+    return item is not None
+
+
+def to_metric(metric_entity):
+    return metric_entity.to_metric()
+
+
+def parse_pod_item(pod):
+    """ return pai_pod and list of pai_container, return None on not pai service
+    Because we are parsing json outputed by k8s, its format is subjected to change,
+    we should test if field exists before accessing it to avoid KeyError """
+    labels = pod["metadata"].get("labels")
+    if labels is None or "app" not in labels.keys():
+        logger.warning("unkown pod %s", pod["metadata"]["name"])
+        return None
+
+    service_name = labels["app"] # get pai service name from label
+
+    status = pod["status"]
+
+    if status.get("phase") is not None:
+        phase = status["phase"].lower()
+    else:
+        phase = "unknown"
+
+    host_ip = None
+    if status.get("hostIP") is not None:
+        host_ip = status["hostIP"]
+
+    condition_map = {}
+
+    conditions = status.get("conditions")
+    if conditions is not None:
+        for cond in conditions:
+            cond_t = cond["type"].lower() # Initialized|Ready|PodScheduled
+            cond_status = cond["status"].lower()
+
+            condition_map[cond_t] = cond_status
+
+    pai_pod = PaiPod(service_name, phase, host_ip, condition_map)
+
+    # generate pai_containers
+    pai_containers = []
+
+    if status.get("containerStatuses") is not None:
+        container_statuses = status["containerStatuses"]
+
+        for container_status in container_statuses:
+            container_name = container_status["name"]
+
+            ready = False
+
+            if container_status.get("ready") is not None:
+                ready = container_status["ready"]
+
+            container_state = None
+            if container_status.get("state") is not None:
+                state = container_status["state"]
+                if len(state) != 1:
+                    logger.error("unexpected state %s in container %s",
+                            json.dumps(state), container_name)
+                else:
+                    container_state = state.keys()[0].lower()
+
+            pai_containers.append(PaiContainer(service_name, container_name,
+                container_state, str(ready)))
+
+    return pai_pod, pai_containers
+
+
+def robust_parse_pod_item(item):
+    return catch_exception(parse_pod_item,
+            "catch exception when parsing pod item",
+            None,
+            item)
+
 
 def parse_pods_status(podsJsonObject):
-    kube_pod_status_probe_not_ready = 0
-    kube_pod_status_phase_failed = 0
-    kube_pod_status_phase_unknown = 0
-    pod_container_status_waiting = 0
-    pod_container_status_terminated = 0
-    pod_container_status_not_ready = 0
-    pod_container_status_restarted_pod_count = 0
-
     metrics = []
 
-    serviceMetrics = collections.defaultdict(lambda : Service())
-    existServiceKey = {}
+    results = filter(keep_not_none,
+            map(robust_parse_pod_item, podsJsonObject["items"]))
 
-    podItems = podsJsonObject["items"]
+    pai_pods = map(lambda result: result[0], results)
+    pai_containers = map(lambda result: result[1], results)
+    pai_containers = [subitem for sublist in pai_containers for subitem in sublist]
 
-    for pod in podItems:
-        # all / per pod phase failed/unkown/Not ready (condition)
-        serviceName = ""
+    pod_metrics = map(to_metric, pai_pods)
+    container_metrics = map(to_metric, pai_containers)
 
-        if "generateName" in pod["metadata"]:
-            serviceName = pod["metadata"]["generateName"]
-        else:
-            serviceName = pod["metadata"]["name"]
+    return pod_metrics + container_metrics
 
-        service = serviceMetrics[serviceName]
-
-        status = pod["status"]
-        phase = status["phase"]
-        conditions = status["conditions"]
-        ready = "True"
-        init = "True"
-        scheduled = "True"
-
-        # 1. check not ready pod
-        for condition in conditions:
-            if condition["type"] == "Ready":
-                ready = condition["status"]
-            elif condition["type"] == "Initialized":
-                init = condition["status"]
-            elif condition["type"] == "PodScheduled":
-                scheduled = condition["status"]
-
-        # NOTE: this map will be reused in multiple metrics, do not modify this map
-        label = {"pod": pod["metadata"]["name"], "hostip": pod["status"]["hostIP"]}
-
-        if ready != "True" and init == "True" and scheduled == "True":
-            kube_pod_status_probe_not_ready += 1
-            # specific pod occurs readiness probe failed error, condition is not ready, value is 1
-            metrics.append(Metric("pod_current_probe_not_ready", label, 1))
-            service.kube_pod_status_probe_not_ready += 1
-
-        # 2. check failed phase pods
-        if phase == "Failed":
-            kube_pod_status_phase_failed += 1
-            # specific pod phase become faile, value is 1
-            metrics.append(Metric("pod_current_phase_failed", label, 1))
-            service.kube_pod_status_phase_failed += 1
-
-        # 3. check unknown phase pods
-        if phase == "Unknown":
-            kube_pod_status_phase_unknown += 1
-            # specific pod phase become unknown, value is 1
-            metrics.append(Metric("pod_current_phase_unknown", label, 1))
-            service.kube_pod_status_phase_unknown += 1
-
-        containerStatus = status["containerStatuses"]
-
-        # 4. check pod containers running/waiting/terminated status
-        for perContainerStatus in containerStatus:
-            containerReady = perContainerStatus["ready"]
-            restartCount = perContainerStatus["restartCount"]
-
-            containerLabel = copy.deepcopy(label)
-            containerLabel["container"] = perContainerStatus["name"]
-
-            if not containerReady:
-                pod_container_status_not_ready +=1
-                # specific pod contains container status is not ready, value is 1
-                metrics.append(Metric("container_current_not_ready", containerLabel, 1))
-                service.pod_container_status_not_ready += 1
-
-            state = perContainerStatus["state"]
-            if "terminated" in state:
-                pod_container_status_terminated += 1
-                # specific pod container status is terminated total count, value is 1
-                metrics.append(Metric("container_current_terminated", containerLabel, 1))
-                service.pod_container_status_terminated += 1
-
-            if "waiting" in state:
-                pod_container_status_waiting += 1
-                # specific pod container status is waiting  total count, value is 1
-                metrics.append(Metric("container_current_waiting", containerLabel, 1))
-                service.pod_container_status_waiting += 1
-
-            if restartCount > 0:
-                pod_container_status_restarted_pod_count += 1
-                # specific pod's container restart total count
-                metrics.append(Metric("container_accumulation_restart_total", containerLabel, restartCount))
-                service.pod_container_status_restart_total += 1
-
-    # service level aggregation metrics
-    for serviceName, service in serviceMetrics.items():
-        label = {"service": serviceName}
-        # each service occurs readiness probe failed error, condition is not ready, total count
-        if service.kube_pod_status_probe_not_ready != 0:
-            metrics.append(Metric("service_current_probe_not_ready_pod_count", label,
-                service.kube_pod_status_probe_not_ready))
-        # each service pods' phase become failed total count
-        if service.kube_pod_status_phase_failed != 0:
-            metrics.append(Metric("service_current_phase_failed_pod_count", label,
-                service.kube_pod_status_phase_failed))
-        # each service pods' phase become unknown total count
-        if service.kube_pod_status_phase_unknown != 0:
-            metrics.append(Metric("service_current_phase_unknown_pod_count", label,
-                service.kube_pod_status_phase_unknown))
-        # each service pods' contains container status is not ready total count
-        if service.pod_container_status_waiting != 0:
-            metrics.append(Metric("service_current_waiting_container_count", label,
-                service.pod_container_status_waiting))
-        # each service pods' container status is terminated total count
-        if service.pod_container_status_terminated != 0:
-            metrics.append(Metric("service_current_terminated_container_count", label,
-                service.pod_container_status_terminated))
-        # each service pods' container status is waiting  total count
-        if service.pod_container_status_not_ready != 0:
-            metrics.append(Metric("service_current_probe_not_ready_pod_count", label,
-                service.pod_container_status_not_ready))
-        # each service pods' container restart total count
-        if service.pod_container_status_restart_total != 0:
-            metrics.append(Metric("service_restarted_container_count", label,
-                service.pod_container_status_restart_total))
-
-    emptyLabel = {}
-    metrics.append(Metric("cluster_current_probe_not_ready_pod_count", emptyLabel, kube_pod_status_probe_not_ready))
-    metrics.append(Metric("cluster_current_phase_failed_pod_count", emptyLabel, kube_pod_status_phase_failed))
-    metrics.append(Metric("cluster_phase_unknown_pod_count", emptyLabel, kube_pod_status_phase_unknown))
-    metrics.append(Metric("cluster_current_status_not_ready_container_count", emptyLabel, pod_container_status_not_ready))
-    metrics.append(Metric("cluster_current_terminated_container_count", emptyLabel, pod_container_status_terminated))
-    metrics.append(Metric("cluster_current_waiting_container_count", emptyLabel, pod_container_status_waiting))
-    metrics.append(Metric("cluster_container_once_restarted_pod_count", emptyLabel, pod_container_status_restarted_pod_count))
-
-    return metrics
 
 def collect_k8s_componentStaus(address, nodesJsonObject):
     metrics = []
@@ -238,27 +248,42 @@ def collect_k8s_componentStaus(address, nodesJsonObject):
 
     return metrics
 
+
+def parse_node_item(node):
+    name = node["metadata"]["name"]
+
+    cond_map = {}
+
+    if node.get("status") is not None:
+        status = node["status"]
+
+        if status.get("conditions") is not None:
+            conditions = status["conditions"]
+
+            for cond in conditions:
+                cond_t = utils.camel_to_underscore(cond["type"])
+                status = cond["status"].lower()
+
+                cond_map[cond_t] = status
+    else:
+        logger.warning("unexpected structure of node %s: %s", name, json.dumps(node))
+
+    return PaiNode(name, cond_map)
+
+
+def robust_parse_node_item(item):
+    return catch_exception(parse_node_item,
+            "catch exception when parsing node item",
+            None,
+            item)
+
+
 def parse_nodes_status(nodesJsonObject):
     nodeItems = nodesJsonObject["items"]
 
-    metrics = []
-    readyNodeCount = 0
-    dockerError = 0
+    return map(to_metric,
+            map(robust_parse_node_item, nodesJsonObject["items"]))
 
-    for name in nodeItems:
-        # 1. check each node status
-        for condition in name["status"]["conditions"]:
-            if "Ready" == condition["type"]:
-                readyStatus = condition["status"]
-                if readyStatus != "True":
-                    # node status, value 1 is error
-                    label = {"node": name["metadata"]["name"]}
-                    metrics.append(Metric("node_current_notready", label, 1))
-                else:
-                    readyNodeCount += 1
-
-    metrics.append(Metric("notready_node_count", {}, len(nodeItems) - readyNodeCount))
-    return metrics
 
 def collect_docker_daemon_status(configFilePath):
     metrics = []
