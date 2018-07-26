@@ -8,7 +8,7 @@
     - Because hadoop service will be deployed on hostnetworking environment. And some configuration of hosts file will have a bad influence on hadoop’s name resolve behavior.
 - Prepare kubelet environment and start kubelet through docker
     - Prepare kubelet environment accoding to node role
-    - [The Python Module To Deploy PAI](../k8sPaiLibrary/lib/deploy.py)
+    - [The Python Module To Deploy PAI](../k8sPaiLibrary/maintainlib/deploy.py)
     - [The Environment Preparation Script Link](../k8sPaiLibrary/maintaintool/kubelet-start.sh)
     - [The Starting Script Link](../k8sPaiLibrary/template/kubelet.sh.template)
 
