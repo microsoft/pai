@@ -12,6 +12,14 @@ An [express](https://expressjs.com/) served, [AdminLTE](https://adminlte.io/) th
 
 Since [job toturial](../docs/job_tutorial.md) is included in the document tab, make sure **`docs`** directory is exists as a sibling of `web-portal` directory.
 
+To run web portal, the following services should be started, and url of services should be correctly configured:
+
+* [REST Server](../rest-server)
+* [Prometheus](../prometheus)
+* [Grafana](../grafana)
+* YARN
+* Kubernetes
+
 ## Build
 
 *In current design, there is nothing to do in build stage.*
