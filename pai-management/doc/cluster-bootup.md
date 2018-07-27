@@ -181,10 +181,10 @@ http://<master>:9090
 ```
 
 - View service health
-![PAI_deploy_log](./images/PAI_deploy_log.PNG)
+![PAI_deploy_log](./images/PAI_deploy_log.png)
 
 - View service log
-![PAI_deploy_pod](./images/PAI_deploy_pod.PNG)
+![PAI_deploy_pod](./images/PAI_deploy_pod.png)
 
 ### fix problem
 - config error
