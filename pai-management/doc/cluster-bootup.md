@@ -11,6 +11,7 @@ Please refer to Section [single box deployment](./single-box-deployment.md) if u
 - [Overview](#overview)
 - [Quick deploy with default settings](#quickdeploy)
 - [Customized deploy](#customizeddeploy)
+- [Problem investigation and solving](#problem)
 - [Appendix: Default values in auto-generated configuration files](#appendix)
 
 <!-- /TOC -->
@@ -97,6 +98,17 @@ Please refer to this [section](./cluster-bootup.md#step-3) for details.
 It is recommended to perform the operations below in a dev box.
 Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
 
+#### How to check
+
+- exec cmd:
+```
+sudo docker ps
+```
+- sucessful result:
+```
+24c286d888f5        openpai/dev-box                                       "/container-setup.sh"    3 days ago          Up 3 days                                    dev-box
+```
+
 ### Step 1. Prepare PAI configuration: Manual approach <a name="step-1a"></a>
 
 This method is for advanced users. PAI configuration consists of 4 YAML files:
@@ -109,6 +121,10 @@ This method is for advanced users. PAI configuration consists of 4 YAML files:
 There are two ways to prepare the above 4 PAI configuration files. The first one is to prepare them manually. The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
+
+#### How to check
+check all configruation items of the 4 files are correct.
+
 
 ### Step 2. Boot up Kubernetes <a name="step-2"></a>
 
@@ -125,6 +141,8 @@ The `paictl` tool does the following things:
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`, `kubernetes-configuration.yaml` and `k8s-role-definition.yaml`.
 - Use `kubectl` to boot up Kubernetes on target machines.
 
+
+#### How to check
 After this step, the system maintainer can check the status of Kubernetes by accessing Kubernetes Dashboard:
 ```
 http://<master>:9090
@@ -146,11 +164,67 @@ If the `-n` parameter is specified, only the given service, e.g. `rest-server`, 
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`.
 - Use `kubectl` to set up config maps and create pods on Kubernetes.
 
+#### How to check
+
 After this step, the system maintainer can check the status of PAI services by accessing PAI web portal:
 ```
 http://<master>:9286
 ```
 where `<master>` is the same as in the previous [section](#step-2).
+
+## Problem investigation and solving <a name="problem"></a>
+
+### how to check service problem
+Dashboard:
+```
+http://<master>:9090
+```
+
+- View service health
+![PAI_deploy_log](./images/PAI_deploy_log.PNG)
+
+- View service log
+![PAI_deploy_pod](./images/PAI_deploy_pod.PNG)
+
+### fix problem
+- config error
+  - update config file
+check and refine 4 yaml files:
+    - cluster-configuration.yaml
+    - kubernetes-configuration.yaml
+    - k8s-role-definition.yaml
+    - serivices-configuration.yaml
+  - customize config for specific service 
+If user want to customize single service, you could find service config file at pai-management/bootstrap and find image dockerfile at pai-management/src.
+
+- code & image error
+  - customize image
+User could find service's image dockerfile at pai-management/src and customize them. 
+  - rebuild image
+User could execute the following cmds:
+
+build docker image
+```
+    paictl.py image build -p /path/to/configuration/ [ -n image-x ]"
+```
+push docker image
+```
+    paictl.py image push -p /path/to/configuration/ [ -n image-x ]"
+```
+If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be build / push.
+
+### reboot service
+1. stop single or all services.
+
+```
+python paictl.py service stop \
+  -p /path/to/cluster-configuration/dir \
+  [ -n service-name ]
+```
+If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped. 
+
+2. boot up single all OpenPAI services.
+Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
 ## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
