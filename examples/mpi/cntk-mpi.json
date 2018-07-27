@@ -17,7 +17,8 @@
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 0,
-      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-mpi.sh"
+      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-mpi.sh",
+      "minSucceededTaskCount": 1
     },
     {
       "name": "worker",
@@ -28,6 +29,5 @@
       "command": "/bin/bash"
     }
   ],
-  "killAllOnCompletedTaskNumber": 1,
   "retryCount": 0
 }

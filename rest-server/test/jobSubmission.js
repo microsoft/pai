@@ -59,7 +59,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       );
     global.nock(global.webhdfsUri)
       .put(/op=MKDIR/)
-      .times(6)
+      .times(5)
       .reply(
         200,
         {}
@@ -375,9 +375,9 @@ describe('Submit job: POST /api/v1/jobs', () => {
       });
   });
 
-  it('[N-07] killAllOnCompletedTaskNumber is greater than tasks number.', (done) => {
-    const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_killAllOnCompletedTaskNumber'}));
-    jobConfig.killAllOnCompletedTaskNumber = 2;
+  it('[N-07] minFailedTaskCount or minSucceededTaskCount is greater than tasks number.', (done) => {
+    const jobConfig = JSON.parse(global.mustache.render(global.jobConfigTemplate, {'jobName': 'new_job_minFailedTaskCount'}));
+    jobConfig.taskRoles[0].minFailedTaskCount = 2;
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)

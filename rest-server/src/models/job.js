@@ -371,7 +371,6 @@ class Job {
   generateFrameworkDescription(data) {
     const gpuType = data.gpuType || null;
     const fancyRetryPolicy = (data.retryCount !== -2);
-    const minSucceededTaskCount = (data.killAllOnCompletedTaskNumber > 0) ? 1 : null;
     const virtualCluster = (!data.virtualCluster) ? 'default' : data.virtualCluster;
     const frameworkDescription = {
       'version': 10,
@@ -421,8 +420,8 @@ class Job {
           },
         },
         'applicationCompletionPolicy': {
-          'minFailedTaskCount': 1,
-          'minSucceededTaskCount': minSucceededTaskCount,
+          'minFailedTaskCount': data.taskRoles[i].minFailedTaskCount,
+          'minSucceededTaskCount': data.taskRoles[i].minSucceededTaskCount,
         },
       };
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
@@ -473,7 +472,7 @@ class Job {
         }
       },
       (parallelCallback) => {
-        async.each(['log', 'tmp', 'finished'], (x, eachCallback) => {
+        async.each(['log', 'tmp'], (x, eachCallback) => {
           hdfs.createFolder(
             `/Container/${data.userName}/${name}/` + x,
             {'user.name': data.userName, 'permission': '755'},
