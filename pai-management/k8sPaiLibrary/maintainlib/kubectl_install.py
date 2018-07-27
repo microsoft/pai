@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import common
 import logging
 import logging.config
@@ -71,11 +72,16 @@ class kubectl_install:
 
     def kubectl_ready_test(self):
 
+        times = 0
+
         while True:
             res = common.execute_shell_return("kubectl get node", "There will be a delay after installing, please wait.")
-
+            times = times + 1
             if res == True:
                 break
+            if times == 10:
+                self.logger.error("kubectl ready test failed. Exit paictl.")
+                sys.exit(1)
 
 
 
