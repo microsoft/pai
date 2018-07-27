@@ -11,12 +11,6 @@ We have three main parts of Pai-build: `image configuration`, `build script`, an
 - **utility:** provides some common build-related function.
 
 
-# Dependencies
-
-- **paictl:** a tool to manage pai cluster. Please refer to [paictl readme](https://github.com/Microsoft/pai/blob/master/pai-management/doc/paictl.md) for detail.
-- **dockerfile:** each service should prepare one dockerfile. You can refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) to learn how to write dockerfile.
-- **image.yaml:** configuration file for ```pai``` build.
-
 # Build
 
 Build image by using ```paictl```.
@@ -39,9 +33,34 @@ python paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-nam
 - Push the tagged image to the docker registry which is configured in the ```cluster-configuration```.
 - If the option `-n` is added, only the specified image will be pushed.
 
-# Configuration / Reconfiguration
+# Current Pai build process
 
-Each service in pai has a image configuration file. This configuration should be named as ```image.yaml```, and be put into the directory of the image. Here is the examples of the configuration.
+- Each component has a build directory under ```pai-management/src/``` folder, with the name identical to the component name.
+- The component build directory contains three things
+    - image definition:Dockerfile file.
+    - build configuration:image.yaml file.
+    - Files to be copied into the container image.
+- Build script collects all images to be built by checking the ```pai-management/src/{component_name}/image.yaml``` exists or not.
+- Build script prepares the Hadoop binary file.
+- Build script builds the image for each component:
+    - Parse build configuration defined in image.yaml.
+    - Get the files in the copy list ready.
+    - Call ```docker build``` command to build docker image.
+    - Clean up generated files.
+
+# How to add your own image
+
+This chapter will teach you how to add your customized image to pai. After everything is done, paictl image command will build and push your image to the target docker registry.
+
+If your service image could be pulled from a public docker registry, you could skip this step.
+
+#### Prepare Service Dockerfile ####
+
+It will not guide you to write a dockerfile. If you a new developer of docker, please refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) and learn how to dockerfile.
+
+#### Write pai's Image Configuration ####
+
+Everytime you wanna add a customized docker image into pai, you will have to prepare a image configuration first. This configuration should be named as ```image.yaml```, and be put into the directory of the image.
 
 ```yaml
 
@@ -60,74 +79,25 @@ Configuration only consists copy-list part. if you don't need you can just ignor
     - In project, we only keep one replica of source code or tool and we won't replace too much replicas in each image's directory. So this parts tell paictl the path to copy the file.
     - Command: ```cp -r pai/pai-management/$src pai/pai-management/$dst ```. ```src``` and ```dst``` is the value in this part.
 
+#### Place the Image Directory into PAI ####
 
-# Upgrading
+ Note that the name of image's directory should be same with the image name.
 
-If you want to upgrade your component version, please change corresponding dockerfile directly.
+For example, now we wanna add a docker image "ownImage" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/src/ownImage```. That is the image's directory named as the image's name.
 
-# Runtime Requirements
-
-You can build dev-box image with below dockerfile.
-- ```container-setup.sh``` please refer to [pai-management/container-setup.sh](https://github.com/Microsoft/pai/blob/master/pai-management/container-setup.sh).
-- ```kubectl-install.sh``` please refer to [pai-management/k8sPaiLibrary/maintaintool/kubectl-install.sh](https://github.com/Microsoft/pai/blob/master/pai-management/k8sPaiLibrary/maintaintool/kubectl-install.sh).
+#### Place the Image Directory into PAI ####
 
 ```
+./paictl.py image build -p /path/to/your/cluster-configuration/dir -n [your-image-name]
 
-FROM ubuntu:16.04
 
-RUN apt-get -y update && \
-    apt-get -y install \
-      nano \
-      vim \
-      joe \
-      wget \
-      curl \
-      jq \
-      gawk \
-      psmisc \
-      python \
-      python-yaml \
-      python-jinja2 \
-      python-paramiko \
-      python-urllib3 \
-      python-tz \
-      python-nose \
-      python-prettytable \
-      python-netifaces \
-      python-dev \
-      python-pip \
-      python-mysqldb \
-      openjdk-8-jre \
-      openjdk-8-jdk \
-      openssh-server \
-      openssh-client \
-      git \
-      inotify-tools \
-      rsync \
-      realpath \
-      net-tools && \
-    mkdir -p /cluster-configuration &&\
-    git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes
-
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
-# Only node manager need this.#
-#COPY docker-17.06.2-ce.tgz /usr/local
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-RUN cp docker-17.06.2-ce.tgz /usr/local
-RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
-
-COPY container-setup.sh /
-
-COPY k8sPaiLibrary/maintaintool/kubectl-install.sh /kubectl-install.sh
-RUN /bin/bash kubectl-install.sh
-
-CMD ["/container-setup.sh"]
+./paictl.py image push -p /path/to/your/cluster-configuration/dir -n [your-image-name]
 
 ```
 
 # TO-DO
 
+- Remove build process from pai-management
 - Redesign pai folder structure to make it clearer.
-- Incremental build.
+- Refine configuration file.
+- Incremental build implementation.
