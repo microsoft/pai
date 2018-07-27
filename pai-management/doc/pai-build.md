@@ -4,18 +4,18 @@ Pai-build responsible for all service's image build as well as binary build if n
 
 # Architecture
 ![Architecture](pai-build/pai-build.png)
-We have three main parts of Pai-build: `image configuration`, `build script`, and `utility` now.
+We have three main parts of Pai-build: `image configuration`, `build script`, and `utility`.
 
-- image configuration: each service of pai have corresponding configuration folder put under `pai-management/src`. and the folder must contain **dockerfile** and **image.yaml** that responsible for all service's image build as well as binary build if need..
-- build script: now all build script put under `pai-management/paiLibrary/paiBuild`. `build_center.py` responsible for image build and tag, in addition we also need to build `hadoop-ai` binary in this script. `push_center.py` responsible for push image to docker registry.
-- utility: provides some common build-related function.
+- **image configuration:** each service of pai have corresponding configuration folder put under `pai-management/src`. and the folder must contain **dockerfile** and **image.yaml** which is the configuration file for service build.
+- **build script:** now all build script put under `pai-management/paiLibrary/paiBuild`. `build_center.py` responsible for image build and tag, in addition we also need to build `hadoop-ai` binary in this script. `push_center.py` responsible for push image to docker registry.
+- **utility:** provides some common build-related function.
 
 
 # Dependencies
 
-- paictl: a tool to manage pai cluster. Please refer to [paictl readme](https://github.com/Microsoft/pai/blob/master/pai-management/doc/paictl.md) for detail.
-- dockerfile: each service should prepare one dockerfile. You can refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) to learn how to write dockerfile.
-- image.yaml: configuration file for ```pai``` build.
+- **paictl:** a tool to manage pai cluster. Please refer to [paictl readme](https://github.com/Microsoft/pai/blob/master/pai-management/doc/paictl.md) for detail.
+- **dockerfile:** each service should prepare one dockerfile. You can refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) to learn how to write dockerfile.
+- **image.yaml:** configuration file for ```pai``` build.
 
 # Build
 
