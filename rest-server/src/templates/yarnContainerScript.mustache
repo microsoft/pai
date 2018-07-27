@@ -30,6 +30,7 @@ function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "EXIT signal received in yarn container, exiting ..."
+  rm -rf /tmp/pai-root/code/$APP_ID/$CONTAINER_ID 2>/dev/null
   pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name) && kill -9 $pid ||\
     printf "%s %s\n"  "[DEBUG]" "$docker_name does not exist."
   kill 0
@@ -193,6 +194,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -stat $PAI_CODE_DIR \
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
   code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
+  # TODO: Make the threshold configurable
   if [ $code_dir_size -gt 10000000 ]; then
     echo "$PAI_CODE_DIR is larger than 10MB, exit."
     exit 1
