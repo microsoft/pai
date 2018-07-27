@@ -15,11 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: frameworklauncher-ds
 spec:
+  selector:
+    matchLabels:
+      app: frameworklauncher
   template:
     metadata:
       labels:
@@ -34,8 +37,10 @@ spec:
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /hadoop-configuration
-          name: hadoop-config-volume
+        - mountPath: /hadoop-nm-configuration
+          name: hadoop-nm-config-volume
+        - mountPath: /hadoop-dn-configuration
+          name: hadoop-dn-config-volume
         - mountPath: /frameworklauncher-configuration
           name: frameworklauncher-config-volume
         - mountPath: /usr/local/launcher/logs
@@ -65,9 +70,12 @@ spec:
       - name: launcher-log
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/launcherlogs
-      - name: hadoop-config-volume
+      - name: hadoop-nm-config-volume
         configMap:
-          name: {{ clusterinfo[ 'hadoopinfo' ][ 'configmapname' ] }}
+          name: hadoop-node-manager-configuration
+      - name: hadoop-dn-config-volume
+        configMap:
+          name: hadoop-data-node-configuration
       - name: frameworklauncher-config-volume
         configMap:
           name: frameworklauncher-configmap

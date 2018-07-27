@@ -15,13 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
   name: node-exporter
 spec:
+  selector:
+    matchLabels:
+      app: node-exporter
   template:
     metadata:
       labels:
@@ -31,7 +34,7 @@ spec:
       nodeSelector:
         node-exporter: "true"
       containers:
-      - image: prom/node-exporter:v0.15.2
+      - image: prom/node-exporter:v0.16.0
         imagePullPolicy: Always
         readinessProbe:
           httpGet:
@@ -49,9 +52,30 @@ spec:
         args:
           - '--collector.textfile.directory=/datastorage/prometheus'
           - '--no-collector.arp'
+          - '--no-collector.bcache'
+          - '--no-collector.bonding'
+          - '--no-collector.conntrack'
+#- '--no-collector.cpu' Exposes CPU statistics.
+#- '--no-collector.diskstats' Exposes disk I/O statistics.
           - '--no-collector.edac'
           - '--no-collector.entropy'
+#- '--no-collector.filefd' Exposes file descriptor statistics from /proc/sys/fs/file-nr
+#- '--no-collector.filesystem' Exposes filesystem statistics, such as disk space used.
+          - '--no-collector.hwmon'
           - '--no-collector.infiniband'
+          - '--no-collector.ipvs'
+#- '--no-collector.loadavg' Exposes load average.
+          - '--no-collector.mdadm'
+#- '--no-collector.meminfo' Exposes memory statistics.
+#- '--no-collector.netdev' Exposes network interface statistics such as bytes transferred.
+#- '--no-collector.netstat' Exposes network statistics from /proc/net/netstat. This is the same information as netstat -s.
+          - '--no-collector.nfs'
+          - '--no-collector.nfsd'
+          - '--no-collector.sockstat'
+          - '--no-collector.stat'
+          - '--no-collector.time'
+          - '--no-collector.timex'
+#- '--no-collector.uname'
           - '--no-collector.vmstat'
           - '--no-collector.wifi'
           - '--no-collector.xfs'

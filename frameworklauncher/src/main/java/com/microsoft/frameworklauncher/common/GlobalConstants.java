@@ -17,10 +17,11 @@
 
 package com.microsoft.frameworklauncher.common;
 
+import org.apache.hadoop.yarn.api.ApplicationConstants;
+import org.apache.hadoop.yarn.util.Apps;
+
 public class GlobalConstants {
   public static final String LAUNCHER_CONFIG_FILE = "frameworklauncher.yml";
-  public static final String LOGGER_CONFIG_FILE = "log4j.properties";
-  public static final String CONTAINER_IP_LIST_FILE = "ContainerIpList.ini";
   public static final String FRAMEWORK_INFO_FILE = "FrameworkInfo.json";
   public static final int USING_UNLIMITED_VALUE = -1;
   public static final int USING_EXTENDED_UNLIMITED_VALUE = -2;
@@ -31,6 +32,7 @@ public class GlobalConstants {
   public static final String MAIN_CLASS_APPLICATION_MASTER = "com.microsoft.frameworklauncher.applicationmaster.Bootstrap";
   public static final String MAIN_CLASS_AGENT = "com.microsoft.frameworklauncher.agent.Bootstrap";
   public static final String ENV_VAR_CLASSPATH = "CLASSPATH";
+  public static final String ENV_VAR_LAUNCHER_LOG_DIR = "LAUNCHER_LOG_DIR";
   public static final String ENV_VAR_HADOOP_USER_NAME = "HADOOP_USER_NAME";
   public static final String ENV_VAR_FRAMEWORK_NAME = "FRAMEWORK_NAME";
   public static final String ENV_VAR_FRAMEWORK_VERSION = "FRAMEWORK_VERSION";
@@ -46,10 +48,10 @@ public class GlobalConstants {
   public static final String ENV_VAR_SERVICE_VERSION = "SERVICE_VERSION";
   public static final String ENV_VAR_APP_ID = "APP_ID";
   public static final String ENV_VAR_ATTEMPT_ID = "ATTEMPT_ID";
-  public static final String ENV_VAR_USER = "USER";
-  public static final String ENV_VAR_LOCAL_DIRS = "LOCAL_DIRS";
-  public static final String ENV_VAR_LOG_DIRS = "LOG_DIRS";
-  public static final String ENV_VAR_CONTAINER_ID = "CONTAINER_ID";
+  public static final String ENV_VAR_USER = ApplicationConstants.Environment.USER.name();
+  public static final String ENV_VAR_LOCAL_DIRS = ApplicationConstants.Environment.LOCAL_DIRS.name();
+  public static final String ENV_VAR_LOG_DIRS = ApplicationConstants.Environment.LOG_DIRS.name();
+  public static final String ENV_VAR_CONTAINER_ID = ApplicationConstants.Environment.CONTAINER_ID.name();
   public static final String ENV_VAR_CONTAINER_IP = "CONTAINER_IP";
   public static final String ENV_VAR_CONTAINER_GPUS = "CONTAINER_GPUS";
   public static final String ENV_VAR_CONTAINER_PORTS = "CONTAINER_PORTS";
@@ -63,5 +65,6 @@ public class GlobalConstants {
   public static final String ENV_VAR_AGENT_LAUNCHER_CLIENT_MAX_RETRY_COUNT = "AGENT_LAUNCHER_CLIENT_MAX_RETRY_COUNT";
   public static final String ENV_VAR_AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC = "AGENT_LAUNCHER_CLIENT_RETRY_INTERVAL_SEC";
   public static final String ENV_VAR_AGENT_BOND_RPC_TIMEOUT_SEC = "AGENT_BOND_RPC_TIMEOUT_SEC";
+  public static final String REF_ENV_VAR_LAUNCHER_LOG_DIR = Apps.crossPlatformify(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR);
   public static final String LINE = new String(new char[200]).replace("\0", "_");
 }

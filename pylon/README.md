@@ -53,18 +53,20 @@ Steps:
 - Run: `python render.py`
 - Copy the generated `nginx.conf` to the nginx configuration folder.
 
+The meanings of the above environment variables are as follows:
+- `REST_SERVER_URI`: String. The root url of the REST server.
+- `K8S_API_SERVER_URI`: String. The root url of Kubernetes's API server.
+- `WEBHDFS_URI`: String. The root url of WebHDFS's API server.
+- `PROMETHEUS_URI`: String. The root url of Prometheus's API server.
+- `K8S_DASHBOARD_URI`: String. The root url of the Kubernetes dashboard.
+- `YARN_WEB_PORTAL_URI`: String. The root url of the Yarn web portal.
+- `GRAFANA_URI`: String. The root url of Grafana.
+- `PAI_WEB_PORTAL_URI`: String. The root url of the PAI web portal.
+
 ### Deploy to a PAI Cluster
 
-The [readme](../service-deployment/README.md) in service deployment introduces the overall installation process. 
+The deployment of Pylon goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md). To configure web portal, change the following field(s) in the `pylon` section in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
 
-The following parameters in the [clusterconfig.yaml](../service-deployment/clusterconfig-example.yaml) should be correctly configured:
+* `server-port`: Integer. The network port to access Pylon. The default value is 80.
 
-- `rest_server_uri`: String. The root url of the REST server.
-- `k8s_api_server_uri`: String. The root url of Kubernetes's API server.
-- `webhdfs_uri`: String. The root url of WebHDFS's API server.
-- `prometheus_uri`: String. The root url of Prometheus's API server.
-- `k8s_dashboard_uri`: String. The root url of the Kubernetes dashboard.
-- `yarn_web_portal_uri`: String. The root url of the Yarn web portal.
-- `grafana_uri`: String. The root url of Grafana.
-- `pai_web_portal_uri`: String. The root url of the PAI web portal.
-- `port`: Integer. The port number to access the Pylon service. 
+

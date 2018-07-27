@@ -20,8 +20,12 @@ import subprocess
 import json
 import sys
 import re
-import logging  
-logger = logging.getLogger("gpu_expoter")  
+import datetime
+import logging
+
+import utils
+
+logger = logging.getLogger(__name__)
 
 def parse_percentile(data):
     return data.replace("%", "")
@@ -40,16 +44,24 @@ def parse_usage_limit(data):
 
 def convert_to_byte(data):
     data = data.lower()
-    number = float(re.findall(r"\d+", data)[0])
-    if ("tb" in data) or ("tib" in data):
-        return number * 1024 * 1024 * 1024 * 1024
-    elif ("gb" in data) or ("gib" in data):
-        return number * 1024 * 1024 * 1024
-    elif ("mb" in data) or ("mib" in data):
-        return number * 1024 * 1024
-    elif ("kb" in data) or ("kib" in data):
-        return number * 1024
-    else: 
+    number = float(re.findall(r"[0-9.]+", data)[0])
+    if "tb" in data:
+        return number * 10 ** 12
+    elif "gb" in data:
+        return number * 10 ** 9
+    elif "mb" in data:
+        return number * 10 ** 6
+    elif "kb" in data:
+        return number * 10 ** 3
+    elif "tib" in data:
+        return number * 2 ** 40
+    elif "gib" in data:
+        return number * 2 ** 30
+    elif "mib" in data:
+        return number * 2 ** 20
+    elif "kib" in data:
+        return number * 2 ** 10
+    else:
         return number
 
 def parse_docker_stats(stats):
@@ -72,15 +84,20 @@ def parse_docker_stats(stats):
         }
         containerStats[id] = containerInfo
     return containerStats
-    
+
 def stats():
+    start = datetime.datetime.now()
     try:
-        dockerStatsCMD = "docker stats --no-stream --format \"table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}\""
-        dockerDockerStats = subprocess.check_output([dockerStatsCMD], shell=True)
-        dockerStats = parse_docker_stats(dockerDockerStats)
-        return dockerStats
+        logger.info("ready to run docker stats")
+        dockerDockerStats = utils.check_output([
+            "docker", "stats", "--no-stream", "--format",
+            "table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
+        return parse_docker_stats(dockerDockerStats)
     except subprocess.CalledProcessError as e:
         logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+    finally:
+        end = datetime.datetime.now()
+        logger.info("docker state spent %s", end - start)
 
 def main(argv):
     stats()

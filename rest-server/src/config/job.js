@@ -51,6 +51,10 @@ const jobConfigSchema = Joi.object().keys({
         memoryMB: Joi.number()
           .integer()
           .default(100),
+        shmMB: Joi.number()
+          .integer()
+          .max(Joi.ref('memoryMB'))
+          .default(64),
         gpuNumber: Joi.number()
           .integer()
           .default(0),
@@ -88,5 +92,12 @@ const jobConfigSchema = Joi.object().keys({
     .default(0),
 }).required();
 
+const jobExecutionSchema = Joi.object().keys({
+  value: Joi.string().allow('START', 'STOP').required(),
+}).required();
+
 // module exports
-module.exports = {schema: jobConfigSchema};
+module.exports = {
+  schema: jobConfigSchema,
+  executionSchema: jobExecutionSchema,
+};

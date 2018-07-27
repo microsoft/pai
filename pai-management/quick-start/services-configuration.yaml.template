@@ -19,14 +19,6 @@ cluster:
 
   clusterid: pai-example
 
-  # Choose proper nvidia driver version from this url http://www.nvidia.com/object/linux-amd64-display-archive.html
-  nvidia-drivers-version: 384.111
-
-  # static docker-version
-  # https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-  # Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host env.
-  docker-verison: 17.06.2
-
   # HDFS, zookeeper data path on your cluster machine.
   data-path: "/datastorage"
 
@@ -53,8 +45,9 @@ cluster:
 hadoop:
   # When needed, hadoop-ai would be downloaded and built under 'custom-hadoop-binary-path'.
   # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
-  custom-hadoop-binary-path: /pathHadoop/
-  hadoop-version: 2.7.2
+  # Notice: the name should be hadoop-{hadoop-version}.tar.gz
+  custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
+  hadoop-version: 2.9.0
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
   #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.

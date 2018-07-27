@@ -37,7 +37,7 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [CNTK examples](#cntk-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.cntk/) on Docker Hub.
+You can also jump to [CNTK examples](#cntk-examples) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.cntk/) on Docker Hub.
 
 We need to build a CNTK image with GPU support to run CNTK workload on PAI, this can be done in three steps:
 
@@ -149,7 +149,7 @@ You can customize runtime CNTK environment in [Dockerfile.example.cntk](./Docker
 
 To run CNTK examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.cntk` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.cntk` with your own.
 
 Here're some configuration file examples:
 
@@ -157,7 +157,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "cntk-g2p",
-  "image": "paiexample/pai.example.cntk",
+  "image": "openpai/pai.example.cntk",
 
   // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
@@ -179,4 +179,4 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).

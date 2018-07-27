@@ -30,14 +30,20 @@
    - [EnvironmentVariables](#EnvironmentVariables)
    - [HDFS Published Informations](#HDFS_Published_Informations)
    - [ExitStatus Convention](#ExitStatus_Convention)
+   - [RetryPolicy](#RetryPolicy)
    - [ApplicationCompletionPolicy](#ApplicationCompletionPolicy)
    - [Framework ACL](#Framework_ACL)
    - [Best Practices](#Best_Practices)
 
 ## <a name="Concepts">Concepts</a>
+### <a name="Concepts_Basic">Basic</a>
 * Different **TaskRoles** compose a **Framework**
 * Same **Tasks** compose a **TaskRole**
-* A **User Service** executed by all **Tasks** in a **TaskRole**
+* A **User Service** is executed by all **Tasks** in its corresponding **TaskRole**
+
+### <a name="Concepts_YARN">YARN Related</a>
+* A YARN **Application** is an execution attempt of a **Framework**
+* A YARN **Container** is an execution attempt of a **Task**
 
 ## <a name="Quick_Start">Quick Start</a>
 1. **Prepare Framework**
@@ -633,24 +639,103 @@ Notes:
 
 
 ## <a name="ExitStatus_Convention">ExitStatus Convention</a>
-You can check all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
+You can check all the defined ExitStatus by: [ExitType](../src/main/java/com/microsoft/frameworklauncher/common/model/ExitType.java), [ExitDiagnostics](../src/main/java/com/microsoft/frameworklauncher/common/exit/ExitDiagnostics.java).
 
 Recipes:
 1. Your LauncherClient can depend on the ExitStatus Convention
 2. If your Service failed, the Service can optionally return the ExitCode of USER_APP_TRANSIENT_ERROR and USER_APP_NON_TRANSIENT_ERROR to help FancyRetryPolicy to identify your Service's TRANSIENT_NORMAL and NON_TRANSIENT ExitType. If neither ExitCode is returned, the Service is considered to exit due to UNKNOWN ExitType.
 
 
+## <a name="RetryPolicy">RetryPolicy</a>
+### <a name="RetryPolicy_Overview">Overview</a>
+RetryPolicy can be configured for the whole Framework and each TaskRole to control:
+1. **Framework RetryPolicy**:<br>
+The conditions to retry the whole Framework after the Framework's current associated [Application](#Concepts_YARN) completed.<br>
+*It can also be considered as **Framework CompletionPolicy**, i.e. the conditions to complete the whole Framework.*
+
+2. **Task RetryPolicy**:<br>
+The conditions to retry a single Task in the TaskRole after the Task's current associated [Container](#Concepts_YARN) completed.<br>
+*It can also be considered as **Task CompletionPolicy**, i.e. the conditions to complete a single Task in the TaskRole.*
+
+### <a name="RetryPolicy_Usage">Usage</a>
+For details, please check: [RetryPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyDescriptor.java), [RetryPolicyState](../src/main/java/com/microsoft/frameworklauncher/common/model/RetryPolicyState.java).
+
+### <a name="RetryPolicy_Examples">Examples</a>
+Notes:
+1. *Italic Conditions* can be inherited from the **DEFAULT** RetryPolicy, so no need to specify them explicitly.
+2. For the definition of each ExitType, such as transient failure, see [ExitStatus Convention](#ExitStatus_Convention).
+
+<table>
+  <tbody>
+    <tr>
+      <th>FrameworkType</th>
+      <th>Framework RetryPolicy</th>
+      <th>TaskRole</th>
+      <th>Task RetryPolicy</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td rowspan="2"><b>DEFAULT</td>
+      <td rowspan="2"><i>FancyRetryPolicy = false<br>MaxRetryCount = 0</i></td>
+      <td>TaskRole1</td>
+      <td><i>FancyRetryPolicy = false<br>MaxRetryCount = 0</i></td>
+      <td rowspan="2">The default RetryPolicy:<br>Never Retry for any failure or success.</td>
+    </tr>
+    <tr>
+      <td>TaskRole2</td>
+      <td><i>FancyRetryPolicy = false<br>MaxRetryCount = 0</i></td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Service</td>
+      <td rowspan="1"><i>FancyRetryPolicy = false</i><br>MaxRetryCount = -2</td>
+      <td>TaskRole1</td>
+      <td><i>FancyRetryPolicy = false</i><br>MaxRetryCount = -2</td>
+      <td rowspan="1">Always Retry for any failure or success.</td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Blind Batch Job</td>
+      <td rowspan="1"><i>FancyRetryPolicy = false</i><br>MaxRetryCount = -1</td>
+      <td>TaskRole1</td>
+      <td><i>FancyRetryPolicy = false</i><br>MaxRetryCount = -1</td>
+      <td rowspan="1">Always Retry for any failure.<br>Never Retry for success.</td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Batch Job with Task Fault Tolerance</td>
+      <td rowspan="1">FancyRetryPolicy = true<br>MaxRetryCount = 3</td>
+      <td>TaskRole1</td>
+      <td>FancyRetryPolicy = true<br>MaxRetryCount = 3</td>
+      <td rowspan="1">Always Retry for transient failure.<br>Never Retry for non-transient failure or success.<br>Retry up to 3 times for unknown failure.</td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Batch Job without Task Fault Tolerance</td>
+      <td rowspan="1">FancyRetryPolicy = true<br>MaxRetryCount = 3</td>
+      <td>TaskRole1</td>
+      <td><i>FancyRetryPolicy = false<br>MaxRetryCount = 0</i></td>
+      <td rowspan="1">For Framework RetryPolicy, same as "Batch Job with Task Fault Tolerance".<br>For Task RetryPolicy, because the Task cannot tolerate any failed Container, such as it cannot recover from previous failed Container, so Never Retry Task for any failure or success.</td>
+    </tr>
+    <tr>
+      <td rowspan="1"><b>Debug Mode</td>
+      <td rowspan="1">FancyRetryPolicy = true<br><i>MaxRetryCount = 0</i></td>
+      <td>TaskRole1</td>
+      <td>FancyRetryPolicy = true<br><i>MaxRetryCount = 0</i></td>
+      <td rowspan="1">Always Retry for transient failure.<br>Never Retry for non-transient failure or unknown failure or success.<br>This can help to capture the unexpected exit of User Service itself.</td>
+    </tr>
+  </tbody>
+</table>
+
+
 ## <a name="ApplicationCompletionPolicy">ApplicationCompletionPolicy</a>
 ### <a name="ApplicationCompletionPolicy_Overview">Overview</a>
 ApplicationCompletionPolicy can be configured for each TaskRole to control:
-1. The conditions to complete the Application.
-2. The ExitStatus of the completed Application.
+1. The conditions to complete the [Application](#Concepts_YARN).
+2. The ExitStatus of the completed [Application](#Concepts_YARN).
 
 ### <a name="ApplicationCompletionPolicy_Usage">Usage</a>
 For details, please check: [TaskRoleApplicationCompletionPolicyDescriptor](../src/main/java/com/microsoft/frameworklauncher/common/model/TaskRoleApplicationCompletionPolicyDescriptor.java).
 
 ### <a name="ApplicationCompletionPolicy_Examples">Examples</a>
-Notes, *Italic Conditions* can be inherited from the **DEFAULT** ApplicationCompletionPolicy, so no need to specify them explicitly.
+Notes:
+1. *Italic Conditions* can be inherited from the **DEFAULT** ApplicationCompletionPolicy, so no need to specify them explicitly.
 
 <table>
   <tbody>
@@ -674,7 +759,7 @@ Notes, *Italic Conditions* can be inherited from the **DEFAULT** ApplicationComp
       <td rowspan="1"><b>Service</td>
       <td>TaskRole1</td>
       <td><i>MinFailedTaskCount = 1<br>MinSucceededTaskCount = null</i></td>
-      <td rowspan="1">Actually, any ApplicationCompletionPolicy is fine, since Service's Task will never complete, i.e. its Task's MaxRetryCount is -2.</td>
+      <td rowspan="1">Actually, any ApplicationCompletionPolicy is fine, since Service's Task will never complete, i.e. its Task's MaxRetryCount is -2, see <a href="#RetryPolicy_Examples">RetryPolicy Examples</a>.</td>
     </tr>
     <tr>
       <td rowspan="2"><b>MapReduce</td>

@@ -1,6 +1,6 @@
 {
   "jobName": "tensorflow-imagenet",
-  "image": "paiexample/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow",
 
   "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
   "outputDir": "$PAI_DEFAULT_FS_URI/path/output",

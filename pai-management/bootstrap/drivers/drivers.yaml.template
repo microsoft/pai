@@ -15,11 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: drivers-one-shot
 spec:
+  selector:
+    matchLabels:
+      app: drivers-one-shot
   template:
     metadata:
       labels:
@@ -47,8 +50,6 @@ spec:
           name: modules-path
         - mountPath: /var/log
           name: drivers-log
-        - mountPath: /usr/bin/realpath
-          name: realpath-path
         - mountPath: /usr/src
           name: kernel-head
         readinessProbe:
@@ -73,9 +74,6 @@ spec:
       - name: drivers-log
         hostPath:
           path: /var/log/drivers
-      - name: realpath-path
-        hostPath:
-          path: /usr/bin/realpath
       - name: kernel-head
         hostPath:
           path: /usr/src

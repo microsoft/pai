@@ -82,6 +82,13 @@ const taskRoleSchema = {
       exclusiveMinimum: false,
       description: 'Memory for one task in the task role, no less than 100',
     },
+    shmMB: {
+      type: 'number',
+      multipleOf: 1,
+      minimum: 64,
+      exclusiveMinimum: false,
+      description: 'Shared memory for one task in the task role, no more than memory size',
+    },
     gpuNumber: {
       type: 'number',
       multipleOf: 1,
@@ -133,6 +140,7 @@ const jobSchema = {
     },
     image: {
       type: 'string',
+      pattern: '^\\S+$',
       propertyOrder: 110,
       options: {
         grid_columns: 4,
@@ -214,7 +222,7 @@ const jobSchema = {
       options: {
         grid_columns: 3,
       },
-      description: 'List of taskRole, one task role at least',
+      description: 'Job retry count, no less than 0',
       default: 0,
     },
     taskRoles: {

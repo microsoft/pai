@@ -91,15 +91,6 @@ public class ApplicationMaster extends AbstractService {
   /**
    * REGION StateVariable
    */
-  // Note:
-  //  1. It should only be used to launchContainersTogether.
-  //  2. It cannot be recovered after AM Restart. However, it will not cause
-  //  previous Allocated Container not found in it when launchContainersTogether,
-  //  since previous Allocated Container is already Transitioned to Running
-  //  before launchContainersTogether and will be Transitioned to Completed due
-  //  to expire. So the only impact is longer time to launchContainersTogether.
-  // ContainerId -> Container
-  private final Map<String, Container> allocatedContainers = new HashMap<>();
   // ContainerId -> ContainerConnectionExceedCount
   private final Map<String, Integer> containerConnectionExceedCount = new HashMap<>();
 
@@ -107,7 +98,7 @@ public class ApplicationMaster extends AbstractService {
    * REGION AbstractService
    */
   public ApplicationMaster() {
-    super(ApplicationMaster.class.getName());
+    super(ApplicationMaster.class.getName(), true);
   }
 
   @Override
@@ -130,7 +121,7 @@ public class ApplicationMaster extends AbstractService {
       LOGGER.logError(e, msg);
       msg += CommonUtils.toString(e);
 
-      stopForInternalTransientError(msg);
+      stopForInternalTransientNormalError(msg);
       return false;
     }
   }
@@ -325,13 +316,21 @@ public class ApplicationMaster extends AbstractService {
     stop(new StopStatus(ExitStatusKey.SUCCEEDED.toInt(), true, diagnostics));
   }
 
-  private void stopForInternalTransientError(String customizedDiagnostics) {
+  private void stopForInternalTransientNormalError(String customizedDiagnostics) {
     String diagnostics = ExitDiagnostics.generateDiagnostics(
-        ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR, customizedDiagnostics);
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR, customizedDiagnostics);
 
     // Do not unregister, so that RM will start new attempt if AMAttemptMaxCount and
     // AMAttemptFailuresValidityIntervalSec is allowed.
-    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR.toInt(), false, diagnostics));
+    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR.toInt(), false, diagnostics));
+  }
+
+  private void stopForInternalTransientConflictError(String customizedDiagnostics) {
+    String diagnostics = ExitDiagnostics.generateDiagnostics(
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR, customizedDiagnostics);
+
+    // Unregister to leverage Framework FancyRetryPolicy
+    stop(new StopStatus(ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR.toInt(), true, diagnostics));
   }
 
   private void stopForInternalNonTransientError(String customizedDiagnostics) {
@@ -395,11 +394,11 @@ public class ApplicationMaster extends AbstractService {
 
     return String.format("" +
             "%4$sContainerLogHttpAddress: %1$s\n" +
-            "%4$sAppCacheNetworkPath: %2$s\n" +
-            "%4$sContainerLogNetworkPath: %3$s",
+            "%4$sContainerLogNetworkPath: %2$s\n" +
+            "%4$sContainerCacheNetworkPath: %3$s",
         logHttpAddress,
-        HadoopUtils.getAppCacheNetworkPath(hostName, conf.getAmLocalDirs()),
         HadoopUtils.getContainerLogNetworkPath(hostName, conf.getAmLogDirs(), containerId),
+        HadoopUtils.getContainerCacheNetworkPath(hostName, conf.getAmLocalDirs(), containerId),
         linePrefix);
   }
 
@@ -528,7 +527,7 @@ public class ApplicationMaster extends AbstractService {
   // To keep all tasks have the same ports in a task role.
   // Will reject this container if the ports are not the same.
   private Boolean testContainerPorts(Container container, String taskRoleName) throws Exception {
-    Boolean samePortsAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortsAllocation();
+    Boolean samePortAllocation = requestManager.getTaskRolePlatParams(taskRoleName).getSamePortAllocation();
     List<ValueRange> allocatedPorts = statusManager.getAnyLiveAssociatedContainerPorts(taskRoleName);
     List<ValueRange> containerPorts = ResourceDescriptor.fromResource(container.getResource()).getPortRanges();
 
@@ -536,7 +535,7 @@ public class ApplicationMaster extends AbstractService {
     String rejectedLogPrefix = logPrefix + "Rejected: ";
     String acceptedLogPrefix = logPrefix + "Accepted: ";
 
-    if (samePortsAllocation) {
+    if (samePortAllocation) {
       if (ValueRangeUtils.getValueNumber(allocatedPorts) > 0) {
         if (!ValueRangeUtils.isEqualRangeList(containerPorts, allocatedPorts)) {
           LOGGER.logWarning(rejectedLogPrefix + "Container ports are not the same as previous allocated ports.");
@@ -569,7 +568,6 @@ public class ApplicationMaster extends AbstractService {
     Integer serviceVersion = getServiceVersion(taskRoleName);
 
     UserDescriptor user = requestManager.getUser();
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
     List<String> sourceLocations = requestManager.getTaskService(taskRoleName).getSourceLocations();
     String entryPoint = requestManager.getTaskService(taskRoleName).getEntryPoint();
 
@@ -585,13 +583,10 @@ public class ApplicationMaster extends AbstractService {
       handleException(e);
     }
 
-    if (generateContainerIpList) {
-      String location = hdfsStruct.getContainerIpListFilePath(conf.getFrameworkName());
-      HadoopUtils.addToLocalResources(localResources, location);
-    }
-
     // SetupLocalEnvironment
     Map<String, String> localEnvs = new HashMap<>();
+    localEnvs.put(GlobalConstants.ENV_VAR_LAUNCHER_LOG_DIR, ApplicationConstants.LOG_DIR_EXPANSION_VAR);
+
     localEnvs.put(GlobalConstants.ENV_VAR_HADOOP_USER_NAME, user.getName());
 
     localEnvs.put(GlobalConstants.ENV_VAR_FRAMEWORK_NAME, conf.getFrameworkName());
@@ -618,7 +613,7 @@ public class ApplicationMaster extends AbstractService {
     String command = String.format(
         "%1$s 1>%2$sstdout 2>%2$sstderr",
         entryPoint,
-        ApplicationConstants.LOG_DIR_EXPANSION_VAR + File.separator);
+        GlobalConstants.REF_ENV_VAR_LAUNCHER_LOG_DIR + File.separator);
 
     ContainerLaunchContext launchContext = Records.newRecord(ContainerLaunchContext.class);
     launchContext.setLocalResources(localResources);
@@ -802,7 +797,6 @@ public class ApplicationMaster extends AbstractService {
     Integer retriedCount = taskStatus.getTaskRetryPolicyState().getRetriedCount();
     RetryPolicyState newRetryPolicyState = YamlUtils.deepCopy(taskStatus.getTaskRetryPolicyState(), RetryPolicyState.class);
 
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
     RetryPolicyDescriptor retryPolicy = requestManager.getTaskRetryPolicy(taskRoleName);
     Boolean fancyRetryPolicy = retryPolicy.getFancyRetryPolicy();
     Integer maxRetryCount = retryPolicy.getMaxRetryCount();
@@ -815,14 +809,6 @@ public class ApplicationMaster extends AbstractService {
 
     String completeTaskLogPrefix = logPrefix + "Will completeTask. Reason: ";
     String retryTaskLogPrefix = logPrefix + "Will retryTask with new Container. Reason: ";
-
-    // 0. Handle Special Case
-    if (generateContainerIpList) {
-      LOGGER.logWarning(completeTaskLogPrefix +
-          "TaskRetryPolicy is ignored due to GenerateContainerIpList enabled.");
-      completeTask(taskStatus);
-      return;
-    }
 
     // 1. FancyRetryPolicy
     String fancyRetryPolicyLogSuffix = String.format("FancyRetryPolicy: Task exited due to %s.", exitType);
@@ -856,7 +842,7 @@ public class ApplicationMaster extends AbstractService {
       if (fancyRetryPolicy) {
         // FancyRetryPolicy only handle exit due to transient and non-transient failure specially,
         // Leave exit due to others to NormalRetryPolicy
-        LOGGER.logWarning(logPrefix +
+        LOGGER.logInfo(logPrefix +
             "Transfer the RetryDecision to NormalRetryPolicy. Reason: " +
             fancyRetryPolicyLogSuffix);
       }
@@ -875,7 +861,7 @@ public class ApplicationMaster extends AbstractService {
       return;
     } else {
       if (exitType == ExitType.SUCCEEDED) {
-        LOGGER.logWarning(completeTaskLogPrefix +
+        LOGGER.logInfo(completeTaskLogPrefix +
             "Task exited due to %s.", exitType);
         completeTask(taskStatus);
         return;
@@ -929,13 +915,13 @@ public class ApplicationMaster extends AbstractService {
     attemptToRetry(taskStatus);
   }
 
-  private void completeContainers(List<String> containerIds, int exitCode, String diagnostics, Boolean needToRelease) throws Exception {
+  private void completeContainer(List<String> containerIds, int exitCode, String diagnostics, Boolean needToRelease) throws Exception {
     for (String containerId : containerIds) {
       completeContainer(containerId, exitCode, diagnostics, needToRelease);
     }
   }
 
-  private void completeContainers(List<ContainerStatus> containerStatuses) throws Exception {
+  private void completeContainer(List<ContainerStatus> containerStatuses) throws Exception {
     for (ContainerStatus containerStatus : containerStatuses) {
       completeContainer(
           containerStatus.getContainerId().toString(),
@@ -947,15 +933,15 @@ public class ApplicationMaster extends AbstractService {
 
   private Set<String> resyncTasksWithLiveContainers(Set<String> liveContainerIds) throws Exception {
     String logScope = "resyncTasksWithLiveContainers";
-    Set<String> retainContainerIds = new HashSet<>();
+    CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO, Level.DEBUG);
 
+    Set<String> retainContainerIds = new HashSet<>();
     if (liveContainerIds == null) {
-      LOGGER.logInfo(
+      CHANGE_AWARE_LOGGER.log(logScope,
           "Got null live Containers from RM, so RMResync is incomplete. " +
               "resetContainerConnectionLostCount for all tasks, since around this time RMResync must also be incomplete.");
       statusManager.resetContainerConnectionLostCount();
     } else {
-      CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.INFO);
       CHANGE_AWARE_LOGGER.log(logScope,
           "Got %s live Containers from RM, start to resync them.",
           liveContainerIds.size());
@@ -1072,7 +1058,6 @@ public class ApplicationMaster extends AbstractService {
 
   private void allocateContainer(Container container) throws Exception {
     String containerId = container.getId().toString();
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
 
     LOGGER.logInfo(
         "[%s]: allocateContainer: Try to Allocate Container to Task: Container: %s",
@@ -1105,17 +1090,10 @@ public class ApplicationMaster extends AbstractService {
     }
 
     // 3. allocateContainer
+    Map<String, Ports> portDefinitions = requestManager.getTaskResource(taskRoleName).getPortDefinitions();
     try {
-      TaskEvent taskEvent = new TaskEvent();
-      taskEvent.setContainer(container);
-      taskEvent.setPortDefinitions(requestManager.getTaskResource(taskRoleName).getPortDefinitions());
-      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED, taskEvent);
-      LOGGER.logInfo("%s[%s]: Succeeded to Allocate Container to Task", taskLocator, containerId);
-
-      if (containerConnectionExceedCount.containsKey(containerId)) {
-        // Pending Exceed Container now is settled to live associated Container
-        containerConnectionExceedCount.remove(containerId);
-      }
+      statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_ALLOCATED,
+          new TaskEvent().setContainer(container).setPortDefinitions(portDefinitions));
     } catch (Exception e) {
       LOGGER.logWarning(e,
           "%s[%s]: Failed to Allocate Container to Task, Release Container and Request again",
@@ -1126,28 +1104,22 @@ public class ApplicationMaster extends AbstractService {
       return;
     }
 
-    // 4. launchContainer
-    if (!generateContainerIpList) {
-      launchContainer(taskStatus, container);
-    } else {
-      allocatedContainers.put(containerId, container);
+    LOGGER.logInfo("%s[%s]: Succeeded to Allocate Container to Task", taskLocator, containerId);
+    if (containerConnectionExceedCount.containsKey(containerId)) {
+      // Pending Exceed Container now is settled to live associated Container
+      containerConnectionExceedCount.remove(containerId);
+    }
 
-      int neverBeenAllocatedTaskCount = statusManager.getTaskCount(
-          new HashSet<>(Arrays.asList(TaskState.TASK_WAITING, TaskState.CONTAINER_REQUESTED)));
-      if (neverBeenAllocatedTaskCount == 0) {
-        launchContainersTogether();
-      } else {
-        LOGGER.logInfo(
-            "Waiting for %s never been CONTAINER_ALLOCATED Tasks to become CONTAINER_ALLOCATED, " +
-                "since GenerateContainerIpList enabled",
-            neverBeenAllocatedTaskCount);
-      }
+    // 4. launchContainer
+    Boolean gangAllocation = requestManager.getPlatParams().getGangAllocation();
+    if (!gangAllocation) {
+      launchContainer(taskStatus);
     }
   }
 
-  private void allocateContainers(List<Container> containers) throws Exception {
+  private void allocateContainer(List<Container> containers) throws Exception {
     LOGGER.logInfo(
-        "allocateContainers: Try to Allocate %s Containers to Tasks",
+        "allocateContainer: Try to Allocate %s Containers to Tasks",
         containers.size());
 
     for (Container container : containers) {
@@ -1155,48 +1127,17 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private void launchContainer(TaskStatus taskStatus, Container container) throws Exception {
+  private void launchContainer(TaskStatus taskStatus) throws Exception {
     String taskRoleName = taskStatus.getTaskRoleName();
     TaskStatusLocator taskLocator = new TaskStatusLocator(taskRoleName, taskStatus.getTaskIndex());
+    Container container = statusManager.getAllocatedContainer(taskLocator);
     String containerId = container.getId().toString();
-    assert containerId.equals(taskStatus.getContainerId());
 
     LOGGER.logInfo("%s[%s]: launchContainer", taskLocator, containerId);
 
     ContainerLaunchContext launchContext = setupContainerLaunchContext(taskStatus);
     nmClient.startContainerAsync(container, launchContext);
     statusManager.transitionTaskState(taskLocator, TaskState.CONTAINER_LAUNCHED);
-  }
-
-  private void launchContainersTogether() throws Exception {
-    List<TaskStatus> taskStatuses = statusManager.getTaskStatus(
-        new HashSet<>(Collections.singletonList(TaskState.CONTAINER_ALLOCATED)));
-    Boolean generateContainerIpList = requestManager.getPlatParams().getGenerateContainerIpList();
-
-    LOGGER.logInfo("launchContainersTogether: %s Tasks", taskStatuses.size());
-
-    if (generateContainerIpList) {
-      StringBuilder fileContent = new StringBuilder();
-      for (TaskStatus taskStatus : taskStatuses) {
-        fileContent.append(taskStatus.getContainerIp());
-        fileContent.append("\n");
-      }
-
-      try {
-        hdfsStore.uploadContainerIpListFile(conf.getFrameworkName(), fileContent.toString());
-        HadoopUtils.invalidateLocalResourcesCache();
-      } catch (Exception e) {
-        // It contains HDFS OP, so handle the corresponding Exception ASAP
-        handleException(e);
-      }
-    }
-
-    for (TaskStatus taskStatus : taskStatuses) {
-      String containerId = taskStatus.getContainerId();
-      assert allocatedContainers.containsKey(containerId);
-
-      launchContainer(taskStatus, allocatedContainers.get(taskStatus.getContainerId()));
-    }
   }
 
   private void onContainerStartSucceeded(String containerId) throws Exception {
@@ -1282,9 +1223,10 @@ public class ApplicationMaster extends AbstractService {
   public void onTaskNumbersUpdated(Map<String, Integer> taskNumbers) {
     LOGGER.logInfo("onTaskNumbersUpdated: TaskNumbers: %s", CommonExts.toString(taskNumbers));
 
-    // In case TaskNumbers Increased
     transitionTaskStateQueue.queueSystemTask(() -> {
       statusManager.updateTaskNumbers(taskNumbers);
+
+      // In case TaskNumbers Increased
       addContainerRequest();
     });
   }
@@ -1305,6 +1247,56 @@ public class ApplicationMaster extends AbstractService {
     removeContainerRequest(taskStatus);
   }
 
+  public void onOutstandingTaskDisappeared() {
+    Boolean gangAllocation = requestManager.getPlatParams().getGangAllocation();
+
+    if (gangAllocation) {
+      String logPrefix = "onOutstandingTaskDisappeared: GangAllocation Satisfied: ";
+      LOGGER.logInfo(logPrefix + "Schedule to Launch allocated Tasks if any.");
+
+      transitionTaskStateQueue.queueSystemTask(() -> {
+        int outstandingTaskCount = statusManager.getOutstandingStateTaskCount();
+        if (outstandingTaskCount == 0) {
+          List<TaskStatus> taskStatuses = statusManager.getTaskStatus(
+              new HashSet<>(Collections.singletonList(TaskState.CONTAINER_ALLOCATED)));
+
+          LOGGER.logInfo(logPrefix + "Launch %s allocated Tasks.", taskStatuses.size());
+          for (TaskStatus taskStatus : taskStatuses) {
+            launchContainer(taskStatus);
+          }
+        }
+      });
+    }
+  }
+
+  public void onOutstandingTaskAppeared(int outstandingTaskAppearedRound, int outstandingTaskCount) {
+    Boolean gangAllocation = requestManager.getPlatParams().getGangAllocation();
+    Integer gangAllocationTimeoutSec = conf.getLauncherConfig().getAmGangAllocationTimeoutSec();
+
+    if (gangAllocation) {
+      String logPrefix = String.format(
+          "onOutstandingTaskAppeared[%s]: GangAllocation Unsatisfied: ",
+          outstandingTaskAppearedRound);
+
+      LOGGER.logInfo(logPrefix +
+              "Waiting for %s outstanding Tasks with timeout %ss.",
+          outstandingTaskCount, gangAllocationTimeoutSec);
+
+      transitionTaskStateQueue.queueSystemTaskDelayed(() -> {
+        if (outstandingTaskAppearedRound == statusManager.getOutstandingTaskAppearedRound()) {
+          int currentOutstandingTaskCount = statusManager.getOutstandingStateTaskCount();
+          if (currentOutstandingTaskCount > 0) {
+            stopForInternalTransientConflictError(String.format(
+                "GangAllocation cannot be satisfied in time: " +
+                    "Still waiting for %s outstanding Tasks after timeout %ss, " +
+                    "maybe current available resource for the application is not enough, please retry later.",
+                currentOutstandingTaskCount, gangAllocationTimeoutSec));
+          }
+        }
+      }, gangAllocationTimeoutSec * 1000);
+    }
+  }
+
   public void onStartRMResyncHandler() {
     LOGGER.logInfo("onStartRMResyncHandler");
     rmResyncHandler.start();
@@ -1319,7 +1311,7 @@ public class ApplicationMaster extends AbstractService {
 
   public void onMigrateTaskRequested(String containerId, MigrateTaskRequest migrateTaskRequest) throws IOException {
     LOGGER.logSplittedLines(Level.INFO,
-        "OnMigrateTask: ContainerId: %s MigrateTaskRequest:\n%s",
+        "onMigrateTask: ContainerId: %s MigrateTaskRequest:\n%s",
         containerId, WebCommon.toJson(migrateTaskRequest));
 
     transitionTaskStateQueue.queueSystemTask(() -> {
@@ -1355,7 +1347,7 @@ public class ApplicationMaster extends AbstractService {
           "onError called into AM from RM due to non-transient error, maybe application is non-compliant.%s",
           CommonUtils.toString(e)));
     } else if (e instanceof IOException) {
-      stopForInternalTransientError(String.format(
+      stopForInternalTransientNormalError(String.format(
           "onError called into AM from RM due to transient error, maybe YARN RM is down.%s",
           CommonUtils.toString(e)));
     } else {
@@ -1366,7 +1358,7 @@ public class ApplicationMaster extends AbstractService {
   }
 
   public void onShutdownRequest() {
-    stopForInternalTransientError(
+    stopForInternalTransientNormalError(
         "onShutdownRequest called into AM from RM, maybe this Attempt does not exist in RM.");
   }
 
@@ -1404,7 +1396,7 @@ public class ApplicationMaster extends AbstractService {
         containers.size());
 
     transitionTaskStateQueue.queueSystemTask(() -> {
-      allocateContainers(containers);
+      allocateContainer(containers);
     });
   }
 
@@ -1418,7 +1410,7 @@ public class ApplicationMaster extends AbstractService {
         containerStatuses.size());
 
     transitionTaskStateQueue.queueSystemTask(() -> {
-      completeContainers(containerStatuses);
+      completeContainer(containerStatuses);
     });
   }
 
@@ -1468,6 +1460,6 @@ public class ApplicationMaster extends AbstractService {
   }
 
   public Boolean existsLocalVersionFrameworkRequest() {
-    return requestManager == null ? null : requestManager.existsLocalVersionFrameworkRequest();
+    return requestManager.existsLocalVersionFrameworkRequest();
   }
 }

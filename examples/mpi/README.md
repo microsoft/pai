@@ -76,7 +76,7 @@ $ sudo docker push USER/pai.example.tensorflow-mpi
 
 To run Open MPI examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.tensorflow-mpi` or `paiexample/pai.example.cntk-mpi` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-mpi` or `openpai/pai.example.cntk-mpi` with your own.
 
 Here're some configuration file examples:
 
@@ -84,7 +84,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "tensorflow-mpi",
-  "image": "paiexample/pai.example.tensorflow-mpi",
+  "image": "openpai/pai.example.tensorflow-mpi",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-mpi/data",
@@ -120,7 +120,7 @@ Here're some configuration file examples:
 ```js
 {
   "jobName": "cntk-mpi",
-  "image": "paiexample/pai.example.cntk-mpi",
+  "image": "openpai/pai.example.cntk-mpi",
 
   // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-mpi/data",
@@ -153,4 +153,4 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).

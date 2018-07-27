@@ -22,7 +22,11 @@
 INSTANCES="daemonset/node-exporter
 daemonset/watchdog
 deployment/prometheus-deployment
-configmap/prometheus-configmap"
+configmap/prometheus-configmap
+configmap/prometheus-alert
+deployment/alertmanager
+configmap/alertmanager
+"
 
 for instance in ${INSTANCES}; do
   kubectl delete --ignore-not-found --now ${instance}
@@ -37,5 +41,8 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
     {% endif %}
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog-
+    {% endif %}
+    {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager-
     {% endif %}
 {% endfor %}

@@ -26,7 +26,9 @@ import org.apache.hadoop.util.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 
@@ -110,16 +112,22 @@ public class CommonUtils {
   public static String getEnvironmentVariable(String name, String defaultValue) throws Exception {
     String value = System.getenv(name);
     if (value == null) {
-      String message = String.format("Failed to find environment variable %1$s.", name);
+      String message = String.format("Failed to find environment variable %s.", name);
       if (defaultValue == null) {
         throw new Exception(message + " And no default value given.");
       } else {
-        LOGGER.logWarning(message + " Using default value [%1$s].", defaultValue);
+        LOGGER.logWarning(message + " Using default value [%s].", defaultValue);
         value = defaultValue;
       }
     }
 
     return value;
+  }
+
+  public static String getFilePath(String parentFilePath, String fileName) {
+    return (org.apache.commons.lang.StringUtils.stripEnd(parentFilePath, File.separator) +
+        File.separator +
+        org.apache.commons.lang.StringUtils.stripStart(fileName, File.separator));
   }
 
   public static String writeFile(String filePath, String content) throws Exception {
@@ -129,6 +137,18 @@ public class CommonUtils {
 
   public static String readFile(String filePath) throws Exception {
     return FileUtils.readFileToString(new File(filePath));
+  }
+
+  public static byte[] readBinaryFile(String filePath) throws Exception {
+    return FileUtils.readFileToByteArray(new File(filePath));
+  }
+
+  public static Set<String> listFiles(String dirPath) throws Exception {
+    Set<String> fileNames = new HashSet<>();
+    for (File file : FileUtils.listFiles(new File(dirPath), null, false)) {
+      fileNames.add(file.getName());
+    }
+    return fileNames;
   }
 
   public static byte[] subArray(byte[] array, int startIndex, int length) {

@@ -15,12 +15,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
   template:
     metadata:
       name: prometheus
@@ -46,7 +49,12 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-alert
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-configmap
+      - name: rules-volume
+        configMap:
+          name: prometheus-alert

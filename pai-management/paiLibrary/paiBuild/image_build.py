@@ -38,47 +38,14 @@ class image_build:
         self.cluster_object_model = cluster_object_model
         self.docker_cli = docker_cli
 
-        self.base_image = None
         self.copy_list = None
-        self.template_list = None
 
         # empty configuration. Such as cleaning image
         if image_conf == None:
             return
 
-        if "prerequisite" in image_conf:
-            self.base_image = image_conf["prerequisite"]
-        if "template-list" in image_conf:
-            self.template_list = image_conf["template-list"]
         if "copy-list" in image_conf:
             self.copy_list = image_conf["copy-list"]
-
-
-
-    def get_dependency(self):
-
-        return self.base_image
-
-
-
-    def prepare_template(self):
-
-        self.logger.info("Begin to generate the template file for {0}'s image.".format(self.image_name))
-
-        if self.template_list == None:
-            self.logger.info("There is no template to generated for {0}'s image.".format(self.image_name))
-            return
-
-        for template_file in self.template_list:
-            file_path = "src/{0}/{1}.template".format(self.image_name, template_file)
-            template_data = file_handler.read_template(file_path)
-            map_dict = {
-                "clusterconfig" : self.cluster_object_model
-            }
-            generated_data = template_handler.generate_from_template_dict(template_data, map_dict)
-            file_handler.write_generated_file("src/{0}/{1}".format(self.image_name, template_file), generated_data)
-
-        self.logger.info("Template for {0}'s image is generated".format(self.image_name))
 
 
     def prepare_copyfile(self):
@@ -95,24 +62,6 @@ class image_build:
             directory_handler.directory_copy(file_src_path, file_dst_path)
 
         self.logger.info("Copy file for {0}'s image is prepared.".format(self.image_name))
-
-
-
-    def cleanup_generated_template(self):
-
-        self.logger.info("Begin to delete the generated template of {0}'s image.".format(self.image_name))
-
-        if self.template_list == None:
-            self.logger.info("There is no generated template of {0}'s image to be deleted.".format(self.image_name))
-            return
-
-        for template_file in self.template_list:
-            file_path = "src/{0}/{1}".format(self.image_name, template_file)
-            if file_handler.file_exist_or_not(file_path) == True:
-                file_handler.file_delete(file_path)
-
-        self.logger.info("The generated template files of {0}'s image have been cleaned up.".format(self.image_name))
-
 
 
     def cleanup_copied_file(self):
@@ -144,12 +93,9 @@ class image_build:
 
 
     def run(self):
-
         self.prepare_copyfile()
-        self.prepare_template()
         self.build()
         self.cleanup_copied_file()
-        self.cleanup_generated_template()
 
 
 

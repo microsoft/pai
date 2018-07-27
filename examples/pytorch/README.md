@@ -38,7 +38,7 @@ First of all, PAI runs all jobs in Docker container.
 
 [Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
 
-You can also jump to [PyTorch examples](#pytorch-examples) using [pre-built images](https://hub.docker.com/r/paiexample/pai.example.pytorch/) on Docker Hub.
+You can also jump to [PyTorch examples](#pytorch-examples) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.pytorch/) on Docker Hub.
 
 We need to build a PyTorch image with GPU support to run PyTorch workload on PAI, this can be done in two steps:
 
@@ -107,7 +107,7 @@ RUN git clone https://github.com/pytorch/examples.git
 
 To run PyTorch examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `paiexample/pai.example.pytorch` with your own.
+If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.pytorch` with your own.
 
 Here're some configuration file examples:
 
@@ -115,7 +115,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "pytorch-mnist",
-  "image": "paiexample/pai.example.pytorch",
+  "image": "openpai/pai.example.pytorch",
   "taskRoles": [
     {
       "name": "main",
@@ -133,7 +133,7 @@ Here're some configuration file examples:
 ```json
 {
   "jobName": "pytorch-regression",
-  "image": "paiexample/pai.example.pytorch",
+  "image": "openpai/pai.example.pytorch",
   "taskRoles": [
     {
       "name": "main",
@@ -147,7 +147,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
 
 ## FAQ

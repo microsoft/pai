@@ -163,7 +163,7 @@ http {
         href=\"/([^/]*):8042\"
         href=\"$scheme://$http_host/yarn/$1:8042/node\"
         r;
-     subs_filter
+      subs_filter
         href=\"http://([^/]*):8042\"
         href=\"$scheme://$http_host/yarn/$1:8042/node\"
         r;
@@ -175,6 +175,7 @@ http {
         href=\"http://([^/]*):8088\"
         href=\"$scheme://$http_host/yarn/$1:8088/cluster\"
         r;
+      #
       subs_filter
         href=\"http://([^/]*):8088/([^\"]*)\"
         href=\"$scheme://$http_host/yarn/$1:8088/$2\"
@@ -294,6 +295,9 @@ http {
       sub_filter
         '{{PROMETHEUS_URI}}'
         '/prometheus';
+      sub_filter
+        '{{YARN_WEB_PORTAL_URI}}'
+        '/yarn';
       sub_filter
         '{{K8S_DASHBOARD_URI}}'
         '/kubernetes-dashboard';

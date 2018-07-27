@@ -1,6 +1,6 @@
 {
     "jobName": "jupyter_example",
-    "image": "aiplatform/pai.run.tensorflow",
+    "image": "openpai/pai.example.tensorflow",
     "taskRoles": [
         {
             "name": "jupyter",

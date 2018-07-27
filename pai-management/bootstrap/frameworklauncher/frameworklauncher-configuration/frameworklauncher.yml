@@ -40,6 +40,7 @@ amRmResyncFrequency: 6
 amRequestPullIntervalSec: 20
 amStatusPushIntervalSec: 20
 amFrameworkInfoPublishIntervalSec: 20
+amGangAllocationTimeoutSec: 1100
 
 # WebServer Setup
 webServerAddress: http://{FRAMEWORKLAUNCHER_VIP}:{FRAMEWORKLAUNCHER_PORT}

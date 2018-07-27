@@ -1,6 +1,6 @@
 {
   "jobName": "cntk-mpi",
-  "image": "paiexample/pai.example.cntk-mpi",
+  "image": "openpai/pai.example.cntk-mpi",
 
   // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
   "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-mpi/data",

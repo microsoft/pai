@@ -49,7 +49,7 @@ We need to build a Keras image to run Keras workload on PAI, this can be done in
     $ cd -
     ```
 
-You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.cntk)/[tensorflow](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow) base image as Keras backend.
+You can also directly use [cntk](../cntk/Dockerfile.example.cntk)/[tensorflow](../tensorflow/Dockerfile.example.tensorflow) base image as Keras backend.
 
 2. Prepare Keras envoriment in a [Dockerfile](./Dockerfile.example.keras.tensorflow_backend) using tensorflow base image as Keras backend.
 
@@ -57,7 +57,7 @@ You can also directly use [cntk](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/D
 
     ```dockerfile
     # use tensorflow as Keras backend
-    FROM aiplatform/pai.run.tensorflow
+    FROM openpai/pai.example.tensorflow
 
     # install git
     RUN apt-get -y update && apt-get -y install git
@@ -111,7 +111,7 @@ RUN pip install PACKAGE
 
 To run Keras examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-Please built your image and pushed it to your Docker registry, replace image `paiexample/pai.example.keras.[cntk|tensorflow]` with your own.
+Please built your image and pushed it to your Docker registry, replace image `openpai/pai.example.keras.[cntk|tensorflow]` with your own.
 
 Here're some configuration file examples:
 
@@ -119,7 +119,7 @@ Here're some configuration file examples:
 ```json
 {
     "jobName": "keras_tensorflow_backend_mnist",
-    "image": "paiexample/pai.example.keras.tensorflow",
+    "image": "openpai/pai.example.keras.tensorflow",
     "taskRoles": [
         {
             "name": "mnist",
@@ -137,7 +137,7 @@ Here're some configuration file examples:
 ```json
 {
     "jobName": "keras_tensorflow_backend_mnist",
-    "image": "paiexample/pai.example.keras.cntk",
+    "image": "openpai/pai.example.keras.cntk",
     "taskRoles": [
         {
             "name": "mnist",
@@ -151,7 +151,7 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
 
 ## FAQ

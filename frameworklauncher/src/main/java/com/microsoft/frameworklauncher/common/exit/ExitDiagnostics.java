@@ -110,10 +110,14 @@ public class ExitDiagnostics {
     DEF.put(ExitStatusKey.AM_KILLED_BY_USER, new ExitStatusValue(
         ExitStatusKey.AM_KILLED_BY_USER.toInt(),
         "AM Killed by User", ExitType.TRANSIENT_NORMAL));
-    // AM Internal TransientError: hdfs error, env error...
-    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR, new ExitStatusValue(
-        ExitStatusKey.AM_INTERNAL_TRANSIENT_ERROR.toInt(),
-        "AM internal transient error", ExitType.TRANSIENT_NORMAL));
+    // AM Internal TransientNormalError: machine error, network error, configuration error, environment error...
+    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR, new ExitStatusValue(
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_NORMAL_ERROR.toInt(),
+        "AM internal transient normal error", ExitType.TRANSIENT_NORMAL));
+    // AM Internal TransientConflictError: gang allocation timeout...
+    DEF.put(ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR, new ExitStatusValue(
+        ExitStatusKey.AM_INTERNAL_TRANSIENT_CONFLICT_ERROR.toInt(),
+        "AM internal transient conflict error", ExitType.TRANSIENT_CONFLICT));
     // AM Internal NonTransientError: requested resource exceeded cluster max resource...
     DEF.put(ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.AM_INTERNAL_NON_TRANSIENT_ERROR.toInt(),
@@ -146,7 +150,8 @@ public class ExitDiagnostics {
         "Container aborted by the system, such as AM released, node lost, application completed, RM unreserved, etc.", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.CONTAINER_EXPIRED, new ExitStatusValue(
         -100,
-        mustContain("Container expired since it was unused") + " , maybe not enough containers can be allocated in time", ExitType.TRANSIENT_CONFLICT));
+        mustContain("Container expired since it was unused") +
+            " , maybe not enough containers can be allocated in time, please retry later", ExitType.TRANSIENT_CONFLICT));
     DEF.put(ExitStatusKey.CONTAINER_NODE_DISKS_FAILED, new ExitStatusValue(
         -101,
         "Container early discarded by NodeManager due to local bad disk, maybe no capacity left on the disk", ExitType.TRANSIENT_NORMAL));
@@ -201,7 +206,8 @@ public class ExitDiagnostics {
     //      Note that UserApplication should do some retries on the local machine first, return USER_APP_TRANSIENT_ERROR only if local retries does not work.
     DEF.put(ExitStatusKey.USER_APP_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.USER_APP_TRANSIENT_ERROR.toInt(),
-        "UserApplication transient error: maybe hdfs error, env error, machine error, connection error...", ExitType.TRANSIENT_NORMAL));
+        "UserApplication transient error: maybe dependent components shutdown, " +
+            "machine error, network error, configuration error, environment error...", ExitType.TRANSIENT_NORMAL));
     // UserApplication failed, and it can ensure that it will fail in every retry times:
     DEF.put(ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR, new ExitStatusValue(
         ExitStatusKey.USER_APP_NON_TRANSIENT_ERROR.toInt(),
@@ -209,13 +215,14 @@ public class ExitDiagnostics {
     // UserApplication Reserved ExitCodes
     DEF.put(ExitStatusKey.USER_APP_FORCE_KILLED, new ExitStatusValue(
         137,
-        "UserApplication's process force killed by others, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
+        "UserApplication was force killed by SIGKILL signal, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.USER_APP_TERMINATED, new ExitStatusValue(
         143,
-        "UserApplication's process terminated by others, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
+        "UserApplication was terminated by SIGTERM signal, maybe machine rebooted", ExitType.TRANSIENT_NORMAL));
     DEF.put(ExitStatusKey.USER_APP_LOST, new ExitStatusValue(
         154,
-        "UserApplication's process exited without exitcode, maybe machine unexpected shutdown", ExitType.TRANSIENT_NORMAL));
+        "UserApplication exited but its exitcode cannot be found in exitcode file, " +
+            "maybe machine unexpected shutdown, disk cleaned up or disk failed", ExitType.TRANSIENT_NORMAL));
 
     /// <summary>
     /// Agent ExitStatus

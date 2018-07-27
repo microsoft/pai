@@ -25,5 +25,5 @@ fi
 export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin
 export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native
 export HADOOP_CLASSPATH=$(hadoop classpath)
-java -DLOG_DIRS=$LAUNCHER_LOG_DIR -cp *:$CLASSPATH:$HADOOP_CLASSPATH com.microsoft.frameworklauncher.service.Bootstrap
+java -DLAUNCHER_LOG_DIR=$LAUNCHER_LOG_DIR -cp *:$CLASSPATH:$HADOOP_CLASSPATH com.microsoft.frameworklauncher.service.Bootstrap
 popd

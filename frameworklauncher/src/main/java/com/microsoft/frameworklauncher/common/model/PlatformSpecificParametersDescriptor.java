@@ -68,12 +68,19 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
 
   @Valid
   @NotNull
-  // If this feature is enabled, AM will wait until all Tasks become CONTAINER_ALLOCATED and
-  // then Launches them together.
-  // Besides, a ContainerIpList file will be generated in each Task's current working directory.
-  // All the Tasks' IPAddresses are recorded consistently in this file, and the assigned current
-  // Task's IPAddress can be retrieved from its environment variable CONTAINER_IP.
-  private Boolean generateContainerIpList = false;
+  // If this feature is enabled, the behavior is Gang Scheduling / Allocation,
+  // i.e. all Tasks in the Framework will run in an all-or-nothing fashion without resource deadlock.
+  // This is used for Frameworks which cannot perform any useful work, such as making progress or serving,
+  // until all Tasks are running.
+  // Note, if Gang Allocation cannot be satisfied within amGangAllocationTimeoutSec, the whole application
+  // will fail. Thus, it is suggested to also enable the Framework FancyRetryPolicy, so that the Framework
+  // will be backoff retried later.
+  //
+  // If this feature is disabled, the behavior is the Incremental Scheduling / Allocation,
+  // i.e. any Task in the Framework will run as soon as its Container is allocated, regardless of any other outstanding Task.
+  // This is used for Frameworks which can still perform useful works, such as making progress or serving,
+  // even when only one Task is running.
+  private Boolean gangAllocation = false;
 
   @Valid
   @NotNull
@@ -176,12 +183,12 @@ public class PlatformSpecificParametersDescriptor implements Serializable {
     this.antiaffinityAllocation = antiaffinityAllocation;
   }
 
-  public Boolean getGenerateContainerIpList() {
-    return generateContainerIpList;
+  public Boolean getGangAllocation() {
+    return gangAllocation;
   }
 
-  public void setGenerateContainerIpList(Boolean generateContainerIpList) {
-    this.generateContainerIpList = generateContainerIpList;
+  public void setGangAllocation(Boolean gangAllocation) {
+    this.gangAllocation = gangAllocation;
   }
 
   public Boolean getSkipLocalTriedResource() {

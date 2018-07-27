@@ -1,4 +1,4 @@
-# add a serive
+# add a service
 
 For advanced user. A guide for developer to add their own service into pai.
 
@@ -48,7 +48,7 @@ It will not guide you to write a dockerfile. If you a new developer of docker, p
 
 In this tutorial, we have prepared the docker image in the path following. Note the file ```image.yaml``` isn't part of docker image. It's pai's configuration file.
 
-[Hbase docker image code](add-service/src/hbase)
+[Hbase docker image code](example/add-service/src/hbase)
 
 
 #### Write PAI's Image Configuration <a name="Image_Configuration"></a>
@@ -64,20 +64,6 @@ Take hbase image's configuration here as an example to explain.
 
 
 ```yaml
-### the image is based on hadoop-run. You should tell paictl to build hadoop-run first.
-### Because hadoop-run is our customized image, you will have to set value here.
-### If the based image is on public registry, you could comment this field.
-
-prerequisite: hadoop-run
-
-
-
-### If some template should be generated here, please add file list here.
-
-#template-list:
-#  - dockerfile
-
-
 
 ### the file is the relative path which is set in the value of the key src.
 ### the copy will be placed in the relative path copied_file
@@ -88,19 +74,7 @@ prerequisite: hadoop-run
 #    dst: src/xxxxxx/copied_file
 ```
 
-Configuration consists of three parts. If any parts in your image's configuration is empty, just remove it.
-
-- ```prerequisite``` part:
-    - Your service image may be built from a base image. If the base image is a customized image and can't be pulled from a docker registry, you will have to build the base image first. In this tutrial, hbase image is built from hadoop-run which is pai's customized image, so we have to build hadoop-run first. After setting prerequisite fileds, paictl will build hadoop-run first.
-    - Note: If your base image could be pulled from a docker registry, just remove this. If your base image is pai's customized image or yourself's customized image added into pai, you must set this field.
-
-
-- ```template-list``` part:
-    - You should list your template file in this list, then paictl will generate the template according the list for you. The configuration data comes from cluster configuration, and the template engine is [jinja2](http://jinja.pocoo.org/). After cluster-object-model module is developed, a more detailed guide will be write.
-    - A ```filename``` in ```template-list``` is corresponding to  the template file named ```filename.template``` in your image's directory. And paictl will generate the template with the file named ```filename```.
-    - This part is not recommended to use. Any cluster-specific configuration shouldn't be set into docker image.
-    - An use case in pai, [hadoop-run's dockerfile](../src/hadoop-run/dockerfile.template)
-
+Configuration only consists copy-list part. if you don't need you can just ignore this field then provide an empty image.yaml .
 
 - ```copy-list``` part:
     - In project, we only keep one replica of source code or tool and we won't replace too much replicas in each image's directory. So this parts tell paictl the path to copy the file.
@@ -174,7 +148,7 @@ upgraded-script: upgraded.sh
 This configuration consists of 7 parts.
 
 - ```prerequisite``` parts:
-    - Let's consider this scenario. There are 3 services named ```A```, ```B``` and ```C```. And now serivce ```C``` depends on serivce ```B``` and ```C```. If you wanna start ```C```, you will have to start ```A``` and ```B```. So in this field, you can tell paictl which service should be ready if you wanna start a service.
+    - Let's consider this scenario. There are 3 services named ```A```, ```B``` and ```C```. And now service ```C``` depends on service ```B``` and ```C```. If you wanna start ```C```, you will have to start ```A``` and ```B```. So in this field, you can tell paictl which service should be ready if you wanna start a service.
     - cluster-configuration is a special service in pai. Some important configuration of the cluster and registry's secret are in this service. So this service should be the first service of pai.
 
 -  ```template-list``` parts:
@@ -201,11 +175,11 @@ This configuration consists of 7 parts.
 [Node Label](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/)
 - Benefits
     - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
-    - With node label, we are able to management a serivce on a specific node, but do not affect the same service on other nodes.
+    - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
 - Example
-    - [Hadoop Service's node-label.sh](../bootstrap/hadoop-service/node-label.sh.template)
-    - [Hadoop name node](../bootstrap/hadoop-service/hadoop-name-node.yaml.template)
-    - [Hadoop data node](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
+    - [Hadoop-name-node's node-label.sh](../bootstrap/hadoop-name-node/node-label.sh.template)
+    - [Hadoop name node](../bootstrap/hadoop-name-node/hadoop-name-node.yaml.template)
+    - [Hadoop data node](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
 
 
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
@@ -213,7 +187,7 @@ This configuration consists of 7 parts.
     - DaemonSet can ensure there will be one and only one service pod on the target nodes. Hadoop and other similar service could benefits from this object a lot.
     - Take advantage of node-label and daemonSet, we can deploy hadoop easily.
 - Example
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
 
 [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 - example
@@ -225,7 +199,7 @@ This configuration consists of 7 parts.
     - Some batch job which does't have the demands to running on a specific nodes could created by this object. And when the job is succeed, the status of the pod will be completed. This status could be a notify that the job is finished.
 
 - Example
-    - [A batch job to set hdfs permission](../bootstrap/hadoop-service/)
+    - [A batch job to set hdfs permission](../bootstrap/hadoop-batch-job/)
 
 
 [Configmap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
@@ -234,8 +208,8 @@ This configuration consists of 7 parts.
     - With the configmap's mount function, we could take advantage of one image in many different ways. For example, hadoop-run image could starts different service with different script got from configmap.
 
 - Example
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
-    - [Hadoop service's configmap](../bootstrap/hadoop-service/hadoop-configuration)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
+    - [Hadoop service's configmap](../bootstrap/hadoop-data-node/hadoop-data-node-configuration)
 
 [readness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
 
@@ -244,14 +218,14 @@ This configuration consists of 7 parts.
 
 
 - Examples
-    - [Hadoop data node's yaml file](../bootstrap/hadoop-service/hadoop-data-node.yaml.template)
-    - [Hadoop service's start script](../bootstrap/hadoop-service/start.sh)
+    - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
+    - [Hadoop service's start script](../bootstrap/hadoop-data-node/start.sh)
     - [The status checking tool](../k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 
 #### Place the Module into PAI <a name="Service_Place"></a>
 
- Note that the name of service's directory should be same with the serivce name.
+ Note that the name of service's directory should be same with the service name.
 
 For example, now we wanna add a service module "XYZ" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/bootstrap/XYZ```. That is the service's directory named as the service's name.
 
