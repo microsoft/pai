@@ -21,7 +21,7 @@ groups:
     - name: node-rules
       rules:
       - alert: NodeFilesystemUsage
-        expr: (node_filesystem_size_bytes{device="rootfs"} - node_filesystem_free_bytes{device="rootfs"}) / node_filesystem_size_bytes{device="rootfs"} * 100 > 80
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 80
         for: 2m
         labels:
           type: node
@@ -37,7 +37,7 @@ groups:
           summary: "{{$labels.instance}}: High Memory usage detected"
           description: "{{$labels.instance}}: Memory usage is above 80% (current value is: {{ $value }})"
       - alert: NodeCPUUsage
-        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{job="kubernetes-node-exporter",mode="idle"}[5m])) * 100)) > 80
+        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
         for: 2m
         labels:
           type: node
