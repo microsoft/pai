@@ -169,7 +169,7 @@ def parse_pod_item(pod):
                     container_state = state.keys()[0].lower()
 
             pai_containers.append(PaiContainer(service_name, container_name,
-                container_state, str(ready)))
+                container_state, str(ready).lower()))
 
     return pai_pod, pai_containers
 
