@@ -179,8 +179,6 @@ class paiObjectModel:
 
         serviceDict["clusterinfo"] = self.rawData["serviceConfiguration"]["cluster"]
         serviceDict["clusterinfo"]["dataPath"] = serviceDict["clusterinfo"]["data-path"]
-        serviceDict["clusterinfo"]["nvidia_drivers_version"] = serviceDict["clusterinfo"]["nvidia-drivers-version"]
-        serviceDict["clusterinfo"]["dockerverison"] = serviceDict["clusterinfo"]["docker-verison"]
         serviceDict["clusterinfo"]["dockerregistryinfo"] = serviceDict["clusterinfo"]["docker-registry-info"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_namespace"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-namespace"]
@@ -279,6 +277,15 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["prometheusinfo"]["prometheus-port"]
         serviceDict["clusterinfo"]["prometheusinfo"]["node_exporter_port"] = \
             serviceDict["clusterinfo"]["prometheusinfo"]["node-exporter-port"]
+
+        alert_manager_hosts = []
+        for host in self.rawData["clusterConfiguration"]["machine-list"]:
+            if host.get("alert-manager") is None or host["alert-manager"].lower() != "true":
+                continue
+
+            alert_manager_hosts.append(host["hostip"])
+
+        serviceDict["clusterinfo"]["prometheusinfo"]["alert-manager-hosts"] = alert_manager_hosts
 
         # section
 

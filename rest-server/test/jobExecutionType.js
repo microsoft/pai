@@ -18,16 +18,16 @@
 
 // test
 describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
-  afterEach(function() {
+  after(function() {
     if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
+      // TODO: Split mocks into each cases and enable the following error with afterEach.
+      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
     }
   });
 
   // Mock launcher webservice
-  beforeEach(() => {
+  before(() => {
     let frameworkDetail = {
       'summarizedFrameworkInfo': {
         'executionType': 'START',
@@ -61,6 +61,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
 
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test1')
+      .twice()
       .reply(200, () => {
         frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test1';
         return frameworkDetail;
@@ -92,10 +93,14 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
           },
         },
       })
-      .put('/v1/Frameworks/test1/executionType', {
-        'value': 'STOP',
+      .put('/v1/Frameworks/test1/ExecutionType', {
+        'executionType': 'STOP',
       })
-      .reply(200, null);
+      .reply(202, null)
+      .put('/v1/Frameworks/test2/ExecutionType', {
+        'executionType': 'STOP',
+      })
+      .reply(202, null);
   });
 
   // PUT /api/v1/jobs/:jobName/executionType
@@ -138,7 +143,19 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       .end((err, res) => {
         expect(res, 'status code').to.have.status(401);
         expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('No authorization token was found');
+        expect(res.body.code, 'response code').equal('UnauthorizedUserError');
+        done();
+      });
+  });
+
+  it('#909: should check request payload', (done) => {
+    chai.request(server)
+      .put('/api/v1/jobs/test1/executionType')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
+      .set('Content-Type', 'text/unknown')
+      .send('value=STOP')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(400);
         done();
       });
   });

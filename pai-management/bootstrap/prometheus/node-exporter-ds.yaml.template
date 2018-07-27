@@ -67,7 +67,7 @@ spec:
 #- '--no-collector.loadavg' Exposes load average.
           - '--no-collector.mdadm'
 #- '--no-collector.meminfo' Exposes memory statistics.
-          - '--no-collector.netdev'
+#- '--no-collector.netdev' Exposes network interface statistics such as bytes transferred.
 #- '--no-collector.netstat' Exposes network statistics from /proc/net/netstat. This is the same information as netstat -s.
           - '--no-collector.nfs'
           - '--no-collector.nfsd'

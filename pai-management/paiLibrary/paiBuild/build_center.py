@@ -67,7 +67,7 @@ class build_center:
         file_path = "src/{0}/dockerfile".format(image_name)
         with open(file_path, 'r') as fin:
             for line in fin:
-                if line.startswith("FROM"):
+                if line.strip().startswith("FROM"):
                     _, image = line.split()
                     if image.split(':')[0] in self.get_image_list():
                        return image

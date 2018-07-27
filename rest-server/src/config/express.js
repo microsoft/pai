@@ -26,9 +26,11 @@ const cookieParser = require('cookie-parser');
 const config = require('./index');
 const logger = require('./logger');
 const router = require('../routes/index');
-
+const createError = require('../util/error');
 
 const app = express();
+
+app.set('json spaces', config.env === 'development' ? 4 : 0);
 
 app.use(cors());
 app.use(compress());
@@ -44,17 +46,16 @@ app.use('/api/v1', router);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new Error('API not found');
-  err.status = 404;
-  next(err);
+  next(createError('Not Found', 'NoApiError', `API ${req.url} is not found.`));
 });
 
 // error handler
 app.use((err, req, res, next) => {
-  logger.warn('%s', err.stack);
+  logger.warn(err.stack);
   res.status(err.status || 500).json({
+    code: err.code,
     message: err.message,
-    error: config.env === 'development' ? err.stack : '',
+    stack: config.env === 'development' ? err.stack.split('\n') : void 0,
   });
 });
 

@@ -28,6 +28,8 @@ template-list:
   - refresh.sh
   - delete.yaml
   - watchdog-ds.yaml
+  - alert-deployment.yaml
+  - alert-configmap.yaml
 
 start-script: start.sh
 stop-script: stop.sh

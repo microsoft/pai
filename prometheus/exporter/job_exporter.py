@@ -86,8 +86,16 @@ def main(argv):
     logDir = argv[0]
     gpuMetricsPath = logDir + "/gpu_exporter.prom"
     jobMetricsPath = logDir + "/job_exporter.prom"
-
     timeSleep = int(argv[1])
+
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(logging.INFO)
+    fh = RotatingFileHandler(logDir + "/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+    fh.setFormatter(formatter)
+    rootLogger.addHandler(fh)
+
     iter = 0
 
     singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
@@ -113,12 +121,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    fh = RotatingFileHandler("/datastorage/prometheus/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-    fh.setFormatter(formatter)
-    rootLogger.addHandler(fh)
-
     main(sys.argv[1:])

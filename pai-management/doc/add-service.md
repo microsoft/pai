@@ -64,20 +64,6 @@ Take hbase image's configuration here as an example to explain.
 
 
 ```yaml
-### the image is based on hadoop-run. You should tell paictl to build hadoop-run first.
-### Because hadoop-run is our customized image, you will have to set value here.
-### If the based image is on public registry, you could comment this field.
-
-prerequisite: hadoop-run
-
-
-
-### If some template should be generated here, please add file list here.
-
-#template-list:
-#  - dockerfile
-
-
 
 ### the file is the relative path which is set in the value of the key src.
 ### the copy will be placed in the relative path copied_file
@@ -88,19 +74,7 @@ prerequisite: hadoop-run
 #    dst: src/xxxxxx/copied_file
 ```
 
-Configuration consists of three parts. If any parts in your image's configuration is empty, just remove it.
-
-- ```prerequisite``` part:
-    - Your service image may be built from a base image. If the base image is a customized image and can't be pulled from a docker registry, you will have to build the base image first. In this tutrial, hbase image is built from hadoop-run which is pai's customized image, so we have to build hadoop-run first. After setting prerequisite fields, paictl will build hadoop-run first.
-    - Note: If your base image could be pulled from a docker registry, just remove this. If your base image is pai's customized image or yourself's customized image added into pai, you must set this field.
-
-
-- ```template-list``` part:
-    - You should list your template file in this list, then paictl will generate the template according the list for you. The configuration data comes from cluster configuration, and the template engine is [jinja2](http://jinja.pocoo.org/). After cluster-object-model module is developed, a more detailed guide will be write.
-    - A ```filename``` in ```template-list``` is corresponding to  the template file named ```filename.template``` in your image's directory. And paictl will generate the template with the file named ```filename```.
-    - This part is not recommended to use. Any cluster-specific configuration shouldn't be set into docker image.
-    - An use case in pai, [hadoop-run's dockerfile](../src/hadoop-run/dockerfile.template)
-
+Configuration only consists copy-list part. if you don't need you can just ignore this field then provide an empty image.yaml .
 
 - ```copy-list``` part:
     - In project, we only keep one replica of source code or tool and we won't replace too much replicas in each image's directory. So this parts tell paictl the path to copy the file.
