@@ -45,7 +45,7 @@ class PaiPod(MetricEntity):
 
     def __init__(self, name, phase, host_ip, condition_map):
         self.name = name
-        self.phase = phase
+        self.phase = phase # should be lower case
         self.host_ip = host_ip # maybe None
         self.condition_map = condition_map
 
@@ -82,6 +82,7 @@ class PaiNode(MetricEntity):
 
     def __init__(self, name, condition_map):
         self.name = name
+        # key should be underscore instead of camel case, value should be lower case
         self.condition_map = condition_map
 
     def to_metric(self):
