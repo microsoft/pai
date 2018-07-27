@@ -33,4 +33,16 @@
 <img src="pic/kubernetes-deploy.jpg" alt="kubernetes deploy picture" style="float: center; margin-right: 10px;" />
 </div>
 
+    - After the k8s cluster is bootup, paictl will install kubectl for you to manage the cluster.
 
+- k8s-clean:
+    - The same process as k8s-bootup.
+
+## paictl machine
+
+- paictl machine command is designed for daily maintenance, such as add and remove machine.
+- Just like k8s-bootup, paictl machine will prepare package and send them to the remote machine through paramiko, then execute them.
+
+
+
+## paictl service
