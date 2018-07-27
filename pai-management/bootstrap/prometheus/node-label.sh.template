@@ -27,4 +27,7 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true
     {% endif %}
+    {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager=true
+    {% endif %}
 {% endfor %}

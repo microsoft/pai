@@ -15,24 +15,42 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-
-template-list:
-  - node-label.sh
-  - node-exporter-ds.yaml
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
-  - watchdog-ds.yaml
-  - alert-deployment.yaml
-  - alert-configmap.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      name: alertmanager
+      labels:
+        app: alertmanager
+    spec:
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        alertmanager: "true"
+      containers:
+      - name: alertmanager
+        image: prom/alertmanager:v0.15.1
+        args:
+          - '--config.file=/etc/alertmanager/config.yml'
+          - '--storage.path=/alertmanager'
+        ports:
+        - name: alertmanager
+          containerPort: {{ clusterinfo['prometheusinfo']['alerting']['alert_manager_port']|default(9093) }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: alertmanager
+          mountPath: /alertmanager
+      volumes:
+      - name: config-volume
+        configMap:
+          name: alertmanager
+      - name: alertmanager
+        emptyDir: {}

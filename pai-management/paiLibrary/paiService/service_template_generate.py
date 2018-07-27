@@ -78,7 +78,12 @@ class service_template_generate:
             self.logger.info("Save the generated file to {0}.".format(target_path))
 
             template_data = file_handler.read_template(template_path)
-            generated_template = template_handler.generate_from_template_dict(template_data, service_conf_dict)
+            try:
+                generated_template = template_handler.generate_from_template_dict(template_data, service_conf_dict)
+            except Exception as e:
+                self.logger.exception("failed to generate template file from %s with dict %s", template_path, service_conf_dict)
+                raise e
+
             file_handler.write_generated_file(target_path,  generated_template)
 
         self.logger.info("The template file of service {0} is generated.".format(self.service_name))
