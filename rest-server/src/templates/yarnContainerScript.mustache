@@ -30,7 +30,7 @@ function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "EXIT signal received in yarn container, exiting ..."
-  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name) && kill -9 $pid ||\
+  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null) && kill -9 $pid ||\
     printf "%s %s\n"  "[DEBUG]" "$docker_name does not exist."
   kill 0
 }
