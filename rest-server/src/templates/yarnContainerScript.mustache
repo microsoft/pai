@@ -195,8 +195,8 @@ if [[ -n $PAI_CODE_DIR ]]; then
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
   code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
   # TODO: Make the threshold configurable
-  if [ $code_dir_size -gt 10000000 ]; then
-    echo "$PAI_CODE_DIR is larger than 10MB, exit."
+  if [ $code_dir_size -gt 200000000 ]; then
+    echo "$PAI_CODE_DIR is larger than 200MB, exit."
     exit 1
   fi
   hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" \
