@@ -74,6 +74,16 @@ const jobConfigSchema = Joi.object().keys({
           .default([]),
         command: Joi.string()
           .required(),
+        minFailedTaskCount: Joi.number()
+          .integer()
+          .min(1)
+          .allow(null)
+          .default(1),
+        minSucceededTaskCount: Joi.number()
+          .integer()
+          .min(1)
+          .allow(null)
+          .default(null),
       }))
     .min(1)
     .required(),
@@ -82,7 +92,7 @@ const jobConfigSchema = Joi.object().keys({
     .default(''),
   killAllOnCompletedTaskNumber: Joi.number()
     .integer()
-    .default(1),
+    .optional(),
   virtualCluster: Joi.string()
     .allow('')
     .default('default'),
@@ -92,5 +102,12 @@ const jobConfigSchema = Joi.object().keys({
     .default(0),
 }).required();
 
+const jobExecutionSchema = Joi.object().keys({
+  value: Joi.string().allow('START', 'STOP').required(),
+}).required();
+
 // module exports
-module.exports = {schema: jobConfigSchema};
+module.exports = {
+  schema: jobConfigSchema,
+  executionSchema: jobExecutionSchema,
+};

@@ -14,7 +14,7 @@ The deployment of web portal goes with the bootstrapping process of the whole PA
 
 ### Submit a job
 
-Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [job tutorial](../job-tutorial/README.md).
+Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [job tutorial](../docs/job_tutorial.md).
 
 ### View job status
 

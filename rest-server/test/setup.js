@@ -69,7 +69,6 @@ global.jobConfigTemplate = JSON.stringify({
       'command': 'python hello.py',
     },
   ],
-  'killAllOnCompletedTaskNumber': 1,
   'retryCount': 0,
 });
 

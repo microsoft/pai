@@ -26,7 +26,7 @@ BASH_XTRACEFD=17
 function exit_handler()
 {
   printf "%s %s\n" \
-    "[DEBUG]" "EXIT signal received in docker container, exiting ..."
+    "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
   kill 0
 }
 
@@ -158,12 +158,5 @@ env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
 {{{ taskData.command }}} || exit $?
 printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
-
-{{# jobData.killAllOnCompletedTaskNumber }}
-hdfs dfs -touchz $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/finished/$APP_ID-$PAI_TASK_INDEX || exit 1
-while [ `hdfs dfs -ls $HDFS_LAUNCHER_PREFIX/$PAI_USER_NAME/$PAI_JOB_NAME/finished/ | grep "/$PAI_JOB_NAME/finished/$APP_ID-" | wc -l` -lt  $PAI_KILL_ALL_ON_COMPLETED_TASK_NUM ]; do
-  sleep 10
-done
-{{/ jobData.killAllOnCompletedTaskNumber }}
 
 exit 0

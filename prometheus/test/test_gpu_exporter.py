@@ -73,5 +73,13 @@ class TestGPUExporter(unittest.TestCase):
         self.assertIn(Metric("nvidiasmi_utilization_memory", {"minor_number": "1"}, "97"),
                 metrics)
 
+    def test_exporter_will_not_report_unsupported_gpu(self):
+        sample_path = "data/nvidia_smi_outdated_gpu.xml"
+        file = open(sample_path, "r")
+        nvidia_smi_result = file.read()
+        nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result)
+        self.assertEqual({}, nvidia_smi_parse_result)
+
+
 if __name__ == '__main__':
     unittest.main()
