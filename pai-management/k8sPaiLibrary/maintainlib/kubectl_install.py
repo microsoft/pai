@@ -79,7 +79,7 @@ class kubectl_install:
             times = times + 1
             if res == True:
                 break
-            if times == 10:
+            if times == 30:
                 self.logger.error("kubectl ready test failed. Exit paictl.")
                 sys.exit(1)
 
