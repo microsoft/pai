@@ -57,7 +57,7 @@ paictl.py service stop -p /path/to/cluster/config -n zookeeper
 
 ### Upgrading
 
-Either build new image by youself or use our [prebuild images](https://hub.docker.com/r/openpai/zookeeper/). For now, upgrade should restart related service.
+Either build new image by yourself or use our [prebuild images](https://hub.docker.com/r/openpai/zookeeper/). For now, upgrade should restart related service.
 
 ### Service Metrics
 

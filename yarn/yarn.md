@@ -18,9 +18,9 @@ paictl.py image build -p /path/to/cluster/config -n hadoop-run
 The command does major 3 steps:
 1. Build a dev container include necessary environment. (refer to [hadoop-build](https://github.com/Microsoft/pai/tree/master/hadoop-ai/hadoop-build))
 2. Run the container to build hadoop binary applied patch. (refer to [hadoop-ai](https://github.com/Microsoft/pai/tree/master/hadoop-ai))
-3. Copy binary files to hadoop-run image and set related ENV. (refer to [dockerfile](https://github.com/Microsoft/pai/blob/master/pai-management/src/hadoop-run/dockerfile))
+2. Copy binary files to hadoop-run image and set related ENV. (refer to [dockerfile](https://github.com/Microsoft/pai/blob/master/pai-management/src/hadoop-run/dockerfile))
 
-Images should also push to registry for deployment.
+Images should also push to register for deployment.
 
 `
 paictl.py image push -p /path/to/cluster/config -n hadoop-run
@@ -56,7 +56,7 @@ paictl.py service stop -p /path/to/cluster/config -n hadoop-resource-manager/had
 
 ### Upgrading
 
-Either build new image by youself or use our [prebuild images](https://hub.docker.com/r/openpai/hadoop-run/). For now, upgrade should restart related service, which means all jobs will fail.
+Either build new image by yourself or use our [prebuild images](https://hub.docker.com/r/openpai/hadoop-run/). For now, upgrade should restart related service, which means all jobs will fail.
 
 ### Service Metrics
 
