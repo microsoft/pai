@@ -22,7 +22,7 @@ To run web portal, the following services should be started, and url of services
 
 ## Build
 
-*In current design, there is nothing to do in build stage.*
+Run `npm run yarn install` to install dependencies.
 
 ## Configuration
 
@@ -61,8 +61,7 @@ The deployment of web portal goes with the bootstrapping process of the whole PA
 If web portal is need to be deplyed as a standalone service, follow these steps:
 
 1. Go into the `webportal` directory
-2. Run `npm run yarn install`
-3. Run `npm start`
+2. Run `npm start`
 
 ## Upgrading
 
