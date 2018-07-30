@@ -26,7 +26,7 @@ data:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
-      scrape_interval: 30s
+      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
