@@ -388,7 +388,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100",
+              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s])) * 100",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",
@@ -553,14 +553,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -647,14 +647,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[5m]))",
+              "expr": "sum(rate(node_disk_read_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[5m]))",
+              "expr": "sum(rate(node_disk_written_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
