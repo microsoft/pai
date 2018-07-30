@@ -74,7 +74,7 @@
               "refId": "A"
             },
             {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node\"}[5m])) * 100)",
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -281,7 +281,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -292,7 +292,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -388,7 +388,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -399,7 +399,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node\"}[5m]))",
+              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']}}0s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
