@@ -285,7 +285,10 @@ class paiObjectModel:
 
             alert_manager_hosts.append(host["hostip"])
 
-        serviceDict["clusterinfo"]["prometheusinfo"]["alert-manager-hosts"] = alert_manager_hosts
+        # template can check clusterinfo['prometheusinfo']['alerting'] to see if alert is enabled
+        if serviceDict["clusterinfo"]["prometheusinfo"].get("alerting") is not None:
+            serviceDict["clusterinfo"]["prometheusinfo"]["alerting"]["alert-manager-hosts"] = \
+                    alert_manager_hosts
 
         # section
 
