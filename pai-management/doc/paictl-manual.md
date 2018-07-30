@@ -10,7 +10,7 @@ A tool to manage your pai cluster.
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
-    - [ Fix crushed etcd node](#etcd_fix)
+    - [ Fix crashed etcd node](#etcd_fix)
 - [ Maintain your service ](#Service)
     - [ Start service(s) ](#Service_Start)
     - [ Stop service(s) ](#Service_Stop)
@@ -64,7 +64,7 @@ python paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine
 - See an example of the machine list [here](#Machine_Nodelist_Example).
 
 
-### Fix crushed etcd node <a name="etcd_fix"></a>
+### Fix crashed etcd node <a name="etcd_fix"></a>
 
 
 ```
