@@ -16,6 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import urlparse
 import os
 import subprocess
 import json
@@ -197,55 +198,34 @@ def parse_pods_status(podsJsonObject):
     return pod_metrics + container_metrics
 
 
-def collect_k8s_componentStaus(address, nodesJsonObject):
+def collect_healthz(metric_name, address, port, url):
+    label = {"address": address, "error": "ok"}
+
+    try:
+        healthy = requests.get("http://{}:{}{}".format(address, port, url)).text
+
+        if healthy != "ok":
+            label["error"] = healthy
+    except Exception as e:
+        label["error"] = str(e)
+        logger.exception("requesting %s:%d%s failed", address, port, url)
+
+    return Metric(metric_name, label, 1)
+
+
+def collect_k8s_componentStaus(api_server_ip, api_server_port, nodesJsonObject):
     metrics = []
 
-    emptyLabel = {}
+    metrics.append(collect_healthz("k8s_api_server_count", api_server_ip, api_server_port, "/healthz"))
+    metrics.append(collect_healthz("k8s_etcd_count", api_server_ip, api_server_port, "/healthz/etcd"))
 
-    # 1. check api server
-    try:
-        apiServerhealty = requests.get("{}/healthz".format(address)).text
-
-        if apiServerhealty != "ok":
-            # api server health status, 1 is error
-            metrics.append(Metric("apiserver_current_status_error", emptyLabel, 1))
-    except Exception as e:
-        logger.exception("get api server status failed")
-        metrics.append(Metric("apiserver_current_status_error", emptyLabel, 1))
-
-    # 2. check etcd
-    try:
-        etcdhealty = requests.get("{}/healthz/etcd".format(address)).text
-
-        if etcdhealty != "ok":
-            # etcd health status, 1 is error
-            metrics.append(Metric("etcd_current_status_error", emptyLabel, 1))
-    except Exception as e:
-        logger.exception("get etcd status failed")
-        metrics.append(Metric("etcd_current_status_error", emptyLabel, 1))
-
-    # 3. check kubelet
+    # check kubelet
     nodeItems = nodesJsonObject["items"]
-    kubeletErrorCount = 0
 
     for name in nodeItems:
         ip = name["metadata"]["name"]
 
-        label = {"node": ip}
-
-        try:
-            kubeletHealthy = requests.get("http://{}:{}/healthz".format(ip, 10255)).text
-
-            if kubeletHealthy != "ok":
-                # each node kubelet health status, 1 is error
-                metrics.append(Metric("kubelet_current_status_error", label, 1))
-                kubeletErrorCount += 1
-        except Exception as e:
-            kubeletErrorCount += 1
-            logger.exception("get kubelet status failed")
-            metrics.append(Metric("kubelet_current_status_error", label, 1))
-
-    metrics.append(Metric("current_status_error_kubelet_count", emptyLabel, kubeletErrorCount))
+        metrics.append(collect_healthz("k8s_kubelet_count", ip, 10255, "/healthz"))
 
     return metrics
 
@@ -340,7 +320,11 @@ def main(argv):
     logDir = argv[0]
     configFilePath = argv[1]
     timeSleep = int(argv[2])
+
     address = os.environ["K8S_API_SERVER_URI"]
+    parse_result = urlparse.urlparse(address)
+    api_server_ip = parse_result.hostname
+    api_server_port = parse_result.port or 80
 
     rootLogger = logging.getLogger()
     rootLogger.setLevel(logging.INFO)
@@ -372,7 +356,9 @@ def main(argv):
                 metrics.extend(docker_daemon_metrics)
 
             # 4. check k8s level status
-            k8s_metrics = collect_k8s_componentStaus(address, nodesStatus)
+            k8s_metrics = collect_k8s_componentStaus(api_server_ip, api_server_port, nodesStatus)
+            if k8s_metrics is not None:
+                metrics.extend(k8s_metrics)
 
             # 5. log and export
             log_and_export_metrics(logDir + "/watchdog.prom", metrics)
