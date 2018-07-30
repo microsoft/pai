@@ -40,7 +40,7 @@ Sometimes the etcd nodes may not healthy, it can be repaired with command
 ```bash
 ./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
-Please follow instructions in [machine maintenance](./machine-maintenace.md) for the details.
+Please follow instructions in [machine maintenance](./machine-maintenance.md) for the details.
 
 ## Reference
 
