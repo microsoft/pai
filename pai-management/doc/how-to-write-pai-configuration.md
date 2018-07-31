@@ -121,7 +121,7 @@ kubernetes:
   load-balance-ip: IP
   service-cluster-ip-range: 10.254.0.0/16
   storage-backend: etcd3
-  docker-registry: docker.io/pai
+  docker-registry: docker.io/openpai
   hyperkube-version: v1.9.4
   etcd-version: 3.2.17
   apiserver-version: v1.9.4
