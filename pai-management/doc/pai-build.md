@@ -73,11 +73,11 @@ Everytime you wanna add a customized docker image into pai, you will have to pre
 #    dst: src/xxxxxx/copied_file
 ```
 
-The file only consists of ```copy-list``` part, according to the current design. If this module does not need to copy anything from other places, you can just ignore this field then provide an empty image.yaml .
+TAccording to current design, the file only consists of ```copy-list``` field. If this module does not need to copy anything from other places, you can just ignore this field then provide an empty image.yaml .
 
 - ```copy-list``` part:
     - This field tells paictl the path to copy files.
-    - Command: ```cp -r pai/pai-management/$src pai/pai-management/$dst ```. ```src``` and ```dst``` is the value in this part.
+    - Command: ```cp -r pai/pai-management/$src pai/pai-management/$dst ```. ```src``` and ```dst``` is the value in this field.
 
 #### Place the image directory into pai ####
 
