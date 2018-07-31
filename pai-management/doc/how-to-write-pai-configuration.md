@@ -8,12 +8,24 @@ Note: Please do not change the name of the configuration files. And those 4 file
 
 
 ## Index
+- [OpenPAI Configuration](#configuration)
+    - [configure node placement of service](#service_placement)
+    - [configure virtual cluster capacity](#configure_vc_capacity)
+    - [configure customize docker repository](#docker_repo)
+    - [configure service entry](#configure_service_entry) 
+    - [configure OpenPAI admin user account](#configure_user_acc)
+    - [configure install gpu driver on which server](#gpu_driver)
+    - [configure HDFS data / OpenPAI temp data folder](#data_folder)
+    - configure component version 
+      - [configure K8s component version](#k8s_component)
+      - [configure docker version](#docker_version)
+      - [configure nvidia gpu driver version](#driver_version)
+    - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
+- [configuration of cluster-configuration.yaml](#cluster_configuration)
+- [configuration of k8s-role-definition.yaml](#k8s_role_definition)
+- [configuration of kubernetes-configuration.yaml](#kubernetes_configuration)
+- [configuration of services-configuration.yaml](#services_configuration)
 
-- [Set up cluster-configuration.yaml](#cluster_configuration)
-- [Set up k8s-role-definition.yaml](#k8s_role_definition)
-- [Set up kubernetes-configuration.yaml](#kubernetes_configuration)
-- [Set up services-configuration.yaml](#services_configuration)
-- [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
 
 ## Set up cluster-configuration.yaml <a name="cluster_configuration"></a>
 
@@ -51,11 +63,11 @@ machine-sku:
 In this field, you could define several sku with different name. And in the machine list you should refer your machine to one of them.
 
 - mem: memory
-- gpu: If there is no gpu on this sku, you could remove this field
+- gpu<a name="gpu_driver"></a>: If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.
 - os: Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.
 
 ### ```machine-list``` <a name="m_list"></a>
-
+### ```configure node placement of service```<a name="service_placement"></a>
 ```
 machine-list:
 
@@ -91,17 +103,20 @@ machine-list:
       pai-worker: "true"
 ```
 
-- ```hostname```: Required. You could the hostname by the command ```echo `hostname` ``` on the host.
-- ```hostip```: Required. The ip address of the corresponding host.
-- ```machine-type```: Required. The sku name defined in the ```machine-sku```.
-- ```etcdid```: K8s-Master Required. The etcd is part of kubernetes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.
-- ```sshport, username, password```: Optional. Used if this machine's account and port is different from the default properties. Or you can remove them.
-- ```k8s-role```: Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](#k8s-high-availability-configuration).
-- ```dashboard```: Select one node to set this field. And set the value as ``` "true" ```.
-- ```pai-master```: Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.
-- ```zkid```: Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```
-- ```pai-worker```: Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work.
-- ```node-exporter```: Optional. You can assign this label to nodes to enable hardware and service monitoring.
+User could config each service deploy at which node by labeling node with service tag as below:
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```hostname``` | cluster-configuration.yaml | Required. You could get the hostname by the command ```echo `hostname` ``` on the host.|
+| ```hostip```| cluster-configuration.yaml |  Required. The ip address of the corresponding host.
+| ```machine-type``` | cluster-configuration.yaml | Required. The sku name defined in the ```machine-sku```.|
+| ```sshport, username, password```| cluster-configuration.yaml | Optional. Used if this machine's account and port is different from the default properties. Or you can remove them.|
+| ```etcdid```| cluster-configuration.yaml | K8s-Master Required. The etcd is part of kubernetes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.|
+| ```k8s-role```| cluster-configuration.yaml | Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](#k8s-high-availability-configuration).|
+| ```dashboard```| cluster-configuration.yaml | Select one node to set this field. And set the value as ``` "true" ```.|
+| ```pai-master```| cluster-configuration.yaml | Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.|
+| ```zkid```| cluster-configuration.yaml | Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```.|
+| ```pai-worker```| cluster-configuration.yaml | Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work|
+ ```node-exporter```| cluster-configuration.yaml | Optional. You can assign this label to nodes to enable hardware and service monitoring.|
 
 Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./single-box-deployment.md).
 
@@ -115,6 +130,8 @@ By default, user does not need to change the file.
 
 An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
+### ```configure K8s component version```<a name="#k8s_component"></a>
+Suggest user use the default configuration:
 ```
 kubernetes:
   cluster-dns: IP
@@ -131,27 +148,31 @@ kubernetes:
   dashboard-version: v1.8.3
 ```
 
-### ```User *must* set the following fields to bootstrap a cluster ```
 
-- ```cluster-dns```: Find the nameserver address in  /etc/resolv.conf
-- ```load-balance-ip```: If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).
+### ```User *must* set the following fields to bootstrap a cluster ```
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```cluster-dns```|kubernetes-configuration.yaml| Find the nameserver address in  /etc/resolv.conf|
+| ```load-balance-ip```|kubernetes-configuration.yaml| If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).|
 
 ### ```Some values could use the default value```
-- ```service-cluster-ip-range```: Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927](https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.
-- ```storage-backend```: ETCD major version. If you are not familiar with etcd, please do not change it.
-- ```docker-registry```: The docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to gcr.io/google_containers, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. You can also set the docker registry to openpai.docker.io (or docker.io/pai), which is maintained by pai.
-- ```hyperkube-version```: The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).
-- ```etcd-version```: The version of etcd. If you are not familiar with etcd, please do not change it. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/etcd?gcrImageListsize=50).
-- ```apiserver-version```: The version of apiserver. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-apiserver?gcrImageListsize=50).
-- ```kube-scheduler-version```: The version of kube-scheduler. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-scheduler?gcrImageListsize=50)
-- ```kube-controller-manager-version```: The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)
-- ```dashboard-version```: The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+|  ```service-cluster-ip-range```|kubernetes-configuration.yaml| Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927]|(https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.|
+| ```storage-backend```|kubernetes-configuration.yaml| ETCD major version. If you are not familiar with etcd, please do not change it.|
+| ```docker-registry```|kubernetes-configuration.yaml| The docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to gcr.io/google_containers, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. You can also set the docker registry to openpai.docker.io (or docker.io/pai), which is maintained by pai.|
+| ```hyperkube-version```|kubernetes-configuration.yaml| The version of hyperkube. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/hyperkube?gcrImageListsize=50).|
+| ```etcd-version```|kubernetes-configuration.yaml| The version of etcd. If you are not familiar with etcd, please do not change it. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/etcd?gcrImageListsize=50).|
+| ```apiserver-version```|kubernetes-configuration.yaml| The version of apiserver. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-apiserver?gcrImageListsize=50).|
+| ```kube-scheduler-version```|kubernetes-configuration.yaml| The version of kube-scheduler. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-scheduler?gcrImageListsize=50)|
+| ```kube-controller-manager-version```|kubernetes-configuration.yaml| The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)|
+| ```dashboard-version```|kubernetes-configuration.yaml| The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)|
 
 ## Set up services-configuration.yaml <a name="services_configuration"></a>
 
 An example services-configuration.yaml file is available [here](../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
 
-### ```cluster```
+### ```configure customize docker repository``` <a name="docker_repo"></a>
 
 ```
 cluster:
@@ -179,7 +200,7 @@ cluster:
 - ```clusterid```: The id of the cluster.
 - ```nvidia-drivers-version```: Choose proper nvidia driver version for your cluster [here](http://www.nvidia.com/object/linux-amd64-display-archive.html).
 - ```docker-verison```: The Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host environment. Choose a version [here](https://download.docker.com/linux/static/stable/x86_64/).
-- ```data-path```: The absolute path on the host in your cluster to store the data such as hdfs, zookeeper and yarn. Note: please make sure there is enough space in this path.
+- ```data-path```<a name="data_folder"></a>: The absolute path on the host in your cluster to store the data such as hdfs, zookeeper and yarn. Note: please make sure there is enough space in this path.
 - ```docker-registry-info```:
     - ```docker-namespace```: Your registry's namespace. If your choose DockerHub as your docker registry. You should fill this field with your username.
     - ```docker-registry-domain```: E.g., gcr.io. If public，fill docker_registry_domain with the word "public".
@@ -202,7 +223,7 @@ docker-registry-info:
 
 Users can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
 
-### ```hadoop```
+### ```configure virtual cluster capacity``` <a name="configure_vc_capacity"></a>
 ```YAML
 hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
@@ -228,6 +249,9 @@ hadoop:
 - ```hadoop-version```: please set this to ```2.9.0```.
 - ```virtualClusters```: hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.
 
+### ```configure service entry``` <a name="configure_service_entry"></a>
+After [configure node placement of service](#service_placement), user define service's node ip.
+User could also define service's entry port as follows configurations (note: webportal is OpenPAI's main page):
 
 ### ```frameworklauncher```
 
@@ -247,7 +271,7 @@ restserver:
   default-pai-admin-username: your_default_pai_admin_username
   default-pai-admin-password: your_default_pai_admin_password
 ```
-
+  ```configure OpenPAI admin user account``` <a name="configure_user_acc"></a>
 - ```server-port```: Port for rest api server. You can use the default value.
 - ```jwt-secret```: secret for signing authentication tokens, e.g., "Hello PAI!"
 - ```default-pai-admin-username```: database admin username, and admin username of pai.
@@ -293,6 +317,8 @@ pylon:
 ```
 
 - ```port```: port of pylon, you can use the default value.
+
+
 
 ## Kubernetes and High Availability (HA) <a name="k8s-high-availability-configuration"></a>
 
