@@ -18,7 +18,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
     - [configure HDFS data / OpenPAI temp data folder](#data_folder)
     - configure component version 
       - [configure K8s component version](#k8s_component)
-      - [configure docker version](#docker_version)
+      - [configure docker version](#docker_repo)
       - [configure nvidia gpu driver version](#driver_version)
     - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
 - [configuration of cluster-configuration.yaml](#cluster_configuration)
@@ -61,6 +61,7 @@ machine-sku:
 ```
 
 In this field, you could define several sku with different name. And in the machine list you should refer your machine to one of them.
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | mem|cluster-configuration.yaml| memory|
@@ -132,7 +133,7 @@ By default, user does not need to change the file.
 
 An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
-### ```configure K8s component version```<a name="#k8s_component"></a>
+### ```configure K8s component version``` <a name="#k8s_component"></a>
 Suggest user use the default configuration:
 ```
 kubernetes:
@@ -201,7 +202,7 @@ cluster:
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | ```clusterid```|services-configuration.yaml| The id of the cluster.|
-| ```nvidia-drivers-version```|services-configuration.yaml| Choose proper nvidia driver version for your cluster [here](http://www.nvidia.com/object/linux-amd64-display-archive.html).|
+| ```nvidia-drivers-version``` <a name="driver_version"></a>|services-configuration.yaml| Choose proper nvidia driver version for your cluster [here](http://www.nvidia.com/object/linux-amd64-display-archive.html).|
 | ```docker-verison```|services-configuration.yaml| The Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host environment. |Choose a version [here](https://download.docker.com/linux/static/stable/x86_64/).|
 | ```data-path```<a name="data_folder"></a>|services-configuration.yaml| The absolute path on the host in your cluster to store the data such as hdfs, zookeeper and yarn. Note: please make sure there is enough space in this path.|
 | ```docker-namespace```|services-configuration.yaml| Your registry's namespace. If your choose DockerHub as your docker registry. You should fill this field with your username.|
@@ -246,6 +247,7 @@ hadoop:
       description: VC for Charlie's team.
       capacity: 20
 ```
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | ```custom-hadoop-binary-path```|services-configuration.yaml| please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
