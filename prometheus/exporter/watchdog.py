@@ -266,65 +266,48 @@ def parse_nodes_status(nodesJsonObject):
             map(robust_parse_node_item, nodesJsonObject["items"]))
 
 
-def collect_docker_daemon_status(configFilePath):
+def collect_docker_daemon_status(hosts):
     metrics = []
 
-    cluster_config = common.load_yaml_file(configFilePath)
-    node_configs = cluster_config['machine-list']
-    username = ""
-    password = ""
-    sshport = ""
-
-    if "default-machine-properties" in cluster_config:
-        if "username" in cluster_config["default-machine-properties"]:
-            username = cluster_config["default-machine-properties"]["username"]
-        if "password" in cluster_config["default-machine-properties"]:
-            password = cluster_config["default-machine-properties"]["password"]
-        if "sshport" in cluster_config["default-machine-properties"]:
-            port = cluster_config["default-machine-properties"]["sshport"]
-
     cmd = "sudo systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
-    errorNodeCout = 0
 
-    for node_config in node_configs:
-        ip = node_config["hostip"]
-        label = {"instance": ip}
+    for host in hosts:
+        label = {"ip": host["hostip"], "error": "ok"}
 
         try:
-            if "username" not in node_config or "password" not in node_config or "sshport" not in node_config:
-                node_config["username"] = username
-                node_config["password"] = password
-                node_config["port"] = port
-
-            flag = common.ssh_shell_paramiko(node_config, cmd)
+            flag = common.ssh_shell_paramiko(host, cmd)
             if not flag:
-                errorNodeCout += 1
-                # single node docker health
-                metrics.append(Metric("node_current_docker_error", label, 1))
+                label["error"] = "config" # configuration is not correct
         except Exception as e:
-            logger.exception("ssh to %s failed", ip)
-            errorNodeCout += 1
-            metrics.append(Metric("node_current_docker_error", label, 1))
+            label["error"] = str(e)
+            logger.exception("ssh to %s failed", host["hostip"])
 
-    if errorNodeCout > 0:
-        metrics.append(Metric("docker_error_node_count", {}, errorNodeCout))
+        metrics.append(Metric("docker_daemon_count", label, 1))
 
     return metrics
+
 
 def log_and_export_metrics(path, metrics):
     utils.export_metrics_to_file(path, metrics)
     for metric in metrics:
         logger.info(metric)
 
+
+def load_machine_list(configFilePath):
+    cluster_config = common.load_yaml_file(configFilePath)
+    return cluster_config['hosts']
+
+
 def main(argv):
     logDir = argv[0]
-    configFilePath = argv[1]
-    timeSleep = int(argv[2])
+    timeSleep = int(argv[1])
 
     address = os.environ["K8S_API_SERVER_URI"]
     parse_result = urlparse.urlparse(address)
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
+
+    hosts = load_machine_list("/etc/watchdog/config.yml")
 
     rootLogger = logging.getLogger()
     rootLogger.setLevel(logging.INFO)
@@ -351,7 +334,7 @@ def main(argv):
                 metrics.extend(nodes_metrics)
 
             # 3. check docker deamon status
-            docker_daemon_metrics = collect_docker_daemon_status(configFilePath)
+            docker_daemon_metrics = collect_docker_daemon_status(hosts)
             if docker_daemon_metrics is not None:
                 metrics.extend(docker_daemon_metrics)
 
