@@ -133,7 +133,7 @@ By default, user does not need to change the file.
 
 An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
-### ```configure K8s component version``` <a name="#k8s_component"></a>
+### ```configure K8s component version``` <a name="k8s_component"></a>
 Suggest user use the default configuration:
 ```
 kubernetes:
