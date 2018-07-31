@@ -1,1 +1,1 @@
-module.exports = window.ENV
+module.exports = window.ENV;
