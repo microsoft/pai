@@ -18,7 +18,7 @@
 
 // module dependencies
 const dashboardComponent = require('./dashboard.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const webportalConfig = require('../config/webportal.config.js');
 
 const dashboardHtml = dashboardComponent({
   grafanaUri: webportalConfig.grafanaUri,
