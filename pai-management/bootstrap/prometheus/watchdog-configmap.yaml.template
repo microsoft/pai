@@ -5,7 +5,7 @@ metadata:
 data:
   config.yml: |-
 
-hosts:
-{% for _, hostInfo in machinelist.items() %}
-- {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }} }
-{% endfor %}
+    hosts:
+    {% for _, hostInfo in machinelist.items() %}
+    - {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }} }
+    {% endfor %}

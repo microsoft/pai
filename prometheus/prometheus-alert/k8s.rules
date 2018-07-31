@@ -28,6 +28,7 @@ groups:
         annotations:
           summary: "api server in {{$labels.address}} is not ok"
           description: "api server in {{$labels.address}} is {{$labels.error}"
+
       - alert: k8sEtcdNotOk
         expr: k8s_etcd_count{error!="ok"} > 0
         for: 1m
@@ -36,6 +37,7 @@ groups:
         annotations:
           summary: "etcd server in {{$labels.address}} is not ok"
           description: "etcd server in {{$labels.address}} is {{$labels.error}"
+
       - alert: k8sKubeletNotOk
         expr: k8s_kubelet_count{error!="ok"} > 0
         for: 1m
@@ -44,3 +46,12 @@ groups:
         annotations:
           summary: "kubelet in {{$labels.address}} is not ok"
           description: "kubelet in {{$labels.address}} is {{$labels.error}"
+
+      - alert: k8sDockerDaemonNotOk
+        expr: docker_daemon_count{error!="ok"} > 0
+        for: 1m
+        labels:
+          type: docker_daemon
+        annotations:
+          summary: "docker daemon in {{$labels.ip}} is not ok"
+          description: "docker daemon in {{$labels.ip}} is {{$labels.error}"
