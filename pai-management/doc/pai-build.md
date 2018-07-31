@@ -33,7 +33,7 @@ python paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-nam
 - Push the tagged image to the docker registry which is configured in the ```cluster-configuration```.
 - If the option `-n` is added, only the specified image will be pushed.
 
-# Current Pai build process
+# Current pai build process
 
 - Each component has a build directory under ```pai-management/src/``` folder, with the name identical to the component name.
 - The component build directory contains three things
@@ -73,7 +73,7 @@ Everytime you wanna add a customized docker image into pai, you will have to pre
 #    dst: src/xxxxxx/copied_file
 ```
 
-TAccording to current design, the file only consists of ```copy-list``` field. If this module does not need to copy anything from other places, you can just ignore this field then provide an empty image.yaml .
+According to current design, the file only consists of ```copy-list``` field. If this module does not need to copy anything from other places, you can just ignore this field then provide an empty image.yaml .
 
 - ```copy-list``` part:
     - This field tells paictl the path to copy files.
