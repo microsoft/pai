@@ -54,11 +54,11 @@ This chapter will teach you how to add your customized image to pai. After every
 
 If your service image could be pulled from a public docker registry, you could skip this step.
 
-#### Prepare Service Dockerfile ####
+#### Prepare service dockerfile ####
 
-It will not guide you to write a dockerfile. If you a new developer of docker, please refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) and learn how to dockerfile.
+There is no special restrictions on how to write the dockerfile. If you a new developer of docker, please refer to [this tutorial](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/) and learn how to dockerfile.
 
-#### Write pai's Image Configuration ####
+#### Prepare the building context definition of each module ####
 
 Everytime you wanna add a customized docker image into pai, you will have to prepare a image configuration first. This configuration should be named as ```image.yaml```, and be put into the directory of the image.
 
@@ -73,19 +73,19 @@ Everytime you wanna add a customized docker image into pai, you will have to pre
 #    dst: src/xxxxxx/copied_file
 ```
 
-Configuration only consists copy-list part. if you don't need you can just ignore this field then provide an empty image.yaml .
+The file only consists of ```copy-list``` part, according to the current design. If this module does not need to copy anything from other places, you can just ignore this field then provide an empty image.yaml .
 
 - ```copy-list``` part:
-    - In project, we only keep one replica of source code or tool and we won't replace too much replicas in each image's directory. So this parts tell paictl the path to copy the file.
+    - This field tells paictl the path to copy files.
     - Command: ```cp -r pai/pai-management/$src pai/pai-management/$dst ```. ```src``` and ```dst``` is the value in this part.
 
-#### Place the Image Directory into PAI ####
+#### Place the image directory into pai ####
 
- Note that the name of image's directory should be same with the image name.
+ Note that the name of image's directory should be identical with the image name.
 
-For example, now we wanna add a docker image "ownImage" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/src/ownImage```. That is the image's directory named as the image's name.
+For example, now you wanna add a docker image "ownImage" into pai. You will first create a directory named "ownImage" under the path ```pai/pai-management/src/ownImage```. 
 
-#### Place the Image Directory into PAI ####
+#### Build and push image with paictl ####
 
 ```
 ./paictl.py image build -p /path/to/your/cluster-configuration/dir -n [your-image-name]
