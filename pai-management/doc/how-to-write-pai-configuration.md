@@ -61,10 +61,11 @@ machine-sku:
 ```
 
 In this field, you could define several sku with different name. And in the machine list you should refer your machine to one of them.
-
-- mem: memory
-- gpu<a name="gpu_driver"></a>: If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.
-- os: Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| mem|cluster-configuration.yaml| memory|
+| gpu<a name="gpu_driver"></a>|cluster-configuration.yaml| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
+| os|cluster-configuration.yaml| Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.|
 
 ### ```machine-list``` <a name="m_list"></a>
 ### ```configure node placement of service```<a name="service_placement"></a>
@@ -104,6 +105,7 @@ machine-list:
 ```
 
 User could config each service deploy at which node by labeling node with service tag as below:
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | ```hostname``` | cluster-configuration.yaml | Required. You could get the hostname by the command ```echo `hostname` ``` on the host.|
@@ -196,18 +198,18 @@ cluster:
     secret-name: your_secret_name
 ```
 
-
-- ```clusterid```: The id of the cluster.
-- ```nvidia-drivers-version```: Choose proper nvidia driver version for your cluster [here](http://www.nvidia.com/object/linux-amd64-display-archive.html).
-- ```docker-verison```: The Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host environment. Choose a version [here](https://download.docker.com/linux/static/stable/x86_64/).
-- ```data-path```<a name="data_folder"></a>: The absolute path on the host in your cluster to store the data such as hdfs, zookeeper and yarn. Note: please make sure there is enough space in this path.
-- ```docker-registry-info```:
-    - ```docker-namespace```: Your registry's namespace. If your choose DockerHub as your docker registry. You should fill this field with your username.
-    - ```docker-registry-domain```: E.g., gcr.io. If public，fill docker_registry_domain with the word "public".
-    - ```docker-username```: The account of the docker registry
-    - ```docker-password```: The password of the account
-    - ```docker-tag```: The image tag of the service. You could set the version here. Or just set latest here.
-    - ```secret-name```: Must be lower case, e.g., regsecret. The name of the secret in Kubernetes will be created for your cluster.
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```clusterid```|services-configuration.yaml| The id of the cluster.|
+| ```nvidia-drivers-version```|services-configuration.yaml| Choose proper nvidia driver version for your cluster [here](http://www.nvidia.com/object/linux-amd64-display-archive.html).|
+| ```docker-verison```|services-configuration.yaml| The Docker client used by hadoop NM (node manager) to launch Docker containers (e.g., of a deep learning job) in the host environment. |Choose a version [here](https://download.docker.com/linux/static/stable/x86_64/).|
+| ```data-path```<a name="data_folder"></a>|services-configuration.yaml| The absolute path on the host in your cluster to store the data such as hdfs, zookeeper and yarn. Note: please make sure there is enough space in this path.|
+| ```docker-namespace```|services-configuration.yaml| Your registry's namespace. If your choose DockerHub as your docker registry. You should fill this field with your username.|
+| ```docker-registry-domain```|services-configuration.yaml| E.g., gcr.io. If public，fill docker_registry_domain with the word "public".|
+| ```docker-username```|services-configuration.yaml| The account of the docker registry|
+| ```docker-password```|services-configuration.yaml| The password of the account|
+| ```docker-tag```|services-configuration.yaml| The image tag of the service. You could set the version here. Or just set latest here.|
+| ```secret-name```|services-configuration.yaml| Must be lower case, e.g., regsecret. The name of the secret in Kubernetes will be created for your cluster.|
 
 Note that we provide a read-only public docker registry on DockerHub for official releases. To use this docker registry, th `docker-registry-info` section should be configured as follows, leaving `docker-username` and `docker-password` commented:
 
@@ -244,10 +246,11 @@ hadoop:
       description: VC for Charlie's team.
       capacity: 20
 ```
-
-- ```custom-hadoop-binary-path```: please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).
-- ```hadoop-version```: please set this to ```2.9.0```.
-- ```virtualClusters```: hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```custom-hadoop-binary-path```|services-configuration.yaml| please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
+| ```hadoop-version```|services-configuration.yaml| please set this to ```2.9.0```.|
+| ```virtualClusters```|services-configuration.yaml| hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
 ### ```configure service entry``` <a name="configure_service_entry"></a>
 After [configure node placement of service](#service_placement), user define service's node ip.
@@ -272,10 +275,13 @@ restserver:
   default-pai-admin-password: your_default_pai_admin_password
 ```
   ```configure OpenPAI admin user account``` <a name="configure_user_acc"></a>
-- ```server-port```: Port for rest api server. You can use the default value.
-- ```jwt-secret```: secret for signing authentication tokens, e.g., "Hello PAI!"
-- ```default-pai-admin-username```: database admin username, and admin username of pai.
-- ```default-pai-admin-password```: database admin password
+
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```server-port```|services-configuration.yaml| Port for rest api server. You can use the default value.|
+| ```jwt-secret```|services-configuration.yaml| secret for signing authentication tokens, e.g., "Hello PAI!"|
+| ```default-pai-admin-username```|services-configuration.yaml| database admin username, and admin username of pai.|
+| ```default-pai-admin-password```|services-configuration.yaml| database admin password|
 
 
 ### ```webportal```
@@ -304,9 +310,10 @@ prometheus:
   prometheus-port: 9091
   node-exporter-port: 9100
 ```
-
-- ```prometheus-port```: port for prometheus port, you can use the default value.
-- ```node-exporter-port```: port for node exporter, you can use the default value.
+| Configuration Property | File | Meaning |
+| --- | --- | --- |
+| ```prometheus-port```|services-configuration.yaml| port for prometheus port, you can use the default value.|
+| ```node-exporter-port```|services-configuration.yaml| port for node exporter, you can use the default value.|
 
 ### ```pylon```
 
@@ -317,7 +324,6 @@ pylon:
 ```
 
 - ```port```: port of pylon, you can use the default value.
-
 
 
 ## Kubernetes and High Availability (HA) <a name="k8s-high-availability-configuration"></a>
