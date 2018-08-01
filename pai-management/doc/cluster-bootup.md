@@ -2,9 +2,6 @@
 
 This document introduces the detailed procedures to boot up PAI on a cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
 
-Please refer to Section [single box deployment](./single-box-deployment.md) if user would like to deploy PAI on a single server.
-
-
 ## Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
 
@@ -325,7 +322,7 @@ Please refer to this [section](./cluster-bootup.md#step-3) for details.
 ### 2 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_2"></a>
 Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/)
 ### 3 Getting help  <a name="troubleshooting_3"></a>
-- [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
+- [StackOverflow:](../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 
 ## Maintenance <a name="maintenance"></a>

@@ -137,7 +137,7 @@ User could config each service deploy at which node by labeling node with servic
 | ```pai-worker```| cluster-configuration.yaml | Optional. hadoop-data-node, hadoop-node-manager, and node-exporter will be deployed on a pai-work|
  ```node-exporter```| cluster-configuration.yaml | Optional. You can assign this label to nodes to enable hardware and service monitoring.|
 
-Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./single-box-deployment.md).
+Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./cluster-bootup.md#singlebox).
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
