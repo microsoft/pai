@@ -17,8 +17,8 @@
 
 // This function will call kubernetes restful api to get node - podlist - label info, to support service view monitor page.
 
-const getServiceView = (kubeURL, namespace, callback) => {
-  $.ajax({
+const getNodeList = (kubeURL) => {
+  return $.ajax({
     type: 'GET',
     url: kubeURL + '/api/v1/nodes',
     dataType: 'json',
@@ -28,16 +28,23 @@ const getServiceView = (kubeURL, namespace, callback) => {
     for (let item of items) {
       nodeList.push(item);
     }
-    getNodePods(kubeURL, namespace, nodeList, callback);
+    return nodeList;
   });
 };
 
-const getNodePods = (kubeURL, namespace, nodeList, callback) => {
-  $.ajax({
+const getNodePods = (kubeURL, namespace) => {
+  return $.ajax({
     type: 'GET',
     url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
     dataType: 'json',
-  }).then(function(pods) {
+  }).then((pods) => pods);
+};
+
+const getServiceView = (kubeURL, namespace, callback) => {
+  $.when(
+    getNodeList(kubeURL),
+    getNodePods(kubeURL, namespace)
+  ).done(function(nodeList, pods) {
     let podsItems = pods.items;
     let nodeDic = [];
 
