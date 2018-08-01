@@ -243,8 +243,22 @@ If you want to deploy PAI in single box environment, please refer to [Single Box
 
 ## Troubleshooting <a name="problem"></a>
 
-### 1 Troubleshooting OpenPAI services
-#### 1.1 Diagnosing the problem
+### Table of contents:
+
+- [1 Troubleshooting OpenPAI services](#troubleshooting_1)
+
+  -[1.1 Diagnosing the problem](#troubleshooting_1.1)
+
+  -[1.2 Fix problem](#troubleshooting_1.2)
+
+  -[1.3 Reboot service](#troubleshooting_1.3)
+
+- [2 Troubleshooting Kubernetes Clusters](#troubleshooting_2)
+- [3 Getting help](#troubleshooting_3)
+
+### 1 Troubleshooting OpenPAI services <a name="troubleshooting_1"></a>
+ 
+#### 1.1 Diagnosing the problem  <a name="troubleshooting_1.1"></a>
 Dashboard:
 ```
 http://<master>:9090
@@ -281,7 +295,7 @@ ls /var/log/pods
 
 As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes pods](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-pod-replication-controller/)
 
-#### 1.2 Fix problem
+#### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
 - Update Configuration
   - update config file
 check and refine 4 yaml files:
@@ -290,7 +304,7 @@ check and refine 4 yaml files:
     - k8s-role-definition.yaml
     - serivices-configuration.yaml
   - customize config for specific service 
-If user want to customize single service, you could find service config file at pai-management/bootstrap and find image dockerfile at pai-management/src.
+If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
 
 - Update Code & Image 
   - Customize image dockerfile or code
@@ -308,7 +322,7 @@ push docker image
 ```
 If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be build / push.
 
-#### 1.3 Reboot service
+#### 1.3 Reboot service  <a name="troubleshooting_1.3"></a>
 1. Stop single or all services.
 
 ```
@@ -321,15 +335,15 @@ If the -n parameter is specified, only the given service, e.g. rest-server, webp
 2. Boot up single all OpenPAI services.
 Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
-### 2 Troubleshooting Kubernetes Clusters
+### 2 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_2"></a>
 Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/)
-### 3 Getting help
+### 3 Getting help  <a name="troubleshooting_3"></a>
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 
 ## Maintenance <a name="maintenance"></a>
-####  [Service Upgrading](#service-maintain.md)
-####  [Machine Add & Delete](#machine-maintenance.md)
+####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)
+####  [Machine Add & Delete](./service-maintain.md#machine-maintenance.md)
 
 ## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
