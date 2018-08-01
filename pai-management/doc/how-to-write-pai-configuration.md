@@ -1,10 +1,20 @@
-# PAI Configuration
+# OpenPAI Configuration Document
+
+PAI configuration consists of 4 YAML files:
+
+- [`cluster-configuration.yaml`](./how-to-write-pai-configuration.md#cluster_configuration) - Machine-level configurations, including login info, machine SKUs, labels of each machine, etc.
+- [`kubernetes-configuration.yaml`](./how-to-write-pai-configuration.md#kubernetes_configuration) - Kubernetes-level configurations, part 1. This file contains basic configurations of Kubernetes, such as the version info, network configurations, etc.
+- [`k8s-role-definition.yaml`](./how-to-write-pai-configuration.md#k8s_role_definition) - Kubernetes-level configurations, part 2. This file contains the mappings of Kubernetes roles and machine labels.
+- [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
+
+There are two ways to prepare the above 4 PAI configuration files. The first one is to prepare them manually. The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 Before deployment or maintenance, user should have the cluster configuration files ready.
 
 You could find the example configuration files in [pai/cluster-configuration/](../../cluster-configuration).
 
 Note: Please do not change the name of the configuration files. And those 4 files should be put in the same directory.
+
 
 
 ## Index
