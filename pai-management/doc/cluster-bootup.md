@@ -100,7 +100,7 @@ Please refer to this [section](./cluster-bootup.md#step-3) for details.
 - [Step 0. Prepare the dev-box](#c-step-0)
 - [Step 1. Prepare the quick-start.yaml file](#c-step-1)
 - [Step 2. Generate OpenPAI configuration files](#c-step-2)
-- [Step 3(Optional). Prepare PAI configuration: Manual approach](#c-step-3)
+- [Step 3(Optional). Customize configure OpenPAI](#c-step-3)
 - [Step 4. Boot up Kubernetes](#c-step-4)
 - [Step 5. Start all PAI services](#c-step-5)
 
@@ -170,7 +170,7 @@ serivices-configuration.yaml
 ```
 Please refer to this [section](./how-to-write-pai-configuration.md) for the details of the configuration files.
 
-### Step 3(Optional). Prepare PAI configuration: Manual approach <a name="c-step-3"></a>
+### Step 3(Optional). Customize configure OpenPAI <a name="c-step-3"></a>
 
 This method is for advanced users. 
 
