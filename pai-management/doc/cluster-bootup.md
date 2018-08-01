@@ -87,12 +87,12 @@ Please refer to this [section](./how-to-write-pai-configuration.md) for the deta
 ### Step 3. Boot up Kubernetes
 
 Use the four yaml files to boot up k8s.
-Please refer to this [section](./cluster-bootup.md#step-2) for details.
+Please refer to this [section](./cluster-bootup.md#c-step-4) for details.
 
 ### Step 4. Start all OpenPAI services
 
 After k8s starts, boot up all OpenPAI services.
-Please refer to this [section](./cluster-bootup.md#step-3) for details.
+Please refer to this [section](./cluster-bootup.md#c-step-5) for details.
 
 ## Customized deploy <a name="customizeddeploy"></a>
 
