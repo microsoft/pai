@@ -192,10 +192,6 @@ where `<master>` is the same as in the previous [section](#step-2).
 
 ## Singlebox deploy <a name="#singlebox"></a> 
 
-If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
-
-## Single Box depoyment <a name="customizeddeploy"></a>
-
 ### Steps:
 - [Step 0. Prepare the dev-box](#c-step-0)
 - [Step 1. Prepare the quick-start.yaml file](#c-step-1)
