@@ -95,7 +95,16 @@ After k8s starts, boot up all OpenPAI services.
 Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
 ## Customized deploy <a name="customizeddeploy"></a>
-### Step 0. Prepare the dev-box
+
+### Table of contents:
+- [Step 0. Prepare the dev-box](#c-step-0)
+- [Step 1. Prepare the quick-start.yaml file](#c-step-1)
+- [Step 2. Generate OpenPAI configuration files](#c-step-2)
+- [Step 3(Optional). Prepare PAI configuration: Manual approach](#c-step-3)
+- [Step 4. Boot up Kubernetes](#c-step-4)
+- [Step 5. Start all PAI services](#c-step-5)
+
+### Step 0. Prepare the dev-box <a name="c-step-0"></a>
 
 It is recommended to perform the operations below in a dev box.
 Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
@@ -111,7 +120,7 @@ sudo docker ps
 24c286d888f5        openpai/dev-box                                       "/container-setup.sh"    3 days ago          Up 3 days                                    dev-box
 ```
 
-### Step 1. Prepare the quick-start.yaml file <a name="step-1a"></a>
+### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
@@ -143,7 +152,7 @@ ssh-password: pai-password
 #### How to check
 check all configruation items of the quick-start.yaml are correct.
 
-### Step 2. Generate OpenPAI configuration files
+### Step 2. Generate OpenPAI configuration files <a name="c-step-2"></a>
 
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
@@ -161,7 +170,7 @@ serivices-configuration.yaml
 ```
 Please refer to this [section](./how-to-write-pai-configuration.md) for the details of the configuration files.
 
-### Step 3(Optional). Prepare PAI configuration: Manual approach <a name="step-1a"></a>
+### Step 3(Optional). Prepare PAI configuration: Manual approach <a name="c-step-3"></a>
 
 This method is for advanced users. 
 
@@ -191,7 +200,7 @@ If user want to customize configuration, please see the table below
 check all configruation items of the 4 files are correct.
 
 
-### Step 4. Boot up Kubernetes <a name="step-2"></a>
+### Step 4. Boot up Kubernetes <a name="c-step-4"></a>
 
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
@@ -214,7 +223,7 @@ http://<master>:9090
 ```
 where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
 
-### Step 5. Start all PAI services <a name="step-3"></a>
+### Step 5. Start all PAI services <a name="c-step-5"></a>
 
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
