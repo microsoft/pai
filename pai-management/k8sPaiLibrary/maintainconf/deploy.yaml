@@ -57,6 +57,15 @@ master-deployment:
       src: k8sPaiLibrary/maintaintool/kubelet-start.sh
       dst: master-deployment
 
+    - name: docker-daemon.json
+      src: k8sPaiLibrary/maintaintool/docker-daemon.json
+      dst: master-deployment
+
+    - name: docker-config-update.py
+      src: k8sPaiLibrary/maintaintool/docker-config-update.py
+      dst: master-deployment
+
+
 
 worker-deployment:
 
@@ -81,6 +90,14 @@ worker-deployment:
 
     - name: kubelet-start.sh
       src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: worker-deployment
+
+    - name: docker-daemon.json
+      src: k8sPaiLibrary/maintaintool/docker-daemon.json
+      dst: worker-deployment
+
+    - name: docker-config-update.py
+      src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: worker-deployment
 
 
@@ -115,4 +132,12 @@ proxy-deployment:
 
     - name: kubelet-start.sh
       src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: proxy-deployment
+
+    - name: docker-daemon.json
+      src: k8sPaiLibrary/maintaintool/docker-daemon.json
+      dst: proxy-deployment
+
+    - name: docker-config-update.py
+      src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: proxy-deployment

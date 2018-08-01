@@ -1,14 +1,87 @@
 # Web Portal
 
-The web portal is the entrance for job and cluster management.
-User can submit, monitor, or kill the job through the web UI.
-Cluster operator can also see and manage cluster state through web portal. 
+## Goal
+
+The web portal is the entrance for job and cluster management. User can submit, monitor, or kill the job through the web UI. Cluster operator can also see and manage cluster state through web portal.
+
+## Architecture
+
+An [express](https://expressjs.com/) served, [AdminLTE](https://adminlte.io/) themed, and [EJS](http://ejs.co/) rendered static web application.
+
+## Dependencies
+
+Since [job toturial](../docs/job_tutorial.md) is included in the document tab, make sure **`docs`** directory is exists as a sibling of `web-portal` directory.
+
+To run web portal, the following services should be started, and url of services should be correctly configured:
+
+* [REST Server](../rest-server)
+* [Prometheus](../prometheus)
+* [Grafana](../grafana)
+* YARN
+* Kubernetes
+
+## Build
+
+Run `npm run yarn install` to install dependencies.
+
+## Configuration
+
+If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
+
+* `server-port`: Integer. The network port to access the web portal. The default value is 9286.
+
+---
+
+If web portal is deployed as a standalone service, the following envioronment variables must be configured:
+
+* `REST_SERVER_URI`: URI of [REST Server](../rest-server)
+* `PROMETHEUS_URI`: URI of [Prometheus](../prometheus)
+* `YARN_WEB_PORTAL_URI`: URI of YARN's web portal
+* `GRAFANA_URI`: URI of [Grafana](../grafana)
+* `K8S_DASHBOARD_URI`: URI of Kubernetes' dashboard
+* `K8S_API_SERVER_URI`: URI of Kubernetes' api server
+* `EXPORTER_PORT`: Port of node exporter
+
+And the following field could be configured optionally:
+
+* `LOG_LEVEL`: The log level of the service, default value is `debug`, could be
+    * `error`
+    * `warn`
+    * `info`
+    * `debug`
+    * `silly`
+* `SERVER_PORT`: The network port to access the web portal. The default value is 9286.
 
 ## Deployment
 
-The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md). To configure web portal, change the following field(s) in the `webportal` section in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
+The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md).
 
-* `server-port`: Integer. The network port to access the web portal. The default value is 9286.
+---
+
+If web portal is need to be deplyed as a standalone service, follow these steps:
+
+1. Go into the `webportal` directory
+2. Run `npm start`
+
+## Upgrading
+
+Web portal is a stateless service, so it could be upgraded without any extra operation.
+
+## Service Metrics
+
+N/A
+
+## Service Monitoring
+
+N/A
+
+## High Availability
+
+Web portal is a stateless service, so it could be extended for high availability without any extra operation.
+
+## Runtime Requirements
+
+To run web portal on system, a [Node.js](https://nodejs.org/) 6+ runtime is required, with [npm](https://www.npmjs.com/) and [yarn](https://yarnpkg.com/)(JavaScript package manager) installed.
 
 ## Usage
 
@@ -31,3 +104,7 @@ Click the tab "Cluster View" to see the status of the whole cluster. Specificall
 ### Read documents
 
 Click the tab "Documents" to read the tutorial of submitting a job.
+
+## Trouble Shooting and Q&A
+
+TBD

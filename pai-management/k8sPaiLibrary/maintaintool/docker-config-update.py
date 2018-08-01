@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,25 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
-git clone https://github.com/apache/hadoop.git
+import sys
+import json
+import argparse
 
-cd hadoop
+if __name__ == "__main__":
 
-git checkout branch-2.9.0
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--src-json', dest="src_json", required=True,
+                        help="The json with the data you wanna write")
+    parser.add_argument('-d', '--dst-json', dest="dst_json", required=True,
+                        help="The json with the data you wanna update")
+    args = parser.parse_args()
 
-cp /hadoop-2.9.0.gpu-port.patch /hadoop
+    with open(args.src_json, "r") as jsonFile:
+        src_data = json.load(jsonFile)
 
-git apply hadoop-2.9.0.gpu-port.patch
+    with open(args.dst_json, "r") as jsonFile:
+        dst_data = json.load(jsonFile)
 
-mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
+    for conf_key in src_data:
+        dst_data[conf_key] = src_data[conf_key]
+        changed = True
 
-cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
-
-echo "Successfully build hadoop 2.9.0 AI"
-
-
-
-# When Changing the patch id, please update the filename here.
-touch /hadoop-binary/12932984-done
+    with open(args.dst_json, 'w') as jsonFile:
+        json.dump(dst_data, jsonFile)
