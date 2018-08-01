@@ -338,7 +338,6 @@ def pai_machine_info():
     logger.error("Add New Machine Node into cluster :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     logger.error("Remove Machine Node from cluster  :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     logger.error("Repair Error Etcd Node in cluster :  paictl.py machine etcd-fix -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    #logger.error("Repair Issue Machine Node in cluster  :  paictl.py machine repair -p /path/to/configuration/ -l /path/to/nodelist.yaml")
 
 
 

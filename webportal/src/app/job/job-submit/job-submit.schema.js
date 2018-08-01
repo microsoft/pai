@@ -88,6 +88,7 @@ const taskRoleSchema = {
       minimum: 64,
       exclusiveMinimum: false,
       description: 'Shared memory for one task in the task role, no more than memory size',
+      default: 64,
     },
     gpuNumber: {
       type: 'number',
@@ -95,6 +96,20 @@ const taskRoleSchema = {
       minimum: 0,
       exclusiveMinimum: false,
       description: 'GPU number for one task in the task role, no less than 0',
+    },
+    minFailedTaskCount: {
+      type: ['number', 'null'],
+      minimum: 1,
+      exclusiveMinimum: false,
+      description: 'Number of failed tasks to kill the entire job, null or no less than 1',
+      default: 1,
+    },
+    minSucceededTaskCount: {
+      type: ['number', 'null'],
+      minimum: 1,
+      exclusiveMinimum: false,
+      description: 'Number of succeeded tasks to kill the entire job, null or no less than 1',
+      default: null,
     },
     command: {
       type: 'string',
@@ -187,7 +202,7 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 125,
       options: {
-        grid_columns: 3,
+        grid_columns: 4,
       },
       description: 'The virtual cluster job runs on. If omitted, the job will run on default virtual cluster',
       default: 'default',
@@ -196,33 +211,21 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 126,
       options: {
-        grid_columns: 3,
+        grid_columns: 4,
       },
       description: 'If omitted, the job will run on any gpu type',
       default: '',
     },
-    killAllOnCompletedTaskNumber: {
-      type: 'number',
-      multipleOf: 1,
-      minimum: 0,
-      exclusiveMinimum: false,
-      propertyOrder: 127,
-      options: {
-        grid_columns: 3,
-      },
-      description: 'Number of completed tasks to kill the entire job, no less than 0',
-      default: 1,
-    },
     retryCount: {
       type: 'number',
       multipleOf: 1,
-      minimum: 0,
+      minimum: -2,
       exclusiveMinimum: false,
-      propertyOrder: 128,
+      propertyOrder: 127,
       options: {
-        grid_columns: 3,
+        grid_columns: 4,
       },
-      description: 'Job retry count, no less than 0',
+      description: 'Job retry count, no less than -2',
       default: 0,
     },
     taskRoles: {

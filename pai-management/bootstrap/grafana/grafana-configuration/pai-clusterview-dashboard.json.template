@@ -388,7 +388,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu{mode=\"idle\"}[5m])) * 100",
+              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) * 100",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",
@@ -464,21 +464,21 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(node_memory_MemTotal) - sum(node_memory_MemFree) - sum(node_memory_Buffers) - sum(node_memory_Cached)",
+              "expr": "sum(node_memory_MemTotal_bytes) - sum(node_memory_MemFree_bytes) - sum(node_memory_Buffers_bytes) - sum(node_memory_Cached_bytes)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "usage",
               "refId": "A"
             },
             {
-              "expr": "sum(node_memory_MemFree)",
+              "expr": "sum(node_memory_MemFree_bytes)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "free",
               "refId": "D"
             },
             {
-              "expr": "sum(node_memory_Buffers) + sum(node_memory_Cached)",
+              "expr": "sum(node_memory_Buffers_bytes) + sum(node_memory_Cached_bytes)",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
@@ -553,14 +553,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes{device!~\"lo\"}[5m]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -647,14 +647,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_bytes_read[5m]))",
+              "expr": "sum(rate(node_disk_read_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_bytes_written[5m]))",
+              "expr": "sum(rate(node_disk_written_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",

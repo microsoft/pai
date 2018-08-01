@@ -38,14 +38,14 @@ This guide assumes the system has already been deployed properly and a docker re
 The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance. 
 The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
 
-To build a base Docker image, for example [Dockerfile.build.base](Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
+To build a base Docker image, for example [Dockerfile.build.base](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
 ```sh
 docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
 ```
 
 Then a custom docker image can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
 
-As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
+As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
 ```sh
 docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
@@ -88,41 +88,45 @@ A json file describe detailed configuration required for a job submission. The d
           "portNumber": Integer
         }
       ],
-      "command":    String
+      "command":    String,
+      "minFailedTaskCount": Integer,
+      "minSucceededTaskCount": Integer
     }
   ],
   "gpuType": String,
-  "killAllOnCompletedTaskNumber": Integer,
   "retryCount": Integer
 }
 ```
 
 Below please find the detailed explanation for each of the parameters in the config file:
 
-| Field Name                     | Schema                     | Description                              |
-| :----------------------------- | :------------------------- | :--------------------------------------- |
-| `jobName`                      | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique |
-| `image`                        | String, required           | URL pointing to the Docker image for all tasks in the job |
-| `authFile`                     | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
-| `dataDir`                      | String, optional, HDFS URI | Data directory existing on HDFS          |
-| `outputDir`                    | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
-| `codeDir`                      | String, optional, HDFS URI | Code directory existing on HDFS          |
-| `virtualCluster`               | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
-| `taskRoles`                    | List, required             | List of `taskRole`, one task role at least |
-| `taskRole.name`                | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
-| `taskRole.taskNumber`          | Integer, required          | Number of tasks for the task role, no less than 1 |
-| `taskRole.cpuNumber`           | Integer, required          | CPU number for one task in the task role, no less than 1 |
-| `taskRole.memoryMB`            | Integer, required          | Memory for one task in the task role, no less than 100 |
-| `taskRole.shmMB`               | Integer, optional          | Shared memory for one task in the task role, no more than memory size. The default value is 64MB |
-| `taskRole.gpuNumber`           | Integer, required          | GPU number for one task in the task role, no less than 0 |
-| `taskRole.portList`            | List, optional             | List of `portType` to use                |
-| `taskRole.portType.label`      | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
-| `taskRole.portType.beginAt`    | Integer, required          | The port to begin with in the port type, 0 for random selection |
-| `taskRole.portType.portNumber` | Integer, required          | Number of ports for the specific type    |
-| `taskRole.command`             | String, required           | Executable command for tasks in the task role, can not be empty |
-| `gpuType`                      | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `killAllOnCompletedTaskNumber` | Integer, optional          | Number of completed tasks to kill the entire job, no less than 0 |
-| `retryCount`                   | Integer, optional          | Job retry count, no less than 0          |
+| Field Name                       | Schema                     | Description                              |
+| :------------------------------- | :------------------------- | :--------------------------------------- |
+| `jobName`                        | String in `^[A-Za-z0-9\-._~]+$` format, required | Name for the job, need to be unique |
+| `image`                          | String, required           | URL pointing to the Docker image for all tasks in the job |
+| `authFile`                       | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
+| `dataDir`                        | String, optional, HDFS URI | Data directory existing on HDFS          |
+| `outputDir`                      | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
+| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS, should not contain any data and should be less than 200MB    |
+| `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
+| `taskRoles`                      | List, required             | List of `taskRole`, one task role at least |
+| `taskRole.name`                  | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
+| `taskRole.taskNumber`            | Integer, required          | Number of tasks for the task role, no less than 1 |
+| `taskRole.cpuNumber`             | Integer, required          | CPU number for one task in the task role, no less than 1 |
+| `taskRole.memoryMB`              | Integer, required          | Memory for one task in the task role, no less than 100 |
+| `taskRole.shmMB`                 | Integer, optional          | Shared memory for one task in the task role, no more than memory size. The default value is 64MB |
+| `taskRole.gpuNumber`             | Integer, required          | GPU number for one task in the task role, no less than 0 |
+| `taskRole.portList`              | List, optional             | List of `portType` to use                |
+| `taskRole.portType.label`        | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
+| `taskRole.portType.beginAt`      | Integer, required          | The port to begin with in the port type, 0 for random selection |
+| `taskRole.portType.portNumber`   | Integer, required          | Number of ports for the specific type    |
+| `taskRole.command`               | String, required           | Executable command for tasks in the task role, can not be empty |
+| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
+| `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
+
+For more details on explanation, please refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md).
 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
 please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
@@ -162,11 +166,12 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CURRENT_TASK_ROLE_MEM_MB       | `taskRole.memoryMB` of current task role   |
 | PAI_CURRENT_TASK_ROLE_SHM_MB       | `taskRole.shmMB` of current task role      |
 | PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `taskRole.gpuNumber` of current task role  |
+| PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT    | `taskRole.minFailedTaskCount` of current task role    |
+| PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT | `taskRole.minSucceededTaskCount` of current task role |
 | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | Index of current task in current task role, starting from 0 |
 | PAI_JOB_TASK_COUNT                 | Total tasks' number in config file       |
 | PAI_JOB_TASK_ROLE_COUNT            | Total task roles' number in config file  |
 | PAI_JOB_TASK_ROLE_LIST             | Comma separated all task role names in config file |
-| PAI_KILL_ALL_ON_COMPLETED_TASK_NUM | `killAllOnCompletedTaskNumber` in config file |
 | PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
 | PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
 | PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
@@ -233,11 +238,11 @@ A distributed TensorFlow job is listed below as an example:
           "portNumber": 1
         }
       ],
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
+      // kill the entire job when 2 worker tasks completed
+      "minSucceededTaskCount": 2
     }
   ],
-  // kill all 4 tasks when 2 worker tasks completed
-  "killAllOnCompletedTaskNumber": 2,
   "retryCount": 0
 }
 ```

@@ -62,6 +62,7 @@ machine-list:
       zkid: "1"
       pai-master: "true"
       watchdog: "true"
+      alert-manager: "true"
 
 
     - hostname: hostname

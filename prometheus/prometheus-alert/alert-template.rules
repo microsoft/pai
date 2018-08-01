@@ -16,14 +16,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
-# Rule Introduction: Any node whose cpu utilization is higher than 75% for 2 minutes duration
-#ALERT NodeCPUUsage
-#  IF (100 - (avg by (instance) (irate(node_cpu{name="node-exporter",mode="idle"}[5m])) * 100)) > 75
-#  FOR 2m
-#  LABELS {
-#    severity="page"
-#  }
-#  ANNOTATIONS {
-#    SUMMARY = "{{$labels.instance}}: High CPU usage detected",
-#    DESCRIPTION = "{{$labels.instance}}: CPU usage is above 75% (current value is: {{ $value }})"
-#  }
+
+groups:
+    - name: node-rules
+      rules:
+      - alert: NodeFilesystemUsage
+        expr: (node_filesystem_size{device="rootfs"} - node_filesystem_free{device="rootfs"}) / node_filesystem_size{device="rootfs"} * 100 > 80
+        for: 2m
+        labels:
+          type: node
+        annotations:
+          summary: "{{$labels.instance}}: High Filesystem usage detected"
+          description: "{{$labels.instance}}: Filesystem usage is above 80% (current value is: {{ $value }})"
+      - alert: NodeMemoryUsage
+        expr: (node_memory_MemTotal - (node_memory_MemFree+node_memory_Buffers+node_memory_Cached )) / node_memory_MemTotal * 100 > 80
+        for: 2m
+        labels:
+          type: node
+        annotations:
+          summary: "{{$labels.instance}}: High Memory usage detected"
+          description: "{{$labels.instance}}: Memory usage is above 80% (current value is: {{ $value }})"
+      - alert: NodeCPUUsage
+        expr: (100 - (avg by (instance) (irate(node_cpu{job="kubernetes-node-exporter",mode="idle"}[5m])) * 100)) > 80
+        for: 2m
+        labels:
+          type: node
+        annotations:
+          summary: "{{$labels.instance}}: High CPU usage detected"
+          description: "{{$labels.instance}}: CPU usage is above 80% (current value is: {{ $value }})"
