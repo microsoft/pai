@@ -298,6 +298,18 @@ def load_machine_list(configFilePath):
     return cluster_config['hosts']
 
 
+#####
+# Watchdog generate 7 metrics:
+# * pai_pod_count
+# * pai_container_count
+# * pai_node_count
+# * docker_daemon_count
+# * k8s_api_server_count
+# * k8s_etcd_count
+# * k8s_kubelet_count
+# Document about these metrics is in `prometheus/doc/watchdog-metrics.md`
+#####
+
 def main(argv):
     logDir = argv[0]
     timeSleep = int(argv[1])
