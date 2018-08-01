@@ -50,8 +50,8 @@ Before start, you need to meet the following requirements:
 - Recommend no Docker installed or a Docker with api version >= 1.26.
 
 #### 2 Deploy OpenPAI
-##### 2.1 [Quick deploy with default settings](./pai-management/doc/cluster-bootup.md#quickdeploy)
-##### 2.2 [Customized deploy](./pai-management/doc/cluster-bootup.md#customizeddeploy)
+##### 2.1 [Customized deploy](./pai-management/doc/cluster-bootup.md#customizeddeploy)
+##### 2.2 [Single Box deploy](./pai-management/doc/cluster-bootup.md#singlebox)
 
 ## How to use
 ### How to train jobs
