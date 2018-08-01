@@ -291,7 +291,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetOut{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
