@@ -78,7 +78,7 @@ const initCells = (idPrefix, instanceList, table) => {
 //
 
 const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
@@ -201,7 +201,7 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
 //
 
 const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
@@ -252,7 +252,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
 //
 
 const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
