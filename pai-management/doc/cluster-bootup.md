@@ -115,23 +115,29 @@ This method is for advanced users.
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 If user want to customize configuration, please see the table below
-- [OpenPAI Configuration](./how-to-write-pai-configuration.md#configuration)
-    - [configure node placement of service](./how-to-write-pai-configuration.md#service_placement)
-    - [configure virtual cluster capacity](./how-to-write-pai-configuration.md#configure_vc_capacity)
-    - [configure customize docker repository](./how-to-write-pai-configuration.md#docker_repo)
-    - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry) 
-    - [configure OpenPAI admin user account](./how-to-write-pai-configuration.md#configure_user_acc)
-    - [configure install gpu driver on which server](./how-to-write-pai-configuration.md#gpu_driver)
-    - [configure HDFS data / OpenPAI temp data folder](./how-to-write-pai-configuration.md#data_folder)
-    - configure component version 
+- Configure OpenPAI from senarios
+    - placement
+      - [configure node placement of service](./how-to-write-pai-configuration.md#service_placement)
+      - [configure install gpu driver on which server](./how-to-write-pai-configuration.md#gpu_driver)
+    - scheduling
+      - [configure virtual cluster capacity](./how-to-write-pai-configuration.md#configure_vc_capacity)
+    - account
+      - [configure customize docker repository](./how-to-write-pai-configuration.md#docker_repo)
+      - [configure OpenPAI admin user account](./how-to-write-pai-configuration.md#configure_user_acc)
+    - port / data folder etc.
+      - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry) 
+      - [configure HDFS data / OpenPAI temp data folder](./how-to-write-pai-configuration.md#data_folder)
+    - component version 
       - [configure K8s component version](./how-to-write-pai-configuration.md#k8s_component)
       - [configure docker version](./how-to-write-pai-configuration.md#docker_repo)
       - [configure nvidia gpu driver version](./how-to-write-pai-configuration.md#driver_version)
-    - [Kubernetes High Availability Configuration](./how-to-write-pai-configuration.md#k8s-high-availability-configuration)
-- [configuration of cluster-configuration.yaml](./how-to-write-pai-configuration.md#cluster_configuration)
-- [configuration of k8s-role-definition.yaml](./how-to-write-pai-configuration.md#k8s_role_definition)
-- [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
-- [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
+    - HA
+      - [Kubernetes High Availability Configuration](./how-to-write-pai-configuration.md#k8s-high-availability-configuration)
+- Configure OpenPAI from files
+  - Cluster related configuration: [configuration of cluster-configuration.yaml](./how-to-write-pai-configuration.md#cluster_configuration)
+  - Kubernetes role related configuration: [configuration of k8s-role-definition.yaml](./how-to-write-pai-configuration.md#k8s_role_definition)
+  - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
+  - Service related configuration: [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
 
 
 #### How to check
