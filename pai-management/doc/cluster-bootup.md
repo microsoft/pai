@@ -24,12 +24,13 @@ We assume that the whole cluster has already been configured by the system maint
 
 With the cluster being set up, the steps to bring PAI up on it are as follows:
 
-- Step 0. Prepare dev-box
-- Step 1. Prepare PAI configuration.
-    - (For advanced users) This step can either be done by writing the configuration files manually,
-    - (For novice users) or be done using the `paictl` tool.
-- Step 2. Boot up Kubernetes.
-- Step 3. Start all PAI services.
+- [Step 0. Prepare the dev-box](#c-step-0)
+- [Step 1. Prepare the quick-start.yaml file](#c-step-1)
+- [Step 2. Generate OpenPAI configuration files](#c-step-2)
+- [Step 3(Optional). Customize configure OpenPAI](#c-step-3)
+- [Step 4. Boot up Kubernetes](#c-step-4)
+- [Step 5. Start all PAI services](#c-step-5)
+
 
 ## Quick deploy with default settings <a name="quickdeploy"></a>
 ### Step 0. Prepare the dev-box
