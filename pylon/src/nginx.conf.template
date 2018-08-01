@@ -263,6 +263,12 @@ http {
       sub_filter
         '{{GRAFANA_URI}}'
         '$scheme://$http_host/grafana';
+      sub_filter
+        '"url":"/'
+        '"url":"./';
+      sub_filter
+        'appSubUrl+"/"'
+        'appSubUrl+"/grafana/"';
     }
 
     # PAI web portal

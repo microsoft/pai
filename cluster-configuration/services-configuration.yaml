@@ -101,6 +101,8 @@ prometheus:
   prometheus-port: 9091
   # port for node exporter
   node-exporter-port: 9100
+  # How frequently to scrape targets
+  scrape_interval: 30
   # if you want to enable alert manager to send alert email, uncomment following lines and fill
   # right values.
   #  alerting:

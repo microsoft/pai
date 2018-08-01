@@ -31,6 +31,7 @@ let config = {
   k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
   k8sApiServerUri: process.env.K8S_API_SERVER_URI,
   exporterPort: process.env.EXPORTER_PORT,
+  promScrapeTime: process.env.PROM_SCRAPE_TIME,
 };
 
 // module exports

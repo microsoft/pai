@@ -31,6 +31,7 @@ function exit_handler()
   printf "%s %s\n" \
     "[DEBUG]" "Yarn container exit handler: EXIT signal received in yarn container, exiting ..."
   
+  rm -rf /tmp/pai-root/code/$APP_ID/$CONTAINER_ID 2>/dev/null
   pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
   if [ $pid ]; then
     kill -9 $pid ||\
@@ -189,12 +190,22 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 
 # Prepare docker bootstrap script
 mkdir -p "/tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID"
-hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID/docker_bootstrap.sh
+hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID/docker_bootstrap.sh \
+  || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
 mkdir -p "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID"
 if [[ -n $PAI_CODE_DIR ]]; then
-  hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" || exit 1
+  hdfs dfs -stat $PAI_CODE_DIR \
+    || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
+  code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
+  # TODO: Make the threshold configurable
+  if [ $code_dir_size -gt 200000000 ]; then
+    echo "$PAI_CODE_DIR is larger than 200MB, exit."
+    exit 1
+  fi
+  hdfs dfs -get $PAI_CODE_DIR "/tmp/pai-root/code/$APP_ID/$CONTAINER_ID" \
+    || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
 fi
 
 
@@ -205,7 +216,7 @@ ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER
 
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
-  || { echo 'Can not pull Docker image' ; exit 1; }
+  || { echo "Can not pull Docker image"; exit 1; }
 docker run --name $docker_name \
   --rm \
   --tty \

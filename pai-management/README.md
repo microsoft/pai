@@ -59,3 +59,7 @@ Note: Please working on dev-box when managing your cluster.
 
 - [A Guide For Adding New Service](doc/add-service.md)
 
+
+#### Q&A
+- [Q&A of kubernetes deployment](doc/kubernetes-deploy-qna.md)
+
