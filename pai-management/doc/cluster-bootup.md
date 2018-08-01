@@ -190,7 +190,7 @@ http://<master>:9090/#!/pod?namespace=default
 ```
 where `<master>` is the same as in the previous [section](#step-2).
 
-## Singlebox deploy <a name="#singlebox"></a> 
+## Singlebox deploy <a name="singlebox"></a> 
 
 ### Steps:
 - [Step 0. Prepare the dev-box](#c-step-0)
