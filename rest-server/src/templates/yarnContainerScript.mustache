@@ -28,12 +28,13 @@ BASH_XTRACEFD=13
 
 function exit_handler()
 {
+  printf "%s %s\n" \
+    "[DEBUG]" "Yarn container exit handler: EXIT signal received in yarn container, exiting ..."
+  
   pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
   if [ $pid ]; then
-    printf "%s %s\n" \
-      "[DEBUG]" "Yarn container exit handler: EXIT signal received in yarn container, exiting ..."
     kill -9 $pid ||\
-      printf "%s %s\n"  "[DEBUG]" "Yarn container exit handler tries to kill the container $docker_name that does not exist. It probably has already exited."
+      printf "%s %s\n"  "[DEBUG]" "Yarn container exit handler tries to kill the container $docker_name but failed. Maybe it has already exited."
   fi
   kill 0
 }
