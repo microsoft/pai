@@ -85,6 +85,7 @@ class kubectl_install:
                 sys.exit(1)
             self.logger.info("Wait 5s, and retry it later.")
             time.sleep(5)
+        self.logger.info("Successfully install kubectl and configure it!")
 
 
 
