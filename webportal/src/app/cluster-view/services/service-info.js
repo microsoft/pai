@@ -22,14 +22,13 @@ const getServiceView = (kubeURL, namespace, callback) => {
     type: 'GET',
     url: kubeURL + '/api/v1/nodes',
     dataType: 'json',
-    success: function(data) {
-      let items = data.items;
-      let nodeList = [];
-      for (let item of items) {
-        nodeList.push(item);
-      }
-      getNodePods(kubeURL, namespace, nodeList, callback);
-    },
+  }).then(function(data) {
+    let items = data.items;
+    let nodeList = [];
+    for (let item of items) {
+      nodeList.push(item);
+    }
+    getNodePods(kubeURL, namespace, nodeList, callback);
   });
 };
 
@@ -38,26 +37,25 @@ const getNodePods = (kubeURL, namespace, nodeList, callback) => {
     type: 'GET',
     url: kubeURL + '/api/v1/namespaces/' + namespace + '/pods/',
     dataType: 'json',
-    success: function(pods) {
-      let podsItems = pods.items;
-      let nodeDic = [];
+  }).then(function(pods) {
+    let podsItems = pods.items;
+    let nodeDic = [];
 
-      for (let pod of podsItems) {
-        let nodeName = pod.spec.nodeName;
-        if (nodeDic[nodeName] == null) {
-          nodeDic[nodeName] = [];
-        }
-        nodeDic[nodeName].push(pod);
+    for (let pod of podsItems) {
+      let nodeName = pod.spec.nodeName;
+      if (nodeDic[nodeName] == null) {
+        nodeDic[nodeName] = [];
       }
-      let resultDic = [];
-      for (let node of nodeList) {
-        if (nodeDic[node.metadata.name] == undefined) {
-          nodeDic[node.metadata.name] = [];
-        }
-        resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
+      nodeDic[nodeName].push(pod);
+    }
+    let resultDic = [];
+    for (let node of nodeList) {
+      if (nodeDic[node.metadata.name] == undefined) {
+        nodeDic[node.metadata.name] = [];
       }
-      callback(resultDic);
-    },
+      resultDic.push({'node': node, 'podList': nodeDic[node.metadata.name]});
+    }
+    callback(resultDic);
   });
 };
 
