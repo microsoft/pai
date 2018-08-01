@@ -268,28 +268,29 @@ If you want to deploy PAI in single box environment, please refer to [Single Box
 ### 1 Troubleshooting OpenPAI services <a name="troubleshooting_1"></a>
  
 #### 1.1 Diagnosing the problem  <a name="troubleshooting_1.1"></a>
+
+
+- Monitor
+
+```From kubernetes webportal```:
 Dashboard:
 ```
 http://<master>:9090
 ```
 
-- Monitor
-
-From kubernetes webportal:
-
 ![PAI_deploy_log](./images/PAI_deploy_pod.png)
 
-From OpenPAI watchdog:
+```From OpenPAI watchdog```:
 
 [OpenPAI watchdog](#../../prometheus/doc/watchdog-metrics.md)
 
 - Log
 
-From kubernetes webportal:
+```From kubernetes webportal```:
 
 ![PAI_deploy_pod](./images/PAI_deploy_log.png)
 
-From each node container / pods log file:
+```From each node container / pods log file```:
 
 View containers log under folder:
 ```
@@ -305,7 +306,7 @@ ls /var/log/pods
 As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes pods](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-pod-replication-controller/)
 
 #### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
-- Update Configuration
+- ```Update Configuration```
   - update config file
 check and refine 4 yaml files:
     - cluster-configuration.yaml
@@ -315,7 +316,7 @@ check and refine 4 yaml files:
   - customize config for specific service 
 If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
 
-- Update Code & Image 
+- ```Update Code & Image```
   - Customize image dockerfile or code
 User could find service's image dockerfile at [pai-management/src](#pai-management/src) and customize them. 
   - Rebuild image
@@ -332,7 +333,7 @@ push docker image
 If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be build / push.
 
 #### 1.3 Reboot service  <a name="troubleshooting_1.3"></a>
-1. Stop single or all services.
+1. ```Stop single or all services.```
 
 ```
 python paictl.py service stop \
@@ -341,7 +342,7 @@ python paictl.py service stop \
 ```
 If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped. 
 
-2. Boot up single all OpenPAI services.
+2. ```Boot up single all OpenPAI services.```
 Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
 ### 2 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_2"></a>
