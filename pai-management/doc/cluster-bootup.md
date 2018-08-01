@@ -11,8 +11,9 @@ Please refer to Section [single box deployment](./single-box-deployment.md) if u
 - [Overview](#overview)
 - [Quick deploy with default settings](#quickdeploy)
 - [Customized deploy](#customizeddeploy)
-- [Single Box deploy](#single_box)
-- [Problem investigation and solving](#problem)
+- [Single Box deploy](#singlebox)
+- [Troubleshooting](#problem)
+- [OpenPAI Maintenance](#maintenance)
 - [Appendix: Default values in auto-generated configuration files](#appendix)
 
 <!-- /TOC -->
@@ -167,23 +168,23 @@ This method is for advanced users.
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 If user want to customize configuration, please see the table below
-- [OpenPAI Configuration](#configuration)
-    - [configure node placement of service](#service_placement)
-    - [configure virtual cluster capacity](#configure_vc_capacity)
-    - [configure customize docker repository](#docker_repo)
-    - [configure service entry](#configure_service_entry) 
-    - [configure OpenPAI admin user account](#configure_user_acc)
-    - [configure install gpu driver on which server](#gpu_driver)
-    - [configure HDFS data / OpenPAI temp data folder](#data_folder)
+- [OpenPAI Configuration](./how-to-write-pai-configuration.md#configuration)
+    - [configure node placement of service](./how-to-write-pai-configuration.md#service_placement)
+    - [configure virtual cluster capacity](./how-to-write-pai-configuration.md#configure_vc_capacity)
+    - [configure customize docker repository](./how-to-write-pai-configuration.md#docker_repo)
+    - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry) 
+    - [configure OpenPAI admin user account](./how-to-write-pai-configuration.md#configure_user_acc)
+    - [configure install gpu driver on which server](./how-to-write-pai-configuration.md#gpu_driver)
+    - [configure HDFS data / OpenPAI temp data folder](./how-to-write-pai-configuration.md#data_folder)
     - configure component version 
-      - [configure K8s component version](#k8s_component)
-      - [configure docker version](#docker_repo)
-      - [configure nvidia gpu driver version](#driver_version)
-    - [Kubernetes High Availability Configuration](#k8s-high-availability-configuration)
-- [configuration of cluster-configuration.yaml](#cluster_configuration)
-- [configuration of k8s-role-definition.yaml](#k8s_role_definition)
-- [configuration of kubernetes-configuration.yaml](#kubernetes_configuration)
-- [configuration of services-configuration.yaml](#services_configuration)
+      - [configure K8s component version](./how-to-write-pai-configuration.md#k8s_component)
+      - [configure docker version](./how-to-write-pai-configuration.md#docker_repo)
+      - [configure nvidia gpu driver version](./how-to-write-pai-configuration.md#driver_version)
+    - [Kubernetes High Availability Configuration](./how-to-write-pai-configuration.md#k8s-high-availability-configuration)
+- [configuration of cluster-configuration.yaml](./how-to-write-pai-configuration.md#cluster_configuration)
+- [configuration of k8s-role-definition.yaml](./how-to-write-pai-configuration.md#k8s_role_definition)
+- [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
+- [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
 
 
 #### How to check
@@ -230,13 +231,13 @@ If the `-n` parameter is specified, only the given service, e.g. `rest-server`, 
 
 #### How to check
 
-After this step, the system maintainer can check the status of PAI services by accessing PAI web portal:
+After this step, the system maintainer can check the status of OpenPAI services by accessing OpenPAI kubernetes web portal:
 ```
-http://<master>:9286
+http://<master>:9090/#!/pod?namespace=default
 ```
 where `<master>` is the same as in the previous [section](#step-2).
 
-## Singlebox deploy <a name="#single_box"></a> 
+## Singlebox deploy <a name="#singlebox"></a> 
 
 If you want to deploy PAI in single box environment, please refer to [Single Box Deployment](single-box-deployment.md) to edit configuration files.
 
@@ -326,9 +327,9 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 
-## Maintenance
-### 1 [Service Upgrading](#service-maintain.md)
-### 2 [Machine Add & Delete](#machine-maintenance.md)
+## Maintenance <a name="maintenance"></a>
+####  [Service Upgrading](#service-maintain.md)
+####  [Machine Add & Delete](#machine-maintenance.md)
 
 ## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
