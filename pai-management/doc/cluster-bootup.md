@@ -194,7 +194,7 @@ where `<master>` is the same as in the previous [section](#step-2).
 
 ### Steps:
 - [Step 0. Prepare the dev-box](#c-step-0)
-- [Step 1. Prepare the quick-start.yaml file](#c-step-1)
+- Step 1. Prepare the quick-start.yaml file
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
