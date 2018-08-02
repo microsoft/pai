@@ -640,20 +640,20 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     }
 
-    // failure {
-    //   echo 'I failed :('
-    //   step([
-    //         $class: 'Mailer',
-    //         notifyEveryUnstableBuild: true,
-    //         recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
-    //       ])
+    failure {
+      echo 'I failed :('
+      step([
+            $class: 'Mailer',
+            notifyEveryUnstableBuild: true,
+            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
+      ])
 
-    //   }
+    }
 
-    //   changed {
-    //     echo 'Things were different before...'
+    changed {
+      echo 'Things were different before...'
 
-    //   }
+    }
 
   }
   options {
