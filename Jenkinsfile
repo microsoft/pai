@@ -323,6 +323,11 @@ sudo chown core:core -R /mnt/jenkins/workspace
                         responseCode = response.status
                         echo "Response code: ${responseCode}."
                       } catch (err) {
+                        if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
+                          echo "Timout!"
+                          currentBuild.result = 'FAILURE'
+                          break;
+                        }
                         echo "PAI is not ready: ${err}"
                       }
                     }
@@ -421,6 +426,12 @@ done
                         responseCode = response.status
                         echo "Response code: ${responseCode}."
                       } catch (err) {
+                        if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
+                          echo "Timout!"
+                          currentBuild.result = 'FAILURE'
+                          break;
+                        }
+
                         echo "PAI is not ready: ${err}"
                       }
                     }
