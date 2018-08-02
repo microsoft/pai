@@ -65,13 +65,13 @@ Because hadoop doesn't support modify the configuration at runtime, service shou
 
 ### Upgrading
 
-Either build new image by youself or use our [pre-built images](https://hub.docker.com/r/openpai/hadoop-run/). For now, upgrading should restart related service as well.
+Either build new image by yourself or use our [pre-built images](https://hub.docker.com/r/openpai/hadoop-run/). For now, upgrading should restart related service as well.
 
 ### Service Metrics
 
 Exported by RM webapp address (default RM_IP:8088/jmx).
 
-Toda:
+Todo:
 1. Export YARN Metrics in Prometheus format.
 
 ### Service Monitoring
@@ -87,7 +87,7 @@ Todo：
 
 ### High Availability
 
-Tha major issue of YARN is the single point failure of RM, and we will solve it by configurating multi RM node， the same as official Hadoop. 
+Tha major issue of YARN is the single point failure of RM, and we will solve it by configurating multi RM node, the same as official Hadoop. 
 
 Todo:
 1. Achieve HA by multi RM node.

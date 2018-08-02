@@ -51,7 +51,7 @@ You can also stop service similarly.
 paictl.py service stop -p /path/to/cluster/config -n zookeeper
 `
 
-### Refresh
+### Refreshment
 
 Stop and restart to update configuration, related commands refer to [Deployment](#Deployment). 
 
@@ -59,7 +59,7 @@ Stop and restart to update configuration, related commands refer to [Deployment]
 
 ### Upgrading
 
-Either build new image by youself or use our [pre-built images](https://hub.docker.com/r/openpai/zookeeper/). For now, upgrade should restart related service as well.
+Either build new image by yourself or use our [pre-built images](https://hub.docker.com/r/openpai/zookeeper/). For now, upgrade should restart related service as well.
 
 ### Service Metrics
 
