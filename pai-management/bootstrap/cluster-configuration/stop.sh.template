@@ -19,10 +19,20 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete configmap host-configuration
-kubectl delete configmap docker-credentials
-kubectl delete configmap gpu-configuration
+if kubectl get configmap | grep -q "host-configuration"; then
+    kubectl delete configmap host-configuration || exit $?
+fi
 
-kubectl delete secret {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+if kubectl get configmap | grep -q "docker-credentials"; then
+    kubectl delete configmap docker-credentials || exit $?
+fi
+
+if kubectl get configmap | grep -q "gpu-configuration"; then
+    kubectl delete configmap gpu-configuration || exit $?
+fi
+
+if kubectl get secret | grep -q "{{ clusterinfo['dockerregistryinfo']['secretname'] }}"; then
+    kubectl delete secret {{ clusterinfo['dockerregistryinfo']['secretname'] }} || exit $?
+fi
 
 popd > /dev/null
