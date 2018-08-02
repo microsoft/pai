@@ -22,7 +22,7 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash node-label.sh
 
 # Zookeeper
-kubectl create -f zookeeper.yaml
+kubectl apply -f zookeeper.yaml
 
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k zookeeper -v "true"

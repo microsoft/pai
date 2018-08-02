@@ -23,6 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash node-label.sh
 
-kubectl create -f pylon.yaml
+kubectl apply -f pylon.yaml
 
 popd > /dev/null

@@ -29,7 +29,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 # Hadoop resource manager
-kubectl create -f hadoop-resource-manager.yaml
+kubectl apply -f hadoop-resource-manager.yaml
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
 ret=$?

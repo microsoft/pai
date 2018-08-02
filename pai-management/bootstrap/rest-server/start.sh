@@ -23,6 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash node-label.sh
 
-kubectl create -f rest-server.yaml
+kubectl apply -f rest-server.yaml
 
 popd > /dev/null

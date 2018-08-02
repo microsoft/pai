@@ -22,6 +22,6 @@ pushd $(dirname "$0") > /dev/null
 #chmod u+x configmap-create.sh
 /bin/bash configmap-create.sh
 
-kubectl create -f secret.yaml
+kubectl apply -f secret.yaml
 
 popd > /dev/null

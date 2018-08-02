@@ -19,6 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl create -f end-to-end-test.yaml
+kubectl apply -f end-to-end-test.yaml
 
 popd > /dev/null
