@@ -523,7 +523,7 @@ done
 
             if(pauseNow){
               input (
-                message: 'Click "Yes" to finish!'
+                message: 'Click "Proceed" to finish!'
               )
             }
           }
