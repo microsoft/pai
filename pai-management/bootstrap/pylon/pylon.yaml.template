@@ -63,6 +63,6 @@ spec:
               path: /healthz
               port: pylon
             initialDelaySeconds: 10
-            periodSeconds: 10
+            periodSeconds: 60
       imagePullSecrets:
         - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
