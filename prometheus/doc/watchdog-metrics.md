@@ -65,4 +65,8 @@ vi watchdog-xx.log
 | k8s_kubelet_count | has error key in label, if error != "ok", means kubelet is not functioning correctly |
 
 # Alerting
-Alerting rules are under `[prometheus/prometheus-alert](../prometheus-alert)`, we added some basic healthcheck rules for pai service and node.
+Alerting rules are under `[prometheus/prometheus-alert](../prometheus-alert)`, we added some basic
+healthcheck rules for pai service and node. You can add more alert rule by adding file `*.rules` to
+`prometheus/prometheus-alert` directory. Read doc from
+[prometheus](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) for rule
+syntax reference.
