@@ -301,16 +301,14 @@ sudo chown core:core -R /mnt/jenkins/workspace
           }
           steps {
             script {
+              env.SINGLE_BOX_URL = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
+              echo "${SINGLE_BOX_URL}"
+              // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
+
               if(currentBuild.result == 'FAILURE') {
                 echo "Deploy Failed!!! Skip test!"
               } else {
                 try {
-                  script {
-                    env.SINGLE_BOX_URL = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
-                    echo "${SINGLE_BOX_URL}"
-                    // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
-                  }
-
                   timeout(time: 15, unit: 'MINUTES'){
                     def responseCode = 500
                     while(!responseCode.equals(200)){
@@ -401,16 +399,14 @@ done
           }
           steps {
             script {
+              env.CLUSTER_URL = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
+              echo "${CLUSTER_URL}"
+              // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
+
               if(currentBuild.result == 'FAILURE') {
                 echo "Deploy Failed!!! Skip test!"
               } else {
                 try {
-                  script {
-                    env.CLUSTER_URL = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
-                    echo "${CLUSTER_URL}"
-                    // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
-                  }
-
                   timeout(time: 15, unit: 'MINUTES'){
                     def responseCode = 500
                     while(!responseCode.equals(200)){
