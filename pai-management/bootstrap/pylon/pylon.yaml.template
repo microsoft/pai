@@ -58,5 +58,11 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ clusterinfo['pyloninfo']['port'] }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: pylon
+            initialDelaySeconds: 10
+            periodSeconds: 10
       imagePullSecrets:
         - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

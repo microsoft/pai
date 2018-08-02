@@ -50,6 +50,13 @@ http {
     send_timeout 60m;
 
     #
+    # Health check.
+    #
+    location /healthz {
+      return 200 "Pylon ready.";
+    }
+
+    #
     # General-purpose reverse proxy.
     # The proxy to WebHDFS API depends on it.
     #
