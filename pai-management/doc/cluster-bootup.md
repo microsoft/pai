@@ -55,7 +55,7 @@ Please refer to this [section](./how-to-setup-dev-box.md) for the customize sett
 # Pull the dev-box image from Docker Hub
 sudo docker pull docker.io/openpai/dev-box
 
-# (1) Run your dev-box
+# Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
 #   and the path of your cluster-configuration is /pathConfiguration.
 # By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
@@ -95,7 +95,7 @@ sudo docker ps
 
 ### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
-Prepare the file under dev-box folder:/pai/pai-management/quick-start 
+Prepare the file under dev-box folder: /pai/pai-management/quick-start 
 
 There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
 
@@ -136,7 +136,7 @@ After the quick-start.yaml is ready, use it to generate four configuration yaml 
 ```
 cd /pai/pai-management
 
-# cmd should executed under the /pai/pai-management directory in the dev-box.
+# cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start /quick-start.yaml -o ~/pai-config -f
 ```
@@ -194,7 +194,7 @@ After the configuration files are prepared, the Kubernetes services can be start
 ```
 cd /pai/pai-management
 
-# cmd should executed under the /pai/pai-management directory in the dev-box.
+# cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster k8s-bootup \
   -p ~/pai-config
@@ -221,7 +221,7 @@ When Kubernetes is up and running, PAI services can then be deployed to it using
 ```
 cd /pai/pai-management
 
-# cmd should executed under the /pai/pai-management directory in the dev-box.
+# cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py service start \
   -p ~/pai-config \
@@ -247,7 +247,7 @@ where `<master>` is the same as in the previous [section](#step-2).
 - [Step 0. Prepare the dev-box](#c-step-0)
 - Step 1. Prepare the quick-start.yaml file
 
-Prepare the file under dev-box folder:/pai/pai-management/quick-start 
+Prepare the file under dev-box folder: /pai/pai-management/quick-start 
 
 There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
 
