@@ -29,6 +29,7 @@ template-list:
   - refresh.sh
   - delete.yaml
   - watchdog-ds.yaml
+  - watchdog-configmap.yaml
   - alert-deployment.yaml
   - alert-configmap.yaml
 
