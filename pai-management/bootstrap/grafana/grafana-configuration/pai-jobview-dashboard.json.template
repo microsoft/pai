@@ -280,7 +280,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -291,7 +291,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[5m])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetOut{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -387,7 +387,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -398,7 +398,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[5m]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}",

@@ -19,6 +19,7 @@ import os
 import sys
 import common
 import logging
+import time
 import logging.config
 
 
@@ -82,6 +83,9 @@ class kubectl_install:
             if times == 30:
                 self.logger.error("kubectl ready test failed. Exit paictl.")
                 sys.exit(1)
+            self.logger.info("Wait 5s, and retry it later.")
+            time.sleep(5)
+        self.logger.info("Successfully install kubectl and configure it!")
 
 
 

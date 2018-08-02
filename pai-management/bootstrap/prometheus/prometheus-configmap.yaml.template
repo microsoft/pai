@@ -15,6 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set prom_info = clusterinfo['prometheusinfo'] %}
+{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
+{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
+{% else %}
+{% set port = 9093 %}
+{% endif %}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,7 +33,7 @@ data:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
-      scrape_interval: 30s
+      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
@@ -37,12 +44,12 @@ data:
         regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__
-{% if clusterinfo['prometheusinfo']['alert-manager-hosts'] %}
+{% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:
         - static_configs:
           - targets:
-            {% for host in clusterinfo['prometheusinfo']['alert-manager-hosts'] %}
-            - {{ host }}:{{ clusterinfo['prometheusinfo']['alerting']['alert_manager_port']|default(9093) }}
+            {% for host in clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
+            - {{ host }}:{{ port }}
             {% endfor %}
 {% endif %}

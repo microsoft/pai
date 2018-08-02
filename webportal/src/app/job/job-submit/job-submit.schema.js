@@ -219,13 +219,13 @@ const jobSchema = {
     retryCount: {
       type: 'number',
       multipleOf: 1,
-      minimum: 0,
+      minimum: -2,
       exclusiveMinimum: false,
       propertyOrder: 127,
       options: {
         grid_columns: 4,
       },
-      description: 'Job retry count, no less than 0',
+      description: 'Job retry count, no less than -2',
       default: 0,
     },
     taskRoles: {
