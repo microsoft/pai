@@ -42,7 +42,45 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 ### Step 0. Prepare the dev-box <a name="c-step-0"></a>
 
 It is recommended to perform the operations below in a dev box.
-Please refer to this [section](./how-to-setup-dev-box.md) for the details of setting up a dev-box.
+
+```dev-box``` is a docker container used to boot up or/and maintain a PAI cluster. For convenience, we provide a prebuild Docker image on Docker Hub.
+
+Please refer to this [section](./how-to-setup-dev-box.md) for the customize setting up a dev-box.
+
+#### Use prebuild dev-box image
+
+##### (1) Run your dev-box
+```bash
+
+# Pull the dev-box image from Docker Hub
+sudo docker pull docker.io/openpai/dev-box
+
+# (1) Run your dev-box
+# Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
+#   and the path of your cluster-configuration is /pathConfiguration.
+# By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
+sudo docker run -itd \
+        -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
+        -v /var/lib/docker:/var/lib/docker \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /pathHadoop:/pathHadoop \
+        -v /pathConfiguration:/cluster-configuration  \
+        --pid=host \
+        --privileged=true \
+        --net=host \
+        --name=dev-box \
+        docker.io/openpai/dev-box
+```
+##### (2) Working in your dev-box
+```bash
+sudo docker exec -it dev-box /bin/bash
+```
+##### (3) go to pai-management working dir
+```bash
+cd /pai/pai-management
+```
+
+Now you are free to configure your cluster and run PAI commands...
 
 #### How to check
 
@@ -57,7 +95,11 @@ sudo docker ps
 
 ### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
-An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
+Prepare the file under dev-box folder:/pai/pai-management/quick-start 
+
+There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
+
+An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly. 
 
 ```yaml
 # quick-start.yaml
@@ -92,7 +134,11 @@ check all configruation items of the quick-start.yaml are correct.
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
 ```
-python paictl.py cluster generate-configuration -i ~/quick-start.yaml -o ~/pai-config -f
+cd /pai/pai-management
+
+# cmd should executed under the /pai/pai-management directory in the dev-box.
+
+python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start /quick-start.yaml -o ~/pai-config -f
 ```
 #### How to check
 The command will generate the following four yaml files.
@@ -146,8 +192,12 @@ check all configruation items of the 4 files are correct.
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
 ```
+cd /pai/pai-management
+
+# cmd should executed under the /pai/pai-management directory in the dev-box.
+
 python paictl.py cluster k8s-bootup \
-  -p /path/to/cluster-configuration/dir
+  -p ~/pai-config
 ```
 
 The `paictl` tool does the following things:
@@ -169,8 +219,12 @@ where `<master>` denotes the IP address of the load balancer of Kubernetes maste
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
 ```
+cd /pai/pai-management
+
+# cmd should executed under the /pai/pai-management directory in the dev-box.
+
 python paictl.py service start \
-  -p /path/to/cluster-configuration/dir \
+  -p ~/pai-config \
   [ -n service-name ]
 ```
 
@@ -192,6 +246,10 @@ where `<master>` is the same as in the previous [section](#step-2).
 ### Steps:
 - [Step 0. Prepare the dev-box](#c-step-0)
 - Step 1. Prepare the quick-start.yaml file
+
+Prepare the file under dev-box folder:/pai/pai-management/quick-start 
+
+There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
