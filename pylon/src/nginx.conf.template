@@ -52,7 +52,8 @@ http {
     #
     # Health check.
     #
-    location /healthz {
+    location = /healthz {
+      default_type text/plain;
       return 200 "Pylon ready.";
     }
 
