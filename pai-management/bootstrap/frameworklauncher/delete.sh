@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "Call stop script to stop all service first"
-sh stop.sh
+/bin/bash stop.sh
 
 echo "Create frameworklauncher-delete configmap for deleting data on the host"
 kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/
