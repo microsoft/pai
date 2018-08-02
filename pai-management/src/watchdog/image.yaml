@@ -20,5 +20,3 @@ copy-list:
     dst: src/watchdog/copied_file
   - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
     dst: src/watchdog/copied_file
-  - src: ../cluster-configuration/cluster-configuration.yaml
-    dst: src/watchdog/copied_file

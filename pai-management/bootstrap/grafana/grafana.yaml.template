@@ -24,12 +24,12 @@ spec:
   selector:
     matchLabels:
        task: monitor
-       k8s-app: grafana
+       app: grafana
   template:
     metadata:
       labels:
         task: monitor
-        k8s-app: grafana
+        app: grafana
     spec:
       hostNetwork: true
       hostPID: true

@@ -1,4 +1,4 @@
-# Watchdog 
+# Watchdog
 watchdog will check service / K8S / Node level health. It is a long running service and will continues report & record health metrics to log files.
 # How to use
 For example
@@ -8,7 +8,7 @@ ssh watchdogPodHostIP
 
 cd /var/log/containers
 
-vi watchdog-xx.log 
+vi watchdog-xx.log
 
 log example:
 
@@ -37,47 +37,36 @@ go to k8s container log folder
 
 cd /var/log/containers
 
-vi watchdog-xx.log 
+vi watchdog-xx.log
 
 # Metrics
 ## Service Health Metrics
 
-| Metric name| Note | 
+| Metric name| Description |
 | ---------- |  ----------- |
-| cluster_current_probe_not_ready_pod_count | cluster pods' occurs readiness probe failed error, condition is not ready, total count |
-| cluster_current_phase_failed_pod_count| cluster pods' phase become failed total count |
-| cluster_phase_unknown_pod_count | cluster pods' phase become unknown total count |
-| cluster_current_status_not_ready_container_count| cluster pods' contains container status is not ready total count |
-| cluster_current_terminated_container_count | cluster pods' container status is terminated total count |
-| cluster_current_waiting_container_count| cluster pods' container status is waiting  total count |
-| cluster_container_once_restarted_pod_count| cluster pods' container restart total count |
-| service_current_probe_not_ready_pod_count| specific pod occurs readiness probe failed error, condition is not ready, value is 1 |
-| service_current_phase_failed_pod_count| specific pod phase is failed, value is 1 |
-| service_current_phase_unknown_pod_count| specific pod phase become unknown, value is 1 |
-| service_current_not_ready_container_count| specific pod contains container status is not ready, value is 1 |
-| service_current_terminated_container_count| specific pod container status is terminated total count, value is 1 |
-| service_current_waiting_container_count| specific pod container status is waiting  total count, value is 1 |
-| service_restarted_container_count| specific pod's container restart total count |
-| pod_current_probe_not_ready| each service occurs readiness probe failed error, condition is not ready, total count |
-| pod_current_phase_failed| each service pods' phase become failed total count |
-| pod_current_phase_unknown| each service pods' phase become unknown total count |
-| container_current_not_ready| each service pods' contains container status is not ready total count |
-| container_current_terminated| each service pods' container status is terminated total count |
-| container_current_waiting | each service pods' container status is waiting  total count |
-| container_accumulation_restart_total| each service pods' container restart total count |
-
-## K8s Health Metrics
-| Metric name| Labels/tags |
-| ---------- |  ----------- |
-| apiserver_current_status_error| api server health status, 1 is error |
-| etcd_current_status_error| etcd health status, 1 is error |
-| kubelet_current_status_error| each node kubelet health status, 1 is error |
+| pai_pod_count | describe count of pai service like webportal, grafana, lable contains pod status like phase="running", ready="true" |
+| pai_container_count | describe count of pai service container, like pai_pod_count, lable in pai_contain_count contains container status like state="running" |
 
 ## Node Health Metrics
-| Metric name| Labels/tags |
+| Metric name| Description |
 | ---------- |  ----------- |
-| node_current_notready| node status, value 1 is error|
-| notready_node_count| all nodes not ready count|
-| node_current_docker_error| per node docker daemon occurs error, 1 is error |
-| docker_error_node_count| all nodes docker occurs error node count |
+| pai_node_count | describe count of node in open pai, lable describe state of node like ready="true" and condition like disk_pressure="false" |
 
+## Docker Daemon Health Metrics
+| Metric name| Description |
+| ---------- |  ----------- |
+| docker_daemon_count | has error key in label, if error != "ok", means docker daemon is not functioning correctly |
+
+## K8s Health Metrics
+| Metric name| Description |
+| ---------- |  ----------- |
+| k8s_api_server_count | has error key in label, if error != "ok", means api server is not functioning correctly |
+| k8s_etcd_count | has error key in label, if error != "ok", means etcd is not functioning correctly |
+| k8s_kubelet_count | has error key in label, if error != "ok", means kubelet is not functioning correctly |
+
+# Alerting
+Alerting rules are under `[prometheus/prometheus-alert](../prometheus-alert)`, we added some basic
+healthcheck rules for pai service and node. You can add more alert rule by adding file `*.rules` to
+`prometheus/prometheus-alert` directory. Read doc from
+[prometheus](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) for rule
+syntax reference.

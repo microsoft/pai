@@ -24,6 +24,7 @@ daemonset/watchdog
 deployment/prometheus-deployment
 configmap/prometheus-configmap
 configmap/prometheus-alert
+configmap/watchdog
 deployment/alertmanager
 configmap/alertmanager
 "

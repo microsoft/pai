@@ -69,7 +69,12 @@ class TestJobExporter(unittest.TestCase):
         obj = json.loads(self.get_data_test_input("data/nodes_list.json"))
 
         metrics = watchdog.parse_nodes_status(obj)
-        log.info(metrics)
+        self.assertTrue(len(metrics) > 0)
+
+    def test_parse_pods_with_no_condition(self):
+        obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
+
+        metrics = watchdog.parse_pods_status(obj)
         self.assertTrue(len(metrics) > 0)
 
 if __name__ == '__main__':
