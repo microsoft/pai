@@ -7,15 +7,12 @@ PAI configuration consists of 4 YAML files:
 - [`k8s-role-definition.yaml`](./how-to-write-pai-configuration.md#k8s_role_definition) - Kubernetes-level configurations, part 2. This file contains the mappings of Kubernetes roles and machine labels.
 - [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
-There are two ways to prepare the above 4 PAI configuration files. The first one is to prepare them manually. The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
-
+### Prerequisites:
 Before deployment or maintenance, user should have the cluster configuration files ready.
 
 You could find the example configuration files in [pai/cluster-configuration/](../../cluster-configuration).
 
 Note: Please do not change the name of the configuration files. And those 4 files should be put in the same directory.
-
-
 
 ## Index
 
@@ -81,8 +78,27 @@ In this field, you could define several sku with different name. And in the mach
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | mem|cluster-configuration.yaml| memory|
-| gpu<a name="gpu_driver"></a>|cluster-configuration.yaml| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
 | os|cluster-configuration.yaml| Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.|
+| gpu<a name="gpu_driver"></a>|cluster-configuration.yaml| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
+
+### how to check gpu driver
+
+```check gpu driver:```:
+
+Dashboard:
+```
+http://<master>:9090
+```
+
+search driver, view driver status
+
+![PAI_search_driver](./images/PAI_search_driver.png)
+
+view driver logs, this log shows driver in health status
+
+![PAI_driver_right](./images/PAI_driver_right.png)
+
+
 
 ### ```machine-list``` <a name="m_list"></a>
 ### ```configure node placement of service```<a name="service_placement"></a>
@@ -139,6 +155,26 @@ User could config each service deploy at which node by labeling node with servic
 
 Note: To deploy PAI in a single box, users should set pai-master and pai-worker labels for the same machine in machine-list section, or just follow the quick deployment approach described in this [section](./cluster-bootup.md#singlebox).
 
+### how to check
+
+```check node labels:```:
+
+Dashboard:
+```
+http://<master>:9090
+```
+
+![PAI_check_node_label](./images/PAI_check_node_label.png)
+
+```check service pod deployed on which node:```:
+
+Dashboard:
+```
+http://<master>:9090
+```
+
+![PAI_check_pod_ip](./images/PAI_check_pod_ip.png)
+
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
 An example k8s-role-definition.yaml file is available [here](../../cluster-configuration/k8s-role-definition.yaml).
@@ -186,6 +222,17 @@ kubernetes:
 | ```kube-scheduler-version```|kubernetes-configuration.yaml| The version of kube-scheduler. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kube-scheduler?gcrImageListsize=50)|
 | ```kube-controller-manager-version```|kubernetes-configuration.yaml| The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)|
 | ```dashboard-version```|kubernetes-configuration.yaml| The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)|
+
+### how to check 
+
+
+```check kubernetes version:```:
+
+```bash
+~$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.3", GitCommit:"2bba0127", GitTreeState:"clean", BuildDate:"2018-05-21T09:17:39Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.4", GitCommit:"bee2d150", GitTreeState:"clean", BuildDate:"2018-03-12T16:21:35Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
+```
 
 ## Set up services-configuration.yaml <a name="services_configuration"></a>
 
@@ -240,7 +287,93 @@ docker-registry-info:
   - secret-name: <anything>
 ```
 
+
+### how to check 
+
+```check docker OpenPAI public registry:```:
+
 Users can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
+
+```check docker image tag:```:
+
+Dashboard:
+
+```
+http://<master>:9090
+```
+
+![PAI_check_imagetag](./images/PAI_check_imagetag.png)
+
+```check data path:```:
+
+```bash
+~$ ls /datastorage
+
+hadooptmp  hdfs  launcherlogs  prometheus  yarn  zoodata
+
+```
+
+```check docker version:```:
+
+```bash
+~$ sudo docker version
+Client:
+ Version:      17.09.0-ce
+ API version:  1.32
+ Go version:   go1.8.3
+ Git commit:   afdb6d4
+ Built:        Tue Sep 26 22:42:18 2017
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      17.09.0-ce
+ API version:  1.32 (minimum version 1.12)
+ Go version:   go1.8.3
+ Git commit:   afdb6d4
+ Built:        Tue Sep 26 22:40:56 2017
+ OS/Arch:      linux/amd64
+ Experimental: false
+
+```
+
+```check driver version:```:
+
+```bash
+# (1) find driver container at server
+~$ sudo docker ps | grep driver
+
+daeaa9a81d3f        aiplatform/drivers                                    "/bin/sh -c ./inst..."   8 days ago          Up 8 days                                    k8s_nvidia-drivers_drivers-one-shot-d7fr4_default_9d91059c-9078-11e8-8aea-000d3ab5296b_0
+ccf53c260f6f        gcr.io/google_containers/pause-amd64:3.0              "/pause"                 8 days ago          Up 8 days                                    k8s_POD_drivers-one-shot-d7fr4_default_9d91059c-9078-11e8-8aea-000d3ab5296b_0
+
+# (2) login driver container 
+
+~$ sudo docker exec -it daeaa9a81d3f /bin/bash
+
+# (3) checker driver version
+
+root@~/drivers# nvidia-smi
+Fri Aug  3 01:53:04 2018
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 384.111                Driver Version: 384.111                   |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla K80           On   | 0000460D:00:00.0 Off |                    0 |
+| N/A   31C    P8    31W / 149W |      0MiB / 11439MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+
+
+```
+
+
 
 ### ```configure virtual cluster capacity``` <a name="configure_vc_capacity"></a>
 ```YAML
@@ -269,6 +402,18 @@ hadoop:
 | ```custom-hadoop-binary-path```|services-configuration.yaml| please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
 | ```hadoop-version```|services-configuration.yaml| please set this to ```2.9.0```.|
 | ```virtualClusters```|services-configuration.yaml| hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
+
+### how to check 
+
+```check virtual cluster:```:
+
+Dashboard:
+```
+http://<master>:9286/virtual-clusters.html
+```
+
+![PAI_virtual_cluster](./images/PAI_virtual_cluster.png)
+
 
 ### ```configure service entry``` <a name="configure_service_entry"></a>
 After [configure node placement of service](#service_placement), user define service's node ip.
@@ -301,6 +446,19 @@ restserver:
 | ```default-pai-admin-username```|services-configuration.yaml| database admin username, and admin username of pai.|
 | ```default-pai-admin-password```|services-configuration.yaml| database admin password|
 
+### how to check 
+
+```check admin user:```:
+
+Dashboard:
+
+```
+http://<master>:9286/virtual-clusters.html
+```
+
+try to login:
+
+![PAI_login](./images/PAI_login.png)
 
 ### ```webportal```
 
@@ -343,6 +501,13 @@ pylon:
 
 - ```port```: port of pylon, you can use the default value.
 
+### how to check 
+
+Users can browse to each service's dashboard:
+
+```
+http://<master>:port
+```
 
 ## Kubernetes and High Availability (HA) <a name="k8s-high-availability-configuration"></a>
 
