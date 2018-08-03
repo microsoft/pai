@@ -119,7 +119,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "kube-proxy.yaml")
         common.execute_shell(
-            "kubectl apply -f kube-proxy.yaml",
+            "kubectl apply --overwrite=true -f kube-proxy.yaml",
             "Failed to create kube-proxy"
         )
 
