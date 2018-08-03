@@ -30,7 +30,7 @@ COPY copied_file/yarn_exporter.py /usr/local/
 COPY ./requirements.txt /usr/local/
 COPY ./run.sh /usr/local/
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r /usr/local/requirements.txt
 
 #
 # start

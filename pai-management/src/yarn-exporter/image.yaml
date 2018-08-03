@@ -17,4 +17,4 @@
 
 copy-list:
   - src: ../prometheus/exporter/yarn_exporter.py
-    dst: src/yarn_exporter/copied_file
+    dst: src/yarn-exporter/copied_file
