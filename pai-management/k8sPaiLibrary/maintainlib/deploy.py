@@ -142,7 +142,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-service.yaml")
         common.execute_shell(
-            "kubectl apply -f dashboard-service.yaml",
+            "kubectl apply --overwrite=true -f dashboard-service.yaml",
             "Failed to create dashboard-service"
         )
 
@@ -158,7 +158,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-deployment.yaml")
         common.execute_shell(
-            "kubectl apply -f dashboard-deployment.yaml",
+            "kubectl apply --overwrite=true -f dashboard-deployment.yaml",
             "Failed to create dashboard-deployment"
         )
 

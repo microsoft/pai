@@ -26,6 +26,6 @@ kubectl create configmap hadoop-configuration --from-file=hadoop-configuration/ 
 
 kubectl delete job batch-job-hadoop
 
-kubectl apply -f one-time-job-hadoop.yaml
+kubectl create -f one-time-job-hadoop.yaml
 
 popd > /dev/null
