@@ -15,26 +15,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-
-template-list:
-  - node-label.sh
-  - node-exporter-ds.yaml
-  - yarn-exporter-ds.yaml
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - stop.sh
-  - refresh.sh
-  - delete.yaml
-  - watchdog-ds.yaml
-  - alert-deployment.yaml
-  - alert-configmap.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+copy-list:
+  - src: ../prometheus/exporter/yarn_exporter.py
+    dst: src/yarn_exporter/copied_file

@@ -26,7 +26,7 @@ WORKDIR /root/
 RUN apt-get update && \
     apt-get -y install wget build-essential python3 python3-pip git pciutils
 
-COPY copied_file/exporter/yarn_exporter.py /usr/local/
+COPY copied_file/yarn_exporter.py /usr/local/
 COPY ./requirements.txt /usr/local/
 COPY ./run.sh /usr/local/
 
