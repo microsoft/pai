@@ -58,7 +58,7 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ clusterinfo['pyloninfo']['port'] }}
-          readinessProbe:
+          livenessProbe:
             httpGet:
               path: /healthz
               port: pylon
