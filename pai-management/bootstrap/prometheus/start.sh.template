@@ -26,7 +26,7 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash node-label.sh
 
 kubectl apply -f prometheus-configmap.yaml
-kubectl apply configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply -f -
 kubectl apply -f node-exporter-ds.yaml
 kubectl apply -f prometheus-deployment.yaml
 kubectl apply -f watchdog-configmap.yaml
