@@ -61,7 +61,7 @@ The new feature is on the way.
 # Runtime Requirements
 
 It doesn't require much resources, a normal PC with [Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/) installed is ok.
-
+Usually it takes 0.04% of CPU utilization, about 28MB of memory usage. Disk consumption is tiny.
 
 # Trouble Shooting and Q&A
 
