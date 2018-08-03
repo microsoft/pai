@@ -48,6 +48,14 @@ add-worker-node:
       src: k8sPaiLibrary/maintaintool/kubelet-start.sh
       dst: add-worker-node
 
+    - name: docker-daemon.json
+      src: k8sPaiLibrary/maintaintool/docker-daemon.json
+      dst: add-worker-node
+
+    - name: docker-config-update.py
+      src: k8sPaiLibrary/maintaintool/docker-config-update.py
+      dst: add-worker-node
+
 
 
 
@@ -101,6 +109,14 @@ add-master-node-task-two:
 
     - name: kubelet-start.sh
       src: k8sPaiLibrary/maintaintool/kubelet-start.sh
+      dst: add-master-node-task-two
+
+    - name: docker-daemon.json
+      src: k8sPaiLibrary/maintaintool/docker-daemon.json
+      dst: add-master-node-task-two
+
+    - name: docker-config-update.py
+      src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-master-node-task-two
 
 

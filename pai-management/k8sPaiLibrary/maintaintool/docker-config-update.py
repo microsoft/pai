@@ -15,18 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM node:boron
+import sys
+import json
+import argparse
 
-WORKDIR /usr/src/app
+if __name__ == "__main__":
 
-ENV NODE_ENV=production \
-    SERVER_PORT=8080
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--src-json', dest="src_json", required=True,
+                        help="The json with the data you wanna write")
+    parser.add_argument('-d', '--dst-json', dest="dst_json", required=True,
+                        help="The json with the data you wanna update")
+    args = parser.parse_args()
 
-COPY copied_file/ /usr/src/
-COPY copied_file/webportal/ /usr/src/app/
-RUN npm run yarn install
-RUN npm run build
+    with open(args.src_json, "r") as jsonFile:
+        src_data = json.load(jsonFile)
 
-EXPOSE ${SERVER_PORT}
+    with open(args.dst_json, "r") as jsonFile:
+        dst_data = json.load(jsonFile)
 
-CMD ["npm", "start"]
+    for conf_key in src_data:
+        dst_data[conf_key] = src_data[conf_key]
+        changed = True
+
+    with open(args.dst_json, 'w') as jsonFile:
+        json.dump(dst_data, jsonFile)

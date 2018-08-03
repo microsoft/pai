@@ -7,66 +7,15 @@
   "items": [
     {
       "metadata": {
-        "name": "batch-job-hadoop-jsfwl",
-        "generateName": "batch-job-hadoop-",
-        "namespace": "default",
-        "creationTimestamp": "2018-07-18T10:45:32Z"
-      },
-      "status": {
-        "phase": "Succeeded",
-        "conditions": [
-          {
-            "type": "Initialized",
-            "status": "True",
-            "lastProbeTime": null,
-            "lastTransitionTime": "2018-07-18T10:45:32Z",
-            "reason": "PodCompleted"
-          },
-          {
-            "type": "Ready",
-            "status": "False",
-            "lastProbeTime": null,
-            "lastTransitionTime": "2018-07-18T10:45:36Z",
-            "reason": "PodCompleted"
-          },
-          {
-            "type": "PodScheduled",
-            "status": "True",
-            "lastProbeTime": null,
-            "lastTransitionTime": "2018-07-18T10:45:32Z"
-          }
-        ],
-        "hostIP": "10.151.40.4",
-        "podIP": "10.151.40.4",
-        "startTime": "2018-07-18T10:45:32Z",
-        "containerStatuses": [
-          {
-            "name": "one-time-job-hadoop",
-            "state": {
-              "terminated": {
-                "exitCode": 0,
-                "reason": "Completed",
-                "startedAt": "2018-07-18T10:45:34Z",
-                "finishedAt": "2018-07-18T10:45:36Z",
-                "containerID": "docker://556dcda1bb1b64474a87ecbc1f3d6e6b3a484807a87368322bbe98192747cb26"
-              }
-            },
-            "ready": false,
-            "restartCount": 0,
-            "image": "xudifsd/hadoop-run:latest",
-            "imageID": "docker-pullable://xudifsd/hadoop-run@sha256:b62638fe25a9b5cd510df650c1cd50daa76c64f7fb760f1bae11a7645e107ca2",
-            "containerID": "docker://556dcda1bb1b64474a87ecbc1f3d6e6b3a484807a87368322bbe98192747cb26"
-          }
-        ],
-        "qosClass": "BestEffort"
-      }
-    },
-    {
-      "metadata": {
         "name": "drivers-one-shot-ndldh",
         "generateName": "drivers-one-shot-",
         "namespace": "default",
-        "creationTimestamp": "2018-07-18T06:27:22Z"
+        "creationTimestamp": "2018-07-18T06:27:22Z",
+        "labels": {
+            "app": "drivers-one-shot",
+            "controller-revision-hash": "2607302775",
+            "pod-template-generation": "1"
+        }
       },
       "status": {
         "phase": "Running",

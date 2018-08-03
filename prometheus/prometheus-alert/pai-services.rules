@@ -15,18 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM node:boron
+# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
-WORKDIR /usr/src/app
-
-ENV NODE_ENV=production \
-    SERVER_PORT=8080
-
-COPY copied_file/ /usr/src/
-COPY copied_file/webportal/ /usr/src/app/
-RUN npm run yarn install
-RUN npm run build
-
-EXPOSE ${SERVER_PORT}
-
-CMD ["npm", "start"]
+groups:
+    - name: pai-services
+      rules:
+      - alert: PaiServicePodNotRunning
+        expr: pai_pod_count{phase!="running"} > 0
+        for: 1m
+        labels:
+          type: pai_service
+        annotations:
+          summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
+          description: "{{$labels.name}} in {{$labels.host_ip}} is not running"
+      - alert: PaiServicePodNotReady
+        expr: pai_pod_count{phase="running", ready="false"} > 0
+        for: 1m
+        labels:
+          type: pai_service
+        annotations:
+          summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
+          description: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
