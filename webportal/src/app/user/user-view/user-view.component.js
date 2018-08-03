@@ -32,7 +32,7 @@ const userViewComponent = require('./user-view.component.ejs');
 const userTableComponent = require('./user-table.component.ejs');
 const userEditModalComponent = require('./user-edit-modal-component.ejs');
 const loading = require('../../job/loading/loading.component');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../user-auth/user-auth.component');
 
 let table = null;
