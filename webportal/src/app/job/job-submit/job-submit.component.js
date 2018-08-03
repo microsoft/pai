@@ -23,7 +23,7 @@ const breadcrumbComponent = require('../breadcrumb/breadcrumb.component.ejs');
 const loadingComponent = require('../loading/loading.component.ejs');
 const jobSubmitComponent = require('./job-submit.component.ejs');
 const loading = require('../loading/loading.component');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
 

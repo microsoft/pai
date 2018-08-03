@@ -17,10 +17,10 @@ OpenPAI is an open source platform that provides complete AI model training and 
 7. [How to contribute](#how-to-contribute)
 
 ## When to consider OpenPAI
-1. When your organization nedd to share powerful AI computing resources (GPU/FGPA farm, etc.) among teams.
-2. When your organization need to share and reuse common AI assets like Model, Data, Environment, etc.
-3. When your organization need an easy IT ops platform for AI.
-4. When you want to run complete training pipeline in one place. 
+1. When your organization needs to share powerful AI computing resources (GPU/FPGA farm, etc.) among teams.
+2. When your organization needs to share and reuse common AI assets like Model, Data, Environment, etc.
+3. When your organization needs an easy IT ops platform for AI.
+4. When you want to run a complete training pipeline in one place. 
 
 
 ## Why choose OpenPAI
@@ -28,7 +28,7 @@ The platform incorporates the mature design that has a proven track record in Mi
 
 ### Support on-premises and easy to deploy
 
-OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment, but also supports single-box deployment for trial users.
+OpenPAI is a full stack solution. OpenPAI not only supports on-premises, hybrid, or public Cloud deployment but also supports single-box deployment for trial users.
 
 ### Support popular AI frameworks and heterogeneous hardware
 

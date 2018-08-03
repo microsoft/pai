@@ -19,7 +19,7 @@
 // module dependencies
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
 const userLoginComponent = require('./user-login.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 require('./user-login.component.scss');
 
 
