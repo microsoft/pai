@@ -22,7 +22,7 @@ import com.microsoft.frameworklauncher.common.log.DefaultLogger;
 import org.apache.log4j.Level;
 
 // Maintains the life cycle for one Service
-public class AbstractService {
+public abstract class AbstractService {
   private static final DefaultLogger LOGGER = new DefaultLogger(AbstractService.class);
 
   public final String serviceName;
