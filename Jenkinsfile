@@ -511,21 +511,26 @@ done
       }
       steps {
         script {
-          if(currentBuild.result == 'FAILURE'){
-            def pauseNow
-            timeout(time: 15, unit: 'MINUTES'){
-              pauseNow= input(message: 'Do you want to reserve the environment for debug?', ok: 'Yes',
-              parameters: [booleanParam(defaultValue: true,
-              description: 'If you want to debug, click the Yes', name: 'Yes?')])
+          try {
+            if(currentBuild.result == 'FAILURE'){
+              def pauseNow
+              timeout(time: 15, unit: 'MINUTES'){
+                pauseNow= input(message: 'Do you want to reserve the environment for debug?', ok: 'Yes',
+                parameters: [booleanParam(defaultValue: true,
+                description: 'If you want to debug, click the Yes', name: 'Yes?')])
 
-              echo "pauseNow:" + pauseNow
-            }
+                echo "pauseNow:" + pauseNow
+              }
 
-            if(pauseNow){
-              input (
-                message: 'Click "Proceed" to finish!'
-              )
+              if(pauseNow){
+                input (
+                  message: 'Click "Proceed" to finish!'
+                )
+              }
             }
+          } catch (err) {
+            echo "Encountered error: ${err}"
+            echo "Whatever, Will cleanup now!"
           }
         }
 
