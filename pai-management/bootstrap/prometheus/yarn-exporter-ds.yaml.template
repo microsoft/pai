@@ -49,7 +49,7 @@ spec:
         - name: YARN_WEB_PORTAL_URI
           value: {{ clusterinfo['webportalinfo']['yarn_web_portal_uri'] }}
         - name: YARN_EXPORTER_PORT
-          value: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+          value: "{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"
       volumes:
         - name: collector-mount
           hostPath:

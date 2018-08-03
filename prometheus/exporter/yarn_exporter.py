@@ -27,8 +27,6 @@ from prometheus_client import make_wsgi_app
 import attr
 import requests
 
-from version import __version__
-
 class YarnCollector(object):
     api_path = '/'
 
@@ -128,13 +126,11 @@ def get_parser():
     parser.add_argument("yarn_url", help="Yarn rest api address, eg: http://127.0.0.1:8088")
     parser.add_argument("--cluster-name", "-n", help="Yarn cluster name",
                         default="cluster_0")
-    parser.add_argument("--port", "-p", help="Exporter listen port", type=int,
-                        default=9459)
+    parser.add_argument("--port", "-p", help="Exporter listen port",default="9459")
     parser.add_argument("--host", "-H", help="Exporter host address", default="0.0.0.0")
     parser.add_argument("--collected-apps", "-c", nargs="*",
                         help="Name of applications need to collect running status")
-    parser.add_argument('--version', '-V', action='version', help="Show version info",
-                        version='{0}'.format(__version__))
+    
     return parser
 
 if __name__ == "__main__":
@@ -143,5 +139,5 @@ if __name__ == "__main__":
 
     REGISTRY.register(YarnMetricCollector(args.yarn_url, args.cluster_name))
     app = make_wsgi_app(REGISTRY)
-    httpd = make_server(args.host, args.port, app)
+    httpd = make_server(args.host, int(args.port), app)
     httpd.serve_forever()
