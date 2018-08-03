@@ -19,6 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply -f end-to-end-test.yaml
+kubectl apply --overwrite=true -f end-to-end-test.yaml
 
 popd > /dev/null

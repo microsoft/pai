@@ -23,6 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash node-label.sh
 
-kubectl apply -f webportal.yaml
+kubectl apply --overwrite=true -f webportal.yaml
 
 popd > /dev/null

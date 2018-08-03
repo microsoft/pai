@@ -25,16 +25,16 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash node-label.sh
 
-kubectl apply -f prometheus-configmap.yaml
-kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply -f -
-kubectl apply -f node-exporter-ds.yaml
-kubectl apply -f prometheus-deployment.yaml
-kubectl apply -f watchdog-configmap.yaml
-kubectl apply -f watchdog-ds.yaml
+kubectl apply --overwrite=true -f prometheus-configmap.yaml
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f -
+kubectl apply --overwrite=true -f node-exporter-ds.yaml
+kubectl apply --overwrite=true -f prometheus-deployment.yaml
+kubectl apply --overwrite=true -f watchdog-configmap.yaml
+kubectl apply --overwrite=true -f watchdog-ds.yaml
 
 {% if clusterinfo['prometheusinfo']['alerting'] %}
-kubectl apply -f alert-configmap.yaml
-kubectl apply -f alert-deployment.yaml
+kubectl apply --overwrite=true -f alert-configmap.yaml
+kubectl apply --overwrite=true -f alert-deployment.yaml
 {% endif %}
 
 popd > /dev/null
