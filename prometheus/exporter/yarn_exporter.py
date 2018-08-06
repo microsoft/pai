@@ -137,7 +137,7 @@ if __name__ == "__main__":
     args = get_parser().parse_args()
 
 
-    REGISTRY.register(YarnMetricCollector(args.yarn_url, args.cluster_name))
+    REGISTRY.register(YarnMetricCollector(args.yarn_url + '/metrics', args.cluster_name))
     app = make_wsgi_app(REGISTRY)
     httpd = make_server(args.host, int(args.port), app)
     httpd.serve_forever()

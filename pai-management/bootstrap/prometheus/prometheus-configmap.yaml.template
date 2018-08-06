@@ -44,6 +44,18 @@ data:
         regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__
+    - job_name: 'yarn_exporter'
+      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      kubernetes_sd_configs:
+      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
+        role: node
+      # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
+      # Prometheus will fetch data from target address. 
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '([^:]+)(:\d*)?'
+        replacement: '${1}:{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}'
+        target_label: __address__
 {% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:
