@@ -21,7 +21,6 @@ This document introduces the detailed procedures to boot up PAI on a cluster. Pl
 
 We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../README.md#how-to-deploy).
 
-
 ## Table of contents
 
 - [Customized deploy](#customizeddeploy)
@@ -43,13 +42,14 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 
 It is recommended to perform the operations below in a dev box.
 
-```dev-box``` is a docker container used to boot up or/and maintain a PAI cluster. For convenience, we provide a prebuild Docker image on Docker Hub.
+```Dev-box``` is a docker container used to boot up or/and maintain a PAI cluster. For convenience, we provide a prebuild Docker image on Docker Hub.
 
 Please refer to this [section](./how-to-setup-dev-box.md) for the customize setting up a dev-box.
 
 #### Use prebuild dev-box image
 
 ##### (1) Run your dev-box
+
 ```bash
 
 # Pull the dev-box image from Docker Hub
@@ -72,10 +72,13 @@ sudo docker run -itd \
         docker.io/openpai/dev-box
 ```
 ##### (2) Working in your dev-box
+
 ```bash
 sudo docker exec -it dev-box /bin/bash
 ```
-##### (3) go to pai-management working dir
+
+##### (3) Go to pai-management working dir
+
 ```bash
 cd /pai/pai-management
 ```
@@ -85,11 +88,13 @@ Now you are free to configure your cluster and run PAI commands...
 #### How to check
 
 - exec cmd:
-```
+
+```bash
 sudo docker ps
 ```
+
 - sucessful result:
-```
+```bash
 24c286d888f5        openpai/dev-box                                       "/container-setup.sh"    3 days ago          Up 3 days                                    dev-box
 ```
 
@@ -126,20 +131,23 @@ ssh-password: pai-password
 #service-cluster-ip-range: <ip-range-for-k8s>
 
 ```
+
 #### How to check
-check all configruation items of the quick-start.yaml are correct.
+
+Check all configruation items of the quick-start.yaml are correct.
 
 ### Step 2. Generate OpenPAI configuration files <a name="c-step-2"></a>
 
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
-```
+```bash
 cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start /quick-start.yaml -o ~/pai-config -f
 ```
+
 #### How to check
 The command will generate the following four yaml files.
 
@@ -149,6 +157,7 @@ k8s-role-definition.yaml
 kubernetes-configuration.yaml
 serivices-configuration.yaml
 ```
+
 Please refer to this [section](./how-to-write-pai-configuration.md) for the details of the configuration files.
 
 ### Step 3(Optional). Customize configure OpenPAI <a name="c-step-3"></a>
@@ -184,7 +193,8 @@ If user want to customize configuration, please see the table below
 
 
 #### How to check
-check all configruation items of the 4 files are correct.
+
+Check all configruation items of the 4 files are correct.
 
 
 ### Step 4. Boot up Kubernetes <a name="c-step-4"></a>
@@ -203,16 +213,21 @@ python paictl.py cluster k8s-bootup \
 The `paictl` tool does the following things:
 
 - Install `kubectl` command in the current machine (the dev-box).
+
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`, `kubernetes-configuration.yaml` and `k8s-role-definition.yaml`.
+
 - Use `kubectl` to boot up Kubernetes on target machines.
 
 
 #### How to check
+
 After this step, the system maintainer can check the status of Kubernetes by accessing Kubernetes Dashboard:
+
 ```
 http://<master>:9090
 ```
-where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
+
+Where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
 
 ### Step 5. Start all PAI services <a name="c-step-5"></a>
 
@@ -231,20 +246,25 @@ python paictl.py service start \
 If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
 
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`.
+
 - Use `kubectl` to set up config maps and create pods on Kubernetes.
 
 #### How to check
 
 After this step, the system maintainer can check the status of OpenPAI services by accessing OpenPAI kubernetes web portal:
+
 ```
 http://<master>:9090/#!/pod?namespace=default
 ```
-where `<master>` is the same as in the previous [section](#step-2).
+
+Where `<master>` is the same as in the previous [section](#step-2).
 
 ## Singlebox deploy <a name="singlebox"></a> 
 
 ### Steps:
+
 - [Step 0. Prepare the dev-box](#c-step-0)
+
 - Step 1. Prepare the quick-start.yaml file
 
 Prepare the file under dev-box folder: /pai/pai-management/quick-start 
@@ -301,11 +321,12 @@ ssh-password: pai-password
  
 #### 1.1 Diagnosing the problem  <a name="troubleshooting_1.1"></a>
 
-
 - Monitor
 
 ```From kubernetes webportal```:
+
 Dashboard:
+
 ```
 http://<master>:9090
 ```
@@ -325,11 +346,14 @@ http://<master>:9090
 ```From each node container / pods log file```:
 
 View containers log under folder:
-```
+
+```bash
 ls /var/log/containers
 ```
+
 View pods log under folder:
-```
+
+```bash
 ls /var/log/pods
 ```
 
@@ -339,13 +363,17 @@ As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes p
 
 #### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
 - ```Update Configuration```
-  - update config file
-check and refine 4 yaml files:
+  - Update config file
+
+Check and refine 4 yaml files:
+
     - cluster-configuration.yaml
     - kubernetes-configuration.yaml
     - k8s-role-definition.yaml
     - serivices-configuration.yaml
-  - customize config for specific service 
+
+  - Customize config for specific service 
+
 If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
 
 - ```Update Code & Image```
@@ -354,32 +382,42 @@ User could find service's image dockerfile at [pai-management/src](#pai-manageme
   - Rebuild image
 User could execute the following cmds:
 
-build docker image
-```
+Build docker image
+
+```bash
     paictl.py image build -p /path/to/configuration/ [ -n image-x ]
 ```
-push docker image
-```
+
+Push docker image
+
+```bash
     paictl.py image push -p /path/to/configuration/ [ -n image-x ]
 ```
+
 If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be build / push.
 
 #### 1.3 Reboot service  <a name="troubleshooting_1.3"></a>
+
 1. ```Stop single or all services.```
 
-```
+```bash
 python paictl.py service stop \
   -p /path/to/cluster-configuration/dir \
   [ -n service-name ]
 ```
+
 If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped. 
 
 2. ```Boot up single all OpenPAI services.```
+
 Please refer to this [section](./cluster-bootup.md#step-3) for details.
 
 ### 2 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_2"></a>
+
 Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/)
+
 ### 3 Getting help  <a name="troubleshooting_3"></a>
+
 - [StackOverflow:](../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 

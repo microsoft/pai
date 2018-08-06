@@ -8,6 +8,7 @@ PAI configuration consists of 4 YAML files:
 - [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
 ### Prerequisites:
+
 Before deployment or maintenance, user should have the cluster configuration files ready.
 
 You could find the example configuration files in [pai/cluster-configuration/](../../cluster-configuration).
@@ -77,7 +78,7 @@ In this field, you could define several sku with different name. And in the mach
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-| mem|cluster-configuration.yaml| memory|
+| mem|cluster-configuration.yaml| Memory|
 | os|cluster-configuration.yaml| Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.|
 | gpu<a name="gpu_driver"></a>|cluster-configuration.yaml| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
 
@@ -86,6 +87,7 @@ In this field, you could define several sku with different name. And in the mach
 ```check gpu driver:```:
 
 Dashboard:
+
 ```
 http://<master>:9090
 ```
@@ -98,10 +100,10 @@ view driver logs, this log shows driver in health status
 
 ![PAI_driver_right](./images/PAI_driver_right.png)
 
-
-
 ### ```machine-list``` <a name="m_list"></a>
+
 ### ```configure node placement of service```<a name="service_placement"></a>
+
 ```
 machine-list:
 
@@ -169,6 +171,7 @@ http://<master>:9090
 ```check service pod deployed on which node:```:
 
 Dashboard:
+
 ```
 http://<master>:9090
 ```
@@ -186,6 +189,7 @@ By default, user does not need to change the file.
 An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
 ### ```configure K8s component version``` <a name="k8s_component"></a>
+
 Suggest user use the default configuration:
 ```
 kubernetes:
@@ -203,14 +207,15 @@ kubernetes:
   dashboard-version: v1.8.3
 ```
 
-
 ### ```User *must* set the following fields to bootstrap a cluster ```
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | ```cluster-dns```|kubernetes-configuration.yaml| Find the nameserver address in  /etc/resolv.conf|
 | ```load-balance-ip```|kubernetes-configuration.yaml| If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).|
 
 ### ```Some values could use the default value```
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 |  ```service-cluster-ip-range```|kubernetes-configuration.yaml| Please specify an ip range that does not overlap with the host network in the cluster. E.g., use the 169.254.0.0/16 link-local IPv4 address according to [RFC 3927]|(https://tools.ietf.org/html/rfc3927), which usually will not overlap with your cluster IP.|
@@ -224,7 +229,6 @@ kubernetes:
 | ```dashboard-version```|kubernetes-configuration.yaml| The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)|
 
 ### how to check 
-
 
 ```check kubernetes version:```:
 
@@ -287,12 +291,11 @@ docker-registry-info:
   - secret-name: <anything>
 ```
 
-
 ### how to check 
 
 ```check docker OpenPAI public registry:```:
 
-Users can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
+User can browse to https://hub.docker.com/r/openpai to see all the repositories in this public docker registry.
 
 ```check docker image tag:```:
 
@@ -370,12 +373,10 @@ Fri Aug  3 01:53:04 2018
 |  No running processes found                                                 |
 +-----------------------------------------------------------------------------+
 
-
 ```
 
-
-
 ### ```configure virtual cluster capacity``` <a name="configure_vc_capacity"></a>
+
 ```YAML
 hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
@@ -399,9 +400,9 @@ hadoop:
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-| ```custom-hadoop-binary-path```|services-configuration.yaml| please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
-| ```hadoop-version```|services-configuration.yaml| please set this to ```2.9.0```.|
-| ```virtualClusters```|services-configuration.yaml| hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
+| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
+| ```hadoop-version```|services-configuration.yaml| Please set this to ```2.9.0```.|
+| ```virtualClusters```|services-configuration.yaml| Hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
 ### how to check 
 
@@ -414,9 +415,9 @@ http://<master>:9286/virtual-clusters.html
 
 ![PAI_virtual_cluster](./images/PAI_virtual_cluster.png)
 
-
 ### ```configure service entry``` <a name="configure_service_entry"></a>
-After [configure node placement of service](#service_placement), user define service's node ip.
+
+After [configure node placement of service](#service_placement), User define service's node ip.
 User could also define service's entry port as follows configurations (note: webportal is OpenPAI's main page):
 
 ### ```frameworklauncher```
@@ -437,14 +438,15 @@ restserver:
   default-pai-admin-username: your_default_pai_admin_username
   default-pai-admin-password: your_default_pai_admin_password
 ```
+
   ```configure OpenPAI admin user account``` <a name="configure_user_acc"></a>
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
 | ```server-port```|services-configuration.yaml| Port for rest api server. You can use the default value.|
-| ```jwt-secret```|services-configuration.yaml| secret for signing authentication tokens, e.g., "Hello PAI!"|
-| ```default-pai-admin-username```|services-configuration.yaml| database admin username, and admin username of pai.|
-| ```default-pai-admin-password```|services-configuration.yaml| database admin password|
+| ```jwt-secret```|services-configuration.yaml| Secret for signing authentication tokens, e.g., "Hello PAI!"|
+| ```default-pai-admin-username```|services-configuration.yaml| Database admin username, and admin username of pai.|
+| ```default-pai-admin-password```|services-configuration.yaml| Database admin password|
 
 ### how to check 
 
@@ -467,8 +469,7 @@ webportal:
   server-port: 9286
 ```
 
-- ```server-port```: port for webportal, you can use the default value.
-
+- ```server-port```: Port for webportal, you can use the default value.
 
 ### ```grafana```
 
@@ -477,7 +478,7 @@ grafana:
   grafana-port: 3000
 ```
 
-- ```grafana```: port for grafana, you can use the default value.
+- ```grafana```: Port for grafana, you can use the default value.
 
 ### ```prometheus```
 
@@ -486,10 +487,11 @@ prometheus:
   prometheus-port: 9091
   node-exporter-port: 9100
 ```
+
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-| ```prometheus-port```|services-configuration.yaml| port for prometheus port, you can use the default value.|
-| ```node-exporter-port```|services-configuration.yaml| port for node exporter, you can use the default value.|
+| ```prometheus-port```|services-configuration.yaml| Port for prometheus port, you can use the default value.|
+| ```node-exporter-port```|services-configuration.yaml| Port for node exporter, you can use the default value.|
 
 ### ```pylon```
 
@@ -499,7 +501,7 @@ pylon:
   port: 80
 ```
 
-- ```port```: port of pylon, you can use the default value.
+- ```port```: Port of pylon, you can use the default value.
 
 ### how to check 
 
@@ -515,16 +517,16 @@ http://<master>:port
 
 Single master mode does not have high availability.
 
-- only set one node's k8s-role as master
-- set this field ```load-balance-ip``` to your master's ip address
+- Only set one node's k8s-role as master
+- Set this field ```load-balance-ip``` to your master's ip address
 
 ### ```Kubernetes with High Availability: The `proxy` Role```
 
 There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
 
-- one or more than one nodes are labeled with ```k8s-role: master```
-- one node should be labeled with ```k8s-role: proxy```
-- set the field ```load-balance-ip``` to your proxy node's ip address
+- One or more than one nodes are labeled with ```k8s-role: master```
+- One node should be labeled with ```k8s-role: proxy```
+- Set the field ```load-balance-ip``` to your proxy node's ip address
 
 Node: the proxy node itself is not in ha mode. How to configure the proxy node in ha mode is out of the scope of PAI deployment.
 
