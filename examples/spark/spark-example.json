@@ -1,0 +1,26 @@
+{
+  "jobName": "spark-example",
+  "image": "openpai/spark-example",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "",
+  "codeDir": "",
+  "virtualCluster": "default",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "submitter",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 2048,
+      "shmMB": 64,
+      "gpuNumber": 0,
+      "minFailedTaskCount": 1,
+      "minSucceededTaskCount": null,
+      "command": "/spark-example/submit_pi.sh",
+      "portList": []
+    }
+  ]
+}
+
