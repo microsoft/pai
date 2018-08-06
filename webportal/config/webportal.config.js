@@ -15,40 +15,24 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-//
 
-const hardwareDetailComponent = require('./hardware-detail.component.ejs');
-const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
-const url = require('url');
+// module dependencies
+const dotenv = require('dotenv');
 
-//
 
-const resizeContentWrapper = () => {
-  $('#content-wrapper').css({'height': $(window).height() + 'px'});
-  $('#content-iframe').css('height', (($(window).height() - 120)) + 'px');
+dotenv.config();
+
+// get config from environment variables
+let config = {
+  restServerUri: process.env.REST_SERVER_URI,
+  prometheusUri: process.env.PROMETHEUS_URI,
+  yarnWebPortalUri: process.env.YARN_WEB_PORTAL_URI,
+  grafanaUri: process.env.GRAFANA_URI,
+  k8sDashboardUri: process.env.K8S_DASHBOARD_URI,
+  k8sApiServerUri: process.env.K8S_API_SERVER_URI,
+  exporterPort: process.env.EXPORTER_PORT,
+  promScrapeTime: process.env.PROM_SCRAPE_TIME,
 };
 
-//
-
-$(document).ready(() => {
-  $('#sidebar-menu--cluster-view').addClass('active');
-  $('#sidebar-menu--cluster-view--hardware').addClass('active');
-  let instance = '';
-  const query = url.parse(window.location.href, true).query;
-  if (query['instance']) {
-    instance = query['instance'];
-  } else {
-    return;
-  }
-  const hardwareDetailHtml = hardwareDetailComponent({
-    breadcrumb: breadcrumbComponent,
-    grafanaUri: webportalConfig.grafanaUri,
-    instance: instance,
-  });
-  $('#content-wrapper').html(hardwareDetailHtml);
-  window.onresize = function(envent) {
-    resizeContentWrapper();
-  };
-  resizeContentWrapper();
-});
+// module exports
+module.exports = config;
