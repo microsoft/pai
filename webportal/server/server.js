@@ -24,18 +24,21 @@ const app = require('./config/express');
 
 logger.info('config: %j', config);
 
-// Ping outside to make the service available.
-// See https://github.com/Microsoft/pai/pull/1033 for details.
-const pingRestServer = () => {
+// check the connection to rest server
+const checkRestServer = (callback) => {
   request(config.restServer, (err) => {
     if (err) {
-      logger.warn('Cannot connect to REST Server, retry after 5 seconds.');
-      setTimeout(pingRestServer, 5000);
+      logger.warn('Cannot connect to REST Server, retry after 5 seconds.')
+      setTimeout(checkRestServer, 5000, callback)
+    } else {
+      callback()
     }
-  });
+  })
 };
 
-// start the server
-app.listen(config.serverPort, () => {
-  logger.info('Webportal server starts on port %d', config.serverPort);
-});
+checkRestServer(() => {
+  // start the server
+  app.listen(config.serverPort, () => {
+    logger.info('Webportal server starts on port %d', config.serverPort);
+  });
+})
