@@ -16,60 +16,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-import os
-import unittest
-import logging
-import logging.config
-import yaml
+import json
+import argparse
 
-from k8sPaiLibrary.maintainlib import repair
+if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--src-json', dest="src_json", required=True,
+                        help="The json with the data you wanna write")
+    parser.add_argument('-d', '--dst-json', dest="dst_json", required=True,
+                        help="The json with the data you wanna update")
+    args = parser.parse_args()
 
-class TestMaintainlibRepair(unittest.TestCase):
+    with open(args.src_json, "r") as jsonFile:
+        src_data = json.load(jsonFile)
 
-    """
-    Test the class repair's api
-    """
+    with open(args.dst_json, "r") as jsonFile:
+        dst_data = json.load(jsonFile)
 
-    def setUp(self):
+    for conf_key in src_data:
+        dst_data[conf_key] = src_data[conf_key]
+        changed = True
 
-        try:
-
-            os.chdir(os.path.abspath("test"))
-
-        except:
-
-            pass
-
-        configuration_path = "test_logging.yaml"
-
-        if os.path.exists(configuration_path):
-            with open(configuration_path, 'rt') as f:
-                logging_configuration = yaml.safe_load(f.read())
-
-            logging.config.dictConfig(logging_configuration)
-
-            logging.getLogger()
-
-
-
-    def tearDown(self):
-
-        try:
-
-            os.chdir(os.path.abspath(".."))
-
-        except:
-
-            pass
-
-
-
-    def test_repair(self):
-        pass
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
+    with open(args.dst_json, 'w') as jsonFile:
+        json.dump(dst_data, jsonFile)

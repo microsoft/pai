@@ -18,7 +18,7 @@
 
 // module dependencies
 const k8sComponent = require('./k8s.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 
 const k8sDashboardHtml = k8sComponent({
   k8sDashboardUri: webportalConfig.k8sDashboardUri,

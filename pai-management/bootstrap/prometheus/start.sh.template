@@ -1,3 +1,7 @@
+#!/bin/bash
+
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,25 +19,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-# JOb name, should be same with corresponding class in maintainlib
-repair:
+#chmod u+x node-label.sh
 
-    # List of the template
-    template-list:
-    # Generate kubelet.sh from template/kubelet.sh.template
-    # And save it to the path nodename/repair/kubelet.sh
-    - name: kubelet.sh
-      src: k8sPaiLibrary/template/kubelet.sh.template
-      dst: repair
-      # parcel-center/nodename/repair/kubelet.sh
+/bin/bash node-label.sh
 
-    # List of the file
-    file-list:
-    # Copy repair-worker-node.sh from maintain-tool/repair-worker-node.sh
-    # And save it to the path nodename/repair/repair-worker-node.sh
-    - name: repair-worker-node.sh
-      src: k8sPaiLibrary/maintaintool/repair-worker-node.sh
-      dst: repair
-    # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
+kubectl create -f prometheus-configmap.yaml
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert
+kubectl create -f node-exporter-ds.yaml
+kubectl create -f prometheus-deployment.yaml
+kubectl create -f watchdog-configmap.yaml
+kubectl create -f watchdog-ds.yaml
+{% if clusterinfo['prometheusinfo']['alerting'] %}
+kubectl create -f alert-configmap.yaml
+kubectl create -f alert-deployment.yaml
+{% endif %}
 
+popd > /dev/null

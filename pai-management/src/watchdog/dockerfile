@@ -30,10 +30,3 @@ RUN apt-get update && \
 COPY copied_file/exporter/watchdog.py /usr/local/
 COPY copied_file/exporter/utils.py /usr/local/
 COPY copied_file/common.py /usr/local
-COPY copied_file/cluster-configuration.yaml /usr/local
-
-#
-# start
-#
-
-CMD python /usr/local/watchdog.py /datastorage/prometheus /usr/local/cluster-configuration.yaml 30
