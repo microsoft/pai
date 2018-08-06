@@ -41,6 +41,6 @@ do
   fi
 done
 
-kubectl create -f grafana.yaml
+kubectl apply --overwrite=true -f grafana.yaml
 
 popd > /dev/null
