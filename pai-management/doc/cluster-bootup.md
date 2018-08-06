@@ -185,12 +185,27 @@ If user want to customize configuration, please see the table below
       - [configure nvidia gpu driver version](./how-to-write-pai-configuration.md#driver_version)
     - HA
       - [Kubernetes High Availability Configuration](./how-to-write-pai-configuration.md#k8s-high-availability-configuration)
-- Configure OpenPAI from files
+
+- [Configure OpenPAI from files](./how-to-write-pai-configuration.md)
   - Cluster related configuration: [configuration of cluster-configuration.yaml](./how-to-write-pai-configuration.md#cluster_configuration)
   - Kubernetes role related configuration: [configuration of k8s-role-definition.yaml](./how-to-write-pai-configuration.md#k8s_role_definition)
   - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
   - Service related configuration: [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
 
+- Configure OpenPAI services(./how-to-write-pai-service-configuration.md) [Note: This part is for advanced user who wants to customize OpenPAI each service]
+    - [Kubernetes](./how-to-write-pai-service-configuration.md#kubernetes)
+    - Webportal
+      - [Webportal](./how-to-write-pai-service-configuration.md#webportal)
+      - [Pylon](./how-to-write-pai-service-configuration.md#pylon)
+    - FrameworkLauncher
+      - [FrameworkLauncher](./how-to-write-pai-service-configuration.md#frameworklauncher)
+      - [Rest-server](./how-to-write-pai-service-configuration.md#restserver)
+    - Hadoop
+      - [YARN / HDFS](./how-to-write-pai-service-configuration.md#hadoop)
+      - [Zookeeper](./how-to-write-pai-service-configuration.md#zookeeper)
+    - Monitor
+      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
+      - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
 
 #### How to check
 
