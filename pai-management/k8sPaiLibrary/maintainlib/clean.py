@@ -42,6 +42,7 @@ class clean:
         maintain_configuration_path = os.path.join(package_directory_clean, "../maintainconf/clean.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
+        self.force_flag = kwargs["force"]
         self.jobname = "clean"
 
 
@@ -76,6 +77,8 @@ class clean:
             sys.exit(1)
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
+        if self.force_flag:
+            commandline += " -f"
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(node_config['hostip']))
             sys.exit(1)

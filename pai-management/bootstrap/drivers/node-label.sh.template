@@ -19,6 +19,6 @@
 
 {% for host in machinelist %}
     {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype=gpu --overwrite || exit $?
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype=gpu
     {% endif %}
 {% endfor %}

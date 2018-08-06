@@ -29,7 +29,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 # Hadoop data node
-kubectl create -f hadoop-data-node.yaml
+kubectl apply --overwrite=true -f hadoop-data-node.yaml
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-data-node -v "true"
 ret=$?

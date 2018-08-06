@@ -95,11 +95,14 @@ grafana:
   grafana-port: 3000
 
 
+
 prometheus:
   # port for prometheus port
   prometheus-port: 9091
   # port for node exporter
   node-exporter-port: 9100
+  # How frequently to scrape targets
+  scrape_interval: 30
 
 
 pylon:

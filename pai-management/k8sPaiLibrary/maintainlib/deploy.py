@@ -92,7 +92,7 @@ class deploy:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(node_config['hostip']))
             sys.exit(1)
 
-        commandline = "sudo ./{0}/docker-ce-install.sh".format(job_name)
+        commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(job_name)
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(node_config['hostip']))
             sys.exit(1)
@@ -119,7 +119,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "kube-proxy.yaml")
         common.execute_shell(
-            "kubectl create -f kube-proxy.yaml",
+            "kubectl apply --overwrite=true -f kube-proxy.yaml",
             "Failed to create kube-proxy"
         )
 
@@ -142,7 +142,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-service.yaml")
         common.execute_shell(
-            "kubectl create -f dashboard-service.yaml",
+            "kubectl apply --overwrite=true -f dashboard-service.yaml",
             "Failed to create dashboard-service"
         )
 
@@ -158,7 +158,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-deployment.yaml")
         common.execute_shell(
-            "kubectl create -f dashboard-deployment.yaml",
+            "kubectl apply --overwrite=true -f dashboard-deployment.yaml",
             "Failed to create dashboard-deployment"
         )
 

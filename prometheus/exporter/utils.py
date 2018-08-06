@@ -16,6 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import re
 import codecs
 import subprocess
 
@@ -125,3 +126,10 @@ class Singleton(object):
 
         logger.info("gpu info is too old")
         return None
+
+
+def camel_to_underscore(label):
+    """ convert camel case into underscore
+    https://stackoverflow.com/a/1176023 """
+    tmp = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', label)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', tmp).lower()
