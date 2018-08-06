@@ -192,7 +192,7 @@ If user want to customize configuration, please see the table below
   - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
   - Service related configuration: [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
 
-- Configure OpenPAI services(./how-to-write-pai-service-configuration.md) [Note: This part is for advanced user who wants to customize OpenPAI each service]
+- [Configure OpenPAI services](./how-to-write-pai-service-configuration.md) [Note: This part is for advanced user who wants to customize OpenPAI each service]
     - [Kubernetes](./how-to-write-pai-service-configuration.md#kubernetes)
     - Webportal
       - [Webportal](./how-to-write-pai-service-configuration.md#webportal)
