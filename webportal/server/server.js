@@ -17,28 +17,13 @@
 
 
 // module dependencies
-const request = require('request');
 const config = require('./config/index');
 const logger = require('./config/logger');
 const app = require('./config/express');
 
 logger.info('config: %j', config);
 
-// check the connection to rest server
-const checkRestServer = (callback) => {
-  request(config.restServer, (err) => {
-    if (err) {
-      logger.warn('Cannot connect to REST Server, retry after 5 seconds.')
-      setTimeout(checkRestServer, 5000, callback)
-    } else {
-      callback()
-    }
-  })
-};
-
-checkRestServer(() => {
-  // start the server
-  app.listen(config.serverPort, () => {
-    logger.info('Webportal server starts on port %d', config.serverPort);
-  });
-})
+// start the server
+app.listen(config.serverPort, () => {
+  logger.info('Webportal server starts on port %d', config.serverPort);
+});

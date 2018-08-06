@@ -27,8 +27,7 @@ dotenv.config();
 let config = {
   env: process.env.NODE_ENV,
   logLevel: process.env.LOG_LEVEL,
-  serverPort: process.env.SERVER_PORT,
-  restServer: process.env.REST_SERVER_URI,
+  serverPort: process.env.SERVER_PORT
 };
 
 // define config schema
@@ -43,8 +42,7 @@ const configSchema = Joi.object().keys({
     .integer()
     .min(8000)
     .max(65535)
-    .default(9286),
-  restServer: Joi.string(),
+    .default(9286)
 }).required();
 
 const {error, value} = Joi.validate(config, configSchema);
