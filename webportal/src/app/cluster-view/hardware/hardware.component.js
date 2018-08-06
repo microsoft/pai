@@ -26,7 +26,7 @@ require('datatables.net-plugins/sorting/title-numeric.js');
 require('./hardware.component.scss');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../../config/webportal.config.js');
+const webportalConfig = require('../../config/webportal.config.json');
 //
 let table = null;
 

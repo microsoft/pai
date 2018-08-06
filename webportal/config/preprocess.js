@@ -19,6 +19,8 @@
 // module dependencies
 const fse = require('fs-extra');
 const helpers = require('./helpers');
+const webportalConfig = require('./webportal.config');
+
 
 // copy docs to app
 fse.copySync(
@@ -28,3 +30,8 @@ fse.copySync(
 fse.copySync(
     helpers.root('../examples/tensorflow/tensorflow.distributed-cifar10.json'),
     helpers.root('src/app/job/job-submit/job-submit.example.json'));
+
+// write env config
+fse.outputJsonSync(
+    helpers.root('src/app/config/webportal.config.json'),
+    webportalConfig);

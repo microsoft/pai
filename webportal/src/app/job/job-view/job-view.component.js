@@ -34,7 +34,7 @@ const jobDetailTableComponent = require('./job-detail-table.component.ejs');
 const jobDetailConfigInfoModalComponent = require('./job-detail-config-info-modal.component.ejs');
 const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
-const webportalConfig = require('../../config/webportal.config.js');
+const webportalConfig = require('../../config/webportal.config.json');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
