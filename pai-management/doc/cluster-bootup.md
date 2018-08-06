@@ -145,7 +145,7 @@ cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
-python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start /quick-start.yaml -o ~/pai-config -f
+python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 
 #### How to check
@@ -209,7 +209,7 @@ If user want to customize configuration, please see the table below
 
 #### How to check
 
-Check all configruation items of the 4 files are correct.
+Check all configruation items are correct.
 
 
 ### Step 4. Boot up Kubernetes <a name="c-step-4"></a>
@@ -323,11 +323,11 @@ ssh-password: pai-password
 
 - [1 Troubleshooting OpenPAI services](#troubleshooting_1)
 
-  -[1.1 Diagnosing the problem](#troubleshooting_1.1)
+  - [1.1 Diagnosing the problem](#troubleshooting_1.1)
 
-  -[1.2 Fix problem](#troubleshooting_1.2)
+  - [1.2 Fix problem](#troubleshooting_1.2)
 
-  -[1.3 Reboot service](#troubleshooting_1.3)
+  - [1.3 Reboot service](#troubleshooting_1.3)
 
 - [2 Troubleshooting Kubernetes Clusters](#troubleshooting_2)
 - [3 Getting help](#troubleshooting_3)
@@ -379,14 +379,13 @@ As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes p
 #### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
 - ```Update Configuration```
   - Update config file
-
 Check and refine 4 yaml files:
-
+```
     - cluster-configuration.yaml
     - kubernetes-configuration.yaml
     - k8s-role-definition.yaml
     - serivices-configuration.yaml
-
+```
   - Customize config for specific service 
 
 If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
