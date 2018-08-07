@@ -20,7 +20,7 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "stop all hadoop-batch-job"
-/bin/bash stop.sh
+/bin/bash stop.sh || exit $?
 
 sleep 5
 
