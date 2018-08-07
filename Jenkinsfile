@@ -28,8 +28,6 @@ echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE
 '''
           env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
           echo "Image tag: ${IMAGE_TAG}"
-
-          env.HOOK = "https://outlook.office.com/webhook/2c11a0e8-972b-44d2-a559-dbc0cac9f5b5@72f988bf-86f1-41af-91ab-2d7cd011db47/JenkinsCI/20a4e60bed5f41208fa75806ca253384/4afc556a-b969-4da5-ac23-e6d4593f867e"
         }
 
         //sh 'printenv'
