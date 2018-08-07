@@ -1,6 +1,6 @@
 # OpenPAI deployment
 
-This document introduces the detailed procedures to boot up PAI on a cluster. Please refer to this [section](../README.md) if user need the complete information on cluster deployment and maintenance.
+This document introduces the detailed procedures to boot up PAI on a cluster. Please refer to this [section](../README.md), if user need the complete information on cluster deployment and maintenance.
 
 ## Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
