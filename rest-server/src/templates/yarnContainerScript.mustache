@@ -26,13 +26,33 @@ export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
+function debug_log()
+{
+  if [ $# -gt 1 ]; then
+    local prefix=$1
+    local message=$2
+    echo "[DEBUG] $prefix: $message"
+  fi
+}
+
 function exit_handler()
 {
-  printf "%s %s\n" \
-    "[DEBUG]" "Yarn container exit handler: EXIT signal received in yarn container, exiting ..."
+  local handler="Yarn container exit handler"
+  debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
+  
+  debug_log "$handler" "clean the container code"
   rm -rf /tmp/pai-root/code/$APP_ID/$CONTAINER_ID 2>/dev/null
-  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name) && kill -9 $pid ||\
-    printf "%s %s\n"  "[DEBUG]" "Yarn container exit handler tries to kill the container $docker_name that does not exist. It probably has already exited."
+
+  debug_log "$handler" "trying to kill docker container $docker_name"
+  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
+  if [ $pid ]; then
+    kill -9 $pid &&\
+      debug_log "$handler" "docker caontainer $docker_name killed successfully." ||\
+      debug_log "$handler" "tries to kill the container $docker_name but failed. Maybe it has already exited."
+  else
+    debug_log "$handler" "docker container $docker_name has already exited"
+  fi
+  
   kill 0
 }
 
