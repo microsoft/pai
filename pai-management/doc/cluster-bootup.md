@@ -168,7 +168,7 @@ This method is for advanced users.
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
 If user want to customize configuration, please see the table below
-- Configure OpenPAI from senarios
+- Configure OpenPAI from scenarios
     - placement
       - [configure node placement of service](./how-to-write-pai-configuration.md#service_placement)
       - [configure install gpu driver on which server](./how-to-write-pai-configuration.md#gpu_driver)

@@ -17,7 +17,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
 
 ## Index
 
-- Configure OpenPAI from senarios
+- Configure OpenPAI from scenarios
     - placement
       - [configure node placement of service](./how-to-write-pai-configuration.md#service_placement)
       - [configure install gpu driver on which server](./how-to-write-pai-configuration.md#gpu_driver)
