@@ -188,10 +188,6 @@ sudo chown core:core -R /mnt/jenkins/workspace
               } catch (err) {
                 echo "Deploy SingleBox Failed: ${err}"
                 currentBuild.result = 'FAILURE'
-                office365ConnectorSend(
-                  status: "Build Failure",
-                  webhookUrl: "${env.HOOK}"
-                )
               }
             }
           }
@@ -290,10 +286,6 @@ sudo chown core:core -R /mnt/jenkins/workspace
               } catch (err) {
                 echo "Deploy Cluster Failed: ${err}"
                 currentBuild.result = 'FAILURE'
-                office365ConnectorSend(
-                  status: "Build Failure",
-                  webhookUrl: "${env.HOOK}"
-                )
               }
             }
           }
@@ -336,10 +328,6 @@ sudo chown core:core -R /mnt/jenkins/workspace
                         if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
                           echo "Timout!"
                           currentBuild.result = 'FAILURE'
-                          office365ConnectorSend(
-                            status: "Build Failure",
-                            webhookUrl: "${env.HOOK}"
-                          )
                           break;
                         }
                         echo "PAI is not ready: ${err}"
@@ -404,10 +392,6 @@ done
                 } catch (err) {
                   echo "Failed: ${err}"
                   currentBuild.result = 'FAILURE'
-                  office365ConnectorSend(
-                    status: "Build Failure",
-                    webhookUrl: "${env.HOOK}"
-                  )
                 }
               }
             }
@@ -447,10 +431,6 @@ done
                         if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
                           echo "Timout!"
                           currentBuild.result = 'FAILURE'
-                          office365ConnectorSend(
-                            status: "Build Failure",
-                            webhookUrl: "${env.HOOK}"
-                          )
                           break;
                         }
 
@@ -516,10 +496,6 @@ done
                 } catch (err) {
                   echo "Failed: ${err}"
                   currentBuild.result = 'FAILURE'
-                  office365ConnectorSend(
-                    status: "Build Failure",
-                    webhookUrl: "${env.HOOK}"
-                  )
                 }
               }
             }
@@ -662,10 +638,6 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     success {
       echo 'I succeeeded!'
-      office365ConnectorSend(
-        status: "Build Success",
-        webhookUrl: "${env.HOOK}"
-      )
     }
 
     unstable {
@@ -675,10 +647,6 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     failure {
       echo 'I failed :('
-      office365ConnectorSend(
-        status: "Build Failure",
-        webhookUrl: "${env.HOOK}"
-      )
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
