@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+option=$1
+
 apt-get install -y gawk
 
 docker stop kubelet
@@ -30,7 +32,7 @@ if [ -d "/etc/kubernetes" ]; then
 
 fi
 
-if [ -d "/var/etcd/data" ]; then
+if [ -d "/var/etcd/data" -a "$option" == "-f" ]; then
 
     rm -rf /var/etcd/data
 

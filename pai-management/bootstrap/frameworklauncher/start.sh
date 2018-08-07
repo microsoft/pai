@@ -27,6 +27,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash configmap-create.sh
 
-kubectl create -f frameworklauncher.yaml
+kubectl apply --overwrite=true -f frameworklauncher.yaml
 
 popd > /dev/null

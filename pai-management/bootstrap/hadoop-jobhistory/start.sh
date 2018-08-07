@@ -29,7 +29,7 @@ pushd $(dirname "$0") > /dev/null
 
 
 # Hadoop jobhistory
-kubectl create -f hadoop-jobhistory.yaml
+kubectl apply --overwrite=true -f hadoop-jobhistory.yaml
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k jobhistory -v "true"
 ret=$?

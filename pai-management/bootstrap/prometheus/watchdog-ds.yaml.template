@@ -44,14 +44,21 @@ spec:
         volumeMounts:
         - mountPath: /datastorage/prometheus
           name: collector-mount
+        - mountPath: /etc/watchdog
+          name: config-volume
         name: watchdog
         env:
         - name: K8S_API_SERVER_URI
           value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
+        command: ['python']
+        args: ['/usr/local/watchdog.py', '/datastorage/prometheus', '30']
       volumes:
         - name: collector-mount
           hostPath:
             path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+        - name: config-volume
+          configMap:
+            name: watchdog
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true

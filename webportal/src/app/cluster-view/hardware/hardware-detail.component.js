@@ -19,7 +19,7 @@
 
 const hardwareDetailComponent = require('./hardware-detail.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 const url = require('url');
 
 //

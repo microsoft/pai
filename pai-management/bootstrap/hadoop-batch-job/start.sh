@@ -23,6 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash configmap-create.sh
 
-kubectl create -f one-time-job-hadoop.yaml
+kubectl apply --overwrite=true -f one-time-job-hadoop.yaml
 
 popd > /dev/null

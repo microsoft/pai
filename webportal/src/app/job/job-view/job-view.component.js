@@ -34,7 +34,7 @@ const jobDetailTableComponent = require('./job-detail-table.component.ejs');
 const jobDetailConfigInfoModalComponent = require('./job-detail-config-info-modal.component.ejs');
 const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.component.ejs');
 const loading = require('../loading/loading.component');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 
 let table = null;
@@ -138,6 +138,28 @@ const convertState = (humanizedJobStateString) => {
   return `<span class="label ${className}">${humanizedJobStateString}</span>`;
 };
 
+const getStateOrder = (jobInfo) => {
+  const UNKNOWN = -1;
+  const WAITING = 0;
+  const RUNNING = 1;
+  const STOPPING = 2;
+  const STOPPED = 3;
+  const SUCCEEDED = 4;
+  const FAILED = 5;
+
+  if (jobInfo.state === 'WAITING') {
+    return jobInfo.executionType === 'STOP' ? STOPPING : WAITING;
+  }
+  if (jobInfo.state === 'RUNNING') {
+    return jobInfo.executionType === 'STOP' ? STOPPING : RUNNING;
+  }
+  if (jobInfo.state === 'SUCCEEDED') return SUCCEEDED;
+  if (jobInfo.state === 'FAILED') return FAILED;
+  if (jobInfo.state === 'STOPPED') return STOPPED;
+
+  return UNKNOWN;
+};
+
 const convertGpu = (gpuAttribute) => {
   const bitmap = (+gpuAttribute).toString(2);
   const gpuList = [];
@@ -211,8 +233,9 @@ const loadJobs = (specifiedVc) => {
       }},
       {title: 'Retries', data: 'retries'},
       {title: 'Status', data: null, render(data, type) {
-        if (type !== 'display') return getHumanizedJobStateString(data);
-        return convertState(getHumanizedJobStateString(data));
+        if (type === 'display') return convertState(getHumanizedJobStateString(data));
+        if (type === 'sort') return getStateOrder(data);
+        return getHumanizedJobStateString(data);
       }},
       {title: 'Stop', data: null, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
