@@ -379,9 +379,8 @@ ls /var/log/pods
 As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes pods](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-pod-replication-controller/)
 
 #### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
-- ```Update OpenPAI Configuration```
-  - Update config file
-  - 
+- Update OpenPAI Configuration
+  
 Check and refine 4 yaml files:
 
 ```
@@ -391,11 +390,11 @@ Check and refine 4 yaml files:
     - serivices-configuration.yaml
 ```
 
-- ```Customize config for specific service ```
+- Customize config for specific service 
 
 If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
 
-- ```Update Code & Image```
+- Update Code & Image
 
   - Customize image dockerfile or code
 
