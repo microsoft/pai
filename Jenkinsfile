@@ -638,6 +638,10 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     success {
       echo 'I succeeeded!'
+      office365ConnectorSend(
+        status: "Build success",
+        webhookUrl: "${env.HOOK}"
+      )
     }
 
     unstable {
@@ -647,12 +651,15 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     failure {
       echo 'I failed :('
+      office365ConnectorSend(
+        status: "Build failure",
+        webhookUrl: "${env.HOOK}"
+      )
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
             recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
       ])
-
     }
 
     changed {
