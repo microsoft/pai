@@ -19,12 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds zookeeper-ds
+kubectl delete ds zookeeper-ds || exit $?
 
 
 {% for host in machinelist %}
     {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper- || exit $?
     {% endif %}
 {% endfor %}
 
