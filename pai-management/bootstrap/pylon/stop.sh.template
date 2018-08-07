@@ -19,11 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds pylon-ds
+if kubectl get daemonset | grep -q "pylon-ds"; then
+    kubectl delete ds pylon-ds || exit $?
+fi
 
 {% for host in machinelist %}
     {% if 'pylon' in machinelist[ host ] and machinelist[ host ][ 'pylon' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon- || exit $?
     {% endif %}
 {% endfor %}
 
