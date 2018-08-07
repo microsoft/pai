@@ -56,6 +56,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
     - Monitor
       - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
       - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
+- [Appendix: Default values in auto-generated configuration files](#appendix)
 
 ## Set up cluster-configuration.yaml <a name="cluster_configuration"></a>
 
@@ -552,4 +553,17 @@ If your cluster has a reliable load-balance server (e.g. in a cloud environment 
 
 - Set the field ```load-balance-ip`` to the ip-address of your load-balancer.
 
+## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
+The `paictl` tool sets the following default values in the 4 configuration files:
+
+| Configuration Property | Default value |
+| --- | --- |
+| ```master node``` | The first machine in the machine list will be configured as the master node. |
+| ```SSH port``` | If not explicitly specified, the SSH port is set to `22`. |
+| ```cluster DNS``` | If not explicitly specified, the cluster DNS is set to the value of the `nameserver` field in `/etc/resolv.conf` file of the master node. |
+| ```IP range used by Kubernetes``` | If not explicitly specified, the IP range used by Kubernetes is set to `10.254.0.0/16`. |
+| ```docker registry``` | The docker registry is set to `docker.io`, and the docker namespace is set to `openpai`. In another word, all PAI service images will be pulled from `docker.io/openpai` (see [this link](https://hub.docker.com/r/openpai/) on DockerHub for the details of all images). |
+| ```Cluster id``` | Cluster id is set to `pai-example` |
+| ```REST server's admin user``` | REST server's admin user is set to `admin`, and its password is set to `admin-password` |
+| ```VC``` | There is only one VC in the system, `default`, which has 100% of the resource capacity. |

@@ -13,7 +13,6 @@ This document introduces the detailed procedures to boot up PAI on a cluster. Pl
   - [Troubleshooting Kubernetes Clusters](#troubleshooting_2)
   - [Getting help](#troubleshooting_3)
 - [OpenPAI Maintenance](#maintenance)
-- [Appendix: Default values in auto-generated configuration files](#appendix)
 
 <!-- /TOC -->
 
@@ -148,6 +147,8 @@ cd /pai/pai-management
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 
+[Appendix: Default values in auto-generated configuration files](./how-to-write-pai-service-configuration.md#appendix)
+
 #### How to check
 The command will generate the following four yaml files.
 
@@ -206,6 +207,7 @@ If user want to customize configuration, please see the table below
     - Monitor
       - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
       - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
+- [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-service-configuration.md#appendix)
 
 #### How to check
 
@@ -350,7 +352,7 @@ http://<master>:9090
 
 ```From OpenPAI watchdog```:
 
-[OpenPAI watchdog](#../../prometheus/doc/watchdog-metrics.md)
+[OpenPAI watchdog](../../prometheus/doc/watchdog-metrics.md)
 
 - Log
 
@@ -446,16 +448,4 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 ####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)
 ####  [Machine Add & Delete](./service-maintain.md#machine-maintenance.md)
 
-## Appendix: Default values in auto-generated configuration files <a name="appendix"></a>
 
-The `paictl` tool sets the following default values in the 4 configuration files:
-
-- The first machine in the machine list will be configured as the master node.
-- If not explicitly specified, the SSH port is set to `22`.
-- If not explicitly specified, the cluster DNS is set to the value of the `nameserver` field in `/etc/resolv.conf` file of the master node.
-- If not explicitly specified, the IP range used by Kubernetes is set to `10.254.0.0/16`.
-- The docker registry is set to `docker.io`, and the docker namespace is set to `openpai`. In another word, all PAI service images will be pulled from `docker.io/openpai` (see [this link](https://hub.docker.com/r/openpai/) on DockerHub for the details of all images).
-- Cluster id is set to `pai-example`.
-- Cluster id is set to `pai-example`.
-- REST server's admin user is set to `admin`, and its password is set to `admin-password`
-- There is only one VC in the system, `default`, which has 100% of the resource capacity.
