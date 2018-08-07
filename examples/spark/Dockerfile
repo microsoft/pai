@@ -17,5 +17,6 @@ RUN rm spark-2.3.1-bin-hadoop2.7/jars/jersey-client-2.22.2.jar
 COPY jersey-core-1.9.jar jersey-client-1.9.jar spark-2.3.1-bin-hadoop2.7/jars/
 
 COPY submit_pi.sh .
+RUN chmod +x submit_pi.sh
 
 
