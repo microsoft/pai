@@ -147,7 +147,7 @@ cd /pai/pai-management
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 
-[Appendix: Default values in auto-generated configuration files](./how-to-write-pai-service-configuration.md#appendix)
+[Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
 
 #### How to check
 The command will generate the following four yaml files.
@@ -207,7 +207,7 @@ If user want to customize configuration, please see the table below
     - Monitor
       - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
       - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
-- [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-service-configuration.md#appendix)
+- [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
 
 #### How to check
 
