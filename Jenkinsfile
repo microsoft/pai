@@ -370,7 +370,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
 \\"memoryMB\\": 256,
-\\"command\\": \\"/bin/ls /etc/hadoop\\"
+\\"command\\": \\"/bin/bash --version\\"
 }
 ]
 }"
@@ -474,7 +474,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
 \\"memoryMB\\": 256,
-\\"command\\": \\"/bin/ls /etc/hadoop\\"
+\\"command\\": \\"/bin/bash --version\\"
 }
 ]
 }"
