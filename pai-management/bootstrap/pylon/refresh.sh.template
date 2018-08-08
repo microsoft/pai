@@ -21,14 +21,14 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "relabel node's lable"
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 {% for host in machinelist %}
 
     {% if 'pylon' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "pylon="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have pylon's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon- || exit $?
 fi
     {% endif %}
 
