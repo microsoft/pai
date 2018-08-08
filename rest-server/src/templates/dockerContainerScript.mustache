@@ -81,10 +81,10 @@ function hdfs_upload_atomically()
   if hdfs dfs -test -d $tempFolder ; then
     printf "%s %s\n" \
       "[WARNING]" "$tempFolder already exists, overwriting..."
-    hdfs dfs -rm -r $tempFolder || exit 1
+    hdfs dfs -rm -r $tempFolder
   fi
-  hdfs dfs -put ${1} $tempFolder || exit 1
-  hdfs dfs -mv $tempFolder ${2} || exit 1
+  hdfs dfs -put ${1} $tempFolder
+  hdfs dfs -mv $tempFolder ${2}
 }
 
 # Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
@@ -113,15 +113,15 @@ if which hdfs && service --status-all 2>&1 | grep -q ssh; then
     printf "%s %s\n%s %s\n" \
       "[INFO]" "ssh key pair ready ..." \
       "[INFO]" "begin to download ssh key pair from hdfs ..."
-    hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
+    hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/"
   fi
   chmod 400 ~/.ssh/$APP_ID
   # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
-  hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
+  hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT
 
   # Generate ssh config
   ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
-  hdfs dfs -mkdir -p ${ssh_config_path} || exit 1
+  hdfs dfs -mkdir -p ${ssh_config_path}
   hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT
   while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
     printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
