@@ -35,15 +35,15 @@ done
 
 {% for host in machinelist %}
     {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit $?
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
     {% endif %}
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog- || exit $?
     {% endif %}
     {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager- || exit $?
     {% endif %}
 {% endfor %}
