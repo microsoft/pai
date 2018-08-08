@@ -76,7 +76,9 @@ We only have to care about deployment if we choose using independent process for
 For those modules not maintained by ourself such as hadoop, we can create another process to collect
 from main process and expose to prometheus. If using this method, it is kubernetes's best practice to
 adopt [sidecar pattern](https://kubernetes.io/docs/tasks/access-application-cluster/communicate-containers-same-pod-shared-volume/),
-instead of deploy two processes in same container.
+instead of deploy two processes in same container. As illustrated blow:
+
+![sidecar pattern](./sidecar.png)
 
 This have several pros compare to deploying in same pod:
 * Two processes can have different image.
