@@ -53,6 +53,8 @@ spec:
           name: pai-tmp-path
         - mountPath: /hadoop-configuration
           name: hadoop-node-manager-config-volume
+        - mountPath: /hadoop-configuration-for-jobs
+          name: hadoop-node-manager-config-volume-for-jobs
         - mountPath: /host-configuration
           name: host-confg-volume
         - mountPath: /root/.docker
@@ -106,6 +108,9 @@ spec:
       - name: hadoop-node-manager-config-volume
         configMap:
           name: hadoop-node-manager-configuration
+      - name: hadoop-node-manager-config-volume-for-jobs
+        hostPath:
+          path: /etc/hadoop-configuration-for-jobs
       - name: host-confg-volume
         configMap:
           name: host-configuration
