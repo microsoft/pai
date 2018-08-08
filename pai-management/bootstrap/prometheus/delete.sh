@@ -26,7 +26,7 @@ echo "Create prometheus-delete configmap for deleting data on the host"
 kubectl create configmap prometheus-delete --from-file=prometheus-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl apply --overwrite=true create -f delete.yaml || exit $?
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-prometheus || exit $?

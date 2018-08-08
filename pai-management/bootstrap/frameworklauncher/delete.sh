@@ -27,7 +27,7 @@ echo "Create frameworklauncher-delete configmap for deleting data on the host"
 kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl apply --overwrite=true create -f delete.yaml || exit $?
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-frameworker-launcher || exit $?
