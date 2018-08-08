@@ -121,6 +121,8 @@ They have pros and cons:
     <td>Use port</td>
     <td>
         <ul>
+            <li>prometheus client can generate many useful metrics automatically such as cpu/memory/fd usage</li>
+            <li>prometheus client also provide many useful class to keep track of count/gauge</li>
             <li>Can use port check as liveness check</li>
             <li>Prometheus will generate <i>up</i> metric for the exporter</li>
         </ul>
