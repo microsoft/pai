@@ -27,7 +27,7 @@ from pyspark.ml.feature import StringIndexer, VectorIndexer
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 # $example off$
 from pyspark.sql import SparkSession
-import os
+import sys
 
 if __name__ == "__main__":
     spark = SparkSession\
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     # $example on$
     # Load and parse the data file, converting it to a DataFrame.
-    data = spark.read.format("libsvm").load(os.environ["PAI_DATA_DIR"] + "/sample_libsvm_data.txt")
+    data = spark.read.format("libsvm").load(sys.argv[1])
 
     # Index labels, adding metadata to the label column.
     # Fit on whole dataset to include all labels in index.

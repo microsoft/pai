@@ -104,7 +104,7 @@ hdfs dfs -put spark-python.zip hdfs://YOUR_PAI_MASTER_IP:9000/user/core/
       "gpuNumber": 0,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": null,
-      "command": "spark-submit --master yarn --deploy-mode cluster --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=MY_CONDA/spark-python/bin/python --queue default --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA hdfs://10.151.40.234:9000/user/core/code/gradient_boosted_tree_classifier_example.py",
+      "command": "spark-submit --master yarn --deploy-mode cluster --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=MY_CONDA/spark-python/bin/python --queue default --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA hdfs://10.151.40.234:9000/user/core/code/gradient_boosted_tree_classifier_example.py hdfs://YOUR_PAI_MASTER_IP:9000/user/core/data/mllib/sample_libsvm_data.txt",
       "portList": []
     }
   ]
