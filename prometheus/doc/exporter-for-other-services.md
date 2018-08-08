@@ -29,11 +29,12 @@ These two probes are provided by k8s to cope with failure:
 * liveness
 * readniess
 
-Liveness probe determined if the process encountered some unrecoverable failure, such as deadlock or
-out of memory. If liveness probe failed, k8s will restart container.
+Liveness probe determine if the process encountered some unrecoverable failure, such as deadlock or
+out of memory. If liveness probe failed, k8s will restart container, and hopefully the service will
+back to work again.
 
-Readiness probe determined if frontend can send traffic to this pod. This is helpful in rolling update
-and cache server to prefill its caches before serving.
+Readiness probe determine if frontend can send traffic to this pod through service abstraction. This
+is helpful in rolling update and cache server to prefill its caches before serving.
 
 # Runtime metrics
 
@@ -43,15 +44,15 @@ something wrong. To be more observable, service needs expose its runtime metrics
 
 ## What to collect
 
-* GC duration, GC times.
-* Connection count/duration.
-* Request count/latency.
 * CPU/Memory usage.
+* Request count/latency.
+* Connection/fd count/duration.
+* Important function call duration.
+* GC duration, GC times.
 * Heap/queue/thead-pool/connection-pool size.
 * Error log count.
 * Cache hit/miss count.
 * Persisted data size.
-* Important function call duration.
 * Other metrics recommended by [prometheus](https://prometheus.io/docs/practices/instrumentation/)
 
 ## Plan
@@ -132,7 +133,15 @@ They have pros and cons:
 </tr>
 </table>
 
-As [yarn exporter](https://github.com/Microsoft/pai/pull/1035/files#diff-950f482adb2b124e0bd3ac725f35df5d)
+As [this demo](https://gist.github.com/xudifsd/4643baef3a2938bde559fefdc557aeb1)
 demostrated, it would not cost too much effort to write an exporter, also textfile in node-exporter is
 for metrics that tied to a machine. It should be best practice to write an exporter instead of using
 node-exporter.
+
+## Configuration for exporting
+
+If service decide to leverage node-exporter to expose metrics, service should mount host path volume
+located in `/datastorage/prometheus` and write file with extension `.prom`.
+
+For expose using port, service should annotate pod with `prometheus.io/scrape`, `prometheus.io/path`
+and `prometheus.io/port`.
