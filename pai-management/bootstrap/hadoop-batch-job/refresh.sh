@@ -21,11 +21,12 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-configuration"
-kubectl create configmap hadoop-configuration --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap hadoop-configuration --from-file=hadoop-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
+if kubectl get job | grep -q "batch-job-hadoop"; then
+    kubectl delete job batch-job-hadoop || exit $?
+fi
 
-kubectl delete job batch-job-hadoop
-
-kubectl create -f one-time-job-hadoop.yaml
+kubectl apply --overwrite=true -f one-time-job-hadoop.yaml || exit $?
 
 popd > /dev/null

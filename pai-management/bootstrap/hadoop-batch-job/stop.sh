@@ -19,8 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete job batch-job-hadoop
+if kubectl get job | grep -q "batch-job-hadoop"; then
+    kubectl delete job batch-job-hadoop || exit $?
+fi
 
-kubectl delete configmap hadoop-configuration
+if kubectl get configmap | grep -q "hadoop-configuration"; then
+    kubectl delete configmap hadoop-configuration || exit $?
+fi
 
 popd > /dev/null

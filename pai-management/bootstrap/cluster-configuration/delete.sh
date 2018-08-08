@@ -19,6 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-/bin/bash stop.sh
+/bin/bash stop.sh || exit $?
 
 popd > /dev/null
