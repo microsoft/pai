@@ -21,8 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
-kubectl apply --overwrite=true -f one-time-job-hadoop.yaml
+kubectl apply --overwrite=true -f one-time-job-hadoop.yaml || exit $?
 
 popd > /dev/null

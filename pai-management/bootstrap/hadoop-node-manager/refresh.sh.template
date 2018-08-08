@@ -21,10 +21,10 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-node-manager-configuration"
-kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 echo "relabel the node label"
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 
 {% for host in machinelist %}
@@ -32,7 +32,7 @@ echo "relabel the node label"
     {% if 'hadoop-node-manager' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-node-manager="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-node-manager's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager- || exit $?
 fi
     {% endif %}
 
