@@ -22,7 +22,7 @@ const checkToken = (callback) => {
     callback(authToken);
   } else {
     alert('Please login first!');
-    window.location.replace('/login.html');
+    window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
   }
 };
 

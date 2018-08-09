@@ -55,6 +55,9 @@ const config = {
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
+    templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
+    templateView: './src/app/marketplace/template-view/template-view.component.js',
   },
   output: {
     path: helpers.root('dist'),
@@ -283,7 +286,31 @@ const config = {
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'docs']
-    })
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'submit-v2.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'jobSubmit']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'template.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateDetail']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'marketplace.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateView']
+    }),
   ],
   node: {
     global: true,

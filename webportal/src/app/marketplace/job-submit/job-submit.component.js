@@ -15,4 +15,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-window.location.replace('/marketplace.html');
+
+const userAuth = require('../../user/user-auth/user-auth.component');
+
+$('#sidebar-menu--submit-v2').addClass('active');
+
+$(document).ready(() => {
+  userAuth.checkToken(function(token) {
+  });
+});
