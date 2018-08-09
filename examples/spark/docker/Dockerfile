@@ -20,9 +20,9 @@ RUN rm spark-2.3.1-bin-hadoop2.7.tgz
 # setup env
 ENV SPARK_HOME /spark-example/spark-2.3.1-bin-hadoop2.7
 ENV PATH=${SPARK_HOME}/bin:$PATH
-ENV PYSPARK_PYTHON=python3
 
 # Fix "Exception in thread "main" java.lang.NoClassDefFoundError: com/sun/jersey/api/client/config/ClientConfig"
 RUN rm spark-2.3.1-bin-hadoop2.7/jars/jersey-client-2.22.2.jar
-COPY jersey-core-1.9.jar jersey-client-1.9.jar spark-2.3.1-bin-hadoop2.7/jars/
+ADD http://central.maven.org/maven2/com/sun/jersey/jersey-client/1.9.1/jersey-client-1.9.1.jar spark-2.3.1-bin-hadoop2.7/jars/
+ADD http://central.maven.org/maven2/com/sun/jersey/jersey-core/1.9.1/jersey-core-1.9.1.jar spark-2.3.1-bin-hadoop2.7/jars/
 
