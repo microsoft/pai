@@ -5,7 +5,10 @@
 
 # Build
 
-OpenPAI doesn't directly build HDFS. It pulls HDFS image from docker registry.
+The HDFS service image is built by running this command:
+```bash
+python paictl.py image build -p /path/to/configuration/
+```
 
 # Configuration
 
