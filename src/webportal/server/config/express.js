@@ -24,7 +24,7 @@ const compress = require('compression');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const appRoot = require('app-root-path');
-const favicon = require('serve-favicon')
+const favicon = require('serve-favicon');
 const config = require('./index');
 const logger = require('./logger');
 
