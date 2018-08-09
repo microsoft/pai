@@ -55,13 +55,11 @@ class add:
         else:
             self.jobname = "error"
             self.logger.error("[{0}] Error: {1} is an undefined role, quit add job in host [{2}]".format(time.asctime(), node_config['k8s-role'], node_config['nodename']))
+            sys.exit(1)
 
 
 
     def prepare_package(self, node_config, job_name):
-
-        if self.jobname == 'error':
-            return
 
         common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, job_name)
 
@@ -69,17 +67,11 @@ class add:
 
     def delete_packege(self, node_config):
 
-        if self.jobname == 'error':
-            return
-
         common.maintain_package_cleaner(node_config)
 
 
 
     def job_executer_add_work_node(self):
-
-        if self.jobname == 'error':
-            return
 
         self.logger.info("{0} job begins !".format(self.jobname))
 
@@ -89,27 +81,27 @@ class add:
         dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar".format(self.jobname, self.node_config['hostip'])
         if common.ssh_shell_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format(self.jobname, self.node_config['hostip'])
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
-        commandline = "sudo ./{0}/docker-ce-install.sh".format(self.jobname)
+        commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(self.jobname)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format(self.jobname)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"]))
 
@@ -120,7 +112,7 @@ class add:
         commandline = "sudo rm -rf {0}*".format(jobname)
 
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
-            return
+            sys.exit(1)
 
 
 
@@ -151,7 +143,7 @@ class add:
         good_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
         if good_node_config == None:
             self.logger.error("Unable to find the etcd leader node.")
-            return False
+            sys.exit(1)
 
         self.logger.info("------------ package wrapper is working now ! -------------------- ")
         self.prepare_package(good_node_config, "add-master-node-task-one")
@@ -162,11 +154,11 @@ class add:
         dst_remote = common.get_user_dir(good_node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, good_node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}".format(script_package)
         if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
-            return
+            sys.exit(1)
         self.logger.info("Successfully extract the script package for add-master-node-task-one!")
 
         commandline = "sudo /bin/bash {0}/{1}.sh {2} {3}".format("add-master-node-task-one",
@@ -174,7 +166,7 @@ class add:
                                                                  self.node_config['hostip'],
                                                                  self.node_config['etcdid'])
         if common.ssh_shell_with_password_input_paramiko(good_node_config, commandline) == False:
-            return
+            sys.exit(1)
         self.logger.info("Successfully add the new master into the etcd cluster.")
 
         if self.clean_flag:
@@ -198,27 +190,27 @@ class add:
         dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, self.node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}".format(script_package)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
-            return
+            sys.exit(1)
         self.logger.info("Successfully extract the script package for add-master-node-task-two!")
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format("add-master-node-task-two", self.node_config['hostip'])
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
-        commandline = "sudo ./{0}/docker-ce-install.sh".format("add-master-node-task-two")
+        commandline = "sudo ./{0}/docker-ce-install.sh {0}".format("add-master-node-task-two")
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format("add-master-node-task-two")
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully running {0} job on node {1}!".format("add-master-node-task-two", self.node_config['hostip']))
 
@@ -241,9 +233,6 @@ class add:
 
 
     def run(self):
-
-        if self.jobname == 'error':
-            return
 
         if self.jobname == "add-worker-node":
             self.run_add_work_node()

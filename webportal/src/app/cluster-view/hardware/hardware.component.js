@@ -26,7 +26,7 @@ require('datatables.net-plugins/sorting/title-numeric.js');
 require('./hardware.component.scss');
 const hardwareComponent = require('./hardware.component.ejs');
 const breadcrumbComponent = require('../../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 //
 let table = null;
 
@@ -78,11 +78,11 @@ const initCells = (idPrefix, instanceList, table) => {
 //
 
 const loadCpuUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
-      'query=100%20-%20(avg%20by%20(instance)(irate(node_cpu%7Bmode%3D%22idle%22%7D%5B' + metricGranularity + '%5D))%20*%20100)' +
+      'query=100%20-%20(avg%20by%20(instance)(irate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B' + metricGranularity + '%5D))%20*%20100)' +
       '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
     success: function(data) {
       initCells('cpu', instanceList, table);
@@ -108,7 +108,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
-      'query=node_memory_MemTotal+-+node_memory_MemFree+-+node_memory_Buffers+-+node_memory_Cached' +
+      'query=node_memory_MemTotal_bytes+-+node_memory_MemFree_bytes+-+node_memory_Buffers_bytes+-+node_memory_Cached_bytes' +
       '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
     success: function(dataOfMemUsed) {
       let dictOfMemUsed = {};
@@ -120,7 +120,7 @@ const loadMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       $.ajax({
         type: 'GET',
         url: prometheusUri + '/api/v1/query_range?' +
-          'query=node_memory_MemTotal' +
+          'query=node_memory_MemTotal_bytes' +
           '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
         success: function(dataOfMemTotal) {
           initCells('mem', instanceList, table);
@@ -201,11 +201,11 @@ const loadGpuMemUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceLi
 //
 
 const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_disk_bytes_read%5B' + metricGranularity + '%5D))' +
+      'query=sum+by+(instance)(rate(node_disk_read_bytes_total%5B' + metricGranularity + '%5D))' +
       '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
     success: function(dataOfDiskBytesRead) {
       let dictOfDiskBytesRead = {};
@@ -217,7 +217,7 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
       $.ajax({
         type: 'GET',
         url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_bytes_written%5B' + metricGranularity + '%5D))' +
+          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
           '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
         success: function(dataOfDiskBytesWritten) {
           initCells('disk', instanceList, table);
@@ -252,11 +252,11 @@ const loadDiskUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList
 //
 
 const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList, table) => {
-  const metricGranularity = '5m';
+  const metricGranularity = webportalConfig.promScrapeTime;
   $.ajax({
     type: 'GET',
     url: prometheusUri + '/api/v1/query_range?' +
-      'query=sum+by+(instance)(rate(node_network_receive_bytes%5B' + metricGranularity + '%5D))' +
+      'query=sum+by+(instance)(rate(node_network_receive_bytes_total%5B' + metricGranularity + '%5D))' +
       '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
     success: function(dataOfEthBytesRecieved) {
       let dictOfEthBytesRecieved = {};
@@ -268,7 +268,7 @@ const loadEthUtilData = (prometheusUri, currentEpochTimeInSeconds, instanceList,
       $.ajax({
         type: 'GET',
         url: prometheusUri + '/api/v1/query_range?' +
-          'query=sum+by+(instance)(rate(node_disk_bytes_written%5B' + metricGranularity + '%5D))' +
+          'query=sum+by+(instance)(rate(node_disk_written_bytes_total%5B' + metricGranularity + '%5D))' +
           '&start=' + currentEpochTimeInSeconds + '&end=' + currentEpochTimeInSeconds + '&step=1',
         success: function(dataOfEthBytesSent) {
           initCells('eth', instanceList, table);

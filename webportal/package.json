@@ -34,6 +34,7 @@
     "datatables.net-plugins": "1.10.15",
     "dotenv": "4.0.0",
     "ejs-loader": "0.3.0",
+    "envsub": "3.1.0",
     "eslint": "4.17.0",
     "eslint-config-google": "0.9.1",
     "express": "4.16.2",
@@ -67,18 +68,14 @@
     "winston": "2.4.0"
   },
   "scripts": {
-    "build:dev": "npm run clean && npm run preprocess && npm run webpack -- --watch",
-    "build": "npm run clean && npm run preprocess && npm run webpack",
-    "clean:dist": "npm run rimraf -- dist",
-    "clean": "npm cache clean && npm run clean:dist",
     "lint": "eslint \"src/**/*.js\"",
-    "node": "node",
-    "preprocess": "node config/preprocess.js",
-    "rimraf": "rimraf",
-    "server": "node server/index.js",
-    "start": "npm run build && npm run server",
     "test": "npm run lint",
-    "webpack": "webpack --config webpack.config.js --progress --profile",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean && node config/preprocess.js",
+    "build": "webpack --config webpack.config.js --progress --profile",
+    "build:dev": "npm run build -- --debug --devtool eval-cheap-module-source-map --output-pathinfo --watch",
+    "prestart": "envsub --env-file .env --system src/app/env.js dist/scripts/env.js",
+    "start": "node server",
     "yarn": "yarn --ignore-engines"
   }
 }

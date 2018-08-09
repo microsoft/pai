@@ -50,6 +50,14 @@ http {
     send_timeout 60m;
 
     #
+    # Health check.
+    #
+    location = /healthz {
+      default_type text/plain;
+      return 200 "Pylon ready.";
+    }
+
+    #
     # General-purpose reverse proxy.
     # The proxy to WebHDFS API depends on it.
     #
@@ -92,20 +100,14 @@ http {
     # WebHDFS API server.
     location ~ ^/webhdfs/api(.*)$ {
       proxy_pass {{WEBHDFS_URI}}/webhdfs$1$is_args$args;
-      #
-      # Reason of commenting the following lines out:
-      #   - WebHDFS sends 100-continue no matter whether the 'Expect: 100-Continue' is set;
-      #   - Nginx does not expect 100-continue respond from WebHDFS, no matter whether the 'Expect: 100-Continue' is set;
-      #   - As a result, Nginx will definitely receive a '100-continue' respond from WebHDFS and then hang there untill timeout.
-      #   - No easier way yet other than changing the code of Nginx or WebHDFS. The current solution is a work-around.
-      #proxy_intercept_errors on;
-      #error_page 307 = @handle_webhdfs_api_redirect;
+      proxy_intercept_errors on;
+      error_page 307 = @handle_webhdfs_api_redirect;
     }
-    #location @handle_webhdfs_api_redirect {
-    #  if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
-    #    return 307 $scheme://$http_host/a/$1/$2/$3;
-    #  }
-    #}
+    location @handle_webhdfs_api_redirect {
+      if ($upstream_http_location ~ ^http://([^/]+):(\d+)/(.*)$) {
+        return 307 $scheme://$http_host/a/$1/$2/$3;
+      }
+    }
 
     # Prometheus API server.
     location ~ ^/prometheus/api(.*)$ {
@@ -263,6 +265,12 @@ http {
       sub_filter
         '{{GRAFANA_URI}}'
         '$scheme://$http_host/grafana';
+      sub_filter
+        '"url":"/'
+        '"url":"./';
+      sub_filter
+        'appSubUrl+"/"'
+        'appSubUrl+"/grafana/"';
     }
 
     # PAI web portal

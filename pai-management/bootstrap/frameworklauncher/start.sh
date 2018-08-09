@@ -21,12 +21,12 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x node-label.sh
 
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
-kubectl create -f frameworklauncher.yaml
+kubectl apply --overwrite=true -f frameworklauncher.yaml || exit $?
 
 popd > /dev/null

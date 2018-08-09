@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import common
 import logging
 import logging.config
@@ -41,6 +42,7 @@ class clean:
         maintain_configuration_path = os.path.join(package_directory_clean, "../maintainconf/clean.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
+        self.force_flag = kwargs["force"]
         self.jobname = "clean"
 
 
@@ -67,17 +69,19 @@ class clean:
         src_local = "parcel-center/{0}".format(node_config["nodename"])
         dst_remote = common.get_user_dir(node_config)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar".format(self.jobname, node_config['hostip'])
         if common.ssh_shell_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
+        if self.force_flag:
+            commandline += " -f"
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(node_config['hostip']))
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, node_config["nodename"]))
 
@@ -88,7 +92,7 @@ class clean:
         commandline = "sudo rm -rf {0}*".format(self.jobname)
 
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
-            return
+            sys.exit(1)
 
 
 

@@ -21,8 +21,15 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
-kubectl create -f one-time-job-hadoop.yaml
+
+if kubectl get job | grep -q "batch-job-hadoop"; then
+    kubectl delete job batch-job-hadoop || exit $?
+fi
+
+sleep 10
+
+kubectl apply --overwrite=true -f one-time-job-hadoop.yaml || exit $?
 
 popd > /dev/null
