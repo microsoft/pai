@@ -69,7 +69,7 @@ class deploy:
         commandline = "sudo rm -rf {0}*".format(job_name)
 
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
-            return
+            sys.exit(1)
 
 
 
@@ -80,27 +80,27 @@ class deploy:
         src_local = "parcel-center/{0}".format(node_config["nodename"])
         dst_remote = common.get_user_dir(node_config)
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar".format(job_name, node_config['hostip'])
         if common.ssh_shell_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to uncompress {0}.tar".format(job_name))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/hosts-check.sh {1}".format(job_name, node_config['hostip'])
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to update the /etc/hosts on {0}".format(node_config['hostip']))
-            return
+            sys.exit(1)
 
-        commandline = "sudo ./{0}/docker-ce-install.sh".format(job_name)
+        commandline = "sudo ./{0}/docker-ce-install.sh {0}".format(job_name)
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to install docker-ce on {0}".format(node_config['hostip']))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/kubelet-start.sh {0}".format(job_name)
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
             self.logger.error("Failed to bootstrap kubelet on {0}".format(node_config['hostip']))
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully running {0} job on node {1}!".format(job_name, node_config['hostip']))
 
@@ -119,7 +119,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "kube-proxy.yaml")
         common.execute_shell(
-            "kubectl create -f kube-proxy.yaml",
+            "kubectl apply --overwrite=true -f kube-proxy.yaml",
             "Failed to create kube-proxy"
         )
 
@@ -142,7 +142,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-service.yaml")
         common.execute_shell(
-            "kubectl create -f dashboard-service.yaml",
+            "kubectl apply --overwrite=true -f dashboard-service.yaml",
             "Failed to create dashboard-service"
         )
 
@@ -158,7 +158,7 @@ class deploy:
 
         common.write_generated_file(generated_data, "dashboard-deployment.yaml")
         common.execute_shell(
-            "kubectl create -f dashboard-deployment.yaml",
+            "kubectl apply --overwrite=true -f dashboard-deployment.yaml",
             "Failed to create dashboard-deployment"
         )
 

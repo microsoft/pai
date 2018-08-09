@@ -14,7 +14,7 @@ Assume the path of your cluster-configuration is ```/pathConfig```
 #### Build A Specific Service's Image
 
 ```
-./paictl image build -p /pathConfig -n service-x
+./paictl image build -p /pathConfig -n service-name
 ```
 
 
@@ -31,5 +31,5 @@ Assume the path of your cluster-configuration is ```/pathConfig```
 
 #### Push A Specific service's Image
 ```
-./paictl image push -p /pathConfig -n service-x
+./paictl image push -p /pathConfig -n service-name
 ```

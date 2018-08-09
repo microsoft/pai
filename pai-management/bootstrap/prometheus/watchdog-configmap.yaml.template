@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: watchdog
+data:
+  config.yml: |-
+
+    hosts:
+    {% for _, hostInfo in machinelist.items() %}
+    - {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }} }
+    {% endfor %}

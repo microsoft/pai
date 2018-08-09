@@ -338,7 +338,6 @@ def pai_machine_info():
     logger.error("Add New Machine Node into cluster :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     logger.error("Remove Machine Node from cluster  :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
     logger.error("Repair Error Etcd Node in cluster :  paictl.py machine etcd-fix -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    #logger.error("Repair Issue Machine Node in cluster  :  paictl.py machine repair -p /path/to/configuration/ -l /path/to/nodelist.yaml")
 
 
 
@@ -528,8 +527,10 @@ def pai_cluster():
         # just use 'k8s-clean' for testing temporarily  .
         parser = argparse.ArgumentParser()
         parser.add_argument('-p', '--config-path', dest="config_path", required=True, help="path of cluster configuration file")
+        parser.add_argument('-f', '--force', dest="force", required=False, action="store_true", help="clean all the data forcefully")
         args = parser.parse_args(sys.argv[1:])
         config_path = args.config_path
+        force = args.force
         cluster_config = cluster_object_model_generate_k8s(config_path)
 
         logger.warning("--------------------------------------------------------")
@@ -538,13 +539,14 @@ def pai_cluster():
         logger.warning("------     Your k8s Cluster will be destroyed    -------")
         logger.warning("------     PAI service on k8s will be stopped    -------")
         logger.warning("--------------------------------------------------------")
-        logger.warning("--------------------------------------------------------")
-        logger.warning("----------    ETCD data will be cleaned.    ------------")
-        logger.warning("-----    If you wanna keep pai's user data.    ---------")
-        logger.warning("-----         Please backup etcd data.         ---------")
-        logger.warning("-----      And restore it after k8s-bootup     ---------")
-        logger.warning("---     And restore it before deploy pai service    ----")
-        logger.warning("--------------------------------------------------------")
+        if force:
+            logger.warning("--------------------------------------------------------")
+            logger.warning("----------    ETCD data will be cleaned.    ------------")
+            logger.warning("-----    If you wanna keep pai's user data.    ---------")
+            logger.warning("-----         Please backup etcd data.         ---------")
+            logger.warning("-----      And restore it after k8s-bootup     ---------")
+            logger.warning("---     And restore it before deploy pai service    ----")
+            logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
         logger.warning("----    Please ensure you wanna do this operator, ------")
         logger.warning("-------        after knowing all risk above.     -------")
@@ -567,7 +569,7 @@ def pai_cluster():
                 return
 
         logger.info("Begin to clean up whole cluster.")
-        cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", clean = True)
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", force = force, clean = True)
         logger.info("Clean up job finished")
 
 

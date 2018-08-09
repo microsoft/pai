@@ -26,6 +26,8 @@ mkdir -p ~/.kube
     exit 0
 }
 
+set -e
+
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 
 chmod +x ./kubectl

@@ -27,7 +27,7 @@ const url = require('url');
 require('./vc.component.scss');
 const vcComponent = require('./vc.component.ejs');
 const breadcrumbComponent = require('../job/breadcrumb/breadcrumb.component.ejs');
-const webportalConfig = require('../config/webportal.config.json');
+const webportalConfig = require('../config/webportal.config.js');
 //
 let table = null;
 

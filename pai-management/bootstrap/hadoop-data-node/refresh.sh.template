@@ -21,10 +21,10 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh hadoop-data-node-configuration"
-kubectl create configmap hadoop-data-node-configuration --from-file=hadoop-data-node-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap hadoop-data-node-configuration --from-file=hadoop-data-node-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 echo "relabel the node label"
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 
 {% for host in machinelist %}
@@ -32,7 +32,7 @@ echo "relabel the node label"
     {% if 'hadoop-data-node' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-data-node="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-data-node's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-data-node- || exit $?
 fi
     {% endif %}
 

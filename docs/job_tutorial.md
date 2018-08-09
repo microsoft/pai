@@ -107,7 +107,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `authFile`                       | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                        | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                      | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
-| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS          |
+| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS, should not contain any data and should be less than 200MB    |
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
 | `taskRoles`                      | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                  | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |

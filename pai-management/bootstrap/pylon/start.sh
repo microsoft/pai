@@ -21,8 +21,8 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x node-label.sh
 
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
-kubectl create -f pylon.yaml
+kubectl apply --overwrite=true -f pylon.yaml || exit $?
 
 popd > /dev/null

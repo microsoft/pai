@@ -21,11 +21,11 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
 #chmod u+x node-label.sh
 
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 i=0
 
@@ -41,6 +41,6 @@ do
   fi
 done
 
-kubectl create -f grafana.yaml
+kubectl apply --overwrite=true -f grafana.yaml || exit $?
 
 popd > /dev/null
