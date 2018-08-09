@@ -4,7 +4,7 @@
 Etcd is a service used by Kubernetes as a consistent and highly-available key value store for all its backing cluster data.
 
 ## Build
-OpenPAI doesn't directly build etcd service. The service's image is directly pulled from the docker registry.
+OpenPAI doesn't directly build etcd service. The service's image is pulled from the docker registry.
 
 ## Configuration
 
@@ -27,10 +27,10 @@ The etcd data is stored in
 ```
 on each node.
 By default the data will be kept when cleaning the cluster and upgrading to a new Kubernetes version. So when the cluster of new version is up,
-all the service can be restored and continue to run.
+all the services can be restored and continue to run.
 If you want to clean the etcd data completely when cleaning the cluster. Please run this command
 ```bash
-python paictl.py cluster k8s-clean -p /path/to/configuration/directory
+python paictl.py cluster k8s-clean -p /path/to/configuration/directory -f
 ```
 For general instructions about upgrading etcd please refer [upgrading-etcd](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#upgrading-and-rolling-back-etcd-clusters).
 
