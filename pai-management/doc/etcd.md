@@ -14,14 +14,25 @@ Configuration file [kubernetes-configuration.yaml](../../cluster-configuration/k
 
 ## Deployment
 
-Etcd is deployed as a component of Kubernetes via running this command:
+Etcd is deployed as a component of Kubernetes when running this command:
 ```bash
 python paictl.py cluster k8s-bootup -p ./path/to/cluster/configuration/dir
 ```
 
 ## Upgrading and rolling back
 
-Please refer [upgrading-etcd](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#upgrading-and-rolling-back-etcd-clusters) for detailed instructions.
+The etcd data is stored in
+```bash
+/var/etcd/data
+```
+on each node.
+By default the data will be kept when cleaning the cluster and upgrading to a new Kubernetes version. So when the cluster of new version is up,
+all the service can be restored and continue to run.
+If you want to clean the etcd data completely when cleaning the cluster. Please run this command
+```bash
+python paictl.py cluster k8s-clean -p /path/to/configuration/directory
+```
+For general instructions about upgrading etcd please refer [upgrading-etcd](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#upgrading-and-rolling-back-etcd-clusters).
 
 ## Service Monitoring
 
@@ -38,7 +49,7 @@ In the machine list of [cluster-configuration.yaml](../../cluster-configuration/
 
 Sometimes the etcd nodes may not healthy, it can be repaired with command
 ```bash
-./paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
+python paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
 Please follow instructions in [machine maintenance](./machine-maintenance.md) for the details.
 
