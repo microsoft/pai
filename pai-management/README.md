@@ -35,7 +35,7 @@ Note: Please working on dev-box when managing your cluster.
 ###### distributed
 - [A Guide For Booting Up The Cluster](doc/cluster-bootup.md)
 ###### single box
-- [A Guide For Single Box Bootstrap](doc/single-box-deployment.md)
+- [A Guide For Single Box Bootstrap](doc/cluster-bootup.md#singlebox)
 
 #### PAI Machine Maintenance
 
@@ -58,4 +58,8 @@ Note: Please working on dev-box when managing your cluster.
 #### Advanced, Add Your Service
 
 - [A Guide For Adding New Service](doc/add-service.md)
+
+
+#### Q&A
+- [Q&A of kubernetes deployment](doc/kubernetes-deploy-qna.md)
 

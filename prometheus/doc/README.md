@@ -31,6 +31,64 @@ Exporter's metrics are listed [here](./exporter-metrics.md).
 
 More metrics are listed [here](./watchdog-metrics.md).
 
+# Metrics used
+
+The most important usage of metrics is for alerting, checkout [rule directory](../prometheus-alert)
+to see metrics we already used for alerting.
+
+Other pai component also used some metrics for display, they are:
+
+<table>
+<tr>
+    <td>Component</td>
+    <td>Metric used</td>
+</tr>
+<tr>
+    <td>Grafana</td>
+    <td>
+        <ul>
+            <li>node_uname_info</li>
+            <li>nvidiasmi_utilization_gpu</li>
+            <li>nvidiasmi_utilization_memory</li>
+            <li>nvidiasmi_attached_gpus</li>
+            <li>node_cpu_seconds_total</li>
+            <li>node_memory_MemTotal_bytes</li>
+            <li>node_memory_MemFree_bytes</li>
+            <li>node_memory_Buffers_bytes</li>
+            <li>node_memory_Cached_bytes</li>
+            <li>node_network_receive_bytes_total</li>
+            <li>node_network_transmit_bytes_total</li>
+            <li>node_disk_read_bytes_total</li>
+            <li>node_disk_written_bytes_total</li>
+            <li>container_CPUPerc</li>
+            <li>container_MemUsage</li>
+            <li>container_NetIn</li>
+            <li>container_NetOut</li>
+            <li>container_BlockIn</li>
+            <li>container_BlockOut</li>
+            <li>container_GPUPerc</li>
+            <li>container_GPUMemPerc</li>
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td>WebPortal</td>
+    <td>
+        <ul>
+            <li>node_cpu_seconds_total</li>
+            <li>node_memory_MemTotal_bytes</li>
+            <li>node_memory_MemFree_bytes</li>
+            <li>node_memory_Buffers_bytes</li>
+            <li>node_memory_Cached_bytes</li>
+            <li>node_disk_read_bytes_total</li>
+            <li>node_disk_written_bytes_total</li>
+            <li>node_network_receive_bytes_total</li>
+            <li>node_disk_written_bytes_total</li>
+        </ul>
+    </td>
+</tr>
+</table>
+
 # Build
 
 Build image by using `paictl.py`:

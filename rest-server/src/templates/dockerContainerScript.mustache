@@ -81,76 +81,79 @@ function hdfs_upload_atomically()
   if hdfs dfs -test -d $tempFolder ; then
     printf "%s %s\n" \
       "[WARNING]" "$tempFolder already exists, overwriting..."
-    hdfs dfs -rm -r $tempFolder || exit 1
+    hdfs dfs -rm -r $tempFolder
   fi
-  hdfs dfs -put ${1} $tempFolder || exit 1
-  hdfs dfs -mv $tempFolder ${2} || exit 1
+  hdfs dfs -put ${1} $tempFolder
+  hdfs dfs -mv $tempFolder ${2}
 }
 
+# Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
 # Start sshd in docker container
-prepare_ssh
-hdfs_ssh_folder=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
-printf "%s %s\n%s %s\n%s %s\n" \
-  "[INFO]" "hdfs_ssh_folder is ${hdfs_ssh_folder}" \
-  "[INFO]" "task_role_no is ${task_role_no}" \
-  "[INFO]" "PAI_TASK_INDEX is ${PAI_TASK_INDEX}"
-# Let taskRoleNumber=0 and taskindex=0 execute upload ssh files
-if [ ${task_role_no} -eq 0 ] && [ ${PAI_TASK_INDEX} -eq 0 ]; then
-  printf "%s %s %s\n%s\n" \
-    "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}" \
-    "Execute upload key pair ..."
-  ssh-keygen -N '' -t rsa -f ~/.ssh/$APP_ID
-  hdfs dfs -mkdir -p "${hdfs_ssh_folder}" || exit 1
-  hdfs_upload_atomically "/root/.ssh/" "${hdfs_ssh_folder}/.ssh"
-else
-  # Waiting for ssh key-pair ready
-  while ! hdfs dfs -test -d ${hdfs_ssh_folder}/.ssh ; do
-    echo "[INFO] waitting for ssh key ready"
+if which hdfs && service --status-all 2>&1 | grep -q ssh; then
+  prepare_ssh
+  hdfs_ssh_folder=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/${APP_ID}
+  printf "%s %s\n%s %s\n%s %s\n" \
+    "[INFO]" "hdfs_ssh_folder is ${hdfs_ssh_folder}" \
+    "[INFO]" "task_role_no is ${task_role_no}" \
+    "[INFO]" "PAI_TASK_INDEX is ${PAI_TASK_INDEX}"
+  # Let taskRoleNumber=0 and taskindex=0 execute upload ssh files
+  if [ ${task_role_no} -eq 0 ] && [ ${PAI_TASK_INDEX} -eq 0 ]; then
+    printf "%s %s %s\n%s\n" \
+      "[INFO]" "task_role_no:${task_role_no}" "PAI_TASK_INDEX:${PAI_TASK_INDEX}" \
+      "Execute upload key pair ..."
+    ssh-keygen -N '' -t rsa -f ~/.ssh/$APP_ID
+    hdfs dfs -mkdir -p "${hdfs_ssh_folder}"
+    hdfs_upload_atomically "/root/.ssh/" "${hdfs_ssh_folder}/.ssh"
+  else
+    # Waiting for ssh key-pair ready
+    while ! hdfs dfs -test -d ${hdfs_ssh_folder}/.ssh ; do
+      echo "[INFO] waitting for ssh key ready"
+      sleep 10
+    done
+    printf "%s %s\n%s %s\n" \
+      "[INFO]" "ssh key pair ready ..." \
+      "[INFO]" "begin to download ssh key pair from hdfs ..."
+    hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/"
+  fi
+  chmod 400 ~/.ssh/$APP_ID
+  # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
+  hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT
+
+  # Generate ssh config
+  ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
+  hdfs dfs -mkdir -p ${ssh_config_path}
+  hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT
+  while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
+    printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
     sleep 10
   done
-  printf "%s %s\n%s %s\n" \
-    "[INFO]" "ssh key pair ready ..." \
-    "[INFO]" "begin to download ssh key pair from hdfs ..."
-  hdfs dfs -get "${hdfs_ssh_folder}/.ssh/" "/root/" || exit 1
-fi
-chmod 400 ~/.ssh/$APP_ID
-# Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
-hdfs dfs -touchz ${hdfs_ssh_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT || exit 1
+  NodeList=($(hdfs dfs -ls ${ssh_config_path} \
+    | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" \
+    | grep -oE "[^/]+$" \
+    | sed -e "s/^$APP_ID+//g" \
+    | sort -n))
+  if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
+    printf "%s %s\n%s\n%s\n\n" \
+      "[ERROR]" "NodeList" \
+      "${NodeList[@]}" \
+      "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
+    exit 2
+  fi
+  for line in "${NodeList[@]}"; do
+    node=(${line//+/ });
+    printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
+      "Host ${node[0]}-${node[1]}" \
+      "HostName ${node[2]}" \
+      "Port ${node[3]}" \
+      "User root" \
+      "StrictHostKeyChecking no" \
+      "UserKnownHostsFile /dev/null" \
+      "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
+  done
 
-# Generate ssh config
-ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
-hdfs dfs -mkdir -p ${ssh_config_path} || exit 1
-hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT || exit 1
-while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
-  printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
-  sleep 10
-done
-NodeList=($(hdfs dfs -ls ${ssh_config_path} \
-  | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" \
-  | grep -oE "[^/]+$" \
-  | sed -e "s/^$APP_ID+//g" \
-  | sort -n))
-if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
-  printf "%s %s\n%s\n%s\n\n" \
-    "[ERROR]" "NodeList" \
-    "${NodeList[@]}" \
-    "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
-  exit 2
+  # Start ssh service
+  start_ssh_service
 fi
-for line in "${NodeList[@]}"; do
-  node=(${line//+/ });
-  printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
-    "Host ${node[0]}-${node[1]}" \
-    "HostName ${node[2]}" \
-    "Port ${node[3]}" \
-    "User root" \
-    "StrictHostKeyChecking no" \
-    "UserKnownHostsFile /dev/null" \
-    "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
-done
-
-# Start ssh service
-start_ssh_service
 
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment

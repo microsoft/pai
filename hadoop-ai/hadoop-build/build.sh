@@ -18,7 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cd /
-wget https://issues.apache.org/jira/secure/attachment/12932063/hadoop-2.9.0.gpu-port.patch
+
+wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
+# patch for webhdfs upload issue when using nginx as a reverse proxy
+wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
+
 git clone https://github.com/apache/hadoop.git
 
 cd hadoop
@@ -28,6 +32,7 @@ git checkout branch-2.9.0
 cp /hadoop-2.9.0.gpu-port.patch /hadoop
 
 git apply hadoop-2.9.0.gpu-port.patch
+git apply HDFS-13773.patch
 
 mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
 
@@ -38,4 +43,4 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 
 # When Changing the patch id, please update the filename here.
-touch /hadoop-binary/12932063-done
+touch /hadoop-binary/12932984-done

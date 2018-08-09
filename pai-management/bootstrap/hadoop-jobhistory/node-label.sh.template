@@ -19,6 +19,6 @@
 
 {% for host in machinelist %}
     {% if 'jobhistory' in machinelist[ host ] and machinelist[ host ][ 'jobhistory' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory=true || exit $?
     {% endif %}
 {% endfor %}

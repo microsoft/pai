@@ -83,17 +83,17 @@ class remove:
         dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, srcipt_package, self.node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar".format(self.jobname, self.node_config['hostip'])
         if common.ssh_shell_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
-            return
+            sys.exit(1)
 
         commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully running {0} job on node {1}".format(self.jobname, self.node_config["nodename"]))
 
@@ -104,7 +104,7 @@ class remove:
         commandline = "sudo rm -rf {0}*".format(jobname)
 
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
-            return
+            sys.exit(1)
 
 
 
@@ -122,12 +122,12 @@ class remove:
         dst_remote = common.get_user_dir(self.node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, self.node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar && sudo /bin/bash {0}/stop-etcd-server.sh".format("stop-etcd-on-target-node")
 
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully stoping etcd server on node {0}".format(self.node_config["nodename"]))
 
@@ -151,7 +151,7 @@ class remove:
 
             if leader_node_config == None:
                 self.logger.error("Failed to find the leader node in the etcd cluster")
-                return False
+                sys.exit(1)
 
             if leader_node_config['nodename'] != self.node_config['nodename']:
                 break
@@ -166,18 +166,18 @@ class remove:
         dst_remote = common.get_user_dir(leader_node_config)
 
         if common.sftp_paramiko(src_local, dst_remote, script_package, leader_node_config) == False:
-            return
+            sys.exit(1)
 
         commandline = "tar -xvf {0}.tar".format("remove-node-from-etcd-cluster")
         if common.ssh_shell_with_password_input_paramiko(leader_node_config, commandline) == False:
-            return
+            sys.exit(1)
 
         commandline = "sudo /bin/bash {0}/{1}.sh {2} {3}".format("remove-node-from-etcd-cluster",
                                                                  "remove-member-from-etcd-cluster",
                                                                  self.node_config['hostip'],
                                                                  self.node_config['etcdid'])
         if common.ssh_shell_with_password_input_paramiko(leader_node_config, commandline) == False:
-            return
+            sys.exit(1)
 
         self.logger.info("Successfully remove target node from etcd cluster on node {0}".format(leader_node_config["nodename"]))
 

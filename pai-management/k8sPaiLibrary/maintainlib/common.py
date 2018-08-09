@@ -63,8 +63,7 @@ def execute_shell_return(shell_cmd, error_msg):
         subprocess.check_call( shell_cmd, shell=True )
 
     except subprocess.CalledProcessError:
-
-        logger.error(error_msg)
+        logger.warning(error_msg)
         return False
 
     return True
