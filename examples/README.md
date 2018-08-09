@@ -60,7 +60,7 @@ Enter username and password:
 
 - Click job tab, view job progress:
 
-![PAI_example_job_status](./images/PAI_job_status.png)
+![PAI_example_job_status](./images/PAI_example_job_status.png)
 
 
 ### List of off-the-shelf examples
@@ -95,7 +95,7 @@ These user could customize and run these jobs over OpenPAI.
 
 - Prepare example dependencies:
 
-[Caffe2 example](./caffe2/README.md) folder contains:
+Under [Caffe2 example](./caffe2/README.md) folder, user should prepare these files:
 
 1.  README.md: Example's introductions
 2.	Dockerfile: Example's dependencies
