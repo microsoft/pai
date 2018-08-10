@@ -9,10 +9,9 @@ The HDFS service image can be built together with other services by running this
 ```bash
 python paictl.py image build -p /path/to/configuration/
 ```
-The name node and data node service can be built respectively with following commands:
+HDFS is in the hadoop-run image, it can be built respectively with following commands:
 ```bash
-python paictl.py image build -p /path/to/configuration/ -n hadoop-name-node
-python paictl.py image build -p /path/to/configuration/ -n hadoop-data-node
+python paictl.py image build -p /path/to/configuration/ -n hadoop-run
 ```
 
 # Configuration
@@ -79,12 +78,12 @@ The Prometheus service will collect those metrics and monitor HDFS in real time.
 
 * Data Node: On data node all the metrics can be retrieved by command
 ```bash
-curl http://10.151.40.179:50075/jmx
+curl http://DATA_NODE_ADDRESS:50075/jmx
 ```
 
 * Name Node: On name node all the metrics can be retrieved by command
 ```bash
-curl http://10.151.40.179:50070/jmx
+curl http://NAME_NODE_ADDRESS:50070/jmx
 ```
 
 # High Availability
