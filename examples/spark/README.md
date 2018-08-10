@@ -8,7 +8,7 @@ This example demonstrate howto run Spark job on PAI.
 
 Below is a job config running the `SparkPi` Java example on PAI.
 
-Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI.
+Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI. If you want to quit after Spark job finished, change `minSucceededTaskCount` to `1`.
 
 ```json
 {
@@ -111,7 +111,7 @@ hdfs dfs -put spark-python.zip hdfs://YOUR_PAI_MASTER_IP:9000/user/core/
 
 ### 3. Submit job on PAI
 
-Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI.
+Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI. If you want to quit after Spark job finished, change `minSucceededTaskCount` to `1`.
 
 ```json
 {
