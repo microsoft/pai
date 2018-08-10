@@ -19,7 +19,7 @@ RUN rm spark-2.3.1-bin-hadoop2.7.tgz
 
 # setup env
 ENV SPARK_HOME /spark-example/spark-2.3.1-bin-hadoop2.7
-ENV PATH=${SPARK_HOME}/bin:$PATH
+ENV PATH=${SPARK_HOME}/bin:${SPARK_HOME}/sbin:$PATH
 
 # Fix "Exception in thread "main" java.lang.NoClassDefFoundError: com/sun/jersey/api/client/config/ClientConfig"
 RUN rm spark-2.3.1-bin-hadoop2.7/jars/jersey-client-2.22.2.jar
