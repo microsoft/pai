@@ -12,16 +12,59 @@ python paictl.py image build -p /path/to/configuration/
 
 # Configuration
 
+## Properties Configuration
 
+HDFS name node and data node both have it configuration files.
+They are located in [name node configuration](../bootstrap/hadoop-name-node/hadoop-name-node-configuration)
+and [data node configuration](../bootstrap/hadoop-data-node/hadoop-data-node-configuration) respectively.
+All the HDFS related properties are in file *core-site.xml* and *hdfs-site.xml*. 
+Please refer [core-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/core-default.xml)
+and [hdfs-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml)
+for the detailed property descriptions.
+  
+## Storage Path
+
+HDFS's data storage path on a machine is configured by *cluster.data-path* in 
+file [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml).
+All the HDFS related data both on name node and data node will be stored under this path.
+
+### Name Node
+
+* Configuration Data: Its path is defined by *hadoop-name-node-configuration* configuration map. 
+* Name Data: It is in the *hdfs/name* directory under the storage path.
+* Temp Data: It is in the *hadooptmp/namenode* directory under the storage path.
+
+### Data Node
+
+* Configuration Data: Its path is defined by *hadoop-data-node-configuration* configuration map.
+* Data Storage: It is in the *hdfs/data* directory under the storage path.
+* Host Configuration: Its path is defined by *host-configuration* configuration map.
+* Temp Data: It is in the *hadooptmp/datanode* directory under the storage path.
 
 # Deployment
 
+HDFS can be deployed when starting the OpenPAI services with command:
+```bash
+python paictl.py service start -p /service/configuration/path
+```
+The name node and data node service can be started separately by specifying the service name in the command.
+```bash
+python paictl.py service start -p /service/configuration/path -n hadoop-name-node
+python paictl.py service start -p /service/configuration/path -n hadoop-data-node
+```
+
 # Upgrading
+
+It is recommended to have a backup of the name node data before upgrading the cluster.
+Please refer [rolling upgrade](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-hdfs/HdfsRollingUpgrade.html) for the detailed instructions.
 
 # Service Monitoring
 
+
+
 # High Availability
 
-# Reference
 
-# Trouble shooting and Q&A
+
+# Reference
+1. [Hadoop reference doc](https://hadoop.apache.org/docs/r2.9.0/)
