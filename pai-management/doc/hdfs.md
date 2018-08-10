@@ -1,6 +1,6 @@
 # Goal
 
- The HDFS service in OpenPAI servers as a central storage for both user's application and data.
+ The Hadoop Distributed File System (HDFS) in OpenPAI serves as a central storage for both user's application and data.
  The application log will also be stored to HDFS.
 
 # Build
@@ -76,19 +76,19 @@ The Prometheus service will collect those metrics and monitor HDFS in real time.
 
 ### Monitoring via HTTP API
 
-* Data Node: On data node all the metrics can be retrieved by command
+* Data Node: all the metrics can be retrieved by command
 ```bash
 curl http://DATA_NODE_ADDRESS:50075/jmx
 ```
 
-* Name Node: On name node all the metrics can be retrieved by command
+* Name Node: all the metrics can be retrieved by command
 ```bash
 curl http://NAME_NODE_ADDRESS:50070/jmx
 ```
 
 # High Availability
 
-Currently OpenPAI management tool doesn't deploy HDFS in a High Availability (HA) fashion. This will be added in a feature release.
+Currently OpenPAI management tool doesn't deploy HDFS in a High Availability (HA) fashion. This will be added in a future release.
 For solution about the HA feature please refer [HDFS High Availability](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithNFS.html).
 
 # Reference
