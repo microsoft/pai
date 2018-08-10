@@ -5,9 +5,14 @@
 
 # Build
 
-The HDFS service image is built by running this command:
+The HDFS service image can be built together with other services by running this command:
 ```bash
 python paictl.py image build -p /path/to/configuration/
+```
+The name node and data node service can be built respectively with following commands:
+```bash
+python paictl.py image build -p /path/to/configuration/ -n hadoop-name-node
+python paictl.py image build -p /path/to/configuration/ -n hadoop-data-node
 ```
 
 # Configuration
