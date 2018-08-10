@@ -60,9 +60,27 @@ Please refer [rolling upgrade](https://hadoop.apache.org/docs/r2.9.0/hadoop-proj
 
 # Service Monitoring
 
+## Metrics
 HDFS exposes various metrics for monitoring and debugging. Please refer [HDFS Metrics](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/Metrics.html)
-for all the detailed metrics and their explanations. The Prometheus service will collect those metrics and monitor HDFS in real time. This is still an undergoing work.
+for all the detailed metrics and their explanations.
 
+## Monitoring
+
+### Monitoring via Prometheus
+
+The Prometheus service will collect those metrics and monitor HDFS in real time. This is still an undergoing work.
+
+### Monitoring via HTTP API
+
+* Data Node: On data node all the metrics can be retrieved by command
+```bash
+curl http://10.151.40.179:50070/jmx
+```
+
+* Name Node: On name node all the metrics can be retrieved by command
+```bash
+curl http://10.151.40.179:50075/jmx
+```
 
 # High Availability
 
@@ -70,4 +88,5 @@ Currently OpenPAI management tool doesn't deploy HDFS in a High Availability (HA
 For solution about the HA feature please refer [HDFS High Availability](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithNFS.html).
 
 # Reference
+
 1. [Hadoop reference doc](https://hadoop.apache.org/docs/r2.9.0/)
