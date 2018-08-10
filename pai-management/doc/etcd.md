@@ -9,8 +9,11 @@ OpenPAI doesn't directly build etcd service. The service's image is pulled from 
 ## Configuration
 
 Configuration file [kubernetes-configuration.yaml](../../cluster-configuration/kubernetes-configuration.yaml) defines etcd as kubernetes storage and specifies the version.
-- storage-backend: etcd3
-- etcd-version: 3.2.17
+```yaml
+storage-backend: etcd3
+etcd-version: 3.2.17
+```
+The etcd node can be configured in file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml) by adding a `etcdid` label on the machine.
 
 ## Deployment
 
@@ -18,6 +21,12 @@ Etcd is deployed as a component of Kubernetes when running this command:
 ```bash
 python paictl.py cluster k8s-bootup -p ./path/to/cluster/configuration/dir
 ```
+After the cluster is up, the cluster nodes can be retrieved by command:
+```bash
+etcdctl --endpoints=http://CONFIGUED_ETCD_NODE_ADDRESS:2380 member list
+```
+The `CONFIGUED_ETCD_NODE_ADDRESS` is the one of the node addresses you configured to deploy etcd. This command will return all
+the etcd nodes with their status. The nodes will be deployed successfully if its status is `started`.
 
 ## Upgrading and rolling back
 
@@ -43,7 +52,6 @@ For general instructions about upgrading etcd please refer [upgrading-etcd](http
 ## High Availability
 
 To support high availability, etcd cluster must be deployed on multiple nodes and distribute the data. The recommended cluster size is at least 3.
-In the machine list of [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml), the etcd nodes can be configured by adding a `etcdid` label.
 
 ## Fix etcd nodes
 
