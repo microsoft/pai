@@ -14,12 +14,7 @@ Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job 
 {
   "jobName": "spark-example",
   "image": "openpai/spark-example",
-  "authFile": "",
-  "dataDir": "",
-  "outputDir": "",
-  "codeDir": "",
   "virtualCluster": "default",
-  "gpuType": "",
   "retryCount": 0,
   "taskRoles": [
     {
@@ -117,12 +112,9 @@ Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job 
 {
   "jobName": "spark-python-example",
   "image": "openpai/spark-example",
-  "authFile": "",
   "dataDir": "hdfs://YOUR_PAI_MASTER_IP:9000/user/core/data/mllib/",
-  "outputDir": "",
   "codeDir": "hdfs://YOUR_PAI_MASTER_IP:9000/user/core/code",
   "virtualCluster": "default",
-  "gpuType": "",
   "retryCount": 0,
   "taskRoles": [
     {
