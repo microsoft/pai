@@ -5,6 +5,7 @@ This example demonstrate howto run Spark job on PAI.
 ## 1. Off-the-shelf example
 
 Below is a job config running the `SparkPi` Java example on PAI.
+Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI.
 
 ```json
 {
@@ -27,8 +28,26 @@ Below is a job config running the `SparkPi` Java example on PAI.
       "gpuNumber": 0,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": null,
-      "command": "${SPARK_HOME}/bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode cluster --driver-memory 4g --executor-memory 2g --executor-cores 1 --queue default ${SPARK_HOME}/examples/jars/spark-examples*.jar 10",
+      "command": "spark-submit --conf spark.eventLog.enabled=true --conf spark.history.fs.logDirectory=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs --conf spark.eventLog.dir=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs --class org.apache.spark.examples.SparkPi --master yarn --deploy-mode cluster --driver-memory 1g --executor-memory 2g --executor-cores 1 --queue default ${SPARK_HOME}/examples/jars/spark-examples*.jar 10",
       "portList": []
+    },
+    {
+      "name": "spark_history_server",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 1024,
+      "shmMB": 64,
+      "gpuNumber": 0,
+      "minFailedTaskCount": 1,
+      "minSucceededTaskCount": null,
+      "command": "URL=http://${PAI_CURRENT_CONTAINER_IP}:${PAI_CONTAINER_HOST_history_server_PORT_LIST}/ && echo Please visit spark histroy server: ${URL} && SPARK_DAEMON_JAVA_OPTS=\"-Dspark.history.ui.port=${PAI_CONTAINER_HOST_history_server_PORT_LIST} -Dspark.history.fs.logDirectory=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs\" spark-class org.apache.spark.deploy.history.HistoryServer",
+      "portList": [
+        {
+          "label": "history_server",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ]
     }
   ]
 }
@@ -40,7 +59,7 @@ For python application, you will need to manage dependencies carefully. In the e
 
 ### 1. Prepare your data and code
 
-  Upload `sample_libsvm_data.txt` and `gradient_boosted_tree_classifier_example.py` to hdfs:
+Upload `sample_libsvm_data.txt` and `gradient_boosted_tree_classifier_example.py` to hdfs:
 
 ```sh
 hdfs dfs -mkdir -p hdfs://YOUR_PAI_MASTER_IP:9000/user/core/data/mllib/
@@ -81,7 +100,7 @@ hdfs dfs -put spark-python.zip hdfs://YOUR_PAI_MASTER_IP:9000/user/core/
 
 ### 3. Submit job on PAI
 
-  Replace the `YOUR_PAI_MASTER_IP` with your own, and submit the job on PAI.
+Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI.
 
 ```json
 {
@@ -104,8 +123,26 @@ hdfs dfs -put spark-python.zip hdfs://YOUR_PAI_MASTER_IP:9000/user/core/
       "gpuNumber": 0,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": null,
-      "command": "spark-submit --master yarn --deploy-mode cluster --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=MY_CONDA/spark-python/bin/python --queue default --archives hdfs://10.151.40.234:9000/user/core/spark-python.zip#MY_CONDA hdfs://10.151.40.234:9000/user/core/code/gradient_boosted_tree_classifier_example.py hdfs://YOUR_PAI_MASTER_IP:9000/user/core/data/mllib/sample_libsvm_data.txt",
+      "command": "spark-submit --conf spark.eventLog.enabled=true --conf spark.history.fs.logDirectory=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs --conf spark.eventLog.dir=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON=MY_CONDA/spark-python/bin/python --master yarn --deploy-mode cluster --archives hdfs://YOUR_PAI_MASTER_IP:9000/user/core/spark-python.zip#MY_CONDA --queue default hdfs://YOUR_PAI_MASTER_IP:9000/user/core/code/gradient_boosted_tree_classifier_example.py hdfs://YOUR_PAI_MASTER_IP:9000/user/core/data/mllib/sample_libsvm_data.txt",
       "portList": []
+    },
+    {
+      "name": "spark_history_server",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 1024,
+      "shmMB": 64,
+      "gpuNumber": 0,
+      "minFailedTaskCount": 1,
+      "minSucceededTaskCount": null,
+      "command": "URL=http://${PAI_CURRENT_CONTAINER_IP}:${PAI_CONTAINER_HOST_history_server_PORT_LIST}/ && echo Please visit spark histroy server: ${URL} && SPARK_DAEMON_JAVA_OPTS=\"-Dspark.history.ui.port=${PAI_CONTAINER_HOST_history_server_PORT_LIST} -Dspark.history.fs.logDirectory=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs -Dspark.eventLog.enabled=true -Dspark.eventLog.dir=hdfs://YOUR_PAI_MASTER_IP:9000/shared/spark-logs\" spark-class org.apache.spark.deploy.history.HistoryServer",
+      "portList": [
+        {
+          "label": "history_server",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ]
     }
   ]
 }
