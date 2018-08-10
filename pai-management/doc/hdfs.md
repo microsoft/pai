@@ -74,12 +74,12 @@ The Prometheus service will collect those metrics and monitor HDFS in real time.
 
 * Data Node: On data node all the metrics can be retrieved by command
 ```bash
-curl http://10.151.40.179:50070/jmx
+curl http://10.151.40.179:50075/jmx
 ```
 
 * Name Node: On name node all the metrics can be retrieved by command
 ```bash
-curl http://10.151.40.179:50075/jmx
+curl http://10.151.40.179:50070/jmx
 ```
 
 # High Availability
