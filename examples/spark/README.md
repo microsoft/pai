@@ -4,7 +4,10 @@ This example demonstrate howto run Spark job on PAI.
 
 ## 1. Off-the-shelf example
 
+### 1. Submit your Spark application
+
 Below is a job config running the `SparkPi` Java example on PAI.
+
 Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job on PAI.
 
 ```json
@@ -52,6 +55,14 @@ Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job 
   ]
 }
 ```
+
+### 2. Visit Spark history server
+
+Your job look like below, key info is marked on red font.
+![job](https://user-images.githubusercontent.com/1547343/43951079-b981c892-9cc4-11e8-8eeb-dc28a0ac0950.png)
+
+As the previous image indicated, you can visit the Spark history server on <http://10.151.40.228:15692/>.
+![history_server](https://user-images.githubusercontent.com/1547343/43951284-55719106-9cc5-11e8-92db-d0d228e547b1.png)
 
 ## 2. Run your python application
 
@@ -148,3 +159,7 @@ Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job 
 }
 
 ```
+
+### 4. Visit Spark history server
+
+As previous section.
