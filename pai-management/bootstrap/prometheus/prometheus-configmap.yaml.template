@@ -65,6 +65,9 @@ data:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: k8s_pod_name
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: replace
+          target_label: pai_service_name
 {% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:

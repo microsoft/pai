@@ -148,4 +148,5 @@ If service decide to leverage node-exporter to expose metrics, service should mo
 located in `/datastorage/prometheus` and write file with extension `.prom`.
 
 For expose using port, service should annotate pod with `prometheus.io/scrape`, `prometheus.io/path`
-and `prometheus.io/port`.
+and `prometheus.io/port`. For service with label key `app`, prometheus will generate `pai_service_name`
+label for generated metrics.
