@@ -243,10 +243,10 @@ if (config.env !== 'test') {
     } else {
       logger.info('base storage path exists');
       getUserList((errMsg, res) => {
-        if (errMsg) {
+        if (errMsg || !res) {
           logger.warn('get user list failed');
         } else {
-          logger.warn(res);
+          logger.info('etcd is ok and %d user accounts are retrieved', res.length);
         }
       });
     }
