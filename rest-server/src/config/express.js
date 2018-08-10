@@ -26,6 +26,7 @@ const cookieParser = require('cookie-parser');
 const config = require('./index');
 const logger = require('./logger');
 const router = require('../routes/index');
+const routerV2 = require('../routes/indexV2');
 const createError = require('../util/error');
 
 const app = express();
@@ -43,6 +44,9 @@ app.use(morgan('dev', {'stream': logger.stream}));
 
 // mount all v1 APIs to /api/v1
 app.use('/api/v1', router);
+
+// mount all v2 APIs to /api/v2
+app.use('/api/v2', routerV2);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
