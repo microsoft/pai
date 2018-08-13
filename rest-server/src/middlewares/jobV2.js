@@ -177,8 +177,6 @@ const convert = (req, res, next) => {
     newbody.taskRoles.push(taskRole);
   });
   req.body = newbody;
-  logger.info('convert:');
-  logger.info(newbody);
   next();
 };
 
