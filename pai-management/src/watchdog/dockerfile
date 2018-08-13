@@ -15,18 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+FROM python:2.7
 
-#
-# Preparation
-#
+RUN pip install PyYAML requests paramiko prometheus_client
 
-WORKDIR /root/
-
-RUN apt-get update && \
-    apt-get -y install wget build-essential python python-pip git python-yaml python-jinja2 && \
-    pip install requests paramiko python-etcd
-
-COPY copied_file/exporter/watchdog.py /usr/local/
-COPY copied_file/exporter/utils.py /usr/local/
-COPY copied_file/common.py /usr/local
+COPY copied_file/exporter/watchdog.py /

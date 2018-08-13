@@ -62,20 +62,33 @@ class TestJobExporter(unittest.TestCase):
     def test_parse_pods_status(self):
         obj = json.loads(self.get_data_test_input("data/pods_list.json"))
 
-        metrics = watchdog.parse_pods_status(obj)
-        self.assertTrue(len(metrics) > 0)
+        pod_gauge = watchdog.gen_pai_node_gauge()
+        container_gauge = watchdog.gen_pai_container_gauge()
 
-    def test_parse_nodes_status(self):
+        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+
+        self.assertTrue(len(pod_gauge.samples) > 0)
+        self.assertTrue(len(container_gauge.samples) > 0)
+
+    def test_process_nodes_status(self):
         obj = json.loads(self.get_data_test_input("data/nodes_list.json"))
 
-        metrics = watchdog.parse_nodes_status(obj)
-        self.assertTrue(len(metrics) > 0)
+        gauge = watchdog.gen_pai_node_gauge()
 
-    def test_parse_pods_with_no_condition(self):
+        watchdog.process_nodes_status(gauge, obj)
+
+        self.assertTrue(len(gauge.samples) > 0)
+
+    def test_process_pods_with_no_condition(self):
         obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
 
-        metrics = watchdog.parse_pods_status(obj)
-        self.assertTrue(len(metrics) > 0)
+        pod_gauge = watchdog.gen_pai_node_gauge()
+        container_gauge = watchdog.gen_pai_container_gauge()
+
+        watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+
+        self.assertTrue(len(pod_gauge.samples) > 0)
+        self.assertEquals(0, len(container_gauge.samples))
 
 if __name__ == '__main__':
     unittest.main()

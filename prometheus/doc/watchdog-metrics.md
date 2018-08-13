@@ -64,6 +64,17 @@ vi watchdog-xx.log
 | k8s_etcd_count | has error key in label, if error != "ok", means etcd is not functioning correctly |
 | k8s_kubelet_count | has error key in label, if error != "ok", means kubelet is not functioning correctly |
 
+## Other Metrics
+| Metric name| Description |
+| ---------- |  ----------- |
+| process_error_log_total | count of error/exception log |
+| k8s_api_healthz_resp_latency_seconds | response latency from k8s api healthz page |
+| ssh_resp_latency_seconds | response latency from ssh into worker node and execute docker daemon check cmd |
+| k8s_etcd_resp_latency_seconds | response latency from etcd healthz page |
+| k8s_kubelet_resp_latency_seconds | response latency from kubelet healthz page |
+| k8s_api_list_pods_latency_seconds | response latency from listing pods from k8s api |
+| k8s_api_list_nodes_latency_seconds | response latency from listing nodes from k8s api |
+
 # Alerting
 Alerting rules are under `[prometheus/prometheus-alert](../prometheus-alert)`, we added some basic
 healthcheck rules for pai service and node. You can add more alert rule by adding file `*.rules` to
