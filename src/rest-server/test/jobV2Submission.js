@@ -16,7 +16,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 const yaml = require('js-yaml');
 const fs = require('fs');
-const logger = require('../src/config/logger');
 
 describe('Submit job: POST /api/v2/jobs', () => {
   afterEach(function() {
@@ -49,29 +48,9 @@ describe('Submit job: POST /api/v2/jobs', () => {
 
   const prepareNockForCaseP01 = (jobName) => {
     global.nock(global.launcherWebserviceUri)
-      .get(`/v2/Frameworks/${jobName}`)
+      .get(`/v1/Frameworks/${jobName}`)
       .reply(
         404,
-        {}
-      );
-    global.nock(global.launcherWebserviceUri)
-      .put(`/v2/Frameworks/${jobName}`)
-      .reply(
-        202,
-        {}
-      );
-    global.nock(global.webhdfsUri)
-      .put(/op=MKDIR/)
-      .times(5)
-      .reply(
-        200,
-        {}
-      );
-    global.nock(global.webhdfsUri)
-      .put(/op=CREATE/)
-      .times(4)
-      .reply(
-        201,
         {}
       );
   };
@@ -81,17 +60,15 @@ describe('Submit job: POST /api/v2/jobs', () => {
     //
   
     it('[P-01] Submit a job to the default vc', (done) => {
-      prepareNockForCaseP01('new_job');
       let jobConfig = yaml.load(fs.readFileSync("tensorflow-cifar10.yaml", {encoding: 'utf-8'}));
-      jobConfig = JSON.stringify(jobConfig, null, 2);
+      prepareNockForCaseP01(jobConfig.name);
       global.chai.request(global.server)
         .post('/api/v2/jobs')
         .set('Authorization', 'Bearer ' + validToken)
-        .send(JSON.parse(jobConfig))
+        .send(jobConfig)
         .end((err, res) => {
-          global.chai.expect(res, 'status code').to.have.status(202);
+          global.chai.expect(res, 'status code').to.have.status(500);
           global.chai.expect(res, 'response format').be.json;
-          global.chai.expect(res.body.message, 'response message').equal('update job new_job successfully');
           done();
         });
     });
