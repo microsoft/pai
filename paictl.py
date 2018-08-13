@@ -25,23 +25,22 @@ import argparse
 import logging
 import logging.config
 
-from paiLibrary.common import linux_shell
-from paiLibrary.common import file_handler
-from paiLibrary.common import template_handler
-from paiLibrary.clusterObjectModel import objectModelFactory
-from paiLibrary.paiBuild import build_center
-from paiLibrary.paiBuild import push_center
-from paiLibrary.paiService import service_management_start
-from paiLibrary.paiService import service_management_stop
-from paiLibrary.paiService import service_management_delete
-from paiLibrary.paiService import service_management_refresh
-from paiLibrary.paiCluster import cluster_util
+from deployment.paiLibrary.common import linux_shell
+from deployment.paiLibrary.common import file_handler
+from deployment.paiLibrary.clusterObjectModel import objectModelFactory
+from deployment.paiLibrary.paiBuild import build_center
+from deployment.paiLibrary.paiBuild import push_center
+from deployment.paiLibrary.paiService import service_management_start
+from deployment.paiLibrary.paiService import service_management_stop
+from deployment.paiLibrary.paiService import service_management_delete
+from deployment.paiLibrary.paiService import service_management_refresh
+from deployment.paiLibrary.paiCluster import cluster_util
 
-from k8sPaiLibrary.maintainlib import add as k8s_add
-from k8sPaiLibrary.maintainlib import remove as k8s_remove
-from k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
-from k8sPaiLibrary.maintainlib import kubectl_conf_check
-from k8sPaiLibrary.maintainlib import kubectl_install
+from deployment.k8sPaiLibrary.maintainlib import add as k8s_add
+from deployment.k8sPaiLibrary.maintainlib import remove as k8s_remove
+from deployment.k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
+from deployment.k8sPaiLibrary.maintainlib import kubectl_conf_check
+from deployment.k8sPaiLibrary.maintainlib import kubectl_install
 
 
 logger = logging.getLogger(__name__)

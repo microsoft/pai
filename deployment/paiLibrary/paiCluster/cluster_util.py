@@ -22,20 +22,22 @@ import logging.config
 import importlib
 from ..common import file_handler
 from ..common import template_handler
-from k8sPaiLibrary import maintainlib
-from k8sPaiLibrary.maintainlib import common as pai_common
+from ...k8sPaiLibrary.maintainlib import clean
+from ...k8sPaiLibrary.maintainlib import deploy
+from ...k8sPaiLibrary.maintainlib import common as pai_common
 
 
 logger = logging.getLogger(__name__)
 
 def maintain_cluster_k8s(cluster_config, **kwargs):
-    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
-    module = importlib.import_module(module_name)
 
-    job_class = getattr(module, kwargs["option_name"])
-    job_instance = job_class(cluster_config, **kwargs)
+    if kwargs["option_name"] == "deploy":
+        job_instance = deploy.deploy(cluster_config, **kwargs)
+        job_instance.run()
+    elif kwargs["option_name"] == "clean":
+        job_instance = clean.clean(cluster_config, **kwargs)
+        job_instance.run()
 
-    job_instance.run()
 
 
 def generate_configuration(quick_start_config_file, configuration_directory, force):
