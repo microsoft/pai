@@ -26,7 +26,7 @@ We use CIFAR-10 training job as an example.
 
 - Full example for Cifar10 tensorflow training on OpenPAI: 
 
-```json
+```js
 {
   // Name for the job, need to be unique
   "jobName": "tensorflow-cifar10",
