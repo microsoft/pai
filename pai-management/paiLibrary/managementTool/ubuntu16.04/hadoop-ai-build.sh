@@ -28,7 +28,7 @@ echo "the driname of the hadoopbinarypath is : $hadoopbinarypath_dirname"
 
 [[ -f "${hadoopbinarypath_dirname}/12932984-12933562-done" ]] &&
 {
-    echo "Hadoop ai with patch 12932984 has been built"
+    echo "Hadoop ai with patch 12932984-12933562 has been built"
     echo "Skip this build precess"
     exit 0
 }
