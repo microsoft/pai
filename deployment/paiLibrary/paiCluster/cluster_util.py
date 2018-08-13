@@ -22,8 +22,8 @@ import logging.config
 import importlib
 from ..common import file_handler
 from ..common import template_handler
-from k8sPaiLibrary import maintainlib
-from k8sPaiLibrary.maintainlib import common as pai_common
+from ...k8sPaiLibrary import maintainlib
+from ...k8sPaiLibrary.maintainlib import common as pai_common
 
 
 logger = logging.getLogger(__name__)
