@@ -150,3 +150,55 @@ located in `/datastorage/prometheus` and write file with extension `.prom`.
 For expose using port, service should annotate pod with `prometheus.io/scrape`, `prometheus.io/path`
 and `prometheus.io/port`. For service with label key `app`, prometheus will generate `pai_service_name`
 label for generated metrics.
+
+prometheus will list all pods and get those pods with `prometheus.io/scrape` is true, and then,
+prometheus will issue request to `http://${pod_host_ip}:${prometheus.io/port}${prometheus.io/path}` to
+get metrics.
+
+For example, following deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foo
+spec:
+  selector:
+    matchLabels:
+      app: foo
+  template:
+    metadata:
+      name: foo
+      labels:
+        app: foo
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: workdir
+          mountPath: /usr/share/nginx/html
+      initContainers:
+        - name: install
+          image: busybox
+          command: ["sh", "-c", "echo pai_service_count 1 > /work-dir/index.html"]
+          volumeMounts:
+          - name: workdir
+            mountPath: "/work-dir"
+      volumes:
+        - name: workdir
+          emptyDir: {}
+      hostNetwork: true
+```
+
+will generate metrics like:
+
+`pai_service_count{instance="10.151.40.4:80",job="pai_serivce_exporter",k8s_pod_name="foo-69869cc4d6",pai_service_name="foo"} 1`
+
+metric labels `k8s_pod_name` and `pai_service_name` are generated from pod name and pod label value which has key `app`.
