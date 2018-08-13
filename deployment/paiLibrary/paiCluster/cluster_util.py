@@ -29,7 +29,7 @@ from ...k8sPaiLibrary.maintainlib import common as pai_common
 logger = logging.getLogger(__name__)
 
 def maintain_cluster_k8s(cluster_config, **kwargs):
-    module_name = "k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
+    module_name = "...k8sPaiLibrary.maintainlib.{0}".format(kwargs["option_name"])
     module = importlib.import_module(module_name)
 
     job_class = getattr(module, kwargs["option_name"])
