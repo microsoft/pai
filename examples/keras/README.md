@@ -28,6 +28,7 @@ The following contents show some basic Keras examples, other customized Keras co
 
 1. [Keras examples](#keras-examples)
 2. [Frequently asked questions](#faq)
+3. [Customize Docker Env](#customize-docker-env)
 
 # Keras examples
 
@@ -81,3 +82,7 @@ For more details on how to write a job configuration file, please refer to [job 
 ### Speed
 
 Since PAI runs Keras jobs in Docker, the trainning speed on PAI should be similar to speed on host.
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

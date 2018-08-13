@@ -8,9 +8,7 @@
 
 ## Off-the-shelf examples
 
-Examples which can be run by submitting the json straightly without any modification.
-
-### How to write a OpenPAI job:
+### How to write and submit a job:
 
 ####  (1) Login PAI job webportal
 
@@ -79,6 +77,8 @@ We use CIFAR-10 training job as an example.
 
 
 ### List of off-the-shelf examples
+
+Examples which can be run by submitting the json straightly without any modification.
 
 * [tensorflow.cifar10.json](./tensorflow/tensorflow.cifar10.json): Single GPU trainning on CIFAR-10 using TensorFlow.
 * [serving.tensorflow.json](./serving/serving.tensorflow.json): TensorFlow model serving.

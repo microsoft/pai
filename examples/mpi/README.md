@@ -27,6 +27,7 @@ The following contents show some basic Open MPI examples, other customized MPI c
 ## Contents
 
 1. [Open MPI examples](#open-mpi-examples)
+2. [Customize Docker Env](#customize-docker-env)
 
 # Open MPI examples
 
@@ -110,3 +111,7 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

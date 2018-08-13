@@ -27,7 +27,8 @@ The following contents show some basic scikit-learn examples, other customized s
 ## Contents
 
 1. [scikit-learn examples](#scikit-learn-examples)
-2. [Frequently asked questions](#faq)
+2. [Customize Docker Env](#customize-docker-env)
+3. [Frequently asked questions](#faq)
 
 # scikit-learn examples
 
@@ -75,6 +76,9 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
 
 ## FAQ
 

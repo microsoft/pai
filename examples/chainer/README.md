@@ -27,8 +27,7 @@ The following contents show a basic Chainer example, other customized Chainer co
 ## Contents
 
 1. [Chainer examples](#chainer-example)
-
-
+2. [Customize Docker Env](#customize-docker-env)
 
 ## Chainer examples
 
@@ -56,3 +55,7 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

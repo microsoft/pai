@@ -27,6 +27,7 @@ The following contents show some basic CNTK examples, other customized CNTK code
 ## Contents
 
 1. [CNTK examples](#cntk-examples)
+2. [Customize Docker Env](#customize-docker-env)
 
 # CNTK examples
 
@@ -63,3 +64,7 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
