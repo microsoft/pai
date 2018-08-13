@@ -26,6 +26,7 @@ The following contents show some basic Caffe2 examples, other customized Caffe2 
 ## Contents
 
 1. [Caffe2 example](#caffe2-example)
+2. [Customize Docker Env](#customize-docker-env)
 
 # Caffe2 example
 
@@ -54,3 +55,7 @@ Here's one configuration file example:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

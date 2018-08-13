@@ -26,6 +26,7 @@ The following contents show some basic examples, other customized examples can b
 ## Contents
 
 1. [Jupyter Notebook example](#jupyter-notebook-example)
+2. [Customize Docker Env](#customize-docker-env)
 
 ## Jupyter Notebook example
 
@@ -68,3 +69,7 @@ For more details on how to write a job configuration file, please refer to [job 
 Once the job is successfully submitted to PAI, you can view job info in webportal, and access your Jupyter Notebook via http://${container_ip}:${container_port}/jupyter/notebooks/mnist.ipynb. 
 ![avatar](example.png)
 for example, from the above job info page, you can access your Jupyter Notebook via http://10.151.40.202:4836/jupyter/notebooks/mnist.ipynb
+
+# Customize Docker Env
+
+User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
