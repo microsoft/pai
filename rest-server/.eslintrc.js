@@ -8,5 +8,6 @@ module.exports = {
     "max-len": [0, 80],
     "require-jsdoc": 0,
     "valid-jsdoc": 0,
+    "linebreak-style": 0,
   },
 };
