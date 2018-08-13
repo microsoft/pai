@@ -28,7 +28,7 @@ router.route('/').all((req, res) => {
 });
 
 router.use('/template', templateRouter);
-router.use('/job', jobV2Router);
+router.use('/jobs', jobV2Router);
 
 // module exports
 module.exports = router;

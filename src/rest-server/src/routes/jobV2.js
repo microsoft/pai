@@ -18,12 +18,31 @@
 
 // module dependencies
 const express = require('express');
+const tokenConfig = require('../config/token');
+const jobController = require('../controllers/job');
+const jobParam = require('../middlewares/jobV2');
 
 const router = new express.Router();
 
-router.route('/').all((req, res) => {
-  return res.send('PAI RESTful API V2 - Job');
-});
+router.route('/')
+    /** GET /api/v2/jobs - Get list of jobs */
+    .get(jobParam.query, jobController.list)
+
+    /** POST /api/v2/jobs - Update job */
+    .post(tokenConfig.check, jobParam.submission, jobController.init, jobController.update);
+
+router.route('/:jobName')
+    /** GET /api/v2/jobs/:jobName - Get job status */
+    .get(jobController.get)
+
+    /** PUT /api/v2/jobs/:jobName - Update job */
+    .put(tokenConfig.check, jobParam.submission, jobController.update)
+
+    /** DELETE /api/v2/jobs/:jobName - Remove job */
+    .delete(tokenConfig.check, jobController.remove);
+
+/** Load job when API with jobName route parameter is hit */
+router.param('jobName', jobController.load);
 
 // module exports
 module.exports = router;
