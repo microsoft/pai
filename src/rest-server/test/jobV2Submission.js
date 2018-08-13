@@ -60,7 +60,7 @@ describe('Submit job: POST /api/v2/jobs', () => {
     //
   
     it('[P-01] Submit a job to the default vc', (done) => {
-      let jobConfig = yaml.load(fs.readFileSync("tensorflow-cifar10.yaml", {encoding: 'utf-8'}));
+      let jobConfig = yaml.load(fs.readFileSync("template_example/tensorflow-cifar10.yaml", {encoding: 'utf-8'}));
       prepareNockForCaseP01(jobConfig.name);
       global.chai.request(global.server)
         .post('/api/v2/jobs')

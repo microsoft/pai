@@ -1,0 +1,85 @@
+protocol_version: v2
+name : cifar10_tensorflow
+type : job
+version : 1.0.0
+contributor : Alice
+description : image classification, cifar10 dataset, tensorflow, distributed training
+retryCount: 0 
+
+parameters :
+  model : resnet20
+  batchsize: 32
+
+tasks :
+  - role: worker
+    data : cifar10
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
+    minSucceededTaskCount: 1
+    parameters:
+      data: cifar10
+      model: $$model$$
+      batchsize: $$batchsize$$
+    command:
+      - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - pip --quiet install scipy
+      - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+  - role : ps_server
+    data : cifar10
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource :
+      instances : 1
+      resourcePerInstance : { cpu: 2, memoryMB: 8192, gpu: 0 }
+    parameters:
+      data: cifar10
+      model: $$model$$
+      batchsize: $$batchsize$$
+    command:
+      - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - pip --quiet install scipy
+      - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+
+prerequisites : 
+  - protocol_version : v2
+    name : cifar10
+    type : data
+    version : 1.0.0
+    contributor : Alice
+    description: cifar10 dataset, image classification
+    uri : https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+  - protocol_version : v2
+    name : tensorflow_cnnbenchmarks
+    type : script
+    version : 1.0.0
+    contributor : Alice
+    description: tensorflow benchmarks
+    uri : https://github.com/tensorflow/benchmarks@6a33b4a4b5bda950bb7e45faf13120115cbfdb2f
+    usage:
+      parameters:
+        model: resnet20
+        batchsize: 32
+        data: cifar10
+      roles:
+        - name : worker
+          command:
+            - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+            - pip --quiet install scipy
+            - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+        - name : ps_server
+          command:
+            - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+            - pip --quiet install scipy
+            - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+        
+  - protocol_version : v2
+    name : tf_example
+    type : dockerimage
+    version : 1.0.0
+    contributor : Qi Chen
+    description: python3.5, tensorflow
+    uri : openpai/pai.example.tensorflow
+    
