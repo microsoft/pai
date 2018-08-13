@@ -20,6 +20,6 @@ clean:
 
     file-list:
     - name: kubernetes-cleanup.sh
-      src: k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
+      src: deployment/k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
       dst: clean
 
