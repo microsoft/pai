@@ -37,7 +37,7 @@ class service_refresh:
 
     def start(self):
 
-        refresh_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["refresh-script"])
+        refresh_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["refresh-script"])
 
         cmd = "/bin/bash {0}".format(refresh_script)
         err_msg = "Failed to execute the refresh script of service {0}".format(self.service_name)

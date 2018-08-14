@@ -37,7 +37,7 @@ class service_delete:
 
     def start(self):
 
-        delete_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["delete-script"])
+        delete_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["delete-script"])
 
         cmd = "/bin/bash {0}".format(delete_script)
         err_msg = "Failed to execute the delete script of service {0}".format(self.service_name)

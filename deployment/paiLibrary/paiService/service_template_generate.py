@@ -71,8 +71,8 @@ class service_template_generate:
 
         for template_file in self.service_conf["template-list"]:
 
-            template_path = "bootstrap/{0}/{1}.template".format(self.service_name, template_file)
-            target_path = "bootstrap/{0}/{1}".format(self.service_name, template_file)
+            template_path = "src/{0}/deploy/{1}.template".format(self.service_name, template_file)
+            target_path = "src/{0}/deploy/{1}".format(self.service_name, template_file)
 
             self.logger.info("Generate the template file {0}.".format(template_path))
             self.logger.info("Save the generated file to {0}.".format(target_path))

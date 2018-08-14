@@ -48,11 +48,12 @@ class service_management_stop:
 
         service_list = list()
 
-        subdir_list = directory_handler.get_subdirectory_list("bootstrap/")
+        subdir_list = directory_handler.get_subdirectory_list("src/")
         for subdir in subdir_list:
 
-            service_conf_path =  "bootstrap/{0}/service.yaml".format(subdir)
-            if file_handler.file_exist_or_not(service_conf_path):
+            service_deploy_dir = "src/{0}/deploy".format(subdir)
+            service_deploy_conf_path = "src/{0}/deploy/service.yaml".format(subdir)
+            if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
                 service_list.append(subdir)
 
         self.logger.info("Get the service-list to manage : {0}".format(str(service_list)))
@@ -63,7 +64,7 @@ class service_management_stop:
 
     def start(self, serv):
 
-        service_conf = file_handler.load_yaml_config("bootstrap/{0}/service.yaml".format(serv))
+        service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
         service_stopper = service_stop.service_stop(service_conf, serv)
 
         self.logger.info("----------------------------------------------------------------------")
@@ -90,7 +91,7 @@ class service_management_stop:
         for serv in self.service_list:
             if serv == "cluster-configuration":
                 continue
-            if file_handler.file_exist_or_not("bootstrap/{0}/service.yaml".format(serv)) == False:
+            if file_handler.file_exist_or_not("src/{0}/deploy/service.yaml".format(serv)) == False:
                 self.logger.warning("service.yaml can't be found on the directory of {0}".format(serv))
                 self.logger.warning("Please check your source code. The {0}'s service will be skipped.".format(serv))
                 continue
