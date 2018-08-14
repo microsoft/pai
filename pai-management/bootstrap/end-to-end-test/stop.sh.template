@@ -19,6 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete deployment end-to-end-test-deployment
+if kubectl get deployments | grep -q "end-to-end-test-deployment"; then
+    kubectl delete deployment end-to-end-test-deployment || exit $?
+fi
 
 popd > /dev/null

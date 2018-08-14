@@ -15,61 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
-import os
-import unittest
-import logging
-import logging.config
-import yaml
+# Rule Syntax Reference: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 
-from k8sPaiLibrary.maintainlib import repair
-
-
-class TestMaintainlibRepair(unittest.TestCase):
-
-    """
-    Test the class repair's api
-    """
-
-    def setUp(self):
-
-        try:
-
-            os.chdir(os.path.abspath("test"))
-
-        except:
-
-            pass
-
-        configuration_path = "test_logging.yaml"
-
-        if os.path.exists(configuration_path):
-            with open(configuration_path, 'rt') as f:
-                logging_configuration = yaml.safe_load(f.read())
-
-            logging.config.dictConfig(logging_configuration)
-
-            logging.getLogger()
-
-
-
-    def tearDown(self):
-
-        try:
-
-            os.chdir(os.path.abspath(".."))
-
-        except:
-
-            pass
-
-
-
-    def test_repair(self):
-        pass
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
+groups:
+    - name: pai-services
+      rules:
+      - alert: PaiServicePodNotRunning
+        expr: pai_pod_count{phase!="running"} > 0
+        for: 1m
+        labels:
+          type: pai_service
+        annotations:
+          summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
+          description: "{{$labels.name}} in {{$labels.host_ip}} is not running"
+      - alert: PaiServicePodNotReady
+        expr: pai_pod_count{phase="running", ready="false"} > 0
+        for: 1m
+        labels:
+          type: pai_service
+        annotations:
+          summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
+          description: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"

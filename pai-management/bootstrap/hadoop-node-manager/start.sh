@@ -21,15 +21,15 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x node-label.sh
 
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
 
 # Hadoop node manager
-kubectl create -f hadoop-node-manager.yaml
+kubectl apply --overwrite=true -f hadoop-node-manager.yaml || exit $?
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
 ret=$?
@@ -38,7 +38,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-node-manager Pod in your cluster"
 else
     # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager || exit $?
 fi
 
 

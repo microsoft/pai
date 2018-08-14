@@ -19,12 +19,19 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete configmap grafana-configuration
-kubectl delete deployment grafana
+if kubectl get deployments | grep -q "grafana"; then
+    kubectl delete deployment grafana || exit $?
+fi
+
+
+if kubectl get configmap | grep -q "grafana-configuration"; then
+    kubectl delete configmap grafana-configuration || exit $?
+fi
+
 
 {% for host in machinelist %}
     {% if 'grafana' in machinelist[ host ] and machinelist[ host ][ 'grafana' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} grafana-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} grafana- || exit $?
     {% endif %}
 {% endfor %}
 

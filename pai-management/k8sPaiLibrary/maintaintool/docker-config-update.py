@@ -15,25 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
+import json
+import argparse
 
-# JOb name, should be same with corresponding class in maintainlib
-repair:
+if __name__ == "__main__":
 
-    # List of the template
-    template-list:
-    # Generate kubelet.sh from template/kubelet.sh.template
-    # And save it to the path nodename/repair/kubelet.sh
-    - name: kubelet.sh
-      src: k8sPaiLibrary/template/kubelet.sh.template
-      dst: repair
-      # parcel-center/nodename/repair/kubelet.sh
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--src-json', dest="src_json", required=True,
+                        help="The json with the data you wanna write")
+    parser.add_argument('-d', '--dst-json', dest="dst_json", required=True,
+                        help="The json with the data you wanna update")
+    args = parser.parse_args()
 
-    # List of the file
-    file-list:
-    # Copy repair-worker-node.sh from maintain-tool/repair-worker-node.sh
-    # And save it to the path nodename/repair/repair-worker-node.sh
-    - name: repair-worker-node.sh
-      src: k8sPaiLibrary/maintaintool/repair-worker-node.sh
-      dst: repair
-    # All the generate template and file will be moved to the folder parcel-center/${nodename}/jobname.tar
+    with open(args.src_json, "r") as jsonFile:
+        src_data = json.load(jsonFile)
 
+    with open(args.dst_json, "r") as jsonFile:
+        dst_data = json.load(jsonFile)
+
+    for conf_key in src_data:
+        dst_data[conf_key] = src_data[conf_key]
+        changed = True
+
+    with open(args.dst_json, 'w') as jsonFile:
+        json.dump(dst_data, jsonFile)

@@ -15,6 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set prom_info = clusterinfo['prometheusinfo'] %}
+{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
+{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
+{% else %}
+{% set port = 9093 %}
+{% endif %}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -37,12 +44,33 @@ data:
         regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__
-{% if clusterinfo['prometheusinfo']['alert-manager-hosts'] %}
+    - job_name: 'pai_serivce_exporter'
+      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      kubernetes_sd_configs:
+      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
+        role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          regex: true
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          regex: (.+)
+          action: replace
+          target_label: __metrics_path__
+        - source_labels: [__meta_kubernetes_pod_host_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          regex: ([^;]+);(\d+)
+          replacement: ${1}:${2}
+          action: replace
+          target_label: __address__
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: k8s_pod_name
+{% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:
         - static_configs:
           - targets:
-            {% for host in clusterinfo['prometheusinfo']['alert-manager-hosts'] %}
-            - {{ host }}:{{ clusterinfo['prometheusinfo']['alerting']['alert_manager_port']|default(9093) }}
+            {% for host in clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
+            - {{ host }}:{{ port }}
             {% endfor %}
 {% endif %}
