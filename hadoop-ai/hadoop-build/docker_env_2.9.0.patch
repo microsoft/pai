@@ -1,0 +1,13 @@
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
+index 96f6c57..77aec87 100644
+--- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
+@@ -1542,7 +1542,7 @@ public static boolean isAclEnabled(Configuration conf) {
+ 
+   /** The Docker image name(For DockerContainerExecutor).*/
+   public static final String NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME =
+-    NM_PREFIX + "docker-container-executor.image-name";
++    "YARN_CONTAINER_RUNTIME_DOCKER_IMAGE";
+ 
+   /** The name of the docker executor (For DockerContainerExecutor).*/
+   public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_NAME =
