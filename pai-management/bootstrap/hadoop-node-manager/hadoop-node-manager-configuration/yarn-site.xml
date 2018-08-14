@@ -272,5 +272,23 @@
     <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
     <value>88000</value>
   </property>
+
+<property>
+ <name>yarn.nodemanager.docker-container-executor.exec-name</name>
+  <value>/usr/bin/docker</value>
+  <description>
+     Name or path to the Docker client. This is a required parameter. If this is empty,
+     user must pass an image name as part of the job invocation(see below).
+  </description>
+</property>
+
+<property>
+  <name>yarn.nodemanager.container-executor.class</name>
+  <value>org.apache.hadoop.yarn.server.nodemanager.DockerContainerExecutor</value>
+  <description>
+     This is the container executor setting that ensures that all
+jobs are started with the DockerContainerExecutor.
+  </description>
+</property>
   
 </configuration>

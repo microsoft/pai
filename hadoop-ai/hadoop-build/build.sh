@@ -31,9 +31,11 @@ git checkout branch-2.9.0
 
 cp /hadoop-2.9.0.gpu-port.patch /hadoop
 cp /HDFS-13773.patch /hadoop
+cp /docker_env_2.9.0.patch /hadoop
 
 git apply hadoop-2.9.0.gpu-port.patch
 git apply HDFS-13773.patch
+git apply docker_env_2.9.0.patch
 
 mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
 
