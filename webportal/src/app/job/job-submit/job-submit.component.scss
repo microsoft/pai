@@ -15,3 +15,8 @@ div#editor-holder {
 textarea {
     resize: both;
 }
+
+.list-group-item {
+    overflow: hidden;
+    word-break: break-all;
+}
