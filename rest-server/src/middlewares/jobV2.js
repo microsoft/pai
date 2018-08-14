@@ -149,7 +149,7 @@ const convert = (req, res, next) => {
   let newbody = {};
   newbody.jobName = value.name;
   newbody.image = prerequisitesMap.dockerimage[Object.keys(prerequisitesMap.dockerimage)[0]].uri;
-  newbody.outputDir = '$PAI_DEFAULT_FS_URI/marketplace';
+  newbody.outputDir = '$PAI_DEFAULT_FS_URI/marketplace/' + req.user.username;
   newbody.gpuType = value.gpuType;
   newbody.virtualCluster = value.virtualCluster;
   newbody.retryCount = value.retryCount;
