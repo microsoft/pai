@@ -30,6 +30,7 @@ cd hadoop
 git checkout branch-2.9.0
 
 cp /hadoop-2.9.0.gpu-port.patch /hadoop
+cp /HDFS-13773.patch /hadoop
 
 git apply hadoop-2.9.0.gpu-port.patch
 git apply HDFS-13773.patch
@@ -43,4 +44,4 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 
 # When Changing the patch id, please update the filename here.
-touch /hadoop-binary/12932984-done
+touch /hadoop-binary/12932984-12933562-done
