@@ -247,6 +247,12 @@
     <value>8</value>
   </property>
 
-
+  <property>
+    <description>The maximum allocation for every container request at the RM in terms of virtual CPU cores.
+       Requests higher than this will throw an InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+      <value>32</value>
+  </property>
+    
 </configuration>
 
