@@ -29,7 +29,7 @@ echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager || exit $?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager || exit $?
 
 echo "Hadoop resource manager clean job is done"
 echo "Delete hadoop resource manager cleaner daemon and configmap"
