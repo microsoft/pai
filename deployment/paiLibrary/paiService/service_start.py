@@ -37,7 +37,7 @@ class service_start:
 
     def start(self):
 
-        start_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["start-script"])
+        start_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["start-script"])
 
         cmd = "/bin/bash {0}".format(start_script)
         err_msg = "Failed to execute the start script of service {0}".format(self.service_name)

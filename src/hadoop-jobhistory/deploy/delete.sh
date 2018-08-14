@@ -19,22 +19,27 @@
 
 pushd $(dirname "$0") > /dev/null
 
-/bin/bash node-label.sh || exit $?
+echo "Call stop to stop hadoop jobhistory first"
+/bin/bash stop.sh || exit $?
 
-# Zookeeper
-kubectl apply --overwrite=true -f zookeeper.yaml || exit $?
+echo "Create hadoop-jobhistory-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-jobhistory-delete --from-file=hadoop-jobhistory-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
+echo "Create cleaner daemon"
+kubectl apply --overwrite=true -f delete.yaml || exit $?
+sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k zookeeper -v "true"
-ret=$?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-jobhistory || exit $?
 
-if [ $ret -ne 0 ]; then
-    echo "No Zookeeper Pod in your cluster"
-else
-    # wait until all zookeeper are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v zookeeper || exit $?
+echo "Hadoop Service clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-hadoop-jobhistory"; then
+    kubectl delete ds delete-batch-job-hadoop-jobhistory || exit $?
 fi
 
-
+if kubectl get configmap | grep -q "hadoop-jobhistory-delete"; then
+    kubectl delete configmap hadoop-jobhistory-delete || exit $?
+fi
+sleep 5
 
 popd > /dev/null

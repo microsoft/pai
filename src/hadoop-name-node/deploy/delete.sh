@@ -19,27 +19,26 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
+echo "Call stop.sh to stop all hadoop service first"
+/bin/bash stop.sh || exit $?
 
-/bin/bash node-label.sh || exit $?
+echo "Create hadoop-name-node-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-name-node-delete --from-file=hadoop-name-node-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
-#chmod u+x configmap-create.sh
+echo "Create cleaner daemon"
+kubectl apply --overwrite=true -f delete.yaml || exit $?
+sleep 5
 
-/bin/bash configmap-create.sh || exit $?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-name-node || exit $?
 
-
-# Hadoop name node
-kubectl apply --overwrite=true -f hadoop-name-node.yaml || exit $?
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-name-node -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-name-node Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node || exit $?
+echo "Hadoop-name-node clean job is done"
+echo "Delete hadoop-name-node cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-hadoop-name-node"; then
+    kubectl delete ds delete-batch-job-hadoop-name-node || exit $?
 fi
-
+if kubectl get configmap | grep -q "hadoop-name-node-delete"; then
+    kubectl delete configmap hadoop-name-node-delete || exit $?
+fi
+sleep 5
 
 popd > /dev/null

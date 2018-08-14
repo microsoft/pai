@@ -19,27 +19,26 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
+echo "Call stop to stop all hadoop service first"
+/bin/bash stop.sh || exit $?
 
-/bin/bash node-label.sh || exit $?
+echo "Create hadoop-delete configmap for deleting data on the host"
+kubectl create configmap zookeeper-delete --from-file=zookeeper-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
-#chmod u+x configmap-create.sh
+echo "Create cleaner daemon"
+kubectl apply --overwrite=true -f delete.yaml || exit $?
+sleep 5
 
-/bin/bash configmap-create.sh || exit $?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-zookeeper || exit $?
 
-
-# Hadoop node manager
-kubectl apply --overwrite=true -f hadoop-node-manager.yaml || exit $?
-
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-node-manager -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-node-manager Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager || exit $?
+echo "Zookeeper clean job is done"
+echo "Delete Zookeeper cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-zookeeper"; then
+    kubectl delete ds delete-batch-job-zookeeper
 fi
-
+if kubectl get configmap | grep -q "zookeeper-delete"; then
+    kubectl delete configmap zookeeper-delete
+fi
+sleep 5
 
 popd > /dev/null

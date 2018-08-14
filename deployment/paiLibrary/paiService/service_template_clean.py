@@ -49,7 +49,7 @@ class service_template_clean:
             return
 
         for template_file in self.template_list:
-            file_path = "bootstrap/{0}/{1}".format(self.service_name, template_file)
+            file_path = "src/{0}/deploy/{1}".format(self.service_name, template_file)
             if file_handler.file_exist_or_not(file_path) == True:
                 file_handler.file_delete(file_path)
 

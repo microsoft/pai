@@ -28,17 +28,18 @@ pushd $(dirname "$0") > /dev/null
 /bin/bash configmap-create.sh || exit $?
 
 
-# Hadoop jobhistory
-kubectl apply --overwrite=true -f hadoop-jobhistory.yaml || exit $?
+# Hadoop name node
+kubectl apply --overwrite=true -f hadoop-name-node.yaml || exit $?
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k jobhistory -v "true"
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-name-node -v "true"
 ret=$?
 
 if [ $ret -ne 0 ]; then
-    echo "No jobhistory Pod in your cluster"
+    echo "No hadoop-name-node Pod in your cluster"
 else
     # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-jobhistory-service || exit $?
+    PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-name-node || exit $?
 fi
+
 
 popd > /dev/null

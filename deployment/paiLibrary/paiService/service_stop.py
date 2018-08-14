@@ -36,7 +36,7 @@ class service_stop:
 
     def start(self):
 
-        stop_script = "bootstrap/{0}/{1}".format(self.service_name, self.service_conf["stop-script"])
+        stop_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["stop-script"])
 
         cmd = "/bin/bash {0}".format(stop_script)
         err_msg = "Failed to execute the stop script of service {0}".format(self.service_name)

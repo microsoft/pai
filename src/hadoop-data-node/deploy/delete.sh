@@ -19,25 +19,26 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Call stop to stop all hadoop service first"
+echo "Call stop to stop all hadoop-data-node pod first"
 /bin/bash stop.sh || exit $?
 
-echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap zookeeper-delete --from-file=zookeeper-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+echo "Create hadoop-data-node-delete configmap for deleting data on the host"
+kubectl create configmap hadoop-data-node-delete --from-file=hadoop-data-node-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-zookeeper || exit $?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-data-node || exit $?
 
-echo "Zookeeper clean job is done"
-echo "Delete Zookeeper cleaner daemon and configmap"
-if kubectl get daemonset | grep -q "delete-batch-job-zookeeper"; then
-    kubectl delete ds delete-batch-job-zookeeper
+echo "Hadoop Service clean job is done"
+echo "Delete hadoop cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-hadoop-data-node"; then
+    kubectl delete ds delete-batch-job-hadoop-data-node || exit $?
 fi
-if kubectl get configmap | grep -q "zookeeper-delete"; then
-    kubectl delete configmap zookeeper-delete
+
+if kubectl get configmap | grep -q "hadoop-data-node-delete"; then
+    kubectl delete configmap hadoop-data-node-delete || exit $?
 fi
 sleep 5
 

@@ -19,26 +19,27 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Call stop to stop hadoop node manager first"
-/bin/bash stop.sh || exit $?
+#chmod u+x node-label.sh
 
-echo "Create hadoop-node-manager-delete configmap for deleting data on the host"
-kubectl create configmap hadoop-node-manager-delete --from-file=hadoop-node-manager-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+/bin/bash node-label.sh || exit $?
 
-echo "Create cleaner daemon"
-kubectl apply --overwrite=true -f delete.yaml || exit $?
-sleep 5
+#chmod u+x configmap-create.sh
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-node-manager || exit $?
+/bin/bash configmap-create.sh || exit $?
 
-echo "Hadoop node manager clean job is done"
-echo "Delete hadoop cleaner daemon and configmap"
-if kubectl get daemonset | grep -q "delete-batch-job-hadoop-node-manager"; then
-    kubectl delete ds delete-batch-job-hadoop-node-manager || exit $?
+
+# Hadoop resource manager
+kubectl apply --overwrite=true -f hadoop-resource-manager.yaml || exit $?
+
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
+ret=$?
+
+if [ $ret -ne 0 ]; then
+    echo "No hadoop-resource-manager Pod in your cluster"
+else
+    # wait until all drivers are ready.
+    PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager || exit $?
 fi
-if kubectl get configmap | grep -q "hadoop-node-manager-delete"; then
-    kubectl delete configmap hadoop-node-manager-delete || exit $?
-fi
-sleep 5
+
 
 popd > /dev/null
