@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,31 +17,31 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+cd /
 
-remove-node:
+wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
+# patch for webhdfs upload issue when using nginx as a reverse proxy
+wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
 
-    file-list:
-    - name: kubernetes-cleanup.sh
-      src: k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
-      dst: remove-node
+git clone https://github.com/apache/hadoop.git
 
+cd hadoop
 
+git checkout branch-2.9.0
 
-stop-etcd-on-target-node:
+cp /hadoop-2.9.0.gpu-port.patch /hadoop
+cp /HDFS-13773.patch /hadoop
 
-    file-list:
-    - name: stop-etcd-server.sh
-      src: k8sPaiLibrary/maintaintool/stop-etcd-server.sh
-      dst: stop-etcd-on-target-node
+git apply hadoop-2.9.0.gpu-port.patch
+git apply HDFS-13773.patch
 
+mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
 
+cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
 
-remove-node-from-etcd-cluster:
-
-    template-list:
-    - name: remove-member-from-etcd-cluster.sh
-      src: k8sPaiLibrary/maintaintool/remove-member-from-etcd-cluster.sh
-      dst: remove-node-from-etcd-cluster
+echo "Successfully build hadoop 2.9.0 AI"
 
 
 
+# When Changing the patch id, please update the filename here.
+touch /hadoop-binary/12932984-12933562-done
