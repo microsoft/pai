@@ -15,7 +15,6 @@
 .settings
 .vscode
 target/
-build/
 out/
 tmp/
 dist/
