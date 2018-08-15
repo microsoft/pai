@@ -151,7 +151,7 @@ For expose using port, service should annotate pod with `prometheus.io/scrape`, 
 and `prometheus.io/port`. For service with label key `app`, prometheus will generate `pai_service_name`
 label for generated metrics.
 
-prometheus will list all pods and get those pods with `prometheus.io/scrape` is true, and then,
+Prometheus will list all pods and get those pods with `prometheus.io/scrape` is true, and then,
 prometheus will issue request to `http://${pod_host_ip}:${prometheus.io/port}${prometheus.io/path}` to
 get metrics.
 
@@ -202,3 +202,12 @@ will generate metrics like:
 `pai_service_count{instance="10.151.40.4:80",job="pai_serivce_exporter",k8s_pod_name="foo-69869cc4d6",pai_service_name="foo"} 1`
 
 metric labels `k8s_pod_name` and `pai_service_name` are generated from pod name and pod label value which has key `app`.
+
+In above example, we use nginx to accept reqests from prometheus and expose metrics we write in
+initContainers. It is best for service owner to use
+[prometheus client](https://prometheus.io/docs/instrumenting/clientlibs/) to expose metrics.
+
+Note that, currently pai do not assume
+[kubernetes network model](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
+enabled, so service has to use hostNetwork, this implies service owner should carefully choose port
+number to avoid port conflict, it is best to configure port through pai service configuration.
