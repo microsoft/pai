@@ -1,10 +1,9 @@
 # OpenPAI FAQs
 
-### Q: Why does not suggest master node deploy on GPU server (Doesn't suggest matser execute jobs)? 
+### Q: Why not recommend deploying the master node to the GPU server and running the job? 
 
-A: Separation of the working node and the master node is a good choice. It is not recommended to run the job on the master node in order to avoid overload on the master node and affect the stability of the cluster.
+A: It is not recommended to run the job on the master node in order to avoid overload on the master node and affect the stability of the cluster.
 
-### Q: Can it be deployed normally when OpenPAI container multi masters, they are in different network segments and they could access each other?
+### Q: When OpenPAI has multiple master nodes, can the master node be deployed on multiple subnets, and they can still access normally?
 
-A: We recommend deploying them in a subnet. In theory, network interoperability can be deployed, but considering the high internal communication requirements of the cluster, in general the delay between different network segments is relatively long and network isolation is more likely to occur. 
-
+A: We recommend deploying them on the same subnet. In theory, as long as the network is interoperable, it can be deployed. Considering the high communication requirements of the cluster, the network delay of different subnets is usually high, and the network is often inaccessible.
