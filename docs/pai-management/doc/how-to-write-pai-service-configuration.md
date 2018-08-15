@@ -45,13 +45,13 @@ User could customize FrameworkLauncher startup configuration at OpenPAI's [folde
 
 User could customize rest server at OpenPAI's [folder / file](../bootstrap/rest-server/rest-server.yaml.template)
 
-User could customize rest server startup configuration at OpenPAI's [folder / file](../bootstrap) 
+User could customize rest server startup configuration at OpenPAI's [folder / file](../../../src)
 
 ## Configure YARN / HDFS <a name="hadoop"></a>
 
-User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../bootstrap/hadoop-node-manager/hadoop-node-manager-configuration)).
+User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)).
 
-User could customize Hadoop startup configuration at OpenPAI's [folder / file](../bootstrap) 
+User could customize Hadoop startup configuration at OpenPAI's [folder / file](../../../src)
 
 
 ## Configure Zookeeper <a name="zookeeper"></a>

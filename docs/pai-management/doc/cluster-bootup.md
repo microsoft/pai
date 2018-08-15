@@ -392,7 +392,7 @@ Check and refine 4 yaml files:
 
 - Customize config for specific service 
 
-If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
+If user want to customize single service, you could find service config file at [pai-management/bootstrap](../../../src) and find image dockerfile at [pai-management/src](../src).
 
 - Update Code & Image
 
