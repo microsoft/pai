@@ -104,13 +104,15 @@ These user could customize and run these jobs over OpenPAI.
 
 ## Contributing
 
-- If you want to contribute to run new workload on PAI or add more PAI examples, please open a new pull request.
+If you want to contribute a job example that can be run on PAI, please open a new pull request.
 
 - Prepare a folder under pai/examples folder, for example create pai/examples/caffe2/
 
-- Prepare example dependencies:
+- Prepare example files:
 
-  Under [Caffe2 example](./caffe2/README.md) folder, user should prepare these files for an example's contribution PR:
+  Under [Caffe2 example](./caffe2) dir, user should prepare these files for an example's contribution PR:
+
+![PAI_caffe2_dir](./images/PAI_caffe2_dir.png)
 
 1.  README.md: Example's introductions
 2.	Dockerfile: Example's dependencies
