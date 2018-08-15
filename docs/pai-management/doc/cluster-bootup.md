@@ -18,7 +18,7 @@ This document introduces the detailed procedures to boot up PAI on a cluster. Pl
 
 ## OpenPAI deploy <a name="overview"></a>
 
-We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../README.md#how-to-deploy).
+We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../../README.md#how-to-deploy).
 
 ## Table of contents
 
@@ -392,7 +392,7 @@ Check and refine 4 yaml files:
 
 - Customize config for specific service 
 
-If user want to customize single service, you could find service config file at [pai-management/bootstrap](../../../src) and find image dockerfile at [pai-management/src](../src).
+If user want to customize single service, you could find service config file at [pai-management/bootstrap](../../../src) and find image dockerfile at [pai-management/src](../../../src).
 
 - Update Code & Image
 
@@ -440,7 +440,7 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 
 ### 3 Getting help  <a name="troubleshooting_3"></a>
 
-- [StackOverflow:](../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
+- [StackOverflow:](../../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
 
 ## Maintenance <a name="maintenance"></a>
