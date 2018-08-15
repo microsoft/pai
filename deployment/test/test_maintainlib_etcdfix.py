@@ -25,8 +25,8 @@ import sys
 import logging
 import logging.config
 
-from k8sPaiLibrary.maintainlib import etcdfix
-from k8sPaiLibrary.maintainlib import common
+from ..k8sPaiLibrary.maintainlib import etcdfix
+from ..k8sPaiLibrary.maintainlib import common
 
 
 class TestMaintainlibEtcdFix(unittest.TestCase):
