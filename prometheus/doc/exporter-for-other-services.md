@@ -203,7 +203,7 @@ will generate metrics like:
 
 metric labels `k8s_pod_name` and `pai_service_name` are generated from pod name and pod label value which has key `app`.
 
-In above example, we use nginx to accept reqests from prometheus and expose metrics we write in
+In above example, we use nginx to accept requests from prometheus and expose metrics we write in
 initContainers. It is best for service owner to use
 [prometheus client](https://prometheus.io/docs/instrumenting/clientlibs/) to expose metrics.
 
