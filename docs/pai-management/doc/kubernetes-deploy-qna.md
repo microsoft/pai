@@ -27,7 +27,7 @@
 #### Unable to start kubelet
 
 1) Please ensure whether you could access to ```gcr.io``` or not. If you couldn't access to ```gcr.io```, you will failed to pull kubernetes image.
-    - In the [kubernetes-configuration.yaml](../../cluster-configuration/kubernetes-configuration.yaml), you could find a field ```docker-registry```. This field is set the docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to ```gcr.io/google_containers```, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. But if you can't access to it, you can also set the docker registry to ```docker.io/openpai```, which is maintained by pai.
+    - In the [kubernetes-configuration.yaml](../../../cluster-configuration/kubernetes-configuration.yaml), you could find a field ```docker-registry```. This field is set the docker registry used in the k8s deployment. To use the official k8s Docker images, set this field to ```gcr.io/google_containers```, the deployment process will pull Kubernetes component's image from ```gcr.io/google_containers/hyperkube```. But if you can't access to it, you can also set the docker registry to ```docker.io/openpai```, which is maintained by pai.
 
 2) [ Known Issue 813](https://github.com/Microsoft/pai/issues/813)
 

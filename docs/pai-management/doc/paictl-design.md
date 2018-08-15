@@ -19,7 +19,7 @@
 
 - Paictl will solve the dependency relationship between different. If ```image A``` depends on ```image B```, paictl will build ```image B``` first.
 
-- After the building process is finsihed, if the ```push``` command is executed, all image will be pushed to the target docker registry and be tagged with the target label. The docker registry and label is defined in the [service-configuration.yaml](../../cluster-configuration/services-configuration.yaml)
+- After the building process is finsihed, if the ```push``` command is executed, all image will be pushed to the target docker registry and be tagged with the target label. The docker registry and label is defined in the [service-configuration.yaml](../../../cluster-configuration/services-configuration.yaml)
 
 ## paictl cluster
 
