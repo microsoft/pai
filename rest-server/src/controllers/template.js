@@ -16,15 +16,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const express = require('express');
-const templateController = require('../controllers/template');
+const logger = require('../config/logger');
+const template = require('../models/template');
 
-const router = new express.Router();
+const list = (req, res) => {
+  template.top(req.params.type, 10, function(err, tree) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        'message': 'Failed to fetch templates from remote source.',
+      });
+    }
+    return res.status(200).json(tree);
+  });
+};
 
-router.route('/:type')
-  /** GET /api/v2/template - Get list of templates */
-  .get(templateController.list);
-
-// module exports
-module.exports = router;
+module.exports = {
+  list,
+};
