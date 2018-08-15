@@ -15,12 +15,35 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+require('bootstrap/js/modal.js');
 
 const userAuth = require('../../user/user-auth/user-auth.component');
+const submitComponent = require('./job-submit.component.ejs');
+const taskModelComponent = require('./addmodel-task.components.ejs');
+const dockerModelComponent = require('./addmodel-docker.components.ejs');
+require('./job-submit.component.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
+// const submitHtml = userProfileComponent({
+//   breadcrumb: submitComponent,
+//   recentData: recentlyData,
+//   data: myAssestData
+// });
+
+$('#content-wrapper').html(submitComponent);
+
+$(document).on('click', "#add-task-btn", () => {
+  $('#modalPlaceTask').html(taskModelComponent);
+  $('#addtaskModal').modal('show');
+});
+
+$(document).on('click', "#add-docker-btn", () => {
+  $('#modalPlaceDocker').html(dockerModelComponent);
+  $('#addockerModal').modal('show');
+});
+
 $(document).ready(() => {
-  userAuth.checkToken(function(token) {
-  });
+  // userAuth.checkToken(function(token) {
+  // });
 });

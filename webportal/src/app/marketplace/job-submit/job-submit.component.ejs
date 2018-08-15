@@ -1,0 +1,99 @@
+<div class="box-content">
+    <div class="template-account">
+        <!-- for title -->
+        <table class="row title-search">
+            <tr>
+                <td class="subv2-title">
+                    <span>Submit Job V2</span>
+                    <sub class="preview">preview</sub>
+                </td>
+                <td class="right-sear">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search">
+                    <button type="button" class="btn btn-primary" id="search-btn">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <!-- job description -->
+        <table class="showDesJob">
+            <tr>
+                <td>
+                    <img class="logo" src="/assets/img/Bob.png">
+                </td>
+                <td>
+                    <div class="detail">
+                        <h3 id="txt-name">Cifar10_tensorflow</h3>
+                        <p id="txt-description">
+                            image classification, cifar10 dataset, tensorflow, distributed training, killAllOnCompletedTaskNumber: 1 retry Count: 0
+                        </p>
+                        <div>
+                            <button class="btn btn-primary">YAML</button>
+                            <button class="btn btn-primary">Import Json</button>
+                            <button class="btn btn-primary">Export Json</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="add-four">
+        <div class="add-content">
+            <!-- for task -->
+            <div class="row add-title" style="margin-bottom: 50px;">
+                <h3>Task</h3>
+                <div class="col-md-2 shadow sty-task-content">
+                    <!-- <img src="/assets/img/edit.png" alt=""> -->
+                    <button class="edit-task">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <h5>Task1</h5>
+                    <p>Role: worker</p>
+                    <p>Dockerimage: tf_example</p>
+                    <p>Instances: 1</p>
+                    <p>Resource: cpu:2, memoryMB: 16384, gpu: 4</p>
+                    <p>Command</p>
+                    <p>-Export</p>
+                    <p>-Pip --quiet install scipy</p>
+                    <p>-Python</p>
+                </div>
+                <div class="col-md-2 add-bottom-border">
+                    <a id="add-task-btn" data-toggle="modal">
+                        <div class="add-new-item shadow">
+                            <div class="add-new-item-content">
+                                <p>
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <!-- model for add task -->
+                <div id="modalPlaceTask" class="box-body" />
+            </div>
+            <!-- for docker -->
+            <div class="row add-title" style="margin-bottom: 50px;">
+                <h3>Docker</h3>
+                <!-- have docker content style -->
+                <div class="col-md-2 shadow sty-docker">
+                    <img src="/assets/img/dockerimage.png" alt="">
+                    <h5>tf_example</h5>
+                    <p>python3.5, tensorflow</p>
+                </div>
+                <div class="col-md-2 add-bottom-border">
+                    <a id="add-docker-btn" data-toggle="modal">
+                        <div class="add-new-item shadow sty-docker">
+                            <div class="add-new-item-content">
+                                <p>
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </p>
+                            </div>
+                        </div> 
+                    </a>
+                </div>
+                <!-- model for add task -->
+                <div id="modalPlaceDocker" class="box-body" />
+            </div>
+        </div>
+    </div>
+</div>
