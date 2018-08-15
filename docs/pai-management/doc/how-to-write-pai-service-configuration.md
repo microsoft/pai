@@ -49,7 +49,7 @@ User could customize rest server startup configuration at OpenPAI's [folder / fi
 
 ## Configure YARN / HDFS <a name="hadoop"></a>
 
-User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration), [NM](../bootstrap/hadoop-node-manager/hadoop-node-manager-configuration)).
+User could customize Hadoop [YARN](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html) / [HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html) at ([RM](../../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), [NM](../bootstrap/hadoop-node-manager/hadoop-node-manager-configuration)).
 
 User could customize Hadoop startup configuration at OpenPAI's [folder / file](../bootstrap) 
 
@@ -58,7 +58,7 @@ User could customize Hadoop startup configuration at OpenPAI's [folder / file](.
 
 User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../src/zookeeper/zoo.cfg) 
 
-User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../bootstrap/zookeeper/zookeeper.yaml.template) 
+User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zookeeper.yaml.template)
 
 ## Configure Prometheus / Exporter <a name="prometheus"></a>
 
