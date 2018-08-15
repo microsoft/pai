@@ -21,15 +21,9 @@ metadata:
   name: grafana
 spec:
   replicas: 1
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingRequiredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: role
-            operator: In
-            values:
-            - {{ clusterinfo['roleinfo']['grafana'] }}            
+  selector:
+    matchLabels:
+      app: grafana            
   template:
     metadata:
       labels:
@@ -38,8 +32,15 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        grafana: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['grafana'] }}
+                operator: In
+                values:
+                - "true"
       volumes:
       - name: grafana-confg-volume
         configMap:

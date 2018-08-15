@@ -23,9 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash configmap-create.sh
 
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh
 
 i=0
 

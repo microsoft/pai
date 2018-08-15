@@ -108,3 +108,19 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
+
+
+role:
+  jobhistory: pai-master
+  launcher: pai-master
+  prometheus: pai-master
+  grafana: pai-master
+  pylon: pai-master
+  restserver: pai-master
+  webportal: pai-master
+  zookeeper: pai-master
+  watchdog: pai-master
+  hadoop-name-node: pai-master
+  hadoop-resource-manager: pai-master
+  hadoop-data-node: pai-worker
+  hadoop-node-manager: pai-worker
