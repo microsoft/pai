@@ -18,21 +18,16 @@
 -->
 
 
-# Apache Caffe2 on PAI
+# Apache Caffe2 on OpenPAI
 
-This guide introduces how to run [Caffe2](https://caffe2.ai/) workload on PAI.
+This guide introduces how to run [Caffe2](https://caffe2.ai/) workload on OpenPAI.
 The following contents show some basic Caffe2 examples, other customized Caffe2 code can be run similarly.
 
-## Contents
+# Caffe2 resnet50 ImageNet example
 
-1. [Caffe2 example](#caffe2-example)
-2. [Customize Docker Env](#customize-docker-env)
+To run Caffe2 examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-# Caffe2 example
-
-To run Caffe2 examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe2` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe2` with your own. 
 
 Here's one configuration file example:
 
@@ -55,7 +50,3 @@ Here's one configuration file example:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
