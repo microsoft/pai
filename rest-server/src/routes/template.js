@@ -23,7 +23,7 @@ const templateController = require('../controllers/template');
 const router = new express.Router();
 
 router.route('/:type')
-  /** GET /api/v2/template - Get list of templates */
+  /** GET /api/v2/template/:type - Get list of templates */
   .get(templateController.list);
 
 // module exports

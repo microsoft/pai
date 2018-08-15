@@ -49,10 +49,10 @@ const top = (type, count, callback) => {
 const downloadInParallel = (urls, callback) => {
   let templates = [];
   let completed = 0;
-  urls.forEach(url => {
+  urls.forEach(function(url) {
     let responses = [];
     https.get(url, function(res) {
-      res.on('data', function(chunk){
+      res.on('data', function(chunk) {
         responses.push(chunk);
       });
       res.on('end', function() {
