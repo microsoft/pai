@@ -21,7 +21,7 @@ OpenPAI consists of multiple services, user could customize each service.
 
 ## Configure Kubernetes <a name="kubernetes"></a>
 
-User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder / file](../k8sPaiLibrary/template) 
+User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder / file](../../../deployment/k8sPaiLibrary/template)
 
 ## Configure Webportal <a name="webportal"></a>
 

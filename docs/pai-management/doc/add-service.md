@@ -220,7 +220,7 @@ This configuration consists of 7 parts.
 - Examples
     - [Hadoop data node's yaml file](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
     - [Hadoop service's start script](../bootstrap/hadoop-data-node/start.sh)
-    - [The status checking tool](../k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
+    - [The status checking tool](../../../deployment/k8sPaiLibrary/monitorTool/check_pod_ready_status.py)
 
 
 #### Place the Module into PAI <a name="Service_Place"></a>

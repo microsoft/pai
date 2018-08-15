@@ -2,21 +2,21 @@
 #### What will pai do on your host when deploying or adding new k8s nodes?
 
 - If there is no docker on the target host, pai will install the latest docker-ce.
-    - [The Script Link](../k8sPaiLibrary/maintaintool/docker-ce-install.sh)
+    - [The Script Link](../../../deployment/k8sPaiLibrary/maintaintool/docker-ce-install.sh)
 - Change the host file in the path ```/etc/hosts```
-    - [The Script Link](../k8sPaiLibrary/maintaintool/hosts-check.sh)
+    - [The Script Link](../../../deployment/k8sPaiLibrary/maintaintool/hosts-check.sh)
     - Because hadoop service will be deployed on hostnetworking environment. And some configuration of hosts file will have a bad influence on hadoop’s name resolve behavior.
 - Prepare kubelet environment and start kubelet through docker
     - Prepare kubelet environment accoding to node role
-    - [The Python Module To Deploy PAI](../k8sPaiLibrary/maintainlib/deploy.py)
-    - [The Environment Preparation Script Link](../k8sPaiLibrary/maintaintool/kubelet-start.sh)
-    - [The Starting Script Link](../k8sPaiLibrary/template/kubelet.sh.template)
+    - [The Python Module To Deploy PAI](../../../deployment/k8sPaiLibrary/maintainlib/deploy.py)
+    - [The Environment Preparation Script Link](../../../deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh)
+    - [The Starting Script Link](../../../deployment/k8sPaiLibrary/template/kubelet.sh.template)
 
 #### Kubernetes Disk Pressure Status
 
 - Why does this issue happen on your cluster?
     - Because the usage of the disk has reach the limit which we set through kubelet.
-    - To change the threshold according to your environment. You should change the field the line ```--eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%"``` in [the kubelet.sh.template](../k8sPaiLibrary/template/kubelet.sh.template)
+    - To change the threshold according to your environment. You should change the field the line ```--eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%"``` in [the kubelet.sh.template](../../../deployment/k8sPaiLibrary/template/kubelet.sh.template)
 
 
 - Some useful references:
