@@ -1,0 +1,20 @@
+{
+    "jobName": "stress-test",
+    "image": "openpai/stress",
+    "virtualCluster": "default",
+    "retryCount": 0,
+    "taskRoles": [
+      {
+        "name": "memory_consumer",
+        "taskNumber": 1,
+        "cpuNumber": 1,
+        "memoryMB": 180224,
+        "shmMB": 64,
+        "gpuNumber": 0,
+        "minFailedTaskCount": 1,
+        "minSucceededTaskCount": null,
+        "command": "stress --vm-keep -m 177 --vm-bytes 1024m --vm-hang 0 --verbose",
+        "portList": []
+      }
+    ]
+}
