@@ -26,7 +26,7 @@ After the cluster is up, the cluster nodes can be retrieved by command:
 etcdctl --endpoints=http://CONFIGUED_ETCD_NODE_ADDRESS:2380 member list
 ```
 The `CONFIGUED_ETCD_NODE_ADDRESS` is the one of the node addresses you configured to deploy etcd. This command will return all
-the etcd nodes with their status. The nodes will be deployed successfully if its status is `started`.
+the etcd nodes with their status. The nodes will be deployed successfully if their status are `started`.
 
 ## Upgrading and rolling back
 
@@ -60,6 +60,12 @@ Sometimes the etcd nodes may not healthy, it can be repaired with command
 python paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
 Please follow instructions in [machine maintenance](./machine-maintenance.md) for the details.
+
+## Data Stored on Etcd
+
+In OpenPAI cluster the data on etcd comes from two service:
+- Kubernetes: All of the Kubernetes objects like deployment, pod or service information will be stored to etcd.
+- Rest-Server: The OpenPAI user account information will be stored to etcd.
 
 ## Reference
 
