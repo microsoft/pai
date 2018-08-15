@@ -417,7 +417,7 @@ hadoop:
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
+| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../../src/hadoop-ai).|
 | ```hadoop-version```|services-configuration.yaml| Please set this to ```2.9.0```.|
 | ```virtualClusters```|services-configuration.yaml| Hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
