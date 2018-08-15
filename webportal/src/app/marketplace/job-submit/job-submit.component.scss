@@ -1,11 +1,10 @@
 .box-content{
-    padding: 30px;
     padding-bottom: 0;
 }
 .template-account {
     width: 86%;
     margin: 0 auto;
-    margin-top: 9px;
+    margin-top: 28px;
     padding-bottom: 20px;
     box-sizing: border-box;
     .showDesJob{
@@ -22,14 +21,28 @@
         margin-left: 20px;
         height: 160px;
         box-sizing: border-box;
+        .btns{
+            .detail-jobname{
+                font-size: 24px;
+                font-weight: bold;
+                margin-left: 14px;
+            }
+            .sty-margin{
+                margin-top: 27px;
+                margin-left: 214px;
+                position: relative;
+                top: -17px;
+            }
+            .edit-jobinfo{
+                border: none;
+                background: none;
+            }
+        }
         h3 {
             font-size: 26px;
             font-weight: 600;
             padding-right: 8px;
             padding-top: 10px; 
-        }
-        .middle{
-            line-height: 42px;
         }
         p {
             line-height: 34px;
@@ -73,7 +86,6 @@
     .add-content{
         padding-left: 30px;
         width: 93%;
-        height: 800px;
         margin: 0 auto;
         .add-title {
             padding-bottom: 26px;
@@ -131,16 +143,21 @@
 // docker box style
 .sty-docker{
     min-height: 150px;
-    width: 170px;
+    width: 178px;
     img{
         width: 60px;
-        margin-left: 43px;
+        margin-left: 46px;
         margin-top: 10px;
     }
     h5{
         color: #333;
         font-weight: bold;
         font-size: 14px;
-        line-height: 30px;
+        margin-top: 12px;
+        margin-bottom: 13px;
+    }
+    p{
+        font-size: 12px;
+        line-height: 12px;
     }
 }

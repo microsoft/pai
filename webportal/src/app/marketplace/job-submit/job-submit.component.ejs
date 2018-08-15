@@ -23,9 +23,15 @@
                 </td>
                 <td>
                     <div class="detail">
-                        <h3 id="txt-name">Cifar10_tensorflow</h3>
+                        <div class="row btns">
+                            <span class="detail-jobname">Cifar10_tensorflow</span>
+                            <button class="edit-jobinfo">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </button>
+                            <button class="btn btn-primary sty-margin">Submit</button>
+                        </div>
                         <p id="txt-description">
-                            image classification, cifar10 dataset, tensorflow, distributed training, killAllOnCompletedTaskNumber: 1 retry Count: 0
+                            image classification, cifar10 dataset, tensorflow, distributed training
                         </p>
                         <div>
                             <button class="btn btn-primary">YAML</button>
@@ -40,11 +46,11 @@
     <div class="add-four">
         <div class="add-content">
             <!-- for task -->
-            <div class="row add-title" style="margin-bottom: 50px;">
+            <div class="row add-title">
                 <h3>Task</h3>
                 <div class="col-md-2 shadow sty-task-content">
                     <!-- <img src="/assets/img/edit.png" alt=""> -->
-                    <button class="edit-task">
+                    <button class="edit-task" id="for-edit-task" data-toggle="modal">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </button>
                     <h5>Task1</h5>
@@ -72,7 +78,7 @@
                 <div id="modalPlaceTask" class="box-body" />
             </div>
             <!-- for docker -->
-            <div class="row add-title" style="margin-bottom: 50px;">
+            <div class="row add-title">
                 <h3>Docker</h3>
                 <!-- have docker content style -->
                 <div class="col-md-2 shadow sty-docker">
@@ -88,7 +94,53 @@
                                     <i class="glyphicon glyphicon-plus"></i>
                                 </p>
                             </div>
-                        </div> 
+                        </div>
+                    </a>
+                </div>
+                <!-- model for add task -->
+                <div id="modalPlaceDocker" class="box-body" />
+            </div>
+            <!-- for Script -->
+            <div class="row add-title">
+                <h3>Script</h3>
+                <!-- have script content style -->
+                <div class="col-md-2 shadow sty-docker">
+                    <img src="/assets/img/job.png" alt="">
+                    <h5>tensorflow_cnnbench marks</h5>
+                    <p>benchmarks, tensorflow</p>
+                </div>
+                <div class="col-md-2 add-bottom-border">
+                    <a id="add-docker-btn" data-toggle="modal">
+                        <div class="add-new-item shadow sty-docker">
+                            <div class="add-new-item-content">
+                                <p>
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <!-- model for add task -->
+                <div id="modalPlaceDocker" class="box-body" />
+            </div>
+            <!-- for Data -->
+            <div class="row add-title">
+                <h3>Data</h3>
+                <!-- have data content style -->
+                <div class="col-md-2 shadow sty-docker">
+                    <img src="/assets/img/data.png" alt="">
+                    <h5>cifar10</h5>
+                    <p>cifar10 dataset, image classification</p>
+                </div>
+                <div class="col-md-2 add-bottom-border">
+                    <a id="add-docker-btn" data-toggle="modal">
+                        <div class="add-new-item shadow sty-docker">
+                            <div class="add-new-item-content">
+                                <p>
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </p>
+                            </div>
+                        </div>
                     </a>
                 </div>
                 <!-- model for add task -->

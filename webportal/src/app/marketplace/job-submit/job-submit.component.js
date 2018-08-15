@@ -20,8 +20,10 @@ require('bootstrap/js/modal.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const taskModelComponent = require('./addmodel-task.components.ejs');
+const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
 require('./job-submit.component.scss');
+// require('./edit-task-modal.components.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
@@ -36,6 +38,12 @@ $('#content-wrapper').html(submitComponent);
 $(document).on('click', "#add-task-btn", () => {
   $('#modalPlaceTask').html(taskModelComponent);
   $('#addtaskModal').modal('show');
+});
+
+$(document).on('click', "#for-edit-task", () => {
+  console.info();
+  $('#modalPlaceTask').html(editTaskModelComponent);
+  $('#edit-task').modal('show');
 });
 
 $(document).on('click', "#add-docker-btn", () => {
