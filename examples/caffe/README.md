@@ -18,26 +18,21 @@
 -->
 
 
-# Caffe on PAI
+# Caffe on OpenPAI
 
-This guide introduces how to run [Caffe](http://caffe.berkeleyvision.org/) workload on PAI.
+This guide introduces how to run [Caffe](http://caffe.berkeleyvision.org/) workload on OpenPAI.
 The following contents show some basic Caffe examples, other customized Caffe code can be run similarly.
 
+# Caffe MNIST example
 
-## Contents
+To run Caffe examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-1. [Caffe example](#caffe-example)
-2. [Customize Docker Env](#customize-docker-env)
-
-# Caffe example
-
-To run Caffe examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe` with your own. 
 
 Here's one configuration file example:
 
 ### [mnist](http://caffe.berkeleyvision.org/gathered/examples/mnist.html)
+
 ```json
 {
   "jobName": "caffe-mnist",
@@ -56,6 +51,3 @@ Here's one configuration file example:
 ```
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
