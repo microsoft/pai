@@ -61,7 +61,7 @@ Before start, you need to meet the following requirements:
 - How to submit PAI jobs
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
-    - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
+    - [Submit a job in web portal](./docs/submit_from_webportal.md)
 - How to request on-demand resource for in place training
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
     
