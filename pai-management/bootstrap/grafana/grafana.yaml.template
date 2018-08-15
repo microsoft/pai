@@ -21,10 +21,15 @@ metadata:
   name: grafana
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-       task: monitor
-       app: grafana
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingRequiredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: role
+            operator: In
+            values:
+            - {{ clusterinfo['roleinfo']['grafana'] }}            
   template:
     metadata:
       labels:

@@ -303,6 +303,11 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
 
+
+        #section role
+        serviceDict["clusterinfo"]["roleinfo"] = \
+            self.rawData["serviceConfiguration"]["role"]
+
         # section: machineinfo
 
         serviceDict["machineinfo"] = self.rawData["clusterConfiguration"]["machine-sku"]
