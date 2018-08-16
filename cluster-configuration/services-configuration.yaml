@@ -70,9 +70,35 @@ hadoop:
       capacity: 20
 
 
+hadoop-name-node: 
+  # which role of machine to deploy on
+  role: pai-master
+
+
+hadoop-resource-manager:
+  # which role of machine to deploy on 
+  role: pai-master
+
+
+hadoop-data-node: 
+  # which role of machine to deploy on
+  role: pai-worker
+
+
+hadoop-node-manager: 
+  # which role of machine to deploy on
+  role: pai-worker
+
+
+hadoop-jobhistory: 
+  # which role of machine to deploy on
+  role: pai-master
+
 
 frameworklauncher:
   frameworklauncher-port: 9086
+  # which role of machine to deploy on
+  role: pai-master
 
 
 restserver:
@@ -84,16 +110,22 @@ restserver:
   default-pai-admin-username: your_default_pai_admin_username
   # database admin password
   default-pai-admin-password: your_default_pai_admin_password
+  # which role of machine to deploy on
+  role: pai-master
 
 
 webportal:
   # port for webportal
   server-port: 9286
+  # which role of machine to deploy on
+  role: pai-master
 
 
 grafana:
   # port for grafana
   grafana-port: 3000
+  # which role of machine to deploy on
+  role: pai-master
 
 
 prometheus:
@@ -103,6 +135,8 @@ prometheus:
   node-exporter-port: 9100
   # How frequently to scrape targets
   scrape_interval: 30
+  # which role of machine to deploy on
+  role: pai-master
   # if you want to enable alert manager to send alert email, uncomment following lines and fill
   # right values.
   #  alerting:
@@ -117,20 +151,20 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
+  # which role of machine to deploy on
+  role: pai-master
 
 
-role:
-  jobhistory: pai-master
-  launcher: pai-master
-  prometheus: pai-master
-  grafana: pai-master
-  pylon: pai-master
-  restserver: pai-master
-  webportal: pai-master
-  zookeeper: pai-master
-  watchdog: pai-master
-  alertmanager: pai-master
-  hadoop-name-node: pai-master
-  hadoop-resource-manager: pai-master
-  hadoop-data-node: pai-worker
-  hadoop-node-manager: pai-worker
+zookeeper: 
+  # which role of machine to deploy on
+  role: pai-master
+
+
+watchdog: 
+  # which role of machine to deploy on
+  role: pai-master
+
+
+alertmanager: 
+  # which role of machine to deploy on
+  role: pai-master
