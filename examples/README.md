@@ -105,13 +105,13 @@ These user could customize and run these jobs over OpenPAI.
 * [Model Serving](./serving): 
   1. [MNIST model serving over Tensorflow](./serving/README.md)
 * [Scikit-Learn](./scikit-learn): 
-  1. [scikit-learn MNIST digit recognition](#./scikit-learn/scikit-learn-MNIST-digit-recognition-example)
-  2. [scikit-learn text-vectorizers](#./scikit-learn/scikit-learn-text-vectorizers-example)
+  1. [scikit-Learn MNIST digit recognition](./scikit-learn/#scikit-learn-mnist-digit-recognition-example)
+  2. [scikit-Learn text-vectorizers](./scikit-learn/#scikit-learn-text-vectorizers-example)
 * [CNTK](./cntk): 
   1. [CNTK grapheme-to-phoneme](./cntk/README.md)
 * [PyTorch](./pytorch): 
-  1. [PyTorch MNIST digit recognition](#./pytorch/pytorch-mnist-digit-recognition-examples)
-  2. [PyTorch regression](#./pytorch/pytorch-regression-examples)
+  1. [PyTorch MNIST digit recognition](./pytorch/#pytorch-mnist-digit-recognition-examples)
+  2. [PyTorch regression](./pytorch/#pytorch-regression-examples)
 * [MXNet](./mxnet): 
   1. [MXNet autoencoder](./mxnet#mxnet-autoencoder-examples)
   2. [MXNet image classification](./mxnet#mxnet-image-classification-examples)
