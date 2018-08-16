@@ -129,6 +129,7 @@ role:
   webportal: pai-master
   zookeeper: pai-master
   watchdog: pai-master
+  alertmanager: pai-master
   hadoop-name-node: pai-master
   hadoop-resource-manager: pai-master
   hadoop-data-node: pai-worker

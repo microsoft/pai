@@ -30,8 +30,15 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        zookeeper: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['zookeeper'] }}
+                operator: In
+                values:
+                - "true"
       containers:
       - name: zookeeper
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

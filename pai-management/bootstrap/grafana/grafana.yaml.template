@@ -27,7 +27,6 @@ spec:
   template:
     metadata:
       labels:
-        task: monitor
         app: grafana
     spec:
       hostNetwork: true

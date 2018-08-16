@@ -31,8 +31,6 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
-      nodeSelector:
-        node-exporter: "true"
       containers:
       - image: prom/node-exporter:v0.16.0
         imagePullPolicy: Always

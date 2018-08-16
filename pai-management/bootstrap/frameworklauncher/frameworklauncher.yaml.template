@@ -30,8 +30,15 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        launcher: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['launcher'] }}
+                operator: In
+                values:
+                - "true"
       containers:
       - name: frameworklauncher
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

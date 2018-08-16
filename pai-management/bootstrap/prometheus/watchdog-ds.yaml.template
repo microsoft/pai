@@ -31,8 +31,15 @@ spec:
         app: watchdog
       name: watchdog
     spec:
-      nodeSelector:
-        watchdog: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['watchdog'] }}
+                operator: In
+                values:
+                - "true"
       containers:
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}watchdog:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always

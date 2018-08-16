@@ -31,8 +31,15 @@ spec:
     spec:
       hostNetwork: false
       hostPID: false
-      nodeSelector:
-        restserver: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['restserver'] }}
+                operator: In
+                values:
+                - "true"
       containers:
       - name: rest-server
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

@@ -30,8 +30,15 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hadoop-name-node: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ clusterinfo['roleinfo']['hadoop-name-node'] }}
+                operator: In
+                values:
+                - "true"
       containers:
       - name:  hadoop-name-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
