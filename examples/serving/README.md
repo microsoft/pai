@@ -24,12 +24,6 @@ This guide introduces how to run model serving job on OpenPAI.
 Serving system for machine learning models is designed for production environments, which makes it easy to deploy new algorithms and experiments to users.
 The following contents show some basic model serving examples, other customized serving code can be run similarly.
 
-
-## Contents
-
-1. [Serving a TensorFlow model](#serving-a-tensorflow-model)
-2. [Customize Docker Env](#customize-docker-env)
-
 # Serving a TensorFlow MNIST digit recognition model
 
 To run TensorFlow model serving, you need to prepare a job configuration file and submit it through webportal.

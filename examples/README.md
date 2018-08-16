@@ -91,15 +91,33 @@ Examples which can be run by submitting the json straightly without any modifica
 
 These user could customize and run these jobs over OpenPAI.
 
-* [TensorFlow](./tensorflow/README.md): CIFAR-10 training job over Tensorflow
-* [Keras](./keras/README.md): MNIST training job over keras.
-* [Jupyter](./jupyter/README.md): MNIST over Jupyter Notebook. User can also treat this job as an example how to use Jupyter over OpenPAI
-* [Model Serving](./serving/README.md): MNIST model serving over Tensorflow
-* [Scikit-learn](./scikit-learn/README.md): Text vectorizers over Scikit-learn
-* [CNTK](./cntk/README.md): Grapheme-to-phoneme (letter-to-sound) conversion over CNTK
-* [PyTorch](./pytorch/README.md): Regression / MNIST training job over PyTorch
-* [MXNet](./mxnet/README.md): Image classification training job over MXNet
-* [Open MPI](./mpi/README.md): CIFAR-10 training job over Tensorflow MPI
+* [TensorFlow](./tensorflow): 
+
+  1. [TensorFlow CIFAR-10 image classification](#tensorflow-cifar-10-image-classification)
+  2. [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
+  3. [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification )
+  4. [TensorFlow Tensorboard](#tensorflow-tensorboard)
+
+* [Keras](./keras): 
+  1. [MNIST training job over keras.](./keras/README.md)
+* [Jupyter](./jupyter): 
+  1. [MNIST over Jupyter Notebook. User can also treat this job as an example how to use Jupyter over OpenPAI](./jupyter/README.md)
+* [Model Serving](./serving): 
+  1. [MNIST model serving over Tensorflow](./serving/README.md)
+* [Scikit-learn](./scikit-learn): 
+  1. [scikit-learn MNIST digit recognition example](#scikit-learn-MNIST-digit-recognition-example)
+  2. [scikit-learn text-vectorizers example](#scikit-learn-text-vectorizers-example)
+* [CNTK](./cntk): 
+  1. [CNTK grapheme-to-phoneme example](./cntk/README.md)
+* [PyTorch](./pytorch): 
+  1. [PyTorch MNIST digit recognition](#pytorch-mnist-digit-recognition-examples)
+  2. [PyTorch regression examples](#pytorch-regression-examples)
+* [MXNet](./mxnet): 
+  1. [MXNet autoencoder examples](#mxnet-autoencoder-examples)
+  2. [MXNet image classification examples](#mxnet-image-classification-examples)
+* [Open MPI](./mpi): 
+  1. [Open MPI TensorFlow CIFAR-10 example](#ope-mpi-tensorflow-cifar-10-example)
+  2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
 
 ## Contributing
