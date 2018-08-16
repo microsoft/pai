@@ -206,11 +206,13 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 
 # Prepare docker bootstrap script
 LOCAL_BOOTSTRAP_DIR="tmp/pai-root/bootstrap"
+mkdir -p $LOCAL_BOOTSTRAP_DIR
 hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh "$LOCAL_BOOTSTRAP_DIR"/docker_bootstrap.sh \
   || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
 LOCAL_CODE_DIR="tmp/pai-root/code"
+mkdir -p $LOCAL_CODE_DIR
 if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -stat $PAI_CODE_DIR \
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
