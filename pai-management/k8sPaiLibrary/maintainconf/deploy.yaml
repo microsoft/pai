@@ -39,6 +39,10 @@ master-deployment:
       src: k8sPaiLibrary/template/kubelet.sh.template
       dst: master-deployment
 
+    - name: certs.sh
+      src: k8sPaiLibrary/template/certs.sh.template
+      dst: master-deployment
+
     - name: config
       src: k8sPaiLibrary/template/config.template
       dst: master-deployment/etc/kubernetes
