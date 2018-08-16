@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+hostip="{{ hostcofig['hostip'] }}"
+
+# Put CAs, certs and keys in /etc/pai.certs
+certspath="/etc/pai.certs"
+mkdir -p ${certspath}
+
+# Certificate signing request configuration
+# from https://kubernetes.io/docs/concepts/cluster-administration/certificates/#openssl
+cat > ${certspath}/csr.conf << EOL
+[ req ]
+default_bits = 4096
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C = CN
+L = PEK
+O = OpenPAI
+CN = ${hostip}
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+IP.1 = ${hostip}
+IP.2 = ${hostip}
+
+[ v3_ext ]
+authorityKeyIdentifier=keyid,issuer:always
+basicConstraints=CA:FALSE
+keyUsage=keyEncipherment,dataEncipherment
+extendedKeyUsage=serverAuth,clientAuth
+subjectAltName=@alt_names
+EOL
+
+
+# Authentication for apiserver -> kubelet
+openssl genrsa -out ${certspath}/kubelet.ca.key 4096
+openssl req -x509 -new -nodes -key ${certspath}/kubelet.ca.key \
+  -out ${certspath}/kubelet.ca.crt -subj "/CN=${hostip}" -days 365
+openssl genrsa -out ${certspath}/apiserver.key 4096
+openssl req -new -key ${certspath}/apiserver.key \
+  -out ${certspath}/apiserver.csr -config ${certspath}/csr.conf
+openssl x509 -req -in ${certspath}/apiserver.csr \
+  -CA ${certspath}/kubelet.ca.crt -CAkey ${certspath}/kubelet.ca.key -CAcreateserial \
+  -out ${certspath}/apiserver.crt -days 365 -extensions v3_ext -extfile ${certspath}/csr.conf
+
+cp ${certspath}/kubelet.ca.crt /var/lib/kubelet/ca.crt
+

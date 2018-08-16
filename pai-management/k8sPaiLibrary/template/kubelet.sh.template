@@ -36,7 +36,12 @@ docker run \
     --privileged=true \
     -d \
     {{ clusterconfig['dockerregistry'] }}/hyperkube:{{ clusterconfig['hyperkubeversion'] }} \
-    /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
+    /hyperkube kubelet --address={{ hostcofig['hostip'] }} \
+  --anonymous-auth=false \
+  --authentication-token-webhook \
+  --client-ca-file=/var/lib/kubelet/ca.crt \
+  --fail-swap-on=false \
+  --read-only-port=0 \
   --register-node=true \
   --kubeconfig=/etc/kubernetes/config \
   --require-kubeconfig \
