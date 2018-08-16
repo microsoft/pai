@@ -18,23 +18,16 @@
 -->
 
 
-# Keras on PAI
+# Keras on OpenPAI
 
-This guide introduces how to run [Keras](http://keras.io/) workload on PAI.
+This guide introduces how to run [Keras](http://keras.io/) job on OpenPAI.
 The following contents show some basic Keras examples, other customized Keras code can be run similarly.
 
+## Keras tensorflow backend MNIST digit recognition examples
 
-## Contents
+To run Keras examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-1. [Keras examples](#keras-examples)
-2. [Frequently asked questions](#faq)
-3. [Customize Docker Env](#customize-docker-env)
-
-# Keras examples
-
-To run Keras examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-Please built your image and pushed it to your Docker registry, replace image `openpai/pai.example.keras.[cntk|tensorflow]` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `pai.example.keras.tensorflow` with your own. 
 
 Here're some configuration file examples:
 
@@ -56,6 +49,9 @@ Here're some configuration file examples:
 }
 ```
 
+## Keras cntk backend MNIST digit recognition examples
+
+
 ### [mnist_cntk_backend](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
 ```json
 {
@@ -76,13 +72,7 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
-
-## FAQ
-
-### Speed
+### Note: 
 
 Since PAI runs Keras jobs in Docker, the trainning speed on PAI should be similar to speed on host.
 
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

@@ -18,9 +18,9 @@
 -->
 
 
-# CNTK on PAI
+# CNTK on OpenPAI
 
-This guide introduces how to run [CNTK](https://docs.microsoft.com/en-us/cognitive-toolkit/) workload on PAI.
+This guide introduces how to run [CNTK](https://docs.microsoft.com/en-us/cognitive-toolkit/) job on OpenPAI.
 The following contents show some basic CNTK examples, other customized CNTK code can be run similarly.
 
 
@@ -29,11 +29,11 @@ The following contents show some basic CNTK examples, other customized CNTK code
 1. [CNTK examples](#cntk-examples)
 2. [Customize Docker Env](#customize-docker-env)
 
-# CNTK examples
+# CNTK grapheme-to-phoneme examples
 
-To run CNTK examples in PAI, you need to prepare a job configuration file and submit it through webportal.
+To run CNTK examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.cntk` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe` with your own. 
 
 Here're some configuration file examples:
 
@@ -64,7 +64,3 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

@@ -23,23 +23,16 @@
 This guide introduces how to run [XGBoost](https://xgboost.readthedocs.io/en/latest/) workload on PAI.
 The following contents show some basic XGBoost examples, other customized XGBoost code can be run similarly.
 
-
-## Contents
-
-1. [Basic environment](#basic-environment)
-2. [Advanced environment](#advanced-environment)
-3. [XGBoost example](#xgboost-example)
-4. [Customize Docker Env](#customize-docker-env)
-
-# XGBoost example
+## XGBoost covertype dataset classification example
 
 To run XGBoost examples in PAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.xgboost` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.xgboost` with your own. 
 
 Here's one configuration file example to train a model on the [forest cover type](https://archive.ics.uci.edu/ml/datasets/covertype) dataset using GPU acceleration:
 
 ### [gpu_hist](https://github.com/dmlc/xgboost/blob/master/demo/gpu_acceleration/cover_type.py)
+
 ```json
 {
   "jobName": "xgboost_gpu_hist",
@@ -56,8 +49,5 @@ Here's one configuration file example to train a model on the [forest cover type
   ]
 }
 ```
+
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

@@ -18,26 +18,26 @@
 -->
 
 
-# Chainer on PAI
+# Chainer on OpenPAI
 
-This guide introduces how to run [Chainer](https://chainer.org/) workload on PAI.
+This guide introduces how to run [Chainer](https://chainer.org/) job on OpenPAI.
 The following contents show a basic Chainer example, other customized Chainer code can be run similarly.
-
 
 ## Contents
 
 1. [Chainer examples](#chainer-example)
 2. [Customize Docker Env](#customize-docker-env)
 
-## Chainer examples
+## Chainer CIFAR-100 image classification example
 
-To run Chainer examples in PAI, you need to prepare a job configuration file and submit it through webportal.
+To run Chainer examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.chainer` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.chainer` with your own. 
 
 Here're some configuration file examples:
 
 ### [cifar](https://github.com/chainer/chainer/tree/master/examples/cifar)
+
 ```json
   "jobName": "chainer-cifar",
   "image": "openpai/pai.example.chainer",
@@ -55,7 +55,3 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

@@ -18,23 +18,22 @@
 -->
 
 
-# PyTorch on PAI
+# PyTorch on OpenPAI
 
-This guide introduces how to run [PyTorch](http://pytorch.org/) workload on PAI.
+This guide introduces how to run [PyTorch](http://pytorch.org/) job on OpenPAI.
 The following contents show some basic PyTorch examples, other customized PyTorch code can be run similarly.
 
 
 ## Contents
 
-1. [PyTorch examples](#pytorch-examples)
-2. [Customize Docker Env](#customize-docker-env)
-3. [Frequently asked questions](#faq)
+1. [PyTorch MNIST digit recognition](#pytorch-mnist-digit-recognition-examples)
+2. [PyTorch regression examples](#pytorch-regression-examples)
 
-# PyTorch examples
+## PyTorch MNIST digit recognition examples
 
-To run PyTorch examples in PAI, you need to prepare a job configuration file and submit it through webportal.
+To run PyTorch examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.pytorch` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.pytorch` with your own. 
 
 Here're some configuration file examples:
 
@@ -56,6 +55,8 @@ Here're some configuration file examples:
 }
 ```
 
+## PyTorch regression examples
+
 ### [regression](https://github.com/pytorch/examples/tree/master/regression)
 ```json
 {
@@ -76,12 +77,6 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
-
-## FAQ
-
-### Speed
+## Note:
 
 Since PAI runs PyTorch jobs in Docker, the trainning speed on PAI should be similar to speed on host.

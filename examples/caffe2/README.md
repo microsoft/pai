@@ -20,7 +20,7 @@
 
 # Apache Caffe2 on OpenPAI
 
-This guide introduces how to run [Caffe2](https://caffe2.ai/) workload on OpenPAI.
+This guide introduces how to run [Caffe2](https://caffe2.ai/) job on OpenPAI.
 The following contents show some basic Caffe2 examples, other customized Caffe2 code can be run similarly.
 
 # Caffe2 resnet50 ImageNet example

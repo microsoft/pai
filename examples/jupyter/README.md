@@ -18,9 +18,9 @@
 -->
 
 
-# Jupyter on PAI
+# Jupyter on OpenPAI
 
-This guide introduces how to run [Jupyter Notebook](http://jupyter.org/) on PAI.
+This guide introduces how to run [Jupyter Notebook](http://jupyter.org/) on OpenPAI.
 The following contents show some basic examples, other customized examples can be run similarly.
 
 ## Contents
@@ -30,11 +30,11 @@ The following contents show some basic examples, other customized examples can b
 
 ## Jupyter Notebook example
 
-To run Jupyter Notebook in PAI, you need to prepare a job configuration file and submit it through webportal.
+To run Jupyter Notebook in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
+
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe` with your own. 
 
 Here's one configuration file example to use Jupyter Notebook as a tutorial to run a tensorflow mnist example:
-
-Please built your image and pushed it to your Docker registry, replace image `openpai/pai.example.tensorflow` with your own and modify the command if needed.
 
 ### Job configuration file
 
@@ -69,7 +69,3 @@ For more details on how to write a job configuration file, please refer to [job 
 Once the job is successfully submitted to PAI, you can view job info in webportal, and access your Jupyter Notebook via http://${container_ip}:${container_port}/jupyter/notebooks/mnist.ipynb. 
 ![avatar](example.png)
 for example, from the above job info page, you can access your Jupyter Notebook via http://10.151.40.202:4836/jupyter/notebooks/mnist.ipynb
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
