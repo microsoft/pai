@@ -14,7 +14,7 @@
 
 We use CIFAR-10 training job as an OpenPAI job example. 
 
-[CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is a common job in machine learning for image classification.
+[CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is an established computer-vision dataset used for image classification.
 
 - Full example for tensorflow cifar10 image classification training on OpenPAI: 
 
@@ -48,13 +48,13 @@ We use CIFAR-10 training job as an OpenPAI job example.
 }
 ```
 
-- Save these content to a file, named cifar10.json
+- Save content to a file. Name this file as cifar10.json
 
 - [Job configuration items introduction](../docs/job_tutorial.md#json-config-file-for-job-submission)
 
 ####  (2) Submit job json file from OpenPAI webportal
 
-Users can refer to this tutorial [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/docs/submit_from_webportal.md) for job submission from OpenPAI webportal.
+Users can refer to this tutorial [submit a job in web portal](https://github.com/Microsoft/pai/blob/master/docs/submit_from_webportal.md) for job submission from OpenPAI webportal.
 
 ### List of off-the-shelf examples
 
