@@ -23,10 +23,7 @@
 This guide introduces how to run [Jupyter Notebook](http://jupyter.org/) on OpenPAI.
 The following contents show some basic examples, other customized examples can be run similarly.
 
-## Contents
 
-1. [Jupyter Notebook example](#jupyter-notebook-example)
-2. [Customize Docker Env](#customize-docker-env)
 
 ## Jupyter Notebook example
 

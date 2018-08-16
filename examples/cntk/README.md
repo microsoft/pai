@@ -23,12 +23,6 @@
 This guide introduces how to run [CNTK](https://docs.microsoft.com/en-us/cognitive-toolkit/) job on OpenPAI.
 The following contents show some basic CNTK examples, other customized CNTK code can be run similarly.
 
-
-## Contents
-
-1. [CNTK examples](#cntk-examples)
-2. [Customize Docker Env](#customize-docker-env)
-
 # CNTK grapheme-to-phoneme examples
 
 To run CNTK examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.

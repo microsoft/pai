@@ -23,6 +23,12 @@
 This guide introduces how to run [Open MPI](https://www.open-mpi.org/) workload on OpenPAI.
 The following contents show some basic Open MPI examples, other customized MPI code can be run similarly.
 
+## Contents
+
+1. [Open MPI TensorFlow CIFAR-10 example](#ope-mpi-tensorflow-cifar-10-example)
+2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
+
+
 # Open MPI TensorFlow / CNTK CIFAR-10 example
 
 To run Open MPI examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
@@ -31,7 +37,10 @@ OpenPAI packaged the docker env required by the job for user to use. User could 
 
 Here're some configuration file examples:
 
+## Open MPI TensorFlow CIFAR-10 example
+
 ### [TensorFlow cifar10 benchmark](https://git.io/vF4wT)
+
 ```js
 {
   "jobName": "tensorflow-mpi",
@@ -66,6 +75,8 @@ Here're some configuration file examples:
   "retryCount": 0
 }
 ```
+
+## Open MPI CNTK grapheme-to-phoneme conversion example
 
 ### [CNTK G2P example](https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript)
 
