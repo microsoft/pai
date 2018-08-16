@@ -25,7 +25,7 @@ The following contents show some basic Open MPI examples, other customized MPI c
 
 ## Contents
 
-1. [Open MPI TensorFlow CIFAR-10 example](#ope-mpi-tensorflow-cifar-10-example)
+1. [Open MPI TensorFlow CIFAR-10 example](#open-mpi-tensorflow-cifar-10-example)
 2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
 
