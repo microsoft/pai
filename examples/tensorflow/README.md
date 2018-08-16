@@ -18,26 +18,29 @@
 -->
 
 
-# TensorFlow on PAI
+# TensorFlow on OpenPAI
 
-This guide introduces how to run [TensorFlow](https://www.tensorflow.org/) workload on PAI.
+This guide introduces how to run [TensorFlow](https://www.tensorflow.org/) job on OpenPAI.
 The following contents show some basic TensorFlow examples, other customized TensorFlow code can be run similarly.
 
 
 ## Contents
 
-1. [TensorFlow examples](#tensorflow-examples)
-2. [Customize Docker Env](#customize-docker-env)
+1. [TensorFlow CIFAR-10 image classification](#tensorflow-cifar-10-image-classification)
+2. [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
+3. [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification )
+4. [TensorFlow Tensorboard](#tensorflow-tensorboard)
 
 # TensorFlow examples
 
-To run TensorFlow examples in PAI, you need to prepare a job configuration file and submit it through webportal.
+To run TensorFlow examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own. 
 
 Here're some configuration file examples:
 
-### Image classification on CIFAR-10
+### TensorFlow CIFAR-10 image classification 
+
 ```js
 {
   "jobName": "tensorflow-cifar10",
@@ -59,7 +62,8 @@ Here're some configuration file examples:
 }
 ```
 
-### Image classification on ImageNet
+### TensorFlow ImageNet image classification 
+
 ```js
 {
   "jobName": "tensorflow-imagenet",
@@ -85,7 +89,8 @@ Here're some configuration file examples:
 }
 ```
 
-### Distributed traning on CIFAR-10
+### Distributed TensorFlow CIFAR-10 image classification 
+
 ```js
 {
   "jobName": "tensorflow-distributed-cifar10",
@@ -121,7 +126,8 @@ Here're some configuration file examples:
 }
 ```
 
-### Tensorboard
+### TensorFlow Tensorboard
+
 ```js
 {
   "jobName": "tensorflow-tensorboard",
@@ -147,6 +153,3 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

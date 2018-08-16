@@ -18,22 +18,16 @@
 -->
 
 
-# MPI on PAI
+# MPI on OpenPAI
 
-This guide introduces how to run [Open MPI](https://www.open-mpi.org/) workload on PAI.
+This guide introduces how to run [Open MPI](https://www.open-mpi.org/) workload on OpenPAI.
 The following contents show some basic Open MPI examples, other customized MPI code can be run similarly.
 
+# Open MPI TensorFlow / CNTK CIFAR-10 example
 
-## Contents
+To run Open MPI examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
 
-1. [Open MPI examples](#open-mpi-examples)
-2. [Customize Docker Env](#customize-docker-env)
-
-# Open MPI examples
-
-To run Open MPI examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-mpi` or `openpai/pai.example.cntk-mpi` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image  `openpai/pai.example.tensorflow-mpi`, `openpai/pai.example.cntk-mp` with your own. 
 
 Here're some configuration file examples:
 
@@ -74,6 +68,7 @@ Here're some configuration file examples:
 ```
 
 ### [CNTK G2P example](https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript)
+
 ```js
 {
   "jobName": "cntk-mpi",
@@ -111,7 +106,3 @@ Here're some configuration file examples:
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
-
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.

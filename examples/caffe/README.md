@@ -20,7 +20,7 @@
 
 # Caffe on OpenPAI
 
-This guide introduces how to run [Caffe](http://caffe.berkeleyvision.org/) workload on OpenPAI.
+This guide introduces how to run [Caffe](http://caffe.berkeleyvision.org/) job on OpenPAI.
 The following contents show some basic Caffe examples, other customized Caffe code can be run similarly.
 
 # Caffe lenet MNIST digit recognition example

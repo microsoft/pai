@@ -18,9 +18,9 @@
 -->
 
 
-# Model Serving on PAI
+# Model Serving on OpenPAI
 
-This guide introduces how to run model serving workload on PAI.
+This guide introduces how to run model serving job on OpenPAI.
 Serving system for machine learning models is designed for production environments, which makes it easy to deploy new algorithms and experiments to users.
 The following contents show some basic model serving examples, other customized serving code can be run similarly.
 
@@ -30,11 +30,11 @@ The following contents show some basic model serving examples, other customized 
 1. [Serving a TensorFlow model](#serving-a-tensorflow-model)
 2. [Customize Docker Env](#customize-docker-env)
 
-# Serving a TensorFlow model
+# Serving a TensorFlow MNIST digit recognition model
 
 To run TensorFlow model serving, you need to prepare a job configuration file and submit it through webportal.
 
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-serving` with your own.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-serving` with your own. 
 
 Here're some configuration file examples:
 
@@ -66,6 +66,3 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
-# Customize Docker Env
-
-User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env.
