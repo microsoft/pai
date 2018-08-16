@@ -105,19 +105,19 @@ These user could customize and run these jobs over OpenPAI.
 * [Model Serving](./serving): 
   1. [MNIST model serving over Tensorflow](./serving/README.md)
 * [Scikit-learn](./scikit-learn): 
-  1. [scikit-learn MNIST digit recognition example](#scikit-learn-MNIST-digit-recognition-example)
-  2. [scikit-learn text-vectorizers example](#scikit-learn-text-vectorizers-example)
+  1. [scikit-learn MNIST digit recognition](#scikit-learn-MNIST-digit-recognition-example)
+  2. [scikit-learn text-vectorizers](#scikit-learn-text-vectorizers-example)
 * [CNTK](./cntk): 
-  1. [CNTK grapheme-to-phoneme example](./cntk/README.md)
+  1. [CNTK grapheme-to-phoneme](./cntk/README.md)
 * [PyTorch](./pytorch): 
   1. [PyTorch MNIST digit recognition](#pytorch-mnist-digit-recognition-examples)
-  2. [PyTorch regression examples](#pytorch-regression-examples)
+  2. [PyTorch regression](#pytorch-regression-examples)
 * [MXNet](./mxnet): 
-  1. [MXNet autoencoder examples](#mxnet-autoencoder-examples)
-  2. [MXNet image classification examples](#mxnet-image-classification-examples)
+  1. [MXNet autoencoder](#mxnet-autoencoder-examples)
+  2. [MXNet image classification](#mxnet-image-classification-examples)
 * [Open MPI](./mpi): 
-  1. [Open MPI TensorFlow CIFAR-10 example](#ope-mpi-tensorflow-cifar-10-example)
-  2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
+  1. [Open MPI TensorFlow CIFAR-10](#ope-mpi-tensorflow-cifar-10-example)
+  2. [Open MPI CNTK grapheme-to-phoneme conversion](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
 
 ## Contributing
