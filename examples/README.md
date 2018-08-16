@@ -105,8 +105,8 @@ These user could customize and run these jobs over OpenPAI.
 * [Model Serving](./serving): 
   1. [MNIST model serving over Tensorflow](./serving/README.md)
 * [Scikit-Learn](./scikit-learn): 
-  1. [scikit-Learn MNIST digit recognition](./scikit-learn/#scikit-learn-mnist-digit-recognition-example)
-  2. [scikit-Learn text-vectorizers](./scikit-learn/#scikit-learn-text-vectorizers-example)
+  1. [Scikit-Learn MNIST digit recognition](./scikit-learn/#scikit-learn-mnist-digit-recognition-example)
+  2. [Scikit-Learn text-vectorizers](./scikit-learn/#scikit-learn-text-vectorizers-example)
 * [CNTK](./cntk): 
   1. [CNTK grapheme-to-phoneme](./cntk/README.md)
 * [PyTorch](./pytorch): 
