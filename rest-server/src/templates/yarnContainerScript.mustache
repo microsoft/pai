@@ -40,9 +40,6 @@ function exit_handler()
   local handler="Yarn container exit handler"
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
-  debug_log "$handler" "clean the container code"
-  rm -rf /tmp/pai-root/code/$APP_ID/$CONTAINER_ID 2>/dev/null
-
   debug_log "$handler" "trying to kill docker container $docker_name"
   pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
   if [ $pid ]; then
@@ -207,7 +204,7 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 # Prepare docker bootstrap script
 LOCAL_BOOTSTRAP_DIR="tmp/pai-root/bootstrap"
 mkdir -p $LOCAL_BOOTSTRAP_DIR
-hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh "$LOCAL_BOOTSTRAP_DIR"/docker_bootstrap.sh \
+hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh $LOCAL_BOOTSTRAP_DIR/docker_bootstrap.sh \
   || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
@@ -222,20 +219,21 @@ if [[ -n $PAI_CODE_DIR ]]; then
     echo "$PAI_CODE_DIR is larger than 200MB, exit."
     exit 1
   fi
-  hdfs dfs -get $PAI_CODE_DIR "$LOCAL_CODE_DIR" \
+  hdfs dfs -get $PAI_CODE_DIR $LOCAL_CODE_DIR \
     || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
-fi
-
-# retrieve the hadoop tmp root dir
-HADOOP_TMP_DIR=$(hdfs getconf -confKey "hadoop.tmp.dir")
-if [ -z $HADOOP_TMP_DIR ]; then
-  echo "cannot get the hadoop temporary directory configuration."
-  exit 1
 fi
 
 # Prepare docker debug log
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
+
+# retrieve the yarn local dir
+YARN_LOCAL_DIR=$(hdfs getconf -confKey "yarn.nodemanager.local-dirs")
+if [ -z $YARN_LOCAL_DIR ]; then
+  echo "cannot get the YARN local directory."
+  exit 1
+fi
+CONTAINER_LOCAL_DIR=$YARN_LOCAL_DIR/usercache/{{{ jobData.userName }}}/appcache/application_$APP_ID/container_$CONTAINER_ID
 
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
@@ -254,8 +252,8 @@ docker run --name $docker_name \
   --security-opt apparmor:unconfined \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
-  --volume $HADOOP_TMP_DIR/LOCAL_BOOTSTRAP_DIR:/pai/bootstrap \
-  --volume $HADOOP_TMP_DIR/LOCAL_CODE_DIR:/pai/code \
+  --volume $CONTAINER_LOCAL_DIR/LOCAL_BOOTSTRAP_DIR:/pai/bootstrap:rw \
+  --volume $CONTAINER_LOCAL_DIR/LOCAL_CODE_DIR:/pai/code:rw \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop:ro \
   --label GPU_ID=$gpu_id \
