@@ -10,19 +10,13 @@
 
 ### How to write and submit a job:
 
-####  (1) Login PAI job webportal
+####  (1) Prepare a job json file
 
-Enter username and password:
+We use CIFAR-10 training job as an OpenPAI job example. 
 
-![PAI_example_login](./images/PAI_example_login.png)
+[CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is a common job in machine learning for image classification.
 
-####  (2) Write a job json file
-
-We use CIFAR-10 training job as an example. 
-
-[CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is a common job in machine learning for image recognition.
-
-- Full example for Cifar10 tensorflow training on OpenPAI: 
+- Full example for tensorflow cifar10 image classification training on OpenPAI: 
 
 ```js
 {
@@ -54,27 +48,13 @@ We use CIFAR-10 training job as an example.
 }
 ```
 
-- Copy these content to a file, named cifar10.json
+- Save these content to a file, named cifar10.json
 
 - [Job configuration items introduction](../docs/job_tutorial.md#json-config-file-for-job-submission)
 
+####  (2) Submit job json file from OpenPAI webportal
 
-####  (3) Submit job json file
-
-- Click choose file.
-- Select cifar10.json.
-- Click Submit.
-
-![PAI_example_submit](./images/PAI_example_submit.png)
-
-- Show success.
-
-![PAI_example_success](./images/PAI_example_success.png)
-
-- Click job tab, view job progress:
-
-![PAI_example_job_status](./images/PAI_example_job_status.png)
-
+Users can refer to this tutorial [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/docs/submit_from_webportal.md) for job submission from OpenPAI webportal.
 
 ### List of off-the-shelf examples
 
