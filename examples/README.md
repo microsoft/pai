@@ -96,7 +96,7 @@ These user could customize and run these jobs over OpenPAI.
   1. [MXNet autoencoder](./mxnet#mxnet-autoencoder-examples)
   2. [MXNet image classification](./mxnet#mxnet-image-classification-examples)
 * [Open MPI](./mpi): 
-  1. [Open MPI TensorFlow CIFAR-10](./mpi#ope-mpi-tensorflow-cifar-10-example)
+  1. [Open MPI TensorFlow CIFAR-10](./mpi#open-mpi-tensorflow-cifar-10-example)
   2. [Open MPI CNTK grapheme-to-phoneme conversion](./mpi#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
 
