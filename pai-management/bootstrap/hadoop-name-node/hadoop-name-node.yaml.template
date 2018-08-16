@@ -35,7 +35,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['hadoop-name-node'] }}
+              - key: {{ clusterinfo['hdnamenodeinfo']['role'] }}
                 operator: In
                 values:
                 - "true"

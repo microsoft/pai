@@ -29,7 +29,16 @@ spec:
         app: drivers-one-shot
     spec:
       hostNetwork: true
-      hostPID: true      
+      hostPID: true  
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingRequiredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: stop-drivers
+                operator: NotIn
+                values:
+                - "true"    
       containers:
       - name: nvidia-drivers
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

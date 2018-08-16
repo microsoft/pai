@@ -37,7 +37,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['prometheus'] }}
+              - key: {{ clusterinfo['prometheusinfo']['role'] }}
                 operator: In
                 values:
                 - "true"

@@ -35,7 +35,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['jobhistory'] }}
+              - key: {{ clusterinfo['hdjobhistoryinfo']['role'] }}
                 operator: In
                 values:
                 - "true"

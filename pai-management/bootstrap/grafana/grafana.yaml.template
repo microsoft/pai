@@ -36,7 +36,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['grafana'] }}
+              - key: {{ clusterinfo['grafanainfo']['role'] }}
                 operator: In
                 values:
                 - "true"

@@ -44,7 +44,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['alertmanager'] }}
+              - key: {{ clusterinfo['alertmanagerinfo']['role'] }}
                 operator: In
                 values:
                 - "true"
