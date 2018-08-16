@@ -18,13 +18,13 @@
 
 // module dependencies
 const express = require('express');
-const templateController = require('../controllers/template');
+const template = require('../controllers/template');
 
 const router = new express.Router();
 
 router.route('/:type')
   /** GET /api/v2/template/:type - Get list of templates */
-  .get(templateController.list);
+  .get(template.list);
 
 // module exports
 module.exports = router;

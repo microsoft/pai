@@ -20,14 +20,14 @@ const logger = require('../config/logger');
 const template = require('../models/template');
 
 const list = (req, res) => {
-  template.top(req.params.type, 10, function(err, tree) {
+  template.top(req.params.type, 10, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
         'message': 'Failed to fetch templates from remote source.',
       });
     }
-    return res.status(200).json(tree);
+    return res.status(200).json(list);
   });
 };
 
