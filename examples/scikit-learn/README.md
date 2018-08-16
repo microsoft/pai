@@ -26,7 +26,7 @@ The following contents show some basic scikit-learn examples, other customized s
 
 ## Contents
 
-1. [scikit-learn MNIST digit recognition example](#scikit-learn-MNIST-digit-recognition-example)
+1. [scikit-learn MNIST digit recognition example](#scikit-learn-mnist-digit-recognition-example)
 2. [scikit-learn text-vectorizers example](#scikit-learn-text-vectorizers-example)
 
 ## scikit-learn MNIST digit recognition example
