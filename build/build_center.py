@@ -9,7 +9,6 @@ class ServiceNode(object):
     def __init__(self, path, service_name):
         self.path = path
         self.service_name = service_name
-        self.pull_docker_files = list()
         self.docker_files = list()
         self.inedges = list()
         self.outedges = list()
@@ -20,19 +19,16 @@ class ServiceNode(object):
             self.path,
             self.service_name,
             self.inedges,
-            self.outedges,
-            self.pull_docker_files
+            self.outedges
         ))
 
 
     def build(self):
         pre_build = os.path.join(self.path, 'build/build-pre.sh')
         if os.path.exists(pre_build):
-            # linux_shell.execute_shell(pre_build)
             print ("Pre", pre_build)
+            linux_shell.execute_shell(pre_build)
 
-        for docker in self.pull_docker_files:
-            print ("Pull", docker)
 
         for docker in self.docker_files:
             print ("Build", docker)
@@ -68,11 +64,6 @@ class ServiceGraph(object):
             self.services[prev_service].outedges.append(succ_service)
             self.services[succ_service].inedges.append(prev_service)
 
-        else:
-            # print ("Error servcies dependency {} to {}.".format(prev_service, succ_service))
-            self.services[succ_service].pull_docker_files.append(prev_service)
-
-
     def topology(self):
         prev_count = dict()
         ret = list()
@@ -105,8 +96,12 @@ def main():
 
     # Find Services and map dockfile to services
     g = os.walk(dirs)
-    print(list(g))
+
     for path, dir_list, file_list in g:
+        print("path " + path)
+        print("dir_list " + str(dir_list))
+        print("file_list" + str(file_list))
+        print("-----------------------------------------")
         if path == dirs:
             for service in dir_list:
                 graph.add_service(os.path.join(path, service), service)
