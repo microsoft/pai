@@ -26,7 +26,6 @@ const taskModelComponent = require('./addmodel-task.components.ejs');
 const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
 const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs')
-const jobSchema = require('./json-editor-schema.js');
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
