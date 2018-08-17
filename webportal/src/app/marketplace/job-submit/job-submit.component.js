@@ -93,6 +93,7 @@ $(document).on('click', "#add-docker-btn", () => {
 $(document).on('click', "#submitJob", () => {
   console.log("submit");
   console.log(originalJsonData);
+  originalJsonData.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
