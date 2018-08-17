@@ -50,7 +50,7 @@ This guide assumes the system has already been deployed properly and a docker re
 
 ### Use docker to package the job environment dependencies <a name="docker"></a>
 
-OpenPAI packaged the docker env required by the job for user to use. User could refer to [job_docker_env.md](./job_docker_env.md) to customize example's docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image in following example `"image": "your_docker_registry/pai.run.tensorflow"` with your own. OpenPAI has pre-build many default docker env for differetn frameworks, [Learn more job examples](#moreexample) section's each example will contains a pre-build docker env.
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [job_docker_env.md](./job_docker_env.md) to customize example's docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image in following example `"image": "your_docker_registry/pai.run.tensorflow"` with your own. OpenPAI has many pre-built images for different frameworks. In [Learn more job examples](#moreexample) section, each example folder will contain a pre-build docker env.
 
 ### Write a job json configuration file <a name="jobjson"></a>
 
