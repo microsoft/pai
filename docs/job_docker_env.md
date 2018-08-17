@@ -11,6 +11,7 @@ docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-
 Then a custom docker image can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
 
 As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
+
 ```sh
 docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
 ```
