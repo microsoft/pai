@@ -41,11 +41,7 @@ public class RMClientCallbackHandler implements AMRMClientAsync.CallbackHandler 
   }
 
   public float getProgress() {
-    try {
-      return am.getProgress();
-    } catch (Exception e) {
-      return 0;
-    }
+    return am.getProgress();
   }
 
   public void onNodesUpdated(List<NodeReport> updatedNodes) {
