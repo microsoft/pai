@@ -1,0 +1,178 @@
+.box-content{
+    padding-bottom: 0;
+}
+.template-account {
+    width: 86%;
+    margin: 0 auto;
+    margin-top: 28px;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+    .showDesJob{
+        margin-top: 10px;
+    td{
+        vertical-align: middle;
+        height: 160px;
+    }
+    .logo {
+        width: 160px;
+        height: 160px;
+    }
+    .detail {
+        margin-left: 20px;
+        height: 160px;
+        box-sizing: border-box;
+        .btns{
+            .detail-jobname{
+                font-size: 24px;
+                font-weight: bold;
+                margin-left: 14px;
+            }
+            .sty-margin{
+                margin-top: 27px;
+                margin-left: 214px;
+                position: relative;
+                top: -17px;
+            }
+            .edit-jobinfo{
+                border: none;
+                background: none;
+            }
+        }
+        h3 {
+            font-size: 26px;
+            font-weight: 600;
+            padding-right: 8px;
+            padding-top: 10px; 
+        }
+        p {
+            line-height: 34px;
+            font-size: 14px;
+            line-height: 42px;
+        }
+    }
+}
+}
+
+.title-search{
+    width: 100%;
+    height: 40px;
+    .subv2-title{
+        width: 200px;
+        min-width: 200px;
+        span{
+            color: #333;
+            font-size: 20px;
+        }
+    }
+    .preview{
+        position: relative;
+        top: 4px;
+        left: -10px;
+    }
+    #search-input{
+        float: left;
+        width: 440px;
+        min-width: 440px;
+        margin-left: 100px;
+    }
+    #search-btn{
+        float: left;
+    }
+}
+
+.add-four{
+    background: white;
+    width: 100%;
+    .add-content{
+        padding-left: 30px;
+        width: 93%;
+        margin: 0 auto;
+        .add-title {
+            padding-bottom: 26px;
+            border-bottom: 1px solid #ccc;
+            h3{
+                // padding-left: 35px;
+                margin-bottom: 18px;
+                box-sizing: border-box;
+            }
+        }
+    }
+}
+.add-new-item{
+    min-height: 195px;
+    width: 310px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.add-new-item .add-new-item-content {
+    margin-bottom:-15px;
+}
+
+.add-new-item .add-new-item-content  i.glyphicon.glyphicon-plus{
+    font-size: 22px;
+}
+
+.shadow{
+    width: 310px;
+    line-height: 10px;
+    box-shadow: 0 4px 4px 0 rgba(0,0,0,.2),0 6px 20px 0 rgba(0,0,0,.1) !important;
+}
+// task model style
+.sty-task-input{
+    margin-bottom: 15px;
+}
+.sty-task{
+    width: 100%;
+    margin-bottom: 15px;
+}
+// task box style
+.sty-task-content{
+    position: relative;
+    .edit-task{
+        background: none;
+        border: none;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+}
+// docker box style
+.sty-docker{
+    min-height: 150px;
+    width: 178px;
+    img{
+        width: 60px;
+        margin-left: 46px;
+        margin-top: 10px;
+    }
+    h5{
+        color: #333;
+        font-weight: bold;
+        font-size: 14px;
+        margin-top: 12px;
+        margin-bottom: 13px;
+    }
+    p{
+        font-size: 12px;
+        line-height: 12px;
+    }
+}
+
+
+
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    input[type=file] {
+        font-size: 20px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+      }
+}
