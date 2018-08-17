@@ -11,7 +11,7 @@ PAI configuration consists of 4 YAML files:
 
 Before deployment or maintenance, user should have the cluster configuration files ready.
 
-You could find the example configuration files in [pai/cluster-configuration/](../../cluster-configuration).
+You could find the example configuration files in [pai/cluster-configuration/](../../../cluster-configuration).
 
 Note: Please do not change the name of the configuration files. And those 4 files should be put in the same directory.
 
@@ -60,7 +60,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
 
 ## Set up cluster-configuration.yaml <a name="cluster_configuration"></a>
 
-An example cluster-configuration.yaml is available [here](../../cluster-configuration/cluster-configuration.yaml). In the following we explain the fields in the yaml file one by one.
+An example cluster-configuration.yaml is available [here](../../../cluster-configuration/cluster-configuration.yaml). In the following we explain the fields in the yaml file one by one.
 
 ### ```default-machine-properties```
 
@@ -197,13 +197,13 @@ http://<master>:9090
 
 ## Set up k8s-role-definition.yaml <a name="k8s_role_definition"></a>
 
-An example k8s-role-definition.yaml file is available [here](../../cluster-configuration/k8s-role-definition.yaml).
+An example k8s-role-definition.yaml file is available [here](../../../cluster-configuration/k8s-role-definition.yaml).
 The file is used to bootstrap a k8s cluster. It includes a list of k8s components and specifies what components should be include in different k8s roles (master, worker, and proxy).
 By default, user does not need to change the file.
 
 ## Set up kubernetes-configuration.yaml <a name="kubernetes_configuration"></a>
 
-An example kubernetes-configuration.yaml file is available [here](../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
+An example kubernetes-configuration.yaml file is available [here](../../../cluster-configuration/kubernetes-configuration.yaml). The yaml file includes the following fields.
 
 ### ```configure K8s component version``` <a name="k8s_component"></a>
 
@@ -257,7 +257,7 @@ Server Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.4", GitCommi
 
 ## Set up services-configuration.yaml <a name="services_configuration"></a>
 
-An example services-configuration.yaml file is available [here](../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
+An example services-configuration.yaml file is available [here](../../../cluster-configuration/services-configuration.yaml). The following explains the details of the yaml file.
 
 ### ```configure customize docker repository``` <a name="docker_repo"></a>
 
@@ -417,7 +417,7 @@ hadoop:
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
+| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../../src/hadoop-ai).|
 | ```hadoop-version```|services-configuration.yaml| Please set this to ```2.9.0```.|
 | ```virtualClusters```|services-configuration.yaml| Hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
@@ -539,7 +539,7 @@ Single master mode does not have high availability.
 
 ### ```Kubernetes with High Availability: The `proxy` Role```
 
-There are 3 roles in [k8s-role-definition](../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
+There are 3 roles in [k8s-role-definition](../../../cluster-configuration/k8s-role-definition.yaml). The ```master``` will start a k8s-master component on the specified machine. And the ```proxy``` will start a proxy component on the specified machine. In cluster-configuration.yaml,
 
 - One or more than one nodes are labeled with ```k8s-role: master```
 - One node should be labeled with ```k8s-role: proxy```
