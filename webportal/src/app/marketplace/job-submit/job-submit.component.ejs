@@ -28,15 +28,22 @@
                             <button class="edit-jobinfo">
                                 <span class="glyphicon glyphicon-pencil"></span>
                             </button>
-                            <button class="btn btn-primary sty-margin">Submit</button>
+                            <button class="btn btn-primary sty-margin" id ="submitJob">Submit</button>
                         </div>
                         <p id="txt-description">
                             image classification, cifar10 dataset, tensorflow, distributed training
                         </p>
                         <div>
-                            <button class="btn btn-primary">YAML</button>
-                            <button class="btn btn-primary">Import Json</button>
-                            <button class="btn btn-primary">Export Json</button>
+                            <div class="upload-btn-wrapper">
+                                <button class="btn btn-primary">YAML</button>
+                            </div>
+                            <div class="upload-btn-wrapper">
+                                <button class="btn btn-primary">Import from Yaml</button>
+                                <input type="file" id="importYaml"/>
+                            </div>
+                            <div class="upload-btn-wrapper">
+                                    <button class="btn btn-primary">Export Json</button>
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -77,17 +84,17 @@
                 <!-- model for add task -->
                 <div id="modalPlaceTask" class="box-body" />
             </div>
-            <!-- for docker -->
+
+            <!-- for dockerimage -->
             <div class="row add-title">
                 <h3>Docker</h3>
-                <!-- have docker content style -->
-                <div class="col-md-2 shadow sty-docker">
-                    <img src="/assets/img/dockerimage.png" alt="">
-                    <h5>tf_example</h5>
-                    <p>python3.5, tensorflow</p>
+                <!-- have dockerimage content style -->
+                <div id="dockerimage-container">
+                <!-- will be adding new dockerimage here! -->
                 </div>
+
                 <div class="col-md-2 add-bottom-border">
-                    <a id="add-docker-btn" data-toggle="modal">
+                    <a id="add-dockerimage-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
                                 <p>
@@ -104,13 +111,11 @@
             <div class="row add-title">
                 <h3>Script</h3>
                 <!-- have script content style -->
-                <div class="col-md-2 shadow sty-docker">
-                    <img src="/assets/img/job.png" alt="">
-                    <h5>tensorflow_cnnbench marks</h5>
-                    <p>benchmarks, tensorflow</p>
+                <div id="script-container">
+                    <!-- will be adding new script here! -->
                 </div>
                 <div class="col-md-2 add-bottom-border">
-                    <a id="add-docker-btn" data-toggle="modal">
+                    <a id="add-script-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
                                 <p>
@@ -127,13 +132,11 @@
             <div class="row add-title">
                 <h3>Data</h3>
                 <!-- have data content style -->
-                <div class="col-md-2 shadow sty-docker">
-                    <img src="/assets/img/data.png" alt="">
-                    <h5>cifar10</h5>
-                    <p>cifar10 dataset, image classification</p>
+                <div id="data-container">
+                    <!-- will be adding new data here! -->
                 </div>
                 <div class="col-md-2 add-bottom-border">
-                    <a id="add-docker-btn" data-toggle="modal">
+                    <a id="add-data-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
                                 <p>
