@@ -70,18 +70,17 @@ const updatePageFromYaml = (d) =>{
 
 $('#content-wrapper').html(submitComponent);
 
-$(document).on('click', "#add-task-btn", () => {
+$(document).on('click', '#add-task-btn', () => {
   $('#modalPlaceTask').html(taskModelComponent);
   $('#addtaskModal').modal('show');
 });
 
-$(document).on('click', "#for-edit-task", () => {
-  console.info();
+$(document).on('click', '#for-edit-task', () => {
   $('#modalPlaceTask').html(editTaskModelComponent);
   $('#edit-task').modal('show');
 });
 
-$(document).on('click', "#add-docker-btn", () => {
+$(document).on('click', '#add-docker-btn', () => {
   $('#modalPlaceDocker').html(dockerModelComponent);
   $('#addockerModal').modal('show');
 });
@@ -140,7 +139,6 @@ $(document).ready(() => {
             };
         })(f);
 
-        // Read in the image file as a data URL.
         reader.readAsText(f);
     }
   }, false);
