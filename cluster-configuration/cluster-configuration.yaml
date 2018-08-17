@@ -60,9 +60,8 @@ machine-list:
       k8s-role: master
       dashboard: "true"
       zkid: "1"
-      pai-master: "true"
-      watchdog: "true"
-      alert-manager: "true"
+      pai-role: master
+      
 
 
     - hostname: hostname
@@ -73,7 +72,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
+      
 
 
     - hostname: hostname
@@ -84,7 +83,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
+      
 
 
     - hostname: hostname
@@ -94,7 +93,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "true"
+      pai-role: worker
 
 
     - hostname: hostname
@@ -104,7 +103,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "true"
+      pai-role: worker
 
 
     - hostname: hostname
@@ -114,7 +113,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: worker
-      pai-worker: "true"
+      pai-role: worker
 
 
 
