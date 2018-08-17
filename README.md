@@ -56,8 +56,9 @@ Before start, you need to meet the following requirements:
 ## How to use
 ### How to train jobs
 - How to write PAI jobs
-    - [Learn from Example Jobs](./examples/README.md)
+    - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart) 
     - [Write job from scratch in deepth](./docs/job_tutorial.md)
+    - [Learn more example jobs](./examples/#offtheshelf)
 - How to submit PAI jobs
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)

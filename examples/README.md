@@ -1,18 +1,16 @@
 # OpenPAI Job Examples
 
 ## Table of Contents
-- [Off-the-shelf examples](#off-the-shelf-examples)
-- [List of customized job template](#list-of-customized-job-template)
+- [Quick start: how to write and submit a CIFAR-10 job](#quickstart)
+- [List of off-the-shelf examples](#offtheshelf)
+- [List of customized job template](#customize)
 - [Contributing](#contributing)
   
-
-## Off-the-shelf examples
-
-### How to write and submit a job:
+## Quick start: how to write and submit a CIFAR-10 job <a name="quickstart"></a>
 
 ####  (1) Prepare a job json file
 
-We use CIFAR-10 training job as an OpenPAI job example. 
+In this section, we will use CIFAR-10 training job as an example to explain how to write and submit a job in OpenPAI.
 
 [CIFAR-10](http://www.cs.toronto.edu/~kriz/cifar.html) is an established computer-vision dataset used for image classification.
 
@@ -56,7 +54,7 @@ We use CIFAR-10 training job as an OpenPAI job example.
 
 Users can refer to this tutorial [submit a job in web portal](https://github.com/Microsoft/pai/blob/master/docs/submit_from_webportal.md) for job submission from OpenPAI webportal.
 
-### List of off-the-shelf examples
+## List of off-the-shelf examples <a name="offtheshelf"></a>
 
 Examples which can be run by submitting the json straightly without any modification.
 
@@ -68,7 +66,7 @@ Examples which can be run by submitting the json straightly without any modifica
 * [serving.tensorflow.json](./serving/serving.tensorflow.json): TensorFlow model serving.
 classification on MNIST using MXNet.
 
-## List of customized job template
+## List of customized job template <a name="customize"></a>
 
 These user could customize and run these jobs over OpenPAI.
 
@@ -100,8 +98,7 @@ These user could customize and run these jobs over OpenPAI.
   1. [Open MPI TensorFlow CIFAR-10](./mpi#open-mpi-tensorflow-cifar-10-example)
   2. [Open MPI CNTK grapheme-to-phoneme conversion](./mpi#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
-
-## Contributing
+## Contributing <a name="contributing"></a>
 
 If you want to contribute a job example that can be run on PAI, please open a new pull request.
 
