@@ -16,15 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const express = require('express');
-const template = require('../controllers/template');
+let gitHubDataSource = {
+  owner: 'Microsoft',
+  repository: 'pai',
+  branch: 'paitemplate',
+};
 
-const router = new express.Router();
-
-router.route('/:type')
-  /** GET /api/v2/template/:type - Get list of templates */
-  .get(template.list);
-
-// module exports
-module.exports = router;
+module.exports = {
+  github: gitHubDataSource,
+};
