@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
+from utility import linux_shell
 
 import os
 
@@ -27,6 +28,7 @@ class ServiceNode(object):
     def build(self):
         pre_build = os.path.join(self.path, 'build/build-pre.sh')
         if os.path.exists(pre_build):
+            # linux_shell.execute_shell(pre_build)
             print ("Pre", pre_build)
 
         for docker in self.pull_docker_files:
@@ -38,6 +40,7 @@ class ServiceNode(object):
         post_build = os.path.join(self.path, 'build/build-post.sh')
 
         if os.path.exists(post_build):
+            # linux_shell.execute_shell(post_build)
             print ("Post", post_build)
 
 
@@ -102,6 +105,7 @@ def main():
 
     # Find Services and map dockfile to services
     g = os.walk(dirs)
+    print(list(g))
     for path, dir_list, file_list in g:
         if path == dirs:
             for service in dir_list:
