@@ -22,6 +22,10 @@ const template = require('../controllers/template');
 
 const router = new express.Router();
 
+router.route('/')
+  /** GET /api/v1/template?query=XXX[&pageno=YYY] */
+  .get(template.search);
+
 router.route('/:type')
   /** GET /api/v2/template/:type - Get list of templates */
   .get(template.list);

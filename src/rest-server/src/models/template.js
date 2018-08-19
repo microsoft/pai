@@ -21,16 +21,44 @@ const github = require('@octokit/rest')();
 const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
-const templateStore = require('../config/template');
+const config = require('../config/github');
+
+/**
+ * Get related templates by the given query.
+ */
+const filter = (text, perSize, pageNo, callback) => {
+  github.search.code({
+    q: createQuery(text),
+    per_page: perSize,
+    page: pageNo,
+  }, function(err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      let urls = [];
+      res.data.items.forEach(function(item) {
+        urls.push(createDownloadUrl(item.path));
+      });
+      downloadInParallel(urls, callback);
+    }
+  });
+};
+
+const createQuery = (text) => {
+  return text + `+in:file+language:yaml+repo:${config.owner}/${config.repository}`;
+};
+
+const createDownloadUrl = (path) => {
+  return `https://raw.githubusercontent.com/${config.owner}/${config.repository}/master/${path}`;
+};
 
 /**
  * Get the top K templates by the given type.
  */
 const top = (type, count, callback) => {
   github.repos.getContent({
-    owner: templateStore.github.owner,
-    repo: templateStore.github.repository,
-    ref: templateStore.github.branch,
+    owner: config.owner,
+    repo: config.repository,
     path: type,
   }, function(err, res) {
     if (err) {
@@ -75,5 +103,6 @@ const downloadInParallel = (urls, callback) => {
 };
 
 module.exports = {
+  filter,
   top,
 };
