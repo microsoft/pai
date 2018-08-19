@@ -230,8 +230,8 @@ ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER
 # retrieve the yarn local dir
 yarn_local_dir=$(hdfs getconf -confKey "yarn.nodemanager.local-dirs") || { echo "cannot get the YARN local directory."; exit 1; }
 container_id=$(cat /proc/self/cgroup | head -n 1 | awk -F '/' '{print $NF}')
-mounted_path=$(docker inspect -f '{{ json .Mounts }}' $container_id |\
-  jq -r --arg yarn_local_dir "$yarn_local_dir" '.[] | select(.Destination==$yarn_local_dir) | .Source')
+mounted_path=$(docker inspect $container_id |\
+  jq -r --arg yarn_local_dir "$yarn_local_dir" '.[] | .Mounts | .[] | select(.Destination==$yarn_local_dir) | .Source')
 container_local_dir=$mounted_path/usercache/{{{ jobData.userName }}}/appcache/application_$APP_ID/container_$CONTAINER_ID
 
 # Pull docker image and run
