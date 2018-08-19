@@ -232,7 +232,7 @@ hadoop_tmp_dir=$(hdfs getconf -confKey "hadoop.tmp.dir") || { echo "cannot get t
 container_id=$(cat /proc/self/cgroup | head -n 1 | awk -F '/' '{print $NF}')
 mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
-container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/application_$APP_ID/container_$CONTAINER_ID
+container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID
 
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
