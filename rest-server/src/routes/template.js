@@ -23,7 +23,7 @@ const template = require('../controllers/template');
 const router = new express.Router();
 
 router.route('/')
-  /** GET /api/v1/template?query=XXX */
+  /** GET /api/v1/template?query=XXX[&pageno=YYY] */
   .get(template.search);
 
 router.route('/:type')

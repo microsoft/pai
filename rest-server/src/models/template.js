@@ -44,11 +44,11 @@ const filter = (text, perSize, pageNo, callback) => {
   });
 };
 
-createQuery = (text) => {
-  return text + `+in:file+language:yaml+repo:${config.owner}/${config.repository}`; 
+const createQuery = (text) => {
+  return text + `+in:file+language:yaml+repo:${config.owner}/${config.repository}`;
 };
 
-createDownloadUrl = (path) => {
+const createDownloadUrl = (path) => {
   return `https://raw.githubusercontent.com/${config.owner}/${config.repository}/master/${path}`;
 };
 
