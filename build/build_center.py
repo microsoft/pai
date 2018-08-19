@@ -3,6 +3,8 @@ from __future__ import print_function
 from utility import linux_shell
 
 import os
+import shutil
+import datetime
 
 class ServiceNode(object):
 
@@ -15,7 +17,7 @@ class ServiceNode(object):
 
 
     def dump(self):
-        print ("Path:{}\nName:{}\nInedge:{}\nOutedge:{}\npull_docker:{}\n".format(
+        print ("Path:{}\nName:{}\nInedge:{}\nOutedge:{}\n".format(
             self.path,
             self.service_name,
             self.inedges,
@@ -23,11 +25,11 @@ class ServiceNode(object):
         ))
 
 
-    def build(self):
+    def build_single_component(self):
         pre_build = os.path.join(self.path, 'build/build-pre.sh')
         if os.path.exists(pre_build):
             print ("Pre", pre_build)
-            linux_shell.execute_shell(pre_build)
+            #linux_shell.execute_shell(pre_build)
 
 
         for docker in self.docker_files:
@@ -39,8 +41,6 @@ class ServiceNode(object):
             # linux_shell.execute_shell(post_build)
             print ("Post", post_build)
 
-
-        print ('--------------------------')
 
 class ServiceGraph(object):
 
@@ -63,6 +63,7 @@ class ServiceGraph(object):
         if prev_service in self.services and succ_service in self.services:
             self.services[prev_service].outedges.append(succ_service)
             self.services[succ_service].inedges.append(prev_service)
+        
 
     def topology(self):
         prev_count = dict()
@@ -88,20 +89,46 @@ class ServiceGraph(object):
         for _, service in self.services.items():
             service.dump()
 
+def copy_dependency_folder(source, destination):
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("source ", source)
+    print("destination", destination)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    # if not os.path.exists(source):
+    #     print("[DEBUG_LOG] {} folder path not exists".format(source))
+    #     return None #TO-DO need raise error here
+    # else:
+    #     if os.path.exists(destination) and os.path.isdir(destination):
+    #        os.removedirs(destination)
+    #     shutil.copytree(source,destination)
+
+def clean_temp_folder(service_name):
+    temp_generated_dir = os.path.join("src",service_name+"/generated")
+    temp_dependency_dir = os.path.join("src",service_name+"/dependency")
+
+    print("--------------------------------")
+    print("[CAN_TEST_CLEAN]  temp_generated_dir="+temp_generated_dir)
+    print("[CAN_TEST_CLEAN]  temp_dependency_dir="+temp_dependency_dir)
+    print("--------------------------------")
+
+    if os.path.exists(temp_generated_dir) and os.path.isdir(temp_generated_dir):
+        os.removedirs(temp_generated_dir)
+
+    if os.path.exists(temp_dependency_dir) and os.path.isdir(temp_dependency_dir):
+        os.removedirs(temp_dependency_dir)
 
 def main():
     dirs = "src"
 
+    starttime = datetime.datetime.now()
+    
+    # Initialize graph
     graph = ServiceGraph()
 
-    # Find Services and map dockfile to services
+    # Find services and map dockfile to services
     g = os.walk(dirs)
 
     for path, dir_list, file_list in g:
-        print("path " + path)
-        print("dir_list " + str(dir_list))
-        print("file_list" + str(file_list))
-        print("-----------------------------------------")
         if path == dirs:
             for service in dir_list:
                 graph.add_service(os.path.join(path, service), service)
@@ -109,9 +136,11 @@ def main():
         service_name = service_name[-2] if len(service_name) > 1 else None
         for file_name in file_list:
             if file_name.endswith(".dockerfile"):
-                graph.add_docker_to_service(file_name, service_name)
+                graph.add_docker_to_service(str(os.path.splitext(file_name)[0]), service_name)
+    
+    graph.dump()
 
-    # Build Dependency
+    # Build dependency
     g = os.walk(dirs)
     for path, dir_list, file_list in g:
         service_name = path.split(os.sep)
@@ -122,7 +151,7 @@ def main():
                     for line in fin:
                         if line.strip().startswith("FROM"):
                             image = line.split()[1]
-                            graph.add_dependency(image, service_name)
+                            graph.add_dependency(graph.docker_to_service.get(image), service_name)
             elif file_name == "component.dep":
                 with open(os.path.join(path, file_name), "r") as fin:
                     for line in fin:
@@ -131,9 +160,18 @@ def main():
     # Build topology sequence
     services = graph.topology()
     for item in services:
-        graph.services[item].build()
+        for inedge in graph.services[item].inedges:
+            copy_dependency_folder(os.path.join("src",inedge),os.path.join(graph.services[item].path,"dependency/"+inedge))
+        graph.services[item].build_single_component()
+    
+    # Clean generated folder
+    for item in services:
+        clean_temp_folder(item)
 
-    # graph.dump()
+    endtime = datetime.datetime.now()
+    print("start time=" + str(starttime))
+    print("end time=" + str(endtime))
+    print (endtime - starttime)
 
 if __name__ == "__main__":
     main()
