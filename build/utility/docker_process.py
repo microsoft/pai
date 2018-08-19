@@ -19,7 +19,7 @@ from . import linux_shell
 import logging
 import logging.config
 
-class docker_process:
+class DockerProcess:
 
 
     def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):

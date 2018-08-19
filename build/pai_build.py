@@ -1,17 +1,22 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import build.build_center
+from utility import build_object_model
+
 import os
 import sys
 import argparse
+import datetime
 from six import text_type
 
-
-def help():
-    print ("no command.")
-
+def load_build_config(config_dir):
+    buildConfig = build_object_model(config_dir)
+    configModel = buildConfig.build_config_parse()
+    return configModel
 
 def main():
+    starttime = datetime.datetime.now()
     parser = argparse.ArgumentParser(description="TODO:pai build cli.")
 
     # setup commands
@@ -38,14 +43,14 @@ def main():
     parser.add_argument(
         '-s', '--service',
         type=text_type,
-        default='all',
+        nargs='+',
         help="TODO"
     )
 
     parser.add_argument(
         '-i', '--imagelist',
         type=text_type,
-        default='all',
+        default=None,
         help="TODO"
     )
 
@@ -56,13 +61,16 @@ def main():
     
     elif args.build:
         print ('In Build:', args.service)
+        pai_build = build_center.BuildCenter(args.service)
+        pai_build.build_center()
 
     else:
-        raise ValueError()
+        parser.exit(1, parser.format_help())
 
-    print (args)
+    endtime = datetime.datetime.now()
+    print("start time=" + str(starttime))
+    print("end time=" + str(endtime))
+    print (endtime - starttime)
         
-
-
 if __name__ == "__main__":
     main()
