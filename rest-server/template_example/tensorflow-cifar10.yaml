@@ -1,5 +1,5 @@
 protocol_version: v2
-name : cifar10_tensorflow
+name : tensorflow_cifar10
 type : job
 version : 1.0.0
 contributor : Alice
@@ -82,4 +82,3 @@ prerequisites :
     contributor : Qi Chen
     description: python3.5, tensorflow
     uri : openpai/pai.example.tensorflow
-    
