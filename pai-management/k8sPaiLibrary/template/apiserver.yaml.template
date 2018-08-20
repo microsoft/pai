@@ -50,5 +50,5 @@ spec:
       name: certs
   volumes:
   - hostPath:
-    path: /etc/pai.certs
+      path: /etc/pai.certs
     name: certs
