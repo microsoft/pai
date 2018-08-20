@@ -66,7 +66,7 @@ const updatePageFromYaml = (d) =>{
     });
   }
 
-  if('tasks' in data){
+  if ('tasks' in data) {
     data['tasks'].forEach((task) => {
       let itemHtml = taskFormat({
         role: task['role'],
