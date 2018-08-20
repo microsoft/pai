@@ -20,6 +20,4 @@
 YARN_EXPORTER_PORT = ${YARN_EXPORTER_PORT:-9459}
 echo ${YARN_EXPORTER_PORT}
 
-python3 /usr/local/yarn_exporter.py ${YARN_WEB_PORTAL_URI} -p ${YARN_EXPORTER_PORT}
-
-exit 0
+exec python3 /usr/local/yarn_exporter.py ${YARN_WEB_PORTAL_URI} -p ${YARN_EXPORTER_PORT}
