@@ -1,5 +1,5 @@
 protocol_version: v2
-name : mnist_tensorflow_serving
+name : tensorflow_serving_mnist
 type : job
 version : 1.0.0
 contributor : Qi chen
