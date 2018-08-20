@@ -16,19 +16,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const express = require('express');
-const template = require('../controllers/template');
+const logger = require('../config/logger');
+const template = require('../models/template');
 
-const router = new express.Router();
+const list = (req, res) => {
+  template.top(req.params.type, 10, function(err, list) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        'message': 'Failed to fetch templates from remote source.',
+      });
+    }
+    return res.status(200).json(list);
+  });
+};
 
-router.route('/')
-  /** GET /api/v1/template?query=XXX[&pageno=YYY] */
-  .get(template.search);
+const search = (req, res) => {
+  let query = req.query.query;
+  let page = req.query.pageno ? req.query.pageno : 0;
+  if (query) {
+    template.filter(query, 10, page, function(err, list) {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          'message': 'Failed to scan templates.',
+        });
+      }
+      return res.status(200).json(list);
+    });
+  } else {
+    return res.status(400).json({
+      'message': 'Failed to extract "query" parameter in the request.',
+    });
+  }
+};
 
-router.route('/:type')
-  /** GET /api/v2/template/:type - Get list of templates */
-  .get(template.list);
-
-// module exports
-module.exports = router;
+module.exports = {
+  list,
+  search,
+};

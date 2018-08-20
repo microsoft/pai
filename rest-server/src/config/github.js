@@ -16,19 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
-const express = require('express');
-const template = require('../controllers/template');
+/**
+ * Due to limitation described at https://developer.github.com/v3/search/#search-code,
+ * the branch that Marketplace backend tracks must be 'master'.
+ */
+let dataSource = {
+  owner: 'shishaochen',
+  repository: 'paitemplate',
+};
 
-const router = new express.Router();
-
-router.route('/')
-  /** GET /api/v1/template?query=XXX[&pageno=YYY] */
-  .get(template.search);
-
-router.route('/:type')
-  /** GET /api/v2/template/:type - Get list of templates */
-  .get(template.list);
-
-// module exports
-module.exports = router;
+module.exports = dataSource;
