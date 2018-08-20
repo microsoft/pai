@@ -378,14 +378,14 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"docker.io/openpai/alpine:bash\\",
+\\"image\\": \\"openpai/stress\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
-\\"memoryMB\\": 2048,
-\\"command\\": \\"/bin/bash --version\\"
+\\"memoryMB\\": 256,
+\\"command\\": \\"stress --vm-keep -m 177 --vm-bytes 1024m --vm-hang 0 --verbose\\"
 }
 ]
 }"
@@ -395,7 +395,7 @@ STATUS=$(
 curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
-if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
+if [ "$STATUS" == 'FAILED' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
 
@@ -482,14 +482,14 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"docker.io/openpai/alpine:bash\\",
+\\"image\\": \\"openpai/stress\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
-\\"memoryMB\\": 2048,
-\\"command\\": \\"/bin/bash --version\\"
+\\"memoryMB\\": 256,
+\\"command\\": \\"stress --vm-keep -m 177 --vm-bytes 1024m --vm-hang 0 --verbose\\"
 }
 ]
 }"
@@ -499,7 +499,7 @@ STATUS=$(
 curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
-if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
+if [ "$STATUS" == 'FAILED' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
 
