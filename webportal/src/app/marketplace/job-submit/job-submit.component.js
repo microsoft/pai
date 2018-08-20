@@ -25,8 +25,8 @@ const submitComponent = require('./job-submit.component.ejs');
 const taskModelComponent = require('./addmodel-task.components.ejs');
 const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
-const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs')
-const taskFormat = require('./sub-components/task-format.ejs')
+const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs');
+const taskFormat = require('./sub-components/task-format.ejs');
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
@@ -49,11 +49,9 @@ let userChooseTemplateValues = {
 
 let originalJsonData = null;
 
-
 const updatePageFromYaml = (d) =>{
   let data = yaml.safeLoad(d);
   originalJsonData = data;
-  console.log(data);
 
   if ('prerequisites' in data) {
     Object.keys(data['prerequisites']).forEach(function (key) {
@@ -77,7 +75,7 @@ const updatePageFromYaml = (d) =>{
         cpu: task['resource']['resourcePerInstance']['cpu'],
         memoryMB: task['resource']['resourcePerInstance']['memoryMB'],
         gpu: task['resource']['resourcePerInstance']['gpu'],
-        command: 'command' in task && task['command']? task['command'][0]: "",
+        command: 'command' in task && task['command']? task['command'][0] : '',
       });
       $(`#task-container`).append(itemHtml);
     });
@@ -101,14 +99,12 @@ $(document).on('click', '#add-docker-btn', () => {
   $('#addockerModal').modal('show');
 });
 
-$(document).on('click', "#add-docker-btn", () => {
+$(document).on('click', '#add-docker-btn', () => {
   $('#modalPlaceDocker').html(dockerModelComponent);
   $('#addockerModal').modal('show');
 });
 
-$(document).on('click', "#submitJob", () => {
-  console.log("submit");
-  console.log(originalJsonData);
+$(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
@@ -144,17 +140,14 @@ $(document).ready(() => {
   // userAuth.checkToken(function(token) {
   // });
 
-  document.getElementById("importYaml").addEventListener("change", function(evt) {
-    let files = evt.target.files; 
-    if(files.length){
-        let f = files[0]
+  document.getElementById('importYaml').addEventListener('change', function(evt) {
+    let files = evt.target.files;
+    if (files.length) {
+        let f = files[0];
         let reader = new FileReader(); // read the local file
-        reader.onload = (function(theFile) {
-            return function(e) {
-              updatePageFromYaml(e.target.result);
-            };
-        })(f);
-
+        reader.onload = function(e) {
+          updatePageFromYaml(e.target.result);
+        };
         reader.readAsText(f);
     }
   }, false);
