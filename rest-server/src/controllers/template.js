@@ -31,6 +31,27 @@ const list = (req, res) => {
   });
 };
 
+const search = (req, res) => {
+  let query = req.query.query;
+  let page = req.query.pageno ? req.query.pageno : 0;
+  if (query) {
+    template.filter(query, 10, page, function(err, list) {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          'message': 'Failed to scan templates.',
+        });
+      }
+      return res.status(200).json(list);
+    });
+  } else {
+    return res.status(400).json({
+      'message': 'Failed to extract "query" parameter in the request.',
+    });
+  }
+};
+
 module.exports = {
   list,
+  search,
 };

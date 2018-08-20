@@ -16,12 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-let gitHubDataSource = {
-  owner: 'Microsoft',
-  repository: 'pai',
-  branch: 'paitemplate',
+/**
+ * Due to limitation described at https://developer.github.com/v3/search/#search-code,
+ * the branch that Marketplace backend tracks must be 'master'.
+ */
+let dataSource = {
+  owner: 'shishaochen',
+  repository: 'paitemplate',
 };
 
-module.exports = {
-  github: gitHubDataSource,
-};
+module.exports = dataSource;
