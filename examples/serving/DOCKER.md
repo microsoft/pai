@@ -16,22 +16,18 @@ You can also jump to [Serving a TensorFlow model](#serving-a-tensorflow-model) u
 
 We need to build a TensorFlow serving image with GPU support to serve a TensorFlow model on PAI, this can be done in two steps:
 
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base) which can be built directly.
 
     ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
+    $ cd ../job-tutorial/Dockerfiles/cuda9.0-cudnn7
     $ sudo docker build -f Dockerfile.build.base \
-    >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
+    >                   -t pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04 .
     $ cd -
     ```
 
-2. Build the TensorFlow serving Docker image for PAI. We use the [TensorFlow serving Dockerfile](https://github.com/tensorflow/serving/blob/master/tensorflow_serving/tools/docker/Dockerfile.devel-gpu) provided in its tutorial.
+2. Build the TensorFlow serving Docker image for PAI. We use the [TensorFlow serving Dockerfile](./Dockerfile.example.tensorflow-serving) provided in its tutorial.
 
-    Download the Dockerfile and built it from the base Docker image.
-
-    ```bash
-    $ wget --no-check-certificate -O Dockerfile.example.tensorflow-serving https://raw.githubusercontent.com/tensorflow/serving/master/tensorflow_serving/tools/docker/Dockerfile.devel-gpu
-    $ sed -i "/FROM/c\FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04" Dockerfile.example.tensorflow-serving
+    ```
     $ sudo docker build -f Dockerfile.example.tensorflow-serving .
     ```
 
