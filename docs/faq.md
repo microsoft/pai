@@ -14,9 +14,17 @@ A: Users can find historical job logs through yarn. Please check [issue-1072](ht
 
 ### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
 
-A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. By default, there is no limit. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit.
+A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. Default value of -1 implies a queue can use complete capacity of the cluster. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit. 
 
 ### Q: To ensure one user cannot occupy excessive resource, operator would like to set a quota constraint for individual users. 
 
 A: OpenPAI use capacity scheduler of YARN for resource allocation. User can configure the item "[yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html)" to control the user's resource quota. This configuration item is in this file [capacity-scheduler.xml.template](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) of OpenPAI.
 
+```xml
+<property>
+    <name>yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent</name>
+    <value>100</value>
+</property>
+```
+
+Default value of 100 implies no user limits are imposed.
