@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import logging
 import logging.config
 #
@@ -88,8 +89,8 @@ class build_center:
             self.logger.info("Customized hadoop path is found.")
             directory_handler.directory_copy(custom_hadoop_path, "src/hadoop-run/hadoop")
         else:
-            self.logger.info("None customized hadoop path is found.")
-            raise Exception("Hadoop-ai path not found")
+            self.logger.error("None hadoop-ai binary is found.")
+            sys.exit(1)
 
         self.logger.info("Hadoop binary is prepared.")
 
