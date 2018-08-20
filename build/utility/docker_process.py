@@ -56,10 +56,10 @@ class DockerClient:
         self.logger.info("docker registry login successfully")
 
 
-    def docker_image_build(self, image_name, dockerfile_path):
+    def docker_image_build(self, image_name, dockerfile_path, build_path):
 
-        cmd = "docker build -t {0} {1}".format(image_name, dockerfile_path)
-
+        cmd = "docker build -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
+        
         self.logger.info("Begin to execute the command: {0}".format(cmd))
 
         execute_shell(cmd)

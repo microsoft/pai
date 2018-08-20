@@ -17,8 +17,39 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd build-prepare/
+pushd $(dirname "$0") > /dev/null
 
-sudo docker build -f hadoop-ai.dockerfile . -t hadoop-ai
+hadoopbinarypath="generated/hadoop-2.9.0.tar.gz"
+cacheversion="12932984-12933562-done"
 
-sudo docker run 
+echo "hadoopbinarypath:$hadoopbinarypath"
+
+[[ -f $cacheversion ]] &&
+{
+    echo "Hadoop ai with patch 12932984-12933562 has been built"
+    echo "Skip this build precess"
+    exit 0
+}
+
+[[ ! -f "$hadoopbinarypath" ]] ||
+{
+
+    rm -rf $hadoopbinarypath
+
+}
+
+hadoopdirpath=$(dirname "$hadoopbinarypath")
+
+echo "hadoopdirpath:$hadoopdirpath"
+
+
+docker build -t hadoop-build -f hadoop-ai .
+
+docker run --rm --name=hadoop-build --volume=${hadoopdirpath}:/hadoop-binary hadoop-build
+
+
+
+# When Changing the patch id, please update the filename here.
+touch $cacheversion
+
+popd > /dev/null

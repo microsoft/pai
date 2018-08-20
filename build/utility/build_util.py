@@ -34,17 +34,22 @@ class BuildUtil:
 
     def build_single_component(self, service):
         pre_build = os.path.join(service.path, 'build/build-pre.sh')
-        print ("Pre", pre_build)
         if os.path.exists(pre_build):
+            chmod_command = 'chmod 777 {0}'.format(pre_build)
+            docker_process.execute_shell(chmod_command)
             print ("Pre", pre_build)
             docker_process.execute_shell(pre_build)
 
         for docker in service.docker_files:
-            print ("Build", docker)
+            dockerfile = os.path.join(service.path, 'build/' + docker + '.dockerfile')
+            print ("Build", dockerfile)
+            self.docker_cli.docker_image_build(docker, dockerfile, service.path)
 
         post_build = os.path.join(service.path, 'build/build-post.sh')
 
         if os.path.exists(post_build):
+            chmod_command = 'chmod 777 {0}'.format(post_build)
+            docker_process.execute_shell(chmod_command)
             docker_process.execute_shell(post_build)
             print ("Post", post_build)
 

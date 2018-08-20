@@ -66,7 +66,6 @@ def main():
 
     elif args.build:
         print ('In Build:', args.service)
-        os.chdir("../")
         pai_build = build_center.BuildCenter(config_model,args.service)
         pai_build.build_center()
 
