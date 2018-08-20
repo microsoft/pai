@@ -206,8 +206,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["hadoopinfo"]["custom_hadoop_binary_path"] = \
             serviceDict["clusterinfo"]["hadoopinfo"]["custom-hadoop-binary-path"]
         serviceDict["clusterinfo"]["hadoopinfo"]["configmapname"] = "hadoop-configuration"
-        serviceDict["clusterinfo"]["hadoopinfo"]["hadoop_vip"] = \
-            serviceDict["clusterinfo"]["hadoopinfo"]["hadoop-version"] = self.getMasterIP()
+        serviceDict["clusterinfo"]["hadoopinfo"]["hadoop_vip"] = self.getMasterIP()
 
 
         # section : virtualClusters
