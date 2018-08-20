@@ -65,4 +65,15 @@ COPY container-setup.sh /
 COPY k8sPaiLibrary/maintaintool/kubectl-install.sh /kubectl-install.sh
 RUN /bin/bash kubectl-install.sh
 
+# install AKS env
+
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list
+
+RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+RUN apt-get -y install apt-transport-https &&  \
+    apt-get -y update && \
+    apt-get -y install azure-cli
+
 CMD ["/container-setup.sh"]
