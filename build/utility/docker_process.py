@@ -15,19 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from . import linux_shell
 import logging
 import logging.config
 
-class DockerProcess:
+
+import sys
+import subprocess
+import yaml
+
+logger = logging.getLogger(__name__)
+
+class DockerClient:
 
 
     def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):
 
         self.logger = logging.getLogger(__name__)
-        
+
         docker_registry = "" if docker_registry == "public" else docker_registry
-        print("[CAN-TEST-Docker-Process] docker_registry:", docker_registry)
 
         self.docker_registry = docker_registry
         self.docker_namespace = docker_namespace
@@ -47,8 +52,7 @@ class DockerProcess:
     def docker_login(self):
 
         shell_cmd = "docker login -u {0} -p {1} {2}".format(self.docker_username, self.docker_password, self.docker_registry)
-        error_msg = "docker registry login error"
-        linux_shell.execute_shell(shell_cmd, error_msg)
+        execute_shell(shell_cmd)
         self.logger.info("docker registry login successfully")
 
 
@@ -58,11 +62,11 @@ class DockerProcess:
 
         self.logger.info("Begin to execute the command: {0}".format(cmd))
 
-        linux_shell.execute_shell(cmd)
+        execute_shell(cmd)
 
         self.logger.info("Executing is successful.")
 
-    
+
     def docker_image_tag(self, origin_image_name, image_tag):
 
         origin_tag = origin_image_name
@@ -72,7 +76,7 @@ class DockerProcess:
 
         self.logger.info("Begin to execute the command: {0}".format(cmd))
 
-        linux_shell.execute_shell(cmd)
+        execute_shell(cmd)
 
         self.logger.info("Executing is successful.")
 
@@ -83,9 +87,38 @@ class DockerProcess:
         target_tag = "{0}:{1}".format(self.resolve_image_name(image_name), image_tag)
 
         cmd = "docker push {0}".format(target_tag)
-        
+
         self.logger.info("Begin to execute the command: {0}".format(cmd))
 
-        linux_shell.execute_shell(cmd)
+        execute_shell(cmd)
 
         self.logger.info("Executing is successful.")
+
+
+# Linux shell
+
+def execute_shell(shell_cmd):
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
+
+
+def execute_shell_with_output(shell_cmd):
+
+    try:
+        res = subprocess.check_output( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
+    return res
+
+def load_yaml_config(config_path):
+
+    with open(config_path, "r") as f:
+        cluster_data = yaml.load(f)
+
+    return cluster_data

@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-from utility import linux_shell
 
 import os
 import shutil
@@ -42,22 +41,6 @@ class ServiceNode(object):
         ))
 
 
-    def build_single_component(self):
-        pre_build = os.path.join(self.path, 'build/build-pre.sh')
-        if os.path.exists(pre_build):
-            print ("Pre", pre_build)
-            #linux_shell.execute_shell(pre_build)
-
-
-        for docker in self.docker_files:
-            print ("Build", docker)
-
-        post_build = os.path.join(self.path, 'build/build-post.sh')
-
-        if os.path.exists(post_build):
-            # linux_shell.execute_shell(post_build)
-            print ("Post", post_build)
-
 
 class ServiceGraph(object):
 
@@ -80,7 +63,7 @@ class ServiceGraph(object):
         if prev_service in self.services and succ_service in self.services:
             self.services[prev_service].outedges.append(succ_service)
             self.services[succ_service].inedges.append(prev_service)
-        
+
 
     def topology(self):
         prev_count = dict()

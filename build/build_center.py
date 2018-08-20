@@ -1,7 +1,8 @@
 from __future__ import print_function
 
-from utility import linux_shell
-from utility import dependency_graph
+from model import dependency_graph
+from utility import docker_process
+from utility import build_util
 
 import os
 import shutil
@@ -9,36 +10,19 @@ import shutil
 class BuildCenter:
 
     def __init__(self, build_config, build_list):
+
         self.build_config = build_config
-        self.build_list = [service.lower() for service in build_list]
 
-    def copy_dependency_folder(self, source, destination):
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("source ", source)
-        print("destination", destination)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # if not os.path.exists(source):
-        #     print("[DEBUG_LOG] {} folder path not exists".format(source))
-        #     return None #TO-DO need raise error here
-        # else:
-        #     if os.path.exists(destination) and os.path.isdir(destination):
-        #        os.removedirs(destination)
-        #     shutil.copytree(source,destination)
+        self.build_list = [service.lower() for service in build_list] if not build_list == None else None
 
-    def clean_temp_folder(self, service_name):
-        temp_generated_dir = os.path.join("src",service_name+"/generated")
-        temp_dependency_dir = os.path.join("src",service_name+"/dependency")
+        # Initialize docker_cli instance
+        self.docker_cli = docker_process.DockerClient(
+            docker_registry = self.build_config['dockerRegistryInfo']['dockerRegistryDomain'],
+            docker_namespace = self.build_config['dockerRegistryInfo']['dockerNameSpace'],
+            docker_username = self.build_config['dockerRegistryInfo']['dockerUserName'],
+            docker_password = self.build_config['dockerRegistryInfo']['dockerPassword']
+        )
 
-        print("--------------------------------")
-        print("[CAN_TEST_CLEAN]  temp_generated_dir="+temp_generated_dir)
-        print("[CAN_TEST_CLEAN]  temp_dependency_dir="+temp_dependency_dir)
-        print("--------------------------------")
-
-        if os.path.exists(temp_generated_dir) and os.path.isdir(temp_generated_dir):
-            os.removedirs(temp_generated_dir)
-
-        if os.path.exists(temp_dependency_dir) and os.path.isdir(temp_dependency_dir):
-            os.removedirs(temp_dependency_dir)
 
     def build_center(self):
         dirs = "src"
@@ -59,8 +43,6 @@ class BuildCenter:
                 if file_name.endswith(".dockerfile"):
                     graph.add_docker_to_service(str(os.path.splitext(file_name)[0]), service_name)
 
-        graph.dump()
-
         # Build dependency
         g = os.walk(dirs)
         for path, dir_list, file_list in g:
@@ -78,14 +60,25 @@ class BuildCenter:
                         for line in fin:
                             graph.add_dependency(line.strip(), service_name)
 
+        # Show dependency graph
+        graph.dump()
+
         # Build topology sequence
         services = graph.topology()
+
+        # Show build sequence
+        print(services)
+
+
+        # Start build each component according to topological sequence
+        build_test = build_util.BuildUtil(self.docker_cli)
+
         for item in services:
             if not self.build_list or item in self.build_list:
                 for inedge in graph.services[item].inedges:
-                    copy_dependency_folder(os.path.join("src",inedge),os.path.join(graph.services[item].path,"dependency/"+inedge))
-                graph.services[item].build_single_component()
+                    build_test.copy_dependency_folder(os.path.join("src",inedge),os.path.join(graph.services[item].path,"dependency/"+inedge))
+                build_test.build_single_component(graph.services[item])
 
         # Clean generated folder
         for item in services:
-            clean_temp_folder(item)
+            build_test.clean_temp_folder(graph.services[item].path)

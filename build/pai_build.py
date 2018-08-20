@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 
-from utility import build_object_model
+from model import config_model
 
 import os
 import sys
@@ -12,7 +12,7 @@ import build_center
 from six import text_type
 
 def load_build_config(config_dir):
-    buildConfig = build_object_model(config_dir)
+    buildConfig = config_model.ConfigModel(config_dir)
     configModel = buildConfig.build_config_parse()
     return configModel
 
@@ -58,13 +58,15 @@ def main():
 
     args = parser.parse_args()
 
-    config_model = load_build_config(args.config_dir)
+    # TO-DO add config dir check
+    config_model = load_build_config(args.config)
 
     if args.push:
         print ("In Push", args.imagelist)
 
     elif args.build:
         print ('In Build:', args.service)
+        os.chdir("../")
         pai_build = build_center.BuildCenter(config_model,args.service)
         pai_build.build_center()
 
