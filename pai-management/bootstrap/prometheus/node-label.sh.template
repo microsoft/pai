@@ -19,18 +19,18 @@
 
 {% for host in machinelist %}
     {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus=true || exit $?
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true  || exit $?
     {% endif %}
     {% if 'yarn-exporter' in machinelist[ host ] and machinelist[ host ][ 'yarn-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarn-exporter=true
     {% endif %}
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true || exit $?
     {% endif %}
     {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager=true || exit $?
     {% endif %}
 {% endfor %}

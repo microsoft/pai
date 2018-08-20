@@ -757,14 +757,10 @@ public class StatusManager extends AbstractService {  // THREAD SAFE
     return (getFinalStateTaskCount() == getTaskCount());
   }
 
-  public synchronized float getApplicationProgress() throws Exception {
-    float progress = (float) getFinalStateTaskCount() / getTaskCount();
-    if (progress >= 0) {
-      return progress;
-    } else {
-      throw new Exception(String.format(
-          "ApplicationProgress %s is not nonnegative", progress));
-    }
+  public synchronized Float getApplicationProgress() {
+    int totalTaskCount = getTaskCount();
+    return totalTaskCount == 0 ? null :
+        (float) getFinalStateTaskCount() / totalTaskCount;
   }
 
   public synchronized ContainerRequest getContainerRequest(TaskStatusLocator locator) {

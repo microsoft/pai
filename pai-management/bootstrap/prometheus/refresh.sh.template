@@ -22,24 +22,24 @@ pushd $(dirname "$0") > /dev/null
 
 
 echo "refresh prometheus configuration"
-kubectl apply -f prometheus-configmap.yaml
+kubectl apply -f prometheus-configmap.yaml || exit $?
 
 echo "relabel node's label"
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 {% for host in machinelist %}
 
     {% if 'prometheus' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "prometheus="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have prometheus's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit $?
 fi
     {% endif %}
 
     {% if 'node-exporter' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "node-exporter="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have node-exporter's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
 fi
     {% endif %}
 

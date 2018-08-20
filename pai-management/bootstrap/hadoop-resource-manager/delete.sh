@@ -20,21 +20,25 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "Call stop.sh to stop hadoop resource manager first"
-/bin/bash stop.sh
+/bin/bash stop.sh || exit $?
 
 echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap hadoop-resource-manager-delete --from-file=hadoop-resource-manager-delete/
+kubectl create configmap hadoop-resource-manager-delete --from-file=hadoop-resource-manager-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl create -f delete.yaml
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-resource-manager || exit $?
 
 echo "Hadoop resource manager clean job is done"
 echo "Delete hadoop resource manager cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-hadoop-resource-manager
-kubectl delete configmap hadoop-resource-manager-delete
+if kubectl get daemonset | grep -q "delete-batch-job-hadoop-resource-manager"; then
+    kubectl delete ds delete-batch-job-hadoop-resource-manager || exit $?
+fi
+if kubectl get configmap | grep -q "hadoop-resource-manager-delete"; then
+    kubectl delete configmap hadoop-resource-manager-delete || exit $?
+fi
 sleep 5
 
 popd > /dev/null

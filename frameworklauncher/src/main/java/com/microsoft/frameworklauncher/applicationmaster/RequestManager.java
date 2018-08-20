@@ -396,14 +396,9 @@ public class RequestManager extends AbstractService {  // THREAD SAFE
     return getTaskService(taskRoleName).getVersion();
   }
 
-  public Float getApplicationProgress() throws Exception {
-    Float progress = overrideApplicationProgressRequest.getApplicationProgress().floatValue();
-    if (progress >= 0) {
-      return progress;
-    } else {
-      throw new Exception(String.format(
-          "ApplicationProgress %s is not nonnegative", progress));
-    }
+  public Float getApplicationProgress() {
+    return overrideApplicationProgressRequest == null ? null :
+        overrideApplicationProgressRequest.getApplicationProgress().floatValue();
   }
 
   public Boolean existsLocalVersionFrameworkRequest() {

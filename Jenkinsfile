@@ -30,7 +30,7 @@ echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE
           echo "Image tag: ${IMAGE_TAG}"
         }
 
-        sh 'printenv'
+        //sh 'printenv'
       }
     }
     stage('Clean dev-box') {
@@ -511,21 +511,26 @@ done
       }
       steps {
         script {
-          if(currentBuild.result == 'FAILURE'){
-            def pauseNow
-            timeout(time: 15, unit: 'MINUTES'){
-              pauseNow= input(message: 'Do you want to reserve the environment for debug?', ok: 'Yes',
-              parameters: [booleanParam(defaultValue: true,
-              description: 'If you want to debug, click the Yes', name: 'Yes?')])
+          try {
+            if(currentBuild.result == 'FAILURE'){
+              def pauseNow
+              timeout(time: 15, unit: 'MINUTES'){
+                pauseNow= input(message: 'Do you want to reserve the environment for debug?', ok: 'Yes',
+                parameters: [booleanParam(defaultValue: true,
+                description: 'If you want to debug, click the Yes', name: 'Yes?')])
 
-              echo "pauseNow:" + pauseNow
-            }
+                echo "pauseNow:" + pauseNow
+              }
 
-            if(pauseNow){
-              input (
-                message: 'Click "Proceed" to finish!'
-              )
+              if(pauseNow){
+                input (
+                  message: 'Click "Proceed" to finish!'
+                )
+              }
             }
+          } catch (err) {
+            echo "Encountered error: ${err}"
+            echo "Whatever, Will cleanup now!"
           }
         }
 
@@ -627,12 +632,14 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
   post {
     always {
       echo 'I am the end of pipeline'
-
     }
 
     success {
       echo 'I succeeeded!'
-
+      office365ConnectorSend(
+        status: "Build success",
+        webhookUrl: "${env.HOOK}"
+      )
     }
 
     unstable {
@@ -642,12 +649,15 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
 
     failure {
       echo 'I failed :('
+      office365ConnectorSend(
+        status: "Build failure",
+        webhookUrl: "${env.HOOK}"
+      )
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
             recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
       ])
-
     }
 
     changed {

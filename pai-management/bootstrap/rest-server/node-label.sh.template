@@ -19,6 +19,6 @@
 
 {% for host in machinelist %}
     {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} restserver=true || exit $?
     {% endif %}
 {% endfor %}

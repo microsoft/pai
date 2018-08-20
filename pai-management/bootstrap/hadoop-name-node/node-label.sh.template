@@ -19,6 +19,6 @@
 
 {% for host in machinelist %}
     {% if 'hadoop-name-node' in machinelist[ host ] and machinelist[ host ][ 'hadoop-name-node' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node=true || exit $?
     {% endif %}
 {% endfor %}

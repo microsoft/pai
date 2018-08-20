@@ -19,13 +19,17 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds hadoop-name-node-ds
+if kubectl get daemonset | grep -q "hadoop-name-node-ds"; then
+    kubectl delete ds hadoop-name-node-ds || exit $?
+fi
 
-kubectl delete configmap hadoop-name-node-configuration
+if kubectl get configmap | grep -q "hadoop-name-node-configuration"; then
+    kubectl delete configmap hadoop-name-node-configuration || exit $?
+fi
 
 {% for host in machinelist %}
     {% if 'hadoop-name-node' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node- || exit $?
     {% endif %}
 {% endfor %}
 

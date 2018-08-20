@@ -19,6 +19,6 @@
 
 {% for host in machinelist %}
     {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true || exit $?
     {% endif %}
 {% endfor %}
