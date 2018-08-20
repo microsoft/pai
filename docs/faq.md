@@ -14,7 +14,7 @@ A: Users can find historical job logs through yarn. Please check [issue-1072](ht
 
 ### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
 
-A: OpenPAI use [capacity scheduler]((https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html)) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. By default, there is no limit. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit. By default, a VC can use up all cluster resource if others don’t use it.
+A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. By default, there is no limit. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit.
 
 ### Q: To ensure one user cannot occupy excessive resource, operator would like to set a quota constraint for individual users. 
 
