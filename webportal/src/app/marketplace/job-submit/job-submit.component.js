@@ -40,12 +40,12 @@ $('#sidebar-menu--submit-v2').addClass('active');
 //   data: myAssestData
 // });
 
-let userChooseTemplateValues = {
-  'data': [],
-  'script': [],
-  'dockerimage': [],
-  'job': [],
-};
+// let userChooseTemplateValues = {
+//   'data': [],
+//   'script': [],
+//   'dockerimage': [],
+//   'job': [],
+// };
 
 let originalJsonData = null;
 
@@ -54,7 +54,7 @@ const updatePageFromYaml = (d) =>{
   originalJsonData = data;
 
   if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function (key) {
+    Object.keys(data['prerequisites']).forEach(function(key) {
       let item = data['prerequisites'][key];
       let itemHtml = dockerScriptDataFormat({
         name: item['name'],
