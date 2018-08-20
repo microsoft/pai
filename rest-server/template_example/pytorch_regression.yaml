@@ -1,0 +1,26 @@
+protocol_version: v2
+name : pytorch_regression
+type : job
+version : 1.0.0
+contributor : Yanli
+description : pytorch, regression
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : pytorch
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - cd examples/regression && python main.py
+
+prerequisites : 
+  - protocol_version : v2
+    name : pytorch
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: pytorch
+    uri : openpai/pai.example.pytorch

@@ -1,0 +1,26 @@
+protocol_version: v2
+name : mxnet_autoencoder
+type : job
+version : 1.0.0
+contributor : Yanli
+description : mxnet, autoencoder
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : mxnet
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - pip install scipy scikit-learn && cd incubator-mxnet/example/autoencoder && python mnist_sae.py --gpu
+
+prerequisites : 
+  - protocol_version : v2
+    name : mxnet
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: mxnet
+    uri : openpai/pai.example.mxnet
