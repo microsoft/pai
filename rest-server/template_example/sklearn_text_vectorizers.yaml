@@ -1,0 +1,26 @@
+protocol_version: v2
+name : sklearn_text_vectorizers
+type : job
+version : 1.0.0
+contributor : Yanli
+description : sklearn, text vectorizers
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : sklearn
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - pip install memory_profiler && cd scikit-learn/benchmarks && python bench_text_vectorizers.py
+
+prerequisites : 
+  - protocol_version : v2
+    name : sklearn
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: sklearn
+    uri : openpai/pai.example.sklearn

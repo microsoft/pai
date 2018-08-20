@@ -1,26 +1,26 @@
 protocol_version: v2
-name : mnist_caffe
+name : keras_tensorflow_mnist
 type : job
 version : 1.0.0
 contributor : Yanli
-description : caffe, mnist
+description : keras, tensorflow, mnist
 retryCount: 0 
 
 tasks :
   - role: main
-    dockerimage : caffe_example
+    dockerimage : keras_tf
     resource: 
       instances : 1
       resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
     minSucceededTaskCount: 1
     command:
-      - ./data/mnist/get_mnist.sh && ./examples/mnist/create_mnist.sh && ./examples/mnist/train_lenet.sh
+      - python mnist_cnn.py
 
 prerequisites : 
   - protocol_version : v2
-    name : caffe_example
+    name : keras_tf
     type : dockerimage
     version : 1.0.0
     contributor : Yanli
-    description: caffe
-    uri : openpai/pai.example.caffe
+    description: keras, tensorflow
+    uri : openpai/pai.example.keras.tensorflow

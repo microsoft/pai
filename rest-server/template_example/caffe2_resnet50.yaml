@@ -1,0 +1,26 @@
+protocol_version: v2
+name : caffe2_resnet50
+type : job
+version : 1.0.0
+contributor : Yanli
+description : caffe2, resnet50
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : caffe2
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - python resnet50_trainer.py --train_data null
+
+prerequisites : 
+  - protocol_version : v2
+    name : caffe2
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: caffe2
+    uri : openpai/pai.example.caffe2

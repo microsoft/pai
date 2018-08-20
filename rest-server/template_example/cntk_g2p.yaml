@@ -1,0 +1,26 @@
+protocol_version: v2
+name : cntk_g2p
+type : job
+version : 1.0.0
+contributor : Yanli
+description : cntk, g2p
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : cntk
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 8, memoryMB: 16384, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - cd code && /bin/bash cntk-g2p.sh
+
+prerequisites : 
+  - protocol_version : v2
+    name : cntk
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: cntk
+    uri : openpai/pai.example.cntk
