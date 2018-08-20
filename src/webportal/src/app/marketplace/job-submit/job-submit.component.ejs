@@ -55,21 +55,10 @@
             <!-- for task -->
             <div class="row add-title">
                 <h3>Task</h3>
-                <div class="col-md-2 shadow sty-task-content">
-                    <!-- <img src="/assets/img/edit.png" alt=""> -->
-                    <button class="edit-task" id="for-edit-task" data-toggle="modal">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </button>
-                    <h5>Task1</h5>
-                    <p>Role: worker</p>
-                    <p>Dockerimage: tf_example</p>
-                    <p>Instances: 1</p>
-                    <p>Resource: cpu:2, memoryMB: 16384, gpu: 4</p>
-                    <p>Command</p>
-                    <p>-Export</p>
-                    <p>-Pip --quiet install scipy</p>
-                    <p>-Python</p>
+                <div id="task-container">
+                    <!-- add new task here! -->
                 </div>
+
                 <div class="col-md-2 add-bottom-border">
                     <a id="add-task-btn" data-toggle="modal">
                         <div class="add-new-item shadow">

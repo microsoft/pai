@@ -1,0 +1,12 @@
+<div class="col-md-2 shadow sty-task-content grid-item" style="overflow: hidden;">
+    <!-- <img src="/assets/img/edit.png" alt=""> -->
+    <button class="edit-task" id="for-edit-task" data-toggle="modal">
+        <span class="glyphicon glyphicon-pencil"></span>
+    </button>
+    <h5><%= role %></h5>
+    <p>Dockerimage: <%= dockerimage %></p>
+    <p>Instances: <%= instances %> </p>
+    <p>Resource: cpu:<%= cpu %>, memoryMB: <%= memoryMB %>, gpu: <%= gpu %></p>
+    Command:
+    <p><%= command %></p>
+</div>

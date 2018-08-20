@@ -100,7 +100,6 @@
 }
 .add-new-item{
     min-height: 195px;
-    width: 310px;
     background-color: white;
     display: flex;
     justify-content: center;
@@ -117,7 +116,6 @@
 }
 
 .shadow{
-    width: 310px;
     line-height: 10px;
     box-shadow: 0 4px 4px 0 rgba(0,0,0,.2),0 6px 20px 0 rgba(0,0,0,.1) !important;
 }
@@ -175,4 +173,8 @@
         top: 0;
         opacity: 0;
       }
+}
+
+.grid-item{
+    margin-right:15px;
 }
