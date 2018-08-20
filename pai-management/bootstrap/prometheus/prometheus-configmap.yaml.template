@@ -64,7 +64,7 @@ data:
           target_label: __address__
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
-          target_label: k8s_pod_name
+          target_label: scraped_from
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: replace
           target_label: pai_service_name

@@ -21,6 +21,7 @@
 
 INSTANCES="daemonset/node-exporter
 daemonset/watchdog
+deployment/watchdog
 deployment/prometheus-deployment
 configmap/prometheus-configmap
 configmap/prometheus-alert
