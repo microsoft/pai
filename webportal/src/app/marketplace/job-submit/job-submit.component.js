@@ -30,7 +30,7 @@ const taskFormat = require('./sub-components/task-format.ejs');
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
-// require('./edit-task-modal.components.scss');
+require('./sub-components/task-format.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
