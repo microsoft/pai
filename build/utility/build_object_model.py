@@ -21,16 +21,16 @@ from . import linux_shell
 import os
 
 class BuildObjectModel:
-    
+
     def __init__(self, configuration_dir):
         self.buildConfigDict = dict()
         self.buildConfiguration = os.path.join(configuration_dir,"services-configuration.yaml")
 
     def build_config_parse(self):
-        
+
         # load config yaml file
         buildConfigContent = linux_shell.load_yaml_config(self.buildConfiguration)
-        
+
         # section : clusterID
 
         self.buildConfigDict["clusterID"] = buildConfigContent["cluster"]["clusterid"]

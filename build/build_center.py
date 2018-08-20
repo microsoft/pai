@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from __future__ import print_function
 
 from utility import linux_shell
@@ -9,14 +8,10 @@ import shutil
 
 class BuildCenter:
 
-    # def __init__(self, build_config, build_list):
-    #     self.build_config = build_config
-    #     self.build_list = [service.lower() for service in build_list]
-    
-    def __init__(self, build_list):
+    def __init__(self, build_config, build_list):
+        self.build_config = build_config
         self.build_list = [service.lower() for service in build_list]
-    
-    
+
     def copy_dependency_folder(self, source, destination):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("source ", source)
@@ -47,7 +42,7 @@ class BuildCenter:
 
     def build_center(self):
         dirs = "src"
-        
+
         # Initialize graph
         graph = dependency_graph.ServiceGraph()
 
@@ -63,7 +58,7 @@ class BuildCenter:
             for file_name in file_list:
                 if file_name.endswith(".dockerfile"):
                     graph.add_docker_to_service(str(os.path.splitext(file_name)[0]), service_name)
-        
+
         graph.dump()
 
         # Build dependency
@@ -90,7 +85,7 @@ class BuildCenter:
                 for inedge in graph.services[item].inedges:
                     copy_dependency_folder(os.path.join("src",inedge),os.path.join(graph.services[item].path,"dependency/"+inedge))
                 graph.services[item].build_single_component()
-        
+
         # Clean generated folder
         for item in services:
             clean_temp_folder(item)

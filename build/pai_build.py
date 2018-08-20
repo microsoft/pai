@@ -1,13 +1,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import build.build_center
+
 from utility import build_object_model
 
 import os
 import sys
 import argparse
 import datetime
+import build_center
 from six import text_type
 
 def load_build_config(config_dir):
@@ -31,7 +32,7 @@ def main():
         action='store_true',
         help="Push"
     )
-    
+
     # setup arguments
     parser.add_argument(
         '-c', '--config',
@@ -54,14 +55,17 @@ def main():
         help="TODO"
     )
 
+
     args = parser.parse_args()
+
+    config_model = load_build_config(args.config_dir)
 
     if args.push:
         print ("In Push", args.imagelist)
-    
+
     elif args.build:
         print ('In Build:', args.service)
-        pai_build = build_center.BuildCenter(args.service)
+        pai_build = build_center.BuildCenter(config_model,args.service)
         pai_build.build_center()
 
     else:
@@ -71,6 +75,6 @@ def main():
     print("start time=" + str(starttime))
     print("end time=" + str(endtime))
     print (endtime - starttime)
-        
+
 if __name__ == "__main__":
     main()
