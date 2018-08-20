@@ -36,7 +36,9 @@ data:
         role: node
         #in_cluster: true
         tls_config:
-          insecure_skip_verify: true
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: false
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
       # Prometheus will fetch data from target address. 
       relabel_configs:
