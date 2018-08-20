@@ -25,7 +25,7 @@ const submitComponent = require('./job-submit.component.ejs');
 const taskModelComponent = require('./addmodel-task.components.ejs');
 const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
-const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs')
+const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs');
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
@@ -39,12 +39,12 @@ $('#sidebar-menu--submit-v2').addClass('active');
 //   data: myAssestData
 // });
 
-let userChooseTemplateValues = {
-  'data': [],
-  'script': [],
-  'dockerimage': [],
-  'job': [],
-};
+// let userChooseTemplateValues = {
+//   'data': [],
+//   'script': [],
+//   'dockerimage': [],
+//   'job': [],
+// };
 
 let originalJsonData = null;
 
@@ -52,10 +52,9 @@ let originalJsonData = null;
 const updatePageFromYaml = (d) =>{
   let data = yaml.safeLoad(d);
   originalJsonData = data;
-  console.log(data);
 
   if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function (key) {
+    Object.keys(data['prerequisites']).forEach(function(key) {
       let item = data['prerequisites'][key];
       let itemHtml = dockerScriptDataFormat({
         name: item['name'],
@@ -85,15 +84,12 @@ $(document).on('click', '#add-docker-btn', () => {
   $('#addockerModal').modal('show');
 });
 
-$(document).on('click', "#add-docker-btn", () => {
+$(document).on('click', '#add-docker-btn', () => {
   $('#modalPlaceDocker').html(dockerModelComponent);
   $('#addockerModal').modal('show');
 });
 
-$(document).on('click', "#submitJob", () => {
-  console.log("submit");
-  console.log(originalJsonData);
-  originalJsonData.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
+$(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     $.ajax({
@@ -129,17 +125,14 @@ $(document).ready(() => {
   // userAuth.checkToken(function(token) {
   // });
 
-  document.getElementById("importYaml").addEventListener("change", function(evt) {
-    let files = evt.target.files; 
-    if(files.length){
-        let f = files[0]
+  document.getElementById('importYaml').addEventListener('change', function(evt) {
+    let files = evt.target.files;
+    if (files.length) {
+        let f = files[0];
         let reader = new FileReader(); // read the local file
-        reader.onload = (function(theFile) {
-            return function(e) {
-              updatePageFromYaml(e.target.result);
-            };
-        })(f);
-
+        reader.onload = function(e) {
+          updatePageFromYaml(e.target.result);
+        };
         reader.readAsText(f);
     }
   }, false);
