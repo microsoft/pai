@@ -26,6 +26,7 @@ const taskModelComponent = require('./addmodel-task.components.ejs');
 const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
 const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs')
+const taskFormat = require('./sub-components/task-format.ejs')
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
@@ -64,6 +65,21 @@ const updatePageFromYaml = (d) =>{
         type: item['type'],
       });
       $(`#${item['type']}-container`).append(itemHtml);
+    });
+  }
+
+  if('tasks' in data){
+    data['tasks'].forEach((task) => {
+      let itemHtml = taskFormat({
+        role: task['role'],
+        dockerimage: task['dockerimage'],
+        instances: task['resource']['instances'],
+        cpu: task['resource']['resourcePerInstance']['cpu'],
+        memoryMB: task['resource']['resourcePerInstance']['memoryMB'],
+        gpu: task['resource']['resourcePerInstance']['gpu'],
+        command: 'command' in task && task['command']? task['command'][0]: "",
+      });
+      $(`#task-container`).append(itemHtml);
     });
   }
 };
