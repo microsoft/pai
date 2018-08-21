@@ -56,7 +56,6 @@ class DockerClient:
     def docker_image_build(self, image_name, dockerfile_path, build_path):
 
         cmd = "docker build -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
-
         execute_shell(cmd)
 
 
@@ -64,9 +63,7 @@ class DockerClient:
 
         origin_tag = origin_image_name
         target_tag = "{0}:{1}".format(self.resolve_image_name(origin_image_name), image_tag)
-
         cmd = "docker tag {0} {1}".format(origin_tag, target_tag)
-
         execute_shell(cmd)
 
 
@@ -74,9 +71,7 @@ class DockerClient:
     def docker_image_push(self, image_name, image_tag):
 
         target_tag = "{0}:{1}".format(self.resolve_image_name(image_name), image_tag)
-
         cmd = "docker push {0}".format(target_tag)
-
         execute_shell(cmd)
 
 # Linux shell

@@ -51,7 +51,7 @@ def main():
     parser.add_argument(
         '-i', '--imagelist',
         type=text_type,
-        default=None,
+        nargs='+',
         help="TODO"
     )
 
@@ -63,6 +63,8 @@ def main():
 
     if args.push:
         print ("In Push", args.imagelist)
+        pai_push = build_center.BuildCenter(config_model,args.imagelist)
+        pai_push.push_center()
 
     elif args.build:
         print ('In Build:', args.service)

@@ -9,11 +9,11 @@ import shutil
 
 class BuildCenter:
 
-    def __init__(self, build_config, build_list):
+    def __init__(self, build_config, process_list):
 
         self.build_config = build_config
 
-        self.build_list = [service.lower() for service in build_list] if not build_list == None else None
+        self.process_list = [service.lower() for service in process_list] if not process_list == None else None
 
         # Initialize docker_cli instance
         self.docker_cli = docker_process.DockerClient(
@@ -83,7 +83,7 @@ class BuildCenter:
         build_test = build_util.BuildUtil(self.docker_cli)
 
         for item in services:
-            if not self.build_list or item in self.build_list:
+            if not self.process_list or item in self.process_list:
                 for inedge in self.graph.services[item].inedges:
                     build_test.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
             build_test.build_single_component(self.graph.services[item])
@@ -91,4 +91,25 @@ class BuildCenter:
         # Clean generated folder
         for item in services:
             build_test.clean_temp_folder(self.graph.services[item].path)
+
+    def push_center(self):
+
+        # Find services and map dockfile to services
+        self.construct_graph()
+
+        if not self.process_list == None:
+            for image in self.process_list:
+                if image not in self.graph.docker_to_service:
+                    print("{0} not in image list".format(image))
+                    raise Exception
+                self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+                self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+        else:
+            # by default push all images
+            for image in self.graph.docker_to_service:
+                self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+                self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+
+
+
 
