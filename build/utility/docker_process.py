@@ -30,8 +30,6 @@ class DockerClient:
 
     def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):
 
-        self.logger = logging.getLogger(__name__)
-
         docker_registry = "" if docker_registry == "public" else docker_registry
 
         self.docker_registry = docker_registry
@@ -53,18 +51,13 @@ class DockerClient:
 
         shell_cmd = "docker login -u {0} -p {1} {2}".format(self.docker_username, self.docker_password, self.docker_registry)
         execute_shell(shell_cmd)
-        self.logger.info("docker registry login successfully")
 
 
     def docker_image_build(self, image_name, dockerfile_path, build_path):
 
         cmd = "docker build -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
-        
-        self.logger.info("Begin to execute the command: {0}".format(cmd))
 
         execute_shell(cmd)
-
-        self.logger.info("Executing is successful.")
 
 
     def docker_image_tag(self, origin_image_name, image_tag):
@@ -74,11 +67,7 @@ class DockerClient:
 
         cmd = "docker tag {0} {1}".format(origin_tag, target_tag)
 
-        self.logger.info("Begin to execute the command: {0}".format(cmd))
-
         execute_shell(cmd)
-
-        self.logger.info("Executing is successful.")
 
 
 
@@ -88,20 +77,17 @@ class DockerClient:
 
         cmd = "docker push {0}".format(target_tag)
 
-        self.logger.info("Begin to execute the command: {0}".format(cmd))
-
         execute_shell(cmd)
-
-        self.logger.info("Executing is successful.")
-
 
 # Linux shell
 
 def execute_shell(shell_cmd):
     try:
+        logger.info("Begin to execute the command: {0}".format(shell_cmd))
         subprocess.check_call( shell_cmd, shell=True )
-
+        logger.info("Executing command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
+        logger.info("Executing command failed: {0}".format(shell_cmd))
         sys.exit(1)
 
 
@@ -109,9 +95,11 @@ def execute_shell(shell_cmd):
 def execute_shell_with_output(shell_cmd):
 
     try:
+        logger.info("Begin to execute the command: {0}".format(shell_cmd))
         res = subprocess.check_output( shell_cmd, shell=True )
-
+        logger.info("Executing command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
+        logger.info("Executing command failed: {0}".format(shell_cmd))
         sys.exit(1)
 
     return res

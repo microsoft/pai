@@ -18,7 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pushd $(dirname "$0") > /dev/null
-
+basedir=$(pwd -L)
+echo "basedir is ${basedir}"
 hadoopbinarypath="generated/hadoop-2.9.0.tar.gz"
 cacheversion="12932984-12933562-done"
 
@@ -43,9 +44,9 @@ hadoopdirpath=$(dirname "$hadoopbinarypath")
 echo "hadoopdirpath:$hadoopdirpath"
 
 
-docker build -t hadoop-build -f hadoop-ai .
+# docker build -t hadoop-build -f hadoop-ai .
 
-docker run --rm --name=hadoop-build --volume=${hadoopdirpath}:/hadoop-binary hadoop-build
+# docker run --rm --name=hadoop-build --volume=${hadoopdirpath}:/hadoop-binary hadoop-build
 
 
 

@@ -22,6 +22,7 @@ import sys
 import logging
 import logging.config
 import os
+import shutil
 
 
 class BuildUtil:
@@ -35,49 +36,38 @@ class BuildUtil:
     def build_single_component(self, service):
         pre_build = os.path.join(service.path, 'build/build-pre.sh')
         if os.path.exists(pre_build):
-            chmod_command = 'chmod 777 {0}'.format(pre_build)
+            chmod_command = 'chmod u+x {0}'.format(pre_build)
             docker_process.execute_shell(chmod_command)
             print ("Pre", pre_build)
             docker_process.execute_shell(pre_build)
 
         for docker in service.docker_files:
             dockerfile = os.path.join(service.path, 'build/' + docker + '.dockerfile')
-            print ("Build", dockerfile)
             self.docker_cli.docker_image_build(docker, dockerfile, service.path)
 
         post_build = os.path.join(service.path, 'build/build-post.sh')
 
         if os.path.exists(post_build):
-            chmod_command = 'chmod 777 {0}'.format(post_build)
+            chmod_command = 'chmod u+x {0}'.format(post_build)
             docker_process.execute_shell(chmod_command)
             docker_process.execute_shell(post_build)
             print ("Post", post_build)
 
     def copy_dependency_folder(self, source, destination):
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("source ", source)
-        print("destination", destination)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # if not os.path.exists(source):
-        #     print("[DEBUG_LOG] {} folder path not exists".format(source))
-        #     return None #TO-DO need raise error here
-        # else:
-        #     if os.path.exists(destination) and os.path.isdir(destination):
-        #        os.removedirs(destination)
-        #     shutil.copytree(source,destination)
+        if not os.path.exists(source):
+            print("[DEBUG_LOG] {} folder path not exists".format(source))
+            return None #TO-DO need raise error here
+        else:
+            if os.path.isdir(destination):
+               shutil.rmtree(destination)
+            shutil.copytree(source,destination)
 
     def clean_temp_folder(self, service_path):
-        print("[CAN-TEST-clean_temp_folder] service path=" + service_path)
         temp_generated_dir = os.path.join(service_path, "generated")
         temp_dependency_dir = os.path.join(service_path, "dependency")
 
-        print("--------------------------------")
-        print("[CAN_TEST_CLEAN]  temp_generated_dir="+temp_generated_dir)
-        print("[CAN_TEST_CLEAN]  temp_dependency_dir="+temp_dependency_dir)
-        print("--------------------------------")
+        if os.path.isdir(temp_generated_dir):
+            shutil.rmtree(temp_generated_dir)
 
-        if os.path.exists(temp_generated_dir) and os.path.isdir(temp_generated_dir):
-            os.removedirs(temp_generated_dir)
-
-        if os.path.exists(temp_dependency_dir) and os.path.isdir(temp_dependency_dir):
-            os.removedirs(temp_dependency_dir)
+        if os.path.isdir(temp_dependency_dir):
+            shutil.rmtree(temp_dependency_dir)

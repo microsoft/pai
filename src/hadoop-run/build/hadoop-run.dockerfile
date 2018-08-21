@@ -22,7 +22,7 @@ ENV HADOOP_VERSION=hadoop-2.9.0
 RUN apt-get -y install zookeeper libsnappy-dev
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY dependency/hadoop-ai/generated/hadoop-2.9.0.tar.gz /usr/local/
+COPY dependency/hadoop-ai/binary/hadoop-2.9.0.tar.gz /usr/local/
 
 RUN tar -xzf /usr/local/$HADOOP_VERSION.tar.gz -C /usr/local/ && \
     cd /usr/local && \
@@ -48,7 +48,7 @@ RUN mkdir -p $HADOOP_YARN_HOME/logs
 RUN mkdir -p /var/lib/hdfs/name
 RUN mkdir -p /var/lib/hdfs/data
 
-COPY start.sh /usr/local/start.sh
+COPY build/start.sh /usr/local/start.sh
 RUN chmod a+x /usr/local/start.sh
 
 
