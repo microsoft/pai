@@ -79,7 +79,7 @@ class DockerClient:
 def execute_shell(shell_cmd):
     try:
         logger.info("Begin to execute the command: {0}".format(shell_cmd))
-        subprocess.check_call( shell_cmd, shell=True )
+        # subprocess.check_call( shell_cmd, shell=True )
         logger.info("Executing command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
         logger.info("Executing command failed: {0}".format(shell_cmd))

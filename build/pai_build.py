@@ -17,6 +17,11 @@ def load_build_config(config_dir):
     return configModel
 
 def main():
+
+    # Define execution path to root folder
+    scriptFolder=os.path.dirname(os.path.realpath(__file__))
+    os.chdir(os.path.dirname(scriptFolder))
+
     starttime = datetime.datetime.now()
     parser = argparse.ArgumentParser(description="TODO:pai build cli.")
 
@@ -38,21 +43,21 @@ def main():
         '-c', '--config',
         type=text_type,
         required=True,
-        help='TODO'
+        help='The path of your configuration directory.'
     )
 
     parser.add_argument(
         '-s', '--service',
         type=text_type,
         nargs='+',
-        help="TODO"
+        help="Build service list"
     )
 
     parser.add_argument(
         '-i', '--imagelist',
         type=text_type,
         nargs='+',
-        help="TODO"
+        help="Push image list"
     )
 
 
