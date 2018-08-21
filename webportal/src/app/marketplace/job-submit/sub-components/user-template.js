@@ -29,6 +29,7 @@ const initArray = ()=> {
     'script': [],
     'dockerimage': [],
     'task': [],
+    'job': [],
   };
 };
 
@@ -67,7 +68,6 @@ const addNewJsonEditor =(d, id, type)=>{
   $(`#${type}${id}-edit-button`).on('click', () => { // click and show modal
     $(`#${type}${id}-modal`).modal('show');
   });
-  editors[type].push(editor);
 
   if (type != 'task') {
     editor.on('change', function() {
@@ -139,11 +139,16 @@ const updatePageFromYaml = (d) => {
     });
   }
 
-  // userChooseTemplateValues['job'] = data;
-  // addNewJsonEditor(data, '', 'job');
+  userChooseTemplateValues['job'] = data;
+  addNewJsonEditor(data, '', 'job');
+};
+
+const exportsJson = ()=>{
+  yamlHelper.jsonEditorToJobJson(editors);
 };
 
 
 module.exports = {
   updatePageFromYaml,
+  exportsJson,
 };

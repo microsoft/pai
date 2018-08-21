@@ -62,6 +62,10 @@ $(document).on('click', '#add-docker-btn', () => {
   $('#addockerModal').modal('show');
 });
 
+$(document).on('click', '#exportJsonBtn', () => {
+  userTemplate.exportsJson();
+});
+
 $(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
@@ -105,6 +109,7 @@ $(document).ready(() => {
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
           originalJsonData = yaml.safeLoad(e.target.result);
+          console.log(originalJsonData);
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);

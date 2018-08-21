@@ -19,9 +19,27 @@ require('json-editor');
 
 const yaml = require('js-yaml');
 
+const convertParameterToKeyValue = (d) => {
+  let parameters = d['parameters'];
+  d['parameters'] = [];
+  Object.keys(parameters).forEach((key) => {
+    d['parameters'].push({
+      name: key,
+      value: parameters[key],
+    });
+  });
+};
+
+const convertParameterFromKeyValue = (d) => {
+  let parameters = d['parameters'];
+  d['parameters'] = {};
+  parameters.forEach((t) => {
+    d['parameters'][t['name']] = t['value'];
+  });
+};
+
 const yamlToJsonEditor = (yamlString) => {
   let data = yaml.safeLoad(yamlString);
-  // console.log(data);
   if ('tasks' in data) {
     data['tasks'].forEach((task) => {
       task['instances'] = task['resource']['instances'];
@@ -29,25 +47,54 @@ const yamlToJsonEditor = (yamlString) => {
       task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
       task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
       delete task['resource'];
-      let parameters = task['parameters'];
-      task['parameters'] = [];
-      Object.keys(parameters).forEach((key)=>{
-        task['parameters'].push({
-          name: key,
-          value: parameters[key],
-        });
-      });
+      convertParameterToKeyValue(task);
     });
   }
+
+  if ('parameters' in data) {
+    convertParameterToKeyValue(data);
+  }
+
   return data;
 };
 
 const jsonEditorToJobJson = (editors) => {
-    //
+  let res = editors['job'][0].getValue();
+  convertParameterFromKeyValue(res);
+
+  res['type'] = 'job';
+  res['prerequisites'] = [];
+  res['tasks'] = [];
+
+  ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
+    editors[type].forEach((editor) => {
+      let temp = editor.getValue();
+      temp['type'] = type;
+      if (type == 'task') {
+        convertParameterFromKeyValue(temp);
+        temp['resource'] = {
+          'instances': temp['instances'],
+          'resourcePerInstance': {
+            cpu: temp['cpu'],
+            memoryMB: temp['memoryMB'],
+            gpu: temp['gpu'],
+          },
+        };
+        delete temp['instances'];
+        delete temp['cpu'];
+        delete temp['memoryMB'];
+        delete temp['gpu'];
+        res['tasks'].push(temp);
+      } else {
+        res['prerequisites'].push(temp);
+      }
+    });
+  });
+  console.log(res);
 };
 
 
-module.exports={
+module.exports = {
   yamlToJsonEditor,
   jsonEditorToJobJson,
 };

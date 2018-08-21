@@ -33,15 +33,15 @@ const parametersSchema = {
       },
       value: {
         type: 'string',
-      }
-    }
+      },
+    },
   },
 };
 
 const taskSchema = {
   type: 'object',
   format: 'grid',
-  headerTemplate: "{{ self.role }}",
+  headerTemplate: '{{ self.role }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
@@ -59,7 +59,7 @@ const taskSchema = {
       type: 'string',
       propertyOrder: 3,
     },
-    dockerimage:{
+    dockerimage: {
       type: 'string',
       propertyOrder: 4,
     },
@@ -112,7 +112,7 @@ const taskSchema = {
     'gpu',
     'memoryMB',
     'parameters',
-    'command'
+    'command',
   ],
 };
 
@@ -121,28 +121,28 @@ const dataSchema = {
   type: 'object',
   // minItems: 1,
   format: 'grid',
-  headerTemplate: "{{ self.name }}",
+  headerTemplate: '{{ self.name }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
       multipleOf: 1,
     },
     uri: {
-      type: 'string'
+      type: 'string',
     },
     description: {
       type: 'string',
@@ -154,45 +154,45 @@ const dataSchema = {
     'contributor',
     'protocol_version',
     'uri',
-    'description'
-  ]
+    'description',
+  ],
 };
 
 // submit_job [script]
 const scriptSchema = {
   type: 'object',
   format: 'grid',
-  headerTemplate: "{{ self.name }}",
+  headerTemplate: '{{ self.name }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
   },
   properties: {
     name: {
-      type: 'string'
+      type: 'string',
     },
     version: {
       type: 'string',
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
-      multipleOf: 1
+      multipleOf: 1,
     },
     uri: {
       type: 'string',
-      multipleOf: 1
+      multipleOf: 1,
     },
     description: {
       type: 'string',
     },
     parameters: parametersSchema,
-    roles:{
+    roles: {
       type: 'array',
-      items:{
+      items: {
         type: 'object',
         properties: {
           name: {
@@ -200,10 +200,10 @@ const scriptSchema = {
           },
           command: {
             type: 'textarea',
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   },
   required: [
     'name',
@@ -212,15 +212,15 @@ const scriptSchema = {
     'protocol_version',
     'uri',
     'description',
-  ]
+  ],
 };
 
 // submit_job [dockerimage]
 const dockerimageSchema = {
   type: 'object',
-  // as tabs render [form,tabs,table] 
+  // as tabs render [form,tabs,table]
   format: 'grid',
-  headerTemplate: "{{ self.name }}",
+  headerTemplate: '{{ self.name }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
@@ -234,7 +234,7 @@ const dockerimageSchema = {
       multipleOf: 1,
     },
     contributor: {
-      type: 'string'
+      type: 'string',
     },
     protocol_version: {
       type: 'string',
@@ -254,14 +254,14 @@ const dockerimageSchema = {
     'protocol_version',
     'uri',
     'description',
-  ]
+  ],
 };
 
 // submit_job [job]
 const jobSchema = {
   type: 'object',
   format: 'grid',
-  headerTemplate: "{{ self.name }}",
+  headerTemplate: '{{ self.name }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
@@ -289,15 +289,15 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 5,
     },
-    killAllOnCompletedTaskNumber:{
+    killAllOnCompletedTaskNumber: {
       type: 'number',
       propertyOrder: 6,
     },
-    retryCount:{
+    retryCount: {
       type: 'number',
       propertyOrder: 7,
     },
-    parameters: parametersSchema
+    parameters: parametersSchema,
   },
   required: [
     'name',
@@ -307,7 +307,7 @@ const jobSchema = {
     'description',
     'parameters',
     'tasks',
-  ]
+  ],
 };
 
 module.exports = {
