@@ -32,11 +32,10 @@
 * Fix webportal data table [bug](https://github.com/Microsoft/pai/pull/734).
 
 ## Known issues
-* Currently pai will download user's code and data in node's path, if job failed for some reasons, code and data will not being cleaned, this will cause disk pressure in kubernetes in long run.
-* kubelet is [vulnerable](https://github.com/Microsoft/pai/pull/1088) to cyber attacks in pai's default setting, please do not deploy kubelet insecurely in public network.
+* kubelet is [vulnerable](https://github.com/Microsoft/pai/pull/1088) to cyber attacks in pai's default setting, please do not deploy kubelet insecurely in public network for now. We will fix this issue in later release.
 
 # Break changes
-* killOnAnyComplete is [now](https://github.com/Microsoft/pai/pull/879) obsolete, any json files that specify this field will not working in this version.
+* `killOnAnyComplete` is [now](https://github.com/Microsoft/pai/pull/879) obsolete, any json files that specify this field will not work in this version. Please use `minFailedTaskCount` and `minSucceededTaskCount`, see [job tutorial](https://github.com/Microsoft/pai/blob/pai-0.7.y/docs/job_tutorial.md) for more information.
 
 
 # Release v0.6.1
