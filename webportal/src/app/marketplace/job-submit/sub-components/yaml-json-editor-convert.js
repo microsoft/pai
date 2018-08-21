@@ -59,7 +59,7 @@ const yamlToJsonEditor = (yamlString) => {
 };
 
 const jsonEditorToJobJson = (editors) => {
-  let res = editors['job'][0].getValue();
+  let res = JSON.parse(JSON.stringify(editors['job'][0].getValue())); // deep copy
   convertParameterFromKeyValue(res);
 
   res['type'] = 'job';
@@ -68,7 +68,7 @@ const jsonEditorToJobJson = (editors) => {
 
   ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
     editors[type].forEach((editor) => {
-      let temp = editor.getValue();
+      let temp = JSON.parse(JSON.stringify(editor.getValue()));
       temp['type'] = type;
       if (type == 'task') {
         convertParameterFromKeyValue(temp);

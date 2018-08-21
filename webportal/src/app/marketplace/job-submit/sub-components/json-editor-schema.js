@@ -285,28 +285,30 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 4,
     },
-    description: {
-      type: 'string',
-      propertyOrder: 5,
-    },
     killAllOnCompletedTaskNumber: {
       type: 'number',
-      propertyOrder: 6,
+      propertyOrder: 5,
     },
     retryCount: {
       type: 'number',
-      propertyOrder: 7,
+      propertyOrder: 6,
     },
     parameters: parametersSchema,
+    description: {
+      type: 'string',
+      format: 'textarea',
+      propertyOrder: 1008,
+    },
   },
   required: [
     'name',
     'version',
-    'contributor',
     'protocol_version',
+    'contributor',
     'description',
+    'killAllOnCompletedTaskNumber',
+    'retryCount',
     'parameters',
-    'tasks',
   ],
 };
 
