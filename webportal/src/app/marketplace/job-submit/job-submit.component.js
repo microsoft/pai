@@ -15,7 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require('json-editor');
 require('bootstrap/js/modal.js');
 
 const webportalConfig = require('../../config/webportal.config.js');
@@ -25,8 +24,7 @@ const submitComponent = require('./job-submit.component.ejs');
 const taskModelComponent = require('./addmodel-task.components.ejs');
 const editTaskModelComponent = require('./edit-task-modal.components.ejs');
 const dockerModelComponent = require('./addmodel-docker.components.ejs');
-const dockerScriptDataFormat = require('./sub-components/docker-script-data-format.ejs');
-const taskFormat = require('./sub-components/task-format.ejs');
+const userTemplate = require('./sub-components/user-template.js');
 const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
@@ -40,47 +38,7 @@ $('#sidebar-menu--submit-v2').addClass('active');
 //   data: myAssestData
 // });
 
-// let userChooseTemplateValues = {
-//   'data': [],
-//   'script': [],
-//   'dockerimage': [],
-//   'job': [],
-// };
-
 let originalJsonData = null;
-
-const updatePageFromYaml = (d) =>{
-  let data = yaml.safeLoad(d);
-  originalJsonData = data;
-
-  if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function(key) {
-      let item = data['prerequisites'][key];
-      let itemHtml = dockerScriptDataFormat({
-        name: item['name'],
-        id: 1,
-        description: item['description'],
-        type: item['type'],
-      });
-      $(`#${item['type']}-container`).append(itemHtml);
-    });
-  }
-
-  if ('tasks' in data) {
-    data['tasks'].forEach((task) => {
-      let itemHtml = taskFormat({
-        role: task['role'],
-        dockerimage: task['dockerimage'],
-        instances: task['resource']['instances'],
-        cpu: task['resource']['resourcePerInstance']['cpu'],
-        memoryMB: task['resource']['resourcePerInstance']['memoryMB'],
-        gpu: task['resource']['resourcePerInstance']['gpu'],
-        command: 'command' in task && task['command']? task['command'][0] : '',
-      });
-      $(`#task-container`).append(itemHtml);
-    });
-  }
-};
 
 $('#content-wrapper').html(submitComponent);
 
@@ -146,7 +104,8 @@ $(document).ready(() => {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
-          updatePageFromYaml(e.target.result);
+          originalJsonData = yaml.safeLoad(e.target.result);
+          userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);
     }
