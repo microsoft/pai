@@ -20,7 +20,10 @@ const logger = require('../config/logger');
 const template = require('../models/template');
 
 const list = (req, res) => {
-  template.top(req.params.type, 10, function(err, list) {
+  template.search({
+    pageNo: req.query.pageno,
+    type: req.params.type,
+  }, function(err, list) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -31,11 +34,13 @@ const list = (req, res) => {
   });
 };
 
-const search = (req, res) => {
+const filter = (req, res) => {
   let query = req.query.query;
-  let page = req.query.pageno ? req.query.pageno : 0;
   if (query) {
-    template.filter(query, 10, page, function(err, list) {
+    template.filter({
+      keywords: query,
+      pageNo: req.query.pageno,
+    }, function(err, list) {
       if (err) {
         logger.error(err);
         return res.status(500).json({
@@ -53,5 +58,5 @@ const search = (req, res) => {
 
 module.exports = {
   list,
-  search,
+  filter,
 };

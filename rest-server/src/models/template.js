@@ -16,34 +16,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const https = require('https');
 const github = require('@octokit/rest')();
+const https = require('https');
+const url = require('url');
 const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
 const config = require('../config/github');
 
-/**
- * Get related templates by the given query.
- */
-const filter = (text, perSize, pageNo, callback) => {
-  github.search.code({
-    q: createQuery(text),
-    per_page: perSize,
-    page: pageNo,
-  }, function(err, res) {
+const search = (options, callback) => {
+  let params = createQuery(options);
+  logger.debug(params);
+  github.search.code(params, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
-      let urls = [];
-      res.data.items.forEach(function(item) {
-        urls.push(createDownloadUrl(item.path));
-      });
-      downloadInParallel(urls, function(err, templates) {
+      downloadInParallel(res.data.items, function(err, templates) {
         callback(err, {
           totalCount: res.data.total_count,
-          pageNo: pageNo,
-          pageSize: perSize,
+          pageNo: params.page,
+          pageSize: params.per_page,
           items: templates,
         });
       });
@@ -51,59 +43,61 @@ const filter = (text, perSize, pageNo, callback) => {
   });
 };
 
-const createQuery = (text) => {
-  return text + `+in:file+language:yaml+repo:${config.owner}/${config.repository}`;
+const createQuery = (options) => {
+  let params = {
+    q: `in:file+language:yaml+repo:${config.owner}/${config.repository}`,
+    per_page: 10,
+    page: 1,
+  };
+  if (options.keywords) {
+    params.q = options.keywords + `+${params.q}`;
+  }
+  if (options.type) {
+    params.q += `+path:${options.type}`;
+  }
+  if (options.pageSize) {
+    params.per_page = options.pageSize;
+  }
+  if (options.pageNo) {
+    params.page = options.pageNo;
+  }
+  return params;
 };
 
-const createDownloadUrl = (path) => {
-  return `https://raw.githubusercontent.com/${config.owner}/${config.repository}/master/${path}`;
-};
-
-/**
- * Get the top K templates by the given type.
- */
-const top = (type, count, callback) => {
-  github.repos.getContent({
-    owner: config.owner,
-    repo: config.repository,
-    path: type,
-  }, function(err, res) {
-    if (err) {
-      callback(err, null);
-    } else {
-      let len = Math.min(count, res.data.length);
-      let urls = [];
-      for (let i = 0; i < len; i++) {
-        urls.push(res.data[i].download_url);
-      }
-      downloadInParallel(urls, callback);
-    }
-  });
-};
-
-const downloadInParallel = (urls, callback) => {
+const downloadInParallel = (list, callback) => {
   let templates = [];
   let completed = 0;
-  urls.forEach(function(url) {
+  list.forEach(function(item) {
     let responses = [];
-    https.get(url, function(res) {
+    let remoteUrl = url.parse(item.url, true)
+    https.get({
+      host: remoteUrl.host,
+      path: remoteUrl.path,
+      headers: {
+        'Accept': 'application/vnd.github.VERSION.raw',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+      },
+    }, function(res) {
       res.on('data', function(chunk) {
         responses.push(chunk);
       });
       res.on('end', function() {
         let body = responses.join('');
         try {
-          let item = yaml.safeLoad(body);
+          let one = yaml.safeLoad(body);
+          if (one.message) {
+            throw new Error(one.message);
+          }
           templates.push({
-            type: item.type,
-            name: item.name,
-            contributor: item.contributor,
-            version: item.version,
+            type: one.type,
+            name: one.name,
+            contributor: one.contributor,
+            version: remoteUrl.query.ref,
           });
         } catch (e) {
           logger.error(e);
         }
-        if (++completed >= urls.length) {
+        if (++completed >= list.length) {
           callback(null, templates);
         }
       });
@@ -115,6 +109,5 @@ const downloadInParallel = (urls, callback) => {
 };
 
 module.exports = {
-  filter,
-  top,
+  search,
 };
