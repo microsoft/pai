@@ -16,20 +16,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  annotations:
-    prometheus.io/scrape: 'true'
   name: watchdog
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: watchdog
   template:
     metadata:
+      name: watchdog
       labels:
         app: watchdog
-      name: watchdog
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9101"
     spec:
       affinity:
         nodeAffinity:
@@ -41,32 +44,30 @@ spec:
                 values:
                 - "true"
       containers:
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}watchdog:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - name: watchdog
+        image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}
         imagePullPolicy: Always
         resources:
           limits:
             memory: "1Gi"
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /datastorage/prometheus
           name: collector-mount
         - mountPath: /etc/watchdog
           name: config-volume
-        name: watchdog
-        env:
-        - name: K8S_API_SERVER_URI
-          value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
-        command: ['python']
-        args: ['/usr/local/watchdog.py', '/datastorage/prometheus', '30']
+        command:
+          - "python"
+          - "/watchdog.py"
+          - "--interval"
+          - "30"
+          - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
       volumes:
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+            path: {{ clusterinfo["dataPath"] }}/prometheus
         - name: config-volume
           configMap:
             name: watchdog
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
       hostNetwork: true
-      hostPID: true

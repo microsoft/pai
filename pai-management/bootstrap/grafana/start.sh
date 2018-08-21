@@ -21,8 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
-
+/bin/bash configmap-create.sh || exit $?
 
 i=0
 
@@ -38,6 +37,6 @@ do
   fi
 done
 
-kubectl apply --overwrite=true -f grafana.yaml
+kubectl apply --overwrite=true -f grafana.yaml || exit $?
 
 popd > /dev/null

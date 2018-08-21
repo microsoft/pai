@@ -19,11 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds webportal-ds
+if kubectl get daemonset | grep -q "webportal-ds"; then
+    kubectl delete ds webportal-ds
+fi
 
 {% for host in machinelist %}
     {% if 'webportal' in machinelist[ host ] and machinelist[ host ][ 'webportal' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal- || exit $?
     {% endif %}
 {% endfor %}
 

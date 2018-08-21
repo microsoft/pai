@@ -20,47 +20,39 @@
 
 # How to Run a Deep Learning Job
 
-## Introduction
-
-The system supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
-It also supports other type of workload through a customized docker image. 
+OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
+It also supports other type of job through a customized docker image. 
 Users need to prepare a config file and submit it for a job submission. 
 This guide introduces the details of job submission.
 
+## Table of Contents:
 
-## Prerequisites
+- [Quick start: how to write and submit a CIFAR-10 job](#quickstart)
+- [Write a customized job](#writejob)
+  - [Prerequisites](#prerequisites)
+  - [Use docker to package the job environment dependencies](#docker)
+  - [Write a job json configuration file](#jobjson)
+  - [Job runtime environmental variable](#envvar)
+  - [A deep learning job example](#example)
+  - [Job submission steps](#submission)
+- [How to debug Job](#debug)
+- [Learn more job examples](#moreexample)
+
+## Quick start: how to write and submit a CIFAR-10 job <a name="quickstart"></a>
+
+Please refer to this [document](../examples/README.md#quickstart) for how to write and submit a CIFAR-10 job.
+
+## Write a customized job  <a name="writejob"></a>
+
+### Prerequisites <a name="prerequisites"></a>
 
 This guide assumes the system has already been deployed properly and a docker registry is available to store docker images. 
 
+### Use docker to package the job environment dependencies <a name="docker"></a>
 
-## Docker image
+OpenPAI packaged the docker env required by the job for user to use. User could refer to [job_docker_env.md](./job_docker_env.md) to customize example's docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image in following example `"image": "your_docker_registry/pai.run.tensorflow"` with your own. OpenPAI has many pre-built images for different frameworks. In [Learn more job examples](#moreexample) section, each example folder will contain a pre-build docker env.
 
-The system launches a deep learning job in one or more Docker containers. A Docker images is required in advance. 
-The system provides a base Docker images with HDFS, CUDA and cuDNN support, based on which users can build their own custom Docker images.
-
-To build a base Docker image, for example [Dockerfile.build.base](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base), run:
-```sh
-docker build -f Dockerfiles/Dockerfile.build.base -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 Dockerfiles/
-```
-
-Then a custom docker image can be built based on it by adding `FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04` in the Dockerfile.
-
-As an example, we customize a TensorFlow Docker image using [Dockerfile.run.tensorflow](../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.run.tensorflow):
-```sh
-docker build -f Dockerfiles/Dockerfile.run.tensorflow -t pai.run.tensorflow Dockerfiles/
-```
-
-Next, the built image is pushed to a docker registry for every node in the system to access that image:
-```sh
-docker tag pai.run.tensorflow your_docker_registry/pai.run.tensorflow
-docker push your_docker_registry/pai.run.tensorflow
-```
-
-And the image is ready to serve. Note that above script assume the docker registry is deployed locally. 
-Actual script can vary depending on the configuration of Docker registry. 
-
-
-## Json config file for job submission
+### Write a job json configuration file <a name="jobjson"></a>
 
 A json file describe detailed configuration required for a job submission. The detailed format is shown as below:
 
@@ -139,7 +131,7 @@ password
 
 *NOTE*: If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
 
-## Runtime environment
+### Job runtime environmental variable <a name="envvar"></a>
 
 Each task in a job runs in one Docker container.
 For a multi-task job, one task might communicate with others.
@@ -178,7 +170,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
 
 
-## An example deep learning job
+### A deep learning job example <a name="example"></a>
 
 A distributed TensorFlow job is listed below as an example:
 
@@ -247,13 +239,7 @@ A distributed TensorFlow job is listed below as an example:
 }
 ```
 
-
-## More examples
-
-For more examples, please refer to [job examples directory](../examples).
-
-
-## Job submission
+### Job submission steps <a name="submission"></a>
 
 1. Put the code and data on HDFS
 
@@ -268,8 +254,10 @@ For more examples, please refer to [job examples directory](../examples).
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
 
-## SSH Connection
+## How to debug the job <a name="debug"></a>
+
 You can ssh connect to a specified container either from outside or inside container.
+
 ### SSH connect from outside
 
 1. Get job ssh connect info by invoking `/api/v1/jobs/:jobName/ssh` api or clicking the job detail page on webportal.
@@ -295,3 +283,7 @@ You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK
 ```sh
 ssh worker-0
 ```
+
+## Learn more job examples <a name="moreexample"></a>
+
+For more examples, please refer to [job examples directory](../examples).
