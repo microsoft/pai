@@ -16,93 +16,128 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const https = require('https');
 const github = require('@octokit/rest')();
+const https = require('https');
+const url = require('url');
 const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
 const config = require('../config/github');
 
 /**
- * Get related templates by the given query.
+ * Get template content by the given qualifier.
+ * @param {*} options A MAP object containing keys 'type', 'name', 'version'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const filter = (text, perSize, pageNo, callback) => {
-  github.search.code({
-    q: createQuery(text),
-    per_page: perSize,
-    page: pageNo,
-  }, function(err, res) {
-    if (err) {
-      callback(err, null);
-    } else {
-      let urls = [];
-      res.data.items.forEach(function(item) {
-        urls.push(createDownloadUrl(item.path));
-      });
-      downloadInParallel(urls, callback);
-    }
+const load = (options, callback) => {
+  let ref = options.version ? options.version : 'master';
+  let responses = [];
+  let path = `${config.owner}/${config.repository}/${ref}/${options.type}/${options.name}.yaml`;
+  https.get('https://raw.githubusercontent.com/' + path, function(res) {
+    res.on('data', function(chunk) {
+      responses.push(chunk);
+    });
+    res.on('end', function() {
+      if (res.statusCode == 200) {
+        let body = responses.join('');
+        let item = yaml.safeLoad(body);
+        item.version = ref;
+        callback(null, item);
+      } else {
+        callback(new Error(res.statusMessage), null);
+      }
+    }).on('error', function(e) {
+      callback(e, null);
+    });
   });
-};
-
-const createQuery = (text) => {
-  return text + `+in:file+language:yaml+repo:${config.owner}/${config.repository}`;
-};
-
-const createDownloadUrl = (path) => {
-  return `https://raw.githubusercontent.com/${config.owner}/${config.repository}/master/${path}`;
 };
 
 /**
- * Get the top K templates by the given type.
+ * Get related templates by the given query.
+ * @param {*} options A MAP object containing keys 'keywords', 'type', 'pageSize', 'pageNo'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const top = (type, count, callback) => {
-  github.repos.getContent({
-    owner: config.owner,
-    repo: config.repository,
-    path: type,
-  }, function(err, res) {
+const search = (options, callback) => {
+  let params = createQuery(options);
+  logger.debug(params);
+  github.search.code(params, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
-      let len = Math.min(count, res.data.length);
-      let urls = [];
-      for (let i = 0; i < len; i++) {
-        urls.push(res.data[i].download_url);
-      }
-      downloadInParallel(urls, callback);
+      downloadInParallel(res.data.items, function(err, templates) {
+        callback(err, {
+          totalCount: res.data.total_count,
+          pageNo: params.page,
+          pageSize: params.per_page,
+          items: templates,
+        });
+      });
     }
   });
 };
 
-const downloadInParallel = (urls, callback) => {
+const createQuery = (options) => {
+  let params = {
+    q: `in:file+language:yaml+repo:${config.owner}/${config.repository}`,
+    per_page: 5,
+    page: 1,
+  };
+  if (options.keywords) {
+    params.q = options.keywords + `+${params.q}`;
+  }
+  if (options.type) {
+    params.q += `+path:${options.type}`;
+  }
+  if (options.pageSize) {
+    params.per_page = options.pageSize;
+  }
+  if (options.pageNo) {
+    params.page = options.pageNo;
+  }
+  return params;
+};
+
+const downloadInParallel = (list, callback) => {
   let templates = [];
   let completed = 0;
-  urls.forEach(function(url) {
+  list.forEach(function(item) {
     let responses = [];
-    https.get(url, function(res) {
+    let remoteUrl = url.parse(item.url, true);
+    https.get({
+      host: remoteUrl.host,
+      path: remoteUrl.path,
+      headers: {
+        'Accept': 'application/vnd.github.VERSION.raw',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+      },
+    }, function(res) {
       res.on('data', function(chunk) {
         responses.push(chunk);
       });
       res.on('end', function() {
-        let body = responses.join('');
-        try {
-          let item = yaml.safeLoad(body);
-          templates.push(item);
-        } catch (e) {
-          logger.error(e);
+        if (res.statusCode == 200) {
+          let one = yaml.safeLoad(responses.join(''));
+          templates.push({
+            type: one.type,
+            name: one.name,
+            contributor: one.contributor,
+            version: remoteUrl.query.ref,
+          });
+        } else {
+          logger.error(res.statusMessage);
         }
-        if (++completed >= urls.length) {
+        if (++completed >= list.length) {
           callback(null, templates);
         }
       });
     }).on('error', function(e) {
-      logger.error(e);
-      completed++;
+      completed -= list.length; // Ensure callback is called only once
+      callback(e, null);
     });
   });
 };
 
 module.exports = {
-  filter,
-  top,
+  load,
+  search,
 };
