@@ -241,6 +241,7 @@ docker run --name $docker_name \
   --rm \
   --tty \
   --privileged=false \
+  --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
