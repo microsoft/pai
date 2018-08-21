@@ -1,7 +1,7 @@
 # Release v0.7.1
 
 ## New features
-* Add [alert manager](https://github.com/Microsoft/pai/blob/pai-0.7.y/cluster-configuration/services-configuration.yaml#L106), defined [several rules](https://github.com/Microsoft/pai/tree/pai-0.7.y/prometheus/prometheus-alert) for alert. Operator will receive email notification if cluster has some problem.
+* Add [alert manager](prometheus/doc/alert-manager.md), defined [several rules](https://github.com/Microsoft/pai/tree/pai-0.7.y/prometheus/prometheus-alert) for alert. Operator will receive email notification if cluster has some problem.
 
 ## Improvements
 * [Optimize](https://github.com/Microsoft/pai/pull/1021) boot speed of web portal.
