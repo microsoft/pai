@@ -39,7 +39,14 @@ const filter = (text, perSize, pageNo, callback) => {
       res.data.items.forEach(function(item) {
         urls.push(createDownloadUrl(item.path));
       });
-      downloadInParallel(urls, callback);
+      downloadInParallel(urls, function(err, templates) {
+        callback(err, {
+          totalCount: res.data.total_count,
+          pageNo: pageNo,
+          pageSize: perSize,
+          items: templates,
+        });
+      });
     }
   });
 };
@@ -87,7 +94,12 @@ const downloadInParallel = (urls, callback) => {
         let body = responses.join('');
         try {
           let item = yaml.safeLoad(body);
-          templates.push(item);
+          templates.push({
+            type: item.type,
+            name: item.name,
+            contributor: item.contributor,
+            version: item.version,
+          });
         } catch (e) {
           logger.error(e);
         }
