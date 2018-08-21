@@ -27,7 +27,7 @@ const config = require('../config/github');
 /**
  * Get template content by the given qualifier.
  * @param {*} options A MAP object containing keys 'type', 'name', 'version'.
- * @param {*} callback A function object accepting 2 parameters which are error and result. 
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
 const load = (options, callback) => {
   let ref = options.version ? options.version : 'master';
@@ -45,10 +45,10 @@ const load = (options, callback) => {
         callback(null, item);
       } else {
         callback(new Error(res.statusMessage), null);
-      };
+      }
     }).on('error', function(e) {
       callback(e, null);
-    });;
+    });
   });
 };
 
@@ -125,7 +125,7 @@ const downloadInParallel = (list, callback) => {
           });
         } else {
           logger.error(res.statusMessage);
-        };
+        }
         if (++completed >= list.length) {
           callback(null, templates);
         }
