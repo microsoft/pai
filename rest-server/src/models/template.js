@@ -24,6 +24,39 @@ const yaml = require('js-yaml');
 const logger = require('../config/logger');
 const config = require('../config/github');
 
+/**
+ * Get template content by the given qualifier.
+ * @param {*} options A MAP object containing keys 'type', 'name', 'version'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result. 
+ */
+const load = (options, callback) => {
+  let ref = options.version ? options.version : 'master';
+  let responses = [];
+  let path = `${config.owner}/${config.repository}/${ref}/${options.type}/${options.name}.yaml`;
+  https.get('https://raw.githubusercontent.com/' + path, function(res) {
+    res.on('data', function(chunk) {
+      responses.push(chunk);
+    });
+    res.on('end', function() {
+      if (res.statusCode == 200) {
+        let body = responses.join('');
+        let item = yaml.safeLoad(body);
+        item.version = ref;
+        callback(null, item);
+      } else {
+        callback(new Error(res.statusMessage), null);
+      };
+    }).on('error', function(e) {
+      callback(e, null);
+    });;
+  });
+};
+
+/**
+ * Get related templates by the given query.
+ * @param {*} options A MAP object containing keys 'keywords', 'type', 'pageSize', 'pageNo'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
+ */
 const search = (options, callback) => {
   let params = createQuery(options);
   logger.debug(params);
@@ -82,32 +115,29 @@ const downloadInParallel = (list, callback) => {
         responses.push(chunk);
       });
       res.on('end', function() {
-        let body = responses.join('');
-        try {
-          let one = yaml.safeLoad(body);
-          if (one.message) {
-            throw new Error(one.message);
-          }
+        if (res.statusCode == 200) {
+          let one = yaml.safeLoad(responses.join(''));
           templates.push({
             type: one.type,
             name: one.name,
             contributor: one.contributor,
             version: remoteUrl.query.ref,
           });
-        } catch (e) {
-          logger.error(e);
-        }
+        } else {
+          logger.error(res.statusMessage);
+        };
         if (++completed >= list.length) {
           callback(null, templates);
         }
       });
     }).on('error', function(e) {
-      logger.error(e);
-      completed++;
+      completed -= list.length; // Ensure callback is called only once
+      callback(e, null);
     });
   });
 };
 
 module.exports = {
+  load,
   search,
 };

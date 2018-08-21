@@ -19,25 +19,38 @@
 const logger = require('../config/logger');
 const template = require('../models/template');
 
-const list = (req, res) => {
-  template.search({
-    pageNo: req.query.pageno,
-    type: req.params.type,
-  }, function(err, list) {
+const fetch = (req, res) => {
+  let type = req.params.type;
+  if (!type) {
+    return res.status(400).json({
+      'message': 'Failed to extract "type" parameter in the request.',
+    });
+  }
+  let name = req.params.name;
+  if (!name) {
+    return res.status(400).json({
+      'message': 'Failed to extract "name" parameter in the request.',
+    });
+  }
+  template.load({
+    type: type,
+    name: name,
+    version: req.query.version,
+  }, (err, item) => {
     if (err) {
       logger.error(err);
-      return res.status(500).json({
-        'message': 'Failed to fetch templates from remote source.',
+      return res.status(404).json({
+        'message': 'Failed to find any matched template.',
       });
     }
-    return res.status(200).json(list);
+    return res.status(200).json(item);
   });
 };
 
 const filter = (req, res) => {
   let query = req.query.query;
   if (query) {
-    template.filter({
+    template.search({
       keywords: query,
       pageNo: req.query.pageno,
     }, function(err, list) {
@@ -56,7 +69,23 @@ const filter = (req, res) => {
   }
 };
 
+const list = (req, res) => {
+  template.search({
+    pageNo: req.query.pageno,
+    type: req.params.type,
+  }, function(err, list) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        'message': 'Failed to fetch templates from remote source.',
+      });
+    }
+    return res.status(200).json(list);
+  });
+};
+
 module.exports = {
-  list,
+  fetch,
   filter,
+  list,
 };
