@@ -385,7 +385,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
 \\"memoryMB\\": 256,
-\\"command\\": \\"stress --vm-keep -m 177 --vm-bytes 1024m --vm-hang 0 --verbose\\"
+\\"command\\": \\"stress --vm-keep -m 2 --vm-bytes 128m --vm-hang 0 --verbose\\"
 }
 ]
 }"
@@ -488,8 +488,8 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 \\"name\\": \\"Master\\",
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
-\\"memoryMB\\": 256,
-\\"command\\": \\"stress --vm-keep -m 177 --vm-bytes 1024m --vm-hang 0 --verbose\\"
+\\"memoryMB\\": 196,
+\\"command\\": \\"stress --vm-keep -m 2 --vm-bytes 128m --vm-hang 0 --verbose\\"
 }
 ]
 }"
