@@ -89,3 +89,17 @@ class ServiceGraph(object):
         for _, service in self.services.items():
             service.dump()
 
+    
+    def extract_sub_graph(self, dest_nodes):
+        if not dest_nodes:
+            return None
+        search_queue = dest_nodes
+        ret = search_queue[:]
+        while search_queue:
+            current_node = search_queue[0]
+            search_queue.pop(0)
+            for prev_service in self.services[current_node].inedges:
+                if not prev_service in ret:
+                    ret.append(prev_service)
+                    search_queue.append(prev_service)
+        return ret

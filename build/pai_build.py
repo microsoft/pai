@@ -8,8 +8,22 @@ import os
 import sys
 import argparse
 import datetime
+import logging
+import logging.config
 import build_center
-from six import text_type
+
+logger = logging.getLogger(__name__)
+
+def setup_logging():
+    """
+    Setup logging configuration.
+    """
+    logger.setLevel(logging.DEBUG)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    consoleHandler.setFormatter(formatter)
+    logger.addHandler(consoleHandler)
 
 def load_build_config(config_dir):
     buildConfig = config_model.ConfigModel(config_dir)
@@ -23,7 +37,8 @@ def main():
     os.chdir(os.path.dirname(scriptFolder))
 
     starttime = datetime.datetime.now()
-    parser = argparse.ArgumentParser(description="TODO:pai build cli.")
+    parser = argparse.ArgumentParser(description="pai build client")
+    logger.info("Pai build starts at {0}".format(starttime))
 
     # setup commands
     command = parser.add_mutually_exclusive_group()
@@ -41,21 +56,21 @@ def main():
     # setup arguments
     parser.add_argument(
         '-c', '--config',
-        type=text_type,
+        type=bytes,
         required=True,
         help='The path of your configuration directory.'
     )
 
     parser.add_argument(
         '-s', '--service',
-        type=text_type,
+        type=bytes,
         nargs='+',
         help="Build service list"
     )
 
     parser.add_argument(
         '-i', '--imagelist',
-        type=text_type,
+        type=bytes,
         nargs='+',
         help="Push image list"
     )
@@ -80,9 +95,9 @@ def main():
         parser.exit(1, parser.format_help())
 
     endtime = datetime.datetime.now()
-    print("start time=" + str(starttime))
-    print("end time=" + str(endtime))
-    print (endtime - starttime)
+    logger.info("Pai build ends at {0}".format(endtime))
+    logger.info("Pai build costs {0}".format(endtime - starttime))
 
 if __name__ == "__main__":
+    setup_logging()
     main()

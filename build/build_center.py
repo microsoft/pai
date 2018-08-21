@@ -5,11 +5,15 @@ from utility import docker_process
 from utility import build_util
 
 import os
-import shutil
+import logging
+import logging.config
 
 class BuildCenter:
 
     def __init__(self, build_config, process_list):
+
+        self.logger = logging.getLogger(__name__)
+        setup_logger_config(self.logger)
 
         self.build_config = build_config
 
@@ -68,40 +72,53 @@ class BuildCenter:
     def build_center(self):
 
         # Find services and map dockfile to services
+        self.logger.info("Starts to construct service graph")
         self.construct_graph()
+        self.logger.info("Construct service graph successfully")
 
         # Resolve dependency
+        self.logger.info("Starts to resolve components dependency")
         self.resolve_dependency()
+        self.logger.info("Resolves dependency successfully")
 
         # Build topology sequence
         services = self.graph.topology()
+        self.logger.info("Build topological sequence:{0}".format(services))
 
-        # Show build sequence
-        print(services)
+        try:
+            # Start build each component according to topological sequence
+            build_worker = build_util.BuildUtil(self.docker_cli)
+            self.process_list = self.graph.extract_sub_graph(self.process_list) if self.process_list else services
+            print(self.process_list)
+            for item in services:
+                if item in self.process_list:
+                    for inedge in self.graph.services[item].inedges:
+                        build_worker.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
+                    build_worker.build_single_component(self.graph.services[item])
+            self.logger.info("Build each components succeed")
+        except:
+            self.logger.error("Pai build failed")
+            raise
+        finally:
+            # Clean generated folder
+            self.logger.info("Build to clean all temp folder")
+            for item in services:
+                build_worker.clean_temp_folder(self.graph.services[item].path)
+            self.logger.info("Clean all temp folder succeed")
 
-        # Start build each component according to topological sequence
-        build_test = build_util.BuildUtil(self.docker_cli)
-
-        for item in services:
-            if not self.process_list or item in self.process_list:
-                for inedge in self.graph.services[item].inedges:
-                    build_test.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
-            build_test.build_single_component(self.graph.services[item])
-
-        # Clean generated folder
-        for item in services:
-            build_test.clean_temp_folder(self.graph.services[item].path)
 
     def push_center(self):
 
         # Find services and map dockfile to services
+        self.logger.info("Starts to construct service graph")
         self.construct_graph()
+        self.logger.info("Construct service graph successfully")
 
         if not self.process_list == None:
             for image in self.process_list:
                 if image not in self.graph.docker_to_service:
-                    print("{0} not in image list".format(image))
-                    raise Exception
+                    self.logger.error("{0} not in image list".format(image))
+                    raise Exception("{0} not in image list".format(image))
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
         else:
@@ -111,5 +128,15 @@ class BuildCenter:
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
 
 
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    logger.setLevel(logging.DEBUG)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    consoleHandler.setFormatter(formatter)
+    logger.addHandler(consoleHandler)
 
 
