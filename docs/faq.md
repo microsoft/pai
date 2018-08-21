@@ -33,8 +33,18 @@ A: OpenPAI use capacity scheduler of YARN for resource allocation. User can conf
 ```
 
 For yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor:
-By default this is set to 1 which ensure that a single user can never take more than the queue's configured capacity irrespective of how idle th cluster is.
+- OpenPAI default value of 100 implies no user limits are imposed.
+- Official explanation:
+```
+The multiple of the queue capacity which can be configured to allow a single user to acquire more slots. By default this is set to 1 which ensure that a single user can never take more than the queue's configured capacity irrespective of how idle th cluster is.
+```
+- Note: This configuration control user's resource usage which exceeds current vc. VC a can preempt the resources occupied by VC b, before job become completed.
 
 For yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent:
-Default value of 100 implies no user limits are imposed.
+- OpenPAI's default value of 100 implies no user limits are imposed.
+- Official explanation:
+```
+Each queue enforces a limit on the percentage of resources allocated to a user at any given time, if there is competition for them. This user limit can vary between a minimum and maximum value. The former depends on the number of users who have submitted jobs, and the latter is set to this property value. For example, suppose the value of this property is 25. If two users have submitted jobs to a queue, no single user can use more than 50% of the queue resources. If a third user submits a job, no single user can use more than 33% of the queue resources. With 4 or more users, no user can use more than 25% of the queue's resources. A value of 100 implies no user limits are imposed.
+```
+- Note:  This configuration control users' resource usage in current vc. User a can not preempt the resources occupied by user b before job completed. 
 
