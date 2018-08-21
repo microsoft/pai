@@ -46,7 +46,7 @@ const search = (options, callback) => {
 const createQuery = (options) => {
   let params = {
     q: `in:file+language:yaml+repo:${config.owner}/${config.repository}`,
-    per_page: 10,
+    per_page: 5,
     page: 1,
   };
   if (options.keywords) {
@@ -69,7 +69,7 @@ const downloadInParallel = (list, callback) => {
   let completed = 0;
   list.forEach(function(item) {
     let responses = [];
-    let remoteUrl = url.parse(item.url, true)
+    let remoteUrl = url.parse(item.url, true);
     https.get({
       host: remoteUrl.host,
       path: remoteUrl.path,
