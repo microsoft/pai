@@ -87,12 +87,6 @@ class environment_check:
 
 
 
-    def init_kubernetes_client(self):
-
-        config.load_kube_config(config_file = self.KUBE_CONFIG_DEFAULT_LOCATION)
-
-
-
     def check_python_kubernetes(self):
 
         #configuration = kubernetes.client.Configuration()
@@ -128,6 +122,4 @@ class environment_check:
 
         self.check_conf_exits()
         self.check_kubectl()
-
-        self.init_kubernetes_client()
         self.check_python_kubernetes()
