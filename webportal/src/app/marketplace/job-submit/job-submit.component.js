@@ -21,9 +21,6 @@ const webportalConfig = require('../../config/webportal.config.js');
 const loading = require('../../job/loading/loading.component');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
-const taskModelComponent = require('./addmodel-task.components.ejs');
-const editTaskModelComponent = require('./edit-task-modal.components.ejs');
-const dockerModelComponent = require('./addmodel-docker.components.ejs');
 const userTemplate = require('./sub-components/user-template.js');
 const yaml = require('js-yaml');
 
@@ -43,23 +40,19 @@ let originalJsonData = null;
 $('#content-wrapper').html(submitComponent);
 
 $(document).on('click', '#add-task-btn', () => {
-  $('#modalPlaceTask').html(taskModelComponent);
-  $('#addtaskModal').modal('show');
+  userTemplate.showAddModal('task');
 });
 
-$(document).on('click', '#for-edit-task', () => {
-  $('#modalPlaceTask').html(editTaskModelComponent);
-  $('#edit-task').modal('show');
+$(document).on('click', '#add-dockerimage-btn', () => {
+  userTemplate.showAddModal('dockerimage');
 });
 
-$(document).on('click', '#add-docker-btn', () => {
-  $('#modalPlaceDocker').html(dockerModelComponent);
-  $('#addockerModal').modal('show');
+$(document).on('click', '#add-script-btn', () => {
+  userTemplate.showAddModal('script');
 });
 
-$(document).on('click', '#add-docker-btn', () => {
-  $('#modalPlaceDocker').html(dockerModelComponent);
-  $('#addockerModal').modal('show');
+$(document).on('click', '#add-data-btn', () => {
+  userTemplate.showAddModal('data');
 });
 
 $(document).on('click', '#exportJsonBtn', () => {

@@ -19,11 +19,12 @@ require('json-editor');
 
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
+const addModalFormat = require('./add.ejs');
 const userEditModalComponent = require('./edit.ejs');
 const jobSchema = require('./json-editor-schema.js');
 const yamlHelper = require('./yaml-json-editor-convert.js');
 
-const initArray = ()=> {
+const initArray = () => {
   return {
     'data': [],
     'script': [],
@@ -37,7 +38,7 @@ let userChooseTemplateValues = initArray();
 let editors = initArray();
 
 
-const loadEditor = (d, type, id, insertEditors=true) => {
+const loadEditor = (d, type, id, insertEditors = true) => {
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
     schema: jobSchema[`${type}Schema`],
@@ -57,7 +58,7 @@ const loadEditor = (d, type, id, insertEditors=true) => {
   return editor;
 };
 
-const addNewJsonEditor =(d, id, type)=>{
+const addNewJsonEditor = (d, id, type) => {
   $('#json-editor-container').append(userEditModalComponent({
     type: type,
     id: id,
@@ -66,9 +67,9 @@ const addNewJsonEditor =(d, id, type)=>{
   let editor = loadEditor(d, type, id); // load json editor
 
   if (type != 'task') {
-    editor.on('change', function() {
+    editor.on('change', () => {
       let val = editor.getValue();
-      ['name', 'description'].forEach((cur)=>{
+      ['name', 'description'].forEach((cur) => {
         $(`#${type}${id}-${cur}`).text(val[cur]);
       });
       $(`#${type}${id}-title > a > span`).text(val['name']);
@@ -83,17 +84,17 @@ const addNewJsonEditor =(d, id, type)=>{
   });
 
   // delete item
-  $(`#${type}${id}-remove-button`).on('click', ()=>{
+  $(`#${type}${id}-remove-button`).on('click', () => {
     $(`#${type}${id}-container`).remove();
     editors[type][id - 1] = null;
   });
 
-  $(`#${type}${id}-edit-save-button`).on('click', ()=>{
+  $(`#${type}${id}-edit-save-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal('hide');
   });
 };
 
-const insertNewTask = (task)=>{
+const insertNewTask = (task) => {
   let type = 'task';
   let id = userChooseTemplateValues[type].length + 1;
   let itemHtml = taskFormat({
@@ -113,7 +114,7 @@ const insertNewTask = (task)=>{
   userChooseTemplateValues[type].push(task);
 };
 
-const insertNewDockerDataScript = (item)=>{
+const insertNewDockerDataScript = (item) => {
   let type = item['type'];
   let id = userChooseTemplateValues[type].length + 1;
   let itemHtml = dockerScriptDataFormat({
@@ -135,7 +136,7 @@ const updatePageFromYaml = (d) => {
   let data = yamlHelper.yamlToJsonEditor(d);
 
   if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach(function(key) {
+    Object.keys(data['prerequisites']).forEach((key) => {
       insertNewDockerDataScript(data['prerequisites'][key]);
     });
   }
@@ -150,12 +151,46 @@ const updatePageFromYaml = (d) => {
   addNewJsonEditor(data, '', 'job');
 };
 
-const exportsJson = ()=>{
+const exportsJson = () => {
   yamlHelper.jsonEditorToJobJson(editors);
 };
 
+const showAddModal = (type) => {
+  let html = addModalFormat({
+    type: type,
+  });
+  $('#addModalPlace').html(html);
+
+
+  $('#addModal').modal('show');
+  $(`#call-${type}-edit-modal`).on('click', () => {
+    $('#addModal').modal('hide');
+
+    let id = editors[type].length + 1;
+    let temp = userEditModalComponent({
+      'type': type,
+      'id': id,
+    });
+    $('#addCustomizeModalPlace').html(temp);
+    let editor = loadEditor({}, type, id, false);
+    $(`#${type}${id}-modal`).modal('show');
+
+    $(`#${type}${id}-edit-save-button`).on('click', () => {
+      let data = editor.getValue();
+      data['type'] = type;
+      $(`#${type}${id}-modal`).modal('hide');
+      $('#addCustomizeModalPlace').html('');
+      if (type == 'task') {
+        insertNewTask(data);
+      } else {
+        insertNewDockerDataScript(data);
+      }
+    });
+  });
+};
 
 module.exports = {
   updatePageFromYaml,
   exportsJson,
+  showAddModal,
 };
