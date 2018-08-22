@@ -34,10 +34,26 @@ const initArray = () => {
   };
 };
 
-let userChooseTemplateValues = initArray();
 let editors = initArray();
 
-const loadEditor = (d, type, id, insertEditors = true) => {
+const emptyPage = () => {
+  // clear grid item
+  ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
+    $(`#${type}-container`).empty();
+  });
+
+  // clear json editor and their UI elements.
+  editors = initArray();
+  $('#json-editor-container').empty();
+};
+
+
+const loadEditor = (d, type, id, insertEditors = true, containerName='#json-editor-container') => {
+  $(containerName).append(userEditModalComponent({
+    type: type,
+    id: id,
+  })); // append the modal html
+
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
     schema: jobSchema[`${type}Schema`],
@@ -58,14 +74,9 @@ const loadEditor = (d, type, id, insertEditors = true) => {
 };
 
 const addNewJsonEditor = (d, id, type) => {
-  $('#json-editor-container').append(userEditModalComponent({
-    type: type,
-    id: id,
-  })); // append the modal html
-
   let editor = loadEditor(d, type, id); // load json editor
 
-  if (type != 'task') {
+  if (type != 'task') { // docker/script/data/job listener
     editor.on('change', () => {
       let val = editor.getValue();
       ['name', 'description'].forEach((cur) => {
@@ -74,7 +85,14 @@ const addNewJsonEditor = (d, id, type) => {
       $(`#${type}${id}-title > a > span`).text(val['name']);
     });
   } else {
-    // todo add task listen function.
+    // task listen function.
+    editor.on('change', () => {
+      let val = editor.getValue();
+      ['role', 'dockerimage', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+        $(`#${type}${id}-${cur}`).text(val[cur]);
+      });
+      $(`#${type}${id}-command`).text('command' in d && d['command'] ? val['command'][0] : '');
+    });
   }
 
   // edit modal
@@ -95,8 +113,9 @@ const addNewJsonEditor = (d, id, type) => {
 
 const insertNewTask = (task) => {
   let type = 'task';
-  let id = userChooseTemplateValues[type].length + 1;
+  let id = editors[type].length + 1;
   let itemHtml = taskFormat({
+    data: task,
     id: id,
     type: type,
     role: task['role'],
@@ -110,12 +129,11 @@ const insertNewTask = (task) => {
   $(`#task-container`).append(itemHtml); // append the task html
 
   addNewJsonEditor(task, id, type);
-  userChooseTemplateValues[type].push(task);
 };
 
 const insertNewDockerDataScript = (item) => {
   let type = item['type'];
-  let id = userChooseTemplateValues[type].length + 1;
+  let id = editors[type].length + 1;
   let itemHtml = dockerScriptDataFormat({
     name: item['name'],
     description: item['description'],
@@ -125,28 +143,30 @@ const insertNewDockerDataScript = (item) => {
   $(`#${item['type']}-container`).append(itemHtml);
 
   addNewJsonEditor(item, id, type);
-  userChooseTemplateValues[type].push(item);
 };
 
 const updatePageFromYaml = (d) => {
-  // clear the template values
-  userChooseTemplateValues = initArray();
-  editors = initArray();
+  emptyPage();
+
   let data = yamlHelper.yamlToJsonEditor(d);
 
+  // update docker/script/data
   if ('prerequisites' in data) {
     Object.keys(data['prerequisites']).forEach((key) => {
       insertNewDockerDataScript(data['prerequisites'][key]);
     });
   }
 
+  // update task
   if ('tasks' in data) {
     data['tasks'].forEach((task) => {
       insertNewTask(task);
     });
   }
 
-  userChooseTemplateValues['job'] = data;
+  // update job
+  $('#job-name').text(data['name']);
+  $('#job-description').text(data['description']);
   addNewJsonEditor(data, '', 'job');
 };
 
@@ -156,18 +176,12 @@ const showAddModal = (type) => {
   });
   $('#addModalPlace').html(html);
 
-
   $('#addModal').modal('show');
   $(`#call-${type}-edit-modal`).on('click', () => {
     $('#addModal').modal('hide');
 
     let id = editors[type].length + 1;
-    let temp = userEditModalComponent({
-      'type': type,
-      'id': id,
-    });
-    $('#addCustomizeModalPlace').html(temp);
-    let editor = loadEditor({}, type, id, false);
+    let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
     $(`#${type}${id}-modal`).modal('show');
 
     $(`#${type}${id}-edit-save-button`).on('click', () => {
@@ -213,10 +227,20 @@ const createSubmitData = () => {
   return yamlHelper.jsonEditorToJobJson(editors);
 };
 
+const initPage = () =>{
+  let initJob = {
+    name: 'Job Name',
+    description: 'Please add job description.',
+  };
+  addNewJsonEditor(initJob, '', 'job'); // init a job jsonEditor
+};
+
+
 module.exports = {
   updatePageFromYaml,
   exportsJson,
   exportsYaml,
   showAddModal,
   createSubmitData,
+  initPage,
 };

@@ -18,10 +18,13 @@
             </li>
         </ul>
     </div>
-    <h5><%= role %></h5>
-    <p>Dockerimage: <%= dockerimage %></p>
-    <p>Instances: <%= instances %> </p>
-    <p class="task-resource">Resource: cpu:<%= cpu %>, memoryMB: <%= memoryMB %>, gpu: <%= gpu %></p>
+    <h5 id="<%= type %><%= id %>-role"><%= role %></h5>
+    <p>Dockerimage: <span id="<%= type %><%= id %>-instances"><%= dockerimage %></span></p>
+    <p>Instances: <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
+    <p class="task-resource">
+        Resource: cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
+        memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
+        gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span></p>
     Command:
-    <div class="task-command"><%= command %></div>
+    <div class="task-command"><span id="<%= type %><%= id %>-command"><%= command %></div>
 </div>
