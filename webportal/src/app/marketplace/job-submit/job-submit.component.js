@@ -97,7 +97,7 @@ $(document).on('click', '#submitJob', () => {
 $(document).ready(() => {
   // userAuth.checkToken(function(token) {
   // });
-
+  userTemplate.initPage();
   document.getElementById('importYaml').addEventListener('change', function(evt) {
     let files = evt.target.files;
     if (files.length) {
