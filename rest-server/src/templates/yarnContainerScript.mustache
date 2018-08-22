@@ -60,6 +60,7 @@ function exit_handler()
     fi
   fi
 
+  docker container rm $docker_name
   pkill --parent $$
 
   debug_log "$handler" "write exit code to file"
