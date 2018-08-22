@@ -42,12 +42,15 @@ def main():
 
     if gpuExists:
         try:
-            nvidiaSmiExists = len(utils.check_output(["which", "nvidia-smi"])) > 0
-            if nvidiaSmiExists:
-                smiOutput = utils.check_output(["nvidia-smi", "-q", "-x"])
+            smiOutput = utils.check_output(["nvidia-smi", "-q", "-x"])
         except subprocess.CalledProcessError as e:
             runTimeException.append("nvidia-smi")
             logger.error("command '%s' return with error (code %d): %s", e.cmd, e.returncode, e.output)
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                logger.warning("nvidia-smi not found")
+            else:
+                raise
 
     try:
         dockerDockerInspect = utils.check_output(["docker", "inspect", "--help"])
