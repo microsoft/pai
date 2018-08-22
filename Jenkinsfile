@@ -393,7 +393,7 @@ while :; do
 sleep 10
 STATUS=$(
 curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
-| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
+| tee /dev/stderr | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCESS' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
