@@ -17,36 +17,42 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary/"
+account_file="./etc/account.config"
+token_file="./etc/token.config"
+expiration="$((7*24*60*60))"
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
+rest_server_uri=$REST_SERVER_URI
+echo "$TEST_USERNAME:$TEST_PASSWORD" > $account_file
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
 
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
+get_auth_token() {
+  account="$(cat $account_file)"
+  account=(${account//:/ })
+  curl -X POST -d "username=${account[0]}" -d "password=${account[1]}" -d "expiration=$expiration" $rest_server_uri/api/v1/token | jq -r ".token" > $token_file
 }
 
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
 
-    rm -rf $hadoopBinaryPath
+while true; do
+  printf "\nStarting end to end tests:\n"
 
-}
+  if [ ! -f $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
+    get_auth_token
+  fi
 
-docker build -t hadoop-build -f hadoop-ai .
+  # printf "\nTesting service ...\n"
+  # bats test_service.sh
 
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
+  printf "\nTesting hdfs ...\n"
+  bats test_hdfs.sh
 
+  printf "\nTesting framework launcher ...\n"
+  bats test_launcher.sh
 
+  printf "\nTesting rest server ...\n"
+  bats test_rest_server.sh
 
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
+  printf "\n Sleeping ...\n"
+  sleep 1800
 
-popd > /dev/null
+done

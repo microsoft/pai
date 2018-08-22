@@ -22,7 +22,7 @@ ENV HADOOP_VERSION=hadoop-2.9.0
 RUN apt-get -y install zookeeper libsnappy-dev
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY dependency/hadoop-ai/hadoop-binary/hadoop-2.9.0.tar.gz /usr/local/
+COPY dependency/hadoop-binary/hadoop-2.9.0.tar.gz /usr/local/
 
 RUN tar -xzf /usr/local/$HADOOP_VERSION.tar.gz -C /usr/local/ && \
     cd /usr/local && \

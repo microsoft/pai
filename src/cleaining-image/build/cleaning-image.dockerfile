@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,36 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM base-image
 
-hadoopBinaryDir="/hadoop-binary/"
+COPY build/start.sh /usr/local/start.sh
+RUN chmod a+x /usr/local/start.sh
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
-
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
-}
-
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
-}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
-
-
-
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
-
-popd > /dev/null
+CMD ["/usr/local/start.sh"]

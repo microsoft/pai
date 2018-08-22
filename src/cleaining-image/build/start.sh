@@ -17,36 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-hadoopBinaryDir="/hadoop-binary/"
-
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
-
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
-}
-
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
-}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
+# clean all the data in the cluster.
 
 
 
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
+cp /${DELETE_CONFIG}/${WORKER_CONFIG}  delete_worker.sh
+chmod u+x delete_worker.sh
 
-popd > /dev/null
+./delete_worker.sh
+
+# Because Kuberetnes can't run the job to every node such as daemonset.
+# So we will use readiness probes to judge whether the batch job finish or not.
+# And then with the help of loop, we will prevent the pod to restart.
+# After the /jobstatus/jobok is touched, we will find the status of pod is ready with kubectl.
+# If all pod is ready, the "daemon job" is finished. We can run kubectl delete to delete all the pod.
+mkdir -p /jobstatus
+touch /jobstatus/jobok
+
+while true; do sleep 1000; done

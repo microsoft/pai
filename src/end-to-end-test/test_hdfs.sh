@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bats
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,36 +17,42 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary/"
+hdfs_uri=$HDFS_URI
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
+@test "list hdfs root dir" {
+  result="$(hdfs dfs -ls $hdfs_uri/)"
+  [[ $result == *Launcher* ]]
 }
 
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
+@test "make hdfs test root dir" {
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test)"
+  [[ ! $result == *mkdir* ]]
+  result="$(hdfs dfs -ls $hdfs_uri/)"
+  [[ $result == *Test* ]]
 }
 
-docker build -t hadoop-build -f hadoop-ai .
+@test "make hdfs test sub dir" {
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test/launcher)"
+  [[ ! $result == *mkdir* ]]
+  result="$(hdfs dfs -mkdir $hdfs_uri/Test/cntk)"
+  [[ ! $result == *mkdir* ]]
+}
 
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
+@test "upload cntk data to hdfs" {
+  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/cntk/)"
+  [[ ! $result == *put* ]]
+  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/BrainScript $hdfs_uri/Test/cntk/)"
+  [[ ! $result == *put* ]]
+}
 
+@test "upload cntk start script to hdfs" {
+  result="$(hdfs dfs -put -f etc/cntk.sh $hdfs_uri/Test/cntk/BrainScript/)"
+  [[ ! $result == *put* ]]
+}
 
-
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
-
-popd > /dev/null
+@test "hdfs test root dir chmod" {
+  result="$(hdfs dfs -chmod -R 777 $hdfs_uri/Test)"
+  [[ ! $result == *chmod* ]]
+}

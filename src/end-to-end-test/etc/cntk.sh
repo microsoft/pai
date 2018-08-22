@@ -17,36 +17,15 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary/"
+mnt_point=/mnt/hdfs
+hdfs_addr=$(sed -e "s@hdfs://\(\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}\).*@\1@" <<< $PAI_DATA_DIR)
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
+mkdir -p $mnt_point
+hdfs-mount $hdfs_addr $mnt_point &
+export DATA_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_DATA_DIR)
+export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{1,5\}@$mnt_point@g" <<< $PAI_OUTPUT_DIR)
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
-}
-
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
-}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
-
-
-
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
-
-popd > /dev/null
+sed -i "/stderr/s/^/# /" G2P.cntk
+sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR

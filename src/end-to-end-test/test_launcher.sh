@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bats
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,36 +17,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-hadoopBinaryDir="/hadoop-binary/"
+launcher_uri=$WEBSERVICE_URI
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
+@test "check framework launcher health check" {
+  result="$(curl $launcher_uri)"
+  [[ $result == *Active* ]]
 }
 
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
+@test "submit framework launcher test job" {
+  job_name="launcher-test-$RANDOM-$RANDOM"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  [[ ! $result == *Error* ]]
 }
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
-
-
-
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
-
-popd > /dev/null

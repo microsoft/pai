@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,36 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM hadoop-run
 
-hadoopBinaryDir="/hadoop-binary/"
+RUN apt-get -y update && \
+    apt-get -y install python git jq && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
+WORKDIR /root/end-to-end-test
 
-echo "hadoopbinarypath:${hadoopBinaryDir}"
-
-[[ -f $cacheVersion ]] &&
-{
-    echo "Hadoop ai with patch 12932984-12933562 has been built"
-    echo "Skip this build precess"
-    exit 0
-}
-
-[[ ! -f "$hadoopBinaryPath" ]] ||
-{
-
-    rm -rf $hadoopBinaryPath
-
-}
-
-docker build -t hadoop-build -f hadoop-ai .
-
-docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
+COPY etc /root/end-to-end-test/etc/
+COPY *.sh /root/end-to-end-test/
 
 
+RUN git clone https://github.com/sstephenson/bats.git && \
+    cd bats && \
+    ./install.sh /usr/local
 
-# When Changing the patch id, please update the filename here.
-touch $cacheVersion
+RUN git clone https://github.com/Microsoft/CNTK.git
 
-popd > /dev/null
+
+CMD ["/bin/bash", "/root/end-to-end-test/start.sh"]
