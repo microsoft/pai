@@ -12,6 +12,10 @@ A: We recommend deploying them on the same subnet. In theory, as long as the net
 
 A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer.
 
+### Q: How to diagnose job problems through logs?
+
+A: Please check [job_log.md](./job_log.md)'s answer.
+
 ### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
 
 A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. Default value of -1 implies a queue can use complete capacity of the cluster. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit. 

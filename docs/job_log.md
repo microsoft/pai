@@ -119,7 +119,7 @@ Please pay attention to these lines to diagnostic job failure reason
 we could get information:
 1.  UserApplication itself failed.
 2.  cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002 does not exist is the reason.
-3.  Then we could visit ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/``` at step 1.2 to view task failure reason.
+3.  Then we could visit ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/``` at step 1.2 to detect task failure reason.
 
 
 ### 1.2 View job each task container log  <a name="tasklog"></a>
@@ -138,7 +138,7 @@ ContainerLogHttpAddress:
 
 If the Framework retried many times, check other attempts by searching the FrameworkName in the YARN Web:
 
-- Visit YARN URL: ```http://master_ip/yarn/``` or http://master_ip:8088
+- Visit YARN URL: ```http://master_ip/yarn/``` or ```http://master_ip:8088```
 - Seach by the job name key words
 
 ![PAI_job_task_container](./images/PAI_job_task_container.png)
