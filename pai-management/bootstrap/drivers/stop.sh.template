@@ -19,11 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds drivers-one-shot
+if kubectl get daemonset | grep -q "drivers-one-shot"; then
+    kubectl delete ds drivers-one-shot || exit $?
+fi
 
 {% for host in machinelist %}
     {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype- || exit $?
     {% endif %}
 {% endfor %}
 

@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import logging
 import logging.config
 #
@@ -78,7 +79,6 @@ class build_center:
     def hadoop_binary_prepare(self):
 
         custom_hadoop_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
-        hadoop_version = self.cluster_object_model['clusterinfo']['hadoopinfo']['hadoopversion']
 
         self.logger.info("Begin to prepare the hadoop binary for image building.")
 
@@ -89,11 +89,8 @@ class build_center:
             self.logger.info("Customized hadoop path is found.")
             directory_handler.directory_copy(custom_hadoop_path, "src/hadoop-run/hadoop")
         else:
-            self.logger.info("None customized hadoop path is found. An official hadoop will be downloaded.")
-            url = "http://archive.apache.org/dist/hadoop/common/{0}/{0}.tar.gz".format("hadoop-" + hadoop_version)
-            shell_cmd = "wget {0} -P src/hadoop-run/hadoop".format(url)
-            error_msg = "failed to wget hadoop binary"
-            linux_shell.execute_shell(shell_cmd, error_msg)
+            self.logger.error("None hadoop-ai binary is found.")
+            sys.exit(1)
 
         self.logger.info("Hadoop binary is prepared.")
 
@@ -148,10 +145,8 @@ class build_center:
 
 
     def hadoop_ai_build(self):
-
-        hadoop_version = self.cluster_object_model['clusterinfo']['hadoopinfo']['hadoopversion']
         hadoop_ai_path = self.cluster_object_model['clusterinfo']['hadoopinfo']['custom_hadoop_binary_path']
-        hadoop_ai_build_instance = hadoop_ai_build.hadoop_ai_build(self.os_type, hadoop_version, hadoop_ai_path)
+        hadoop_ai_build_instance = hadoop_ai_build.hadoop_ai_build(self.os_type, hadoop_ai_path)
         hadoop_ai_build_instance.build()
 
 

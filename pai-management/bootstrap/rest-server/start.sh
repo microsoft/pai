@@ -19,6 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f rest-server.yaml
+kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
+
 
 popd > /dev/null

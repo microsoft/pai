@@ -20,21 +20,26 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "Call stop to stop hadoop jobhistory first"
-/bin/bash stop.sh
+/bin/bash stop.sh || exit $?
 
 echo "Create hadoop-jobhistory-delete configmap for deleting data on the host"
-kubectl create configmap hadoop-jobhistory-delete --from-file=hadoop-jobhistory-delete/
+kubectl create configmap hadoop-jobhistory-delete --from-file=hadoop-jobhistory-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl create -f delete.yaml
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-jobhistory
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hadoop-jobhistory || exit $?
 
 echo "Hadoop Service clean job is done"
 echo "Delete hadoop cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-hadoop-jobhistory
-kubectl delete configmap hadoop-jobhistory-delete
+if kubectl get daemonset | grep -q "delete-batch-job-hadoop-jobhistory"; then
+    kubectl delete ds delete-batch-job-hadoop-jobhistory || exit $?
+fi
+
+if kubectl get configmap | grep -q "hadoop-jobhistory-delete"; then
+    kubectl delete configmap hadoop-jobhistory-delete || exit $?
+fi
 sleep 5
 
 popd > /dev/null

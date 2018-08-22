@@ -20,6 +20,6 @@
 pushd $(dirname "$0") > /dev/null
 
 
-kubectl apply --overwrite=true -f webportal.yaml
+kubectl apply --overwrite=true -f webportal.yaml || exit $?
 
 popd > /dev/null

@@ -21,14 +21,14 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "relabel node's label"
-/bin/bash node-label.sh
+/bin/bash node-label.sh || exit $?
 
 {% for host in machinelist %}
 
     {% if 'webportal' not in machinelist[ host ] %}
 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "webportal="; then
     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have webportal's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal-
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal- || exit $?
 fi
     {% endif %}
 

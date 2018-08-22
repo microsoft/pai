@@ -22,11 +22,11 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x configmap-create.sh
 
-/bin/bash configmap-create.sh
+/bin/bash configmap-create.sh || exit $?
 
 
 # Hadoop resource manager
-kubectl apply --overwrite=true -f hadoop-resource-manager.yaml
+kubectl apply --overwrite=true -f hadoop-resource-manager.yaml || exit $?
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-resource-manager -v "true"
 ret=$?
@@ -35,7 +35,7 @@ if [ $ret -ne 0 ]; then
     echo "No hadoop-resource-manager Pod in your cluster"
 else
     # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager
+    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-resource-manager || exit $?
 fi
 
 

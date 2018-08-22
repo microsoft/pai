@@ -49,12 +49,13 @@ public class ChangeAwareLogger {
     unchangedLogLevels.put(scope, unchangedLogLevel);
   }
 
-  public synchronized void log(String scope, String format, Object... args) throws Exception {
+  public synchronized void log(String scope, String format, Object... args) {
     String msg = CommonUtils.formatString(format, args);
 
     if (!changedLogLevels.containsKey(scope)) {
-      throw new Exception(String.format(
-          "Scope [%s] is not initialized for before log it.", scope));
+      LOGGER.logWarning("Scope [%s] is not initialized for before log it. " +
+          "Using default scope configuration.", scope);
+      changedLogLevels.put(scope, Level.INFO);
     }
 
     if (lastLogs.containsKey(scope) && lastLogs.get(scope).equals(msg)) {
