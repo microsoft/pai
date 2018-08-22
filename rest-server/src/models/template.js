@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+const base64 = require('js-base64').Base64;
 const github = require('@octokit/rest')();
 const https = require('https');
 const url = require('url');
@@ -30,7 +31,7 @@ const config = require('../config/github');
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
 const load = (options, callback) => {
-  let ref = options.version ? options.version : 'master';
+  let ref = options.version ? options.version : config.branch;
   let responses = [];
   let path = `${config.owner}/${config.repository}/${ref}/${options.type}/${options.name}.yaml`;
   https.get('https://raw.githubusercontent.com/' + path, function(res) {
@@ -50,6 +51,79 @@ const load = (options, callback) => {
       callback(e, null);
     });
   });
+};
+
+/**
+ * Save the template.
+ * @param {*} type Template type.
+ * @param {*} name Template name.
+ * @param {*} template An object representing a job/script/data/dockerimage template.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
+ */
+const save = function(type, name, template, callback) {
+  github.authenticate({
+    type: 'token',
+    token: process.env.GITHUB_PAT,
+  });
+  let b64text = base64.encode(yaml.dump(template));
+  github.repos.createFile({
+    owner: config.owner,
+    repo: config.repository,
+    path: `${type}/${name}.yaml`,
+    message: 'Create template from PAI Marketplace.',
+    content: b64text,
+  }, function(err, res) {
+    if (err) {
+      // Maybe existed, try to update
+      update(type, name, b64text, callback);
+    } else {
+      logger.debug(res);
+      callback(null, {
+        new: true,
+        summary: createSummary(type, name, res),
+      });
+    }
+  });
+};
+
+const update = function(type, name, b64text, callback) {
+  github.repos.getContent({
+    owner: config.owner,
+    repo: config.repository,
+    path: `${type}/${name}.yaml`,
+  }, function(err, res) {
+    if (err) {
+      return callback(err, null);
+    } else {
+      github.repos.updateFile({
+        owner: config.owner,
+        repo: config.repository,
+        path: res.data.path,
+        message: 'Update template from PAI Marketplace.',
+        content: b64text,
+        sha: res.data.sha,
+      }, function(err, res) {
+        if (err) {
+          callback(err, null);
+        } else {
+          logger.debug(res);
+          callback(null, {
+            new: false,
+            summary: createSummary(type, name, res),
+          });
+        }
+      });
+    }
+  });
+};
+
+const createSummary = (type, name, res) => {
+  return {
+    type: type,
+    name: name,
+    version: res.data.commit.sha,
+    contributor: res.data.commit.author.name,
+  };
 };
 
 /**
@@ -139,5 +213,6 @@ const downloadInParallel = (list, callback) => {
 
 module.exports = {
   load,
+  save,
   search,
 };

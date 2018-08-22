@@ -23,6 +23,7 @@
 let dataSource = {
   owner: 'shishaochen',
   repository: 'paitemplate',
+  branch: 'master',
 };
 
 module.exports = dataSource;

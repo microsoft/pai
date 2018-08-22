@@ -17,13 +17,17 @@
 
 
 const express = require('express');
+
 const template = require('../controllers/template');
+const token = require('../config/token');
 
 const router = new express.Router();
 
 router.route('/')
-  /** GET /api/v1/template?query=XXX[&pageno=YYY] - Search templates by keywords */
-  .get(template.filter);
+  /** GET /api/v2/template?query=XXX[&pageno=YYY] - Search templates by keywords */
+  .get(template.filter)
+  /** POST /api/v2/template - Share the job and its resources as template */
+  .post(token.check, template.share);
 
 router.route('/:type')
   /** GET /api/v2/template/:type[?pageno=YYY] - Get list of templates */
