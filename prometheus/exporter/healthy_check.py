@@ -42,7 +42,9 @@ def main():
 
     if gpuExists:
         try:
-            smiOutput = utils.check_output(["nvidia-smi", "-q", "-x"])
+            nvidiaSmiExists = len(utils.check_output(["which", "nvidia-smi"])) > 0
+            if nvidiaSmiExists:
+                smiOutput = utils.check_output(["nvidia-smi", "-q", "-x"])
         except subprocess.CalledProcessError as e:
             runTimeException.append("nvidia-smi")
             logger.error("command '%s' return with error (code %d): %s", e.cmd, e.returncode, e.output)

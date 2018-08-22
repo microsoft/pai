@@ -54,9 +54,12 @@ def collect_gpu_info():
     try:
         logger.info("call nvidia-smi to get gpu metrics")
 
-        smi_output = utils.check_output(["nvidia-smi", "-q", "-x"])
-
-        return parse_smi_xml_result(smi_output)
+        nvidia_smi_exists = len(utils.check_output(["which", "nvidia-smi"])) > 0
+        if nvidia_smi_exists:
+            smi_output = utils.check_output(["nvidia-smi", "-q", "-x"])
+            return parse_smi_xml_result(smi_output)
+        else:
+            logger.info('nvidia-smi not found')
     except subprocess.CalledProcessError as e:
         if e.returncode == 127:
             logger.exception("nvidia cmd error. command '%s' return with error (code %d): %s",
