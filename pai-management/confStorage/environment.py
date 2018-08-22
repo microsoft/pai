@@ -131,10 +131,3 @@ class environment_check:
 
         self.init_kubernetes_client()
         self.check_python_kubernetes()
-
-
-
-if __name__ == "__main__":
-
-    env_test = environment_check()
-    env_test.run()
