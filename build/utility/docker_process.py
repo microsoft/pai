@@ -24,7 +24,7 @@ import os
 import subprocess
 import yaml
 
-logger = logging.getLogger(__name__)
+
 
 class DockerClient:
 
@@ -69,8 +69,21 @@ class DockerClient:
         cmd = "docker push {0}".format(target_tag)
         execute_shell(cmd)
 
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    logger.setLevel(logging.DEBUG)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    consoleHandler.setFormatter(formatter)
+    logger.addHandler(consoleHandler)
+
+logger = logging.getLogger(__name__)
+setup_logger_config(logger)
+
 def execute_shell(shell_cmd):
-    setup_logger_config(logger)
     try:
         logger.info("Begin to execute the command: {0}".format(shell_cmd))
         subprocess.check_call( shell_cmd, shell=True )
@@ -82,7 +95,6 @@ def execute_shell(shell_cmd):
 
 
 def execute_shell_with_output(shell_cmd):
-    setup_logger_config(logger)
     try:
         logger.info("Begin to execute the command: {0}".format(shell_cmd))
         res = subprocess.check_output( shell_cmd, shell=True )
@@ -94,7 +106,6 @@ def execute_shell_with_output(shell_cmd):
     return res
 
 def load_yaml_config(config_path):
-    setup_logger_config(logger)
 
     if not os.path.exists(config_path):
         logger.error("Invalid config path: {0}".format(config_path))
@@ -104,14 +115,3 @@ def load_yaml_config(config_path):
         cluster_data = yaml.load(f)
 
     return cluster_data
-
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    logger.setLevel(logging.DEBUG)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    consoleHandler.setFormatter(formatter)
-    logger.addHandler(consoleHandler)

@@ -31,6 +31,14 @@ def load_build_config(config_dir):
     configModel = buildConfig.build_config_parse()
     return configModel
 
+def build_service(args,config_model):
+    pai_build = build_center.BuildCenter(config_model,args.service)
+    pai_build.build_center()
+
+def push_image(args,config_model):
+    pai_push = build_center.BuildCenter(config_model,args.imagelist)
+    pai_push.push_center()
+
 def main():
 
     # Define execution path to root folder
@@ -41,57 +49,43 @@ def main():
     parser = argparse.ArgumentParser(description="pai build client")
     logger.info("Pai build starts at {0}".format(starttime))
 
-    # setup commands
-    command = parser.add_mutually_exclusive_group()
-    command.add_argument(
-        '-b', '--build',
-        action='store_true',
-        help="Build"
-    )
-    command.add_argument(
-        '-p', '--push',
-        action='store_true',
-        help="Push"
-    )
+    subparsers = parser.add_subparsers(help='build service cli')
 
-    # setup arguments
-    parser.add_argument(
+    # Build commands
+    build_parser = subparsers.add_parser('build',help='build service cli')
+    build_parser.add_argument(
         '-c', '--config',
         type=bytes,
         required=True,
         help='The path of your configuration directory.'
     )
-
-    parser.add_argument(
+    build_parser.add_argument(
         '-s', '--service',
         type=bytes,
         nargs='+',
-        help="Build service list"
+        help="The service list you want to build"
     )
+    build_parser.set_defaults(func = build_service)
 
-    parser.add_argument(
+    # Push commands
+    push_parser = subparsers.add_parser('push',help='push image cli')
+    push_parser.add_argument(
+        '-c', '--config',
+        type=bytes,
+        required=True,
+        help='The path of your configuration directory.'
+    )
+    push_parser.add_argument(
         '-i', '--imagelist',
         type=bytes,
         nargs='+',
-        help="Push image list"
+        help="The image list you want to push"
     )
-
+    push_parser.set_defaults(func = push_image)
 
     args = parser.parse_args()
-
-    # TO-DO add config dir check
     config_model = load_build_config(args.config)
-
-    if args.push:
-        pai_push = build_center.BuildCenter(config_model,args.imagelist)
-        pai_push.push_center()
-
-    elif args.build:
-        pai_build = build_center.BuildCenter(config_model,args.service)
-        pai_build.build_center()
-
-    else:
-        parser.exit(1, parser.format_help())
+    args.func(args, config_model)
 
     endtime = datetime.datetime.now()
     logger.info("Pai build ends at {0}".format(endtime))

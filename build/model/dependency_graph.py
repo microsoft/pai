@@ -39,7 +39,7 @@ class ServiceNode(object):
 
 
     def dump(self):
-        self.logger.info("Path:{}\nName:{}\nInedge:{}\nOutedge:{}\n".format(
+        self.logger.info("Path:{} Name:{} Inedge:{} Outedge:{}".format(
             self.path,
             self.service_name,
             self.inedges,

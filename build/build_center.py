@@ -70,7 +70,7 @@ class BuildCenter:
                         for line in fin:
                             self.graph.add_dependency(line.strip(), service_name)
         # Show dependency graph
-        self.graph.dump()
+        # self.graph.dump()
 
         self.logger.info("Resolves dependency successfully")
 
@@ -103,9 +103,11 @@ class BuildCenter:
                         build_worker.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
                     build_worker.build_single_component(self.graph.services[item])
             self.logger.info("Build all components succeed")
+
         except:
             self.logger.error("Build all components failed")
             sys.exit(1)
+
         finally:
             # Clean generated folder
             self.logger.info("Begin to clean all temp folder")
@@ -124,15 +126,18 @@ class BuildCenter:
                 if image not in self.graph.image_to_service:
                     self.logger.error("{0} not in image list".format(image))
                     sys.exit(1)
-                self.logger.info("[CAN-TEST-PUSH] image {0}".format(image))
+
+                self.logger.info("Starts to push image: {0}".format(image))
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+                self.logger.info("Push image:{0} successfully".format(image))
         else:
             # by default push all images
             for image in self.graph.image_to_service:
-                self.logger.info("[CAN-TEST-PUSH-ALL-SERVICE] image {0}".format(image))
+                self.logger.info("Starts to push image: {0}".format(image))
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
+                self.logger.info("Push image:{0} successfully".format(image))
 
 
 
