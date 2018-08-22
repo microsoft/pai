@@ -2,7 +2,7 @@
 # How to diagnose job problems through logs  <a name="cluster_configuration"></a>
 
 ## Table of Contents
-- [1 Diagnostic job failure reason](#retry)
+- [1 Diagnostic job failure reason](#)
     - [1.1 View job's launcher AM log](#amlog)
     - [1.2 View job's each task container log](#tasklog)
 
