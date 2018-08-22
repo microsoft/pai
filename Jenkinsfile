@@ -377,17 +377,24 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
-\\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"openpai/stress\\",
-\\"taskRoles\\": [
-{
-\\"name\\": \\"Master\\",
-\\"taskNumber\\": 1,
-\\"cpuNumber\\": 1,
-\\"memoryMB\\": 256,
-\\"command\\": \\"stress --vm-keep -m 2 --vm-bytes 128m --vm-hang 0 --verbose\\"
-}
-]
+  \\"jobName\\": \\"$JOB_NAME\\",
+  \\"image\\": \\"openpai/stress\\",
+  \\"virtualCluster\\": \\"default\\",
+  \\"retryCount\\": 0,
+  \\"taskRoles\\": [
+    {
+      \\"name\\": \\"memory_consumer\\",
+      \\"taskNumber\\": 1,
+      \\"cpuNumber\\": 1,
+      \\"memoryMB\\": 180224,
+      \\"shmMB\\": 64,
+      \\"gpuNumber\\": 0,
+      \\"minFailedTaskCount\\": 1,
+      \\"minSucceededTaskCount\\": null,
+      \\"command\\": \\"stress --vm-keep -m 220 --vm-bytes 1024m --vm-hang 0 --verbose\\",
+      \\"portList\\": []
+    }
+  ]
 }"
 while :; do
 sleep 10
@@ -481,17 +488,24 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
-\\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"openpai/stress\\",
-\\"taskRoles\\": [
-{
-\\"name\\": \\"Master\\",
-\\"taskNumber\\": 1,
-\\"cpuNumber\\": 1,
-\\"memoryMB\\": 196,
-\\"command\\": \\"stress --vm-keep -m 2 --vm-bytes 128m --vm-hang 0 --verbose\\"
-}
-]
+  \\"jobName\\": \\"stress-test-002\\",
+  \\"image\\": \\"openpai/stress\\",
+  \\"virtualCluster\\": \\"default\\",
+  \\"retryCount\\": 0,
+  \\"taskRoles\\": [
+    {
+      \\"name\\": \\"memory_consumer\\",
+      \\"taskNumber\\": 1,
+      \\"cpuNumber\\": 1,
+      \\"memoryMB\\": 180224,
+      \\"shmMB\\": 64,
+      \\"gpuNumber\\": 0,
+      \\"minFailedTaskCount\\": 1,
+      \\"minSucceededTaskCount\\": null,
+      \\"command\\": \\"stress --vm-keep -m 220 --vm-bytes 1024m --vm-hang 0 --verbose\\",
+      \\"portList\\": []
+    }
+  ]
 }"
 while :; do
 sleep 10
