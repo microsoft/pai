@@ -290,5 +290,17 @@
 jobs are started with the DockerContainerExecutor.
   </description>
 </property>
+
+<property>
+  <name>yarn.nodemanager.docker-container-executor.image-name</name>
+  <value>mzmssg/hadoop-run:docker_executor</value>
+</property>
+
+<property>
+  <name>yarn.nodemanager.docker-container-executor.exec-command</name>
+  <value>-v /dev:/dev -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /var/drivers:/var/drivers -v /datastorage/yarn/node:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v /datastorage/hadooptmp/nodemanager:/var/lib/hadoopdata -e HDFS_ADDRESS=10.130.137.50 -e LOGSERVER_ADDRESS=10.130.137.50 -e TIMELINE_SERVER_ADDRESS=10.130.137.50 -e RESOURCEMANAGER_ADDRESS=10.130.137.50 -e ZOOKEEPER_ADDRESS=10.130.137.50 -e KUBERNETES_PORT=tcp://10.254.0.1:443 -e KUBERNETES_PORT_443_TCP=tcp://10.254.0.1:443 -e KUBERNETES_PORT_443_TCP_PROTO=tcp -e KUBERNETES_PORT_443_TCP_PORT=443 -e KUBERNETES_PORT_443_TCP_ADDR=10.254.0.1 -e KUBERNETES_SERVICE_HOST=10.254.0.1 -e KUBERNETES_SERVICE_PORT=443 -e KUBERNETES_SERVICE_PORT_HTTPS=443 -e HADOOP_HOME=/usr/local/hadoop</value>
+</property>
+
+
   
 </configuration>

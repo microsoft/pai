@@ -23,19 +23,19 @@ wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-
 # patch for webhdfs upload issue when using nginx as a reverse proxy
 wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
 
-git clone https://github.com/apache/hadoop.git
+git clone https://github.com/mzmssg/hadoop.git
 
 cd hadoop
 
-git checkout branch-2.9.0
+git checkout hack-2.9.0
 
 cp /hadoop-2.9.0.gpu-port.patch /hadoop
 cp /HDFS-13773.patch /hadoop
 cp /docker_env_2.9.0.patch /hadoop
 
-git apply hadoop-2.9.0.gpu-port.patch
-git apply HDFS-13773.patch
-git apply docker_env_2.9.0.patch
+#git apply hadoop-2.9.0.gpu-port.patch
+#git apply HDFS-13773.patch
+#git apply docker_env_2.9.0.patch
 
 mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
 
