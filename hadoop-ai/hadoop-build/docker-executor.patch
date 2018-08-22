@@ -1,0 +1,88 @@
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
+index 96f6c57..3f1cc25 100644
+--- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/conf/YarnConfiguration.java
+@@ -1544,6 +1544,14 @@ public static boolean isAclEnabled(Configuration conf) {
+   public static final String NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME =
+     NM_PREFIX + "docker-container-executor.image-name";
+ 
++  //Modify
++  /** The Docker command.*/
++  public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_COMMAND =
++          NM_PREFIX + "docker-container-executor.exec-command";
++
++  public static final String NM_DOCKER_CONTAINER_EXECUTOR_SCRIPT_COMMAND =
++          NM_PREFIX + "docker-container-executor.script-command";
++
+   /** The name of the docker executor (For DockerContainerExecutor).*/
+   public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_NAME =
+     NM_PREFIX + "docker-container-executor.exec-name";
+diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
+index a044cb6..a785139 100644
+--- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
++++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
+@@ -181,8 +181,11 @@ public int launchContainer(ContainerStartContext ctx) throws IOException {
+ 
+     //Variables for the launch environment can be injected from the command-line
+     //while submitting the application
+-    String containerImageName = container.getLaunchContext().getEnvironment()
+-      .get(YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME);
++    //modify get image from configuration rather than env
++    String containerImageName = getConf().get(
++            YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_IMAGE_NAME);
++
++    //
+     if (LOG.isDebugEnabled()) {
+       LOG.debug("containerImageName from launchContext: " + containerImageName);
+     }
+@@ -240,11 +243,16 @@ public int launchContainer(ContainerStartContext ctx) throws IOException {
+     //--net=host allows the container to take on the host's network stack
+     //--name sets the Docker Container name to the YARN containerId string
+     //-v is used to bind mount volumes for local, log and work dirs.
++    //modify: add mount path
++    String dockerCommand = getConf().get(
++            YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_EXEC_COMMAND);
+     String commandStr = commands.append(dockerExecutor)
+       .append(" ")
+       .append("run")
+       .append(" ")
+-      .append("--rm --net=host")
++      .append("--rm --net=host --pid=host --privileged=true")
++      .append(" ")
++      .append(dockerCommand)
+       .append(" ")
+       .append(" --name " + containerIdStr)
+       .append(localDirMount)
+@@ -587,6 +595,7 @@ public void writeLocalWrapperScript(Path launchDst, Path pidFile,
+       pout.println("exit $rc");
+     }
+ 
++    //modify session script
+     private void writeSessionScript(Path launchDst, Path pidFile)
+       throws IOException {
+       DataOutputStream out = null;
+@@ -597,13 +606,22 @@ private void writeSessionScript(Path launchDst, Path pidFile)
+         // We need to do a move as writing to a file is not atomic
+         // Process reading a file being written to may get garbled data
+         // hence write pid to tmp file first followed by a mv
++        // modify move dockerpidscript to backend
+         pout.println("#!/usr/bin/env bash");
+         pout.println();
++        pout.println("{");
++        pout.println("sleep 30");
+         pout.println("echo "+ dockerPidScript +" > " + pidFile.toString()
+           + ".tmp");
+         pout.println("/bin/mv -f " + pidFile.toString() + ".tmp " + pidFile);
+-        pout.println(dockerCommand + " bash \"" +
+-          launchDst.toUri().getPath().toString() + "\"");
++        pout.println("} &");
++        // modify add exec command field
++        String scriptCommand = getConf().get(
++                YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_SCRIPT_COMMAND);
++        pout.println(dockerCommand + " bash -c '" + scriptCommand + " && bash \"" +
++                launchDst.toUri().getPath().toString() + "\"'");
++        //pout.println(dockerCommand + " bash \"" +
++        //  launchDst.toUri().getPath().toString() + "\"");
+       } finally {
+         IOUtils.cleanupWithLogger(LOG, pout, out);
+       }
