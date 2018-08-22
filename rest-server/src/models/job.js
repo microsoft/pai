@@ -355,7 +355,8 @@ class Job {
           'frameworkInfoWebhdfsUri': launcherConfig.frameworkInfoWebhdfsPath(data.jobName),
           'taskData': data.taskRoles[idx],
           'jobData': data,
-          'inspectFormat': '{{.State.Pid}}',
+          'inspectPidFormat': '{{.State.Pid}}',
+          'inspectOOMKilledFormat': '{{.State.OOMKilled}}'
         });
     return yarnContainerScript;
   }
