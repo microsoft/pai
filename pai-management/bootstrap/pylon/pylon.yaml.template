@@ -36,7 +36,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['pylon'] }}
+              - key: {{ clusterinfo['pyloninfo']['role'] }}
                 operator: In
                 values:
                 - "true"

@@ -32,7 +32,7 @@ spec:
       hostPID: true  
       affinity:
         nodeAffinity:
-          requiredDuringSchedulingRequiredDuringExecution:
+          requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
               - key: stop-drivers

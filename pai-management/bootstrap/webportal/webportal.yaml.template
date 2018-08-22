@@ -36,7 +36,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: {{ clusterinfo['roleinfo']['webportal'] }}
+              - key: {{ clusterinfo['webportalinfo']['role'] }}
                 operator: In
                 values:
                 - "true"
