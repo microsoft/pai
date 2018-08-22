@@ -51,4 +51,3 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 ```
 
 - Note:  This configuration control users' resource usage in current vc. User a can not preempt the resources occupied by user b before job is completed. 
-
