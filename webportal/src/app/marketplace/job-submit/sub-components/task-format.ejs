@@ -1,8 +1,23 @@
-<div class="col-md-3 shadow sty-task-content grid-item" style="overflow: hidden;">
+<div class="col-md-3 shadow sty-task-content grid-item" style="overflow: hidden;" id="<%= type %><%= id %>-container">
     <!-- <img src="/assets/img/edit.png" alt=""> -->
-    <button class="edit-task" data-toggle="modal">
-        <span class="glyphicon glyphicon-pencil" id="<%= type %><%= id %>-edit-button"></span>
-    </button>
+
+    <div class="btn-group edit-task">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-option-horizontal"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a id="<%= type %><%= id %>-edit-button">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>
+            </li>
+            <li>
+                <a id="<%= type %><%= id %>-remove-button">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
     <h5><%= role %></h5>
     <p>Dockerimage: <%= dockerimage %></p>
     <p>Instances: <%= instances %> </p>

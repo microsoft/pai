@@ -68,29 +68,32 @@ const jsonEditorToJobJson = (editors) => {
 
   ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
     editors[type].forEach((editor) => {
-      let temp = JSON.parse(JSON.stringify(editor.getValue()));
-      temp['type'] = type;
-      if (type == 'task') {
-        convertParameterFromKeyValue(temp);
-        temp['resource'] = {
-          'instances': temp['instances'],
-          'resourcePerInstance': {
-            cpu: temp['cpu'],
-            memoryMB: temp['memoryMB'],
-            gpu: temp['gpu'],
-          },
-        };
-        delete temp['instances'];
-        delete temp['cpu'];
-        delete temp['memoryMB'];
-        delete temp['gpu'];
-        res['tasks'].push(temp);
-      } else {
-        res['prerequisites'].push(temp);
+      if (editor != null) {
+        let temp = JSON.parse(JSON.stringify(editor.getValue()));
+        temp['type'] = type;
+        if (type == 'task') {
+          convertParameterFromKeyValue(temp);
+          temp['resource'] = {
+            'instances': temp['instances'],
+            'resourcePerInstance': {
+              cpu: temp['cpu'],
+              memoryMB: temp['memoryMB'],
+              gpu: temp['gpu'],
+            },
+          };
+          delete temp['instances'];
+          delete temp['cpu'];
+          delete temp['memoryMB'];
+          delete temp['gpu'];
+          res['tasks'].push(temp);
+        } else {
+          res['prerequisites'].push(temp);
+        }
       }
     });
   });
   console.log(res);
+  return res;
 };
 
 

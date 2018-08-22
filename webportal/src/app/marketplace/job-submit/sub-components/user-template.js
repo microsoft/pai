@@ -65,10 +65,6 @@ const addNewJsonEditor =(d, id, type)=>{
 
   let editor = loadEditor(d, type, id); // load json editor
 
-  $(`#${type}${id}-edit-button`).on('click', () => { // click and show modal
-    $(`#${type}${id}-modal`).modal('show');
-  });
-
   if (type != 'task') {
     editor.on('change', function() {
       let val = editor.getValue();
@@ -80,6 +76,17 @@ const addNewJsonEditor =(d, id, type)=>{
   } else {
     // todo add task listen function.
   }
+
+  // edit modal
+  $(`#${type}${id}-edit-button`).on('click', () => {
+    $(`#${type}${id}-modal`).modal('show');
+  });
+
+  // delete item
+  $(`#${type}${id}-remove-button`).on('click', ()=>{
+    $(`#${type}${id}-container`).remove();
+    editors[type][id - 1] = null;
+  });
 
   $(`#${type}${id}-edit-save-button`).on('click', ()=>{
     $(`#${type}${id}-modal`).modal('hide');
