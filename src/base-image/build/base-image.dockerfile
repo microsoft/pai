@@ -51,6 +51,6 @@ RUN apt-get -y update && \
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-COPY host-configure.py /usr/local/
+COPY build/host-configure.py /usr/local/
 RUN chmod u+x /usr/local/host-configure.py
 

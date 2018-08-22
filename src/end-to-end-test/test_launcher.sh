@@ -1,3 +1,5 @@
+#!/usr/bin/env bats
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
 
-RUN apt-get -y install zookeeper
+launcher_uri=$WEBSERVICE_URI
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
 
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
+@test "check framework launcher health check" {
+  result="$(curl $launcher_uri)"
+  [[ $result == *Active* ]]
+}
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
-
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
-
-CMD ["/usr/local/run.sh"]
+@test "submit framework launcher test job" {
+  job_name="launcher-test-$RANDOM-$RANDOM"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  [[ ! $result == *Error* ]]
+}

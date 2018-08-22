@@ -15,20 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
+import os
+from jinja2 import Template
 
-RUN apt-get -y install zookeeper
+env = {}
+for key in os.environ:
+    env[key] = os.environ[key]
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
-
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
-
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
-
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
-
-CMD ["/usr/local/run.sh"]
+templateString = open('nginx.conf.template', 'r').read()
+renderedString = Template(templateString).render(env)
+open('nginx.conf', 'w').write(renderedString)

@@ -15,20 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
+FROM hadoop-run
 
-RUN apt-get -y install zookeeper
+RUN apt-get -y update && \
+    apt-get -y install python git jq && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
+WORKDIR /root/end-to-end-test
 
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
+COPY etc /root/end-to-end-test/etc/
+COPY *.sh /root/end-to-end-test/
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
 
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
+RUN git clone https://github.com/sstephenson/bats.git && \
+    cd bats && \
+    ./install.sh /usr/local
 
-CMD ["/usr/local/run.sh"]
+RUN git clone https://github.com/Microsoft/CNTK.git
+
+
+CMD ["/bin/bash", "/root/end-to-end-test/start.sh"]

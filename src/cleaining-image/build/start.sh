@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
+# clean all the data in the cluster.
 
-RUN apt-get -y install zookeeper
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
 
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
+cp /${DELETE_CONFIG}/${WORKER_CONFIG}  delete_worker.sh
+chmod u+x delete_worker.sh
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
+./delete_worker.sh
 
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
+# Because Kuberetnes can't run the job to every node such as daemonset.
+# So we will use readiness probes to judge whether the batch job finish or not.
+# And then with the help of loop, we will prevent the pod to restart.
+# After the /jobstatus/jobok is touched, we will find the status of pod is ready with kubectl.
+# If all pod is ready, the "daemon job" is finished. We can run kubectl delete to delete all the pod.
+mkdir -p /jobstatus
+touch /jobstatus/jobok
 
-CMD ["/usr/local/run.sh"]
+while true; do sleep 1000; done

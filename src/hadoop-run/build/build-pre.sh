@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
+pushd $(dirname "$0") > /dev/null
 
-RUN apt-get -y install zookeeper
+hadoopBinaryPath="/hadoop-binary/"
 
-ENV PATH $PATH:/usr/share/zookeeper/bin
+hadoopDestDir="../dependency/"
 
-RUN mkdir -p /var/lib/zoodata
-COPY build/zoo.cfg /etc/zookeeper/conf/
-COPY build/myid /
+if [[ ! -d ${hadoopDestDir} ]]; then
+    mkdir ${hadoopDestDir}
+fi
 
-# Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
+cp -arf ${hadoopBinaryPath} ${hadoopDestDir}
 
-COPY build/run.sh /usr/local/run.sh
-RUN chmod a+x /usr/local/run.sh
-
-CMD ["/usr/local/run.sh"]
+popd > /dev/null

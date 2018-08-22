@@ -17,42 +17,36 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-hadoopbinarypath="generated/hadoop-2.9.0.tar.gz"
-cacheversion="12932984-12933562-done"
+hadoopBinaryDir="/hadoop-binary/"
 
-echo "hadoopbinarypath:$hadoopbinarypath"
+hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
+cacheVersion="${hadoopBinaryDir}12932984-12933562-done"
 
-[[ -f $cacheversion ]] &&
+echo "hadoopbinarypath:${hadoopBinaryDir}"
+
+[[ -f $cacheVersion ]] &&
 {
     echo "Hadoop ai with patch 12932984-12933562 has been built"
     echo "Skip this build precess"
     exit 0
 }
 
-[[ ! -f "$hadoopbinarypath" ]] ||
+[[ ! -f "$hadoopBinaryPath" ]] ||
 {
 
-    rm -rf $hadoopbinarypath
+    rm -rf $hadoopBinaryPath
 
 }
 
-hadoopdirpath=$(dirname "$hadoopbinarypath")
-
-echo "hadoopdirpath:$hadoopdirpath"
-
-
 docker build -t hadoop-build -f hadoop-ai .
 
-docker run --rm --name=hadoop-build --volume=${hadoopdirpath}:/hadoop-binary hadoop-build
+docker run --rm --name=hadoop-build --volume=${hadoopBinaryDir}:/hadoop-binary hadoop-build
 
 
 
 # When Changing the patch id, please update the filename here.
-touch $cacheversion
+touch $cacheVersion
 
 popd > /dev/null
-
-

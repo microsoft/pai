@@ -58,7 +58,7 @@ RUN apt-get -y update && \
 
 WORKDIR $STAGE_DIR
 
-COPY install-* enable-nvidia-persistenced-mode.sh $STAGE_DIR/
+COPY build/install-* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 RUN chmod u+x install-nvidia-drivers
 RUN chmod u+x install-all-drivers
 RUN chmod u+x enable-nvidia-persistenced-mode.sh
