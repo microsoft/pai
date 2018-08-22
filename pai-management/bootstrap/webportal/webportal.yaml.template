@@ -52,6 +52,8 @@ spec:
           value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
         - name: EXPORTER_PORT
           value: "{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}"
+        - name: PROM_SCRAPE_TIME
+          value: {{ clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s
         ports:
         - name: webportal
           containerPort: 8080
