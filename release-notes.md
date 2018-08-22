@@ -1,11 +1,11 @@
 # Release v0.7.1
 
 ## New features
-* Add [alert manager](prometheus/doc/alert-manager.md), defined [several rules](https://github.com/Microsoft/pai/tree/pai-0.7.y/prometheus/prometheus-alert) for alert. Operator will receive email notification if cluster has some problem.
+* Administrators can receive email notifications on cluster problems after set up the new supported "Alert Manager". Please read more about how to set up [Alert Manager](prometheus/doc/alert-manager.md) and the notification [Rules](https://github.com/Microsoft/pai/tree/pai-0.7.y/prometheus/prometheus-alert).
 
 ## Improvements
-* [Optimize](https://github.com/Microsoft/pai/pull/1021) boot speed of web portal.
-* Do [not delete](https://github.com/Microsoft/pai/pull/1038) etcd data by default when upgrading kubernetes.
+* Optimized the boot speed of web portal - [PR 1021](https://github.com/Microsoft/pai/pull/1021);
+* Improved the Kubernetes upgrade experience, PAI admin is no more required to delete ETCD data when upgrading Kubernetes - [PR 1038](https://github.com/Microsoft/pai/pull/1038)
 * Documentation
   * Restructured and refined README to provide a better experiences for new users.
   * Documentation improvement for:
@@ -27,9 +27,9 @@
   * [XGBoost](https://github.com/Microsoft/pai/tree/pai-0.7.y/examples/XGBoost)
 
 ## Bug fixes
-* Fix nginx reverse proxy [issue](https://github.com/Microsoft/pai/pull/1009) in webhdfs.
-* Fix pylon UI [issue](https://github.com/Microsoft/pai/issues/916).
-* Fix webportal data table [bug](https://github.com/Microsoft/pai/pull/734).
+* Fixed nginx reverse proxy issue in webhdfs - [PR 1009](https://github.com/Microsoft/pai/pull/1009)
+* Fixed pylon UI issue - [PR 916](https://github.com/Microsoft/pai/issues/916)
+* Fixed webportal data table issue - [PR 734](https://github.com/Microsoft/pai/pull/734)
 
 ## Known issues
 * kubelet is [vulnerable](https://github.com/Microsoft/pai/pull/1088) to cyber attacks in pai's default setting, please do not deploy kubelet insecurely in public network for now. We will fix this issue in later release.
