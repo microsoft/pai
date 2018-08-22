@@ -25,11 +25,6 @@ const yaml = require('js-yaml');
 const logger = require('../config/logger');
 const config = require('../config/github');
 
-github.authenticate({
-  type: 'token',
-  token: process.env.GITHUB_PAT,
-});
-
 /**
  * Get template content by the given qualifier.
  * @param {*} options A MAP object containing keys 'type', 'name', 'version'.
@@ -60,10 +55,16 @@ const load = (options, callback) => {
 
 /**
  * Save the template.
- * @param {*} template An object representing a job/data/script/dockerimage template.
+ * @param {*} type Template type.
+ * @param {*} name Template name.
+ * @param {*} text Template content to save.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
 const save = function(type, name, text, callback) {
+  github.authenticate({
+    type: 'token',
+    token: process.env.GITHUB_PAT,
+  });
   let b64text = base64.encode(text);
   github.repos.createFile({
     owner: config.owner,
