@@ -2,10 +2,10 @@
 # How to diagnose job problems through logs  <a name="cluster_configuration"></a>
 
 ## Table of Contents
-- [1 Diagnostic job failure reason](#)
+- [1 Diagnostic job failure reason](#job)
     - [1.1 View job's launcher AM log](#amlog)
     - [1.2 View job's each task container log](#tasklog)
-
+    - [1.3 Job exitStatus Convention](#exit)
 - [2 Diagnostic job retried many times reason](#retry)
 
 ## 1 Diagnose job failure reason  <a name="job"></a>
@@ -133,6 +133,10 @@ ContainerLogHttpAddress:
 - Or check other tasks logs:
  
 ![PAI_job_retry](./images/PAI_job_retry.png)
+
+### 1.3 Job exitStatus Convention <a name="exit"></a>
+
+You can check all the defined ExitStatus by: ExitType, ExitDiagnostics from framework launcher [USERMANUAL.md](../frameworklauncher/doc/USERMANUAL.md#ExitStatus_Convention)
 
 ## 2 Diagnostic job retried many times reason  <a name="retry"></a>
 
