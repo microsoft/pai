@@ -10,11 +10,11 @@
 
 ## 1 Diagnose job failure reason  <a name="job"></a>
 
-OpenPAI job is launched by launcher application master.
+OpenPAI job is launched by [famework launcher](../frameworklauncher/doc/USERMANUAL.md), and each task container is managed by launcher application master.
 
 LauncherAM will manage each job's tasks by customized feature requirement. You can refer to this document  [frameworklauncher architecture](../frameworklauncher/doc/USERMANUAL.md#Architecture) to understand the relationship between them.
 
- When we diagnose job problems through logs, we shoud pay attention to job launcher AM log (get the main reason) / zoom in job task container log.
+ When we diagnose job problems through logs, we shoud pay attention to job launcher AM log (get the main reason) or zoom in job task container log.
 
 ### 1.1 View job launcher AM log  <a name="amlog"></a>
 
@@ -111,7 +111,7 @@ Please pay attention to these lines to diagnostic job failure reason
 | [ExitCode] | 134| 
 | Exception message | No such object: cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002. | 
 | Shell output | [DEBUG] EXIT signal received in yarn container, exiting ...[DEBUG] cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002 does not exist.| 
-|ContainerLogHttpAddress| http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/ |
+|ContainerLogHttpAddress| ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/ ```|
 |AppCacheNetworkPath|10.151.40.165:/var/lib/hadoopdata/nm-local-dir/usercache/core/appcache/application_1532412068340_0018|
 |ContainerLogNetworkPath|10.151.40.165:/var/lib/yarn/userlogs/application_1532412068340_0018/container_e9878_1532412068340_0018_01_000002|
 |[ApplicationCompletionReason]| [g2p_train]: FailedTaskCount 1 has reached MinFailedTaskCount 1.|
@@ -119,14 +119,16 @@ Please pay attention to these lines to diagnostic job failure reason
 we could get information:
 1.  UserApplication itself failed.
 2.  cntk-test-4621-17223-container_e9878_1532412068340_0018_01_000002 does not exist is the reason.
-3.  Then we could visit http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/ at step 1.2 to view task failure reason.
+3.  Then we could visit ```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/``` at step 1.2 to view task failure reason.
 
 
 ### 1.2 View job each task container log  <a name="tasklog"></a>
 
 - Check the failed task log who triggered the whole attempt failed, i.e. 
 
-ContainerLogHttpAddress: http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/
+ContainerLogHttpAddress: 
+
+```http://10.151.40.165:8042/node/containerlogs/container_e9878_1532412068340_0018_01_000002/core/```
 
 - Or check other tasks logs:
  
@@ -136,7 +138,7 @@ ContainerLogHttpAddress: http://10.151.40.165:8042/node/containerlogs/container_
 
 If the Framework retried many times, check other attempts by searching the FrameworkName in the YARN Web:
 
-- Visit YARN URL: http://master_ip/yarn/ or http://master_ip:8088
+- Visit YARN URL: ```http://master_ip/yarn/``` or http://master_ip:8088
 - Seach by the job name key words
 
 ![PAI_job_task_container](./images/PAI_job_task_container.png)
