@@ -1,5 +1,22 @@
-<div class="col-md-2 shadow sty-docker grid-item" >
+<div class="col-md-2 shadow sty-docker grid-item" id="<%= type %><%= id %>-container">
     <img src="/assets/img/<%= type %>.png" alt="">
+    <div class="btn-group edit-task">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-option-horizontal"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a id="<%= type %><%= id %>-edit-button">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>
+            </li>
+            <li>
+                <a id="<%= type %><%= id %>-remove-button">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
     <h5 id="<%= type %><%= id %>-name"><%= name %></h5>
     <p id="<%= type %><%= id %>-description"> <%= description %></p>
 </div>
