@@ -25,7 +25,7 @@ const jobConfig = require('../config/job');
 const param = require('../middlewares/parameter');
 
 
-const router = new express.Router();
+const router = new express.Router({ mergeParams: true });
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
