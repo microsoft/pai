@@ -49,8 +49,6 @@ def main():
         except OSError as e:
             if e.errno == os.errno.ENOENT:
                 logger.warning("nvidia-smi not found")
-            else:
-                raise
 
     try:
         dockerDockerInspect = utils.check_output(["docker", "inspect", "--help"])
