@@ -19,7 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-/bin/bash node-label.sh
 
 # Zookeeper
 kubectl apply --overwrite=true -f zookeeper.yaml
