@@ -46,8 +46,12 @@ docker run \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
-  --node-labels {% if 'pai-master' in hostcofig %} pai-master=true {% endif %} \
-  --node-labels {% if 'pai-worker' in hostcofig %} pai-worker=true {% endif %} \
+  {% if 'pai-master' in hostcofig -%}
+  --node-labels pai-master=true \
+  {% endif -%}
+  {% if 'pai-worker' in hostcofig -%}
+  --node-labels pai-worker=true \
+  {% endif -%}
   --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
   --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
   --v=2
