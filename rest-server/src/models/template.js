@@ -57,15 +57,15 @@ const load = (options, callback) => {
  * Save the template.
  * @param {*} type Template type.
  * @param {*} name Template name.
- * @param {*} text Template content to save.
+ * @param {*} template An object representing a job/script/data/dockerimage template.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const save = function(type, name, text, callback) {
+const save = function(type, name, template, callback) {
   github.authenticate({
     type: 'token',
     token: process.env.GITHUB_PAT,
   });
-  let b64text = base64.encode(text);
+  let b64text = base64.encode(yaml.dump(template));
   github.repos.createFile({
     owner: config.owner,
     repo: config.repository,

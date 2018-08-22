@@ -93,8 +93,7 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  let text = JSON.stringify(item);
-  template.save(type, name, text, function(err, saved) {
+  template.save(type, name, item, function(err, saved) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
