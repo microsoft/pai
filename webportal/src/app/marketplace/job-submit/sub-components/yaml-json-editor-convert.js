@@ -92,12 +92,16 @@ const jsonEditorToJobJson = (editors) => {
       }
     });
   });
-  console.log(res);
   return res;
 };
 
+const exportToYaml = (editors) => {
+  let res = jsonEditorToJobJson(editors);
+  return yaml.safeDump(res);
+};
 
 module.exports = {
   yamlToJsonEditor,
   jsonEditorToJobJson,
+  exportToYaml,
 };

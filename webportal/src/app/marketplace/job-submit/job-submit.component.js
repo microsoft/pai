@@ -35,7 +35,6 @@ $('#sidebar-menu--submit-v2').addClass('active');
 //   data: myAssestData
 // });
 
-let originalJsonData = null;
 
 $('#content-wrapper').html(submitComponent);
 
@@ -59,12 +58,17 @@ $(document).on('click', '#exportJsonBtn', () => {
   userTemplate.exportsJson();
 });
 
+$(document).on('click', '#exportYamlBtn', () => {
+  userTemplate.exportsYaml();
+});
+
 $(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
+    let data = userTemplate.createSubmitData();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/jobs/${originalJsonData.name}`,
-      data: JSON.stringify(originalJsonData),
+      url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
+      data: JSON.stringify(data),
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -101,7 +105,7 @@ $(document).ready(() => {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
-          originalJsonData = yaml.safeLoad(e.target.result);
+          let originalJsonData = yaml.safeLoad(e.target.result);
           console.log(originalJsonData);
           userTemplate.updatePageFromYaml(e.target.result);
         };

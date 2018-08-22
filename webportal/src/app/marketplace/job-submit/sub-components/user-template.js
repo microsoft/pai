@@ -37,7 +37,6 @@ const initArray = () => {
 let userChooseTemplateValues = initArray();
 let editors = initArray();
 
-
 const loadEditor = (d, type, id, insertEditors = true) => {
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
@@ -151,10 +150,6 @@ const updatePageFromYaml = (d) => {
   addNewJsonEditor(data, '', 'job');
 };
 
-const exportsJson = () => {
-  yamlHelper.jsonEditorToJobJson(editors);
-};
-
 const showAddModal = (type) => {
   let html = addModalFormat({
     type: type,
@@ -189,8 +184,38 @@ const showAddModal = (type) => {
   });
 };
 
+const exportsJson = () => {
+  let res = yamlHelper.jsonEditorToJobJson(editors);
+  console.log(res);
+};
+
+const createDownload = (text) => {
+  let filename = 'job.yaml';
+  let element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+};
+
+const exportsYaml = () => {
+  let res = yamlHelper.exportToYaml(editors);
+  createDownload(res);
+};
+
+const createSubmitData = () => {
+  return yamlHelper.jsonEditorToJobJson(editors);
+};
+
 module.exports = {
   updatePageFromYaml,
   exportsJson,
+  exportsYaml,
   showAddModal,
+  createSubmitData,
 };
