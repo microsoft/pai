@@ -309,7 +309,7 @@ class paiObjectModel:
             self.rawData["serviceConfiguration"]["hadoop-resource-manager"]
         serviceDict["clusterinfo"]["hdnodemanagerinfo"] = \
             self.rawData["serviceConfiguration"]["hadoop-node-manager"]
-        serviceDict["clusterinfo"]["hpjobhistoryinfo"] = \
+        serviceDict["clusterinfo"]["hdjobhistoryinfo"] = \
             self.rawData["serviceConfiguration"]["hadoop-jobhistory"]
         serviceDict["clusterinfo"]["zookeeperinfo"] = \
             self.rawData["serviceConfiguration"]["zookeeper"]
@@ -329,7 +329,7 @@ class paiObjectModel:
 
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             hostname = host["hostname"]
-            self.labelExpend(host)
+            #self.labelExpend(host)
             host["nodename"] = host["hostip"]
             host["machinetype"] = host["machine-type"]
             host["ip"] = host["hostip"]
