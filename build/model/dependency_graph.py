@@ -21,6 +21,7 @@ from __future__ import print_function
 from core import build_utility
 
 import os
+import sys
 import datetime
 import logging
 import logging.config
@@ -49,26 +50,36 @@ class ServiceNode(object):
 
 class ServiceGraph(object):
 
+    logger = logging.getLogger(__name__)
+    build_utility.setup_logger_config(logger)
+
     def __init__(self):
         self.services = dict()
         self.image_to_service = dict()
-
 
     def add_service(self, path, service_name):
         if not service_name in self.services:
             self.services[service_name] = ServiceNode(path, service_name)
 
 
-    def add_image_to_service(self, docker_name, service_name):
-        self.image_to_service[docker_name] = service_name
-        self.services[service_name].docker_files.append(docker_name)
+    def add_image_to_service(self, image_name, service_name):
+        if image_name in self.image_to_service:
+            self.logger.error("Same image name:{0} detected! Please check!".format(image_name))
+            self.logger.error("Duplication image belongs to service:{0} and service:{1}".format(service_name, self.image_to_service[image_name]))
+            sys.exit(1)
+        self.image_to_service[image_name] = service_name
+        self.services[service_name].docker_files.append(image_name)
 
 
     def add_dependency(self, prev_service, succ_service):
+        if not prev_service:
+            return
         if prev_service in self.services and succ_service in self.services:
             self.services[prev_service].outedges.append(succ_service)
             self.services[succ_service].inedges.append(prev_service)
-
+        else:
+            self.logger.error("Invalid dependency found: {0} in {1}".format(prev_service,succ_service))
+            sys.exit(1)
 
     def topology(self):
         prev_count = dict()
@@ -87,6 +98,12 @@ class ServiceGraph(object):
                 prev_count[succ_service] -= 1
                 if prev_count[succ_service] == 0:
                     search_queue.append(succ_service)
+
+        # Add dependency loop check
+        if not len(self.services) == len(ret):
+            self.logger.error("Dependency loop detected! Please check!")
+            sys.exit(1)
+
         return ret
 
 

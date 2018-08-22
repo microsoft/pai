@@ -19,7 +19,9 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from core import build_center
+from core import build_utility
 from model import config_model
+
 
 import os
 import sys
@@ -29,17 +31,6 @@ import logging
 import logging.config
 
 logger = logging.getLogger(__name__)
-
-def setup_logging():
-    """
-    Setup logging configuration.
-    """
-    logger.setLevel(logging.DEBUG)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    consoleHandler.setFormatter(formatter)
-    logger.addHandler(consoleHandler)
 
 def load_build_config(config_dir):
     buildConfig = config_model.ConfigModel(config_dir)
@@ -107,5 +98,5 @@ def main():
     logger.info("Pai build costs {0}".format(endtime - starttime))
 
 if __name__ == "__main__":
-    setup_logging()
+    build_utility.setup_logger_config(logger)
     main()

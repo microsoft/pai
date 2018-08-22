@@ -87,7 +87,7 @@ class BuildCenter:
                         for line in fin:
                             self.graph.add_dependency(line.strip(), service_name)
         # Show dependency graph
-        # self.graph.dump()
+        self.graph.dump()
 
         self.logger.info("Resolves dependency successfully")
 

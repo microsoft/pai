@@ -25,7 +25,6 @@ import subprocess
 import yaml
 
 
-
 class DockerClient:
 
     def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):
@@ -73,12 +72,14 @@ def setup_logger_config(logger):
     """
     Setup logging configuration.
     """
-    logger.setLevel(logging.DEBUG)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    consoleHandler.setFormatter(formatter)
-    logger.addHandler(consoleHandler)
+    if len(logger.handlers) == 0:
+        logger.propagate = False
+        logger.setLevel(logging.DEBUG)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        consoleHandler.setFormatter(formatter)
+        logger.addHandler(consoleHandler)
 
 logger = logging.getLogger(__name__)
 setup_logger_config(logger)
