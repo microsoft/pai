@@ -26,7 +26,7 @@
                         <div class="row btns">
                             <span class="detail-jobname">Cifar10_tensorflow</span>
                             <button class="edit-jobinfo">
-                                <span class="glyphicon glyphicon-pencil"></span>
+                                <span class="glyphicon glyphicon-pencil" id="job-edit-button"></span>
                             </button>
                             <button class="btn btn-primary sty-margin" id ="submitJob">Submit</button>
                         </div>
@@ -35,14 +35,14 @@
                         </p>
                         <div>
                             <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary">YAML</button>
+                                <button class="btn btn-primary" id="exportYamlBtn">YAML</button>
                             </div>
                             <div class="upload-btn-wrapper">
                                 <button class="btn btn-primary">Import from Yaml</button>
                                 <input type="file" id="importYaml"/>
                             </div>
                             <div class="upload-btn-wrapper">
-                                    <button class="btn btn-primary">Export Json</button>
+                                    <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
                             </div>
                         </div>
                     </div>
@@ -70,8 +70,6 @@
                         </div>
                     </a>
                 </div>
-                <!-- model for add task -->
-                <div id="modalPlaceTask" class="box-body" />
             </div>
 
             <!-- for dockerimage -->
@@ -93,8 +91,6 @@
                         </div>
                     </a>
                 </div>
-                <!-- model for add task -->
-                <div id="modalPlaceDocker" class="box-body" />
             </div>
             <!-- for Script -->
             <div class="row add-title">
@@ -114,8 +110,6 @@
                         </div>
                     </a>
                 </div>
-                <!-- model for add task -->
-                <div id="modalPlaceDocker" class="box-body" />
             </div>
             <!-- for Data -->
             <div class="row add-title">
@@ -135,9 +129,10 @@
                         </div>
                     </a>
                 </div>
-                <!-- model for add task -->
-                <div id="modalPlaceDocker" class="box-body" />
             </div>
         </div>
+        <div id="addModalPlace" class="box-body" />
+        <div id="addCustomizeModalPlace" class="box-body" />
     </div>
+    <div id="json-editor-container"></div>
 </div>

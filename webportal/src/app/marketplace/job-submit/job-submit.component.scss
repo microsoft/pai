@@ -143,6 +143,13 @@
 .box-content .sty-docker{
     min-height: 150px;
     width: 178px;
+    .edit-task{
+        background: none;
+        border: none;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
     img{
         width: 60px;
         margin-left: 46px;
@@ -163,8 +170,6 @@
         line-height: 12px;
     }
 }
-
-
 
 .upload-btn-wrapper {
     position: relative;
