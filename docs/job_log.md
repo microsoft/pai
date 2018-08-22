@@ -148,3 +148,6 @@ If the Framework retried many times, check other attempts by searching the Frame
 ![PAI_job_task_container](./images/PAI_job_task_container.png)
 
 - Click the ID or History key word to redirect to the job am log pages. Then user could refer section 1 to diagnostic job history retry failure reason.
+
+#### Note:
+- Currently, OpenPAI's yarn only store 1000 jobs' logs. User maybe can not find some old job's logs. For example, frequently retried job logs.
