@@ -84,8 +84,30 @@ const list = (req, res) => {
   });
 };
 
+const share = (req, res) => {
+  let item = req.body;
+  let type = item.type;
+  let name = item.name;
+  if (!type || !name) {
+    return res.status(400).json({
+      'message': 'Failed to parse template content.',
+    });
+  }
+  let text = JSON.stringify(item);
+  template.save(type, name, text, function(err, saved) {
+    if (err) {
+      logger.error(err);
+      return res.status(500).json({
+        message: 'Failed to save the template.',
+      });
+    }
+    return res.status(saved.new ? 201 : 200).json(saved.summary);
+  });
+};
+
 module.exports = {
   fetch,
   filter,
   list,
+  share,
 };
