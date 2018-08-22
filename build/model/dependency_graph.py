@@ -18,7 +18,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-from utility import docker_process
+from core import build_utility
 
 import os
 import datetime
@@ -35,7 +35,7 @@ class ServiceNode(object):
         self.outedges = list()
 
         self.logger = logging.getLogger(__name__)
-        docker_process.setup_logger_config(self.logger)
+        build_utility.setup_logger_config(self.logger)
 
 
     def dump(self):

@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
-from utility import docker_process
+from core import build_utility
 
 import os
 
@@ -29,7 +29,7 @@ class ConfigModel:
     def build_config_parse(self):
 
         # load config yaml file
-        buildConfigContent = docker_process.load_yaml_config(self.buildConfiguration)
+        buildConfigContent = build_utility.load_yaml_config(self.buildConfiguration)
 
         # section : dockerRegistryInfo:
 

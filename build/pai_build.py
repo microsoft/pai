@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-
+from core import build_center
 from model import config_model
 
 import os
@@ -10,8 +10,6 @@ import argparse
 import datetime
 import logging
 import logging.config
-
-import build_center
 
 logger = logging.getLogger(__name__)
 

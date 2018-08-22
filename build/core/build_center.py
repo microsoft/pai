@@ -1,8 +1,8 @@
 from __future__ import print_function
 
 from model import dependency_graph
-from utility import docker_process
-from utility import build_util
+from . import build_utility
+from . import build_handler
 
 import os
 import sys
@@ -14,14 +14,14 @@ class BuildCenter:
     def __init__(self, build_config, process_list):
 
         self.logger = logging.getLogger(__name__)
-        docker_process.setup_logger_config(self.logger)
+        build_utility.setup_logger_config(self.logger)
 
         self.build_config = build_config
 
         self.process_list = [service.lower() for service in process_list] if not process_list == None else None
 
         # Initialize docker_cli instance
-        self.docker_cli = docker_process.DockerClient(
+        self.docker_cli = build_utility.DockerClient(
             docker_registry = self.build_config['dockerRegistryInfo']['dockerRegistryDomain'],
             docker_namespace = self.build_config['dockerRegistryInfo']['dockerNameSpace'],
             docker_username = self.build_config['dockerRegistryInfo']['dockerUserName'],
@@ -95,12 +95,13 @@ class BuildCenter:
 
         # Start build each component according to topological sequence
         try:
-            build_worker = build_util.BuildUtil(self.docker_cli)
+            build_worker = build_handler.BuildHandler(self.docker_cli)
             self.process_list = self.graph.extract_sub_graph(self.process_list) if self.process_list else services
             for item in services:
                 if item in self.process_list:
                     for inedge in self.graph.services[item].inedges:
-                        build_worker.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
+                        build_worker.copy_dependency_folder(os.path.join(self.codeDir,inedge),
+                        os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
                     build_worker.build_single_component(self.graph.services[item])
             self.logger.info("Build all components succeed")
 

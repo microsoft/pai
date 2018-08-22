@@ -16,7 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
-from . import docker_process
+from . import build_utility
 
 import sys
 import logging
@@ -25,12 +25,12 @@ import os
 import shutil
 
 
-class BuildUtil:
+class BuildHandler:
 
     def __init__(self, docker_cli):
 
         self.logger = logging.getLogger(__name__)
-        docker_process.setup_logger_config(self.logger)
+        build_utility.setup_logger_config(self.logger)
 
         self.docker_cli = docker_cli
 
@@ -47,8 +47,8 @@ class BuildUtil:
         pre_build = os.path.join(service.path, self.build_pre)
         if os.path.exists(pre_build):
             chmod_command = 'chmod u+x {0}'.format(pre_build)
-            docker_process.execute_shell(chmod_command)
-            docker_process.execute_shell(pre_build)
+            build_utility.execute_shell(chmod_command)
+            build_utility.execute_shell(pre_build)
 
         for docker in service.docker_files:
             dockerfile = os.path.join(service.path, 'build/' + docker + '.dockerfile')
@@ -57,8 +57,8 @@ class BuildUtil:
         post_build = os.path.join(service.path, self.build_post)
         if os.path.exists(post_build):
             chmod_command = 'chmod u+x {0}'.format(post_build)
-            docker_process.execute_shell(chmod_command)
-            docker_process.execute_shell(post_build)
+            build_utility.execute_shell(chmod_command)
+            build_utility.execute_shell(post_build)
 
         self.logger.info("Build {0} successfully".format(service.service_name))
 
@@ -68,7 +68,6 @@ class BuildUtil:
         if not os.path.exists(source):
             self.logger.error("{0} folder path does not exist".format(source))
             sys.exit(1)
-            # raise Exception("{0} folder path does not exist".format(source))
         else:
             if os.path.isdir(destination):
                shutil.rmtree(destination)
