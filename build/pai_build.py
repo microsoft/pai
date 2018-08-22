@@ -10,6 +10,7 @@ import argparse
 import datetime
 import logging
 import logging.config
+
 import build_center
 
 logger = logging.getLogger(__name__)
@@ -82,12 +83,10 @@ def main():
     config_model = load_build_config(args.config)
 
     if args.push:
-        print ("In Push", args.imagelist)
         pai_push = build_center.BuildCenter(config_model,args.imagelist)
         pai_push.push_center()
 
     elif args.build:
-        print ('In Build:', args.service)
         pai_build = build_center.BuildCenter(config_model,args.service)
         pai_build.build_center()
 

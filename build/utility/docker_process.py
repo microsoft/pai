@@ -20,13 +20,13 @@ import logging.config
 
 
 import sys
+import os
 import subprocess
 import yaml
 
 logger = logging.getLogger(__name__)
 
 class DockerClient:
-
 
     def __init__(self, docker_registry, docker_namespace, docker_username, docker_password):
 
@@ -41,26 +41,22 @@ class DockerClient:
 
 
     def resolve_image_name(self, image_name):
-
         prefix = "" if self.docker_registry == "" else self.docker_registry + "/"
         return "{0}{1}/{2}".format(prefix, self.docker_namespace, image_name)
 
 
 
     def docker_login(self):
-
         shell_cmd = "docker login -u {0} -p {1} {2}".format(self.docker_username, self.docker_password, self.docker_registry)
         execute_shell(shell_cmd)
 
 
     def docker_image_build(self, image_name, dockerfile_path, build_path):
-
         cmd = "docker build -t {0} -f {1} {2}".format(image_name, dockerfile_path, build_path)
         execute_shell(cmd)
 
 
     def docker_image_tag(self, origin_image_name, image_tag):
-
         origin_tag = origin_image_name
         target_tag = "{0}:{1}".format(self.resolve_image_name(origin_image_name), image_tag)
         cmd = "docker tag {0} {1}".format(origin_tag, target_tag)
@@ -69,17 +65,15 @@ class DockerClient:
 
 
     def docker_image_push(self, image_name, image_tag):
-
         target_tag = "{0}:{1}".format(self.resolve_image_name(image_name), image_tag)
         cmd = "docker push {0}".format(target_tag)
         execute_shell(cmd)
 
-# Linux shell
-
 def execute_shell(shell_cmd):
+    setup_logger_config(logger)
     try:
         logger.info("Begin to execute the command: {0}".format(shell_cmd))
-        # subprocess.check_call( shell_cmd, shell=True )
+        subprocess.check_call( shell_cmd, shell=True )
         logger.info("Executing command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
         logger.info("Executing command failed: {0}".format(shell_cmd))
@@ -88,20 +82,36 @@ def execute_shell(shell_cmd):
 
 
 def execute_shell_with_output(shell_cmd):
-
+    setup_logger_config(logger)
     try:
         logger.info("Begin to execute the command: {0}".format(shell_cmd))
         res = subprocess.check_output( shell_cmd, shell=True )
-        logger.info("Executing command successfully: {0}".format(shell_cmd))
+        logger.info("Executes command successfully: {0}".format(shell_cmd))
     except subprocess.CalledProcessError:
-        logger.info("Executing command failed: {0}".format(shell_cmd))
+        logger.info("Executes command failed: {0}".format(shell_cmd))
         sys.exit(1)
 
     return res
 
 def load_yaml_config(config_path):
+    setup_logger_config(logger)
+
+    if not os.path.exists(config_path):
+        logger.error("Invalid config path: {0}".format(config_path))
+        sys.exit(1)
 
     with open(config_path, "r") as f:
         cluster_data = yaml.load(f)
 
     return cluster_data
+
+def setup_logger_config(logger):
+    """
+    Setup logging configuration.
+    """
+    logger.setLevel(logging.DEBUG)
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    consoleHandler.setFormatter(formatter)
+    logger.addHandler(consoleHandler)

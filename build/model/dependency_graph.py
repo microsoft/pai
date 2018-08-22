@@ -18,9 +18,12 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+from utility import docker_process
+
 import os
-import shutil
 import datetime
+import logging
+import logging.config
 
 class ServiceNode(object):
 
@@ -31,9 +34,12 @@ class ServiceNode(object):
         self.inedges = list()
         self.outedges = list()
 
+        self.logger = logging.getLogger(__name__)
+        docker_process.setup_logger_config(self.logger)
+
 
     def dump(self):
-        print ("Path:{}\nName:{}\nInedge:{}\nOutedge:{}\n".format(
+        self.logger.info("Path:{}\nName:{}\nInedge:{}\nOutedge:{}\n".format(
             self.path,
             self.service_name,
             self.inedges,
@@ -41,12 +47,11 @@ class ServiceNode(object):
         ))
 
 
-
 class ServiceGraph(object):
 
     def __init__(self):
         self.services = dict()
-        self.docker_to_service = dict()
+        self.image_to_service = dict()
 
 
     def add_service(self, path, service_name):
@@ -54,8 +59,8 @@ class ServiceGraph(object):
             self.services[service_name] = ServiceNode(path, service_name)
 
 
-    def add_docker_to_service(self, docker_name, service_name):
-        self.docker_to_service[docker_name] = service_name
+    def add_image_to_service(self, docker_name, service_name):
+        self.image_to_service[docker_name] = service_name
         self.services[service_name].docker_files.append(docker_name)
 
 
@@ -89,7 +94,7 @@ class ServiceGraph(object):
         for _, service in self.services.items():
             service.dump()
 
-    
+
     def extract_sub_graph(self, dest_nodes):
         if not dest_nodes:
             return None

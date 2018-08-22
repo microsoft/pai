@@ -30,7 +30,7 @@ class BuildUtil:
     def __init__(self, docker_cli):
 
         self.logger = logging.getLogger(__name__)
-        setup_logger_config(self.logger)
+        docker_process.setup_logger_config(self.logger)
 
         self.docker_cli = docker_cli
 
@@ -41,7 +41,8 @@ class BuildUtil:
 
 
     def build_single_component(self, service):
-        self.logger.info("Starts to build {0}".format(service))
+
+        self.logger.info("Starts to build {0}".format(service.service_name))
 
         pre_build = os.path.join(service.path, self.build_pre)
         if os.path.exists(pre_build):
@@ -58,13 +59,16 @@ class BuildUtil:
             chmod_command = 'chmod u+x {0}'.format(post_build)
             docker_process.execute_shell(chmod_command)
             docker_process.execute_shell(post_build)
-        self.logger.info("Build {0} successfully".format(service))
-            
+
+        self.logger.info("Build {0} successfully".format(service.service_name))
+
 
     def copy_dependency_folder(self, source, destination):
+
         if not os.path.exists(source):
             self.logger.error("{0} folder path does not exist".format(source))
-            raise Exception("{0} folder path does not exist".format(source))
+            sys.exit(1)
+            # raise Exception("{0} folder path does not exist".format(source))
         else:
             if os.path.isdir(destination):
                shutil.rmtree(destination)
@@ -80,14 +84,3 @@ class BuildUtil:
         if os.path.isdir(temp_dependency_dir):
             shutil.rmtree(temp_dependency_dir)
 
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    logger.setLevel(logging.DEBUG)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    consoleHandler.setFormatter(formatter)
-    logger.addHandler(consoleHandler)
-        

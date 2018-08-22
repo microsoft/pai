@@ -5,6 +5,7 @@ from utility import docker_process
 from utility import build_util
 
 import os
+import sys
 import logging
 import logging.config
 
@@ -13,7 +14,7 @@ class BuildCenter:
     def __init__(self, build_config, process_list):
 
         self.logger = logging.getLogger(__name__)
-        setup_logger_config(self.logger)
+        docker_process.setup_logger_config(self.logger)
 
         self.build_config = build_config
 
@@ -36,9 +37,9 @@ class BuildCenter:
 
 
     def construct_graph(self):
+        self.logger.info("Starts to construct service graph")
 
         g = os.walk(self.codeDir)
-
         for path, dir_list, file_list in g:
             if path == self.codeDir:
                 for service in dir_list:
@@ -47,9 +48,11 @@ class BuildCenter:
             service_name = service_name[-2] if len(service_name) > 1 else None
             for file_name in file_list:
                 if file_name.endswith(".dockerfile"):
-                    self.graph.add_docker_to_service(str(os.path.splitext(file_name)[0]), service_name)
+                    self.graph.add_image_to_service(str(os.path.splitext(file_name)[0]), service_name)
+        self.logger.info("Construct service graph successfully")
 
     def resolve_dependency(self):
+        self.logger.info("Starts to resolve components dependency")
 
         g = os.walk(self.codeDir)
         for path, dir_list, file_list in g:
@@ -61,7 +64,7 @@ class BuildCenter:
                         for line in fin:
                             if line.strip().startswith("FROM"):
                                 image = line.split()[1]
-                                self.graph.add_dependency(self.graph.docker_to_service.get(image), service_name)
+                                self.graph.add_dependency(self.graph.image_to_service.get(image), service_name)
                 elif file_name == "component.dep":
                     with open(os.path.join(path, file_name), "r") as fin:
                         for line in fin:
@@ -69,39 +72,43 @@ class BuildCenter:
         # Show dependency graph
         self.graph.dump()
 
+        self.logger.info("Resolves dependency successfully")
+
     def build_center(self):
 
         # Find services and map dockfile to services
-        self.logger.info("Starts to construct service graph")
         self.construct_graph()
-        self.logger.info("Construct service graph successfully")
+
+        # Check all process_list items are valid or not
+        if not self.process_list == None:
+            for item in self.process_list:
+                if item not in self.graph.services:
+                    self.logger.error("service {0} is invalid".format(item))
+                    sys.exit(1)
 
         # Resolve dependency
-        self.logger.info("Starts to resolve components dependency")
         self.resolve_dependency()
-        self.logger.info("Resolves dependency successfully")
 
         # Build topology sequence
         services = self.graph.topology()
-        self.logger.info("Build topological sequence:{0}".format(services))
+        self.logger.info("topological sequence:{0}".format(services))
 
+        # Start build each component according to topological sequence
         try:
-            # Start build each component according to topological sequence
             build_worker = build_util.BuildUtil(self.docker_cli)
             self.process_list = self.graph.extract_sub_graph(self.process_list) if self.process_list else services
-            print(self.process_list)
             for item in services:
                 if item in self.process_list:
                     for inedge in self.graph.services[item].inedges:
                         build_worker.copy_dependency_folder(os.path.join(self.codeDir,inedge),os.path.join(self.graph.services[item].path,self.dependencyDir+inedge))
                     build_worker.build_single_component(self.graph.services[item])
-            self.logger.info("Build each components succeed")
+            self.logger.info("Build all components succeed")
         except:
-            self.logger.error("Pai build failed")
-            raise
+            self.logger.error("Build all components failed")
+            sys.exit(1)
         finally:
             # Clean generated folder
-            self.logger.info("Build to clean all temp folder")
+            self.logger.info("Begin to clean all temp folder")
             for item in services:
                 build_worker.clean_temp_folder(self.graph.services[item].path)
             self.logger.info("Clean all temp folder succeed")
@@ -110,33 +117,23 @@ class BuildCenter:
     def push_center(self):
 
         # Find services and map dockfile to services
-        self.logger.info("Starts to construct service graph")
         self.construct_graph()
-        self.logger.info("Construct service graph successfully")
 
         if not self.process_list == None:
             for image in self.process_list:
-                if image not in self.graph.docker_to_service:
+                if image not in self.graph.image_to_service:
                     self.logger.error("{0} not in image list".format(image))
-                    raise Exception("{0} not in image list".format(image))
+                    sys.exit(1)
+                self.logger.info("[CAN-TEST-PUSH] image {0}".format(image))
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
         else:
             # by default push all images
-            for image in self.graph.docker_to_service:
+            for image in self.graph.image_to_service:
+                self.logger.info("[CAN-TEST-PUSH-ALL-SERVICE] image {0}".format(image))
                 self.docker_cli.docker_image_tag(image,self.build_config['dockerRegistryInfo']['dockerTag'])
                 self.docker_cli.docker_image_push(image,self.build_config['dockerRegistryInfo']['dockerTag'])
 
 
-def setup_logger_config(logger):
-    """
-    Setup logging configuration.
-    """
-    logger.setLevel(logging.DEBUG)
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    consoleHandler.setFormatter(formatter)
-    logger.addHandler(consoleHandler)
 
 
