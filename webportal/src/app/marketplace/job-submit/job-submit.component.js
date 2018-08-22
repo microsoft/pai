@@ -22,7 +22,6 @@ const loading = require('../../job/loading/loading.component');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const userTemplate = require('./sub-components/user-template.js');
-const yaml = require('js-yaml');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
@@ -105,8 +104,6 @@ $(document).ready(() => {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
-          let originalJsonData = yaml.safeLoad(e.target.result);
-          console.log(originalJsonData);
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);

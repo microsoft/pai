@@ -15,7 +15,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-require('json-editor');
+require('json-editor'); /* global JSONEditor */
 
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
@@ -186,7 +186,8 @@ const showAddModal = (type) => {
 
 const exportsJson = () => {
   let res = yamlHelper.jsonEditorToJobJson(editors);
-  console.log(res);
+  // console.log(res);
+  return res;
 };
 
 const createDownload = (text) => {
