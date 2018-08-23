@@ -1,7 +1,24 @@
 <div class="box-content">
     <div class="template-account">
         <!-- for title -->
-        <table class="row title-search">
+        <div class="sub-titile">
+            <h3>Submit Job V2</h3>
+            <sup class="preview">preview</sup>
+        </div>
+        <!-- button -->
+        <div>
+            <div class="upload-btn-wrapper">
+                <button class="btn btn-primary" id="exportYamlBtn">Edit</button>
+            </div>
+            <div class="upload-btn-wrapper">
+                <button class="btn btn-primary">Import from Yaml</button>
+                <input type="file" class="import-sty" id="importYaml" />
+            </div>
+            <div class="upload-btn-wrapper">
+                <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
+            </div>
+        </div>
+        <!-- <table class="row title-search">
             <tr>
                 <td class="subv2-title">
                     <span>Submit Job V2</span>
@@ -14,7 +31,7 @@
                     </button>
                 </td>
             </tr>
-        </table>
+        </table> -->
         <!-- job description -->
         <table class="showDesJob">
             <tr>
@@ -28,23 +45,23 @@
                             <button class="edit-jobinfo">
                                 <span class="glyphicon glyphicon-pencil" id="job-edit-button"></span>
                             </button>
-                            <button class="btn btn-primary sty-margin" id ="submitJob">Submit</button>
+                            <!-- <button class="btn btn-primary sty-margin" id="submitJob">Submit</button> -->
                         </div>
                         <p id="job-description">
                             Please add job description.
                         </p>
-                        <div>
+                        <!-- <div>
                             <div class="upload-btn-wrapper">
                                 <button class="btn btn-primary" id="exportYamlBtn">YAML</button>
                             </div>
                             <div class="upload-btn-wrapper">
                                 <button class="btn btn-primary">Import from Yaml</button>
-                                <input type="file" id="importYaml"/>
+                                <input type="file" id="importYaml" />
                             </div>
                             <div class="upload-btn-wrapper">
-                                    <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
+                                <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </td>
             </tr>
@@ -77,7 +94,7 @@
                 <h3>Docker</h3>
                 <!-- have dockerimage content style -->
                 <div id="dockerimage-container">
-                <!-- will be adding new dockerimage here! -->
+                    <!-- will be adding new dockerimage here! -->
                 </div>
 
                 <div class="col-md-2 add-bottom-border">
@@ -135,4 +152,10 @@
         <div id="addCustomizeModalPlace" class="box-body" />
     </div>
     <div id="json-editor-container"></div>
+    <div class="footer">
+        <div class="position-btns">
+            <button class="btn btn-primary sty-margin" id="submitJob">Submit</button>
+            <button class="btn btn-primary sty-margin">save as</button>
+        </div>
+    </div>
 </div>
