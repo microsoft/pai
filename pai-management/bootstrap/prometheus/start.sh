@@ -32,9 +32,6 @@ kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f watchdog-ds.yaml || exit $?
 
-{% if clusterinfo['prometheusinfo']['alerting'] %}
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-deployment.yaml || exit $?
-{% endif %}
+
 
 popd > /dev/null

@@ -15,12 +15,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#{% set prom_info = clusterinfo['prometheusinfo'] %}
-#{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
-#{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
-#{% else %}
-#{% set port = 9093 %}
-#{% endif %}
+
+
+
+
 
 apiVersion: v1
 kind: ConfigMap
@@ -28,17 +26,15 @@ metadata:
   name: prometheus-configmap
 data:
   prometheus.yml: |-
+    # Scrape config for cluster components.
+    rule_files:
+      - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
       scrape_interval: 30s
       kubernetes_sd_configs:
-      - api_server: 'https://paiaksclus-k8s-eastus-e546c8-075c5d6b.hcp.eastus.azmk8s.io:443'
+      - api_server: 'http://aks-agentpool-24740563-0:8080'
         role: node
-        #in_cluster: true
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          insecure_skip_verify: false
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
       # Prometheus will fetch data from target address. 
       relabel_configs:
@@ -46,36 +42,27 @@ data:
         regex: '([^:]+)(:\d*)?'
         replacement: '${1}:9100'
         target_label: __address__
-#    - job_name: 'pai_serivce_exporter'
-#      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
-#      kubernetes_sd_configs:
-#      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
-#        role: pod
-#      relabel_configs:
-#        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-#          regex: true
-#          action: keep
-#        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-#          regex: (.+)
-#          action: replace
-#          target_label: __metrics_path__
-#        - source_labels: [__meta_kubernetes_pod_host_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
-#          regex: ([^;]+);(\d+)
-#          replacement: ${1}:${2}
-#          action: replace
-#          target_label: __address__
-#        - source_labels: [__meta_kubernetes_pod_name]
-#          action: replace
-#          target_label: scraped_from
-#        - source_labels: [__meta_kubernetes_pod_label_app]
-#          action: replace
-#          target_label: pai_service_name
-#{% if clusterinfo['prometheusinfo']['alerting'] %}
-#    alerting:
-#      alertmanagers:
-#        - static_configs:
-#          - targets:
-#            {% for host in clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
-#            - {{ host }}:{{ port }}
-#            {% endfor %}
-#{% endif %}
+    - job_name: 'pai_serivce_exporter'
+      scrape_interval: 30s
+      kubernetes_sd_configs:
+      - api_server: 'http://aks-agentpool-24740563-0:8080'
+        role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          regex: true
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          regex: (.+)
+          action: replace
+          target_label: __metrics_path__
+        - source_labels: [__meta_kubernetes_pod_host_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          regex: ([^;]+);(\d+)
+          replacement: ${1}:${2}
+          action: replace
+          target_label: __address__
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: scraped_from
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: replace
+          target_label: pai_service_name

@@ -14,17 +14,7 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 9091
-  selector:
-    app: prometheus
----
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,9 +37,9 @@ spec:
       containers:
       - name: prometheus
         image: prom/prometheus:v2.1.0
-        #resources:
-        #  limits:
-        #    memory: "10Gi"
+        resources:
+          limits:
+            memory: "10Gi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
           - '--web.listen-address=0.0.0.0:9091'
@@ -59,12 +49,12 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
-      #  - name: rules-volume
-      #    mountPath: /etc/prometheus-alert
+        - name: rules-volume
+          mountPath: /etc/prometheus-alert
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-configmap
-      #- name: rules-volume
-     #   configMap:
-     #     name: prometheus-alert
+      - name: rules-volume
+        configMap:
+          name: prometheus-alert

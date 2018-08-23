@@ -34,17 +34,19 @@ for instance in ${INSTANCES}; do
   kubectl delete --ignore-not-found --now ${instance}
 done
 
-{% for host in machinelist %}
-    {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit $?
-    {% endif %}
-    {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
-    {% endif %}
-    {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog- || exit $?
-    {% endif %}
-    {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager- || exit $?
-    {% endif %}
-{% endfor %}
+
+    
+kubectl label nodes aks-agentpool-24740563-0 prometheus- || exit $?
+    
+    
+kubectl label nodes aks-agentpool-24740563-0 node-exporter- || exit $?
+    
+    
+    
+
+    
+    
+kubectl label nodes aks-agentpool-24740563-1 node-exporter- || exit $?
+    
+    
+    

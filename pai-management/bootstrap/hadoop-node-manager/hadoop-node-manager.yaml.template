@@ -45,7 +45,7 @@ spec:
           name: docker-socket
         - mountPath: /var/lib/docker
           name: docker-var-lib
-        - mountPath: /var/drivers
+        - mountPath: /var/drivers/nvidia/current
           name: driver-path
         - mountPath: /var/lib/yarn
           name: yarn-nodemanager-storage
@@ -98,7 +98,8 @@ spec:
       # Docker's storage base directory
       - name: driver-path
         hostPath:
-          path: /var/drivers
+          #path: /var/drivers
+          path: /usr/local/nvidia
       - name: yarn-nodemanager-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
