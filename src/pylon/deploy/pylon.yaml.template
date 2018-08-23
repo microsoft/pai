@@ -62,5 +62,9 @@ spec:
               port: pylon
             initialDelaySeconds: 10
             periodSeconds: 60
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "100m"
       imagePullSecrets:
         - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

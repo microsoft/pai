@@ -77,6 +77,7 @@ spec:
         resources:
           limits:
             memory: "1Gi"
+            cpu: "100m"
         command:
           - "python3"
           - "/usr/local/yarn_exporter.py"
