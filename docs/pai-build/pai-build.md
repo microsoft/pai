@@ -23,7 +23,7 @@ We have two parts of Pai-build: `build script` and `build context`.
 
 # Build
 
-Build image by using ```pai_build.py``` which put under ``build/``. for the configuration please refers to [`how-to-write-pai-configuration.`](../pai-management/how-to-write-pai-configuration.md)
+Build image by using ```pai_build.py``` which put under ``build/``. for the configuration please refers to [`how-to-write-pai-configuration.`](../pai-management/doc/how-to-write-pai-configuration.md)
 ### Build infrastructure services <a name="Service_Build"></a>
 
 ```
