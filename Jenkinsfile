@@ -378,7 +378,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
   \\"jobName\\": \\"$JOB_NAME\\",
-  \\"image\\": \\"openpai/stress\\",
+  \\"image\\": \\"gerhut/nodejs-mem-alloc\\",
   \\"virtualCluster\\": \\"default\\",
   \\"retryCount\\": 0,
   \\"taskRoles\\": [
@@ -386,12 +386,12 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
       \\"name\\": \\"memory_consumer\\",
       \\"taskNumber\\": 1,
       \\"cpuNumber\\": 1,
-      \\"memoryMB\\": 180224,
+      \\"memoryMB\\": 1024,
       \\"shmMB\\": 64,
       \\"gpuNumber\\": 0,
       \\"minFailedTaskCount\\": 1,
       \\"minSucceededTaskCount\\": null,
-      \\"command\\": \\"stress --vm-keep -m 220 --vm-bytes 1024m --vm-hang 0 --verbose\\",
+      \\"command\\": \\"nodejs index 128\\",
       \\"portList\\": []
     }
   ]
@@ -400,7 +400,7 @@ while :; do
 sleep 10
 STATUS=$(
 curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
-| tee /dev/stderr | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
+| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
@@ -488,8 +488,8 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
-  \\"jobName\\": \\"stress-test-002\\",
-  \\"image\\": \\"openpai/stress\\",
+  \\"jobName\\": \\"$JOB_NAME\\",
+  \\"image\\": \\"gerhut/nodejs-mem-alloc\\",
   \\"virtualCluster\\": \\"default\\",
   \\"retryCount\\": 0,
   \\"taskRoles\\": [
@@ -497,12 +497,12 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
       \\"name\\": \\"memory_consumer\\",
       \\"taskNumber\\": 1,
       \\"cpuNumber\\": 1,
-      \\"memoryMB\\": 180224,
+      \\"memoryMB\\": 1024,
       \\"shmMB\\": 64,
       \\"gpuNumber\\": 0,
       \\"minFailedTaskCount\\": 1,
       \\"minSucceededTaskCount\\": null,
-      \\"command\\": \\"stress --vm-keep -m 220 --vm-bytes 1024m --vm-hang 0 --verbose\\",
+      \\"command\\": \\"nodejs index 128\\",
       \\"portList\\": []
     }
   ]
