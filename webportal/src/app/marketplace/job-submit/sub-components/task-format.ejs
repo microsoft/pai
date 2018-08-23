@@ -1,12 +1,30 @@
-<div class="col-md-2 shadow sty-task-content grid-item" style="overflow: hidden;">
+<div class="col-md-3 shadow sty-task-content grid-item" style="overflow: hidden;" id="<%= type %><%= id %>-container">
     <!-- <img src="/assets/img/edit.png" alt=""> -->
-    <button class="edit-task" id="for-edit-task" data-toggle="modal">
-        <span class="glyphicon glyphicon-pencil"></span>
-    </button>
-    <h5><%= role %></h5>
-    <p>Dockerimage: <%= dockerimage %></p>
-    <p>Instances: <%= instances %> </p>
-    <p>Resource: cpu:<%= cpu %>, memoryMB: <%= memoryMB %>, gpu: <%= gpu %></p>
+
+    <div class="btn-group edit-task">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-option-horizontal"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a id="<%= type %><%= id %>-edit-button">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>
+            </li>
+            <li>
+                <a id="<%= type %><%= id %>-remove-button">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <h5 id="<%= type %><%= id %>-role"><%= role %></h5>
+    <p>Dockerimage: <span id="<%= type %><%= id %>-instances"><%= dockerimage %></span></p>
+    <p>Instances: <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
+    <p class="task-resource">
+        Resource: cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
+        memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
+        gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span></p>
     Command:
-    <p><%= command %></p>
+    <div class="task-command"><span id="<%= type %><%= id %>-command"><%= command %></div>
 </div>

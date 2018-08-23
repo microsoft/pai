@@ -99,7 +99,8 @@
     }
 }
 .add-new-item{
-    min-height: 195px;
+    width: 178px;
+    min-height: 186px;
     background-color: white;
     display: flex;
     justify-content: center;
@@ -139,9 +140,16 @@
     }
 }
 // docker box style
-.sty-docker{
+.box-content .sty-docker{
     min-height: 150px;
     width: 178px;
+    .edit-task{
+        background: none;
+        border: none;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
     img{
         width: 60px;
         margin-left: 46px;
@@ -153,14 +161,15 @@
         font-size: 14px;
         margin-top: 12px;
         margin-bottom: 13px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     p{
         font-size: 12px;
         line-height: 12px;
     }
 }
-
-
 
 .upload-btn-wrapper {
     position: relative;

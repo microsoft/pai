@@ -16,19 +16,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-// module dependencies
 const express = require('express');
+
 const template = require('../controllers/template');
+const token = require('../config/token');
 
 const router = new express.Router();
 
 router.route('/')
-  /** GET /api/v1/template?query=XXX[&pageno=YYY] */
-  .get(template.search);
+  /** GET /api/v2/template?query=XXX[&pageno=YYY] - Search templates by keywords */
+  .get(template.filter)
+  /** POST /api/v2/template - Share the job and its resources as template */
+  .post(token.check, template.share);
 
 router.route('/:type')
-  /** GET /api/v2/template/:type - Get list of templates */
+  /** GET /api/v2/template/:type[?pageno=YYY] - Get list of templates */
   .get(template.list);
 
-// module exports
+router.route('/:type/:name')
+  /** GET /api/v1/template/:type/:name[?version=ZZZ] - Return the template content */
+  .get(template.fetch);
+
 module.exports = router;
