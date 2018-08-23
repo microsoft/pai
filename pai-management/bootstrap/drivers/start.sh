@@ -22,16 +22,16 @@ pushd $(dirname "$0") > /dev/null
 #chmod u+x node-label.sh
 /bin/bash node-label.sh || exit $?
 
-kubectl apply --overwrite=true -f drivers.yaml || exit $?
+#kubectl apply --overwrite=true -f drivers.yaml || exit $?
 
 PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k machinetype -v gpu
 ret=$?
 
-if [ $ret -ne 0 ]; then
-    echo "No GPU machine in your cluster"
-else
+#if [ $ret -ne 0 ]; then
+#    echo "No GPU machine in your cluster"
+#else
     # wait until all drivers are ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
-fi
+#    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
+#fi
 
 popd > /dev/null
