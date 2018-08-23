@@ -109,7 +109,7 @@ spec:
           mountPath: /var/lib/docker
         - mountPath: /dev
           name: device-mount
-        - mountPath: /var/drivers
+        - mountPath: /var/drivers/nvidia/current
           name: driver-path
         - mountPath: /datastorage/prometheus
           name: collector-mount
@@ -129,7 +129,8 @@ spec:
             path: /dev
         - name: driver-path
           hostPath:
-            path: /var/drivers
+            #path: /var/drivers
+            path: /usr/local/nvidia
         - name: collector-mount
           hostPath:
             path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
