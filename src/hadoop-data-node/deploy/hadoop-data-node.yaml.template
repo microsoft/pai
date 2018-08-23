@@ -50,6 +50,10 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "100m"
         env:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
