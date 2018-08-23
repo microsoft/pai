@@ -473,28 +473,17 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
-  private float getApplicationProgress() throws Exception {
-    String requestManagerLogScope = "RequestManager_GetApplicationProgress";
-    String statusManagerLogScope = "StatusManager_GetApplicationProgress";
-    CHANGE_AWARE_LOGGER.initializeScope(requestManagerLogScope, Level.DEBUG);
-    CHANGE_AWARE_LOGGER.initializeScope(statusManagerLogScope, Level.DEBUG);
-
-    try {
-      return requestManager.getApplicationProgress();
-    } catch (Exception reqEx) {
-      CHANGE_AWARE_LOGGER.log(requestManagerLogScope,
-          "Failed to getApplicationProgress from RequestManager.%s",
-          CommonUtils.toString(reqEx));
-
-      try {
-        return statusManager.getApplicationProgress();
-      } catch (Exception statEx) {
-        CHANGE_AWARE_LOGGER.log(statusManagerLogScope,
-            "Failed to getApplicationProgress from StatusManager. Return 0 Progress.%s",
-            CommonUtils.toString(reqEx));
-        return 0;
-      }
+  private float getApplicationProgress() {
+    Float progress = requestManager == null ? null :
+        requestManager.getApplicationProgress();
+    if (progress == null) {
+      progress = statusManager == null ? null :
+          statusManager.getApplicationProgress();
     }
+    if (progress == null) {
+      progress = (float) 0;
+    }
+    return progress;
   }
 
   private TaskStatus findTask(Container container) {
@@ -1362,16 +1351,22 @@ public class ApplicationMaster extends AbstractService {
         "onShutdownRequest called into AM from RM, maybe this Attempt does not exist in RM.");
   }
 
-  public float getProgress() throws Exception {
+  public float getProgress() {
     // Note queueSystemTask and wait its result here will block the RMClient
     // Deliver ApplicationProgress to RM on next heartbeat
-    float progress = getApplicationProgress();
+    float progress;
+    try {
+      progress = getApplicationProgress();
+    } catch (Throwable e) {
+      LOGGER.logWarning(e,
+          "Failed to getApplicationProgress. Using default Progress 0");
+      progress = 0;
+    }
 
     String logScope = "getApplicationProgress";
     CHANGE_AWARE_LOGGER.initializeScope(logScope, Level.DEBUG);
     CHANGE_AWARE_LOGGER.log(logScope,
-        "getProgress called into AM from RM: Progress: [%s]", progress);
-
+        "getProgress called into AM from RM: Report Progress: [%s]", progress);
     return progress;
   }
 

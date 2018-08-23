@@ -24,11 +24,10 @@ from ..common import linux_shell
 
 class hadoop_ai_build:
 
-    def __init__(self, os_type = "ubuntu16.04", hadoop_version = "2.9.0", hadoop_customize_path = None):
+    def __init__(self, os_type = "ubuntu16.04", hadoop_customize_path = None):
 
         self.logger = logging.getLogger(__name__)
 
-        self.hadoop_version = hadoop_version
         self.hadoop_customize_path = hadoop_customize_path
         self.os_type = os_type
 

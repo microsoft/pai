@@ -20,21 +20,25 @@
 pushd $(dirname "$0") > /dev/null
 
 echo "Call stop to stop service first"
-/bin/bash stop.sh
+/bin/bash stop.sh || exit $?
 
 echo "Create prometheus-delete configmap for deleting data on the host"
-kubectl create configmap prometheus-delete --from-file=prometheus-delete/
+kubectl create configmap prometheus-delete --from-file=prometheus-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl create -f delete.yaml
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-prometheus
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-prometheus || exit $?
 
 echo "Hadoop Service clean job is done"
 echo "Delete cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-prometheus
-kubectl delete configmap prometheus-delete
+if kubectl get daemonset | grep -q "delete-batch-job-prometheus"; then
+    kubectl delete ds delete-batch-job-prometheus || exit $?
+fi
+if kubectl get configmap | grep -q "prometheus-delete"; then
+    kubectl delete configmap prometheus-delete || exit $?
+fi
 sleep 5
 
 popd > /dev/null

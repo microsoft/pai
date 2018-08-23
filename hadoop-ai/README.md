@@ -96,7 +96,6 @@ Usually there will have multiple patch files, the newest one is the last known g
       Use hadoop-2.9.0.tar.gz to udpate the hadoop-binary settings in services-configuration.yaml under your cluster configs path:
 
                 custom-hadoop-binary-path: ***/hadoop-dist/target/hadoop-2.9.0.tar.gz
-                hadoop-version: 2.9.0
 
    
 

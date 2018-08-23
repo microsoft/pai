@@ -33,7 +33,7 @@ data:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
-      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      scrape_interval: {{ clusterinfo['prometheusinfo']['scrape_interval']|default(30) }}s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
@@ -44,6 +44,30 @@ data:
         regex: '([^:]+)(:\d*)?'
         replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
         target_label: __address__
+    - job_name: 'pai_serivce_exporter'
+      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      kubernetes_sd_configs:
+      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
+        role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          regex: true
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          regex: (.+)
+          action: replace
+          target_label: __metrics_path__
+        - source_labels: [__meta_kubernetes_pod_host_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          regex: ([^;]+);(\d+)
+          replacement: ${1}:${2}
+          action: replace
+          target_label: __address__
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: scraped_from
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: replace
+          target_label: pai_service_name
 {% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:
