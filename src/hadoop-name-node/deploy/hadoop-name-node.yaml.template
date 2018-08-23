@@ -55,6 +55,10 @@ spec:
           value: namenode-generate-script.sh
         - name: START_SERVICE
           value: namenode-start-service.sh
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "100m"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
