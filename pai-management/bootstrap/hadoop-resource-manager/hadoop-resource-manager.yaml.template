@@ -30,7 +30,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/metrics'
-        prometheus.io/port: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+        prometheus.io/port: '{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}'
     spec:
       hostNetwork: true
       hostPID: true
@@ -72,6 +72,10 @@ spec:
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
+        ports:
+        - containerPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+          hostPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+          name: scrape
         resources:
           limits:
             memory: "1Gi"
