@@ -51,3 +51,7 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 ```
 
 - Note:  This configuration control users' resource usage in current vc. User a can not preempt the resources occupied by user b before job is completed. 
+
+### Q: How to configure virtual cluster capacity? 
+
+A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
