@@ -76,7 +76,7 @@ spec:
           name: scrape
         resources:
           limits:
-            memory: "1Gi"
+            memory: "16Gi"
             cpu: "100m"
         command:
           - "python3"
