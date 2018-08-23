@@ -22,7 +22,7 @@ stop() {
   if [ $exitcode != 0 ]; then
     echo Failed to make Binary Distributions with exitcode $exitcode
   else
-    echo Succeed to make Binary Distributions with exitcode $exitcode
+    echo Succeeded to make Binary Distributions with exitcode $exitcode
   fi
   popd
   exit $exitcode
