@@ -50,5 +50,8 @@ spec:
           value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
+        resources:
+          limits:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
