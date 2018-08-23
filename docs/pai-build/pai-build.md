@@ -4,7 +4,7 @@ Pai-build responsible for building all services and pushing images.
 
 # Architecture
 ![Architecture](pic/pai-build.png)
-We have three two parts of Pai-build: `build script` and `build context`.
+We have two parts of Pai-build: `build script` and `build context`.
 
 - **build script:** responsible for build logic implementation all scripts are put under `build/`. It consists `pai_build.py`, `core` and `model`.
     - **pai_build.py**: entrance of build system.
@@ -23,7 +23,7 @@ We have three two parts of Pai-build: `build script` and `build context`.
 
 # Build
 
-Build image by using ```pai_build.py``` which put under ``build/``.
+Build image by using ```pai_build.py``` which put under ``build/``. for the configuration please refers to [`how-to-write-pai-configuration.`](../pai-management/how-to-write-pai-configuration.md)
 ### Build infrastructure services <a name="Service_Build"></a>
 
 ```
@@ -41,7 +41,7 @@ python pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
 
 - tag and push image to the docker registry which is configured in the ```cluster-configuration```.
 - If the option `-i` is added, only the specified image will be pushed. By default will push all images which ``.dockerfile`` can be found under ``{src/${componentName}/build/``
--
+
 # Current pai build process
 
 ![BuildProcess](pic/pai-build-process.png)
@@ -127,9 +127,9 @@ popd > /dev/null
 #### Build and push image with paictl ####
 
 ```
-./pai_build.py build -c /path/to/your/cluster-configuration/dir -s componentB
+./pai_build.py build -c /path/to/configuration-dir/ -s componentB
 
-./pai_build.py push -c /path/to/your/cluster-configuration/dir -i componentB
+./pai_build.py push -c /path/to/configuration-dir/ -i componentB
 
 ```
 
