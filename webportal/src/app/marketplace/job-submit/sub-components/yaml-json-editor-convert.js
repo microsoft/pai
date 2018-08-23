@@ -20,22 +20,26 @@ require('json-editor');
 const yaml = require('js-yaml');
 
 const convertParameterToKeyValue = (d) => {
-  let parameters = d['parameters'];
-  d['parameters'] = [];
-  Object.keys(parameters).forEach((key) => {
-    d['parameters'].push({
-      name: key,
-      value: parameters[key],
+  if ('parameters' in d) {
+    let parameters = d['parameters'];
+    d['parameters'] = [];
+    Object.keys(parameters).forEach((key) => {
+      d['parameters'].push({
+        name: key,
+        value: parameters[key],
+      });
     });
-  });
+  }
 };
 
 const convertParameterFromKeyValue = (d) => {
-  let parameters = d['parameters'];
-  d['parameters'] = {};
-  parameters.forEach((t) => {
-    d['parameters'][t['name']] = t['value'];
-  });
+  if ('parameters' in d) {
+    let parameters = d['parameters'];
+    d['parameters'] = {};
+    parameters.forEach((t) => {
+      d['parameters'][t['name']] = t['value'];
+    });
+  }
 };
 
 const yamlToJsonEditor = (yamlString) => {
