@@ -14,23 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-apiVersion: v1
-kind: Config
-preferences: {}
-
-clusters:
-- cluster:
-    insecure-skip-tls-verify: true
-    server: http://{{ clusterconfig['api-servers-ip'] }}:8080
-  name: kubernetes
-
-contexts:
-- context:
-    cluster: kubernetes
-    user: admin
-  name: kubernetes
-
-current-context: kubernetes
-
-users: []
