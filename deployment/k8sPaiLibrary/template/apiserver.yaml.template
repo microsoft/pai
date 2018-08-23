@@ -41,3 +41,7 @@ spec:
     - --anonymous-auth=true
     - --cors-allowed-origins
     - .*
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
