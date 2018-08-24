@@ -32,6 +32,13 @@ data:
     rule_files:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
+    - job_name: "node_exporter_from_host"
+      scrape_interval: "30s"
+      static_configs:
+      - targets: 
+        {% for host in machinelist %}
+        - {{ machinelist[host]['ip']}}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+        {% endfor %}
     - job_name: 'node_exporter'
       scrape_interval: {{ clusterinfo['prometheusinfo']['scrape_interval']|default(30) }}s
       kubernetes_sd_configs:
