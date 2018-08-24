@@ -91,6 +91,66 @@ curl http://NAME_NODE_ADDRESS:50070/jmx
 Currently OpenPAI management tool doesn't deploy HDFS in a High Availability (HA) fashion. This will be added in a future release.
 For solution about the HA feature please refer [HDFS High Availability](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithNFS.html).
 
+# Access HDFS Data
+
+Data on HDFS can be accessed by various ways. Users can choose the proper way according to there needs.
+
+## HDFS Command
+
+The commands are available in the Hadoop package. Please download the version you need on [Hadoop Releases](http://hadoop.apache.org/releases.html).
+Then extract it to your machine by running
+```bash
+tar -zxvf hadoop-package-name
+```
+All commands are located in *bin* directory.
+Please refer [HDFS Command Guid](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
+
+## WEB Portal
+
+Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-ip:50070/explorer.html after the cluster is ready.
+From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
+
+## Mountable HDFS
+
+The *hadoop-dfs-fuse* tool can mount HDFS on local file system and users can access the data with Linux commands.
+The tool can be installed with following commands on Ubuntu system:
+```bash
+# add the CDH5 repository
+wget http://archive.cloudera.com/cdh5/one-click-install/trusty/amd64/cdh5-repository_1.0_all.deb
+sudo dpkg -i cdh5-repository_1.0_all.deb
+# install the hadoop-dfs-fuse tool
+sudo apt-get update
+sudo apt-get install hadoop-hdfs-fuse
+# mount to local system
+mkdir -p your-mount-directory
+sudo hadoop-fuse-dfs dfs://hdfs-name-node-address:9000 your-mount-directory
+```
+
+## API
+
+### Java API
+
+The Java APIs allow users to access data from Java programs.
+The detailed HDFS API interfaces can be found on [HDFS API Doc](https://hadoop.apache.org/docs/stable/api/org/apache/hadoop/fs/FileSystem.html)。
+
+### C API
+
+The C API is provided by *libhdfs* library and it only supports a subset of the HDFS APIs.
+Please follow the instructions on [C APIs](http://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-hdfs/LibHdfs.html) for details.
+
+### Python API
+
+The Python API can be installed with command:
+```bash
+pip install hdfs
+```
+Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the details.
+
+### Restful API
+
+The data can also be accessed with restful APIs.
+[WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Open_and_Read_a_File) contains the detailed instructions.
+
 # Reference
 
 1. [Hadoop reference doc](https://hadoop.apache.org/docs/r2.9.0/)
