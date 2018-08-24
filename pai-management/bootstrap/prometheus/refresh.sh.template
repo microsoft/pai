@@ -43,13 +43,6 @@ if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "node
 fi
     {% endif %}
 
-	{% if 'yarn-exporter' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "yarn-exporter="; then
-	echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have yarn-exporter's label"
-	kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarn-exporter-
-fi
-	{% endif %}
-
 {% endfor %}
 
 popd > /dev/null

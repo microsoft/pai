@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 INSTANCES="daemonset/node-exporter
-daemonset/yarn-exporter
 daemonset/watchdog
 deployment/watchdog
 deployment/prometheus-deployment
@@ -41,9 +40,6 @@ kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit 
     {% endif %}
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
-    {% endif %}
-    {% if 'yarn-exporter' in machinelist[ host ] and machinelist[ host ][ 'yarn-exporter' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} yarn-exporter-
     {% endif %}
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
 kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog- || exit $?

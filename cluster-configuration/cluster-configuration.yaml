@@ -63,7 +63,6 @@ machine-list:
       pai-master: "true"
       watchdog: "true"
       alert-manager: "true"
-      yarn-exporter: "true"
 
 
     - hostname: hostname
