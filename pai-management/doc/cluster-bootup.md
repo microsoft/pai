@@ -154,12 +154,27 @@ Check all configruation items of the quick-start.yaml are correct.
 
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
+##### (1) generate configuration files
+
 ```bash
 cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+
+```
+
+##### (2) update docker tag to release version 
+
+```bash
+vi ~pai-config/services-configuration.yaml
+```
+
+For example: v0.7.1 branch, user should change docker-tag to v0.7.1.
+
+```bash
+docker-tag: v0.7.1
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
