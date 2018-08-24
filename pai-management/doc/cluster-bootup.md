@@ -168,7 +168,7 @@ python paictl.py cluster generate-configuration -i /pai/pai-management/quick-sta
 ##### (2) update docker tag to release version 
 
 ```bash
-vi ~pai-config/services-configuration.yaml
+vi ~/pai-config/services-configuration.yaml
 ```
 
 For example: v0.7.1 branch, user should change docker-tag to v0.7.1.
