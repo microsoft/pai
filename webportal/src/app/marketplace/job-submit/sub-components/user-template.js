@@ -48,7 +48,7 @@ const emptyPage = () => {
 };
 
 
-const loadEditor = (d, type, id, insertEditors = true, containerName='#json-editor-container') => {
+const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
   $(containerName).append(userEditModalComponent({
     type: type,
     id: id,
@@ -88,10 +88,10 @@ const addNewJsonEditor = (d, id, type) => {
     // task listen function.
     editor.on('change', () => {
       let val = editor.getValue();
-      ['role', 'dockerimage', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+      ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
         $(`#${type}${id}-${cur}`).text(val[cur]);
       });
-      $(`#${type}${id}-command`).text('command' in d && d['command'] ? val['command'][0] : '');
+      $(`#${type}${id}-command`).text('command' in d && d['command'] ? (val['command'][0].substring(0, 30) + (val['command'][0].length > 30 ? '...' : '')) : '');
     });
   }
 
@@ -115,16 +115,17 @@ const insertNewTask = (task) => {
   let type = 'task';
   let id = editors[type].length + 1;
   let itemHtml = taskFormat({
-    data: task,
     id: id,
     type: type,
     role: task['role'],
     dockerimage: task['dockerimage'],
+    data: task['data'],
+    script: task['script'],
     instances: task['instances'],
     cpu: task['cpu'],
     memoryMB: task['memoryMB'],
     gpu: task['gpu'],
-    command: 'command' in task && task['command'] ? task['command'][0] : '',
+    command: 'command' in task && task['command'] ? (task['command'][0].substring(0, 30) + (task['command'][0].length > 30 ? '...' : '')) : '',
   });
   $(`#task-container`).append(itemHtml); // append the task html
 
@@ -227,7 +228,7 @@ const createSubmitData = () => {
   return yamlHelper.jsonEditorToJobJson(editors);
 };
 
-const initPage = () =>{
+const initPage = () => {
   let initJob = {
     name: 'Job Name',
     description: 'Please add job description.',
