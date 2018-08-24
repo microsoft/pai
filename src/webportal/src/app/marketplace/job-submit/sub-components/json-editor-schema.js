@@ -24,6 +24,7 @@ const parametersSchema = {
     disable_array_delete_last_row: true,
     disable_array_delete_all_rows: true,
     disable_edit_json: false,
+    grid_columns: 12,
   },
   items: {
     type: 'object',
@@ -90,15 +91,18 @@ const taskSchema = {
     parameters: parametersSchema,
     command: {
       type: 'array',
-      format: 'table',
+      format: 'tabs',
       options: {
         disable_collapse: true,
         disable_array_delete_last_row: true,
         disable_array_delete_all_rows: true,
         disable_edit_json: false,
+        grid_columns: 12,
       },
       items: {
         type: 'string',
+        format: 'textarea',
+        headerTemplate: `command {{i}}`,
       },
     },
   },

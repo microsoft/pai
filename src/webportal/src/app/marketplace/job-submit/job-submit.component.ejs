@@ -8,14 +8,11 @@
         <!-- button -->
         <div>
             <div class="upload-btn-wrapper">
-                <button class="btn btn-primary" id="exportYamlBtn">Edit</button>
+                    <button class="btn btn-primary">Import Yaml</button>
+                    <input type="file" class="import-sty" id="importYaml" />
             </div>
             <div class="upload-btn-wrapper">
-                <button class="btn btn-primary">Import from Yaml</button>
-                <input type="file" class="import-sty" id="importYaml" />
-            </div>
-            <div class="upload-btn-wrapper">
-                <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
+                <button class="btn btn-primary" id="EditYamlBtn">Edit Yaml</button>
             </div>
         </div>
         <!-- <table class="row title-search">
@@ -49,19 +46,7 @@
                         </div>
                         <p id="job-description">
                             Please add job description.
-                        </p>
-                        <!-- <div>
-                            <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary" id="exportYamlBtn">YAML</button>
-                            </div>
-                            <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary">Import from Yaml</button>
-                                <input type="file" id="importYaml" />
-                            </div>
-                            <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
-                            </div>
-                        </div> -->
+                        </p>     
                     </div>
                 </td>
             </tr>
@@ -155,7 +140,7 @@
     <div class="footer">
         <div class="position-btns">
             <button class="btn btn-primary sty-margin" id="submitJob">Submit</button>
-            <button class="btn btn-primary sty-margin">save as</button>
+            <button class="btn btn-primary" id="exportYamlBtn">save as</button>
         </div>
     </div>
 </div>
