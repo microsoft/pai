@@ -61,6 +61,8 @@ spec:
           name: docker-cred-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /docker-config
+          name: docker-config
         readinessProbe:
           exec:
             command:
@@ -83,6 +85,10 @@ spec:
           value: nodemanager-generate-script.sh
         - name: START_SERVICE
           value: nodemanager-start-service.sh
+        - name: HOST_YARN_NODEMANAGER_STORAGE
+          value: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
+        - name: HOST_HADOOP_TMP_STORAGE
+          value: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
@@ -120,5 +126,8 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
+      - name: docker-config
+        hostPath:
+          path: /etc/docker-config
 
 
