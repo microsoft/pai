@@ -615,7 +615,7 @@ fi
 ./paictl.py service delete -p /cluster-configuration
 
 # clean k8s
-./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
 
