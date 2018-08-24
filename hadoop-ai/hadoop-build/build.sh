@@ -46,4 +46,4 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 
 # When Changing the patch id, please update the filename here.
-touch /hadoop-binary/12932984-12933562-done
+touch /hadoop-binary/12932984-12933562-docker_executor-done
