@@ -81,11 +81,11 @@ spec:
             memory: "1Gi"
         securityContext:
           privileged: true
-        env:
-        - name: YARN_WEB_PORTAL_URI
-          value: {{ clusterinfo['webportalinfo']['yarn_web_portal_uri'] }}
-        - name: YARN_EXPORTER_PORT
-          value: "{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"       
+        command:
+          - "python3"
+          - "/usr/local/yarn_exporter.py"
+          - "http://127.0.0.1:8088"
+          - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"       
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

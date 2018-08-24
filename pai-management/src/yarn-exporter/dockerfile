@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+FROM python:3.7
 
 #
 # Preparation
@@ -23,17 +23,8 @@ FROM ubuntu:16.04
 
 WORKDIR /root/
 
-RUN apt-get update && \
-    apt-get -y install wget build-essential python3 python3-pip git pciutils
-
 COPY copied_file/yarn_exporter.py /usr/local/
 COPY ./requirements.txt /usr/local/
-COPY ./run.sh /usr/local/
 
 RUN pip3 install -r /usr/local/requirements.txt
 
-#
-# start
-#
-
-ENTRYPOINT ["/usr/local/run.sh"]
