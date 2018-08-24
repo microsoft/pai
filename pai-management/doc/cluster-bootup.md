@@ -80,15 +80,15 @@ sudo docker exec -it dev-box /bin/bash
 ```bash
 cd /pai
 # please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
-# checkout a release branch. For example: v0.7.1
-git checkout v0.7.1
+# checkout a release branch. For example: v0.x.y
+git checkout v0.x.y
 # check current branch
 git branch
 ```
 - sucessful result:
 ```bash
   master
-* v0.7.1
+* v0.x.y
 ```
 
 ##### (4) Go to pai-management working dir
@@ -171,10 +171,10 @@ python paictl.py cluster generate-configuration -i /pai/pai-management/quick-sta
 vi ~/pai-config/services-configuration.yaml
 ```
 
-For example: v0.7.1 branch, user should change docker-tag to v0.7.1.
+For example: v0.x.y branch, user should change docker-tag to v0.x.y.
 
 ```bash
-docker-tag: v0.7.1
+docker-tag: v0.x.y
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
