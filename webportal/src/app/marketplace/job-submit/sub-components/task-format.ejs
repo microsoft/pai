@@ -18,13 +18,18 @@
             </li>
         </ul>
     </div>
-    <h5 id="<%= type %><%= id %>-role"><%= role %></h5>
-    <p>Dockerimage: <span id="<%= type %><%= id %>-instances"><%= dockerimage %></span></p>
-    <p>Instances: <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
+    <h3 id="<%= type %><%= id %>-role"><%= role %></h3>
+    <p><b>Dockerimage:</b> <span id="<%= type %><%= id %>-dockerimage"><%= dockerimage %></span></p>
+    <p><b>Data:</b> <span id="<%= type %><%= id %>-data"><%= data %></span></p>
+    <p><b>Script:</b> <span id="<%= type %><%= id %>-script"><%= script %></span></p>
+    <p><b>Instances:</b> <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
     <p class="task-resource">
-        Resource: cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
-        memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
-        gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span></p>
-    Command:
-    <div class="task-command"><span id="<%= type %><%= id %>-command"><%= command %></div>
+        <b>Resource:</b>
+            cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
+            memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
+            gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span>
+    </p>
+    <p><b>Command:</b> 
+       <span class="task-command" id="<%= type %><%= id %>-command"><%= command %>
+    </p>
 </div>
