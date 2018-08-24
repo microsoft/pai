@@ -24,7 +24,6 @@ kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} pro
     {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
 kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true  || exit $?
     {% endif %}
-    {% endif %}
     {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
 kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true || exit $?
     {% endif %}

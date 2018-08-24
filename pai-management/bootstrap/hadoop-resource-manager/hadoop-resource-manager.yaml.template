@@ -79,8 +79,6 @@ spec:
         resources:
           limits:
             memory: "1Gi"
-        securityContext:
-          privileged: true
         command:
           - "python3"
           - "/usr/local/yarn_exporter.py"
