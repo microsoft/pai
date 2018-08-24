@@ -55,20 +55,20 @@ $(function() {
         });
 
         $('#upload-button').click(() => {
-            $('#upload-body-select').removeClass('hidden')
-            $('#upload-body-form').addClass('hidden')
-            $('#upload-body-success').addClass('hidden')
-        })
+            $('#upload-body-select').removeClass('hidden');
+            $('#upload-body-form').addClass('hidden');
+            $('#upload-body-success').addClass('hidden');
+        });
 
         $('#upload-docker, #upload-script, #upload-data').click(() => {
-            $('#upload-body-select').addClass('hidden')
-            $('#upload-body-form').removeClass('hidden')
-        })
+            $('#upload-body-select').addClass('hidden');
+            $('#upload-body-form').removeClass('hidden');
+        });
         $('#upload-body-form').submit((event) => {
-            event.preventDefault()
-            $('#upload-body-form').addClass('hidden')
-            $('#upload-body-success').removeClass('hidden')
-        })
+            event.preventDefault();
+            $('#upload-body-form').addClass('hidden');
+            $('#upload-body-success').removeClass('hidden');
+        });
     });
 });
 
