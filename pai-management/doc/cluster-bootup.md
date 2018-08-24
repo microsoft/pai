@@ -160,7 +160,7 @@ cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
-python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o /pai-config -f
+python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
@@ -240,7 +240,7 @@ cd /pai/pai-management
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster k8s-bootup \
-  -p /pai-config
+  -p ~/pai-config
 ```
 
 The `paictl` tool does the following things:
@@ -272,7 +272,7 @@ cd /pai/pai-management
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py service start \
-  -p /pai-config \
+  -p ~/pai-config \
   [ -n service-name ]
 ```
 
