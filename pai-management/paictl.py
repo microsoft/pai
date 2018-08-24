@@ -47,7 +47,6 @@ from k8sPaiLibrary.maintainlib import kubectl_install
 logger = logging.getLogger(__name__)
 
 
-
 def setup_logging():
     """
     Setup logging configuration.
@@ -55,8 +54,6 @@ def setup_logging():
     configuration_path = "sysconf/logging.yaml"
     logging_configuration = file_handler.load_yaml_config(configuration_path)
     logging.config.dictConfig(logging_configuration)
-
-
 
 
 #########
@@ -286,254 +283,230 @@ def kubectl_env_checking(cluster_object_mode):
     return True
 
 
+class SubCmd(object):
+    """ interface class for defining sub-command for paictl """
+
+    def register(self, parser):
+        """ subclass use this method to register arguments """
+        pass
+
+    @staticmethod
+    def add_handler(parser, handler, *args, **kwargs):
+        """ helper function for adding sub-command handler """
+        sub_parser = parser.add_parser(*args, **kwargs)
+        sub_parser.set_defaults(handler=handler) # let handler handle this subcmd
+        return sub_parser
+
+    def run(self, args):
+        """ will call run with expected args, subclass do not have to override this method
+        if subclass use `add_handler` to register handler. """
+        args.handler(args)
 
 
-def pai_build_info():
+class Image(SubCmd):
+    def register(self, parser):
+        image_parser = parser.add_subparsers(help="image operations")
 
-    logger.error("The command is wrong.")
-    logger.error("Build image: paictl.py image build -p /path/to/configuration/ [ -n image-x ]")
-    logger.error("Push image : paictl.py image push -p /path/to/configuration/ [ -n image-x ]")
+        def add_arguments(parser):
+            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
+                    help="The path of your configuration directory.")
+            parser.add_argument("-n", "--image-name", dest="image_name", default="all",
+                    help="Build and push the target image to the registry")
 
+        build_parser = SubCmd.add_handler(image_parser, self.image_build, "build")
+        push_parser = SubCmd.add_handler(image_parser, self.image_push, "push")
 
+        add_arguments(build_parser)
+        add_arguments(push_parser)
 
-def pai_build():
+    def process_args(self, args):
+        cluster_object_model = load_cluster_objectModel_service(args.config_path)
 
-    if len(sys.argv) < 2:
-        pai_build_info()
-        return
+        image_list = None
+        if args.image_name != "all":
+            image_list = [args.image_name]
 
-    option = sys.argv[1]
-    del sys.argv[1]
+        return cluster_object_model, image_list
 
-    if option not in ["build", "push"]:
-        pai_build_info()
-        return
+    def image_build(self, args):
+        cluster_object_model, image_list = self.process_args(args)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest = "config_path", required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--image-name', dest = "image_name", default='all', help="Build and push the target image to the registry")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    image_name = args.image_name
-    cluster_object_model = load_cluster_objectModel_service(config_path)
-
-    image_list = None
-    if image_name != "all":
-        image_list = [ image_name ]
-
-    if option == "build":
         center = build_center.build_center(cluster_object_model, image_list)
         center.run()
 
-    if option == "push":
+    def image_push(self, args):
+        cluster_object_model, image_list = self.process_args(args)
+
         center = push_center.push_center(cluster_object_model, image_list)
         center.run()
 
 
+class Machine(SubCmd):
+    def register(self, parser):
+        machine_parser = parser.add_subparsers(help="machine operations")
 
-def pai_machine_info():
+        def add_arguments(parser):
+            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
+                    help="The path of your configuration directory.")
+            parser.add_argument("-l", "--node-list", dest="node_list", required=True,
+                    help="The node-list to be operator")
 
-    logger.error("The command is wrong.")
-    logger.error("Add New Machine Node into cluster :  paictl.py machine add -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    logger.error("Remove Machine Node from cluster  :  paictl.py machine remove -p /path/to/configuration/ -l /path/to/nodelist.yaml")
-    logger.error("Repair Error Etcd Node in cluster :  paictl.py machine etcd-fix -p /path/to/configuration/ -l /path/to/nodelist.yaml")
+        add_parser = SubCmd.add_handler(machine_parser, self.machine_add, "add")
+        remove_parser = SubCmd.add_handler(machine_parser, self.machine_remove, "remove")
+        etcd_parser = SubCmd.add_handler(machine_parser, self.etcd_fix, "etcd-fix")
 
+        add_arguments(add_parser)
+        add_arguments(remove_parser)
+        add_arguments(etcd_parser)
 
+    def process_args(self, args):
+        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        node_list = file_handler.load_yaml_config(args.node_list)
 
-def pai_machine():
+        if not kubectl_env_checking(cluster_object_model_k8s):
+            raise RuntimeError("failed to do kubectl checking")
 
-    if len(sys.argv) < 2:
-        pai_machine_info()
-        return
+        for host in node_list["machine-list"]:
+            if "nodename" not in host:
+                host["nodename"] = host["hostip"]
 
-    option = sys.argv[1]
-    del sys.argv[1]
+        return cluster_object_model_k8s, node_list
 
-    if option not in ["add", "remove", "etcd-fix"]:
-        pai_machine_info()
-        return
+    def machine_add(self, args):
+        cluster_object_model_k8s, node_list = self.process_args(args)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-                        help="The path of your configuration directory.")
-    parser.add_argument('-l', '--node-list', dest="node_list", required=True,
-                        help="The node-list to be operator")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    node_lists_path = args.node_list
-
-    cluster_object_model = cluster_object_model_generate_service(config_path)
-    cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
-    node_list = file_handler.load_yaml_config(node_lists_path)
-
-    if kubectl_env_checking(cluster_object_model_k8s) == False:
-        return
-
-    for host in node_list['machine-list']:
-
-        if 'nodename' not in host:
-            host['nodename'] = host['hostip']
-
-
-    if option == "add":
-
-        for host in node_list['machine-list']:
+        for host in node_list["machine-list"]:
             add_worker = k8s_add.add(cluster_object_model_k8s, host, True)
             add_worker.run()
 
-            if host['k8s-role'] == 'master':
+            if host["k8s-role"] == "master":
                 logger.info("Master Node is added, sleep 60s to wait it ready.")
                 time.sleep(60)
 
+    def machine_remove(self, args):
+        cluster_object_model_k8s, node_list = self.process_args(args)
 
-    if option == "remove":
-
-        for host in node_list['machine-list']:
+        for host in node_list["machine-list"]:
             add_worker = k8s_remove.remove(cluster_object_model_k8s, host, True)
             add_worker.run()
 
-            if host['k8s-role'] == 'master':
+            if host["k8s-role"] == "master":
                 logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
 
+    def etcd_fix(self, args):
+        cluster_object_model_k8s, node_list = self.process_args(args)
 
-    if option == "etcd-fix":
-
-        if len(node_list['machine-list']) > 1:
+        if len(node_list["machine-list"]) > 1:
             logger.error("etcd-fix can't fix more than one machine everytime. Please fix them one by one!")
             sys.exit(1)
 
-        for host in node_list['machine-list']:
+        for host in node_list["machine-list"]:
             etcd_fix_worker = k8s_etcd_fix.etcdfix(cluster_object_model_k8s, host, True)
             etcd_fix_worker.run()
 
         logger.info("Etcd has been fixed.")
 
 
+class Service(SubCmd):
+    def register(self, parser):
+        service_parser = parser.add_subparsers(help="service operations")
 
+        def add_arguments(parser):
+            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
+                                help="The path of your configuration directory.")
+            parser.add_argument("-n", "--service-name", dest="service_name", default="all",
+                                help="Build and push the target image to the registry")
 
+        start_parser = SubCmd.add_handler(service_parser, self.service_start, "start")
+        stop_parser = SubCmd.add_handler(service_parser, self.service_stop, "stop")
+        delete_parser = SubCmd.add_handler(service_parser, self.service_delete, "delete")
+        refresh_parser = SubCmd.add_handler(service_parser, self.service_refresh, "refresh")
+        # TODO: Two feature.
+        # Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
+        # Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
 
-def pai_service_info():
+        add_arguments(start_parser)
+        add_arguments(stop_parser)
+        add_arguments(delete_parser)
+        add_arguments(refresh_parser)
 
-    logger.error("The command is wrong.")
-    logger.error("Start Service: paictl.py service start -p /path/to/configuration/ [ -n service-x ]")
-    logger.error("Stop Service : paictl.py service stop -p /path/to/configuration/ [ -n service-x ]")
-    logger.error("Delete Service (Stop Service, Then clean all service's data): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
-    logger.error("refresh Service (Update Configuration, Update Machine's Label): paictl.py service delete -p /path/to/configuration/ [ -n service-x ]")
-    # TODO: Two feature.
-    #logger.error("Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
-    #logger.error("Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]")
+    def process_args(self, args):
+        cluster_object_model = cluster_object_model_generate_service(args.config_path)
+        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
 
+        service_list = None
+        if args.service_name != "all":
+            service_list = [args.service_name]
 
+        # Tricky, re-install kubectl first.
+        # TODO: install kubectl-install here.
+        if not kubectl_env_checking(cluster_object_model_k8s):
+            raise RuntimeError("failed to do kubectl checking")
 
-def pai_service():
+        return cluster_object_model, service_list
 
-    if len(sys.argv) < 2:
-        pai_service_info()
-        return
+    def service_start(self, args):
+        cluster_object_model, service_list = self.process_args(args)
 
-    option = sys.argv[1]
-    del sys.argv[1]
-
-    if option not in ["start", "delete", "stop", "refresh"]:
-        pai_service_info()
-        return
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-                        help="The path of your configuration directory.")
-    parser.add_argument('-n', '--service-name', dest="service_name", default='all',
-                        help="Build and push the target image to the registry")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    service_name = args.service_name
-    cluster_object_model = cluster_object_model_generate_service(config_path)
-    cluster_object_model_k8s = cluster_object_model_generate_k8s(config_path)
-
-    service_list = None
-    if service_name != "all":
-        service_list = [ service_name ]
-
-    # Tricky ,  re-install kubectl first.
-    # TODO: install kubectl-install here.
-    if kubectl_env_checking(cluster_object_model_k8s) == False:
-        return
-
-    if option == "start":
         service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
         service_management_starter.run()
 
-    if option == "delete":
-        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
-        service_management_deleter.run()
+    def service_stop(self, args):
+        cluster_object_model, service_list = self.process_args(args)
 
-    if option == "stop":
         service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
         service_management_stopper.run()
 
-    if option == "refresh":
+    def service_delete(self, args):
+        cluster_object_model, service_list = self.process_args(args)
+
+        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter.run()
+
+    def service_refresh(self, args):
+        cluster_object_model, service_list = self.process_args(args)
+
         service_management_refresher = service_management_refresh.service_management_refresh(cluster_object_model, service_list)
         service_management_refresher.run()
 
 
+class Cluster(SubCmd):
+    def register(self, parser):
+        image_parser = parser.add_subparsers(help="cluster operations")
 
-def pai_cluster_info():
+        bootup_parser = SubCmd.add_handler(image_parser, self.k8s_bootup, "k8s-bootup")
+        clean_parser = SubCmd.add_handler(image_parser, self.k8s_clean, "k8s-clean")
+        generate_parser = SubCmd.add_handler(image_parser, self.generate_configuration, "generate-configuration",
+                description="Generate configuration files based on a quick-start yaml file.",
+                formatter_class=argparse.RawDescriptionHelpFormatter)
+        install_parser = SubCmd.add_handler(image_parser, self.install_kubectl, "install-kubectl")
 
-    logger.error("The command is wrong.")
-    logger.error("Bootup kubernetes cluster : paictl.py cluster k8s-bootup -p /path/to/cluster-configuration/dir")
-    logger.error("Destroy kubernetes cluster: paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir")
-    logger.error("Generate pai cluster config from quick start: paictl.py cluster generate-configuration -p /path/to/cluster-configuration/dir")
-    logger.error("Install and config kubectl: paictl.py cluster install-kubectl -p /path/to/cluster-configuration/dir")
-
-
-
-def pai_cluster():
-    if len(sys.argv) < 2:
-        pai_cluster_info()
-        return
-    option = sys.argv[1]
-    del sys.argv[1]
-    if option not in ["k8s-bootup", "k8s-clean", "generate-configuration", "install-kubectl"]:
-        pai_cluster_info()
-        return
-    if option == "k8s-bootup":
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-p', '--config-path', dest="config_path", required=True,
+        bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
             help="path of cluster configuration file")
-        args = parser.parse_args(sys.argv[1:])
-        config_path = args.config_path
-        cluster_config = cluster_object_model_generate_k8s(config_path)
+
+        clean_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
+        clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
+
+        generate_parser.add_argument("-i", "--input", dest="quick_start_config_file", required=True,
+            help="the path of the quick-start configuration file (yaml format) as the input")
+        generate_parser.add_argument("-o", "--output", dest="configuration_directory", required=True,
+            help="the path of the directory the configurations will be generated to")
+        generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
+            help="overwrite existing files")
+
+        install_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
+            help="path of cluster configuration file")
+
+    def k8s_bootup(self, args):
+        cluster_config = cluster_object_model_generate_k8s(args.config_path)
         logger.info("Begin to initialize PAI k8s cluster.")
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
         logger.info("Finish initializing PAI k8s cluster.")
-    elif option == "generate-configuration":
-        parser = argparse.ArgumentParser(
-            description="Generate configuration files based on a quick-start yaml file.",
-            formatter_class=argparse.RawDescriptionHelpFormatter)
-        parser.add_argument('-i', '--input', dest="quick_start_config_file", required=True,
-            help="the path of the quick-start configuration file (yaml format) as the input")
-        parser.add_argument('-o', '--output', dest="configuration_directory", required=True,
-            help="the path of the directory the configurations will be generated to")
-        parser.add_argument('-f', '--force', dest='force', action='store_true', required=False,
-            help="overwrite existing files")
-        parser.set_defaults(force=False)
-        args = parser.parse_args()
-        cluster_util.generate_configuration(
-            args.quick_start_config_file,
-            args.configuration_directory,
-            args.force)
-    elif option == "k8s-clean":
+
+    def k8s_clean(self, args):
         # just use 'k8s-clean' for testing temporarily  .
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-p', '--config-path', dest="config_path", required=True, help="path of cluster configuration file")
-        parser.add_argument('-f', '--force', dest="force", required=False, action="store_true", help="clean all the data forcefully")
-        args = parser.parse_args(sys.argv[1:])
-        config_path = args.config_path
-        force = args.force
-        cluster_config = cluster_object_model_generate_k8s(config_path)
+        cluster_config = cluster_object_model_generate_k8s(args.config_path)
 
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
@@ -541,7 +514,7 @@ def pai_cluster():
         logger.warning("------     Your k8s Cluster will be destroyed    -------")
         logger.warning("------     PAI service on k8s will be stopped    -------")
         logger.warning("--------------------------------------------------------")
-        if force:
+        if args.force:
             logger.warning("--------------------------------------------------------")
             logger.warning("----------    ETCD data will be cleaned.    ------------")
             logger.warning("-----    If you wanna keep pai's user data.    ---------")
@@ -571,54 +544,49 @@ def pai_cluster():
                 return
 
         logger.info("Begin to clean up whole cluster.")
-        cluster_util.maintain_cluster_k8s(cluster_config, option_name = "clean", force = force, clean = True)
+        cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
-    elif option == "install-kubectl":
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-p', '--config-path', dest="config_path", required=True,
-            help="path of cluster configuration file")
-        args = parser.parse_args(sys.argv[1:])
 
+    def generate_configuration(self, args):
+        cluster_util.generate_configuration(
+                args.quick_start_config_file,
+                args.configuration_directory,
+                args.force)
+
+    def install_kubectl(self, args):
         cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
         kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
         kubectl_install_worker.run()
 
 
+class Main(SubCmd):
+    def __init__(self, subcmds):
+        self.subcmds = subcmds
 
+    def register(self, parser):
+        sub_parser = parser.add_subparsers(help="paictl operations")
 
-def main():
+        for name, subcmd in self.subcmds.items():
+            subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
+            subcmd.register(subparser)
 
-    if len(sys.argv) < 2:
-        logger.error("You should pass at least one argument")
-        return
+def main(args):
+    parser = argparse.ArgumentParser()
 
-    module = sys.argv[1]
-    del sys.argv[1]
+    main_handler = Main({
+        "image": Image(),
+        "machine": Machine(),
+        "service": Service(),
+        "cluster": Cluster()
+        })
 
-    if module == "image":
+    main_handler.register(parser)
 
-        pai_build()
+    args = parser.parse_args(args)
 
-    elif module == "machine":
-
-        pai_machine()
-
-    elif module == "service":
-
-        pai_service()
-
-    elif module == "cluster":
-
-        pai_cluster()
-
-    else:
-
-        logger.error("Sorry, there is no definition of the argument [{0}]".format(module))
-
+    args.handler(args)
 
 
 if __name__ == "__main__":
-
     setup_logging()
-    main()
-
+    main(sys.argv[1:])
