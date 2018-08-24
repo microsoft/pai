@@ -112,7 +112,7 @@ From release 2.9.0 users can upload or delete files on the web portal. On earlie
 
 ## Mountable HDFS
 
-The *hadoop-dfs-fuse* tool can mount HDFS on local file system and users can access the data with Linux commands.
+The *hadoop-hdfs-fuse* tool can mount HDFS on local file system and users can access the data with Linux commands.
 The tool can be installed with following commands on Ubuntu system:
 ```bash
 # add the CDH5 repository
@@ -135,7 +135,7 @@ The detailed HDFS API interfaces can be found on [HDFS API Doc](https://hadoop.a
 
 ### C API
 
-The C API is provided by *libhdfs* library and it only supports a subset of the HDFS APIs.
+The C API is provided by *libhdfs* library and it only supports a subset of the HDFS operations.
 Please follow the instructions on [C APIs](http://hadoop.apache.org/docs/r2.9.1/hadoop-project-dist/hadoop-hdfs/LibHdfs.html) for details.
 
 ### Python API
@@ -149,7 +149,7 @@ Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the detail
 ### Restful API
 
 The data can also be accessed with restful APIs.
-[WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html#Open_and_Read_a_File) contains the detailed instructions.
+[WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions.
 
 # Reference
 
