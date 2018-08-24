@@ -75,7 +75,23 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Go to pai-management working dir
+##### (3) Check out a latest release branch of OpenPAI
+
+```bash
+cd /pai
+# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
+# checkout a release branch. For example: v0.7.1
+git checkout v0.7.1
+# check current branch
+git branch
+```
+- sucessful result:
+```bash
+  master
+* v0.7.1
+```
+
+##### (4) Go to pai-management working dir
 
 ```bash
 cd /pai/pai-management
@@ -143,7 +159,7 @@ cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
-python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o /pai-config -f
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
@@ -223,7 +239,7 @@ cd /pai/pai-management
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster k8s-bootup \
-  -p ~/pai-config
+  -p /pai-config
 ```
 
 The `paictl` tool does the following things:
@@ -255,7 +271,7 @@ cd /pai/pai-management
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py service start \
-  -p ~/pai-config \
+  -p /pai-config \
   [ -n service-name ]
 ```
 
