@@ -31,9 +31,9 @@ const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 
 class Job {
-  constructor(name, next) {
+  constructor(name, namespace, next) {
     this.name = name;
-    this.getJob(name, (jobDetail, error) => {
+    this.getJob(name, namespace, (jobDetail, error) => {
       if (error === null) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
@@ -72,13 +72,15 @@ class Job {
     return jobState;
   }
 
-  getJobList(query, next) {
+  getJobList(query, namespace, next) {
     let reqPath = launcherConfig.frameworksPath();
-    if (query.username) {
+    if (namespace) {
+      reqPath = `${reqPath}?UserName=${namespace}`;
+    } else if (query.username) {
       reqPath = `${reqPath}?UserName=${query.username}`;
     }
     unirest.get(reqPath)
-      .headers(launcherConfig.webserviceRequestHeaders)
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((res) => {
         try {
           const resJson = typeof res.body === 'object' ?
@@ -86,7 +88,7 @@ class Job {
           if (res.status !== 200) {
             return next(null, createError(res.status, 'UnknownError', res.raw_body));
           }
-          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
+          let jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['succeededRetriedCount', 'transientNormalRetriedCount', 'transientConflictRetriedCount',
               'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
@@ -105,6 +107,21 @@ class Job {
               virtualCluster: frameworkInfo.queue,
             };
           });
+          if (namespace) {
+            // If namespace is provided, drop all jobs without namespace, and remove all namespaces
+            jobList = jobList.filter((job) => {
+              const tildeIndex = job.name.indexOf('~');
+              if (tildeIndex === -1) return false;
+              job.name = job.name.slice(tildeIndex + 1);
+              return true;
+            });
+          } else {
+            // If namespace is not provided, drop all jobs with namespace
+            jobList = jobList.filter((job) => {
+              const tildeIndex = job.name.indexOf('~');
+              return (tildeIndex === -1);
+            });
+          }
           jobList.sort((a, b) => b.createdTime - a.createdTime);
           next(jobList);
         } catch (error) {
@@ -113,9 +130,10 @@ class Job {
       });
   }
 
-  getJob(name, next) {
-    unirest.get(launcherConfig.frameworkPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  getJob(name, namespace, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         try {
           const requestResJson =
@@ -135,7 +153,9 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
+  putJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    data.jobName = frameworkName;
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     }
@@ -151,8 +171,8 @@ class Job {
         if (error) return next(error);
         this._prepareJobContext(name, data, (error, result) => {
           if (error) return next(error);
-          unirest.put(launcherConfig.frameworkPath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.put(launcherConfig.frameworkPath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .send(this.generateFrameworkDescription(data))
             .end((res) => {
               if (res.status === 202) {
@@ -166,17 +186,18 @@ class Job {
     });
   }
 
-  deleteJob(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  deleteJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.delete(launcherConfig.frameworkPath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.delete(launcherConfig.frameworkPath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .end((requestRes) => {
               if (requestRes.status !== 202) {
                 return next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
@@ -189,17 +210,18 @@ class Job {
       });
   }
 
-  putJobExecutionType(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  putJobExecutionType(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.put(launcherConfig.frameworkExecutionTypePath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .send({'executionType': data.value})
             .end((requestRes) => {
               if (requestRes.status !== 202) {

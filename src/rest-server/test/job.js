@@ -16,11 +16,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-describe('Jobs API /api/v1/jobs', () => {
+describe('Jobs API /api/v1/user/:username/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
@@ -31,8 +31,8 @@ describe('Jobs API /api/v1/jobs', () => {
   const allFrameworks = {
     'summarizedFrameworkInfos': [
       {
-        'name': 'job1',
-        'username': 'test1',
+        'frameworkName': 'test1~job1',
+        'userName': 'test1',
         'frameworkState': 'FRAMEWORK_COMPLETED',
         'frameworkRetryPolicyState': {
           'succeededRetriedCount': 0,
@@ -47,8 +47,111 @@ describe('Jobs API /api/v1/jobs', () => {
         'queue': 'vc1',
       },
       {
-        'name': 'job2',
-        'username': 'test2',
+        'frameworkName': 'test1~job2',
+        'userName': 'test1',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
+          'transientNormalRetriedCount': 1,
+          'transientConflictRetriedCount': 2,
+          'nonTransientRetriedCount': 3,
+          'unKnownRetriedCount': 4,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 1,
+        'queue': 'default',
+      },
+      // For legacy uses
+      {
+        'frameworkName': 'job3',
+        'userName': 'test1',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
+          'transientNormalRetriedCount': 1,
+          'transientConflictRetriedCount': 2,
+          'nonTransientRetriedCount': 3,
+          'unKnownRetriedCount': 4,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 1,
+        'queue': 'default',
+      }
+    ],
+  };
+
+  // GET /api/v1/jobs
+  it('[P-01] Get job list', (done) => {
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks')
+      .query({UserName: 'test1'})
+      .reply(
+        200,
+        allFrameworks
+      );
+    chai.request(server)
+      .get('/api/v1/user/test1/jobs')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'json response').be.json;
+        expect(res.body.length, 'job list length').to.equal(2);
+        expect(res.body[0].name, 'job name').to.equal('job1')
+        done();
+      });
+  });
+});
+
+describe('Jobs API /api/v1/jobs', () => {
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  //
+  // Define data
+  //
+
+  const allFrameworks = {
+    'summarizedFrameworkInfos': [
+      {
+        'frameworkName': 'job1',
+        'userName': 'test1',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
+          'transientNormalRetriedCount': 0,
+          'transientConflictRetriedCount': 0,
+          'nonTransientRetriedCount': 0,
+          'unKnownRetriedCount': 0,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 0,
+        'queue': 'vc1',
+      },
+      {
+        'frameworkName': 'job2',
+        'userName': 'test2',
+        'frameworkState': 'FRAMEWORK_COMPLETED',
+        'frameworkRetryPolicyState': {
+          'succeededRetriedCount': 0,
+          'transientNormalRetriedCount': 1,
+          'transientConflictRetriedCount': 2,
+          'nonTransientRetriedCount': 3,
+          'unKnownRetriedCount': 4,
+        },
+        'firstRequestTimestamp': new Date().getTime(),
+        'frameworkCompletedTimestamp': new Date().getTime(),
+        'applicationExitCode': 1,
+        'queue': 'default',
+      },
+      {
+        'frameworkName': 'test1~job2',
+        'userName': 'test1',
         'frameworkState': 'FRAMEWORK_COMPLETED',
         'frameworkRetryPolicyState': {
           'succeededRetriedCount': 0,

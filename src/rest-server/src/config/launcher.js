@@ -28,9 +28,16 @@ let launcherConfig = {
   hdfsUri: process.env.HDFS_URI,
   webhdfsUri: process.env.WEBHDFS_URI,
   webserviceUri: process.env.LAUNCHER_WEBSERVICE_URI,
-  webserviceRequestHeaders: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
+  webserviceRequestHeaders: (namespace) => {
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    if (namespace) {
+      headers['UserName'] = namespace;
+    }
+    return headers;
   },
   jobRootDir: './frameworklauncher',
   jobDirCleanUpIntervalSecond: 7200,
@@ -105,7 +112,8 @@ const launcherConfigSchema = Joi.object().keys({
   frameworkInfoWebhdfsPath: Joi.func()
     .arity(1)
     .required(),
-  webserviceRequestHeaders: Joi.object()
+  webserviceRequestHeaders: Joi.func()
+    .arity(1)
     .required(),
   jobRootDir: Joi.string()
     .default('./frameworklauncher'),
