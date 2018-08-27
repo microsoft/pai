@@ -136,7 +136,11 @@ class Job {
   putJob(name, data, next) {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
+    } else {
+      data.outputDir = data.outputDir.replace('$PAI_JOB_NAME', name);
+      data.outputDir = data.outputDir.replace('$PAI_USER_NAME', data.userName);
     }
+
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
     }
