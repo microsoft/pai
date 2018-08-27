@@ -61,6 +61,7 @@ const config = (env, argv) => ({
     jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
     templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
     templateView: './src/app/marketplace/template-view/template-view.component.js',
+    marketplace: './src/app/marketplace/marketplace.component.js'
   },
   output: {
     path: helpers.root('dist'),
@@ -321,7 +322,7 @@ const config = (env, argv) => ({
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
       cache: true,
-      chunks: ['layout', 'templateView']
+      chunks: ['layout', 'marketplace']
     }),
   ].concat(argv.debug ? [] : [new UglifyJsPlugin({
     cache: true,

@@ -1,0 +1,21 @@
+.slick-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.slick-arrow:first-child {
+    right: 100%;
+}
+
+.slick-arrow:last-child {
+    left: 100%;
+}
+
+.slick-list {
+    width: 100%;
+}
+
+.thumbnail {
+    margin-bottom: 0;
+}
