@@ -52,7 +52,7 @@
             </tr>
         </table>
     </div>
-    <div class="add-four">
+    <div class="add-four" style="overflow: scroll">
         <div class="add-content">
             <!-- for task -->
             <div class="row add-title">
@@ -137,6 +137,25 @@
         <div id="addCustomizeModalPlace" class="box-body" />
     </div>
     <div id="json-editor-container"></div>
+    <div id="yaml-editor-container">
+        <div id="yaml-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Edit Yaml</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="yaml-editor-holder"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary edit-save" id="yaml-edit-save-button">Save</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         <div class="position-btns">
             <button class="btn btn-primary sty-margin" id="submitJob">Submit</button>
