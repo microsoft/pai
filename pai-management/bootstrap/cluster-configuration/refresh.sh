@@ -23,10 +23,10 @@ echo "refresh secret for k8s cluster"
 kubectl apply -f secret.yaml
 
 echo "refresh host-configuration"
-kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap host-configuration --from-file=host-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 echo "refresh docker-credentials"
-kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap docker-credentials --from-file=docker-credentials/ --dry-run -o yaml | kubectl apply -f - || exit $?
 echo "refresh gpu-configuration"
-kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f -
+kubectl create configmap gpu-configuration --from-file=gpu-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 popd > /dev/null

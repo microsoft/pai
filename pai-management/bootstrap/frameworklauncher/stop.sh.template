@@ -19,14 +19,18 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete ds frameworklauncher-ds
+if kubectl get daemonset | grep -q "frameworklauncher-ds"; then
+    kubectl delete ds frameworklauncher-ds || exit $?
+fi
 
-kubectl delete configmap frameworklauncher-configmap
+if kubectl get configmap | grep -q "frameworklauncher-configmap"; then
+    kubectl delete configmap frameworklauncher-configmap || exit $?
+fi
 
 
 {% for host in machinelist %}
     {% if 'launcher' in machinelist[ host ] and machinelist[ host ][ 'launcher' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher-
+kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
     {% endif %}
 {% endfor %}
 

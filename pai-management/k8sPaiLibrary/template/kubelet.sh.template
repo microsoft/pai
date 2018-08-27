@@ -26,7 +26,7 @@ docker run \
     --volume=/sys:/sys:rw \
     --volume=/dev:/dev:rw \
     --volume=/var/lib/docker/:/var/lib/docker:rw \
-    --volume=/var/lib/kubelet/:/var/lib/kubelet:rw \
+    --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
     --volume=/var/log:/var/log:rw \

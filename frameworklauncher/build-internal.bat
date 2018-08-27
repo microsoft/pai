@@ -46,7 +46,7 @@ if %exitcode% neq 0 (
 if %exitcode% neq 0 (
   echo Failed to make Binary Distributions with exitcode %exitcode%
 ) else (
-  echo Succeed to make Binary Distributions with exitcode %exitcode%
+  echo Succeeded to make Binary Distributions with exitcode %exitcode%
 )
 popd
 exit %exitcode%
