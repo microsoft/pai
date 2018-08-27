@@ -182,6 +182,7 @@ const showAddModal = (type) => {
     $('#addModal').modal('hide');
 
     let id = editors[type].length + 1;
+    $('#addCustomizeModalPlace').empty();
     let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
     $(`#${type}${id}-modal`).modal('show');
 
