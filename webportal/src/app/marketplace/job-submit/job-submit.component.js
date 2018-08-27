@@ -53,8 +53,8 @@ $(document).on('click', '#add-data-btn', () => {
   userTemplate.showAddModal('data');
 });
 
-$(document).on('click', '#exportJsonBtn', () => {
-  userTemplate.exportsJson();
+$(document).on('click', '#EditYamlBtn', () => {
+  userTemplate.editYaml();
 });
 
 $(document).on('click', '#exportYamlBtn', () => {

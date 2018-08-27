@@ -91,7 +91,7 @@ const addNewJsonEditor = (d, id, type) => {
       ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
         $(`#${type}${id}-${cur}`).text(val[cur]);
       });
-      $(`#${type}${id}-command`).text('command' in d && d['command'] ? (val['command'][0].substring(0, 30) + (val['command'][0].length > 30 ? '...' : '')) : '');
+      $(`#${type}${id}-command`).text(commandHelper(val));
     });
   }
 
@@ -111,6 +111,14 @@ const addNewJsonEditor = (d, id, type) => {
   });
 };
 
+const commandHelper = (task) => {
+  if ('command' in task && task['command'].length) {
+    return task['command'][0].substring(0, 30) + (task['command'][0].length > 30 ? '...' : '');
+  } else {
+    return '';
+  }
+};
+
 const insertNewTask = (task) => {
   let type = 'task';
   let id = editors[type].length + 1;
@@ -125,7 +133,7 @@ const insertNewTask = (task) => {
     cpu: task['cpu'],
     memoryMB: task['memoryMB'],
     gpu: task['gpu'],
-    command: 'command' in task && task['command'] ? (task['command'][0].substring(0, 30) + (task['command'][0].length > 30 ? '...' : '')) : '',
+    command: commandHelper(task),
   });
   $(`#task-container`).append(itemHtml); // append the task html
 
@@ -200,12 +208,6 @@ const showAddModal = (type) => {
   });
 };
 
-const exportsJson = () => {
-  let res = yamlHelper.jsonEditorToJobJson(editors);
-  // console.log(res);
-  return res;
-};
-
 const createDownload = (text) => {
   let filename = 'job.yaml';
   let element = document.createElement('a');
@@ -225,6 +227,14 @@ const exportsYaml = () => {
   createDownload(res);
 };
 
+const editYaml = () => {
+  let res = yamlHelper.exportToYaml(editors);
+  $('#yaml-editor-holder').text(res);
+  $('#yaml-modal').modal('show');
+  
+};
+
+
 const createSubmitData = () => {
   return yamlHelper.jsonEditorToJobJson(editors);
 };
@@ -240,7 +250,7 @@ const initPage = () => {
 
 module.exports = {
   updatePageFromYaml,
-  exportsJson,
+  editYaml,
   exportsYaml,
   showAddModal,
   createSubmitData,
