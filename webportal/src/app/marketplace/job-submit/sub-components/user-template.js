@@ -231,7 +231,6 @@ const editYaml = () => {
   let res = yamlHelper.exportToYaml(editors);
   $('#yaml-editor-holder').text(res);
   $('#yaml-modal').modal('show');
-  
 };
 
 
