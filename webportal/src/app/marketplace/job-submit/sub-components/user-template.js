@@ -233,7 +233,6 @@ const editYaml = () => {
   $('#yaml-modal').modal('show');
 };
 
-
 const createSubmitData = () => {
   return yamlHelper.jsonEditorToJobJson(editors);
 };
