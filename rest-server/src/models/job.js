@@ -133,12 +133,31 @@ class Job {
       });
   }
 
+  replaceEnv(data, env, value) {
+    if(env.length == 0)
+        return data;
+
+    var replaced = '';
+    var j = 0;
+    for(var i = data.indexOf(env); i >= 0; j = i + env.length, i = data.indexOf(env, j)) {
+      replaced = replaced + data.substr(j, i - j) + value;
+    }
+    if(j < data.length) {
+      replaced = replaced + data.substr(j);
+    }
+
+    return replaced;
+  }
+
   putJob(name, data, next) {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     } else {
-      data.outputDir = data.outputDir.replace('$PAI_JOB_NAME', name);
-      data.outputDir = data.outputDir.replace('$PAI_USER_NAME', data.userName);
+      data.outputDir = replaceEnv(data.outputDir, '$PAI_JOB_NAME', name);
+      data.outputDir = replaceEnv(data.outputDir, '$PAI_USER_NAME', data.userName);
+
+      data.codeDir = replaceEnv(data.codeDir, '$PAI_JOB_NAME', name);
+      data.codeDir = replaceEnv(data.codeDir, 'PAI_USER_NAME', data.userName);
     }
 
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
