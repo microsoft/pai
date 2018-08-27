@@ -110,12 +110,10 @@ def update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, name, data_dict, namespac
                 logger.info("Configmap named {0} is created".format(name))
 
             except ApiException as ie:
-                print("Exception when calling CoreV1Api->replace_namespaced_config_map: {0}".format(str(e)))
                 logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(e)))
                 sys.exit(1)
 
         else:
-            print("Exception when calling CoreV1Api->replace_namespaced_config_map: {0}".format(str(e)))
             logger.error("Exception when calling CoreV1Api->replace_namespaced_config_map: {0}".format(str(e)))
             sys.exit(1)
 
