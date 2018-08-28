@@ -117,7 +117,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
       }
     }
     if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
-      return callback(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'))
+      return callback(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
     }
     VirtualCluster.prototype.getVcList((vcList, err) => {
       if (err) {
