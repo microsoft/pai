@@ -143,7 +143,7 @@ class Job {
       if(i + env.length < data.length) {
         var charAfterEnv = data[i + env.length];
         if(charAfterEnv.match(/[0-9|a-z|A-Z|_]/)) {
-          replaced = replaced + data.substr(j, i + env.length);
+          replaced = replaced + data.substr(j, i + env.length - j);
           continue;
         }
       }
