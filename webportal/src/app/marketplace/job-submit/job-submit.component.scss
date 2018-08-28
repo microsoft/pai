@@ -1,5 +1,20 @@
 .box-content{
     padding-bottom: 0;
+    .main-button{
+        padding: 5px 20px;
+        background: white;
+        border:1px solid #BEBEBE;
+        color: #3B3B3B;
+        font-size: 16px;
+    }
+    .plus-add{
+        .img-add{
+            width: 42px;
+            height: 42px;
+            margin-left: 0;
+            margin-top: 0;
+        }
+    }
 }
 .template-account {
     width: 86%;
@@ -25,6 +40,11 @@
         margin-top: 20px;
         height: 160px;
         box-sizing: border-box;
+        .edit-job-name{
+            position: relative;
+            top: -9px;
+            left: 8px;
+        }
         .btns{
             position: relative;
             top: 15px;
@@ -32,12 +52,6 @@
                 font-size: 24px;
                 font-weight: bold;
                 margin-left: 14px;
-            }
-            .sty-margin{
-                margin-top: 27px;
-                margin-left: 214px;
-                position: relative;
-                top: -17px;
             }
             .edit-jobinfo{
                 border: none;
@@ -210,6 +224,10 @@
         position: relative;
         left: 64%;
         top: 20px;
+    }
+    .sty-margin{
+        padding: 6px 20px;
+        margin-right: 12px;
     }
 }
 

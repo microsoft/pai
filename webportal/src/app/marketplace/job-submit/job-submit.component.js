@@ -102,6 +102,7 @@ $(document).on('click', '#submitJob', () => {
 $(document).ready(() => {
   userAuth.checkToken(function(token) {
     userTemplate.initPage();
+    $('#submitJob').attr('disabled', 'disabled');
     document.getElementById('importYaml').addEventListener('change', function(evt) {
       let files = evt.target.files;
       if (files.length) {
@@ -111,6 +112,7 @@ $(document).ready(() => {
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);
+        $('#submitJob').attr('disabled', false);
       }
     }, false);
   });
