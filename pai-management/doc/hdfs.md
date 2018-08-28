@@ -104,10 +104,15 @@ tar -zxvf hadoop-package-name
 ```
 All commands are located in *bin* directory.
 Please refer [HDFS Command Guid](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
+All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
+Here the *name-node-port* is 9000. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true* in configuration
+file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
 
 ## WEB Portal
 
-Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-ip:50070/explorer.html after the cluster is ready.
+Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:50070/explorer.html after the cluster is ready.
+The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
+in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
 
 ## Mountable HDFS
@@ -128,6 +133,32 @@ sudo hadoop-fuse-dfs dfs://hdfs-name-node-address:9000 your-mount-directory
 
 ## API
 
+### Restful API
+
+This is the recommended way to access data via APIs.
+[WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
+The rest server URI is http://hdfs-name-node-address:50070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
+in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
+Following are two simple examples to show how the APIs can be used to create and delete a file.
+
+1. Create a File
+Suppose to create file *test_file* under directory */test*. First step is submit a request without redirection and data with command:
+```bash
+curl -i -X PUT "http://hdfs-name-node-address:50070/webhdfs/v1/test/test_file?op=CREATE"
+```
+This command will return the data node where the file should be written. The location URI would be like
+>http://hdfs-name-node-address:50075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-data-node-address:9000&createflag=&createparent=true&overwrite=false
+Then run following command with this URI to write file data:
+```bash
+curl -i -X PUT -T file-data-to-write returned-location-uri
+```
+
+2. Delete a File
+If we want to delete the file created by above example, run following command:
+```bash
+curl -i -X DELETE "http://hdfs-name-node-address:50070/webhdfs/v1/test/test_file?op=DELETE"
+```
+
 ### Java API
 
 The Java APIs allow users to access data from Java programs.
@@ -145,11 +176,6 @@ The Python API can be installed with command:
 pip install hdfs
 ```
 Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the details.
-
-### Restful API
-
-The data can also be accessed with restful APIs.
-[WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions.
 
 # Reference
 
