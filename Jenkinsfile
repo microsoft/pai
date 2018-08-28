@@ -117,7 +117,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \
@@ -222,7 +221,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \

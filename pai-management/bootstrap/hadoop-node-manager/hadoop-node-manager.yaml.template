@@ -43,8 +43,6 @@ spec:
           name: device-mount
         - mountPath: /var/run/docker.sock
           name: docker-socket
-        - mountPath: /var/lib/docker
-          name: docker-var-lib
         - mountPath: /var/drivers
           name: driver-path
         - mountPath: /var/lib/yarn
@@ -92,9 +90,6 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
-      - name: docker-var-lib
-        hostPath:
-          path: /var/lib/docker
       # Docker's storage base directory
       - name: driver-path
         hostPath:

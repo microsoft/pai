@@ -105,8 +105,6 @@ spec:
           name: docker-bin
         - mountPath: /var/run/docker.sock
           name: docker-socket
-        - name: docker
-          mountPath: /var/lib/docker
         - mountPath: /dev
           name: device-mount
         - mountPath: /var/drivers
@@ -142,9 +140,6 @@ spec:
         - name: sys
           hostPath:
             path: /sys
-        - name: docker
-          hostPath:
-            path: /var/lib/docker
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true
