@@ -43,7 +43,6 @@ $(document).on('click', '#add-task-btn', () => {
 });
 
 $(document).on('click', '#add-dockerimage-btn', () => {
-  console.info('test');
   userTemplate.showAddModal('dockerimage');
 });
 
