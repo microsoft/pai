@@ -166,7 +166,7 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const updatePageFromYaml = (d) => {
+const updatePageFromYaml = (d) => { // d is a string
   emptyPage();
 
   let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
@@ -316,8 +316,18 @@ const exportsYaml = () => {
 
 const editYaml = () => {
   let res = yamlHelper.exportToYaml(editors);
-  $('#yaml-editor-holder').text(res);
+  $('#yaml-editor-holder').val(res);
   $('#yaml-modal').modal('show');
+};
+
+const updatePageByYamlEditor = () => {
+  try {
+    let res = $('#yaml-editor-holder').val();
+    updatePageFromYaml(res);
+    $('#yaml-modal').modal('hide');
+  } catch (YAMLException) {
+    alert('Yaml is invalid, please check your yaml!');
+  }
 };
 
 const createSubmitData = () => {
@@ -332,10 +342,10 @@ const initPage = () => {
   addNewJsonEditor(initJob, '', 'job'); // init a job jsonEditor
 };
 
-
 module.exports = {
   updatePageFromYaml,
   editYaml,
+  updatePageByYamlEditor,
   exportsYaml,
   showAddModal,
   createSubmitData,
