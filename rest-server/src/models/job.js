@@ -166,6 +166,7 @@ class Job {
       if(data[fsPath]) {
           data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_JOB_NAME', name);
           data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_USER_NAME', data.userName);
+          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_USERNAME', data.userName);
       }
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
