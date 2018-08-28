@@ -67,6 +67,7 @@ class download_configuration:
 
         if configuration_dict == None:
             self.logger.error("The configuration doesn't exists on your cluster. Please upload it first.")
+            sys.exit(1)
 
         conf_storage_util.create_path("{0}/{1}".format(local_path, cluster_id))
         for key in configuration_dict:
