@@ -39,6 +39,36 @@ const parametersSchema = {
   },
 };
 
+const portTypeSchema = {
+  type: 'object',
+  headerTemplate: '{{ self.label }}',
+  options: {
+    disable_edit_json: true,
+  },
+  properties: {
+    label: {
+      type: 'string',
+    },
+    beginAt: {
+      type: 'number',
+      multipleOf: 1,
+      minimum: 0,
+      exclusiveMinimum: false,
+    },
+    portNumber: {
+      type: 'number',
+      multipleOf: 1,
+      minimum: 0,
+      exclusiveMinimum: false,
+    },
+  },
+  required: [
+    'label',
+    'beginAt',
+    'portNumber',
+  ],
+};
+
 const taskSchema = {
   type: 'object',
   format: 'grid',
@@ -96,7 +126,6 @@ const taskSchema = {
         disable_collapse: true,
         disable_array_delete_last_row: true,
         disable_array_delete_all_rows: true,
-        disable_edit_json: false,
         grid_columns: 12,
       },
       items: {
@@ -104,6 +133,17 @@ const taskSchema = {
         format: 'textarea',
         headerTemplate: `command {{i}}`,
       },
+    },
+    portList: {
+      type: 'array',
+      format: 'table',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: portTypeSchema,
     },
   },
   required: [
@@ -117,6 +157,7 @@ const taskSchema = {
     'memoryMB',
     'parameters',
     'command',
+    'portList',
   ],
 };
 

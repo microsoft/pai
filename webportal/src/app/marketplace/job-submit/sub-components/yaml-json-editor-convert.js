@@ -50,6 +50,7 @@ const yamlToJsonEditor = (yamlString) => {
       task['cpu'] = task['resource']['resourcePerInstance']['cpu'];
       task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
       task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
+      task['portList'] = task['resource']['portList'];
       delete task['resource'];
       convertParameterToKeyValue(task);
     });
@@ -84,6 +85,7 @@ const jsonEditorToJobJson = (editors) => {
               memoryMB: temp['memoryMB'],
               gpu: temp['gpu'],
             },
+            'portList': temp['portList'],
           };
           delete temp['instances'];
           delete temp['cpu'];

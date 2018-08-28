@@ -156,9 +156,7 @@ const insertNewDockerDataScript = (item) => {
 
 const updatePageFromYaml = (d) => { // d is a string
   emptyPage();
-
   let data = yamlHelper.yamlToJsonEditor(d);
-
   // update docker/script/data
   if ('prerequisites' in data) {
     Object.keys(data['prerequisites']).forEach((key) => {
