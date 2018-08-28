@@ -19,7 +19,6 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - node-label.sh
   - drivers.yaml
   - stop.sh
   - refresh.sh

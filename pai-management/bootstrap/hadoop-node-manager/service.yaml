@@ -24,7 +24,6 @@ prerequisite:
   - hadoop-resource-manager
 
 template-list:
-  - node-label.sh
   - hadoop-node-manager.yaml
   - stop.sh
   - refresh.sh

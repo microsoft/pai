@@ -20,7 +20,6 @@ prerequisite:
   - frameworklauncher
 
 template-list:
-  - node-label.sh
   - rest-server.yaml
   - stop.sh
   - refresh.sh
