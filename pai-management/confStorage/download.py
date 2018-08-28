@@ -60,13 +60,21 @@ class download_configuration:
 
 
 
-    def download_cluster_configuration(self, local_path = "."):
+    def download_cluster_configuration(self, local_path):
 
         cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
         configuration_dict = conf_storage_util.get_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
-        conf_storage_util.create_path("{0}/{1}".format(local_path, cluster_id))
+        if configuration_dict == None:
+            self.logger.error("The configuration doesn't exists on your cluster. Please upload it first.")
 
+        conf_storage_util.create_path("{0}/{1}".format(local_path, cluster_id))
         for key in configuration_dict:
             conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}/{2}".format(local_path, cluster_id, key))
 
+
+
+    def run(self, local_path = "."):
+
+        self.check_cluster_id()
+        self.download_cluster_configuration(local_path)
