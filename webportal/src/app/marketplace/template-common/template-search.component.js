@@ -5,7 +5,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 
 const generateUI = function(type, data, limit) {
   if (data.length == 0) return '';
-  
+
   let newdata = [];
   data.forEach(function(item) {
       newdata.push({
