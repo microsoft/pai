@@ -70,16 +70,3 @@ class download_configuration:
         for key in configuration_dict:
             conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}/{2}".format(local_path, cluster_id, key))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
