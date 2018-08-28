@@ -21,6 +21,7 @@ from __future__ import print_function
 import os
 import sys
 import time
+import errno
 import logging
 import logging.config
 
@@ -32,7 +33,20 @@ from kubernetes import client, config, watch
 
 
 logger = logging.getLogger(__name__)
-PAI_KUBE_CONFIG_DEFAULT_LOCATION = ""
+
+
+
+def create_path(path):
+
+    if not os.path.exists("{0}".format(path)):
+        try:
+            os.makedirs(path)
+
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(path):
+                logger.warning("Failed to create path {0}, due to that the path exists.".format(path))
+            else:
+                sys.exit(1)
 
 
 
