@@ -61,6 +61,10 @@ $(document).on('click', '#exportYamlBtn', () => {
   userTemplate.exportsYaml();
 });
 
+$(document).on('click', '#yaml-edit-save-button', () => {
+  userTemplate.updatePageByYamlEditor();
+});
+
 $(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
