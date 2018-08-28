@@ -160,13 +160,13 @@ class Job {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     } else {
-      data.outputDir = replaceEnv(data.outputDir, '$PAI_JOB_NAME', name);
-      data.outputDir = replaceEnv(data.outputDir, '$PAI_USER_NAME', data.userName);
+      data.outputDir = this.replaceEnv(data.outputDir, '$PAI_JOB_NAME', name);
+      data.outputDir = this.replaceEnv(data.outputDir, '$PAI_USER_NAME', data.userName);
     }
 
     if(data.codeDir) {
-      data.codeDir = replaceEnv(data.codeDir, '$PAI_JOB_NAME', name);
-      data.codeDir = replaceEnv(data.codeDir, '$PAI_USER_NAME', data.userName);
+      data.codeDir = this.replaceEnv(data.codeDir, '$PAI_JOB_NAME', name);
+      data.codeDir = this.replaceEnv(data.codeDir, '$PAI_USER_NAME', data.userName);
     }
 
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
