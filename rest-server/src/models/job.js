@@ -134,12 +134,19 @@ class Job {
   }
 
   replaceEnv(data, env, value) {
-    if(env.length == 0)
+    if(!data || env.length == 0)
         return data;
 
     var replaced = '';
     var j = 0;
     for(var i = data.indexOf(env); i >= 0; j = i + env.length, i = data.indexOf(env, j)) {
+      if(i + env.length < data.length) {
+        var charAfterEnv = data[i + env.length];
+        if(charAfterEnv.match(/[0-9|a-z|A-Z|_]/)) {
+          replaced = replaced + data.substr(j, i + env.length);
+          continue;
+        }
+      }
       replaced = replaced + data.substr(j, i - j) + value;
     }
     if(j < data.length) {
@@ -155,9 +162,11 @@ class Job {
     } else {
       data.outputDir = replaceEnv(data.outputDir, '$PAI_JOB_NAME', name);
       data.outputDir = replaceEnv(data.outputDir, '$PAI_USER_NAME', data.userName);
+    }
 
+    if(data.codeDir) {
       data.codeDir = replaceEnv(data.codeDir, '$PAI_JOB_NAME', name);
-      data.codeDir = replaceEnv(data.codeDir, 'PAI_USER_NAME', data.userName);
+      data.codeDir = replaceEnv(data.codeDir, '$PAI_USER_NAME', data.userName);
     }
 
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
