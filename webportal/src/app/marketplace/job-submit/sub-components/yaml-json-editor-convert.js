@@ -87,6 +87,7 @@ const jsonEditorToJobJson = (editors) => {
             },
             'portList': temp['portList'],
           };
+          delete temp['portList'];
           delete temp['instances'];
           delete temp['cpu'];
           delete temp['memoryMB'];

@@ -231,10 +231,14 @@ const editYaml = () => {
   $('#yaml-modal').modal('show');
 };
 
-const updatePageByYamlEditor = () =>{
-  let res = $('#yaml-editor-holder').val();
-  updatePageFromYaml(res);
-  $('#yaml-modal').modal('hide');
+const updatePageByYamlEditor = () => {
+  try {
+    let res = $('#yaml-editor-holder').val();
+    updatePageFromYaml(res);
+    $('#yaml-modal').modal('hide');
+  } catch (YAMLException) {
+    alert('Yaml is invalid, please check your yaml!');
+  }
 };
 
 const createSubmitData = () => {
