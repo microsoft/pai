@@ -36,6 +36,12 @@ logger = logging.getLogger(__name__)
 
 
 
+def get_subdirectory_list(path):
+
+    return next(os.walk(path))[1]
+
+
+
 def create_path(path):
 
     if not os.path.exists("{0}".format(path)):
