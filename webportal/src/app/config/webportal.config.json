@@ -1,0 +1,1 @@
+{"restServerUri":"http://localhost:9186","prometheusUri":"http://10.151.40.179:9091","yarnWebPortalUri":"http://10.151.40.179:8088","grafanaUri":"http://10.151.40.179:3000","k8sDashboardUri":"http://10.151.40.179:9090","k8sApiServerUri":"http://10.151.40.222:8080","exporterPort":"9100"}
