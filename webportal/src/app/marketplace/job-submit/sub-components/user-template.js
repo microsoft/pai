@@ -27,7 +27,7 @@ const userChooseInsertLayout = require('./insert-layout.ejs');
 const jobSchema = require('./json-editor-schema.js');
 const yamlHelper = require('./yaml-json-editor-convert.js');
 const common = require('../../template-common/template-search.component.js');
-const webportalConfig = require('../../../config/webportal.config.json');
+const webportalConfig = require('../../../config/webportal.config.js');
 
 const initArray = () => {
   return {

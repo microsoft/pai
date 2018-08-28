@@ -1,7 +1,7 @@
 require('./cards-format.scss');
 
 const viewCardsComponent = require('./cards.ejs');
-const webportalConfig = require('../../config/webportal.config.json');
+const webportalConfig = require('../../config/webportal.config.js');
 
 const generateUI = function(type, data, limit) {
   let newdata = [];
