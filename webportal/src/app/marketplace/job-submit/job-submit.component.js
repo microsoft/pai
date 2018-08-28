@@ -95,18 +95,18 @@ $(document).on('click', '#submitJob', () => {
 });
 
 $(document).ready(() => {
-  // userAuth.checkToken(function(token) {
-  // });
-  userTemplate.initPage();
-  document.getElementById('importYaml').addEventListener('change', function(evt) {
-    let files = evt.target.files;
-    if (files.length) {
+  userAuth.checkToken(function(token) {
+    userTemplate.initPage();
+    document.getElementById('importYaml').addEventListener('change', function(evt) {
+      let files = evt.target.files;
+      if (files.length) {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);
-    }
-  }, false);
+      }
+    }, false);
+  });
 });
