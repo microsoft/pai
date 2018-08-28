@@ -25,6 +25,7 @@ const userTemplate = require('./sub-components/user-template.js');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
+require('./sub-components/prerequisite-format.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
