@@ -123,7 +123,19 @@ public class LauncherModule {
       checkNonFrameworkWritableAccess(user, aclConf);
     } else {
       validateFrameworkUserConsistency(user, frameworkUser);
-      String namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+
+      String namespace;
+      try {
+        namespace = CommonValidation.validateAndGetNamespace(frameworkName);
+      } catch (Exception e) {
+        // Framework does not belong to any Namespace
+        if (conf.getWebServerAclIgnoreWithoutNamespace()) {
+          return;
+        } else {
+          throw e;
+        }
+      }
+      // Framework belongs to a Namespace
       checkFrameworkWritableAccess(user, namespace, aclConf);
     }
   }
