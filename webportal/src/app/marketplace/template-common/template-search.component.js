@@ -4,8 +4,10 @@ const viewCardsComponent = require('./cards.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 
 const generateUI = function(type, data, limit) {
+  if (data.length == 0) return '';
+  
   let newdata = [];
-  data.forEach(function (item) {
+  data.forEach(function(item) {
       newdata.push({
           type: item.type,
           name: item.name,
@@ -13,24 +15,24 @@ const generateUI = function(type, data, limit) {
           avatar: `/assets/img/${item.type}.png`,
           description: item.description,
           contributor: item.contributor,
-          //star: item.rating,
-          //downloads: item.count,
+          // star: item.rating,
+          // downloads: item.count,
       });
   });
-  return viewCardsComponent({ type: type, data: newdata, limit: limit });
-} 
+  return viewCardsComponent({type: type, data: newdata, limit: limit});
+};
 
 const load = function(type, callback, limit = 4) {
   $.ajax({
     url: `${webportalConfig.restServerUri}/api/v2/template/${type}`,
     type: 'GET',
     dataType: 'json',
-    success: function (res) {
+    success: function(res) {
       let data = res.items;
       if (callback) {
         callback({type: generateUI(type, data, limit)});
       }
-    }
+    },
   });
 };
 
@@ -40,7 +42,7 @@ const search = function(query, types, callback, limit = 4) {
       url: `${webportalConfig.restServerUri}/api/v2/template?query=` + encodeURIComponent(query),
       type: 'GET',
       dataType: 'json',
-      success: function (res) {
+      success: function(res) {
         let data = res.items;
         let categories = {};
         types.forEach((item) => {
@@ -56,8 +58,8 @@ const search = function(query, types, callback, limit = 4) {
         });
         if (callback) {
           callback(categories);
-        } 
-      }
+        }
+      },
     });
   }
 };

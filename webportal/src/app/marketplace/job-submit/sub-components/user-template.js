@@ -196,7 +196,7 @@ const saveTemplateOnAddModal = (type, id) => {
   let data = addModalVariables.finalEditor.getValue();
   $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
   $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
-  
+
   $(`#${type}-summary`).html(userChooseSummaryLayout({
     name: data.name,
     contributor: data.contributor,
@@ -212,45 +212,31 @@ const saveTemplateOnAddModal = (type, id) => {
 const replaceHrefs = (htmls) => {
   $('#recommandPlaceHolder').html('');
   Object.keys(htmls).forEach((type) => {
-    $('#recommandPlaceHolder').append(htmls[type]);
+    if (htmls[type].length > 0) {
+      $('#recommandPlaceHolder').append(htmls[type]);
+    }
   });
-  $('.cardhref').map(function() {
-    $(this).removeAttr('href');
-    $(this).attr('data-toggle', 'tooltip');
-    $(this).attr('data-html', 'ture');
-    $(this).attr('data-placement', 'right');
-    $(this).click(() => {
-      let items = $(this).attr('id').split('-');
+  $('.cardhref').each(function(i, obj) {
+    $(obj).removeAttr('href');
+    $(obj).attr('data-toggle', 'tooltip');
+    $(obj).attr('data-html', 'ture');
+    $(obj).attr('data-placement', 'right');
+    $(obj).attr('title', '<h5>' + $(obj).find('.none').html() + '</h5>');
+    $(obj).click(() => {
+      let items = $(obj).attr('id').split('-');
       $.ajax({
         url: `${webportalConfig.restServerUri}/api/v2/template/${items[0]}/${items[1]}?version=${items[2]}`,
         type: 'GET',
         dataType: 'json',
-        success: function (data) {
+        success: function(data) {
           data = yamlHelper.yamlToJsonEditor(data);
-          if (addModalVariables.addModalActive == false) {
-            $('#user-recommand-holder').html('');
-            showAddModal(items[0]);
-          }
           addModalVariables.addEditor.setValue(data);
           saveTemplateOnAddModal(items[0], addModalVariables.id);
-        }
+        },
       });
     });
-    let tooltiphtml = '<h5>' + $(this).find('.none').html() + '</h5>';
-    $(this).attr('title', tooltiphtml);
   });
   $('[data-toggle="tooltip"]').tooltip();
-  if (addModalVariables.addModalActive == false) {
-    $('.recommand-container').map(function() {
-      let type = $(this).attr('id').substring(3);
-      if ($('#' + type + '-table').html().trim() == '') {
-        $(this).remove();
-      }
-    });
-    if ($('#user-recommand-holder .recommand-container').length == 0) {
-      $('#user-recommand-holder').html('');
-    }
-  }
 };
 
 const showAddModal = (type) => {
@@ -293,7 +279,7 @@ const showAddModal = (type) => {
   $('#btn-close-add-modal').click(() => {
       addModalVariables.active = false;
   });
-  
+
   $('#btn-add-modal').click(() => {
       addModalVariables.active = false;
       $('#btn-add-modal').attr('data-dismiss', 'modal');
