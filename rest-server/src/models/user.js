@@ -116,6 +116,9 @@ const updateUserVc = (username, virtualClusters, callback) => {
         return callback(err);
       }
     }
+    if (res.get(etcdConfig.userAdminPath(username)) === 'true') {
+      return callback(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'))
+    }
     VirtualCluster.prototype.getVcList((vcList, err) => {
       if (err) {
         return callback(err);
@@ -123,9 +126,7 @@ const updateUserVc = (username, virtualClusters, callback) => {
       if (!vcList) {
         return callback(createError.unknown('There is no virtual clusters.'));
       }
-      let updateVcList = (res.get(etcdConfig.userAdminPath(username)) === 'true')
-        ? Object.keys(vcList)
-        : virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
+      let updateVcList = virtualClusters.trim().split(',').filter((updateVc) => (updateVc !== ''));
       let addUserWithInvalidVc = null;
       for (let item of updateVcList) {
         if (!vcList.hasOwnProperty(item)) {
