@@ -159,18 +159,14 @@ class Job {
   putJob(name, data, next) {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
-    } else {
-      data.outputDir = this.replaceEnv(data.outputDir, '$PAI_JOB_NAME', name);
-      data.outputDir = this.replaceEnv(data.outputDir, '$PAI_USER_NAME', data.userName);
-    }
-
-    if(data.codeDir) {
-      data.codeDir = this.replaceEnv(data.codeDir, '$PAI_JOB_NAME', name);
-      data.codeDir = this.replaceEnv(data.codeDir, '$PAI_USER_NAME', data.userName);
     }
 
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
+      if(data[fsPath]) {
+          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_JOB_NAME', name);
+          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_USER_NAME', data.userName);
+      }
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
       if (error) return next(error);
