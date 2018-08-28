@@ -133,29 +133,6 @@ class Job {
       });
   }
 
-  replaceEnv(data, env, value) {
-    if(!data || env.length == 0)
-        return data;
-
-    var replaced = '';
-    var j = 0;
-    for(var i = data.indexOf(env); i >= 0; j = i + env.length, i = data.indexOf(env, j)) {
-      if(i + env.length < data.length) {
-        var charAfterEnv = data[i + env.length];
-        if(charAfterEnv.match(/[0-9|a-z|A-Z|_]/)) {
-          replaced = replaced + data.substr(j, i + env.length - j);
-          continue;
-        }
-      }
-      replaced = replaced + data.substr(j, i - j) + value;
-    }
-    if(j < data.length) {
-      replaced = replaced + data.substr(j);
-    }
-
-    return replaced;
-  }
-
   putJob(name, data, next) {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
@@ -163,11 +140,8 @@ class Job {
 
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
-      if(data[fsPath]) {
-          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_JOB_NAME', name);
-          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_USER_NAME', data.userName);
-          data[fsPath] = this.replaceEnv(data[fsPath], '$PAI_USERNAME', data.userName);
-      }
+      data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
+      data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
       if (error) return next(error);
