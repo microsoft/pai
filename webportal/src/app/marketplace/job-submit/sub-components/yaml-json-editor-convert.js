@@ -42,8 +42,11 @@ const convertParameterFromKeyValue = (d) => {
   }
 };
 
-const yamlToJsonEditor = (yamlString) => {
-  let data = yaml.safeLoad(yamlString);
+const yamlLoad = (yamlString) => {
+    return yaml.safeLoad(yamlString);
+};
+
+const yamlToJsonEditor = (data) => {
   if ('tasks' in data) {
     data['tasks'].forEach((task) => {
       task['instances'] = task['resource']['instances'];
@@ -108,6 +111,7 @@ const exportToYaml = (editors) => {
 };
 
 module.exports = {
+  yamlLoad,
   yamlToJsonEditor,
   jsonEditorToJobJson,
   exportToYaml,
