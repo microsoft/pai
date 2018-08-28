@@ -65,4 +65,8 @@ COPY container-setup.sh /
 COPY k8sPaiLibrary/maintaintool/kubectl-install.sh /kubectl-install.sh
 RUN /bin/bash kubectl-install.sh
 
+RUN echo y | pip uninstall requests
+RUN echo y | pip install requests
+RUN echo y | pip install docopt
+
 CMD ["/container-setup.sh"]

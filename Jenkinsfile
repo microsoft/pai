@@ -77,7 +77,10 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" $CONFIG_PATH/services-configuration.yaml
+sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
 
@@ -165,6 +168,9 @@ fi
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
@@ -263,6 +269,9 @@ fi
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
@@ -568,10 +577,14 @@ else
 fi
 
 # delete service for next install
-./paictl.py service delete -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
+./paictl.py service delete -p /cluster-configuration << EOF
+Y
+EOF
 
 # clean k8s
-./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
 
@@ -612,10 +625,14 @@ else
 fi
 
 # delete service for next install
-./paictl.py service delete -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
+./paictl.py service delete -p /cluster-configuration << EOF
+Y
+EOF
 
 # clean k8s
-./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
 
