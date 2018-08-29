@@ -45,7 +45,22 @@ data:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
       # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
-      # Prometheus will fetch data from target address. 
+      # Prometheus will fetch data from target address.
+            # Extract label __address__ inner ip address and replace the port to exporter's port to build target address.
+      # Prometheus will fetch data from target address.
+      scheme: http
+
+      # This TLS & bearer token file config is used to connect to the actual scrape
+      # endpoints for cluster components. This is separate to discovery auth
+      # configuration because discovery & scraping are two separate concerns in
+      # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+      # the cluster. Otherwise, more config options have to be provided within the
+      # <kubernetes_sd_config>.
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node 
       relabel_configs:
       - source_labels: [__address__]
         regex: '([^:]+)(:\d*)?'
@@ -56,6 +71,21 @@ data:
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: pod
+
+      scheme: http
+
+      # This TLS & bearer token file config is used to connect to the actual scrape
+      # endpoints for cluster components. This is separate to discovery auth
+      # configuration because discovery & scraping are two separate concerns in
+      # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+      # the cluster. Otherwise, more config options have to be provided within the
+      # <kubernetes_sd_config>.
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: pod
+
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           regex: true

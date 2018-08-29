@@ -30,22 +30,35 @@ data:
     rule_files:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
-    - job_name: "node_exporter_from_host"
-      scrape_interval: "30s"
-      static_configs:
-      - targets: 
+    #- job_name: "node_exporter_from_host"
+    #  scrape_interval: "30s"
+    #  static_configs:
+    #  - targets: 
         
-        - aks-agentpool-24740563-0:9100
+    #    - aks-agentpool-24740563-0:9100
         
-        - aks-agentpool-24740563-1:9100
+    #    - aks-agentpool-24740563-1:9100
         
     - job_name: 'node_exporter'
       scrape_interval: 30s
       kubernetes_sd_configs:
-      - api_server: 'http://aks-agentpool-24740563-0:8080'
+      - api_server: 'https://default-08b016ab.hcp.eastus.azmk8s.io'
         role: node
       # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
-      # Prometheus will fetch data from target address. 
+      # Prometheus will fetch data from target address.
+      scheme: http
+
+      # This TLS & bearer token file config is used to connect to the actual scrape
+      # endpoints for cluster components. This is separate to discovery auth
+      # configuration because discovery & scraping are two separate concerns in
+      # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+      # the cluster. Otherwise, more config options have to be provided within the
+      # <kubernetes_sd_config>.
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: node 
       relabel_configs:
       - source_labels: [__address__]
         regex: '([^:]+)(:\d*)?'
@@ -54,8 +67,21 @@ data:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: 30s
       kubernetes_sd_configs:
-      - api_server: 'http://aks-agentpool-24740563-0:8080'
+      - api_server: 'https://default-08b016ab.hcp.eastus.azmk8s.io'
         role: pod
+      scheme: http
+
+      # This TLS & bearer token file config is used to connect to the actual scrape
+      # endpoints for cluster components. This is separate to discovery auth
+      # configuration because discovery & scraping are two separate concerns in
+      # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+      # the cluster. Otherwise, more config options have to be provided within the
+      # <kubernetes_sd_config>.
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - role: pod
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           regex: true
