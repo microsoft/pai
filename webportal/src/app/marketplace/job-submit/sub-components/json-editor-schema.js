@@ -330,10 +330,6 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 4,
     },
-    killAllOnCompletedTaskNumber: {
-      type: 'number',
-      propertyOrder: 5,
-    },
     retryCount: {
       type: 'number',
       propertyOrder: 6,
