@@ -148,6 +148,12 @@ Then run following command with this URI to write file data:
 curl -i -X PUT -T file-data-to-write returned-location-uri
 ```
 
+2. Delete a File<br>
+If we want to delete the file created by above example, run following command:
+```bash
+curl -i -X DELETE "http://hdfs-name-node-address:50070/webhdfs/v1/test/test_file?op=DELETE"
+```
+
 ## HDFS Command <a name="HDFS_Command"></a>
 
 The commands are available in the Hadoop package. Please download the version you need on [Hadoop Releases](http://hadoop.apache.org/releases.html).
