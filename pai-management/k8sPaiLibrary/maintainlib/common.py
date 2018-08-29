@@ -67,7 +67,8 @@ def execute_shell_retry(shell_cmd, clean_cmd, error_msg):
             count += 1
             logger.error(error_msg)
             logger.info("%s error, retrying %d", shell_cmd, count)
-            execute_shell_return(clean_cmd, "Something went wrong during cleanning process...")
+            logger.info("Cleaning failed Pods...")
+            execute_shell_return(clean_cmd, "Can't fine the Pod, cleaning needless...")
             if count == 5:
                 sys.exit(1)
 
