@@ -356,7 +356,7 @@ const jobSchema = {
     },
     virtualCluster: {
       type: 'string',
-      propertyOrder: 9
+      propertyOrder: 9,
     },
     parameters: parametersSchema,
     description: {
