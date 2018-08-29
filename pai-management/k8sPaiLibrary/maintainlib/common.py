@@ -56,6 +56,22 @@ def execute_shell(shell_cmd, error_msg):
 
 
 
+def execute_shell_retry(shell_cmd, clean_cmd, error_msg):
+    count = 0
+    success_flag = False
+    while count < 5 and not success_flag:
+        try:
+            subprocess.check_call( shell_cmd, shell=True )
+            success_flag = True
+        except subprocess.CalledProcessError:
+            count += 1
+            logger.error(error_msg)
+            logger.info("%s error, retrying %d", shell_cmd, count)
+            execute_shell_return(clean_cmd, "Something went wrong during cleanning process...")
+            if count == 5:
+                sys.exit(1)
+
+
 
 def execute_shell_return(shell_cmd, error_msg):
 
