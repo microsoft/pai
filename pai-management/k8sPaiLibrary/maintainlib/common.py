@@ -56,20 +56,18 @@ def execute_shell(shell_cmd, error_msg):
 
 
 
-def execute_shell_retry(shell_cmd, clean_cmd, error_msg):
-    count = 0
-    success_flag = False
-    while count < 5 and not success_flag:
+def execute_shell_retry(shell_cmd, error_msg, retry_count):
+    
+    count = 0    
+    while count < retry_count:
         try:
             subprocess.check_call( shell_cmd, shell=True )
-            success_flag = True
+            break
         except subprocess.CalledProcessError:
             count += 1
             logger.error(error_msg)
             logger.info("%s error, retrying %d", shell_cmd, count)
-            logger.info("Cleaning failed Pods...")
-            execute_shell_return(clean_cmd, "Can't fine the Pod, cleaning needless...")
-            if count == 5:
+            if count == retry_count:
                 sys.exit(1)
 
 
