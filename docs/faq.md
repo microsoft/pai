@@ -60,9 +60,9 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 
 A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
 
-### Q: Deep learning training based on a large number of small files on hdfs problem.
+### Q: Deep learning training based on a large number of small files on Hadoop HDFS problem.
 
-A: This is a typical issue when trained with large number of small files of hdfs. This problem can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue. 
+A: This is a typical issue when trained with large number of small files of HDFS. This problem can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue. 
 
 Possible solutions: 
 - User compact small files through scripts or opensources tools 
