@@ -18,5 +18,3 @@
 copy-list:
   - src: ../prometheus/exporter
     dst: src/watchdog/copied_file
-  - src: ../pai-management/k8sPaiLibrary/maintainlib/common.py
-    dst: src/watchdog/copied_file

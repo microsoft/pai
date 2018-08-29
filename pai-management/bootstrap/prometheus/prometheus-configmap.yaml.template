@@ -33,7 +33,7 @@ data:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
-      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      scrape_interval: {{ clusterinfo['prometheusinfo']['scrape_interval']|default(30) }}s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
@@ -64,7 +64,10 @@ data:
           target_label: __address__
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
-          target_label: k8s_pod_name
+          target_label: scraped_from
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: replace
+          target_label: pai_service_name
 {% if clusterinfo['prometheusinfo']['alerting'] %}
     alerting:
       alertmanagers:
