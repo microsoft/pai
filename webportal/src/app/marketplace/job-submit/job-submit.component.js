@@ -25,6 +25,7 @@ const userTemplate = require('./sub-components/user-template.js');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
+require('./sub-components/prerequisite-format.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
@@ -53,12 +54,16 @@ $(document).on('click', '#add-data-btn', () => {
   userTemplate.showAddModal('data');
 });
 
-$(document).on('click', '#exportJsonBtn', () => {
-  userTemplate.exportsJson();
+$(document).on('click', '#EditYamlBtn', () => {
+  userTemplate.editYaml();
 });
 
 $(document).on('click', '#exportYamlBtn', () => {
   userTemplate.exportsYaml();
+});
+
+$(document).on('click', '#yaml-edit-save-button', () => {
+  userTemplate.updatePageByYamlEditor();
 });
 
 $(document).on('click', '#submitJob', () => {
@@ -95,18 +100,20 @@ $(document).on('click', '#submitJob', () => {
 });
 
 $(document).ready(() => {
-  // userAuth.checkToken(function(token) {
-  // });
-  userTemplate.initPage();
-  document.getElementById('importYaml').addEventListener('change', function(evt) {
-    let files = evt.target.files;
-    if (files.length) {
+  userAuth.checkToken(function(token) {
+    userTemplate.initPage();
+    $('#submitJob').attr('disabled', 'disabled');
+    document.getElementById('importYaml').addEventListener('change', function(evt) {
+      let files = evt.target.files;
+      if (files.length) {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);
-    }
-  }, false);
+        $('#submitJob').attr('disabled', false);
+      }
+    }, false);
+  });
 });

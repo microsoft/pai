@@ -1,4 +1,4 @@
-<div class="col-md-3 shadow sty-task-content grid-item" style="overflow: hidden;" id="<%= type %><%= id %>-container">
+<div class="col-md-3 shadow sty-task-content grid-item" id="<%= type %><%= id %>-container">
     <!-- <img src="/assets/img/edit.png" alt=""> -->
 
     <div class="btn-group edit-task">
@@ -8,23 +8,28 @@
         <ul class="dropdown-menu" role="menu">
             <li>
                 <a id="<%= type %><%= id %>-edit-button">
-                    <span class="glyphicon glyphicon-pencil"></span>
+                    Edit
                 </a>
             </li>
             <li>
                 <a id="<%= type %><%= id %>-remove-button">
-                    <span class="glyphicon glyphicon-remove"></span>
+                    Delete
                 </a>
             </li>
         </ul>
     </div>
-    <h5 id="<%= type %><%= id %>-role"><%= role %></h5>
-    <p>Dockerimage: <span id="<%= type %><%= id %>-instances"><%= dockerimage %></span></p>
-    <p>Instances: <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
+    <h3 id="<%= type %><%= id %>-role"><%= role %></h3>
+    <p><b>Dockerimage:</b> <span id="<%= type %><%= id %>-dockerimage"><%= dockerimage %></span></p>
+    <p><b>Data:</b> <span id="<%= type %><%= id %>-data"><%= data %></span></p>
+    <p><b>Script:</b> <span id="<%= type %><%= id %>-script"><%= script %></span></p>
+    <p><b>Instances:</b> <span id="<%= type %><%= id %>-instances"><%= instances %></span></p>
     <p class="task-resource">
-        Resource: cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
-        memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
-        gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span></p>
-    Command:
-    <div class="task-command"><span id="<%= type %><%= id %>-command"><%= command %></div>
+        <b>Resource:</b>
+            cpu:<span id="<%= type %><%= id %>-cpu"><%= cpu %></span>, 
+            memoryMB:<span id="<%= type %><%= id %>-memoryMB"> <%= memoryMB %></span>, 
+            gpu: <span id="<%= type %><%= id %>-gpu"> <%= gpu %></span>
+    </p>
+    <p><b>Command:</b> 
+       <span class="task-command" id="<%= type %><%= id %>-command"><%= command %>
+    </p>
 </div>

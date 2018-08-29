@@ -16,13 +16,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 require('json-editor'); /* global JSONEditor */
+require('bootstrap/js/tooltip.js');
 
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
 const addModalFormat = require('./add.ejs');
 const userEditModalComponent = require('./edit.ejs');
+const userChooseSummaryLayout = require('./summary-layout.ejs');
+const userChooseInsertLayout = require('./insert-layout.ejs');
 const jobSchema = require('./json-editor-schema.js');
 const yamlHelper = require('./yaml-json-editor-convert.js');
+const common = require('../../template-common/template-search.component.js');
+const webportalConfig = require('../../../config/webportal.config.js');
 
 const initArray = () => {
   return {
@@ -36,6 +41,13 @@ const initArray = () => {
 
 let editors = initArray();
 
+let addModalVariables = {
+  addEditor: null,
+  finalEditor: null,
+  id: -1,
+  active: false,
+};
+
 const emptyPage = () => {
   // clear grid item
   ['data', 'script', 'dockerimage', 'task'].forEach((type) => {
@@ -48,7 +60,7 @@ const emptyPage = () => {
 };
 
 
-const loadEditor = (d, type, id, insertEditors = true, containerName='#json-editor-container') => {
+const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
   $(containerName).append(userEditModalComponent({
     type: type,
     id: id,
@@ -88,10 +100,10 @@ const addNewJsonEditor = (d, id, type) => {
     // task listen function.
     editor.on('change', () => {
       let val = editor.getValue();
-      ['role', 'dockerimage', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+      ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
         $(`#${type}${id}-${cur}`).text(val[cur]);
       });
-      $(`#${type}${id}-command`).text('command' in d && d['command'] ? val['command'][0] : '');
+      $(`#${type}${id}-command`).text(commandHelper(val));
     });
   }
 
@@ -111,20 +123,29 @@ const addNewJsonEditor = (d, id, type) => {
   });
 };
 
+const commandHelper = (task) => {
+  if ('command' in task && task['command'].length) {
+    return task['command'][0].substring(0, 30) + (task['command'][0].length > 30 ? '...' : '');
+  } else {
+    return '';
+  }
+};
+
 const insertNewTask = (task) => {
   let type = 'task';
   let id = editors[type].length + 1;
   let itemHtml = taskFormat({
-    data: task,
     id: id,
     type: type,
     role: task['role'],
     dockerimage: task['dockerimage'],
+    data: task['data'],
+    script: task['script'],
     instances: task['instances'],
     cpu: task['cpu'],
     memoryMB: task['memoryMB'],
     gpu: task['gpu'],
-    command: 'command' in task && task['command'] ? task['command'][0] : '',
+    command: commandHelper(task),
   });
   $(`#task-container`).append(itemHtml); // append the task html
 
@@ -145,10 +166,10 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const updatePageFromYaml = (d) => {
+const updatePageFromYaml = (d) => { // d is a string
   emptyPage();
 
-  let data = yamlHelper.yamlToJsonEditor(d);
+  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
 
   // update docker/script/data
   if ('prerequisites' in data) {
@@ -170,38 +191,108 @@ const updatePageFromYaml = (d) => {
   addNewJsonEditor(data, '', 'job');
 };
 
-const showAddModal = (type) => {
-  let html = addModalFormat({
+const saveTemplateOnAddModal = (type, id) => {
+  addModalVariables.finalEditor = addModalVariables.addEditor;
+  let data = addModalVariables.finalEditor.getValue();
+  $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
+  $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
+
+  $(`#${type}-summary`).html(userChooseSummaryLayout({
+    name: data.name,
+    contributor: data.contributor,
+    description: data.description,
     type: type,
-  });
-  $('#addModalPlace').html(html);
-
-  $('#addModal').modal('show');
-  $(`#call-${type}-edit-modal`).on('click', () => {
-    $('#addModal').modal('hide');
-
-    let id = editors[type].length + 1;
-    let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
+    id: id,
+  }));
+  $(`#${type}${id}-edit-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal('show');
-
-    $(`#${type}${id}-edit-save-button`).on('click', () => {
-      let data = editor.getValue();
-      data['type'] = type;
-      $(`#${type}${id}-modal`).modal('hide');
-      $('#addCustomizeModalPlace').html('');
-      if (type == 'task') {
-        insertNewTask(data);
-      } else {
-        insertNewDockerDataScript(data);
-      }
-    });
   });
 };
 
-const exportsJson = () => {
-  let res = yamlHelper.jsonEditorToJobJson(editors);
-  // console.log(res);
-  return res;
+const replaceHrefs = (htmls) => {
+  $('#recommandPlaceHolder').html('');
+  Object.keys(htmls).forEach((type) => {
+    if (htmls[type].length > 0) {
+      $('#recommandPlaceHolder').append(htmls[type]);
+    }
+  });
+  $('.cardhref').each(function(i, obj) {
+    $(obj).removeAttr('href');
+    $(obj).attr('data-toggle', 'tooltip');
+    $(obj).attr('data-html', 'ture');
+    $(obj).attr('data-placement', 'right');
+    $(obj).attr('title', '<h5>' + $(obj).find('.none').html() + '</h5>');
+    $(obj).click(() => {
+      let items = $(obj).attr('id').split('-');
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v2/template/${items[0]}/${items[1]}?version=${items[2]}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          data = yamlHelper.yamlToJsonEditor(data);
+          addModalVariables.addEditor.setValue(data);
+          saveTemplateOnAddModal(items[0], addModalVariables.id);
+        },
+      });
+    });
+  });
+  $('[data-toggle="tooltip"]').tooltip();
+};
+
+const showAddModal = (type) => {
+  addModalVariables.active = true;
+  addModalVariables.addEditor = null;
+  addModalVariables.finalEditor = null;
+  addModalVariables.id = editors[type].length + 1;
+
+  $('#addModalPlace').html(addModalFormat({
+    name: '',
+    contributor: '',
+    description: '',
+    type: type,
+    id: addModalVariables.id,
+    summaryLayout: userChooseInsertLayout,
+  }));
+
+  addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, '#editPlaceHolder');
+  $(`#${type}${addModalVariables.id}-modal .edit-save`).click(() => {
+    saveTemplateOnAddModal(type, addModalVariables.id);
+  });
+
+  // ----------- recommand ---------------
+ common.load(type, replaceHrefs, 3);
+
+  $('#btn-add-search').click((event) => {
+    common.search($('#add-search').val(), [type], replaceHrefs, 3);
+  });
+  $('#add-search').on('keyup', (event) => {
+    if (event.keyCode == 13) {
+      common.search($('#add-search').val(), [type], replaceHrefs, 3);
+    }
+  });
+
+  // ---------- some button listener ----------
+  $('#btn-add-customize').click(() => {
+      $(`#${type}${addModalVariables.id}-modal`).modal('show');
+  });
+
+  $('#btn-close-add-modal').click(() => {
+      addModalVariables.active = false;
+  });
+
+  $('#btn-add-modal').click(() => {
+      addModalVariables.active = false;
+      $('#btn-add-modal').attr('data-dismiss', 'modal');
+      $('#btn-add-modal').attr('aria-hidden', 'true');
+      $('#recommandPlaceHolder').html('');
+      $('#editPlaceHolder').html('');
+      if (addModalVariables.finalEditor != null) {
+          let d = addModalVariables.finalEditor.getValue();
+          d['type'] = type;
+          insertNewDockerDataScript(d);
+      }
+  });
+  $('#addModal').modal('show');
 };
 
 const createDownload = (text) => {
@@ -223,11 +314,27 @@ const exportsYaml = () => {
   createDownload(res);
 };
 
+const editYaml = () => {
+  let res = yamlHelper.exportToYaml(editors);
+  $('#yaml-editor-holder').val(res);
+  $('#yaml-modal').modal('show');
+};
+
+const updatePageByYamlEditor = () => {
+  try {
+    let res = $('#yaml-editor-holder').val();
+    updatePageFromYaml(res);
+    $('#yaml-modal').modal('hide');
+  } catch (YAMLException) {
+    alert('Yaml is invalid, please check your yaml!');
+  }
+};
+
 const createSubmitData = () => {
   return yamlHelper.jsonEditorToJobJson(editors);
 };
 
-const initPage = () =>{
+const initPage = () => {
   let initJob = {
     name: 'Job Name',
     description: 'Please add job description.',
@@ -235,10 +342,10 @@ const initPage = () =>{
   addNewJsonEditor(initJob, '', 'job'); // init a job jsonEditor
 };
 
-
 module.exports = {
   updatePageFromYaml,
-  exportsJson,
+  editYaml,
+  updatePageByYamlEditor,
   exportsYaml,
   showAddModal,
   createSubmitData,

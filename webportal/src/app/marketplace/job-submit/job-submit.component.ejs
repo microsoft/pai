@@ -1,7 +1,21 @@
 <div class="box-content">
     <div class="template-account">
         <!-- for title -->
-        <table class="row title-search">
+        <div class="sub-titile">
+            <h3>Submit Job V2</h3>
+            <sup class="preview">preview</sup>
+        </div>
+        <!-- button -->
+        <div>
+            <div class="upload-btn-wrapper">
+                    <button class="main-button">Import Yaml</button>
+                    <input type="file" class="import-sty" id="importYaml" />
+            </div>
+            <div class="upload-btn-wrapper">
+                <button class="main-button" id="EditYamlBtn">Edit Yaml</button>
+            </div>
+        </div>
+        <!-- <table class="row title-search">
             <tr>
                 <td class="subv2-title">
                     <span>Submit Job V2</span>
@@ -14,7 +28,7 @@
                     </button>
                 </td>
             </tr>
-        </table>
+        </table> -->
         <!-- job description -->
         <table class="showDesJob">
             <tr>
@@ -26,31 +40,20 @@
                         <div class="row btns">
                             <span class="detail-jobname" id="job-name">Job Name</span>
                             <button class="edit-jobinfo">
-                                <span class="glyphicon glyphicon-pencil" id="job-edit-button"></span>
+                                <span id="job-edit-button">
+                                    <img class="edit-job-name" src="/assets/img/edit-grey.png" alt="">
+                                </span>
                             </button>
-                            <button class="btn btn-primary sty-margin" id ="submitJob">Submit</button>
                         </div>
                         <p id="job-description">
                             Please add job description.
-                        </p>
-                        <div>
-                            <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary" id="exportYamlBtn">YAML</button>
-                            </div>
-                            <div class="upload-btn-wrapper">
-                                <button class="btn btn-primary">Import from Yaml</button>
-                                <input type="file" id="importYaml"/>
-                            </div>
-                            <div class="upload-btn-wrapper">
-                                    <button class="btn btn-primary" id="exportJsonBtn">Export Json</button>
-                            </div>
-                        </div>
+                        </p>     
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-    <div class="add-four">
+    <div class="add-four" style="overflow: scroll">
         <div class="add-content">
             <!-- for task -->
             <div class="row add-title">
@@ -64,7 +67,7 @@
                         <div class="add-new-item shadow">
                             <div class="add-new-item-content">
                                 <p>
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <img src="/assets/img/Add.png" alt="">
                                 </p>
                             </div>
                         </div>
@@ -77,15 +80,15 @@
                 <h3>Docker</h3>
                 <!-- have dockerimage content style -->
                 <div id="dockerimage-container">
-                <!-- will be adding new dockerimage here! -->
+                    <!-- will be adding new dockerimage here! -->
                 </div>
 
                 <div class="col-md-2 add-bottom-border">
                     <a id="add-dockerimage-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
-                                <p>
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                <p class="plus-add">
+                                    <img class="img-add" src="/assets/img/Add.png" alt="">
                                 </p>
                             </div>
                         </div>
@@ -103,8 +106,8 @@
                     <a id="add-script-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
-                                <p>
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                <p class="plus-add">
+                                    <img class="img-add" src="/assets/img/Add.png" alt="">
                                 </p>
                             </div>
                         </div>
@@ -122,8 +125,8 @@
                     <a id="add-data-btn" data-toggle="modal">
                         <div class="add-new-item shadow sty-docker">
                             <div class="add-new-item-content">
-                                <p>
-                                    <i class="glyphicon glyphicon-plus"></i>
+                                <p class="plus-add">
+                                    <img class="img-add" src="/assets/img/Add.png" alt="">
                                 </p>
                             </div>
                         </div>
@@ -135,4 +138,29 @@
         <div id="addCustomizeModalPlace" class="box-body" />
     </div>
     <div id="json-editor-container"></div>
+    <div id="yaml-editor-container">
+        <div id="yaml-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Edit Yaml</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea id="yaml-editor-holder" class="form-control" rows="10"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary edit-save" id="yaml-edit-save-button">Save</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="position-btns">
+            <button class="btn btn-primary sty-margin" id="submitJob">Submit</button>
+            <button class="main-button" id="exportYamlBtn">save as</button>
+        </div>
+    </div>
 </div>

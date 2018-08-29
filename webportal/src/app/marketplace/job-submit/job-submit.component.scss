@@ -1,5 +1,20 @@
 .box-content{
     padding-bottom: 0;
+    .main-button{
+        padding: 5px 20px;
+        background: white;
+        border:1px solid #BEBEBE;
+        color: #3B3B3B;
+        font-size: 16px;
+    }
+    .plus-add{
+        .img-add{
+            width: 42px;
+            height: 42px;
+            margin-left: 0;
+            margin-top: 0;
+        }
+    }
 }
 .template-account {
     width: 86%;
@@ -7,6 +22,9 @@
     margin-top: 28px;
     padding-bottom: 20px;
     box-sizing: border-box;
+    .import-sty:hover{
+        cursor: pointer;
+    }
     .showDesJob{
         margin-top: 10px;
     td{
@@ -19,19 +37,21 @@
     }
     .detail {
         margin-left: 20px;
+        margin-top: 20px;
         height: 160px;
         box-sizing: border-box;
+        .edit-job-name{
+            position: relative;
+            top: -9px;
+            left: 8px;
+        }
         .btns{
+            position: relative;
+            top: 15px;
             .detail-jobname{
                 font-size: 24px;
                 font-weight: bold;
                 margin-left: 14px;
-            }
-            .sty-margin{
-                margin-top: 27px;
-                margin-left: 214px;
-                position: relative;
-                top: -17px;
             }
             .edit-jobinfo{
                 border: none;
@@ -47,12 +67,23 @@
         p {
             line-height: 34px;
             font-size: 14px;
-            line-height: 42px;
+            margin-top: 30px;
         }
     }
 }
 }
-
+.sub-titile{
+    width: 212px;
+    h3{
+        color: #333;
+        font-size: 22px;
+        margin-bottom: 24px;
+    }
+    .preview{
+        position: relative;
+        top: -45px;
+    }
+}
 .title-search{
     width: 100%;
     height: 40px;
@@ -63,11 +94,6 @@
             color: #333;
             font-size: 20px;
         }
-    }
-    .preview{
-        position: relative;
-        top: 4px;
-        left: -10px;
     }
     #search-input{
         float: left;
@@ -100,7 +126,7 @@
 }
 .add-new-item{
     width: 178px;
-    min-height: 186px;
+    min-height: 202px;
     background-color: white;
     display: flex;
     justify-content: center;
@@ -186,4 +212,27 @@
 
 .grid-item{
     margin-right:15px;
+}
+
+.footer{
+    width: 100%;
+    height: 72px;
+    background: #ECF0F5;
+    position: fixed;
+    bottom: 0;
+    .position-btns{
+        position: relative;
+        left: 64%;
+        top: 20px;
+    }
+    .sty-margin{
+        padding: 6px 20px;
+        margin-right: 12px;
+    }
+}
+
+textarea#yaml-editor-holder{
+    width: 100%;
+    height: auto;
+    min-height: 400px;
 }

@@ -20,32 +20,40 @@ require('json-editor');
 const yaml = require('js-yaml');
 
 const convertParameterToKeyValue = (d) => {
-  let parameters = d['parameters'];
-  d['parameters'] = [];
-  Object.keys(parameters).forEach((key) => {
-    d['parameters'].push({
-      name: key,
-      value: parameters[key],
+  if ('parameters' in d) {
+    let parameters = d['parameters'];
+    d['parameters'] = [];
+    Object.keys(parameters).forEach((key) => {
+      d['parameters'].push({
+        name: key,
+        value: parameters[key],
+      });
     });
-  });
+  }
 };
 
 const convertParameterFromKeyValue = (d) => {
-  let parameters = d['parameters'];
-  d['parameters'] = {};
-  parameters.forEach((t) => {
-    d['parameters'][t['name']] = t['value'];
-  });
+  if ('parameters' in d) {
+    let parameters = d['parameters'];
+    d['parameters'] = {};
+    parameters.forEach((t) => {
+      d['parameters'][t['name']] = t['value'];
+    });
+  }
 };
 
-const yamlToJsonEditor = (yamlString) => {
-  let data = yaml.safeLoad(yamlString);
+const yamlLoad = (yamlString) => {
+    return yaml.safeLoad(yamlString);
+};
+
+const yamlToJsonEditor = (data) => {
   if ('tasks' in data) {
     data['tasks'].forEach((task) => {
       task['instances'] = task['resource']['instances'];
       task['cpu'] = task['resource']['resourcePerInstance']['cpu'];
       task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
       task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
+      task['portList'] = task['resource']['portList'];
       delete task['resource'];
       convertParameterToKeyValue(task);
     });
@@ -80,7 +88,9 @@ const jsonEditorToJobJson = (editors) => {
               memoryMB: temp['memoryMB'],
               gpu: temp['gpu'],
             },
+            'portList': temp['portList'],
           };
+          delete temp['portList'];
           delete temp['instances'];
           delete temp['cpu'];
           delete temp['memoryMB'];
@@ -101,6 +111,7 @@ const exportToYaml = (editors) => {
 };
 
 module.exports = {
+  yamlLoad,
   yamlToJsonEditor,
   jsonEditorToJobJson,
   exportToYaml,
