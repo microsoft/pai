@@ -21,6 +21,8 @@
 zkConnectString: {ZOOKEEPER_ADDRESS}:2181
 zkRootDir: /Launcher
 hdfsRootDir: /Launcher
+rootAdminUsers: !!set
+  ? {name: root}
 
 # Service Setup
 serviceRMResyncIntervalSec: 20
