@@ -43,7 +43,7 @@ const convertParameterFromKeyValue = (d) => {
 };
 
 const yamlLoad = (yamlString) => {
-    return yaml.safeLoad(yamlString);
+  return yaml.safeLoad(yamlString);
 };
 
 const yamlToJsonEditor = (data) => {
