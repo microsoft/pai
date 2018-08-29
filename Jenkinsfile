@@ -126,6 +126,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-singlebox \
   openpai.azurecr.io/paiclusterint/dev-box > SINGLE_BOX_DEV_BOX.txt
 
 '''
@@ -178,6 +179,9 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
 
+# ! TODO wait for cluster ready
+sleep 6s
+
 # Step 3. Start all PAI services
 # start pai services
 ./paictl.py service start -p /cluster-configuration
@@ -227,6 +231,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-cluster \
   openpai.azurecr.io/paiclusterint/dev-box > CLUSTER_DEV_BOX.txt
 
 '''
@@ -278,6 +283,9 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
+# ! TODO wait for cluster ready
+sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
@@ -372,7 +380,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
@@ -476,7 +484,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
