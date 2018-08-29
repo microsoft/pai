@@ -100,5 +100,26 @@ const getUserList = (req, res, next) => {
   }
 };
 
+/**
+ * Update user Github Token.
+ */
+const updateUserGithubToken =(req, res, next) => {
+  const username = req.params.username;
+  const githubToken = req.body.githubToken;
+  if (req.user.admin) {
+    userModel.updateUserGithubToken(username, githubToken, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
+      } else {
+        return res.status(201).json({
+          message: 'update user github token successfully',
+        });
+      }
+    });
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+};
+
 // module exports
-module.exports = {update, remove, updateUserVc, getUserList};
+module.exports = {update, remove, updateUserVc, getUserList, updateUserGithubToken};

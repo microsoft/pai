@@ -104,8 +104,9 @@ const loadUsers = (limit, specifiedVc) => {
               userName: data[i].username,
               admin: (data[i].admin === 'true') ? 'Yes' : 'No',
               vcName: data[i].virtualCluster,
+              githubToken: data[i].githubToken,
               edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
-                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>',
+                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].githubToken + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
           }
@@ -142,13 +143,15 @@ const loadUsers = (limit, specifiedVc) => {
 };
 
 
-const showEditInfo = (username, isAdmin, vcList) => {
+const showEditInfo = (username, isAdmin, vcList, githubToken) => {
   $('#modalPlaceHolder').html(userEditModalComponent({
     'username': username,
     'isAdmin': isAdmin,
     'vcList': vcList,
+    'githubToken' : githubToken,
     updateUserVc,
     updateUserAccount,
+    updateUserGithubToken,
   }));
   $('#userEditModal').modal('show');
 };
@@ -245,6 +248,36 @@ const updateUserAccount = (username) => {
   });
 };
 
+const updateUserGithubToken = (username) => {
+  const githubToken = $('#form-update-github-token :input[name=githubToken]').val();
+  userAuth.checkToken((token) => {
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubToken`,
+      data: {
+        githubToken: githubToken,
+      },
+      type: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      dataType: 'json',
+      success: (data) => {
+        if (data.error) {
+          alert(data.message);
+        } else {
+          alert('Update user information successfully');
+        }
+        window.location.href = '/user-view.html';
+      },
+      error: (xhr, textStatus, error) => {
+        $('#form-update-github-token').trigger('reset');
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
+    });
+  });
+};
+
 
 window.loadUsers = loadUsers;
 window.removeUser = removeUser;
@@ -252,6 +285,7 @@ window.redirectToAddUser = redirectToAddUser;
 window.showEditInfo = showEditInfo;
 window.updateUserVc = updateUserVc;
 window.updateUserAccount = updateUserAccount;
+window.updateUserGithubToken = updateUserGithubToken;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -272,4 +306,4 @@ $(document).ready(() => {
   $('#content-wrapper').css({'overflow': 'hidden'});
 });
 
-module.exports = {loadUsers, removeUser, showEditInfo, redirectToAddUser, updateUserVc, updateUserAccount};
+module.exports = {loadUsers, removeUser, showEditInfo, redirectToAddUser, updateUserVc, updateUserAccount, updateUserGithubToken};

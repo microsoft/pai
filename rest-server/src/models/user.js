@@ -192,6 +192,25 @@ const checkUserVc = (username, virtualCluster, callback) => {
   }
 };
 
+const updateUserGithubToken = (username, githubToken, callback) => {
+  db.set(etcdConfig.userGithubTokenPath(username), githubToken, null, callback);
+};
+
+const getUserGithubToken = (username, callback) => {
+  if (typeof username === 'undefined') {
+    callback(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
+  } else {
+    db.get(etcdConfig.userGithubTokenPath(username), null, (err, res) => {
+      if(err){
+        return callback(err);
+      } else {
+        let githubToken = res.get(etcdConfig.userGithubTokenPath(username));
+        callback(null, githubToken);
+      }
+    });
+  }
+};
+
 const getUserList = (callback) => {
   db.get(etcdConfig.storagePath(), {recursive: true}, (err, res) => {
     if (err) {
@@ -205,6 +224,7 @@ const getUserList = (callback) => {
           username: userName,
           admin: res.get(etcdConfig.userAdminPath(userName)),
           virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
+          githubToken: res.has(etcdConfig.userGithubTokenPath(userName)) ? res.get(etcdConfig.userGithubTokenPath(userName)) : 'empty',
         });
       }
     });
@@ -254,4 +274,4 @@ if (config.env !== 'test') {
 }
 
 // module exports
-module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList};
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubToken, getUserGithubToken};

@@ -31,6 +31,15 @@
               placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
               <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
         </form>
+        <div class="box-header with-border user-edit-border">
+            <h3 class="box-title">Update Github Token</h3>
+        </div>
+        <form id="form-update-github-token" class="form-register">
+            <label for="inputGithubToken" class="sr-only">GithubToken</label>
+            <input type="text" name="githubToken" id="update-github-token-input-githubToken" class="form-control"
+              placeholder="Github Token" value=<%= githubToken %>>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserGithubToken('<%= username %>')">Update Github Token</button>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
