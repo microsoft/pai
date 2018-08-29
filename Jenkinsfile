@@ -380,7 +380,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
@@ -484,7 +484,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
