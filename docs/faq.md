@@ -10,7 +10,11 @@ A: We recommend deploying them on the same subnet. In theory, as long as the net
 
 ### Q: If user find a job to retry multiple times, how to diagnose the cause?
 
-A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer.
+A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and [job_log.md](./job_log.md)'s introduction.
+
+### Q: How to diagnose job problems through logs?
+
+A: Please check [job_log.md](./job_log.md)'s introduction.
 
 ### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
 
