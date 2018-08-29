@@ -56,6 +56,9 @@ const jobConfigSchema = Joi.object().keys({
       role: Joi.string()
         .regex(/^[A-Za-z0-9._~]+$/)
         .required(),
+      type: Joi.string()
+        .allow('')
+        .default('task'),
       data: Joi.string()
         .allow('')
         .default(''),
