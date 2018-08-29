@@ -43,7 +43,7 @@ const convertParameterFromKeyValue = (d) => {
 };
 
 const yamlLoad = (yamlString) => {
-    return yaml.safeLoad(yamlString);
+  return yaml.safeLoad(yamlString);
 };
 
 const yamlToJsonEditor = (data) => {
@@ -78,7 +78,6 @@ const jsonEditorToJobJson = (editors) => {
     editors[type].forEach((editor) => {
       if (editor != null) {
         let temp = JSON.parse(JSON.stringify(editor.getValue()));
-        temp['type'] = type;
         if (type == 'task') {
           convertParameterFromKeyValue(temp);
           temp['resource'] = {
@@ -97,6 +96,7 @@ const jsonEditorToJobJson = (editors) => {
           delete temp['gpu'];
           res['tasks'].push(temp);
         } else {
+          temp['type'] = type;
           res['prerequisites'].push(temp);
         }
       }
