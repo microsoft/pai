@@ -20,11 +20,13 @@
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
+const keypair = require('keypair');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 const createError = require('../util/error');
+const logger = require('../config/logger');
 
 const Hdfs = require('../util/hdfs');
 
@@ -364,6 +366,7 @@ class Job {
           'hdfsUri': launcherConfig.hdfsUri,
           'taskData': data.taskRoles[idx],
           'jobData': data,
+          'webHdfsUri': launcherConfig.webhdfsUri,
         });
     return dockerContainerScript;
   }
@@ -427,6 +430,12 @@ class Job {
       frameworkDescription.taskRoles[data.taskRoles[i].name] = taskRole;
     }
     return frameworkDescription;
+  }
+
+  generateSshKeyFiles(name) {
+    let sshKeyPair = keypair();
+    let sshKeyFiles = [{'content':sshKeyPair.public, 'fileName': name+'.pub'},{'content':sshKeyPair.private,'fileName':name}];
+    return sshKeyFiles;
   }
 
   _initializeJobContextRootFolders(next) {
@@ -531,6 +540,24 @@ class Job {
             parallelCallback(error);
           }
         );
+      },
+      // generate ssh key file
+      (parallelCallback) => {
+        async.each(this.generateSshKeyFiles(name), (file, eachCallback) => {
+          logger.warn('[CAN-TEST] job name is ' + name);
+          logger.warn('[CAN-TEST] file.Name = ' + file.fileName);
+          logger.warn('[CAN-TEST] file.content= ' + file.content);
+          hdfs.createFile(
+            `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
+            file.content,
+            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
+            (error, result) => {
+              eachCallback(error);
+            }
+          );
+        }, (error) => {
+          parallelCallback(error);
+        });
       },
     ], (parallelError) => {
       return next(parallelError);
