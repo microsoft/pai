@@ -15,7 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import sys
+import subprocess
 import logging
 import logging.config
 #
@@ -40,6 +41,10 @@ class serivce_management_start:
             self.service_list = self.get_service_list()
         else:
             self.service_list = service_list
+
+        self.retry_times = 5
+        if "retry_times" in kwargs:
+            self.retry_times = kwargs["retry_times"]
 
 
 
@@ -78,20 +83,39 @@ class serivce_management_start:
                 self.start(fat_serv)
 
 
-        self.logger.info("-----------------------------------------------------------")
-        self.logger.info("Begin to generate service {0}'s template file".format(serv))
-        service_template_generater = service_template_generate.service_template_generate(self.cluster_object_model, serv, service_conf)
-        service_template_generater.run()
+        try_counts = 0
+        while True:
 
-        self.logger.info("Begin to start service: [ {0} ]".format(serv))
-        service_starter.run()
+            try:
+                self.logger.info("-----------------------------------------------------------")
+                self.logger.info("Begin to generate service {0}'s template file".format(serv))
+                service_template_generater = service_template_generate.service_template_generate(self.cluster_object_model, serv, service_conf)
+                service_template_generater.run()
 
-        self.logger.info("Begin to clean all service's generated template file".format(serv))
-        service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
-        service_template_cleaner.run()
+                self.logger.info("Begin to start service: [ {0} ]".format(serv))
+                service_starter.run()
 
-        self.logger.info("Successfully start {0}".format(serv))
-        self.logger.info("-----------------------------------------------------------")
+                self.logger.info("Begin to clean all service's generated template file".format(serv))
+                service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
+                service_template_cleaner.run()
+
+                self.logger.info("Successfully start {0}".format(serv))
+                self.logger.info("-----------------------------------------------------------")
+                break
+
+            except subprocess.CalledProcessError:
+                self.logger.error("Failed to start service {0}".format(serv))
+                self.logger.info("-----------------------------------------------------------")
+                try_counts = try_counts + 1
+                if try_counts >= self.retry_times:
+                    self.logger.error("Have retried {0} times, but service {1} doesn't start. Please check it.".format(self.retry_times, serv ))
+                    sys.exit(1)
+
+
+            except Exception as error:
+                self.logger.error("Some error occurs when starting service {0}".format(serv))
+                sys.exit(1)
+
 
         self.done_dict[serv] = True
 
