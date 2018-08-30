@@ -18,6 +18,7 @@
 import sys
 import subprocess
 import logging
+import time
 import logging.config
 #
 from . import service_start
@@ -106,11 +107,13 @@ class serivce_management_start:
             except subprocess.CalledProcessError:
                 self.logger.error("Failed to start service {0}".format(serv))
                 self.logger.info("-----------------------------------------------------------")
+
                 try_counts = try_counts + 1
                 if try_counts >= self.retry_times:
                     self.logger.error("Have retried {0} times, but service {1} doesn't start. Please check it.".format(self.retry_times, serv ))
                     sys.exit(1)
 
+                time.sleep(10)
 
             except Exception as error:
                 self.logger.error("Some error occurs when starting service {0}".format(serv))
