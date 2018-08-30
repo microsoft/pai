@@ -28,6 +28,8 @@ from . import service_template_clean
 from ..common import directory_handler
 from ..common import file_handler
 
+from ..common import linux_shell
+
 
 class serivce_management_start:
 
@@ -125,6 +127,9 @@ class serivce_management_start:
     def run(self):
 
         self.done_dict = dict()
+
+        linux_shell.execute_shell_raise("kubectl get pods", "kubectl command failed!")
+        linux_shell.execute_shell_raise("kubectl get node", "kubectl command failed!")
 
         for serv in self.service_list:
             if file_handler.file_exist_or_not("bootstrap/{0}/service.yaml".format(serv)) == False:
