@@ -216,7 +216,7 @@ const replaceHrefs = (htmls) => {
       $('#recommandPlaceHolder').append(htmls[type]);
     }
   });
-  $('.cardhref').each(function(i, obj) {
+  $('.cardhref').each((i, obj) => {
     $(obj).removeAttr('href');
     $(obj).attr('data-toggle', 'tooltip');
     $(obj).attr('data-html', 'ture');
@@ -228,7 +228,7 @@ const replaceHrefs = (htmls) => {
         url: `${webportalConfig.restServerUri}/api/v2/template/${items[0]}/${items[1]}?version=${items[2]}`,
         type: 'GET',
         dataType: 'json',
-        success: function(data) {
+        success: (data) => {
           data = yamlHelper.yamlToJsonEditor(data);
           addModalVariables.addEditor.setValue(data);
           saveTemplateOnAddModal(items[0], addModalVariables.id);
@@ -240,59 +240,73 @@ const replaceHrefs = (htmls) => {
 };
 
 const showAddModal = (type) => {
-  addModalVariables.active = true;
-  addModalVariables.addEditor = null;
-  addModalVariables.finalEditor = null;
-  addModalVariables.id = editors[type].length + 1;
+  if (type != 'task') {
+    addModalVariables.active = true;
+    addModalVariables.addEditor = null;
+    addModalVariables.finalEditor = null;
+    addModalVariables.id = editors[type].length + 1;
 
-  $('#addModalPlace').html(addModalFormat({
-    name: '',
-    contributor: '',
-    description: '',
-    type: type,
-    id: addModalVariables.id,
-    summaryLayout: userChooseInsertLayout,
-  }));
+    $('#addModalPlace').html(addModalFormat({
+      name: '',
+      contributor: '',
+      description: '',
+      type: type,
+      id: addModalVariables.id,
+      summaryLayout: userChooseInsertLayout,
+    }));
 
-  addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, '#editPlaceHolder');
-  $(`#${type}${addModalVariables.id}-modal .edit-save`).click(() => {
-    saveTemplateOnAddModal(type, addModalVariables.id);
-  });
+    addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, '#editPlaceHolder');
+    $(`#${type}${addModalVariables.id}-modal .edit-save`).click(() => {
+      saveTemplateOnAddModal(type, addModalVariables.id);
+    });
 
-  // ----------- recommand ---------------
- common.load(type, replaceHrefs, 3);
+    // ----------- recommand ---------------
+    common.load(type, replaceHrefs, 3);
 
-  $('#btn-add-search').click((event) => {
-    common.search($('#add-search').val(), [type], replaceHrefs, 3);
-  });
-  $('#add-search').on('keyup', (event) => {
-    if (event.keyCode == 13) {
+    $('#btn-add-search').click((event) => {
       common.search($('#add-search').val(), [type], replaceHrefs, 3);
-    }
-  });
+    });
+    $('#add-search').on('keyup', (event) => {
+      if (event.keyCode == 13) {
+        common.search($('#add-search').val(), [type], replaceHrefs, 3);
+      }
+    });
 
-  // ---------- some button listener ----------
-  $('#btn-add-customize').click(() => {
+    // ---------- some button listener ----------
+    $('#btn-add-customize').click(() => {
       $(`#${type}${addModalVariables.id}-modal`).modal('show');
-  });
+    });
 
-  $('#btn-close-add-modal').click(() => {
+    $('#btn-close-add-modal').click(() => {
       addModalVariables.active = false;
-  });
+    });
 
-  $('#btn-add-modal').click(() => {
+    $('#btn-add-modal').click(() => {
       addModalVariables.active = false;
       $('#btn-add-modal').attr('data-dismiss', 'modal');
       $('#btn-add-modal').attr('aria-hidden', 'true');
       $('#recommandPlaceHolder').html('');
       $('#editPlaceHolder').html('');
       if (addModalVariables.finalEditor != null) {
-          let d = addModalVariables.finalEditor.getValue();
-          d['type'] = type;
-          insertNewDockerDataScript(d);
+        let d = addModalVariables.finalEditor.getValue();
+        d['type'] = type;
+        insertNewDockerDataScript(d);
       }
-  });
-  $('#addModal').modal('show');
+    });
+    $('#addModal').modal('show');
+  } else { // add task;
+    let id = editors[type].length + 1;
+    $('#addCustomizeModalPlace').empty();
+    let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
+    $(`#${type}${id}-modal`).modal('show');
+    $(`#${type}${id}-edit-save-button`).on('click', () => {
+      let data = editor.getValue();
+      data['type'] = type;
+      $(`#${type}${id}-modal`).modal('hide');
+      $('#addCustomizeModalPlace').html('');
+      insertNewTask(data);
+    });
+  }
 };
 
 const createDownload = (text) => {
