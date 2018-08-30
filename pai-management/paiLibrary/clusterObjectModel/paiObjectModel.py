@@ -56,6 +56,7 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubeschedulerversion"] = k8sDict["clusterinfo"]["kube-scheduler-version"]
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
+        k8sDict["clusterinfo"]["etcd-data-path"] = k8sDict["clusterinfo"]["etcd-data-path"]
 
         # section : component_list
 
