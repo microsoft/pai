@@ -118,9 +118,12 @@ class deploy:
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
         common.write_generated_file(generated_data, "kube-proxy.yaml")
-        common.execute_shell(
+
+        retry_count = 5
+        common.execute_shell_retry(
             "kubectl apply --overwrite=true -f kube-proxy.yaml",
-            "Failed to create kube-proxy"
+            "Failed to create kube-proxy",
+            retry_count
         )
 
         os.remove("kube-proxy.yaml")
@@ -141,9 +144,12 @@ class deploy:
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
         common.write_generated_file(generated_data, "dashboard-service.yaml")
-        common.execute_shell(
+
+        retry_count = 5
+        common.execute_shell_retry(
             "kubectl apply --overwrite=true -f dashboard-service.yaml",
-            "Failed to create dashboard-service"
+            "Failed to create dashboard-service",
+            retry_count
         )
 
         os.remove("dashboard-service.yaml")
