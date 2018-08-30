@@ -197,6 +197,9 @@ class deploy:
         kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
         kubectl_install_instance.run()
 
+        # check the registerd api resources
+        common.execute_shell("kubectl api-resources", "kubectl command failed!")
+
         self.create_kube_proxy()
         self.create_k8s_dashboard()
 
