@@ -37,5 +37,8 @@ router.route('/')
 router.route('/:username/virtualClusters')
     .put(tokenConfig.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
 
+router.route('/:username/githubPAT')
+    .put(tokenConfig.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
+
 // module exports
 module.exports = router;

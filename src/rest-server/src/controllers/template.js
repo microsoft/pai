@@ -93,7 +93,7 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  template.save(type, name, item, function(err, saved) {
+  template.save(type, name, item, req.body.contributor, function(err, saved) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
