@@ -150,4 +150,8 @@ If the Framework retried many times, check other attempts by searching the Frame
 - Click the ID or History key word to redirect to the job am log pages. Then user could refer section 1 to diagnostic job history retry failure reason.
 
 #### Note:
-- Currently, OpenPAI's yarn only store 1000 jobs' logs. User maybe can not find some old job's logs. For example, frequently retried job logs.
+- History job number limit: Currently, OpenPAI's yarn only store 1000 jobs' logs. User maybe can not find some old job's logs. For example, frequently retried job logs.
+- Job container log rotation: In order to prevent the historical log from being too large, OpenPAI configure the [docker log rotation](https://docs.docker.com/config/containers/logging/json-file/) by file [docker-daemon.json](../pai-management/k8sPaiLibrary/maintaintool/docker-daemon.json). 
+	The default configuration:
+	- "max-size": "100m": The maximum size of the log before it is rolled. A positive integer plus a modifier representing the unit of measure (k, m, or g). Defaults to -1 (unlimited)., 
+	- "max-file": "10": The maximum number of log files that can be present. If rolling the logs creates excess files, the oldest file is removed. Only effective when max-size is also set. A positive integer. Defaults to 1.

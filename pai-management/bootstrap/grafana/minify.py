@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,14 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import json
+import sys
 
-echo y | pip uninstall requests
-echo y | pip install requests
-echo y | pip uninstall docopt
-echo y | pip install docopt
+def minify(raw):
+    """ minify json file """
+    obj = json.loads(raw)
+    return json.dumps(obj, separators=(",", ":"))
 
-cp -r /docker/* /usr/bin/
-
-docker run hello-world  || exit $?
-
-bash
+if __name__ == '__main__':
+    sys.stdout.write(minify(sys.stdin.read()))

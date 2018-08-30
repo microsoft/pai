@@ -61,7 +61,6 @@ machine-list:
       dashboard: "true"
       zkid: "1"
       pai-master: "true"
-      watchdog: "true"
       alert-manager: "true"
 
 
@@ -73,7 +72,6 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
 
 
     - hostname: hostname
@@ -84,7 +82,6 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
 
 
     - hostname: hostname
