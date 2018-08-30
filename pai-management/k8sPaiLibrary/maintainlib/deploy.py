@@ -204,7 +204,10 @@ class deploy:
         kubectl_install_instance.run()
 
         # check the registerd api resources
-        common.execute_shell("kubectl api-resources", "kubectl command failed!")
+        common.execute_shell_retry("kubectl api-resources", "kubectl command failed!", 5)
+
+        # create kube-proxy until daemonset resource is registerd
+        common.execute_shell_retry("kubectl api-resources | grep -q daemonsets", "Controller manager hasn't create daemonset object!", 5)
 
         self.create_kube_proxy()
         self.create_k8s_dashboard()

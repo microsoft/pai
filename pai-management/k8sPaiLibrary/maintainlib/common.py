@@ -66,7 +66,7 @@ def execute_shell_retry(shell_cmd, error_msg, retry_count):
         except subprocess.CalledProcessError:
             count += 1
             logger.error(error_msg)
-            logger.info("%s error, retrying %d", shell_cmd, count)
+            logger.info("run command \" %s \" exception, retrying %d", shell_cmd, count)
             if count == retry_count:
                 sys.exit(1)
             time.sleep(5)
