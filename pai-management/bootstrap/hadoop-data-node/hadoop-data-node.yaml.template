@@ -64,10 +64,10 @@ spec:
       volumes:
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/datanode
+          path: /mnt/hadooptmp/datanode
       - name: hadoop-data-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data
+          path: /mnt/hdfs/data
       - name: hadoop-data-node-config-volume
         configMap:
           name:  hadoop-data-node-configuration
