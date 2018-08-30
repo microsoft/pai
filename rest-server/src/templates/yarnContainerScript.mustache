@@ -50,7 +50,6 @@ function exit_handler()
     debug_log "$handler" "docker container $docker_name has already exited"
   fi
 
-#  kill 0
 }
 
 set -x
@@ -136,9 +135,17 @@ function get_host_list()
   done
 }
 
+# retrieve the yarn local dir
+hadoop_tmp_dir=$(hdfs getconf -confKey "hadoop.tmp.dir") || { echo "cannot get the YARN local directory."; exit 1; }
+container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
+mounted_path=$(docker inspect $container_id |\
+  jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
+container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID
+container_dir="$hadoop_tmp_dir/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID"
+
 
 # Prepare env file
-ENV_LIST=env.list
+ENV_LIST="env.list"
 
 cat <<ENV >> $ENV_LIST
 APP_ID=$APP_ID
@@ -201,15 +208,17 @@ echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_P
 export $(grep -v '^#' $ENV_LIST | xargs)
 
 
+
+
 # Prepare docker bootstrap script
 bootstrap_dir="tmp/pai-root/bootstrap"
-mkdir -p $bootstrap_dir
-hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh $bootstrap_dir/docker_bootstrap.sh \
+mkdir -p $container_dir/$bootstrap_dir
+hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh $container_dir/$bootstrap_dir/docker_bootstrap.sh \
   || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
 code_dir="tmp/pai-root/code"
-mkdir -p $code_dir
+mkdir -p $container_dir/$code_dir
 if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -stat $PAI_CODE_DIR \
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
@@ -219,7 +228,7 @@ if [[ -n $PAI_CODE_DIR ]]; then
     echo "$PAI_CODE_DIR is larger than 200MB, exit."
     exit 1
   fi
-  hdfs dfs -get $PAI_CODE_DIR $code_dir \
+  hdfs dfs -get $PAI_CODE_DIR $container_dir/$code_dir \
     || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
 fi
 
@@ -227,12 +236,6 @@ fi
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
-# retrieve the yarn local dir
-hadoop_tmp_dir=$(hdfs getconf -confKey "hadoop.tmp.dir") || { echo "cannot get the YARN local directory."; exit 1; }
-container_id=$(cat /proc/self/cgroup | head -n 1 | awk -F '/' '{print $NF}')
-mounted_path=$(docker inspect $container_id |\
-  jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
-container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID
 
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
