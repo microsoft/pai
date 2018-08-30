@@ -72,12 +72,12 @@ $(document).ready(() => {
                   alert(updateVcData.message);
                 } else {
                   $.ajax({
-                    url:`${webportalConfig.restServerUri}/api/v1/user/${username}/githubToken`,
-                    data:{
+                    url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubToken`,
+                    data: {
                       githubToken: githubToken,
                     },
                     type: 'PUT',
-                    headers:{
+                    headers: {
                       Authorization: `Bearer ${token}`,
                     },
                     dataType: 'json',
@@ -89,12 +89,12 @@ $(document).ready(() => {
                         alert('Add new user successfully');
                       }
                     },
-                    error:(xhr, textStatus, error) => {
+                    error: (xhr, textStatus, error) => {
                       $('#form-register').trigger('reset');
                       const res = JSON.parse(xhr.responseText);
                       alert(res.message);
                     },
-                  })
+                  });
                 }
                 window.location.href = '/user-view.html';
               },

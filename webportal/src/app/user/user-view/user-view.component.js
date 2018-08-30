@@ -148,7 +148,7 @@ const showEditInfo = (username, isAdmin, vcList, githubToken) => {
     'username': username,
     'isAdmin': isAdmin,
     'vcList': vcList,
-    'githubToken' : githubToken,
+    'githubToken': githubToken,
     updateUserVc,
     updateUserAccount,
     updateUserGithubToken,

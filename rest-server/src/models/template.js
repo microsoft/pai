@@ -65,10 +65,10 @@ const load = (options, callback) => {
 const save = function(type, name, template, username, callback) {
   let githubToken = process.env.GITHUB_PAT;
   userModel.getUserGithubToken(username, (err, res) => {
-    if(!err && res != 'empty'){
+    if (!err && res != 'empty') {
       githubToken = res;
     }
-    logger.info("githubToken is " + githubToken);
+    logger.info('githubToken is ' + githubToken);
     github.authenticate({
       type: 'token',
       token: githubToken,

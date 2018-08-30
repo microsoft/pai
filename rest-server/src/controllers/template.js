@@ -93,9 +93,7 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  /** Get username from req.body.username is just for test before webportal is ready. 
-   * When webportal is ready, we may pass in username by params or query */
-  template.save(type, name, item, req.body.username, function(err, saved) {
+  template.save(type, name, item, req.body.contributor, function(err, saved) {
     if (err) {
       logger.error(err);
       return res.status(500).json({

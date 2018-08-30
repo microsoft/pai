@@ -201,7 +201,7 @@ const getUserGithubToken = (username, callback) => {
     callback(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   } else {
     db.get(etcdConfig.userGithubTokenPath(username), null, (err, res) => {
-      if(err){
+      if (err) {
         return callback(err);
       } else {
         let githubToken = res.get(etcdConfig.userGithubTokenPath(username));
