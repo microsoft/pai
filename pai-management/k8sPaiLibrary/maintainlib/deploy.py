@@ -197,6 +197,9 @@ class deploy:
         kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
         kubectl_install_instance.run()
 
+        # check cluster health
+        common.execute_shell("kubectl get componentstatus", "Get componentstatus failed")
+
         self.create_kube_proxy()
         self.create_k8s_dashboard()
 
