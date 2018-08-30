@@ -101,18 +101,18 @@ const getUserList = (req, res, next) => {
 };
 
 /**
- * Update user Github Token.
+ * Update user Github PAT.
  */
-const updateUserGithubToken =(req, res, next) => {
+const updateUserGithubPAT =(req, res, next) => {
   const username = req.params.username;
-  const githubToken = req.body.githubToken;
+  const githubPAT = req.body.githubPAT;
   if (req.user.admin) {
-    userModel.updateUserGithubToken(username, githubToken, (err) => {
+    userModel.updateUserGithubPAT(username, githubPAT, (err) => {
       if (err) {
         return next(createError.unknown(err));
       } else {
         return res.status(201).json({
-          message: 'update user github token successfully',
+          message: 'update user github PAT successfully',
         });
       }
     });
@@ -122,4 +122,4 @@ const updateUserGithubToken =(req, res, next) => {
 };
 
 // module exports
-module.exports = {update, remove, updateUserVc, getUserList, updateUserGithubToken};
+module.exports = {update, remove, updateUserVc, getUserList, updateUserGithubPAT};

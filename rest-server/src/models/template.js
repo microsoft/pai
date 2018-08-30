@@ -63,15 +63,15 @@ const load = (options, callback) => {
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
 const save = function(type, name, template, username, callback) {
-  let githubToken = process.env.GITHUB_PAT;
-  userModel.getUserGithubToken(username, (err, res) => {
+  let githubPAT = process.env.GITHUB_PAT;
+  userModel.getUserGithubPAT(username, (err, res) => {
     if (!err && res != 'empty') {
-      githubToken = res;
+      githubPAT = res;
     }
-    logger.info('githubToken is ' + githubToken);
+    logger.info('githubPAT is ' + githubPAT);
     github.authenticate({
       type: 'token',
-      token: githubToken,
+      token: githubPAT,
     });
     let b64text = base64.encode(yaml.dump(template));
     github.repos.createFile({

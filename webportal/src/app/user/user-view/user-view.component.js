@@ -104,9 +104,9 @@ const loadUsers = (limit, specifiedVc) => {
               userName: data[i].username,
               admin: (data[i].admin === 'true') ? 'Yes' : 'No',
               vcName: data[i].virtualCluster,
-              githubToken: data[i].githubToken,
+              githubPAT: data[i].githubPAT,
               edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
-                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].githubToken + '\')">Edit</button>',
+                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].githubPAT + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
           }
@@ -143,15 +143,15 @@ const loadUsers = (limit, specifiedVc) => {
 };
 
 
-const showEditInfo = (username, isAdmin, vcList, githubToken) => {
+const showEditInfo = (username, isAdmin, vcList, githubPAT) => {
   $('#modalPlaceHolder').html(userEditModalComponent({
     'username': username,
     'isAdmin': isAdmin,
     'vcList': vcList,
-    'githubToken': githubToken,
+    'githubPAT': githubPAT,
     updateUserVc,
     updateUserAccount,
-    updateUserGithubToken,
+    updateUserGithubPAT,
   }));
   $('#userEditModal').modal('show');
 };
@@ -248,13 +248,13 @@ const updateUserAccount = (username) => {
   });
 };
 
-const updateUserGithubToken = (username) => {
-  const githubToken = $('#form-update-github-token :input[name=githubToken]').val();
+const updateUserGithubPAT = (username) => {
+  const githubPAT = $('#form-update-github-token :input[name=githubPAT]').val();
   userAuth.checkToken((token) => {
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubToken`,
+      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
       data: {
-        githubToken: githubToken,
+        githubPAT: githubPAT,
       },
       type: 'PUT',
       headers: {
@@ -285,7 +285,7 @@ window.redirectToAddUser = redirectToAddUser;
 window.showEditInfo = showEditInfo;
 window.updateUserVc = updateUserVc;
 window.updateUserAccount = updateUserAccount;
-window.updateUserGithubToken = updateUserGithubToken;
+window.updateUserGithubPAT = updateUserGithubPAT;
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -306,4 +306,4 @@ $(document).ready(() => {
   $('#content-wrapper').css({'overflow': 'hidden'});
 });
 
-module.exports = {loadUsers, removeUser, showEditInfo, redirectToAddUser, updateUserVc, updateUserAccount, updateUserGithubToken};
+module.exports = {loadUsers, removeUser, showEditInfo, redirectToAddUser, updateUserVc, updateUserAccount, updateUserGithubPAT};

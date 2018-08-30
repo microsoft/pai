@@ -192,20 +192,20 @@ const checkUserVc = (username, virtualCluster, callback) => {
   }
 };
 
-const updateUserGithubToken = (username, githubToken, callback) => {
-  db.set(etcdConfig.userGithubTokenPath(username), githubToken, null, callback);
+const updateUserGithubPAT = (username, githubPAT, callback) => {
+  db.set(etcdConfig.userGithubPATPath(username), githubPAT, null, callback);
 };
 
-const getUserGithubToken = (username, callback) => {
+const getUserGithubPAT = (username, callback) => {
   if (typeof username === 'undefined') {
     callback(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   } else {
-    db.get(etcdConfig.userGithubTokenPath(username), null, (err, res) => {
+    db.get(etcdConfig.userGithubPATPath(username), null, (err, res) => {
       if (err) {
         return callback(err);
       } else {
-        let githubToken = res.get(etcdConfig.userGithubTokenPath(username));
-        callback(null, githubToken);
+        let githubPAT = res.get(etcdConfig.userGithubPATPath(username));
+        callback(null, githubPAT);
       }
     });
   }
@@ -224,7 +224,7 @@ const getUserList = (callback) => {
           username: userName,
           admin: res.get(etcdConfig.userAdminPath(userName)),
           virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
-          githubToken: res.has(etcdConfig.userGithubTokenPath(userName)) ? res.get(etcdConfig.userGithubTokenPath(userName)) : 'empty',
+          githubPAT: res.has(etcdConfig.userGithubPATPath(userName)) ? res.get(etcdConfig.userGithubPATPath(userName)) : 'empty',
         });
       }
     });
@@ -274,4 +274,4 @@ if (config.env !== 'test') {
 }
 
 // module exports
-module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubToken, getUserGithubToken};
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT};

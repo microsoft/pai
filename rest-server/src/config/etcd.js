@@ -47,8 +47,8 @@ etcdConfig.userVirtualClusterPath = (username) => {
   return `${etcdConfig.userPath(username)}/virtualClusters`;
 };
 
-etcdConfig.userGithubTokenPath = (username) => {
-  return `${etcdConfig.userPath(username)}/githubToken`;
+etcdConfig.userGithubPATPath = (username) => {
+  return `${etcdConfig.userPath(username)}/githubPAT`;
 };
 
 const etcdConfigSchema = Joi.object().keys({
@@ -79,7 +79,7 @@ const etcdConfigSchema = Joi.object().keys({
   userVirtualClusterPath: Joi.func()
     .arity(1)
     .required(),
-    userGithubTokenPath: Joi.func()
+  userGithubPATPath: Joi.func()
     .arity(1)
     .required(),
 }).required();

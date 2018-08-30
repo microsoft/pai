@@ -46,11 +46,11 @@ const userVcUpdateInputSchema = Joi.object().keys({
     .optional(),
 }).required();
 
-// define the input schema for the 'update user github token' api
-const userGithubTokenUpdateInputSchema = Joi.object().keys({
-  githubToken: Joi.string()
+// define the input schema for the 'update user github PAT' api
+const userGithubPATUpdateInputSchema = Joi.object().keys({
+  githubPAT: Joi.string()
     .allow('')
-    .regex(/^[A-Za-z0-9_-]+$/)
+    .token()
     .optional(),
 }).required();
 
@@ -59,5 +59,5 @@ module.exports = {
   userPutInputSchema: userPutInputSchema,
   userDeleteInputSchema: userDeleteInputSchema,
   userVcUpdateInputSchema: userVcUpdateInputSchema,
-  userGithubTokenUpdateInputSchema: userGithubTokenUpdateInputSchema,
+  userGithubPATUpdateInputSchema: userGithubPATUpdateInputSchema,
 };

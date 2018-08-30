@@ -37,7 +37,7 @@ $(document).ready(() => {
     const username = $('#form-register :input[name=username]').val();
     const password = $('#form-register :input[name=password]').val();
     const virtualClusters = $('#form-register :input[name=virtualCluster]').val();
-    const githubToken = $('#form-register :input[name=githubToken]').val();
+    const githubPAT = $('#form-register :input[name=githubPAT]').val();
     const admin = $('#form-register :input[name=admin]').is(':checked') ? true : false;
     userAuth.checkToken((token) => {
       $.ajax({
@@ -72,19 +72,19 @@ $(document).ready(() => {
                   alert(updateVcData.message);
                 } else {
                   $.ajax({
-                    url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubToken`,
+                    url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
                     data: {
-                      githubToken: githubToken,
+                      githubPAT: githubPAT,
                     },
                     type: 'PUT',
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
                     dataType: 'json',
-                    success: (updateGithubTokenData) => {
+                    success: (updateGithubPATData) => {
                       $('#form-register').trigger('reset');
-                      if (updateGithubTokenData.error) {
-                        alert(updateGithubTokenData.message);
+                      if (updateGithubPATData.error) {
+                        alert(updateGithubPATData.message);
                       } else {
                         alert('Add new user successfully');
                       }
