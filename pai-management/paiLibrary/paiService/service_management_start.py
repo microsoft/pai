@@ -83,7 +83,6 @@ class serivce_management_start:
                     continue
                 self.start(fat_serv)
 
-
         try_counts = 0
         while True:
 
@@ -118,7 +117,6 @@ class serivce_management_start:
             except Exception as error:
                 self.logger.error("Some error occurs when starting service {0}".format(serv))
                 sys.exit(1)
-
 
         self.done_dict[serv] = True
 
