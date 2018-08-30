@@ -118,6 +118,18 @@ const taskSchema = {
       multipleOf: 1,
       propertyOrder: 8,
     },
+    minFailedTaskCount: {
+      type: 'number',
+      minimum: 1,
+      multipleOf: 1,
+      propertyOrder: 9,
+    },
+    minSucceededTaskCount: {
+      type: 'number',
+      minimum: 1,
+      multipleOf: 1,
+      propertyOrder: 10,
+    },
     parameters: parametersSchema,
     command: {
       type: 'array',
@@ -330,13 +342,21 @@ const jobSchema = {
       type: 'string',
       propertyOrder: 4,
     },
-    killAllOnCompletedTaskNumber: {
-      type: 'number',
-      propertyOrder: 5,
-    },
     retryCount: {
       type: 'number',
       propertyOrder: 6,
+    },
+    gpuType: {
+      type: 'string',
+      propertyOrder: 7,
+    },
+    experiment: {
+      type: 'string',
+      propertyOrder: 8,
+    },
+    virtualCluster: {
+      type: 'string',
+      propertyOrder: 9,
     },
     parameters: parametersSchema,
     description: {
@@ -351,8 +371,6 @@ const jobSchema = {
     'protocol_version',
     'contributor',
     'description',
-    'killAllOnCompletedTaskNumber',
-    'retryCount',
     'parameters',
   ],
 };

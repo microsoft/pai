@@ -70,6 +70,7 @@ $(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
     loading.showLoading();
     let data = userTemplate.createSubmitData();
+    data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
     $.ajax({
       url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
       data: JSON.stringify(data),
