@@ -79,16 +79,21 @@ sudo docker exec -it dev-box /bin/bash
 
 ```bash
 cd /pai
+
+# fetch tags
+git fetch --tags
+
 # please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
 # checkout a release branch. For example: v0.x.y
 git checkout v0.x.y
+
 # check current branch
-git branch
+git status
 ```
 - sucessful result:
 ```bash
-  master
-* v0.x.y
+HEAD detached at v0.6.1
+nothing to commit, working directory clean
 ```
 
 ##### (4) Go to pai-management working dir
