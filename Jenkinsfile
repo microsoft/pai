@@ -46,53 +46,7 @@ set -ex
 sudo --preserve-env $JENKINS_HOME/scripts/prepare_build_env.sh'''
         }
     }
-    stage('Build Images') {
-      agent {
-        node {
-          label 'dev-box'
-        }
 
-        }
-        steps {
-          sh '''#! /bin/bash
-
-set -ex
-
-# prepare path
-sudo mkdir -p ${JENKINS_HOME}/${BED}/singlebox/quick-start
-sudo mkdir -p ${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
-sudo chown core:core -R $JENKINS_HOME
-sudo chown core:core -R /pathHadoop/
-QUICK_START_PATH=${JENKINS_HOME}/${BED}/singlebox/quick-start
-CONFIG_PATH=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
-cd pai-management/
-
-# generate quick-start
-$JENKINS_HOME/scripts/${BED}-gen_single-box.sh ${QUICK_START_PATH}
-# ! fix permission
-sudo chown core:core -R /mnt/jenkins/workspace
-
-# generate config
-ls $CONFIG_PATH/
-rm -rf $CONFIG_PATH/*.yaml
-./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
-# update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
-# change ectdid, zkid
-sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
-sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
-# setup registry
-$JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
-
-# build images
-sudo ./paictl.py image build -p $CONFIG_PATH
-
-# push images
-sudo ./paictl.py image push -p $CONFIG_PATH
-
-'''
-      }
-    }
     stage('Deploy') {
       parallel {
         stage('Install A SingleBox') {
@@ -184,7 +138,8 @@ sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+# TODO
+#./paictl.py service start -p /cluster-configuration
 
 EOF_DEV_BOX
 
@@ -289,7 +244,8 @@ sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+# TODO
+#./paictl.py service start -p /cluster-configuration
 
 EOF_DEV_BOX
 
@@ -307,218 +263,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
         }
       }
     }
-    stage('Test') {
-      parallel {
-        stage('Test A SingleBox') {
-          agent {
-            node {
-              label 'dev-box'
-            }
 
-          }
-          steps {
-            script {
-              env.SINGLE_BOX_URL = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
-              echo "${SINGLE_BOX_URL}"
-              // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/singlebox/quick-start/pai_url.txt").trim()
-
-              if(currentBuild.result == 'FAILURE') {
-                echo "Deploy Failed!!! Skip test!"
-              } else {
-                try {
-                  timeout(time: 15, unit: 'MINUTES'){
-                    def responseCode = 500
-                    while(!responseCode.equals(200)){
-                      try {
-                        sleep(6)
-                        echo "Waiting for PAI to be ready ..."
-
-                        def response = httpRequest(env.SINGLE_BOX_URL)
-                        println("Status: "+response.status)
-                        println("Content: "+response.content)
-
-                        responseCode = response.status
-                        echo "Response code: ${responseCode}."
-                      } catch (err) {
-                        if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
-                          echo "Timout!"
-                          currentBuild.result = 'FAILURE'
-                          break;
-                        }
-                        echo "PAI is not ready: ${err}"
-                      }
-                    }
-                  }
-
-                  sh (
-                    //returnStatus: true,
-                    script: '''#!/bin/bash
-
-set -ex
-#set -euxo pipefail
-
-sleep 60
-
-TOKEN=$(
-curl --silent --verbose \
-$SINGLE_BOX_URL/rest-server/api/v1/token \
---header 'Content-Type: application/json' \
---data '{
-"username": "admin",
-"password": "admin-password",
-"expiration": 3600
-}' \\
-| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
-)
-
-# Submit a job
-JOB_NAME="e2e-test-$RANDOM-$RANDOM"
-curl --silent --verbose \
---request POST \
-$SINGLE_BOX_URL/rest-server/api/v1/jobs \
---header "Authorization: Bearer $TOKEN" \
---header 'Content-Type: application/json' \
---data "{
-\\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"docker.io/openpai/alpine:bash\\",
-\\"taskRoles\\": [
-{
-\\"name\\": \\"Master\\",
-\\"taskNumber\\": 1,
-\\"cpuNumber\\": 1,
-\\"memoryMB\\": 2048,
-\\"command\\": \\"/bin/bash --version\\"
-}
-]
-}"
-while :; do
-sleep 10
-STATUS=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
-| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
-)
-if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
-if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
-done
-
-
-'''
-                  )
-                } catch (err) {
-                  echo "Failed: ${err}"
-                  currentBuild.result = 'FAILURE'
-                }
-              }
-            }
-          }
-        }
-        stage('Test Cluster') {
-          agent {
-            node {
-              label 'dev-box'
-            }
-
-          }
-          steps {
-            script {
-              env.CLUSTER_URL = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
-              echo "${CLUSTER_URL}"
-              // env.PAI_ENDPOINT = readFile("${JENKINS_HOME}/${BED}/cluster/quick-start/pai_url.txt").trim()
-
-              if(currentBuild.result == 'FAILURE') {
-                echo "Deploy Failed!!! Skip test!"
-              } else {
-                try {
-                  timeout(time: 15, unit: 'MINUTES'){
-                    def responseCode = 500
-                    while(!responseCode.equals(200)){
-                      try {
-                        sleep(6)
-                        echo "Waiting for PAI to be ready ..."
-
-                        def response = httpRequest(env.CLUSTER_URL)
-                        println("Status: "+response.status)
-                        println("Content: "+response.content)
-
-                        responseCode = response.status
-                        echo "Response code: ${responseCode}."
-                      } catch (err) {
-                        if(err instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException){
-                          echo "Timout!"
-                          currentBuild.result = 'FAILURE'
-                          break;
-                        }
-
-                        echo "PAI is not ready: ${err}"
-                      }
-                    }
-                  }
-
-                  sh (
-                    //returnStatus: true,
-                    script: '''#!/bin/bash
-
-set -ex
-#set -euxo pipefail
-
-sleep 60
-
-TOKEN=$(
-curl --silent --verbose \
-$CLUSTER_URL/rest-server/api/v1/token \
---header 'Content-Type: application/json' \
---data '{
-"username": "admin",
-"password": "admin-password",
-"expiration": 3600
-}' \\
-| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
-)
-
-# Submit a job
-JOB_NAME="e2e-test-$RANDOM-$RANDOM"
-curl --silent --verbose \
---request POST \
-$CLUSTER_URL/rest-server/api/v1/jobs \
---header "Authorization: Bearer $TOKEN" \
---header 'Content-Type: application/json' \
---data "{
-\\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"docker.io/openpai/alpine:bash\\",
-\\"taskRoles\\": [
-{
-\\"name\\": \\"Master\\",
-\\"taskNumber\\": 1,
-\\"cpuNumber\\": 1,
-\\"memoryMB\\": 2048,
-\\"command\\": \\"/bin/bash --version\\"
-}
-]
-}"
-while :; do
-sleep 10
-STATUS=$(
-curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME \
-| python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
-)
-if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
-if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
-done
-
-
-'''
-                  )
-                } catch (err) {
-                  echo "Failed: ${err}"
-                  currentBuild.result = 'FAILURE'
-                }
-              }
-            }
-
-          }
-        }
-      }
-    }
     stage('Pause on failure') {
       agent {
         node {
@@ -585,11 +330,12 @@ else
 fi
 
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
-
-./paictl.py service delete -p /cluster-configuration << EOF
-Y
-EOF
+# TODO
+#./paictl.py service start -p /cluster-configuration -n cluster-configuration
+#
+#./paictl.py service delete -p /cluster-configuration << EOF
+#Y
+#EOF
 
 # clean k8s
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
@@ -633,11 +379,12 @@ else
 fi
 
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
-
-./paictl.py service delete -p /cluster-configuration << EOF
-Y
-EOF
+# TODO
+#./paictl.py service start -p /cluster-configuration -n cluster-configuration
+#
+#./paictl.py service delete -p /cluster-configuration << EOF
+#Y
+#EOF
 
 # clean k8s
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
