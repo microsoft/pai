@@ -69,6 +69,7 @@ def execute_shell_retry(shell_cmd, error_msg, retry_count):
             logger.info("%s error, retrying %d", shell_cmd, count)
             if count == retry_count:
                 sys.exit(1)
+            time.sleep(5)
 
 
 
