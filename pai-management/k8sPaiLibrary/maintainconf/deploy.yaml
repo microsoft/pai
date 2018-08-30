@@ -82,6 +82,9 @@ worker-deployment:
       src: k8sPaiLibrary/template/config.template
       dst: worker-deployment/etc/kubernetes
 
+    - name: certs.sh
+      src: k8sPaiLibrary/template/certs.sh.template
+      dst: worker-deployment
 
     file-list:
     - name: docker-ce-install.sh
@@ -124,6 +127,9 @@ proxy-deployment:
       src: k8sPaiLibrary/template/haproxy.cfg.template
       dst: proxy-deployment/etc/kubernetes/haproxy
 
+    - name: certs.sh
+      src: k8sPaiLibrary/template/certs.sh.template
+      dst: proxy-deployment
 
     file-list:
     - name: docker-ce-install.sh
