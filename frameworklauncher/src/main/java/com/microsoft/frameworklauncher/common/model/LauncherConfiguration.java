@@ -116,6 +116,11 @@ public class LauncherConfiguration implements Serializable {
   private String webServerAddress = "http://localhost:9086";
   private Integer webServerStatusPullIntervalSec = 30;
   private Boolean webServerAclEnable = false;
+  // If this feature is enabled, ACL check will be ignored for Framework which does
+  // not belong to any Namespace.
+  // It should only be enabled to compatible with existing Framework which was PUT before
+  // ACL is enabled.
+  private Boolean webServerAclIgnoreWithoutNamespace = false;
 
   public String getZkConnectString() {
     return zkConnectString;
@@ -411,5 +416,13 @@ public class LauncherConfiguration implements Serializable {
 
   public void setWebServerAclEnable(Boolean webServerAclEnable) {
     this.webServerAclEnable = webServerAclEnable;
+  }
+
+  public Boolean getWebServerAclIgnoreWithoutNamespace() {
+    return webServerAclIgnoreWithoutNamespace;
+  }
+
+  public void setWebServerAclIgnoreWithoutNamespace(Boolean webServerAclIgnoreWithoutNamespace) {
+    this.webServerAclIgnoreWithoutNamespace = webServerAclIgnoreWithoutNamespace;
   }
 }

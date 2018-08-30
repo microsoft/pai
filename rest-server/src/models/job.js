@@ -139,8 +139,11 @@ class Job {
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     }
+
     for (let fsPath of ['authFile', 'dataDir', 'outputDir', 'codeDir']) {
       data[fsPath] = data[fsPath].replace('$PAI_DEFAULT_FS_URI', launcherConfig.hdfsUri);
+      data[fsPath] = data[fsPath].replace(/\$PAI_JOB_NAME(?![\w\d])/g, name);
+      data[fsPath] = data[fsPath].replace(/(\$PAI_USER_NAME|\$PAI_USERNAME)(?![\w\d])/g, data.userName);
     }
     userModel.checkUserVc(data.userName, data.virtualCluster, (error, result) => {
       if (error) return next(error);
