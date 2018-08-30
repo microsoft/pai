@@ -185,7 +185,9 @@ sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration << EOF
+Y
+EOF
 
 EOF_DEV_BOX
 
@@ -291,7 +293,9 @@ sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration << EOF
+Y
+EOF
 
 EOF_DEV_BOX
 
@@ -587,7 +591,9 @@ else
 fi
 
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
+Y
+EOF
 
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
@@ -636,7 +642,9 @@ else
 fi
 
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
+Y
+EOF
 
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
