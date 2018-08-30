@@ -100,5 +100,26 @@ const getUserList = (req, res, next) => {
   }
 };
 
+/**
+ * Update user Github PAT.
+ */
+const updateUserGithubPAT =(req, res, next) => {
+  const username = req.params.username;
+  const githubPAT = req.body.githubPAT;
+  if (req.user.admin) {
+    userModel.updateUserGithubPAT(username, githubPAT, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
+      } else {
+        return res.status(201).json({
+          message: 'update user github PAT successfully',
+        });
+      }
+    });
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allow to do this operation.`));
+  }
+};
+
 // module exports
-module.exports = {update, remove, updateUserVc, getUserList};
+module.exports = {update, remove, updateUserVc, getUserList, updateUserGithubPAT};
