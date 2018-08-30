@@ -219,14 +219,6 @@ def collect_k8s_componentStaus(api_server_ip, api_server_port, nodesJsonObject):
     metrics.append(collect_healthz("k8s_api_server_count", api_server_ip, api_server_port, "/healthz"))
     metrics.append(collect_healthz("k8s_etcd_count", api_server_ip, api_server_port, "/healthz/etcd"))
 
-    # check kubelet
-    nodeItems = nodesJsonObject["items"]
-
-    for name in nodeItems:
-        ip = name["metadata"]["name"]
-
-        metrics.append(collect_healthz("k8s_kubelet_count", ip, 10255, "/healthz"))
-
     return metrics
 
 
@@ -306,7 +298,6 @@ def load_machine_list(configFilePath):
 # * docker_daemon_count
 # * k8s_api_server_count
 # * k8s_etcd_count
-# * k8s_kubelet_count
 # Document about these metrics is in `prometheus/doc/watchdog-metrics.md`
 #####
 
