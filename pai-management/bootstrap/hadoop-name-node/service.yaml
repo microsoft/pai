@@ -21,7 +21,6 @@ prerequisite:
   - zookeeper
 
 template-list:
-  - node-label.sh
   - hadoop-name-node.yaml
   - stop.sh
   - refresh.sh

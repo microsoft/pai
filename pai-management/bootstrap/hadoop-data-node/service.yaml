@@ -22,7 +22,6 @@ prerequisite:
   - hadoop-name-node
 
 template-list:
-  - node-label.sh
   - hadoop-data-node.yaml
   - stop.sh
   - refresh.sh

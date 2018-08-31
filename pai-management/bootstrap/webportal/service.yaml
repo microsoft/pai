@@ -20,7 +20,6 @@ prerequisite:
   - rest-server
 
 template-list:
-  - node-label.sh
   - webportal.yaml
   - stop.sh
   - refresh.sh

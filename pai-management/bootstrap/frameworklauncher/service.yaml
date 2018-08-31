@@ -21,7 +21,6 @@ prerequisite:
   - hadoop-batch-job
 
 template-list:
-  - node-label.sh
   - frameworklauncher.yaml
   - stop.sh
   - refresh.sh
