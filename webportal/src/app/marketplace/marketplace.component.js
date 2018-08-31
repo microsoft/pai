@@ -74,14 +74,14 @@ $(function() {
             const uri = $('#upload-body-form :input[id=upload-uri]').val();
             userAuth.checkToken((token) => {
                 $.ajax({
-                    url:`${webportalConfig.restServerUri}/api/v2/template`,
+                    url: `${webportalConfig.restServerUri}/api/v2/template`,
                     data: {
                         type: 'dockerimage',
                         name: name,
                         version: '1.0.0',
                         contributor: cookies.get('user'),
                         uri: uri,
-                        description: description
+                        description: description,
                     },
                     type: 'POST',
                     headers: {
