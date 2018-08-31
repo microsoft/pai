@@ -16,7 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const NodeCache = require( "node-cache" );
+const NodeCache = require("node-cache");
 
 const StorageBase = require('./storageBase');
 
@@ -29,7 +29,6 @@ class LocalCache extends StorageBase {
   }
 
   get(key, options, callback) {
-    console.log('localCahce.js get ' + key);
     this.store.get(key, function(err, val) {
       if (err) {
         callback(err, null);
@@ -40,7 +39,6 @@ class LocalCache extends StorageBase {
   }
 
   set(key, value, options, callback) {
-    console.log('localCahce.js set ' + key);
     this.store.set(key, value, options && options.ttlSeconds ? options.ttlSeconds : 0, function(err, success) {
       if (!err && !success) {
         err = new Error(`Failed to set value for key "${key}".`);

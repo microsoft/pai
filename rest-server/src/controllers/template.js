@@ -33,9 +33,7 @@ const cache = dbUtility.getStorageObject('localCache', {
 const wrapWithCache = (handler) => {
   return function(req, res) {
     let key = req.originalUrl;
-    console.log(1);
     cache.get(key, null, function(err, val) {
-      console.log(2);
       if (err || !val) {
         handler(req, function(err, ret) {
           if (err) {
@@ -122,7 +120,6 @@ const filter = (req, cb) => {
 };
 
 const list = (req, cb) => {
-  console.log(123);
   template.search({
     pageNo: req.query.pageno,
     type: req.params.type,
@@ -156,12 +153,12 @@ const share = (req, res) => {
     });
   }
   let account = req.user.name;
-  console.log(`${account} is tring to share template.`);
-  userModel.getUserGithubPAT(account, function (err, pat) {
+  logger.debug(`${account} is tring to share template.`);
+  userModel.getUserGithubPAT(account, function(err, pat) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        'message': 'Failed to fetch GitHub PAT for current user.'
+        'message': 'Failed to fetch GitHub PAT for current user.',
       });
     }
     template.save(type, name, item, pat, function(err, saved) {
