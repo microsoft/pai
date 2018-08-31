@@ -72,12 +72,17 @@ please create an authentication file in the following format, upload it to HDFS 
 authfile content:
 
 ```
-docker_registry_server
+userprivateimage.azurecr.io
 username
 password
 ```
 
-- (2) Upload it to HDFS 
+Note: userprivateimage.azurecr.io is docker_registry_server
+
+- (2) [Upload it to HDFS](../pai-management/doc/hdfs.md#WebHDFS). 
+
+File path at hdfs example: hdfs://master_ip:9000/user/paidemo/authfile
+
 - (3) Specify the path in `authFile` paramete 
 
 OpenPAI job json file example:
@@ -86,10 +91,10 @@ OpenPAI job json file example:
 {
   "jobName": "paidemo",
   "image": "userprivateimage.azurecr.io/demo4pai:test",
-  "dataDir": "$PAI_DEFAULT_FS_URI/user/paidemo/data", 
-  "outputDir": "$PAI_DEFAULT_FS_URI/user/paidemo/output", 
-  "codeDir": "$PAI_DEFAULT_FS_URI/user/paidemo/code", 
-  "authFile":"$PAI_DEFAULT_FS_URI/user/paidemo/authfile",
+  "dataDir": "hdfs://master_ip:9000/user/paidemo/data", 
+  "outputDir": "hdfs://master_ip:9000/user/paidemo/output", 
+  "codeDir": "hdfs://master_ip:9000/user/paidemo/code", 
+  "authFile":"hdfs://master_ip:9000/user/paidemo/authfile",
   "taskRoles": [
     {
       "name": "demo4pai",
