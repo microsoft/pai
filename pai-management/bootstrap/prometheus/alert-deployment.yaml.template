@@ -39,15 +39,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: {{ clusterinfo['alertmanagerinfo']['role'] }}
-                operator: In
-                values:
-                - "true"
       containers:
       - name: alertmanager
         image: prom/alertmanager:v0.15.1

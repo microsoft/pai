@@ -74,29 +74,34 @@ def create_folder_if_not_exist(folder_path):
 def add_deploy_rule_to_yaml(service_conf, src_yaml, dst_yaml):
     
     config = dict()
+    service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod']
 
     with open(src_yaml, 'r') as f:
         config = yaml.load(f)
 
-        match_expressions_arr = []
+        if 'kind' in config and config['kind'] in service_deploy_kind_list:
+            match_expressions_arr = []
 
-        deploy_rules =service_conf['deploy-rules']
-        for operator, label in deploy_rules.items():
-            match_expression = dict()
-            if operator.lower() == 'in':
-                match_expression['key'] = label
-                match_expression['operator'] = 'In'
-                match_expression['values'] = ['true']
-                match_expressions_arr.append(match_expression)
-            if operator.lower() == 'notin':
-                match_expression['key'] = label
-                match_expression['operator'] = 'NotIn'
-                match_expression['values'] = ['true']
-                match_expressions_arr.append(match_expression)
+            deploy_rules =service_conf['deploy-rules']
+            for operator, label in deploy_rules.items():
+                match_expression = dict()
+                if operator.lower() == 'in':
+                    match_expression['key'] = label
+                    match_expression['operator'] = 'In'
+                    match_expression['values'] = ['true']
+                    match_expressions_arr.append(match_expression)
+                if operator.lower() == 'notin':
+                    match_expression['key'] = label
+                    match_expression['operator'] = 'NotIn'
+                    match_expression['values'] = ['true']
+                    match_expressions_arr.append(match_expression)
 
-        config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
-            {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
-            [{'matchExpressions': match_expressions_arr}]}}}
+            config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
+                {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
+                [{'matchExpressions': match_expressions_arr}]}}}
+        
+        else:
+            logging.error(src_yaml + " is not a service deploy file! Only support " + str(service_deploy_kind_list))
 
     with open(dst_yaml, "w") as fout:
         yaml.dump(config, fout)

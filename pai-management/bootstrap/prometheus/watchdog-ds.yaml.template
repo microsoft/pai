@@ -34,15 +34,6 @@ spec:
         prometheus.io/path: "/"
         prometheus.io/port: "9101"
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: {{ clusterinfo['watchdoginfo']['role'] }}
-                operator: In
-                values:
-                - "true"
       containers:
       - name: watchdog
         image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}

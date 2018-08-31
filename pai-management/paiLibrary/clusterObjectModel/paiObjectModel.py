@@ -301,23 +301,6 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
 
 
-        serviceDict["clusterinfo"]["hddatanodeinfo"] = \
-            self.rawData["serviceConfiguration"]["hadoop-data-node"]
-        serviceDict["clusterinfo"]["hdnamenodeinfo"] = \
-            self.rawData["serviceConfiguration"]["hadoop-name-node"]
-        serviceDict["clusterinfo"]["hdresourcemanagerinfo"] = \
-            self.rawData["serviceConfiguration"]["hadoop-resource-manager"]
-        serviceDict["clusterinfo"]["hdnodemanagerinfo"] = \
-            self.rawData["serviceConfiguration"]["hadoop-node-manager"]
-        serviceDict["clusterinfo"]["hdjobhistoryinfo"] = \
-            self.rawData["serviceConfiguration"]["hadoop-jobhistory"]
-        serviceDict["clusterinfo"]["zookeeperinfo"] = \
-            self.rawData["serviceConfiguration"]["zookeeper"]
-        serviceDict["clusterinfo"]["watchdoginfo"] = \
-            self.rawData["serviceConfiguration"]["watchdog"]
-        serviceDict["clusterinfo"]["alertmanagerinfo"] = \
-            self.rawData["serviceConfiguration"]["alertmanager"]
-
         # section: machineinfo
 
         serviceDict["machineinfo"] = self.rawData["clusterConfiguration"]["machine-sku"]

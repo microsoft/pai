@@ -30,15 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: {{ clusterinfo['hdresourcemanagerinfo']['role'] }}
-                operator: In
-                values:
-                - "true"
       containers:
       - name: hadoop-resource-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
