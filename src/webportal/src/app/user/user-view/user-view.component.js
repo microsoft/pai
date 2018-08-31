@@ -106,7 +106,7 @@ const loadUsers = (limit, specifiedVc) => {
               vcName: data[i].virtualCluster,
               githubPAT: data[i].githubPAT,
               edit: '<button class="btn btn-default btn-sm" onclick="showEditInfo(\'' + data[i].username +
-                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\',\'' + data[i].githubPAT + '\')">Edit</button>',
+                    '\',\'' + data[i].admin +'\',\'' + data[i].virtualCluster + '\')">Edit</button>',
               remove: removeBtnStyle,
             });
           }
@@ -143,12 +143,11 @@ const loadUsers = (limit, specifiedVc) => {
 };
 
 
-const showEditInfo = (username, isAdmin, vcList, githubPAT) => {
+const showEditInfo = (username, isAdmin, vcList) => {
   $('#modalPlaceHolder').html(userEditModalComponent({
     'username': username,
     'isAdmin': isAdmin,
     'vcList': vcList,
-    'githubPAT': githubPAT,
     updateUserVc,
     updateUserAccount,
     updateUserGithubPAT,
