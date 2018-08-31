@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,19 +16,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:2.7
+import argparse
+import datetime
+import os
+
+def check_no_older_than(paths, delta):
+    """ raise RuntimeError exception if any path in paths is older than `now - delta` """
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(seconds=delta)
+    oldest = now - delta
+
+    for path in paths:
+        mtime = os.path.getmtime(path)
+        mtime = datetime.datetime.fromtimestamp(mtime)
+        if oldest > mtime:
+            raise RuntimeError("{} was updated more than {} seconds ago".format(path, delta))
 
 
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("paths", nargs="+", help="file to be checked")
+    parser.add_argument("-d", "--delta", type=int, default=60, help="check file is no older than -d seconds")
+    args = parser.parse_args()
 
-RUN mkdir -p /job_exporter
-COPY copied_file/exporter/* /job_exporter/
-
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-RUN tar xzvf docker-17.06.2-ce.tgz -C /usr/local/
-RUN cp -r /usr/local/docker/* /usr/bin/
-
-CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30
+    check_no_older_than(args.paths, args.delta)

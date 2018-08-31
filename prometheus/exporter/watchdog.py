@@ -361,14 +361,6 @@ def main(args):
 
     hosts = load_machine_list(args.hosts)
 
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    fh = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 100, backupCount=5)
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-    fh.setFormatter(formatter)
-    rootLogger.addHandler(fh)
-
     list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
     list_nodes_url = "{}/api/v1/nodes/".format(address)
 
@@ -422,5 +414,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
     parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
     args = parser.parse_args()
+
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+            level=logging.INFO)
 
     main(args)
