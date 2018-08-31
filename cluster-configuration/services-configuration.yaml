@@ -119,4 +119,3 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
-

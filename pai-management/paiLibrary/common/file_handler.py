@@ -85,23 +85,21 @@ def add_deploy_rule_to_yaml(service_conf, src_yaml, dst_yaml):
             deploy_rules =service_conf['deploy-rules']
             for operator, label in deploy_rules.items():
                 match_expression = dict()
-                if operator.lower() == 'in':
-                    match_expression['key'] = label
+                if operator.lower() == 'in':   
                     match_expression['operator'] = 'In'
-                    match_expression['values'] = ['true']
-                    match_expressions_arr.append(match_expression)
                 if operator.lower() == 'notin':
-                    match_expression['key'] = label
                     match_expression['operator'] = 'NotIn'
-                    match_expression['values'] = ['true']
-                    match_expressions_arr.append(match_expression)
+                              
+                match_expression['key'] = label
+                match_expression['values'] = ['true']
+                match_expressions_arr.append(match_expression)
 
             config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
                 {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
                 [{'matchExpressions': match_expressions_arr}]}}}
         
         else:
-            logging.error(src_yaml + " is not a service deploy file! Only support " + str(service_deploy_kind_list))
+            logging.info(src_yaml + " is not a service deploy file! Only support " + str(service_deploy_kind_list))
 
     with open(dst_yaml, "w") as fout:
         yaml.dump(config, fout)

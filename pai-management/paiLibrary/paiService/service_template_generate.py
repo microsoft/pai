@@ -85,10 +85,10 @@ class service_template_generate:
                 raise e
 
             file_handler.write_generated_file(target_path,  generated_template)
+
+            if target_path.find(self.service_name) >= 0:
+                file_handler.add_deploy_rule_to_yaml(self.service_conf, target_path, target_path)
         
-        if "deploy-rules" in self.service_conf:
-            file_handler.add_deploy_rule_to_yaml(self.service_conf, "bootstrap/{0}/{1}.yaml".format(self.service_name, self.service_name), \
-                "bootstrap/{0}/{1}.yaml".format(self.service_name, self.service_name))
         self.logger.info("The template file of service {0} is generated.".format(self.service_name))
 
 
