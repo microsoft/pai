@@ -273,7 +273,7 @@ const showAddModal = (type) => {
       summaryLayout: userChooseInsertLayout,
     }));
     $('#recommandPlaceHolder').html(common.generateLoading());
-    
+
     addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, '#editPlaceHolder');
     $(`#${type}${addModalVariables.id}-modal .edit-save`).click(() => {
       saveTemplateOnAddModal(type, addModalVariables.id);

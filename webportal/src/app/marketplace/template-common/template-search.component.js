@@ -25,7 +25,7 @@ const generateUI = function(type, data, limit) {
 
 const generateLoading = function() {
   return loadingComponent;
-}
+};
 
 const load = function(type, callback, limit = 4) {
   $.ajax({
