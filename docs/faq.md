@@ -73,7 +73,6 @@ username
 password
 ```
 
-*NOTE*: If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
-```
-
-Related issue: [1125](https://github.com/Microsoft/pai/issues/1215)
+*NOTE*: 
+- If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+- Related issue: [1125](https://github.com/Microsoft/pai/issues/1215)
