@@ -67,10 +67,40 @@ A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
 please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
 
+- (1) Create an authFile
+
+authfile content:
+
 ```
 docker_registry_server
 username
 password
+```
+
+- (2) Upload it to HDFS 
+- (3) Specify the path in `authFile` paramete 
+
+OpenPAI job json file example:
+
+```
+{
+  "jobName": "paidemo",
+  "image": "userprivateimage.azurecr.io/demo4pai:test",
+  "dataDir": "$PAI_DEFAULT_FS_URI/user/paidemo/data", 
+  "outputDir": "$PAI_DEFAULT_FS_URI/user/paidemo/output", 
+  "codeDir": "$PAI_DEFAULT_FS_URI/user/paidemo/code", 
+  "authFile":"$PAI_DEFAULT_FS_URI/user/paidemo/authfile",
+  "taskRoles": [
+    {
+      "name": "demo4pai",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": " cd /home/test && bash train.sh"
+    }
+  ]
+}
 ```
 
 *NOTE*: 
