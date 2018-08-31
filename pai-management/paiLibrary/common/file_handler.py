@@ -79,6 +79,7 @@ def add_deploy_rule_to_yaml(service_conf, src_yaml, dst_yaml):
     with open(src_yaml, 'r') as f:
         config = yaml.load(f)
 
+        # judge whether it's a service deploy file, eg. exclude configmap
         if 'kind' in config and config['kind'] in service_deploy_kind_list:
             match_expressions_arr = []
 

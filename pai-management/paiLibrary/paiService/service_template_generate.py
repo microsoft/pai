@@ -86,7 +86,8 @@ class service_template_generate:
 
             file_handler.write_generated_file(target_path,  generated_template)
 
-            if template_file.find(self.service_name) >= 0:
+            # judge whether it's a service deploy file 
+            if "deploy-rules" in self.service_conf and template_file.find("yaml") >= 0 and template_file.find("delete") == -1:
                 file_handler.add_deploy_rule_to_yaml(self.service_conf, target_path, target_path)
         
         self.logger.info("The template file of service {0} is generated.".format(self.service_name))

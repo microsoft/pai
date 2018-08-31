@@ -123,7 +123,6 @@ prerequisite:
 
 # paictl will generate the template file with the name "filename".template with jinja2.
 template-list:
-  - node-label.sh
   - master-hbase.yaml
 
 # The script about how to starting a service

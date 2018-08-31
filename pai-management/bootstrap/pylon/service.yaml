@@ -19,7 +19,6 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - node-label.sh
   - pylon.yaml
   - stop.sh
   - refresh.sh

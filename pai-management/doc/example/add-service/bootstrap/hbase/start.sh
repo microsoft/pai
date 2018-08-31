@@ -25,10 +25,9 @@
 pushd $(dirname "$0") > /dev/null
 
 
-# Step1: Lable the node.
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh
+# Step1: Choose the pai roles you want to deploy in your service.yaml file
+deploy-rules:
+  in: pai-master
 
 # Step2: Create the configmap.
 #chmod u+x configmap-create.sh
