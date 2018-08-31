@@ -21,7 +21,7 @@ const checkToken = (callback) => {
   if (authToken) {
     callback(authToken);
   } else {
-    alert('Please login first!');
+    // alert('Please login first!');
     window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
   }
 };
