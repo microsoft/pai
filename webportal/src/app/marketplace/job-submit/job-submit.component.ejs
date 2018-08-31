@@ -7,9 +7,11 @@
         </div>
         <!-- button -->
         <div>
-            <div class="upload-btn-wrapper">
-                <button class="main-button">Import Yaml</button>
-                <input type="file" class="import-sty" id="importYaml" />
+            <div class="upload-btn-wrapper import-sty">
+                <!-- <button class="main-button">Import Yaml</button>
+                <input type="file" class="import-sty" id="importYaml" /> -->
+                <label for="importYaml" class="main-button">Import Yaml</label>
+                <input type="file" id="importYaml" name="importYaml" class="file hidden" title="">
             </div>
             <div class="upload-btn-wrapper">
                 <button class="main-button" id="EditYamlBtn">Edit Yaml</button>
@@ -24,7 +26,7 @@
                     <td>
                         <img class="logo" src="/assets/img/marketplace/job.jpg">
                     </td>
-                    <td class="overMargin">
+                    <td>
                         <div class="detail">
                             <div class="row btns">
                                 <span class="detail-jobname" id="job-name">Job Name</span>
@@ -57,7 +59,7 @@
                         <div class="add-new-item shadow">
                             <div class="add-new-item-content">
                                 <p>
-                                    <img src="/assets/img/Add.png" alt="">
+                                    <img class="add-picture" src="/assets/img/Add.png" alt="">
                                 </p>
                             </div>
                         </div>
