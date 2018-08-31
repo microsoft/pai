@@ -55,6 +55,7 @@ $(document).on('click', '#add-data-btn', () => {
 });
 
 $(document).on('click', '#EditYamlBtn', () => {
+  $('#submitJob').attr('disabled', false);
   userTemplate.editYaml();
 });
 
