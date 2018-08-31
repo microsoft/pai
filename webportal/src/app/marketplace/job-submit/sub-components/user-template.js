@@ -118,7 +118,7 @@ const addNewJsonEditor = (d, id, type) => {
   let editor = loadEditor(d, type, id); // load json editor
   // edit modal
   $(`#${type}${id}-edit-button`).on('click', () => {
-    $(`#${type}${id}-modal`).modal({backdrop: 'static'});
+    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
   });
 
   // delete item
