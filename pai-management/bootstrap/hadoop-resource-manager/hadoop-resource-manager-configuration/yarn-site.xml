@@ -35,6 +35,11 @@
     </property>
 
     <property>
+        <name>yarn.resourcemanager.bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+
+    <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
         <value>1048576</value>
         <description>default is 8GB, here we set 1024G</description>
