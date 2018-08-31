@@ -66,11 +66,12 @@ function webhdfs_create_file()
 
 function webhdfs_download_file()
 {
-  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
+  # webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
+  webHdfsRequestPath="http://10.151.40.133:50070/webhdfs/v1/Container/admin/spark-example-test7/ssh/application_1535595852691_0693/.ssh/application_1535595852691_0693.pub?user.name=admin&op=OPEN"
   localPath=${2}
   echo "[CAN-TEST-webhdfs_download_file] webHdfsPath = $webHdfsRequestPath"
   echo "[CAN-TEST-webhdfs_download_file] localPath = $localPath"
-  downloadResponse=$(curl -S -L ${webHdfsRequestPath} >> ${localPath})
+  downloadResponse=$(curl -S -L ${webHdfsRequestPath} -o ${localPath})
   echo "[CAN-TEST-webhdfs_download_file] http_code =$downloadResponse"
 }
 

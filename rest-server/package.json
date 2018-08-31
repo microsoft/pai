@@ -50,7 +50,7 @@
     "statuses": "1.5.0",
     "unirest": "0.5.1",
     "winston": "2.4.0",
-    "keypair": "1.0.1"
+    "ssh-keygen": "0.4.2"
   },
   "scripts": {
     "coveralls": "nyc report --reporter=text-lcov | coveralls ..",

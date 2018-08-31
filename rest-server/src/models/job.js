@@ -20,7 +20,7 @@
 const async = require('async');
 const unirest = require('unirest');
 const mustache = require('mustache');
-const keypair = require('keypair');
+const keygen = require('ssh-keygen');
 const launcherConfig = require('../config/launcher');
 const userModel = require('./user');
 const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
@@ -436,9 +436,19 @@ class Job {
   }
 
   generateSshKeyFiles(name) {
-    let sshKeyPair = keypair();
-    let sshKeyFiles = [{'content':sshKeyPair.public, 'fileName': name+'.pub'},{'content':sshKeyPair.private,'fileName':name}];
-    return sshKeyFiles;
+    keygen({
+      location: name,
+      read: true,
+      destroy: true,
+    }, function (err, out) {
+      if (err) {
+        logger.info('Generate ssh key failed' + err);
+        return null
+      } else {
+        let sshKeyFiles = [{'content':out.pubKey, 'fileName': name+'.pub'},{'content':out.key,'fileName':name}];
+        return sshKeyFiles
+      }
+    });
   }
 
   _initializeJobContextRootFolders(next) {
