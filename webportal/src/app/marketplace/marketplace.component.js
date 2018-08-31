@@ -23,7 +23,6 @@ require('./marketplace.component.css');
 require('slick-carousel');
 require('slick-carousel/slick/slick.css');
 const userAuth = require('../user/user-auth/user-auth.component');
-const webportalConfig = require('../config/webportal.config.js');
 // require('slick-carousel/slick/slick-theme.css');
 
 const slideContext = {
@@ -168,7 +167,7 @@ $(function() {
     setTimeout(() => {
         if (query.query) {
             $('#search input').val(query.query);
-            search(query.query)
+            search(query.query);
         } else {
             loadCarousel($('#marketplace-jobs .slick-slider'), 'job');
             loadCarousel($('#marketplace-dockers .slick-slider'), 'dockerimage');
