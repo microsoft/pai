@@ -100,6 +100,7 @@ def add_deploy_rule_to_yaml(service_conf, src_yaml, dst_yaml):
         
         else:
             logging.info(src_yaml + " is not a service deploy file! Only support " + str(service_deploy_kind_list))
+            return
 
     with open(dst_yaml, "w") as fout:
         yaml.dump(config, fout)
