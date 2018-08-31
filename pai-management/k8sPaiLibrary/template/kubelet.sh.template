@@ -19,13 +19,18 @@
 
 set -e
 
+
+DOCKER_ROOT_DIR_FOR_KUBELET=`docker info | grep "Docker Root Dir" | awk -F' ' '{print $NF}'`
+
+
+
 docker run \
     --name=kubelet \
     --volume=/etc/kubernetes:/etc/kubernetes:rw \
     --volume=/:/rootfs:rw \
     --volume=/sys:/sys:rw \
     --volume=/dev:/dev:rw \
-    --volume=/var/lib/docker/:/var/lib/docker:rw \
+    --volume=${DOCKER_ROOT_DIR_FOR_KUBELET}:${DOCKER_ROOT_DIR_FOR_KUBELET}:rw \
     --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
@@ -49,4 +54,5 @@ docker run \
   --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
   --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
   --image-pull-progress-deadline=10m \
+  --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --v=2
