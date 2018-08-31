@@ -157,6 +157,7 @@ class paiObjectModel:
             host["prometheus"] = "true"
             host["grafana"] = "true"
             host["pylon"] = "true"
+            host["watchdog"] = "true"
             host["node-exporter"] = "true"
 
         if "pai-worker" in host and host["pai-worker"] == "true":

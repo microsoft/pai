@@ -27,6 +27,10 @@ spec:
     metadata:
       labels:
         app: hadoop-resource-manager
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/metrics'
+        prometheus.io/port: '{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}'
     spec:
       hostNetwork: true
       hostPID: true
@@ -63,6 +67,21 @@ spec:
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
+      - name: yarn-exporter
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+          hostPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+          name: scrape
+        resources:
+          limits:
+            memory: "1Gi"
+        command:
+          - "python3"
+          - "/usr/local/yarn_exporter.py"
+          - "http://127.0.0.1:8088"
+          - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"       
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

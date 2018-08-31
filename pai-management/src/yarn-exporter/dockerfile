@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,14 +15,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+FROM python:3.7
 
-echo y | pip uninstall requests
-echo y | pip install requests
-echo y | pip uninstall docopt
-echo y | pip install docopt
+#
+# Preparation
+#
 
-cp -r /docker/* /usr/bin/
+WORKDIR /root/
 
-docker run hello-world  || exit $?
+COPY copied_file/yarn_exporter.py /usr/local/
+COPY ./requirements.txt /usr/local/
 
-bash
+RUN pip3 install -r /usr/local/requirements.txt
+

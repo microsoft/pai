@@ -135,8 +135,19 @@ prometheus:
   node-exporter-port: 9100
   # How frequently to scrape targets
   scrape_interval: 30
-  # which role of machine to deploy on
-  role: pai-master
+
+  # port for yarn exporter
+  yarn_exporter_port: 9459
+
+  # if you want to enable alert manager to send alert email, uncomment following lines and fill
+  # right values.
+  #  alerting:
+  #    alert_manager_port: 9093
+  #    alert_receiver: alert@example.com
+  #    smtp_url: smtp.gmail.com:587
+  #    smtp_from: foo_bar@gmail.com
+  #    smtp_auth_username: user@gmail.com
+  #    smtp_auth_password: gmail_password
 
 
 pylon:

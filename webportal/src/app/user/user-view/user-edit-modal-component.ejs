@@ -22,15 +22,17 @@
           </div>
           <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserAccount('<%= username %>')">Change Password</button>
         </form>
-        <div class="box-header with-border user-edit-border">
-            <h3 class="box-title">Update Virtual Clusters</h3>
-        </div>
-        <form id="form-update-virtual-cluster" class="form-register">
-            <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
-            <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
-              placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
-              <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
-        </form>
+        <% if (isAdmin !== 'true') { %>
+          <div class="box-header with-border user-edit-border">
+              <h3 class="box-title">Update Virtual Clusters</h3>
+          </div>
+          <form id="form-update-virtual-cluster" class="form-register">
+              <label for="inputVirtualCluster" class="sr-only">VirtualCluster</label>
+              <input type="text" name="virtualCluster" id="update-virtual-cluster-input-virtualCluster" class="form-control"
+                placeholder="Virtual Clusters (e.g. vc1,vc2)" value=<%= vcList %>>
+                <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserVc('<%= username %>')"> Update Virtual Clusters</button>
+          </form>
+        <% } %>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

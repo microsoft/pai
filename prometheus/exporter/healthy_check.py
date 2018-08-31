@@ -46,6 +46,9 @@ def main():
         except subprocess.CalledProcessError as e:
             runTimeException.append("nvidia-smi")
             logger.error("command '%s' return with error (code %d): %s", e.cmd, e.returncode, e.output)
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                logger.warning("nvidia-smi not found")
 
     try:
         dockerDockerInspect = utils.check_output(["docker", "inspect", "--help"])
