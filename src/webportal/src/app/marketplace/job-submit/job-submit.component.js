@@ -18,6 +18,7 @@
 require('bootstrap/js/modal.js');
 
 const webportalConfig = require('../../config/webportal.config.js');
+const loadingComponent = require('../../job/loading/loading.component.ejs');
 const loading = require('../../job/loading/loading.component');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
@@ -29,14 +30,11 @@ require('./sub-components/prerequisite-format.scss');
 
 $('#sidebar-menu--submit-v2').addClass('active');
 
-// const submitHtml = userProfileComponent({
-//   breadcrumb: submitComponent,
-//   recentData: recentlyData,
-//   data: myAssestData
-// });
+const submitHtml = submitComponent({
+  loading: loadingComponent,
+});
 
-
-$('#content-wrapper').html(submitComponent);
+$('#content-wrapper').html(submitHtml);
 
 $(document).on('click', '#add-task-btn', () => {
   userTemplate.showAddModal('task');
