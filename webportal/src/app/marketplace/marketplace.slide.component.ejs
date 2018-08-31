@@ -1,0 +1,13 @@
+<% for(var i = 0, l = items.length; i < l; i += 1) { var item = items[i] %>
+<div class="content">
+    <a href="/template.html?type=<%= this.parseType(item.type) %>&name=<%= encodeURIComponent(item.name) %>" class="thumbnail">
+        <img src="/assets/img/marketplace/<%= this.parseType(item.type) %>.jpg" width="50%">
+        <div class="caption">
+            <h3 class="h5 text-center"><strong><%= item.name %></strong></h3>
+            <p class="text-muted">
+                <span><%= item.contributor %></span>
+            </p>
+        </div>
+    </a>
+</div>
+<% } %>
