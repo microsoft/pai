@@ -126,5 +126,3 @@ class clean:
 
 
         self.logger.info("The kubernetes has been destroyed, and metadata has been removed")
-
-
