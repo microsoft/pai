@@ -19,6 +19,8 @@ const template = require('./marketplace.component.ejs');
 require('./marketplace.component.css');
 require('slick-carousel');
 require('slick-carousel/slick/slick.css');
+const userAuth = require('../user/user-auth/user-auth.component');
+const webportalConfig = require('../config/webportal.config.js');
 // require('slick-carousel/slick/slick-theme.css');
 
 $(function() {
@@ -67,7 +69,35 @@ $(function() {
         $('#upload-body-form').submit((event) => {
             event.preventDefault();
             $('#upload-body-form').addClass('hidden');
-            $('#upload-body-success').removeClass('hidden');
+            const name = $('#upload-body-form :input[id=upload-name]').val();
+            const description = $('#upload-body-form :input[id=upload-description]').val();
+            const uri = $('#upload-body-form :input[id=upload-uri]').val();
+            userAuth.checkToken((token) => {
+                $.ajax({
+                    url: `${webportalConfig.restServerUri}/api/v2/template`,
+                    data: {
+                        type: 'dockerimage',
+                        name: name,
+                        version: '1.0.0',
+                        contributor: cookies.get('user'),
+                        uri: uri,
+                        description: description,
+                    },
+                    type: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    dataType: 'json',
+                    success: (data) => {
+                        $('#upload-body-success').removeClass('hidden');
+                    },
+                    error: (xhr, textStatus, error) => {
+                        $('#upload-body-form').removeClass('hidden');
+                        const res = JSON.parse(xhr.responseText);
+                        alert(res.message);
+                    },
+                });
+            });
         });
     });
 });
