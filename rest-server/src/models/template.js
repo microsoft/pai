@@ -24,7 +24,6 @@ const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
 const config = require('../config/github');
-const userModel = require('./user');
 
 /**
  * Get template content by the given qualifier.
@@ -59,39 +58,32 @@ const load = (options, callback) => {
  * @param {*} type Template type.
  * @param {*} name Template name.
  * @param {*} template An object representing a job/script/data/dockerimage template.
- * @param {*} username Current logged in pai username.
+ * @param {*} pat Personal access token for GitHub.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const save = function(type, name, template, username, callback) {
-  let githubPAT = process.env.GITHUB_PAT;
-  userModel.getUserGithubPAT(username, (err, res) => {
-    if (!err && res != 'empty') {
-      githubPAT = res;
+const save = function(type, name, template, pat, callback) {
+  github.authenticate({
+    type: 'token',
+    token: pat,
+  });
+  let b64text = base64.encode(yaml.dump(template));
+  github.repos.createFile({
+    owner: config.owner,
+    repo: config.repository,
+    path: `${type}/${name}.yaml`,
+    message: 'Create template from PAI Marketplace.',
+    content: b64text,
+  }, function(err, res) {
+    if (err) {
+      // Maybe existed, try to update
+      update(type, name, b64text, callback);
+    } else {
+      logger.debug(res);
+      callback(null, {
+        new: true,
+        summary: createSummary(type, name, res),
+      });
     }
-    logger.info('githubPAT is ' + githubPAT);
-    github.authenticate({
-      type: 'token',
-      token: githubPAT,
-    });
-    let b64text = base64.encode(yaml.dump(template));
-    github.repos.createFile({
-      owner: config.owner,
-      repo: config.repository,
-      path: `${type}/${name}.yaml`,
-      message: 'Create template from PAI Marketplace.',
-      content: b64text,
-    }, function(err, res) {
-      if (err) {
-        // Maybe existed, try to update
-        update(type, name, b64text, callback);
-      } else {
-        logger.debug(res);
-        callback(null, {
-          new: true,
-          summary: createSummary(type, name, res),
-        });
-      }
-    });
   });
 };
 
