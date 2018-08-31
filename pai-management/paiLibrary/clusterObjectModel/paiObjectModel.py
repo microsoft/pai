@@ -56,6 +56,8 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubeschedulerversion"] = k8sDict["clusterinfo"]["kube-scheduler-version"]
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
+        if "etcd-data-path" not in k8sDict["clusterinfo"]:
+            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
 
         # section : component_list
 
@@ -157,6 +159,7 @@ class paiObjectModel:
             host["prometheus"] = "true"
             host["grafana"] = "true"
             host["pylon"] = "true"
+            host["watchdog"] = "true"
             host["node-exporter"] = "true"
 
         if "pai-worker" in host and host["pai-worker"] == "true":
