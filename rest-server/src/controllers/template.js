@@ -33,25 +33,33 @@ const cache = dbUtility.getStorageObject('localCache', {
 const wrapWithCache = (handler) => {
   return function(req, res) {
     let key = req.originalUrl;
-    cache.get(key, null, function(err, val) {
-      if (err || !val) {
-        handler(req, function(err, ret) {
-          if (err) {
-            res.status(err.code).json({
-              message: err.message,
+    cache.get(key, null, function(err1, val1) {
+      if (err1 || !val1) {
+        handler(req, function(err2, val2) {
+          if (err2) {
+            // Double check because other request may fill in cache already
+            cache.get(key, null, function(err3, val3) {
+              if (err3 || !val3) {
+                logger.error(err3);
+                res.status(err2.code).json({
+                  message: err2.message,
+                });
+              } else {
+                res.status(val3.code).json(val3.data);
+              }
             });
           } else {
-            cache.set(key, ret, null, function(err, _) {
-              if (err) {
-                logger.error(err);
+            cache.set(key, val2, null, function(err3, _) {
+              if (err3) {
+                logger.error(err3);
               }
-              res.status(ret.code).json(ret.data);
+              res.status(val2.code).json(val2.data);
             });
           }
         });
       } else {
         logger.debug(`hit cache with "${key}"`);
-        res.status(val.code).json(val.data);
+        res.status(val1.code).json(val1.data);
       }
     });
   };

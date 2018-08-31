@@ -16,15 +16,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const NodeCache = require("node-cache");
+const NodeCache = require('node-cache');
 
 const StorageBase = require('./storageBase');
 
 class LocalCache extends StorageBase {
   constructor(options) {
     super();
+    let ttl = options && options.ttlSeconds ? options.ttlSeconds : 0;
+    let period = Math.max(ttl / 2, 60);
     this.store = new NodeCache({
       stdTTL: options && options.ttlSeconds ? options.ttlSeconds : 0,
+      period: period,
     });
   }
 
