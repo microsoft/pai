@@ -40,6 +40,7 @@ const initArray = () => {
 };
 
 let editors = initArray();
+let editorsValue = initArray();
 
 let addModalVariables = {
   addEditor: null,
@@ -56,9 +57,9 @@ const emptyPage = () => {
 
   // clear json editor and their UI elements.
   editors = initArray();
+  editorsValue = initArray();
   $('#json-editor-container').empty();
 };
-
 
 const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
   $(containerName).append(userEditModalComponent({
@@ -80,45 +81,62 @@ const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-ed
     editor.setValue(d);
     if (insertEditors) {
       editors[type].push(editor);
+      editorsValue[type].push(JSON.parse(JSON.stringify(editor.getValue())));
     }
+  }
+
+  if (type != 'task') { // docker/script/data/job listener
+    editor.on('change', () => {
+      let error = editor.validate();
+      $(`#${type}${id}-edit-save-button`).prop('disabled', (error.length != 0));
+      if (error.length == 0) {
+        let val = editor.getValue();
+        ['name', 'description'].forEach((cur) => {
+          $(`#${type}${id}-${cur}`).text(val[cur]);
+        });
+        $(`#${type}${id}-title > a > span`).text(val['name']);
+      }
+    });
+  } else {
+    // task listen function.
+    editor.on('change', () => {
+      let error = editor.validate();
+      $(`#${type}${id}-edit-save-button`).prop('disabled', (error.length != 0));
+      if (error.length == 0) {
+        let val = editor.getValue();
+        ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+          $(`#${type}${id}-${cur}`).text(val[cur]);
+        });
+        $(`#${type}${id}-command`).text(commandHelper(val));
+      }
+    });
   }
   return editor;
 };
 
 const addNewJsonEditor = (d, id, type) => {
   let editor = loadEditor(d, type, id); // load json editor
-
-  if (type != 'task') { // docker/script/data/job listener
-    editor.on('change', () => {
-      let val = editor.getValue();
-      ['name', 'description'].forEach((cur) => {
-        $(`#${type}${id}-${cur}`).text(val[cur]);
-      });
-      $(`#${type}${id}-title > a > span`).text(val['name']);
-    });
-  } else {
-    // task listen function.
-    editor.on('change', () => {
-      let val = editor.getValue();
-      ['role', 'dockerimage', 'data', 'script', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
-        $(`#${type}${id}-${cur}`).text(val[cur]);
-      });
-      $(`#${type}${id}-command`).text(commandHelper(val));
-    });
-  }
-
   // edit modal
   $(`#${type}${id}-edit-button`).on('click', () => {
-    $(`#${type}${id}-modal`).modal('show');
+    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
   });
 
   // delete item
   $(`#${type}${id}-remove-button`).on('click', () => {
     $(`#${type}${id}-container`).remove();
     editors[type][id - 1] = null;
+    editorsValue[type][id - 1] = null;
   });
 
+  // close button
+  $(`#${type}${id}-close-button`).on('click', () => {
+    $(`#${type}${id}-modal`).modal('hide');
+    editors[type][id - 1].setValue(editorsValue[type][id - 1]);
+  });
+
+  // save item
   $(`#${type}${id}-edit-save-button`).on('click', () => {
+    editorsValue[type][id - 1] = JSON.parse(JSON.stringify(editor.getValue()));
     $(`#${type}${id}-modal`).modal('hide');
   });
 };
@@ -205,7 +223,7 @@ const saveTemplateOnAddModal = (type, id) => {
     id: id,
   }));
   $(`#${type}${id}-edit-button`).on('click', () => {
-    $(`#${type}${id}-modal`).modal('show');
+    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
   });
 };
 
@@ -274,7 +292,7 @@ const showAddModal = (type) => {
 
     // ---------- some button listener ----------
     $('#btn-add-customize').click(() => {
-      $(`#${type}${addModalVariables.id}-modal`).modal('show');
+      $(`#${type}${addModalVariables.id}-modal`).modal({backdrop: 'static', keyboard: false});
     });
 
     $('#btn-close-add-modal').click(() => {
@@ -293,13 +311,18 @@ const showAddModal = (type) => {
         insertNewDockerDataScript(d);
       }
     });
-    $('#addModal').modal('show');
+    $('#addModal').modal({backdrop: 'static', keyboard: false});
   } else { // add task;
     let id = editors[type].length + 1;
     $('#addCustomizeModalPlace').empty();
     let editor = loadEditor({}, type, id, false, '#addCustomizeModalPlace');
-    $(`#${type}${id}-modal`).modal('show');
+    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
     $(`#${type}${id}-edit-save-button`).on('click', () => {
+      let error = editor.validate();
+      if (error.length != 0) {
+        alert(error);
+        return false;
+      }
       let data = editor.getValue();
       data['type'] = type;
       $(`#${type}${id}-modal`).modal('hide');
