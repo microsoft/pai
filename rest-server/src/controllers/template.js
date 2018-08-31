@@ -116,13 +116,18 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  let account = req.user.name;
+  let account = req.user.username;
   logger.debug(`${account} is tring to share template.`);
   userModel.getUserGithubPAT(account, function(err, pat) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        'message': 'Failed to fetch GitHub PAT for current user.',
+        message: 'Failed to fetch GitHub PAT for current user.',
+      });
+    }
+    if (!pat) {
+      return res.status(500).json({
+        message: 'Current user has not registered a GitHub PAT.',
       });
     }
     template.save(type, name, item, pat, function(err, saved) {

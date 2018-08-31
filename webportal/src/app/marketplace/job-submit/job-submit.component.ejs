@@ -16,45 +16,35 @@
                     <button class="main-button" id="EditYamlBtn">Edit Yaml</button>
                 </div>
             </div>
-            <!-- <table class="row title-search">
-                <tr>
-                    <td class="subv2-title">
-                        <span>Submit Job V2</span>
-                        <sub class="preview">preview</sub>
-                    </td>
-                    <td class="right-sear">
-                        <input type="text" class="form-control" id="search-input" placeholder="Search">
-                        <button type="button" class="btn btn-primary" id="search-btn">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                    </td>
-                </tr>
-            </table> -->
-            <!-- job description -->
-            <table class="showDesJob">
-                <tr>
-                    <td>
-                        <img class="logo" src="/assets/img/icon.png">
-                    </td>
-                    <td>
-                        <div class="detail">
-                            <div class="row btns">
-                                <span class="detail-jobname" id="job-name">Job Name</span>
-                                <button class="edit-jobinfo">
-                                    <span id="job-edit-button">
-                                        <img class="edit-job-name" src="/assets/img/edit-grey.png" alt="">
-                                    </span>
-                                </button>
-                            </div>
-                            <p id="job-description">
-                                Please add job description.
-                            </p>
-                        </div>
-                    </td>
-                </tr>
-            </table>
         </div>
-        <div class="add-four" style="overflow: scroll">
+        <!-- job description -->
+        <div class="bg-jobmessage">
+            <div class="box-jobmessage">
+                <table class="showDesJob">
+                    <tr>
+                        <td>
+                            <img class="logo" src="/assets/img/marketplace/job.jpg">
+                        </td>
+                        <td class="overMargin">
+                            <div class="detail">
+                                <div class="row btns">
+                                    <span class="detail-jobname" id="job-name">Job Name</span>
+                                    <button class="edit-jobinfo">
+                                        <span id="job-edit-button">
+                                            <img class="edit-job-name" src="/assets/img/edit-grey.png" alt="">
+                                        </span>
+                                    </button>
+                                </div>
+                                <p id="job-description">
+                                    Please add job description.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="add-four" style="overflow: auto">
             <div class="add-content">
                 <!-- for task -->
                 <div class="row add-title">
@@ -135,8 +125,8 @@
                     </div>
                 </div>
             </div>
-            <div id="addModalPlace" class="box-body" />
-            <div id="addCustomizeModalPlace" class="box-body" />
+            <div id="addModalPlace" class="box-body"></div>
+            <div id="addCustomizeModalPlace" class="box-body"></div>
         </div>
         <div id="json-editor-container"></div>
         <div id="yaml-editor-container">
@@ -157,11 +147,10 @@
                 </div>
             </div>
         </div>
-
         <div class="footer">
             <div class="position-btns">
                 <button class="btn btn-primary sty-margin" id="submitJob">Submit</button>
-                <button class="main-button" id="exportYamlBtn">save as</button>
+                <button class="main-button" id="exportYamlBtn">Save As</button>
             </div>
         </div>
     </div>

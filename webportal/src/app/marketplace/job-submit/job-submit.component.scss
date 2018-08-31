@@ -17,7 +17,7 @@
     }
 }
 .template-account {
-    width: 86%;
+    width: 90%;
     margin: 0 auto;
     margin-top: 28px;
     padding-bottom: 20px;
@@ -25,52 +25,62 @@
     .import-sty:hover{
         cursor: pointer;
     }
-    .showDesJob{
-        margin-top: 10px;
-    td{
-        vertical-align: middle;
-        height: 160px;
-    }
-    .logo {
-        width: 160px;
-        height: 160px;
-    }
-    .detail {
-        margin-left: 20px;
-        margin-top: 20px;
-        height: 160px;
-        box-sizing: border-box;
-        .edit-job-name{
-            position: relative;
-            top: -9px;
-            left: 8px;
-        }
-        .btns{
-            position: relative;
-            top: 15px;
-            .detail-jobname{
-                font-size: 24px;
-                font-weight: bold;
-                margin-left: 14px;
-            }
-            .edit-jobinfo{
-                border: none;
-                background: none;
-            }
-        }
-        h3 {
-            font-size: 26px;
-            font-weight: 600;
-            padding-right: 8px;
-            padding-top: 10px; 
-        }
-        p {
-            line-height: 34px;
-            font-size: 14px;
-            margin-top: 30px;
-        }
-    }
 }
+.bg-jobmessage{
+    width: 100%;
+    background: white;
+    .box-jobmessage{
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 10px;
+    }
+    .showDesJob{
+        td{
+            vertical-align: middle;
+            height: 160px;
+        }
+        .logo {
+            width: 140px;
+        }
+        .overMargin{
+            overflow: hidden;
+        }
+        .detail {
+            margin-left: 20px;
+            margin-top: 30px;
+            height: 160px;
+            box-sizing: border-box;
+            .edit-job-name{
+                position: relative;
+                top: -9px;
+                left: 8px;
+            }
+            .btns{
+                position: relative;
+                top: 15px;
+                .detail-jobname{
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin-left: 14px;
+                }
+                .edit-jobinfo{
+                    border: none;
+                    background: none;
+                }
+            }
+            h3 {
+                font-size: 26px;
+                font-weight: 600;
+                padding-right: 8px;
+                padding-top: 10px; 
+            }
+            p {
+                line-height: 34px;
+                font-size: 14px;
+                margin-top: 30px;
+            }
+        }
+    }     
 }
 .sub-titile{
     width: 212px;
@@ -235,4 +245,8 @@ textarea#yaml-editor-holder{
     width: 100%;
     height: auto;
     min-height: 400px;
+}
+
+#mask  #loading{
+    position: fixed !important;
 }
