@@ -80,6 +80,7 @@ const taskSchema = {
   properties: {
     role: {
       type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
       propertyOrder: 1,
     },
     data: {
@@ -186,6 +187,7 @@ const dataSchema = {
   properties: {
     name: {
       type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
     },
     version: {
       type: 'string',
@@ -203,6 +205,7 @@ const dataSchema = {
     },
     description: {
       type: 'string',
+      format: 'textarea',
     },
   },
   required: [
@@ -227,6 +230,7 @@ const scriptSchema = {
   properties: {
     name: {
       type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
     },
     version: {
       type: 'string',
@@ -245,6 +249,7 @@ const scriptSchema = {
     },
     description: {
       type: 'string',
+      format: 'textarea',
     },
     parameters: parametersSchema,
     roles: {
@@ -285,6 +290,7 @@ const dockerimageSchema = {
   properties: {
     name: {
       type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
     },
     version: {
       type: 'string',
@@ -302,6 +308,7 @@ const dockerimageSchema = {
     },
     description: {
       type: 'string',
+      format: 'textarea',
     },
   },
   required: [
@@ -326,6 +333,7 @@ const jobSchema = {
   properties: {
     name: {
       type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
       propertyOrder: 1,
     },
     version: {
