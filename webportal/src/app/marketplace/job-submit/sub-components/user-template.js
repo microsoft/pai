@@ -293,7 +293,7 @@ const showAddModal = (type) => {
 
     // ---------- some button listener ----------
     $('#btn-add-customize').click(() => {
-      $(`#${type}${addModalVariables.id}-modal`).modal('show');
+      $(`#${type}${addModalVariables.id}-modal`).modal({backdrop: 'static', keyboard: false}); 
     });
 
     $('#btn-close-add-modal').click(() => {
