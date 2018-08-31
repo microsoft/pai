@@ -1,5 +1,6 @@
 require('./cards-format.scss');
 
+const loadingComponent = require('./loading.ejs');
 const viewCardsComponent = require('./cards.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 
@@ -20,6 +21,10 @@ const generateUI = function(type, data, limit) {
       });
   });
   return viewCardsComponent({type: type, data: newdata, limit: limit});
+};
+
+const generateLoading = function() {
+  return loadingComponent;
 };
 
 const load = function(type, callback, limit = 4) {
@@ -65,6 +70,7 @@ const search = function(query, types, callback, limit = 4) {
 };
 
 module.exports = {
+  generateLoading,
   load,
   search,
 };
