@@ -18,19 +18,61 @@
 
 const logger = require('../config/logger');
 const template = require('../models/template');
+const userModel = require('../models/user');
+const dbUtility = require('../util/dbUtil');
 
-const fetch = (req, res) => {
+/**
+ * A K-V store with 10-min timeout.
+ * Key: HTTP requested path.
+ * Val: { code: xxx, data: yyy }
+ */
+const cache = dbUtility.getStorageObject('localCache', {
+  ttlSeconds: 600,
+});
+
+const wrapWithCache = (handler) => {
+  return function(req, res) {
+    let key = req.originalUrl;
+    console.log(1);
+    cache.get(key, null, function(err, val) {
+      console.log(2);
+      if (err || !val) {
+        handler(req, function(err, ret) {
+          if (err) {
+            res.status(err.code).json({
+              message: err.message,
+            });
+          } else {
+            cache.set(key, ret, null, function(err, _) {
+              if (err) {
+                logger.error(err);
+              }
+              res.status(ret.code).json(ret.data);
+            });
+          }
+        });
+      } else {
+        logger.debug(`hit cache with "${key}"`);
+        res.status(val.code).json(val.data);
+      }
+    });
+  };
+};
+
+const fetch = (req, cb) => {
   let type = req.params.type;
   if (!type) {
-    return res.status(400).json({
-      'message': 'Failed to extract "type" parameter in the request.',
-    });
+    return cb({
+      code: 400,
+      message: 'Failed to extract "type" parameter in the request.',
+    }, null);
   }
   let name = req.params.name;
   if (!name) {
-    return res.status(400).json({
-      'message': 'Failed to extract "name" parameter in the request.',
-    });
+    return cb({
+      code: 400,
+      message: 'Failed to extract "name" parameter in the request.',
+    }, null);
   }
   template.load({
     type: type,
@@ -39,50 +81,70 @@ const fetch = (req, res) => {
   }, (err, item) => {
     if (err) {
       logger.error(err);
-      return res.status(404).json({
-        'message': 'Failed to find any matched template.',
+      cb({
+        code: 404,
+        message: 'Failed to find any matched template.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: item,
       });
     }
-    return res.status(200).json(item);
   });
 };
 
-const filter = (req, res) => {
+const filter = (req, cb) => {
   let query = req.query.query;
-  if (query) {
-    template.search({
-      keywords: query,
-      pageNo: req.query.pageno,
-    }, function(err, list) {
-      if (err) {
-        logger.error(err);
-        return res.status(500).json({
-          'message': 'Failed to scan templates.',
-        });
-      }
-      return res.status(200).json(list);
-    });
-  } else {
-    return res.status(400).json({
-      'message': 'Failed to extract "query" parameter in the request.',
-    });
+  if (!query) {
+    return cb({
+      code: 400,
+      message: 'Failed to extract "query" parameter in the request.',
+    }, null);
   }
+  template.search({
+    keywords: query,
+    pageNo: req.query.pageno,
+  }, function(err, list) {
+    if (err) {
+      logger.error(err);
+      cb({
+        code: 500,
+        message: 'Failed to scan templates.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: list,
+      });
+    }
+  });
 };
 
-const list = (req, res) => {
+const list = (req, cb) => {
+  console.log(123);
   template.search({
     pageNo: req.query.pageno,
     type: req.params.type,
   }, function(err, list) {
     if (err) {
       logger.error(err);
-      return res.status(500).json({
-        'message': 'Failed to fetch templates from remote source.',
+      cb({
+        code: 500,
+        message: 'Failed to fetch templates from remote source.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: list,
       });
     }
-    return res.status(200).json(list);
   });
 };
+
+const fetchWithCache = wrapWithCache(fetch);
+const filterWithCache = wrapWithCache(filter);
+const listWithCache = wrapWithCache(list);
 
 const share = (req, res) => {
   let item = req.body;
@@ -93,20 +155,30 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  template.save(type, name, item, req.body.contributor, function(err, saved) {
+  let account = req.user.name;
+  console.log(`${account} is tring to share template.`);
+  userModel.getUserGithubPAT(account, function (err, pat) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        message: 'Failed to save the template.',
+        'message': 'Failed to fetch GitHub PAT for current user.'
       });
     }
-    return res.status(saved.new ? 201 : 200).json(saved.summary);
+    template.save(type, name, item, pat, function(err, saved) {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          message: 'Failed to save the template.',
+        });
+      }
+      return res.status(saved.new ? 201 : 200).json(saved.summary);
+    });
   });
 };
 
 module.exports = {
-  fetch,
-  filter,
-  list,
+  fetch: fetchWithCache,
+  filter: filterWithCache,
+  list: listWithCache,
   share,
 };
