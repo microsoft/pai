@@ -64,11 +64,16 @@ A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-t
 
 A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at job submit json file:
 
-```
-If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment, please create an authentication file in the following format, upload it to HDFS and specify the path in authFile parameter in config file.
+If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
+please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
 
+```
 docker_registry_server
 username
 password
-NOTE: If you're using a private registry at Docker Hub, you should use docker.io for docker_registry_server field in the authentication file.
 ```
+
+*NOTE*: If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+```
+
+Related issue: [1125](https://github.com/Microsoft/pai/issues/1215)
