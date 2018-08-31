@@ -69,3 +69,34 @@ def file_delete(file_path):
 def create_folder_if_not_exist(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
+
+
+def add_deploy_rule_to_yaml(service_conf, src_yaml, dst_yaml):
+    
+    config = dict()
+
+    with open(src_yaml, 'r') as f:
+        config = yaml.load(f)
+
+        match_expressions_arr = []
+
+        deploy_rules =service_conf['deploy-rules']
+        for operator, label in deploy_rules.items():
+            match_expression = dict()
+            if operator.lower() == 'in':
+                match_expression['key'] = label
+                match_expression['operator'] = 'In'
+                match_expression['values'] = ['true']
+                match_expressions_arr.append(match_expression)
+            if operator.lower() == 'notin':
+                match_expression['key'] = label
+                match_expression['operator'] = 'NotIn'
+                match_expression['values'] = ['true']
+                match_expressions_arr.append(match_expression)
+
+        config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
+            {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
+            [{'matchExpressions': match_expressions_arr}]}}}
+
+    with open(dst_yaml, "w") as fout:
+        yaml.dump(config, fout)
