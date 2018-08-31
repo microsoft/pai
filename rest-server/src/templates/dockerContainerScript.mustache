@@ -44,8 +44,8 @@ done &
 
 
 export PAI_WORK_DIR="$(pwd)"
-WEB_HDFS_PREFIX={{{ webHdfsUri }}}/Container
-HDFS_PREFIX={{{ hdfsUri }}}/Container
+PAI_WEB_HDFS_PREFIX={{{ webHdfsUri }}}/webhdfs/v1/Container
+HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
 task_role_no={{{ idx }}}
@@ -56,8 +56,22 @@ mv /pai/code/* ./
 
 function webhdfs_create_file()
 {
-  webHdfsRequestPath=${0}
+  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=CREATE"
   echo "[CAN-TEST-webhdfs_create_file] webHdfsPath = $webHdfsRequestPath"
+  redirectUri=$(curl -i -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url})
+  echo "[CAN-TEST-webhdfs_create_file] redirectUri = $redirectUri"
+  createResponse=$(curl -i -S -X PUT ${redirectUri})
+  echo "[CAN-TEST-webhdfs_create_file] createResponse = $createResponse"
+}
+
+function webhdfs_download_file()
+{
+  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
+  localPath=${2}
+  echo "[CAN-TEST-webhdfs_download_file] webHdfsPath = $webHdfsRequestPath"
+  echo "[CAN-TEST-webhdfs_download_file] localPath = $localPath"
+  downloadResponse=$(curl -S -L ${webHdfsRequestPath} >> ${localPath})
+  echo "[CAN-TEST-webhdfs_download_file] http_code =$downloadResponse"
 }
 
 function prepare_ssh()
@@ -71,7 +85,7 @@ function start_ssh_service()
 {
   printf "%s %s\n" \
     "[INFO]" "start ssh service"
-  cat /root/.ssh/{{{ jobData.userName }}}.pub >> /root/.ssh/authorized_keys
+  cat /root/.ssh/{{{ jobData.jobName }}}.pub >> /root/.ssh/authorized_keys
   sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
   service ssh restart
@@ -80,20 +94,15 @@ function start_ssh_service()
 function get_ssh_key_files()
 {
   info_source="webhdfs"
-  localKeyPath='/root/.ssh/'{{{jobData.jobName}}}'.pub'
+  localKeyPath=/root/.ssh/{{{ jobData.jobName }}}.pub
 
-  echo "[CAN-TEST] localKeyPath = $localKeyPath"
-  echo "[CAN-TEST] webHdfsUri =" {{{ webHdfsUri }}}
-  echo "[CAN-TEST] jobData.name =" {{{ jobData.jobName }}}
-  echo "[CAN-TEST] jobData.userName =" {{{ jobData.userName }}}
   if [[ -f $localKeyPath ]]; then
     rm -f $localKeyPath
   fi
 
   if [[ "$info_source" = "webhdfs" ]]; then
-    $webHdfsKeyPath = {{{ webHdfsUri }}}'/webhdfs/Container/'{{{ jobData.userName }}}'/'{{{ jobData.joName }}}'/ssh/keyFiles/'{{{ jobData.jobName }}}'.pub'
-    echo "[CAN-TEST] webHdfsKeyPath = $webHdfsKeyPath"
-    # $(curl -L -o $webHdfsKeyPath $localKeyPath)
+    webHdfsKeyPath=${PAI_WEB_HDFS_PREFIX}/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/ssh/keyFiles/{{{ jobData.jobName }}}.pub
+    webhdfs_download_file $webHdfsKeyPath $localKeyPath
   else
     printf "%s %s\n" \
       "[WARNING]" "Get another key store way"
@@ -103,16 +112,11 @@ function get_ssh_key_files()
 function generate_ssh_connect_info()
 {
   info_source="webhdfs"
-  dest_file_name=${0}
+  dest_file_name=${1}
 
   if [[ "$info_source" = "webhdfs" ]]; then
-    webHdfsRequestPath = $dest_file_name
-    echo "[CAN-TEST] webHdfsRequestPath = $webHdfsRequestPath"
-    echo "[CAN-TEST] dest_file_name = $dest_file_name"
-    echo "[CAN-TEST] webHdfsUri =" {{{ webHdfsUri }}}
-    echo "[CAN-TEST] jobData.name =" {{{ jobData.jobName }}}
+    webHdfsRequestPath=$dest_file_name
     webhdfs_create_file $webHdfsRequestPath
-    # $(curl -i -X PUT "$webHdfsRequestPath?op=MKDIRS")
   else
     printf "%s %s\n" \
       "[WARNING]" "Get another key store way"
@@ -122,20 +126,18 @@ function generate_ssh_connect_info()
 # Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
 # Start sshd in docker container
 if which hdfs && service --status-all 2>&1 | grep -q ssh; then
+
   prepare_ssh
   get_ssh_key_files
-
-  ssh_connect_info_folder=${WEB_HDFS_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/'connect'
+  ssh_connect_info_folder=${PAI_WEB_HDFS_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/$APP_ID
   # Generate ssh connect info file in "PAI_CONTAINER_ID-PAI_CURRENT_CONTAINER_IP-PAI_CONTAINER_SSH_PORT" format on hdfs
   dest_file_path=${ssh_connect_info_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT
-
   generate_ssh_connect_info ${dest_file_path}
 
-  # For MPI job
+
+
   # Generate ssh config
-  ssh_config_path=${HDFS_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
-
-
+  ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
   hdfs dfs -mkdir -p ${ssh_config_path}
   hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT
   while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do

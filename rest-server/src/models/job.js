@@ -547,13 +547,10 @@ class Job {
       // generate ssh key file
       (parallelCallback) => {
         async.each(this.generateSshKeyFiles(name), (file, eachCallback) => {
-          logger.warn('[CAN-TEST] job name is ' + name);
-          logger.warn('[CAN-TEST] file.Name = ' + file.fileName);
-          logger.warn('[CAN-TEST] file.content= ' + file.content);
           hdfs.createFile(
             `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
             file.content,
-            {'user.name': data.userName, 'permission': '644', 'overwrite': 'true'},
+            {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
             (error, result) => {
               eachCallback(error);
             }
