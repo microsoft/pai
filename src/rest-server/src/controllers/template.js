@@ -16,21 +16,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+const cacheWrapper = require('../middlewares/cache');
 const logger = require('../config/logger');
 const template = require('../models/template');
+const userModel = require('../models/user');
 
-const fetch = (req, res) => {
+const fetch = (req, cb) => {
   let type = req.params.type;
   if (!type) {
-    return res.status(400).json({
-      'message': 'Failed to extract "type" parameter in the request.',
-    });
+    return cb({
+      code: 400,
+      message: 'Failed to extract "type" parameter in the request.',
+    }, null);
   }
   let name = req.params.name;
   if (!name) {
-    return res.status(400).json({
-      'message': 'Failed to extract "name" parameter in the request.',
-    });
+    return cb({
+      code: 400,
+      message: 'Failed to extract "name" parameter in the request.',
+    }, null);
   }
   template.load({
     type: type,
@@ -39,50 +43,69 @@ const fetch = (req, res) => {
   }, (err, item) => {
     if (err) {
       logger.error(err);
-      return res.status(404).json({
-        'message': 'Failed to find any matched template.',
+      cb({
+        code: 404,
+        message: 'Failed to find any matched template.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: item,
       });
     }
-    return res.status(200).json(item);
   });
 };
 
-const filter = (req, res) => {
+const filter = (req, cb) => {
   let query = req.query.query;
-  if (query) {
-    template.search({
-      keywords: query,
-      pageNo: req.query.pageno,
-    }, function(err, list) {
-      if (err) {
-        logger.error(err);
-        return res.status(500).json({
-          'message': 'Failed to scan templates.',
-        });
-      }
-      return res.status(200).json(list);
-    });
-  } else {
-    return res.status(400).json({
-      'message': 'Failed to extract "query" parameter in the request.',
-    });
+  if (!query) {
+    return cb({
+      code: 400,
+      message: 'Failed to extract "query" parameter in the request.',
+    }, null);
   }
+  template.search({
+    keywords: query,
+    pageNo: req.query.pageno,
+  }, function(err, list) {
+    if (err) {
+      logger.error(err);
+      cb({
+        code: 500,
+        message: 'Failed to scan templates.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: list,
+      });
+    }
+  });
 };
 
-const list = (req, res) => {
+const list = (req, cb) => {
   template.search({
     pageNo: req.query.pageno,
     type: req.params.type,
   }, function(err, list) {
     if (err) {
       logger.error(err);
-      return res.status(500).json({
-        'message': 'Failed to fetch templates from remote source.',
+      cb({
+        code: 500,
+        message: 'Failed to fetch templates from remote source.',
+      }, null);
+    } else {
+      cb(null, {
+        code: 200,
+        data: list,
       });
     }
-    return res.status(200).json(list);
   });
 };
+
+const fetchWithCache = cacheWrapper(fetch);
+const filterWithCache = cacheWrapper(filter);
+const listWithCache = cacheWrapper(list);
 
 const share = (req, res) => {
   let item = req.body;
@@ -93,20 +116,30 @@ const share = (req, res) => {
       'message': 'Failed to parse template content.',
     });
   }
-  template.save(type, name, item, req.body.contributor, function(err, saved) {
+  let account = req.user.name;
+  logger.debug(`${account} is tring to share template.`);
+  userModel.getUserGithubPAT(account, function(err, pat) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
-        message: 'Failed to save the template.',
+        'message': 'Failed to fetch GitHub PAT for current user.',
       });
     }
-    return res.status(saved.new ? 201 : 200).json(saved.summary);
+    template.save(type, name, item, pat, function(err, saved) {
+      if (err) {
+        logger.error(err);
+        return res.status(500).json({
+          message: 'Failed to save the template.',
+        });
+      }
+      return res.status(saved.new ? 201 : 200).json(saved.summary);
+    });
   });
 };
 
 module.exports = {
-  fetch,
-  filter,
-  list,
+  fetch: fetchWithCache,
+  filter: filterWithCache,
+  list: listWithCache,
   share,
 };

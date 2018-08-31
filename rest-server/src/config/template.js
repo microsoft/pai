@@ -33,7 +33,7 @@ const templateInputSchema = Joi.object().keys({
     .default(''),
   version: Joi.when('type', {
       is: 'job',
-      then: Joi.string().optional(),
+      then: Joi.string(),
       otherwise: Joi.string().required(),
     }),
   uri: Joi.when('type', {
@@ -67,11 +67,11 @@ const templateInputSchema = Joi.object().keys({
     })
     .when('type', {
       is: 'job',
-      then: Joi.array().optional(),
+      then: Joi.array(),
     })
     .when('type', {
       is: 'script',
-      then: Joi.array().optional(),
+      then: Joi.array(),
     }),
   retryCount: Joi.when('type', {
     is: 'job',
