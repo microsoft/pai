@@ -88,7 +88,7 @@ $(function() {
                         Authorization: `Bearer ${token}`,
                     },
                     dataType: 'json',
-                    success: (updateVcData) => {
+                    success: (data) => {
                         $('#upload-body-success').removeClass('hidden');
                     },
                     error: (xhr, textStatus, error) => {
