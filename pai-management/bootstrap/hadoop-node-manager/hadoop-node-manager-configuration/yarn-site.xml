@@ -293,12 +293,12 @@ jobs are started with the DockerContainerExecutor.
 
 <property>
   <name>yarn.nodemanager.docker-container-executor.image-name</name>
-  <value>mzmssg/hadoop-run:docker_executor</value>
+  <value>{CURRENT_IMAGE_NAME}</value>
 </property>
 
 <property>
   <name>yarn.nodemanager.docker-container-executor.exec-option</name>
-  <value>-v /dev:/dev -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker:/var/lib/docker -v /var/drivers:/var/drivers -v {HOST_YARN_NODEMANAGER_STORAGE}:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v {HOST_HADOOP_TMP_STORAGE}:/var/lib/hadoopdata -v /etc/docker-config:/docker-config -e HDFS_ADDRESS={HDFS_ADDRESS} -e LOGSERVER_ADDRESS={LOGSERVER_ADDRESS} -e TIMELINE_SERVER_ADDRESS={TIMELINE_SERVER_ADDRESS} -e RESOURCEMANAGER_ADDRESS={RESOURCEMANAGER_ADDRESS} -e ZOOKEEPER_ADDRESS={ZOOKEEPER_ADDRESS}</value>
+  <value>-v /dev:/dev -v /var/run/docker.sock:/var/run/docker.sock -v /var/drivers:/var/drivers -v {HOST_YARN_NODEMANAGER_STORAGE}:/var/lib/yarn -v /tmp/pai-root:/tmp/pai-root -v /etc/hadoop-configuration-for-jobs:/hadoop-configuration-for-jobs -v {HOST_HADOOP_TMP_STORAGE}:/var/lib/hadoopdata -v /etc/docker-config:/docker-config -e HDFS_ADDRESS={HDFS_ADDRESS} -e LOGSERVER_ADDRESS={LOGSERVER_ADDRESS} -e TIMELINE_SERVER_ADDRESS={TIMELINE_SERVER_ADDRESS} -e RESOURCEMANAGER_ADDRESS={RESOURCEMANAGER_ADDRESS} -e ZOOKEEPER_ADDRESS={ZOOKEEPER_ADDRESS}</value>
   <description>
      Docker run option when launch container.
   </description>
