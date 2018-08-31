@@ -31,15 +31,6 @@ spec:
     spec:
       hostNetwork: false
       hostPID: false
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: {{ clusterinfo['pyloninfo']['role'] }}
-                operator: In
-                values:
-                - "true"
       containers:
         - name: pylon
           image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

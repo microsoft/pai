@@ -34,7 +34,7 @@ cluster:
     # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
     #docker-username: your_registry_username
     #docker-password: your_registry_password
-
+  
     docker-tag: latest
 
     # The name of the secret in kubernetes will be created in your cluster
@@ -69,6 +69,7 @@ hadoop:
       capacity: 20
 
 
+
 frameworklauncher:
   frameworklauncher-port: 9086
 
@@ -83,6 +84,7 @@ restserver:
   # database admin password
   default-pai-admin-password: your_default_pai_admin_password
 
+  
 webportal:
   # port for webportal
   server-port: 9286
