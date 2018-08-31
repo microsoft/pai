@@ -42,6 +42,8 @@ kubernetes:
   kube-controller-manager-version:  v1.9.9
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
   dashboard-version: v1.8.3
+  # The path to storage etcd data.
+  etcd-data-path: "/var/etcd"
 
 
 
