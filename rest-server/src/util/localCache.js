@@ -42,7 +42,7 @@ class LocalCache extends StorageBase {
   }
 
   set(key, value, options, callback) {
-    this.store.set(key, value, options && options.ttlSeconds ? options.ttlSeconds : 0, function(err, success) {
+    let handler = function(err, success) {
       if (!err && !success) {
         err = new Error(`Failed to set value for key "${key}".`);
       }
@@ -51,7 +51,12 @@ class LocalCache extends StorageBase {
       } else {
         callback(null, true);
       }
-    });
+    };
+    if (options && options.ttlSeconds) {
+      this.store.set(key, value, options.ttlSeconds, handler);
+    } else {
+      this.store.set(key, value, handler);
+    }
   }
 
   delete(key, options, callback) {

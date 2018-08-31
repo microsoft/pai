@@ -16,54 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+const cacheWrapper = require('../middlewares/cache');
 const logger = require('../config/logger');
 const template = require('../models/template');
 const userModel = require('../models/user');
-const dbUtility = require('../util/dbUtil');
-
-/**
- * A K-V store with 10-min timeout.
- * Key: HTTP requested path.
- * Val: { code: xxx, data: yyy }
- */
-const cache = dbUtility.getStorageObject('localCache', {
-  ttlSeconds: 600,
-});
-
-const wrapWithCache = (handler) => {
-  return function(req, res) {
-    let key = req.originalUrl;
-    cache.get(key, null, function(err1, val1) {
-      if (err1 || !val1) {
-        handler(req, function(err2, val2) {
-          if (err2) {
-            // Double check because other request may fill in cache already
-            cache.get(key, null, function(err3, val3) {
-              if (err3 || !val3) {
-                logger.error(err3);
-                res.status(err2.code).json({
-                  message: err2.message,
-                });
-              } else {
-                res.status(val3.code).json(val3.data);
-              }
-            });
-          } else {
-            cache.set(key, val2, null, function(err3, _) {
-              if (err3) {
-                logger.error(err3);
-              }
-              res.status(val2.code).json(val2.data);
-            });
-          }
-        });
-      } else {
-        logger.debug(`hit cache with "${key}"`);
-        res.status(val1.code).json(val1.data);
-      }
-    });
-  };
-};
 
 const fetch = (req, cb) => {
   let type = req.params.type;
@@ -147,9 +103,9 @@ const list = (req, cb) => {
   });
 };
 
-const fetchWithCache = wrapWithCache(fetch);
-const filterWithCache = wrapWithCache(filter);
-const listWithCache = wrapWithCache(list);
+const fetchWithCache = cacheWrapper(fetch);
+const filterWithCache = cacheWrapper(filter);
+const listWithCache = cacheWrapper(list);
 
 const share = (req, res) => {
   let item = req.body;
