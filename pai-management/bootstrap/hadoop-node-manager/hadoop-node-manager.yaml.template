@@ -98,7 +98,6 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
-      # Docker's storage base directory
       - name: driver-path
         hostPath:
           path: /var/drivers

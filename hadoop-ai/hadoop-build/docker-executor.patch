@@ -18,7 +18,7 @@ index 96f6c57..1b89e90 100644
    public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_NAME =
      NM_PREFIX + "docker-container-executor.exec-name";
 diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
-index a044cb6..739b807 100644
+index a044cb6..df5ca37 100644
 --- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
 +++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
 @@ -127,7 +127,12 @@ public void init() throws IOException {
@@ -81,7 +81,7 @@ index a044cb6..739b807 100644
      //Get the pid of the process which has been launched as a docker container
      //using docker inspect
      String dockerPidScript = "`" + dockerExecutor +
-@@ -597,13 +613,26 @@ private void writeSessionScript(Path launchDst, Path pidFile)
+@@ -597,13 +613,28 @@ private void writeSessionScript(Path launchDst, Path pidFile)
          // We need to do a move as writing to a file is not atomic
          // Process reading a file being written to may get garbled data
          // hence write pid to tmp file first followed by a mv
@@ -91,11 +91,13 @@ index a044cb6..739b807 100644
          pout.println("#!/usr/bin/env bash");
          pout.println();
 +        pout.println("{");
-+        pout.println("while /bin/true; do");
++        pout.println("n=10");
++        pout.println("while [ $n -gt 0 ]; do");
++        pout.println("let n=$n-1");
 +        pout.println("sleep 5");
          pout.println("echo "+ dockerPidScript +" > " + pidFile.toString()
            + ".tmp");
-+        pout.println("[ -n \"$(cat \"" + pidFile.toString() 
++        pout.println("[ -n \"$(cat \"" + pidFile.toString()
 +                + ".tmp\")\" ] && break");
 +        pout.println("done");
          pout.println("/bin/mv -f " + pidFile.toString() + ".tmp " + pidFile);

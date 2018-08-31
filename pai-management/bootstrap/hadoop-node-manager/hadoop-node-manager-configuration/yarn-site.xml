@@ -306,7 +306,7 @@ jobs are started with the DockerContainerExecutor.
 
 <property>
   <name>yarn.nodemanager.docker-container-executor.script-command</name>
-  <value>cp -r docker/* /usr/bin/ &amp;&amp; cp -a /docker-config/.docker /root/  &amp;&amp; cp /hadoop-configuration-for-jobs/* $HADOOP_CONF_DIR/ </value>
+  <value>cp -r /docker/* /usr/bin/ &amp;&amp; cp -a /docker-config/.docker /root/  &amp;&amp; cp /hadoop-configuration-for-jobs/* $HADOOP_CONF_DIR/ </value>
 </property>
 <description>
      Image command before launch_container script.
