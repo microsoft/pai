@@ -398,6 +398,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 }"
 while :; do
 sleep 10
+curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME
 STATUS=$(
 curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
@@ -509,6 +510,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 }"
 while :; do
 sleep 10
+curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME
 STATUS=$(
 curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
