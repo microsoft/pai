@@ -46,7 +46,7 @@ router.route('/:jobName')
 
 
 router.route('/:jobName/executionType')
-    .put(jobParam.checkReadonly, param.validate(jobConfig.executionSchema), token.check, jobController.execute);
+    .put(param.validate(jobConfig.executionSchema), token.check, jobController.execute);
 
 router.route('/:jobName/config')
     .get(jobController.getConfig);
