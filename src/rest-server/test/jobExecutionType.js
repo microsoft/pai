@@ -209,6 +209,22 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test1';
         return frameworkDetail;
       });
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/test1/FrameworkRequest')
+      .reply(200, {
+        'frameworkDescriptor': {
+          'user': {
+            'name': 'iamadmin',
+          },
+        },
+      });
+
+    nock(launcherWebserviceUri)
+      .put('/v1/Frameworks/test1/ExecutionType', {
+        'executionType': 'STOP',
+      })
+      .reply(202, null);
   });
 
   // PUT /api/v1/jobs/:jobName/executionType
@@ -220,9 +236,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
         'value': 'STOP',
       })
       .end((err, res) => {
-        expect(res, 'status code').to.have.status(403);
-        expect(res, 'json response').be.json;
-        expect(res.body.code, 'response code').equal('ReadOnlyJobError');
+        expect(res, 'status code').to.have.status(202);
         done();
       });
   });

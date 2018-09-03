@@ -87,7 +87,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
     //
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job1/JobConfig.json?op=OPEN')
+      .get('/webhdfs/v1/Container/test/test~job1/JobConfig.json?op=OPEN')
       .reply(
         200,
         JSON.stringify({
@@ -96,7 +96,7 @@ describe('Get job config: GET /api/v1/user/:username/jobs/:jobName/config', () =
       );
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job3/JobConfig.json?op=OPEN')
+      .get('/webhdfs/v1/Container/test/test~job3/JobConfig.json?op=OPEN')
       .reply(
         404,
         JSON.stringify({

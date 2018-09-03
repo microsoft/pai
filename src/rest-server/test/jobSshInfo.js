@@ -87,7 +87,7 @@ describe('Get job SSH info: GET /api/v1/user/:username/jobs/:jobName/ssh', () =>
     //
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job1/ssh/app1?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/test~job1/ssh/app1?op=LISTSTATUS')
       .reply(
         200,
         {
@@ -108,7 +108,7 @@ describe('Get job SSH info: GET /api/v1/user/:username/jobs/:jobName/ssh', () =>
       );
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job3/ssh/app3?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/test~job3/ssh/app3?op=LISTSTATUS')
       .reply(
         404,
         {
