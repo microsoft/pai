@@ -17,13 +17,15 @@
 
 
 const base64 = require('js-base64').Base64;
-const github = require('@octokit/rest')();
+const github = require('@octokit/rest');
 const https = require('https');
 const url = require('url');
 const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
 const config = require('../config/github');
+
+const defaultGithubClient = github();
 
 /**
  * Get template content by the given qualifier.
@@ -53,42 +55,70 @@ const load = (options, callback) => {
   });
 };
 
+const getAuthenticatedClient = (pat, callback) => {
+  let client = github();
+  try {
+    client.authenticate({
+      type: 'token',
+      token: pat,
+    });
+    callback(null, client);
+  } catch (err) {
+    callback(err, null);
+  }
+}
+
 /**
  * Save the template.
- * @param {*} type Template type.
- * @param {*} name Template name.
- * @param {*} template An object representing a job/script/data/dockerimage template.
- * @param {*} pat Personal access token for GitHub.
+ * @param {*} options A MAP object containing keys 'type', 'name', 'template', and 'pat'.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const save = function(type, name, template, pat, callback) {
-  github.authenticate({
-    type: 'token',
-    token: pat,
-  });
-  let b64text = base64.encode(yaml.dump(template));
-  github.repos.createFile({
-    owner: config.owner,
-    repo: config.repository,
-    path: `${type}/${name}.yaml`,
-    message: 'Create template from PAI Marketplace.',
-    content: b64text,
-  }, function(err, res) {
+const save = function(options, callback) {
+  let type = options.type;
+  let name = options.name;
+  let template = options.template;
+  let pat = options.pat;
+  getAuthenticatedClient(pat, function(err, client) {
     if (err) {
-      // Maybe existed, try to update
-      update(type, name, b64text, callback);
+      return callback(err, null);
     } else {
-      logger.debug(res);
-      callback(null, {
-        new: true,
-        summary: createSummary(type, name, res),
+      let b64text = base64.encode(yaml.dump(template));
+      client.repos.createFile({
+        owner: config.owner,
+        repo: config.repository,
+        path: `${type}/${name}.yaml`,
+        message: 'Create template from PAI Marketplace.',
+        content: b64text,
+      }, function(err, res) {
+        if (err) {
+          // Maybe existed, try to update
+          update({
+            type: type,
+            name: name,
+            b64text: b64text
+          }, callback);
+        } else {
+          logger.debug(res);
+          callback(null, {
+            new: true,
+            summary: createSummary(type, name, res),
+          });
+        }
       });
     }
   });
 };
 
-const update = function(type, name, b64text, callback) {
-  github.repos.getContent({
+/**
+ * Save the template.
+ * @param {*} options A MAP object containing keys 'type', 'name', and 'b64text'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
+ */
+const update = function(options, callback) {
+  let type = options.type;
+  let name = options.name;
+  let b64text = options.b64text;
+  defaultGithubClient.repos.getContent({
     owner: config.owner,
     repo: config.repository,
     path: `${type}/${name}.yaml`,
@@ -96,7 +126,7 @@ const update = function(type, name, b64text, callback) {
     if (err) {
       return callback(err, null);
     } else {
-      github.repos.updateFile({
+      defaultGithubClient.repos.updateFile({
         owner: config.owner,
         repo: config.repository,
         path: res.data.path,
@@ -135,7 +165,7 @@ const createSummary = (type, name, res) => {
 const search = (options, callback) => {
   let params = createQuery(options);
   logger.debug(params);
-  github.search.code(params, function(err, res) {
+  defaultGithubClient.search.code(params, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
