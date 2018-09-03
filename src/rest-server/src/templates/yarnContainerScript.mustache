@@ -20,7 +20,7 @@
 
 # Entrypoint script for yarn container.
 
-docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+docker_name="${FRAMEWORK_NAME//\~/-}-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
