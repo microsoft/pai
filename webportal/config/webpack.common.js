@@ -58,7 +58,12 @@ const config = {
     jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
     templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
     templateView: './src/app/marketplace/template-view/template-view.component.js',
-    marketplace: './src/app/marketplace/marketplace.component.js'
+    marketplace: './src/app/marketplace/marketplace.component.js',
+    "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker',
+		"json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
+		"css.worker": 'monaco-editor/esm/vs/language/css/css.worker',
+		"html.worker": 'monaco-editor/esm/vs/language/html/html.worker',
+    "ts.worker": 'monaco-editor/esm/vs/language/typescript/ts.worker'
   },
   output: {
     path: helpers.root('dist'),
