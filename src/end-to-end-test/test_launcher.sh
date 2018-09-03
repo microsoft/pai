@@ -28,6 +28,6 @@ launcher_uri=$WEBSERVICE_URI
 
 @test "submit framework launcher test job" {
   job_name="launcher-test-$RANDOM-$RANDOM"
-  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -X PUT -d @- $launcher_uri/v1/Frameworks/$job_name)"
+  result="$(cat ./etc/launcher.json | curl -H "Content-Type: application/json" -H "UserName: test" -X PUT -d @- $launcher_uri/v1/Frameworks/test~$job_name)"
   [[ ! $result == *Error* ]]
 }
