@@ -15,5 +15,27 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const template = require('./template-detail.component.ejs');
+const webportalConfig = require('../../config/webportal.config.js');
+require('./template-detail.component.css');
+const url = require('url');
 
 $('#sidebar-menu--template-view').addClass('active');
+
+$(function() {
+    const query = url.parse(window.location.href, true).query;
+    const type = {
+        'job': 'job',
+        'docker': 'dockerimage',
+        'script': 'script',
+        'data': 'data',
+    }[query.type] || 'job';
+    const name = query.name;
+    if (type == null || name == null) return location.href = '/';
+
+    const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
+    $.getJSON(u).then(template).then(function(html) {
+        $('#content-wrapper').html(html);
+    });
+});
+
