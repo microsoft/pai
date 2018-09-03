@@ -138,7 +138,7 @@ function search(query) {
                 });
                 $(slideTemplate.call(slideContext, {
                     items: items.filter(function(item) {
-                        return item.type === 'docker';
+                        return item.type === 'data';
                     }),
                 })).each(function() {
                     $dataSlick.slick('slickAdd', this);
@@ -158,7 +158,7 @@ $(function() {
     $('#content-wrapper').html(template(query));
     $('#search').submit(function(event) {
         event.preventDefault();
-        search(this.find('input').val());
+        search($(this).find('input').val());
     });
     prepareCarousel($('#marketplace-jobs'));
     prepareCarousel($('#marketplace-dockers'));
