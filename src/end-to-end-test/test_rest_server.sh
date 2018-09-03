@@ -28,6 +28,8 @@ rest_server_uri=$REST_SERVER_URI
 }
 
 @test "submit cntk test job" {
+  account="$(cat ./etc/account.config)"
+  account=(${account//:/ })
   job_name="cntk-test-$RANDOM-$RANDOM"
   token="$(cat ./etc/token.config)"
   result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X POST -d @- $rest_server_uri/api/v1/user/${account[0]}/jobs)"
