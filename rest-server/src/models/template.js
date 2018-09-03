@@ -27,6 +27,8 @@ const config = require('../config/github');
 
 const defaultGithubClient = github();
 
+const contentUrlPrefix = `https://raw.githubusercontent.com/${config.owner}/${config.repository}`;
+
 /**
  * Get template content by the given qualifier.
  * @param {*} options A MAP object containing keys 'type', 'name', 'version'.
@@ -35,8 +37,9 @@ const defaultGithubClient = github();
 const load = (options, callback) => {
   let ref = options.version ? options.version : config.branch;
   let responses = [];
-  let path = `${config.owner}/${config.repository}/${ref}/${options.type}/${options.name}.yaml`;
-  https.get('https://raw.githubusercontent.com/' + path, function(res) {
+  let contentUrl = `${contentUrlPrefix}/${ref}/${options.type}/${options.name}.yaml`;
+  logger.debug('fetch content of ' + contentUrl);
+  https.get(contentUrl, function(res) {
     res.on('data', function(chunk) {
       responses.push(chunk);
     });
@@ -209,14 +212,10 @@ const downloadInParallel = (list, callback) => {
     list.forEach(function(item) {
       let responses = [];
       let remoteUrl = url.parse(item.url, true);
-      https.get({
-        host: remoteUrl.host,
-        path: remoteUrl.path,
-        headers: {
-          'Accept': 'application/vnd.github.VERSION.raw',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
-        },
-      }, function(res) {
+      let ref = remoteUrl.query.ref;
+      let contentUrl = `${contentUrlPrefix}/${ref}/${item.path}`;
+      logger.debug('fetch content of ' + contentUrl);
+      https.get(contentUrl, function(res) {
         res.on('data', function(chunk) {
           responses.push(chunk);
         });
@@ -227,7 +226,7 @@ const downloadInParallel = (list, callback) => {
               type: one.type,
               name: one.name,
               contributor: one.contributor,
-              version: remoteUrl.query.ref,
+              version: ref,
             });
           } else {
             logger.error(res.statusMessage);
