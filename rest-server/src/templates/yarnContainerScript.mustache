@@ -37,6 +37,7 @@ function debug_log()
 
 function exit_handler()
 {
+  rc=$?
   local handler="Yarn container exit handler"
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
@@ -49,7 +50,12 @@ function exit_handler()
   else
     debug_log "$handler" "docker container $docker_name has already exited"
   fi
-
+  
+  debug_log "$handler" "write exit code to file"
+  debug_log "$handler" "yarn container exit code: $rc"
+  debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+  echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+  exit $rc
 }
 
 set -x
@@ -263,3 +269,4 @@ docker run --name $docker_name \
   --env-file $ENV_LIST \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
   '/pai/bootstrap/docker_bootstrap.sh'
+
