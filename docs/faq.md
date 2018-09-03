@@ -65,10 +65,23 @@ A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-t
 A: This is a typical issue when trained with large number of small files of HDFS. This problem can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue. 
 
 Possible solutions: 
-- User compact small files through scripts or opensources tools 
+- User compact small files through scripts or opensources tools. (For example using TFRecord for Tensorflow.)
 - [HAR (Hadoop Archive) Files](https://hadoop.apache.org/docs/r1.2.1/hadoop_archives.html)
 - [Sequence Files](https://wiki.apache.org/hadoop/SequenceFile) 
 
 Reference:
 https://www.quora.com/Why-is-it-that-Hadoop-is-not-suitable-for-small-files
 
+For tensorflow, Users can prepare data in [TFrecord](https://www.tensorflow.org/api_guides/python/python_io) format and store it in hdfs:
+
+- Example scripts: [mnist-examples](https://github.com/cheyang/mnist-examples)
+
+- How to use:
+``` bash
+# convert data to TFRecord format
+python convert_to_records.py --directory hdfs://10.*.*.*:9000/test
+# read and train MNIST
+python mnist_train.py --train_dir hdfs://10.*.*.*:9000/test --checkpoint_dir hdfs://10.*.*.*:9000/checkpoint
+```
+
+Reference: https://www.alibabacloud.com/help/zh/doc-detail/53928.htm
