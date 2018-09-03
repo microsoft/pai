@@ -145,6 +145,7 @@ const execute = (req, res, next) => {
 const getConfig = (req, res, next) => {
   Job.prototype.getJobConfig(
     req.job.jobStatus.username,
+    req.params.username,
     req.job.name,
     (error, result) => {
       if (!error) {
@@ -164,6 +165,7 @@ const getConfig = (req, res, next) => {
 const getSshInfo = (req, res, next) => {
   Job.prototype.getJobSshInfo(
     req.job.jobStatus.username,
+    req.params.username,
     req.job.name,
     req.job.jobStatus.appId,
     (error, result) => {
