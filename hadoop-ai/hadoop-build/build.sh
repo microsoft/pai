@@ -44,4 +44,5 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 
 # When Changing the patch id, please update the filename here.
+rm /hadoop-binary/*-done
 touch /hadoop-binary/12932984-12933562-done
