@@ -53,6 +53,6 @@ class CountdownTimer(LoggerMixin):
             self.logger.error("Failed to setup countdown time %s" % self.name)
             self.logger.exception(e)
 
-    def on_alarm(self, sinum, frame):
+    def on_alarm(self, signum, frame):
         self.logger.error("%s : the maximum time duration %d reached and will exit." % (self.name, self.duration_in_seconds))
         raise Timeout()

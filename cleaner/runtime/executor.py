@@ -21,6 +21,7 @@ import time
 import multiprocessing
 from threading import Thread, Lock
 from cleaner.utils.logger import LoggerMixin
+from cleaner.utils.timer import CountdownTimer, Timeout
 
 
 class RunningResult(object):
@@ -29,25 +30,37 @@ class RunningResult(object):
 
 
 class Worker(LoggerMixin, multiprocessing.Process):
-    def __init__(self, key, command, out_queue):
+    def __init__(self, key, rule, out_queue):
         super(Worker, self).__init__()
         self.daemon = True
         self.out_queue = out_queue
         self.key = key
-        self.command = command
+        self.rule = rule
 
     def _do(self):
-        if self.key is None or self.command is None:
+        if self.key is None or self.rule is None:
             return
 
-        self.logger.info("worker %s starts to run command %s", self.__class__.__name__, self.command)
-        bash_command = "exec bash -c '{0}'".format(self.command)
+        self.logger.info("worker %s starts to run rule %s", self.__class__.__name__, self.key)
+        bash_command = self.rule.action.command
+        bash_command = "exec bash -c '{0}'".format(bash_command)
+        self.logger.info("will execute command %s", bash_command)
+
         try:
-            subprocess.check_call(bash_command, shell=True, close_fds=True)
-            self.out_queue.put((self.key, RunningResult.SUCCESS))
+            condition_input = self.rule.condition.input_data
+            condition_method = self.rule.condition.method
+            if condition_method(condition_input):
+                self.logger.info("condition %s is true, will run action %s.", self.rule.condition.key,
+                                 self.rule.action.key)
+                with CountdownTimer(self.rule.action_timeout):
+                    subprocess.check_call(bash_command, shell=True, close_fds=True)
+                    self.out_queue.put((self.key, RunningResult.SUCCESS))
         except subprocess.CalledProcessError as e:
             self.out_queue.put((self.key, RunningResult.FAILED))
-            self.logger.error("worker %s fails to run command %s, error is %s", self.__class__.__name__, self.command, str(e))
+            self.logger.error("worker %s fails to run rule %s, error is %s", self.__class__.__name__, self.key, str(e))
+        except Timeout:
+            self.out_queue.put((self.key, RunningResult.FAILED))
+            self.logger.error("worker timeout when running rule %s", self.key)
 
     def run(self):
         self._do()
@@ -62,7 +75,7 @@ class Executor(LoggerMixin):
         self.main = None
         self.stop = False
 
-    def run_async(self, key, command):
+    def run_async(self, key, rule):
         if self.main is None:
             self.logger.error("executor is not started yet.")
             return
@@ -72,7 +85,7 @@ class Executor(LoggerMixin):
                 self.logger.info("command with key %s is running and will not start it anymore.", key)
                 return
 
-            worker = Worker(key, command, self.out_queue)
+            worker = Worker(key, rule, self.out_queue)
             self.active_workers[key] = worker
         worker.start()
 
