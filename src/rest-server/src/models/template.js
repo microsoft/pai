@@ -174,42 +174,46 @@ const createQuery = (options) => {
 
 const downloadInParallel = (list, callback) => {
   let templates = [];
-  let completed = 0;
-  list.forEach(function(item) {
-    let responses = [];
-    let remoteUrl = url.parse(item.url, true);
-    https.get({
-      host: remoteUrl.host,
-      path: remoteUrl.path,
-      headers: {
-        'Accept': 'application/vnd.github.VERSION.raw',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
-      },
-    }, function(res) {
-      res.on('data', function(chunk) {
-        responses.push(chunk);
+  if (list && list.length) {
+    let completed = 0;
+    list.forEach(function(item) {
+      let responses = [];
+      let remoteUrl = url.parse(item.url, true);
+      https.get({
+        host: remoteUrl.host,
+        path: remoteUrl.path,
+        headers: {
+          'Accept': 'application/vnd.github.VERSION.raw',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+        },
+      }, function(res) {
+        res.on('data', function(chunk) {
+          responses.push(chunk);
+        });
+        res.on('end', function() {
+          if (res.statusCode == 200) {
+            let one = yaml.safeLoad(responses.join(''));
+            templates.push({
+              type: one.type,
+              name: one.name,
+              contributor: one.contributor,
+              version: remoteUrl.query.ref,
+            });
+          } else {
+            logger.error(res.statusMessage);
+          }
+          if (++completed >= list.length) {
+            callback(null, templates);
+          }
+        });
+      }).on('error', function(e) {
+        completed -= list.length; // Ensure callback is called only once
+        callback(e, null);
       });
-      res.on('end', function() {
-        if (res.statusCode == 200) {
-          let one = yaml.safeLoad(responses.join(''));
-          templates.push({
-            type: one.type,
-            name: one.name,
-            contributor: one.contributor,
-            version: remoteUrl.query.ref,
-          });
-        } else {
-          logger.error(res.statusMessage);
-        }
-        if (++completed >= list.length) {
-          callback(null, templates);
-        }
-      });
-    }).on('error', function(e) {
-      completed -= list.length; // Ensure callback is called only once
-      callback(e, null);
     });
-  });
+  } else {
+    callback(null, templates);
+  }
 };
 
 module.exports = {
