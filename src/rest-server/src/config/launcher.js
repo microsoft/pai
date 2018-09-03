@@ -36,6 +36,8 @@ let launcherConfig = {
 
     if (namespace) {
       headers['UserName'] = namespace;
+    } else {
+      headers['UserName'] = 'root';
     }
     return headers;
   },
