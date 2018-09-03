@@ -89,8 +89,12 @@ spec:
         readinessProbe:
           exec:
             command:
-            - python
-            - /usr/local/healthy_check.py
+            - "python"
+            - "/job_exporter/no_older_than.py"
+            - "--delta"
+            - "60"
+            - "/datastorage/prometheus/job_exporter.prom"
+            - "/datastorage/prometheus/gpu_exporter.prom"
           initialDelaySeconds: 30
           periodSeconds: 30
         resources:
