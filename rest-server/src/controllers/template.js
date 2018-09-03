@@ -130,7 +130,12 @@ const share = (req, res) => {
         message: 'Current user has not registered a GitHub PAT.',
       });
     }
-    template.save(type, name, item, pat, function(err, saved) {
+    template.save({
+      type: type,
+      name: name,
+      item: item,
+      pat: pat,
+    }, function(err, saved) {
       if (err) {
         logger.error(err);
         return res.status(500).json({
