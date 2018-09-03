@@ -51,5 +51,4 @@ machine-list:
   {%- if loop.length == 1 %}
     pai-worker: "true"
   {%- endif %}
-    node-exporter: "true"
 {%- endfor %}

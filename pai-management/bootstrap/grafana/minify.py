@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,46 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import json
 import sys
-import logging
-import logging.config
-import subprocess
 
+def minify(raw):
+    """ minify json file """
+    obj = json.loads(raw)
+    return json.dumps(obj, separators=(",", ":"))
 
-logger = logging.getLogger(__name__)
-
-
-
-def execute_shell_raise(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        raise
-
-
-
-
-def execute_shell(shell_cmd, error_msg):
-
-    try:
-        subprocess.check_call( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-
-
-def execute_shell_with_output(shell_cmd, error_msg):
-
-    try:
-        res = subprocess.check_output( shell_cmd, shell=True )
-
-    except subprocess.CalledProcessError:
-        logger.error(error_msg)
-        sys.exit(1)
-
-    return res
+if __name__ == '__main__':
+    sys.stdout.write(minify(sys.stdin.read()))
