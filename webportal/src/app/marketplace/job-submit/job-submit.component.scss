@@ -5,7 +5,11 @@
         background: white;
         border:1px solid #BEBEBE;
         color: #3B3B3B;
-        font-size: 16px;
+        margin-bottom: 1px;
+        font-size: 14px;
+        height: 34px;
+        position: relative;
+        top: 1px;
     }
     .plus-add{
         .img-add{
@@ -17,60 +21,74 @@
     }
 }
 .template-account {
-    width: 86%;
+    width: 90%;
     margin: 0 auto;
     margin-top: 28px;
     padding-bottom: 20px;
     box-sizing: border-box;
-    .import-sty:hover{
-        cursor: pointer;
-    }
-    .showDesJob{
-        margin-top: 10px;
-    td{
-        vertical-align: middle;
-        height: 160px;
-    }
-    .logo {
-        width: 160px;
-        height: 160px;
-    }
-    .detail {
-        margin-left: 20px;
-        margin-top: 20px;
-        height: 160px;
-        box-sizing: border-box;
-        .edit-job-name{
-            position: relative;
-            top: -9px;
-            left: 8px;
+    .import-sty{
+        label{
+            font-weight: 100;
+            line-height: 23px;
         }
-        .btns{
-            position: relative;
-            top: 15px;
-            .detail-jobname{
-                font-size: 24px;
-                font-weight: bold;
-                margin-left: 14px;
-            }
-            .edit-jobinfo{
-                border: none;
-                background: none;
-            }
-        }
-        h3 {
-            font-size: 26px;
-            font-weight: 600;
-            padding-right: 8px;
-            padding-top: 10px; 
-        }
-        p {
-            line-height: 34px;
-            font-size: 14px;
-            margin-top: 30px;
+        label:hover{
+            cursor: pointer!important;
         }
     }
 }
+.bg-jobmessage{
+    width: 100%;
+    background: white;
+    .box-jobmessage{
+        width: 91%;
+        margin: 0 auto;
+        margin-top: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .showDesJob{
+        td{
+            vertical-align: middle;
+            height: 160px;
+        }
+        .logo {
+            width: 140px;
+        }
+        .detail {
+            margin-left: 20px;
+            margin-top: 30px;
+            height: 160px;
+            box-sizing: border-box;
+            .edit-job-name{
+                position: relative;
+                top: -9px;
+                left: 8px;
+            }
+            .btns{
+                position: relative;
+                top: 15px;
+                .detail-jobname{
+                    font-size: 24px;
+                    font-weight: bold;
+                    margin-left: 14px;
+                }
+                .edit-jobinfo{
+                    border: none;
+                    background: none;
+                }
+            }
+            h3 {
+                font-size: 26px;
+                font-weight: 600;
+                padding-right: 8px;
+                padding-top: 10px; 
+            }
+            p {
+                line-height: 34px;
+                font-size: 14px;
+                margin-top: 30px;
+            }
+        }
+    }     
 }
 .sub-titile{
     width: 212px;
@@ -110,14 +128,13 @@
     background: white;
     width: 100%;
     .add-content{
-        padding-left: 30px;
-        width: 93%;
+        width: 90%;
         margin: 0 auto;
         .add-title {
             padding-bottom: 26px;
+            padding-left: 22px;
             border-bottom: 1px solid #ccc;
             h3{
-                // padding-left: 35px;
                 margin-bottom: 18px;
                 box-sizing: border-box;
             }
@@ -235,4 +252,15 @@ textarea#yaml-editor-holder{
     width: 100%;
     height: auto;
     min-height: 400px;
+}
+
+// hand style
+.dropdown-menu li:hover{
+    cursor: pointer;
+}
+.add-picture:hover, .img-add:hover{
+    cursor: pointer;
+}
+#mask  #loading{
+    position: fixed !important;
 }
