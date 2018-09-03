@@ -205,31 +205,6 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const updatePageFromYaml = (d) => { // d is a string
-  emptyPage();
-
-  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
-
-  // update docker/script/data
-  if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach((key) => {
-      insertNewDockerDataScript(data['prerequisites'][key]);
-    });
-  }
-
-  // update task
-  if ('tasks' in data) {
-    data['tasks'].forEach((task) => {
-      insertNewTask(task);
-    });
-  }
-
-  // update job
-  $('#job-name').text(data['name']);
-  $('#job-description').text(data['description']);
-  addNewJsonEditor(data, '', 'job');
-};
-
 const saveTemplateOnAddModal = (type, id) => {
   addModalVariables.finalEditor = addModalVariables.addEditor;
   let data = addModalVariables.finalEditor.getValue();
@@ -246,6 +221,41 @@ const saveTemplateOnAddModal = (type, id) => {
   $(`#${type}${id}-edit-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
   });
+};
+
+const updatePageFromJson = (data) => { // data is a json
+  if ('type' in data) {
+    emptyPage();
+
+    if (data['type'] == 'job') { // it is a job
+      // update docker/script/data
+      if ('prerequisites' in data) {
+        Object.keys(data['prerequisites']).forEach((key) => {
+          insertNewDockerDataScript(data['prerequisites'][key]);
+        });
+      }
+
+      // update task
+      if ('tasks' in data) {
+        data['tasks'].forEach((task) => {
+          insertNewTask(task);
+        });
+      }
+
+      // update job
+      $('#job-name').text(data['name']);
+      $('#job-description').text(data['description']);
+      addNewJsonEditor(data, '', 'job');
+    } else { // update docker/script/data
+      insertNewDockerDataScript(data);
+      addNewJsonEditor({}, '', 'job');
+    }
+  }
+};
+
+const updatePageFromYaml = (d) => { // d is a string
+  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
+  updatePageFromJson(data);
 };
 
 const replaceHrefs = (htmls) => {
@@ -412,6 +422,7 @@ module.exports = {
   updatePageFromYaml,
   editYaml,
   updatePageByYamlEditor,
+  updatePageFromJson,
   exportsYaml,
   showAddModal,
   createSubmitData,
