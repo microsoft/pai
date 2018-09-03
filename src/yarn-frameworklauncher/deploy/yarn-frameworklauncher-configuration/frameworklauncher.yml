@@ -23,6 +23,8 @@ zkRootDir: /Launcher
 hdfsRootDir: /Launcher
 rootAdminUsers: !!set
   ? {name: root}
+webServerAclEnable: true
+webServerAclIgnoreWithoutNamespace: true
 
 # Service Setup
 serviceRMResyncIntervalSec: 20
