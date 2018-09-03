@@ -18,6 +18,25 @@
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/tooltip.js');
 
+const monaco = require('monaco-editor');
+self.MonacoEnvironment = {
+  getWorkerUrl: function(moduleId, label) {
+    if (label === 'json') {
+      return './scripts/json.worker.bundle.js';
+    }
+    if (label === 'css') {
+      return './scripts/css.worker.bundle.js';
+    }
+    if (label === 'html') {
+      return './scripts/html.worker.bundle.js';
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return './scripts/ts.worker.bundle.js';
+    }
+    return './scripts/editor.worker.bundle.js';
+  },
+};
+
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
 const addModalFormat = require('./add.ejs');
@@ -41,6 +60,8 @@ const initArray = () => {
 
 let editors = initArray();
 let editorsValue = initArray();
+
+let yamleditor = null;
 
 let addModalVariables = {
   addEditor: null,
@@ -354,13 +375,13 @@ const exportsYaml = () => {
 
 const editYaml = () => {
   let res = yamlHelper.exportToYaml(editors);
-  $('#yaml-editor-holder').val(res);
+  yamleditor.setValue(res);
   $('#yaml-modal').modal('show');
 };
 
 const updatePageByYamlEditor = () => {
   try {
-    let res = $('#yaml-editor-holder').val();
+    let res = yamleditor.getValue();
     updatePageFromYaml(res);
     $('#yaml-modal').modal('hide');
   } catch (YAMLException) {
@@ -378,6 +399,13 @@ const initPage = () => {
     description: 'Please add job description.',
   };
   addNewJsonEditor(initJob, '', 'job'); // init a job jsonEditor
+
+  yamleditor = monaco.editor.create(document.getElementById('yaml-editor-holder'), {
+    value: 'test:\n  - 1\n',
+    language: 'yaml',
+    automaticLayout: true,
+    theme: 'vs-dark',
+  });
 };
 
 module.exports = {
