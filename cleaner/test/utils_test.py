@@ -16,13 +16,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from cleaner.utils.logger import LoggerMixin
+from cleaner.utils.timer import CountdownTimer, Timeout
+from datetime import timedelta
 from unittest import TestCase, main
+import time
 
 
 class LoggerTest(TestCase, LoggerMixin):
 
     def test_logger(self):
         self.assertTrue(self.logger is not None, "logger cannot be None.")
+
+    def test_time(self):
+        count = 0
+        with self.assertRaises(Timeout):
+            with CountdownTimer(timedelta(seconds=1)):
+                while count < 3:
+                    time.sleep(1)
+                    count += 1
 
 
 if __name__ == "__main__":
