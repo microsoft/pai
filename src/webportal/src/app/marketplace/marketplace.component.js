@@ -89,7 +89,7 @@ function search(query) {
     function clear($slick) {
         const slideCount = $slick.find('.thumbnail').length;
         for (let i = 0; i < slideCount; i += 1) {
-            $slick.slick('slickRemove');
+            $slick.slick('slickRemove', 1);
         }
         return $slick;
     }
@@ -157,7 +157,7 @@ $(function() {
     $('#content-wrapper').html(template(query));
     $('#search').submit(function(event) {
         event.preventDefault();
-        search(this.find('input').val());
+        search($(this).find('input').val());
     });
     prepareCarousel($('#marketplace-jobs'));
     prepareCarousel($('#marketplace-dockers'));
