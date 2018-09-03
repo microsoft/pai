@@ -90,7 +90,7 @@ function search(query) {
     function clear($slick) {
         const slideCount = $slick.find('.thumbnail').length;
         for (let i = 0; i < slideCount; i += 1) {
-            $slick.slick('slickRemove', 1);
+            $slick.slick('slickRemove', 0);
         }
         return $slick;
     }
