@@ -14,8 +14,8 @@
                 <h1 class="text-center">Welcome to the Marketplace of Platform for AI</h1>
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <form class="input-group">
-                            <input type="search" class="form-control"
+                        <form class="input-group" id="search">
+                            <input type="search" class="form-control" name="query"
                                 placeholder="Search job, docker script, and data on Platform for AI">
                             <span class="input-group-btn">
                                 <button class="btn btn-info" type="submit" aria-label="Search">
@@ -29,19 +29,15 @@
             <section class="content">
                 <h2 class="h4">
                     <span>Job</span>
-                    <button class="btn btn-link pull-right">
-                        See more
-                        <span class="glyphicon glyphicon-menu-right" aria-hidden="false"></span>
-                    </button>
                 </h2>
-                <div class="clearfix" style="position: relative">
+                <div class="clearfix" style="position: relative" id="marketplace-jobs">
                     <a class="btn btn-link" id="marketplace-jobs-prev">
                         <span class="glyphicon glyphicon-menu-left"></span>
                     </a>
-                    <div id="marketplace-jobs">
+                    <div>
                         <% for (var i = 0, l = 6; i < l; i++) { %>
                             <div class="content">
-                                <div class="thumbnail">
+                                <a href="/template.html?type=job" class="thumbnail">
                                     <img src="/assets/img/marketplace/job.jpg" width="50%">
                                     <div class="caption">
                                         <h3 class="h5 text-center"><strong>Cifar10_tensorflow</strong></h3>
@@ -49,7 +45,7 @@
                                             <span>Alice</span>
                                         </p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         <% } %>
                     </div>
@@ -67,19 +63,15 @@
             <section class="content">
                 <h2 class="h4">
                     <span>Docker</span>
-                    <button class="btn btn-link pull-right">
-                        See more
-                        <span class="glyphicon glyphicon-menu-right" aria-hidden="false"></span>
-                    </button>
                 </h2>
-                <div class="clearfix" style="position: relative">
+                <div class="clearfix" style="position: relative" id="marketplace-dockers">
                     <a class="btn btn-link" id="marketplace-dockers-prev">
                         <span class="glyphicon glyphicon-menu-left"></span>
                     </a>
-                    <div id="marketplace-dockers">
+                    <div>
                         <% for (var i = 0, l = 6; i < l; i++) { %>
                             <div class="content">
-                                <div class="thumbnail">
+                                <a href="/template.html?type=docker" class="thumbnail">
                                     <img src="/assets/img/marketplace/docker.jpg" width="50%">
                                     <div class="caption">
                                         <h3 class="h5 text-center"><strong>Cifar10_tensorflow</strong></h3>
@@ -87,7 +79,7 @@
                                             <span>Alice</span>
                                         </p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         <% } %>
                     </div>
@@ -100,19 +92,15 @@
             <section class="content">
                 <h2 class="h4">
                     <span>Script</span>
-                    <button class="btn btn-link pull-right">
-                        See more
-                        <span class="glyphicon glyphicon-menu-right" aria-hidden="false"></span>
-                    </button>
                 </h2>
-                <div class="clearfix" style="position: relative">
+                <div class="clearfix" style="position: relative" id="marketplace-scripts">
                     <a class="btn btn-link" id="marketplace-scripts-prev">
                         <span class="glyphicon glyphicon-menu-left"></span>
                     </a>
-                    <div id="marketplace-scripts">
+                    <div>
                         <% for (var i = 0, l = 6; i < l; i++) { %>
                             <div class="content">
-                                <div class="thumbnail">
+                                <a href="/template.html?type=script" class="thumbnail">
                                     <img src="/assets/img/marketplace/script.jpg" width="50%">
                                     <div class="caption">
                                         <h3 class="h5 text-center"><strong>Cifar10_tensorflow</strong></h3>
@@ -120,7 +108,7 @@
                                             <span>Alice</span>
                                         </p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         <% } %>
                     </div>
@@ -133,19 +121,15 @@
             <section class="content">
                 <h2 class="h4">
                     <span>Data</span>
-                    <button class="btn btn-link pull-right">
-                        See more
-                        <span class="glyphicon glyphicon-menu-right" aria-hidden="false"></span>
-                    </button>
                 </h2>
-                <div class="clearfix" style="position: relative">
+                <div class="clearfix" style="position: relative" id="marketplace-datas">
                     <a class="btn btn-link" id="marketplace-datas-prev">
                         <span class="glyphicon glyphicon-menu-left"></span>
                     </a>
-                    <div id="marketplace-datas">
+                    <div>
                         <% for (var i = 0, l = 6; i < l; i++) { %>
                             <div class="content">
-                                <div class="thumbnail">
+                                <a href="/template.html?type=data" class="thumbnail">
                                     <img src="/assets/img/marketplace/data.jpg" width="50%">
                                     <div class="caption">
                                         <h3 class="h5 text-center"><strong>Cifar10_tensorflow</strong></h3>
@@ -153,7 +137,7 @@
                                             <span>Alice</span>
                                         </p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         <% } %>
                     </div>
