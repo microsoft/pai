@@ -69,7 +69,7 @@ const getAuthenticatedClient = (pat, callback) => {
   } catch (err) {
     callback(err, null);
   }
-}
+};
 
 /**
  * Save the template.
@@ -98,7 +98,7 @@ const save = function(options, callback) {
           update({
             type: type,
             name: name,
-            b64text: b64text
+            b64text: b64text,
           }, callback);
         } else {
           logger.debug(res);
