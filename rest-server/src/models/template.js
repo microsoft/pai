@@ -137,8 +137,10 @@ const search = (options, callback) => {
   logger.debug(params);
   github.search.code(params, function(err, res) {
     if (err) {
+      console.log(err);
       callback(err, null);
     } else {
+      console.log(res);
       downloadInParallel(res.data.items, function(err, templates) {
         callback(err, {
           totalCount: res.data.total_count,
@@ -210,6 +212,7 @@ const downloadInParallel = (list, callback) => {
       callback(e, null);
     });
   });
+  callback(null, templates);
 };
 
 module.exports = {
