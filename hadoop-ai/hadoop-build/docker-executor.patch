@@ -18,9 +18,18 @@ index 96f6c57..1b89e90 100644
    public static final String NM_DOCKER_CONTAINER_EXECUTOR_EXEC_NAME =
      NM_PREFIX + "docker-container-executor.exec-name";
 diff --git a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
-index a044cb6..df5ca37 100644
+index a044cb6..819c496 100644
 --- a/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
 +++ b/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager/src/main/java/org/apache/hadoop/yarn/server/nodemanager/DockerContainerExecutor.java
+@@ -98,7 +98,7 @@
+   //containername:0.1 or
+   //containername
+   public static final String DOCKER_IMAGE_PATTERN =
+-    "^(([\\w\\.-]+)(:\\d+)*\\/)?[\\w\\.:-]+$";
++          "^(([\\w\\.-]+)(:\\d+)*\\/)?([\\w\\.-]+\\/)?[\\w\\.:-]+$";
+ 
+   private final FileContext lfs;
+   private final Pattern dockerImagePattern;
 @@ -127,7 +127,12 @@ public void init() throws IOException {
      String dockerExecutor = getConf().get(
        YarnConfiguration.NM_DOCKER_CONTAINER_EXECUTOR_EXEC_NAME,
