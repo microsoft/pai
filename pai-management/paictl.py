@@ -477,9 +477,6 @@ class Cluster(SubCmd):
 
         bootup_parser = SubCmd.add_handler(image_parser, self.k8s_bootup, "k8s-bootup")
         clean_parser = SubCmd.add_handler(image_parser, self.k8s_clean, "k8s-clean")
-        generate_parser = SubCmd.add_handler(image_parser, self.generate_configuration, "generate-configuration",
-                description="Generate configuration files based on a quick-start yaml file.",
-                formatter_class=argparse.RawDescriptionHelpFormatter)
         install_parser = SubCmd.add_handler(image_parser, self.install_kubectl, "install-kubectl")
 
         bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
@@ -487,13 +484,6 @@ class Cluster(SubCmd):
 
         clean_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
         clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
-
-        generate_parser.add_argument("-i", "--input", dest="quick_start_config_file", required=True,
-            help="the path of the quick-start configuration file (yaml format) as the input")
-        generate_parser.add_argument("-o", "--output", dest="configuration_directory", required=True,
-            help="the path of the directory the configurations will be generated to")
-        generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
-            help="overwrite existing files")
 
         install_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
             help="path of cluster configuration file")
@@ -547,16 +537,38 @@ class Cluster(SubCmd):
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
+    def install_kubectl(self, args):
+        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
+        kubectl_install_worker.run()
+
+
+
+class Configuration(SubCmd):
+
+
+    def register(self, parser):
+        conf_parser = parser.add_subparsers(help="configuration operations")
+
+        generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate-configuration",
+                                             description="Generate configuration files based on a quick-start yaml file.",
+                                             formatter_class=argparse.RawDescriptionHelpFormatter)
+
+        generate_parser.add_argument("-i", "--input", dest="quick_start_config_file", required=True,
+                                     help="the path of the quick-start configuration file (yaml format) as the input")
+        generate_parser.add_argument("-o", "--output", dest="configuration_directory", required=True,
+                                     help="the path of the directory the configurations will be generated to")
+        generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
+                                     help="overwrite existing files")
+
+
+
     def generate_configuration(self, args):
         cluster_util.generate_configuration(
                 args.quick_start_config_file,
                 args.configuration_directory,
                 args.force)
 
-    def install_kubectl(self, args):
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
-        kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
-        kubectl_install_worker.run()
 
 
 class Main(SubCmd):
@@ -570,6 +582,7 @@ class Main(SubCmd):
             subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
             subcmd.register(subparser)
 
+
 def main(args):
     parser = argparse.ArgumentParser()
 
@@ -577,7 +590,8 @@ def main(args):
         "image": Image(),
         "machine": Machine(),
         "service": Service(),
-        "cluster": Cluster()
+        "cluster": Cluster(),
+        "configuration": Configuration()
         })
 
     main_handler.register(parser)
