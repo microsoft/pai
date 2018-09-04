@@ -264,3 +264,20 @@ textarea#yaml-editor-holder{
 #mask  #loading{
     position: fixed !important;
 }
+
+.modal-body>div div[data-schemaid]>h3 { /* hide the json editor title*/
+    display: none;
+}
+
+@media (min-width: 1080px) {
+    .modal-llg {
+        width: 1050px !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    .modal-llg {
+        width: 1200px !important;
+    }
+}
+
