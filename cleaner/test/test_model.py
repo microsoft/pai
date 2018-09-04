@@ -23,17 +23,18 @@ from cleaner.model.action import Rule
 from datetime import timedelta
 
 
+def condition_method(data):
+    return True
+
+
 class ModelTest(TestCase):
 
     def test_condition(self):
-        def method(data):
-            return True
-
         condition = Condition(key="test")
         self.assertTrue(condition.key == "test")
 
-        condition.method = method
-        self.assertTrue(condition.method == method)
+        condition.method = condition_method
+        self.assertTrue(condition.method == condition_method)
 
         condition.owner = "tester"
         self.assertTrue(condition.owner == "tester")
