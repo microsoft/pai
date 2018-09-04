@@ -15,3 +15,9 @@
 .thumbnail {
     margin-bottom: 0;
 }
+
+.single-line {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
