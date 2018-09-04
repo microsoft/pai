@@ -550,7 +550,7 @@ class Configuration(SubCmd):
     def register(self, parser):
         conf_parser = parser.add_subparsers(help="configuration operations")
 
-        generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate-configuration",
+        generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate",
                                              description="Generate configuration files based on a quick-start yaml file.",
                                              formatter_class=argparse.RawDescriptionHelpFormatter)
 
