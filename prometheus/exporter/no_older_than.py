@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,34 +16,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
+import argparse
+import datetime
+import os
 
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
-# patch for webhdfs upload issue when using nginx as a reverse proxy
-wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
+def check_no_older_than(paths, delta):
+    """ raise RuntimeError exception if any path in paths is older than `now - delta` """
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(seconds=delta)
+    oldest = now - delta
 
-git clone https://github.com/apache/hadoop.git
-
-cd hadoop
-
-git checkout branch-2.9.0
-
-cp /hadoop-2.9.0.gpu-port.patch /hadoop
-cp /HDFS-13773.patch /hadoop
-cp /docker-executor.patch /hadoop
-
-git apply hadoop-2.9.0.gpu-port.patch
-git apply HDFS-13773.patch
-git apply docker-executor.patch
-
-mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
-
-cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
-
-echo "Successfully build hadoop 2.9.0 AI"
+    for path in paths:
+        mtime = os.path.getmtime(path)
+        mtime = datetime.datetime.fromtimestamp(mtime)
+        if oldest > mtime:
+            raise RuntimeError("{} was updated more than {} seconds ago".format(path, delta))
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("paths", nargs="+", help="file to be checked")
+    parser.add_argument("-d", "--delta", type=int, default=60, help="check file is no older than -d seconds")
+    args = parser.parse_args()
 
-# When Changing the patch id, please update the filename here.
-rm /hadoop-binary/*-done
-touch /hadoop-binary/12932984-12933562-docker_executor-done
+    check_no_older_than(args.paths, args.delta)
