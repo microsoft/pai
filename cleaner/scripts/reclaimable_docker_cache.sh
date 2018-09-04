@@ -17,6 +17,10 @@
 
 #!/bin/bash
 
+if [ "$1" == "test" ]; then
+
+fi
+
 docker system df | \
 gawk 'BEGIN {s=0}
       END {print s}

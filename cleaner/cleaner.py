@@ -24,12 +24,6 @@ import time
 import subprocess
 
 
-def check_docker_cache(threshold):
-    proc = subprocess.Popen(['/bin/bash', './scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
-    out, _ = proc.communicate()
-    return float(out) > threshold
-
-
 class Cleaner(LoggerMixin):
     def __init__(self, cool_down_time=2):
         self.rules = {}
@@ -40,17 +34,6 @@ class Cleaner(LoggerMixin):
             self.logger.info("add rule with key %s.", key)
             self.rules[key] = rule
 
-    def add_docker_cache_rule(self):
-        condition = Condition(key="docker_cache_condition",
-                              input_data=1,
-                              method=check_docker_cache)
-        action = Action(key="docker_cache_action",
-                        command="docker system prune -af")
-        rule = Rule(key="docker_cache_rule",
-                    condition=condition,
-                    action=action)
-        self.add_rule(rule.key, rule)
-
     def run(self):
         executor = Executor()
         executor.start()
@@ -60,7 +43,30 @@ class Cleaner(LoggerMixin):
             time.sleep(self.cool_down_time)
 
 
+def check_docker_cache(threshold):
+    proc = subprocess.Popen(['/bin/bash', './scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
+    out, _ = proc.communicate()
+    out = out.decode("UTF-8").strip()
+    try:
+        size = float(out)
+    except ValueError:
+        size = 0
+    return size > threshold
+
+
+def add_docker_cache_rule(cache_cleaner):
+    condition = Condition(key="docker_cache_condition",
+                          input_data=1,
+                          method=check_docker_cache)
+    action = Action(key="docker_cache_action",
+                    command="docker system prune -af")
+    rule = Rule(key="docker_cache_rule",
+                condition=condition,
+                action=action)
+    cache_cleaner.add_rule(rule.key, rule)
+
+
 if __name__ == "__main__":
     cleaner = Cleaner()
-    cleaner.add_docker_cache_rule()
+    add_docker_cache_rule(cleaner)
     cleaner.run()
