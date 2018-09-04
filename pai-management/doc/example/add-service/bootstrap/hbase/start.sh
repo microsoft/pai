@@ -25,9 +25,9 @@
 pushd $(dirname "$0") > /dev/null
 
 
-# Step1: Choose the pai roles you want to deploy in your service.yaml file
-deploy-rules:
-  in: pai-master
+# Step1: Choose the pai roles you want to deploy in your service.yaml file, such as:
+# deploy-rules:
+#   in: pai-master
 
 # Step2: Create the configmap.
 #chmod u+x configmap-create.sh
