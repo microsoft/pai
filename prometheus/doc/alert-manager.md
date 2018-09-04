@@ -4,10 +4,8 @@ release.
 
 # Configuration
 
-To enable Alert Manager, follow the following steps:
-* select a node to deploy Alert Manager, both master and work node can be used as Alter Manager.
-* in `cluster-configuration` file, set `alert-manager: "true"` for this node.
-* configure Alert Manager by adding `alerting` fields under `prometheus` to services-configuration file.
+To enable Alert Manager, please configure Alert Manager by adding `alerting` fields under `prometheus`
+to services-configuration file.
 
 Refer to example [`cluster-configuration`](../../cluster-configuration/cluster-configuration.yaml) and
 [`service-configuration`](../../cluster-configuration/services-configuration.yaml) for more
@@ -46,6 +44,9 @@ Following are these rule's triggering condition:
 | NodeDiskPressure | kubernetes indicate one of node is under disk pressure |
 | PaiServicePodNotRunning | kubernetes indicate one of pai service pod is not in running status |
 | PaiServicePodNotReady | kubernetes indicate one of pai service pod is not in ready status |
+
+Our email template is similar to original Alert Manager's, except We only render annotation.summary
+if the key exist. This can make alert email simpler to read and understand.
 
 If you want to add more rules, please reference syntax
 [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
