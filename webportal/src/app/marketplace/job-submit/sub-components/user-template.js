@@ -18,6 +18,25 @@
 require('json-editor'); /* global JSONEditor */
 require('bootstrap/js/tooltip.js');
 
+const monaco = require('monaco-editor');
+self.MonacoEnvironment = {
+  getWorkerUrl: function(moduleId, label) {
+    if (label === 'json') {
+      return './scripts/json.worker.bundle.js';
+    }
+    if (label === 'css') {
+      return './scripts/css.worker.bundle.js';
+    }
+    if (label === 'html') {
+      return './scripts/html.worker.bundle.js';
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return './scripts/ts.worker.bundle.js';
+    }
+    return './scripts/editor.worker.bundle.js';
+  },
+};
+
 const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
 const addModalFormat = require('./add.ejs');
@@ -41,6 +60,8 @@ const initArray = () => {
 
 let editors = initArray();
 let editorsValue = initArray();
+
+let yamleditor = null;
 
 let addModalVariables = {
   addEditor: null,
@@ -184,31 +205,6 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const updatePageFromYaml = (d) => { // d is a string
-  emptyPage();
-
-  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
-
-  // update docker/script/data
-  if ('prerequisites' in data) {
-    Object.keys(data['prerequisites']).forEach((key) => {
-      insertNewDockerDataScript(data['prerequisites'][key]);
-    });
-  }
-
-  // update task
-  if ('tasks' in data) {
-    data['tasks'].forEach((task) => {
-      insertNewTask(task);
-    });
-  }
-
-  // update job
-  $('#job-name').text(data['name']);
-  $('#job-description').text(data['description']);
-  addNewJsonEditor(data, '', 'job');
-};
-
 const saveTemplateOnAddModal = (type, id) => {
   addModalVariables.finalEditor = addModalVariables.addEditor;
   let data = addModalVariables.finalEditor.getValue();
@@ -225,6 +221,41 @@ const saveTemplateOnAddModal = (type, id) => {
   $(`#${type}${id}-edit-button`).on('click', () => {
     $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
   });
+};
+
+const updatePageFromJson = (data) => { // data is a json
+  if ('type' in data) {
+    emptyPage();
+
+    if (data['type'] == 'job') { // it is a job
+      // update docker/script/data
+      if ('prerequisites' in data) {
+        Object.keys(data['prerequisites']).forEach((key) => {
+          insertNewDockerDataScript(data['prerequisites'][key]);
+        });
+      }
+
+      // update task
+      if ('tasks' in data) {
+        data['tasks'].forEach((task) => {
+          insertNewTask(task);
+        });
+      }
+
+      // update job
+      $('#job-name').text(data['name']);
+      $('#job-description').text(data['description']);
+      addNewJsonEditor(data, '', 'job');
+    } else { // update docker/script/data
+      insertNewDockerDataScript(data);
+      addNewJsonEditor({}, '', 'job');
+    }
+  }
+};
+
+const updatePageFromYaml = (d) => { // d is a string
+  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
+  updatePageFromJson(data);
 };
 
 const replaceHrefs = (htmls) => {
@@ -354,13 +385,13 @@ const exportsYaml = () => {
 
 const editYaml = () => {
   let res = yamlHelper.exportToYaml(editors);
-  $('#yaml-editor-holder').val(res);
+  yamleditor.setValue(res);
   $('#yaml-modal').modal('show');
 };
 
 const updatePageByYamlEditor = () => {
   try {
-    let res = $('#yaml-editor-holder').val();
+    let res = yamleditor.getValue();
     updatePageFromYaml(res);
     $('#yaml-modal').modal('hide');
   } catch (YAMLException) {
@@ -378,12 +409,20 @@ const initPage = () => {
     description: 'Please add job description.',
   };
   addNewJsonEditor(initJob, '', 'job'); // init a job jsonEditor
+
+  yamleditor = monaco.editor.create(document.getElementById('yaml-editor-holder'), {
+    value: 'test:\n  - 1\n',
+    language: 'yaml',
+    automaticLayout: true,
+    theme: 'vs-dark',
+  });
 };
 
 module.exports = {
   updatePageFromYaml,
   editYaml,
   updatePageByYamlEditor,
+  updatePageFromJson,
   exportsYaml,
   showAddModal,
   createSubmitData,

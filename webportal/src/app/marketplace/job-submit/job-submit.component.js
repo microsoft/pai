@@ -23,6 +23,7 @@ const loading = require('../../job/loading/loading.component');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const userTemplate = require('./sub-components/user-template.js');
+const url = require('url');
 
 require('./job-submit.component.scss');
 require('./sub-components/task-format.scss');
@@ -115,5 +116,16 @@ $(document).ready(() => {
         $('#submitJob').attr('disabled', false);
       }
     }, false);
+
+    const query = url.parse(window.location.href, true).query;
+    const type = query.type;
+    const name = query.name;
+
+    if (type != null && name != null) {
+        const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
+        $.getJSON(u, (data)=>{
+          userTemplate.updatePageFromJson(data);
+      });
+    }
   });
 });

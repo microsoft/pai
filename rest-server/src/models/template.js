@@ -17,13 +17,17 @@
 
 
 const base64 = require('js-base64').Base64;
-const github = require('@octokit/rest')();
+const github = require('@octokit/rest');
 const https = require('https');
 const url = require('url');
 const yaml = require('js-yaml');
 
 const logger = require('../config/logger');
 const config = require('../config/github');
+
+const defaultGithubClient = github();
+
+const contentUrlPrefix = `https://raw.githubusercontent.com/${config.owner}/${config.repository}`;
 
 /**
  * Get template content by the given qualifier.
@@ -33,8 +37,9 @@ const config = require('../config/github');
 const load = (options, callback) => {
   let ref = options.version ? options.version : config.branch;
   let responses = [];
-  let path = `${config.owner}/${config.repository}/${ref}/${options.type}/${options.name}.yaml`;
-  https.get('https://raw.githubusercontent.com/' + path, function(res) {
+  let contentUrl = `${contentUrlPrefix}/${ref}/${options.type}/${options.name}.yaml`;
+  logger.debug('fetch content of ' + contentUrl);
+  https.get(contentUrl, function(res) {
     res.on('data', function(chunk) {
       responses.push(chunk);
     });
@@ -53,42 +58,70 @@ const load = (options, callback) => {
   });
 };
 
+const getAuthenticatedClient = (pat, callback) => {
+  let client = github();
+  try {
+    client.authenticate({
+      type: 'token',
+      token: pat,
+    });
+    callback(null, client);
+  } catch (err) {
+    callback(err, null);
+  }
+};
+
 /**
  * Save the template.
- * @param {*} type Template type.
- * @param {*} name Template name.
- * @param {*} template An object representing a job/script/data/dockerimage template.
- * @param {*} pat Personal access token for GitHub.
+ * @param {*} options A MAP object containing keys 'type', 'name', 'template', and 'pat'.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
-const save = function(type, name, template, pat, callback) {
-  github.authenticate({
-    type: 'token',
-    token: pat,
-  });
-  let b64text = base64.encode(yaml.dump(template));
-  github.repos.createFile({
-    owner: config.owner,
-    repo: config.repository,
-    path: `${type}/${name}.yaml`,
-    message: 'Create template from PAI Marketplace.',
-    content: b64text,
-  }, function(err, res) {
+const save = function(options, callback) {
+  let type = options.type;
+  let name = options.name;
+  let template = options.template;
+  let pat = options.pat;
+  getAuthenticatedClient(pat, function(err, client) {
     if (err) {
-      // Maybe existed, try to update
-      update(type, name, b64text, callback);
+      return callback(err, null);
     } else {
-      logger.debug(res);
-      callback(null, {
-        new: true,
-        summary: createSummary(type, name, res),
+      let b64text = base64.encode(yaml.dump(template));
+      client.repos.createFile({
+        owner: config.owner,
+        repo: config.repository,
+        path: `${type}/${name}.yaml`,
+        message: 'Create template from PAI Marketplace.',
+        content: b64text,
+      }, function(err, res) {
+        if (err) {
+          // Maybe existed, try to update
+          update({
+            type: type,
+            name: name,
+            b64text: b64text,
+          }, callback);
+        } else {
+          logger.debug(res);
+          callback(null, {
+            new: true,
+            summary: createSummary(type, name, res),
+          });
+        }
       });
     }
   });
 };
 
-const update = function(type, name, b64text, callback) {
-  github.repos.getContent({
+/**
+ * Save the template.
+ * @param {*} options A MAP object containing keys 'type', 'name', and 'b64text'.
+ * @param {*} callback A function object accepting 2 parameters which are error and result.
+ */
+const update = function(options, callback) {
+  let type = options.type;
+  let name = options.name;
+  let b64text = options.b64text;
+  defaultGithubClient.repos.getContent({
     owner: config.owner,
     repo: config.repository,
     path: `${type}/${name}.yaml`,
@@ -96,7 +129,7 @@ const update = function(type, name, b64text, callback) {
     if (err) {
       return callback(err, null);
     } else {
-      github.repos.updateFile({
+      defaultGithubClient.repos.updateFile({
         owner: config.owner,
         repo: config.repository,
         path: res.data.path,
@@ -135,7 +168,7 @@ const createSummary = (type, name, res) => {
 const search = (options, callback) => {
   let params = createQuery(options);
   logger.debug(params);
-  github.search.code(params, function(err, res) {
+  defaultGithubClient.search.code(params, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
@@ -179,14 +212,10 @@ const downloadInParallel = (list, callback) => {
     list.forEach(function(item) {
       let responses = [];
       let remoteUrl = url.parse(item.url, true);
-      https.get({
-        host: remoteUrl.host,
-        path: remoteUrl.path,
-        headers: {
-          'Accept': 'application/vnd.github.VERSION.raw',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
-        },
-      }, function(res) {
+      let ref = remoteUrl.query.ref;
+      let contentUrl = `${contentUrlPrefix}/${ref}/${item.path}`;
+      logger.debug('fetch content of ' + contentUrl);
+      https.get(contentUrl, function(res) {
         res.on('data', function(chunk) {
           responses.push(chunk);
         });
@@ -197,7 +226,9 @@ const downloadInParallel = (list, callback) => {
               type: one.type,
               name: one.name,
               contributor: one.contributor,
-              version: remoteUrl.query.ref,
+              version: ref,
+              description: one.description,
+              score: item.score,
             });
           } else {
             logger.error(res.statusMessage);
