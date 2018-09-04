@@ -131,7 +131,7 @@ $(document).ready(() => {
 });
 
 window.onbeforeunload = function() {
-  if ($('#submitJob').prop("disabled") == true){
+  if ($('#submitJob').prop('disabled') == true) {
     return undefined;
   } else {
     return 'you will lost your editing, save as yaml';
