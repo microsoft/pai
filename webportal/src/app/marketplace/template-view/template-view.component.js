@@ -181,15 +181,17 @@ $(function() {
         }
 
         $('#upload-button').click(() => {
-            $('#upload-body-select').removeClass('hidden');
-            $('#upload-body-form').addClass('hidden');
-            $('#upload-body-success').addClass('hidden');
-            $('#upload-submit').addClass('hidden');
+            userAuth.checkToken((token) => {
+                $('#upload-body-select').removeClass('hidden');
+                $('#upload-body-form').addClass('hidden');
+                $('#upload-body-success').addClass('hidden');
+                $('#upload-submit').addClass('hidden');
+            });
         });
 
         $('#upload-docker').click(() => {
+            $('#upload-modal-title').html('Upload DockerImage');
             $('#upload-body-select').addClass('hidden');
-            $('#upload-modal-title').html('Upload Docker');
             $('#upload-body-form').removeClass('hidden');
             $('#upload-submit').removeClass('hidden');
             let element = document.getElementById('upload-body-form');
