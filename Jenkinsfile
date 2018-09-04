@@ -24,7 +24,7 @@ echo ${labels[0]} > ${WORKSPACE}/BED.txt
           sh '''#!/bin/bash
 set -ex
 
-echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
+echo ${GIT_BRANCH//\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
 '''
           env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
           echo "Image tag: ${IMAGE_TAG}"
@@ -117,7 +117,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \
@@ -222,7 +221,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \

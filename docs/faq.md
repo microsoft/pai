@@ -85,3 +85,55 @@ python mnist_train.py --train_dir hdfs://10.*.*.*:9000/test --checkpoint_dir hdf
 ```
 
 Reference: https://www.alibabacloud.com/help/zh/doc-detail/53928.htm
+
+### Q: How to use private docker registry job image when submitting an OpenPAI job? 
+
+A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at job submit json file:
+
+If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
+please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
+
+- (1) Create an authFile
+
+authfile content:
+
+```
+userprivateimage.azurecr.io
+username
+password
+```
+
+Note: userprivateimage.azurecr.io is docker_registry_server
+
+- (2) [Upload it to HDFS](../pai-management/doc/hdfs.md#WebHDFS). 
+
+File path at hdfs example: hdfs://master_ip:9000/user/paidemo/authfile
+
+- (3) Specify the path in `authFile` paramete 
+
+OpenPAI job json file example:
+
+```
+{
+  "jobName": "paidemo",
+  "image": "userprivateimage.azurecr.io/demo4pai:test",
+  "dataDir": "hdfs://master_ip:9000/user/paidemo/data", 
+  "outputDir": "hdfs://master_ip:9000/user/paidemo/output", 
+  "codeDir": "hdfs://master_ip:9000/user/paidemo/code", 
+  "authFile":"hdfs://master_ip:9000/user/paidemo/authfile",
+  "taskRoles": [
+    {
+      "name": "demo4pai",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": " cd /home/test && bash train.sh"
+    }
+  ]
+}
+```
+
+*NOTE*: 
+- If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+- Related issue: [1125](https://github.com/Microsoft/pai/issues/1215)

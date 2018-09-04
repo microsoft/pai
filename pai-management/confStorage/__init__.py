@@ -14,20 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-FROM python:2.7
-
-
-ENV NVIDIA_VERSION=current
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
-
-RUN mkdir -p /job_exporter
-COPY copied_file/exporter/* /job_exporter/
-
-RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-RUN tar xzvf docker-17.06.2-ce.tgz -C /usr/local/
-RUN cp -r /usr/local/docker/* /usr/bin/
-
-CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30
