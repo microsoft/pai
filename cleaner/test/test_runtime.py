@@ -19,7 +19,7 @@
 from unittest import TestCase, main
 from multiprocessing import Queue
 from datetime import timedelta
-from cleaner.runtime.executor import Worker, RunningResult
+from cleaner.runtime.executor import Worker, RunningResult, Executor
 from cleaner.model.rule import Rule
 from cleaner.model.action import Action
 from cleaner.model.condition import Condition
@@ -78,3 +78,60 @@ class TestWorker(TestCase):
 
         result = queue.get()
         self.assertTrue(result == (rule.key, RunningResult.TIMEOUT))
+
+
+class TestExecutor(TestCase):
+
+    def setUp(self):
+        self.true = Condition(key="TestExecutorCondition", method=condition_true)
+        self.action_pwd = Action(key="TestExecutorAction", command="pwd")
+        self.action_sleep = Action(key="TestExecutorAction", command="sleep 1")
+
+    def testExecRuleSuccess(self):
+        self.success = False
+
+        def on_complete(key, state):
+            self.success = True if state == RunningResult.SUCCESS else False
+
+        executor = Executor(complete_callback=on_complete)
+        rule = Rule(key="TestRule", condition=self.true, action=self.action_pwd)
+        executor.start().run_async(rule.key, rule).end()
+        self.assertTrue(self.success, "The rule failed.")
+
+    def testExecRuleTimeout(self):
+        self.timeout = False
+
+        def on_complete(key, state):
+            self.timeout = True if state == RunningResult.TIMEOUT else False
+
+        action = Action(key="TimeoutAction", command="sleep 10")
+        rule = Rule(key="TimeoutRule", condition=self.true, action=action, action_timeout=timedelta(seconds=1))
+        executor = Executor(complete_callback=on_complete)
+        executor.start().run_async(rule.key, rule).end()
+        self.assertTrue(self.timeout, "the action should timeout")
+
+    def testExecDuplicateRule(self):
+        self.once = 0
+
+        def on_complete(key, state):
+            if state == RunningResult.SUCCESS:
+                self.once += 1
+
+        rule = Rule(key="TestRule", condition=self.true, action=self.action_sleep, action_timeout=timedelta(seconds=10))
+        executor = Executor(complete_callback=on_complete)
+        executor.run_async(rule.key, rule).run_async(rule.key, rule).end()
+        self.assertTrue(self.once == 1, "the rule should be executed only once")
+
+    def testExecMultipleRules(self):
+        self.two = 0
+
+        def on_complete(key, state):
+            if state == RunningResult.SUCCESS:
+                self.two += 1
+
+        executor = Executor(complete_callback=on_complete)
+        rule = Rule(key="SleepRule", condition=self.true, action=self.action_sleep)
+        executor.run_async(rule.key, rule)
+        rule = Rule(key="PwdRule", condition=self.true, action=self.action_pwd)
+        executor.run_async(rule.key, rule).end()
+        self.assertTrue(self.two == 2, "two rules should be executed successfully")

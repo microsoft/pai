@@ -18,6 +18,7 @@
 
 import subprocess
 import time
+import sys
 import multiprocessing
 from threading import Thread, Lock
 from cleaner.utils.logger import LoggerMixin
@@ -29,6 +30,7 @@ class RunningResult(object):
     FAILED = "failed"
     TIMEOUT = "timeout"
     FALSE_CONDITION = "false_condition"
+    UNEXPECTED_ERROR = "unexpected_error"
 
 
 class Worker(LoggerMixin, multiprocessing.Process):
@@ -65,6 +67,9 @@ class Worker(LoggerMixin, multiprocessing.Process):
         except Timeout:
             self.out_queue.put((self.key, RunningResult.TIMEOUT))
             self.logger.error("worker timeout when running rule %s", self.key)
+        except:
+            self.out_queue.put((self.key, RunningResult.UNEXPECTED_ERROR))
+            self.logger.error("rule %s failed with unexpected error %s", self.key, str(sys.exc_info()))
 
     def run(self):
         self._do()
@@ -72,12 +77,13 @@ class Worker(LoggerMixin, multiprocessing.Process):
 
 class Executor(LoggerMixin):
 
-    def __init__(self):
+    def __init__(self, complete_callback=None):
         self.out_queue = multiprocessing.Queue()
         self.active_workers = {}
         self.lock = Lock()
         self.main = None
         self.stop = False
+        self.on_complete = complete_callback
 
     def run_async(self, key, rule):
         if self.main is None:
@@ -92,11 +98,14 @@ class Executor(LoggerMixin):
             worker = Worker(key, rule, self.out_queue)
             self.active_workers[key] = worker
         worker.start()
+        return self
 
     def _on_worker_complete(self, key, state):
         self.logger.info("command with key %s finished with state %s", key, state)
         with self.lock:
             self.active_workers.pop(key)
+        if self.on_complete is not None:
+            self.on_complete(key, state)
 
     def start(self):
         """
@@ -111,6 +120,7 @@ class Executor(LoggerMixin):
         self.main = Thread(target=executor_main)
         self.main.daemon = True
         self.main.start()
+        return self
 
     def end(self):
         """
@@ -122,5 +132,6 @@ class Executor(LoggerMixin):
                 workers = len(self.active_workers)
             if workers == 0:
                 break
-            time.sleep(2)
+            time.sleep(1)
+        time.sleep(2)
         self.stop = True
