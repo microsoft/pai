@@ -36,7 +36,6 @@ class RunningResult(object):
 class Worker(LoggerMixin, multiprocessing.Process):
     def __init__(self, key, rule, out_queue):
         super(Worker, self).__init__()
-        self.daemon = True
         self.out_queue = out_queue
         self.key = key
         self.rule = rule
@@ -122,7 +121,6 @@ class Executor(LoggerMixin):
                 self._on_worker_complete(*result)
 
         self.main = Thread(target=executor_main)
-        self.main.daemon = True
         self.main.start()
         return self
 
