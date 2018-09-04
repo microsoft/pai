@@ -96,7 +96,7 @@ There is no complete instance on the Internet for pytorch to solve the hdfs smal
   
   - (2) Build customize Pytorch data reader to read from HDFS sequence file
   
-  (2.1) Build Pytorch customize [dataloader](Loading huge data functionality)
+(2.1) Build Pytorch [customize dataloader](https://discuss.pytorch.org/t/loading-huge-data-functionality/346/2)
   
   Just define a Dataset object, that only loads a list of files in __init__, and loads them every time __getindex__ is called. Then, wrap it in a torch.utils.DataLoader with multiple workers, and you’ll have your files loaded lazily in parallel.
 
@@ -117,7 +117,7 @@ dset = MyDataset()
 loader = torch.utils.DataLoader(dset, num_workers=8)
 ``` 
 
-  (2.2) Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
+(2.2) Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
 
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job? 
