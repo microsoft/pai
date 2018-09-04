@@ -88,12 +88,12 @@ class Executor(LoggerMixin):
     def run_async(self, key, rule):
         if self.main is None:
             self.logger.error("executor is not started yet.")
-            return
+            return self
 
         with self.lock:
             if key in self.active_workers:
                 self.logger.info("command with key %s is running and will not start it anymore.", key)
-                return
+                return self
 
             worker = Worker(key, rule, self.out_queue)
             self.active_workers[key] = worker
