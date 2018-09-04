@@ -248,7 +248,7 @@ $(function() {
         $('#upload-submit').click(() => {
             $('#upload-body-form').addClass('hidden');
             $('#upload-submit').addClass('hidden');
-            upload(false /*isYamlFile*/);
+            upload(false /* isYamlFile*/);
         });
 
         document.getElementById('uploadYaml').addEventListener('change', function(evt) {
@@ -259,14 +259,14 @@ $(function() {
                 reader.onload = function(e) {
                     uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
                     $('#upload-body-select').addClass('hidden');
-                    upload(true /*isYamlFile*/);
+                    upload(true /* isYamlFile*/);
                 };
                 reader.readAsText(f);
             }
         }, false);
 
         function upload(isYamlFile) {
-            if(!uploadData){
+            if (!uploadData) {
                 alert('Nothing to upload');
                 return;
             }
@@ -283,7 +283,7 @@ $(function() {
                         $('#upload-body-success').removeClass('hidden');
                     },
                     error: (xhr, textStatus, error) => {
-                        if(isYamlFile){
+                        if (isYamlFile) {
                             $('#upload-body-select').removeClass('hidden');
                         } else {
                             $('#upload-body-form').removeClass('hidden');
