@@ -173,22 +173,10 @@
                     </div>
                 </div>
                 <form class="hidden" id="upload-body-form">
-                    <div class="form-group">
-                        <label for="upload-name">Name</label>
-                        <input type="text" class="form-control" id="upload-name">
-                    </div>
-                    <div class="form-group">
-                        <label for="upload-uri">URI</label>
-                        <input type="text" class="form-control" id="upload-uri">
-                    </div>
-                    <div class="form-group">
-                        <label for="upload-description">Description</label>
-                        <textarea class="form-control" rows="3" id="upload-description"></textarea>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
                 </form>
+                <div class="text-center hidden" id="upload-submit">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
                 <div class="text-center hidden" id="upload-body-success">
                     <p class="h1"><span class="glyphicon glyphicon-ok-circle"></span></p>
                     <p class="lead">Your docker bas been uploaded successfully.</p>
