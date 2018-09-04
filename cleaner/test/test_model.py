@@ -19,7 +19,7 @@
 from unittest import TestCase, main
 from cleaner.model.condition import Condition
 from cleaner.model.action import Action
-from cleaner.model.action import Rule
+from cleaner.model.rule import Rule
 from datetime import timedelta
 
 

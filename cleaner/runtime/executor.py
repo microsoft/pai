@@ -112,6 +112,10 @@ class Executor(LoggerMixin):
         star the main thread of executor.
         :return:
         """
+        if self.main is not None:
+            self.logger.info("executor has been started.")
+            return self
+
         def executor_main():
             while not self.stop:
                 result = self.out_queue.get()

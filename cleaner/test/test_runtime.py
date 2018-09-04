@@ -93,9 +93,9 @@ class TestExecutor(TestCase):
         def on_complete(key, state):
             self.success = True if state == RunningResult.SUCCESS else False
 
-        executor = Executor(complete_callback=on_complete)
+        executor = Executor(complete_callback=on_complete).start()
         rule = Rule(key="TestRule", condition=self.true, action=self.action_pwd)
-        executor.start().run_async(rule.key, rule).end()
+        executor.run_async(rule.key, rule).end()
         self.assertTrue(self.success, "The rule failed.")
 
     def testExecRuleTimeout(self):
@@ -106,8 +106,8 @@ class TestExecutor(TestCase):
 
         action = Action(key="TimeoutAction", command="sleep 10")
         rule = Rule(key="TimeoutRule", condition=self.true, action=action, action_timeout=timedelta(seconds=1))
-        executor = Executor(complete_callback=on_complete)
-        executor.start().run_async(rule.key, rule).end()
+        executor = Executor(complete_callback=on_complete).start()
+        executor.run_async(rule.key, rule).end()
         self.assertTrue(self.timeout, "the action should timeout")
 
     def testExecDuplicateRule(self):
@@ -118,7 +118,7 @@ class TestExecutor(TestCase):
                 self.once += 1
 
         rule = Rule(key="TestRule", condition=self.true, action=self.action_sleep, action_timeout=timedelta(seconds=10))
-        executor = Executor(complete_callback=on_complete)
+        executor = Executor(complete_callback=on_complete).start()
         executor.run_async(rule.key, rule).run_async(rule.key, rule).end()
         self.assertTrue(self.once == 1, "the rule should be executed only once")
 
@@ -129,7 +129,7 @@ class TestExecutor(TestCase):
             if state == RunningResult.SUCCESS:
                 self.two += 1
 
-        executor = Executor(complete_callback=on_complete)
+        executor = Executor(complete_callback=on_complete).start()
         rule = Rule(key="SleepRule", condition=self.true, action=self.action_sleep)
         executor.run_async(rule.key, rule)
         rule = Rule(key="PwdRule", condition=self.true, action=self.action_pwd)
