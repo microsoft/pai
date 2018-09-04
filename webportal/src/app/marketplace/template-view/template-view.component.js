@@ -114,7 +114,7 @@ function search(query) {
         if ($jobsSlick.data('request-id') !== requestId) return;
 
         $.getJSON(url, {query: query, pageno: page})
-            .then(function(data) {
+            .done(function(data) {
                 if ($jobsSlick.data('request-id') !== requestId) return;
 
                 const items = data.items;
@@ -150,6 +150,12 @@ function search(query) {
 
                 if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
                     setTimeout(append, 100, page + 1);
+                }
+            }).fail(function(jqxhr, _, error) {
+                if (jqxhr.status == 500) {
+                    alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+                } else {
+                    alert(error);
                 }
             });
     }
@@ -187,21 +193,35 @@ $(function() {
         }
 
         $('#upload-button').click(() => {
-            $('#upload-body-select').removeClass('hidden');
-            $('#upload-body-form').addClass('hidden');
-            $('#upload-body-success').addClass('hidden');
-            $('#upload-submit').addClass('hidden');
+            userAuth.checkToken((token) => {
+                $('#upload-body-select').removeClass('hidden');
+                $('#upload-body-form').addClass('hidden');
+                $('#upload-body-success').addClass('hidden');
+                $('#upload-submit').addClass('hidden');
+            });
         });
 
         $('#upload-docker').click(() => {
+            makeUploadDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
+        });
+
+        $('#upload-script').click(() => {
+            makeUploadDialog('Upload Script', 'script', 'scriptSchema');
+        });
+
+        $('#upload-data').click(() => {
+            makeUploadDialog('Upload Data', 'data', 'dataSchema');
+        });
+
+        function makeUploadDialog(dialogTitle, uploadDataType, uploadFormSchema) {
+            $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
-            $('#upload-modal-title').html('Upload Docker');
             $('#upload-body-form').removeClass('hidden');
             $('#upload-submit').removeClass('hidden');
             let element = document.getElementById('upload-body-form');
             element.innerHTML = '';
             let editor = new JSONEditor(element, {
-                schema: jobSchema['dockerimageSchema'],
+                schema: jobSchema[uploadFormSchema],
                 theme: 'bootstrap3',
                 iconlib: 'bootstrap3',
                 disable_array_reorder: true,
@@ -218,20 +238,10 @@ $(function() {
                 let error = editor.validate();
                 if (error.length == 0) {
                     uploadData = editor.getValue();
-                    uploadData['type'] = 'dockerimage';
+                    uploadData['type'] = uploadDataType;
                 }
             });
-        });
-
-        $('#upload-script').click(() => {
-            $('#upload-body-select').addClass('hidden');
-            $('#upload-body-form').removeClass('hidden');
-        });
-
-        $('#upload-data').click(() => {
-            $('#upload-body-select').addClass('hidden');
-            $('#upload-body-form').removeClass('hidden');
-        });
+        }
 
         $('#upload-submit').click(() => {
             $('#upload-body-form').addClass('hidden');
