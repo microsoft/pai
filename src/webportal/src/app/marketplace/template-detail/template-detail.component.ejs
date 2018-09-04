@@ -86,15 +86,16 @@
             <section class="content">
                 <h4><strong>Related</strong></h4>
                 <ul class="list-unstyled">
-                    <% if (typeDisplay === 'job') {
+                    <% if (type === 'job') {
                         for (var i = 0, l = prerequisites.length; i < l; i++) {
                             var uri = prerequisites[i].uri
-                            var relatedUri = /^https?:\/\//.test(uri) ? uri : 'http://hub.docker.com/r/' + uri %>
-                        <li><a href="<%= relatedUri %>"><%= relatedUri %><a></li>
+                            var compiledUri = this.compileUri(uri)
+                            %>
+                        <li class="break-word"><a href="<%= compiledUri %>"><%= compiledUri %><a></li>
                         <% }
                     } else { 
-                        var relatedUri = /^https?:\/\//.test(uri) ? uri : 'http://hub.docker.com/r/' + uri %>
-                        <li><a href="<%= relatedUri %>"><%= relatedUri %><a></li>
+                        var compiledUri = this.compileUri(uri) %>
+                        <li class="break-word"><a href="<%= compiledUri %>"><%= compiledUri %><a></li>
                     <% } %>
                 </ul>
             </section>
