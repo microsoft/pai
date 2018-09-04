@@ -75,7 +75,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
 # generate config
 ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
-./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
+./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # change ectdid, zkid
@@ -165,7 +165,7 @@ fi
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
 
 # Step 1. Generate config
-./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
+./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
@@ -269,7 +269,7 @@ fi
 /jenkins/scripts/${BED}-gen_cluster.sh /quick-start
 
 # Step 1. Generate config
-./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
+./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
