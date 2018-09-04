@@ -44,7 +44,7 @@ class Cleaner(LoggerMixin):
 
 
 def check_docker_cache(threshold):
-    proc = subprocess.Popen(['/bin/bash', './scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['/bin/bash', './cleaner/scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
     out, _ = proc.communicate()
     out = out.decode("UTF-8").strip()
     try:
