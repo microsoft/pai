@@ -162,7 +162,13 @@ $(function() {
     $('#content-wrapper').html(template(query));
     $('#search').submit(function(event) {
         event.preventDefault();
-        search($(this).find('input').val());
+        let query = $(this).find('input').val();
+        if (query) {
+            search(query);
+        } else {
+            // No query, list popular templates
+            window.location.reload(false);
+        }
     });
     prepareCarousel($('#marketplace-jobs'));
     prepareCarousel($('#marketplace-dockers'));

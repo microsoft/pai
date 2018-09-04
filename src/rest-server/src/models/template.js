@@ -227,6 +227,8 @@ const downloadInParallel = (list, callback) => {
               name: one.name,
               contributor: one.contributor,
               version: ref,
+              description: one.description,
+              score: item.score,
             });
           } else {
             logger.error(res.statusMessage);
