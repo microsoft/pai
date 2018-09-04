@@ -26,7 +26,7 @@ const template = require('./template-view.component.ejs');
 const slideTemplate = require('./template-view.slide.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
-const jobSchema = require('../job-submit/sub-components/json-editor-schema.js')
+const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
 
 const slideContext = {
     parseType: function parseType(rawType) {
@@ -39,7 +39,7 @@ const slideContext = {
     },
 };
 
-var uploadData ={};
+let uploadData ={};
 
 function prepareCarousel($carousel) {
     const $prev = $('<a class="btn btn-link"><span class="glyphicon glyphicon-menu-left"></span></a>')
@@ -193,8 +193,8 @@ $(function() {
             $('#upload-body-form').removeClass('hidden');
             $('#upload-submit').removeClass('hidden');
             let element = document.getElementById('upload-body-form');
-            element.innerHTML = "";
-            let editor = new JSONEditor(element,{
+            element.innerHTML = '';
+            let editor = new JSONEditor(element, {
                 schema: jobSchema['dockerimageSchema'],
                 theme: 'bootstrap3',
                 iconlib: 'bootstrap3',
@@ -206,7 +206,7 @@ $(function() {
                     'protocol_version': 'v2',
                     'version': '1.0.0',
                     'contributor': cookies.get('user'),
-                }
+                },
             });
             editor.on('change', () => {
                 let error = editor.validate();
