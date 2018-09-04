@@ -198,7 +198,7 @@ $(function() {
         $('#upload-docker').click(() => {
             makeUploaDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
         });
-        
+
         $('#upload-script').click(() => {
             makeUploaDialog('Upload Script', 'script', 'scriptSchema');
         });
@@ -207,7 +207,7 @@ $(function() {
             makeUploaDialog('Upload Data', 'data', 'dataSchema');
         });
 
-        function makeUploaDialog(dialogTitle, uploadDataType, uploadFormSchema){
+        function makeUploaDialog(dialogTitle, uploadDataType, uploadFormSchema) {
             $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
             $('#upload-body-form').removeClass('hidden');
