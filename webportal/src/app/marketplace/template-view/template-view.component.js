@@ -196,18 +196,18 @@ $(function() {
         });
 
         $('#upload-docker').click(() => {
-            makeUploaDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
+            makeUploadDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
         });
 
         $('#upload-script').click(() => {
-            makeUploaDialog('Upload Script', 'script', 'scriptSchema');
+            makeUploadDialog('Upload Script', 'script', 'scriptSchema');
         });
 
         $('#upload-data').click(() => {
-            makeUploaDialog('Upload Data', 'data', 'dataSchema');
+            makeUploadDialog('Upload Data', 'data', 'dataSchema');
         });
 
-        function makeUploaDialog(dialogTitle, uploadDataType, uploadFormSchema) {
+        function makeUploadDialog(dialogTitle, uploadDataType, uploadFormSchema) {
             $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
             $('#upload-body-form').removeClass('hidden');
