@@ -22,6 +22,14 @@ const url = require('url');
 
 $('#sidebar-menu--template-view').addClass('active');
 
+const context = {
+    compileUri: function(uri) {
+        if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
+        if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
+        return uri;
+    },
+};
+
 $(function() {
     const query = url.parse(window.location.href, true).query;
     const type = {
@@ -34,7 +42,7 @@ $(function() {
     if (type == null || name == null) return location.href = '/';
 
     const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
-    $.getJSON(u).then(template).then(function(html) {
+    $.getJSON(u).then(template.bind(context)).then(function(html) {
         $('#content-wrapper').html(html);
     });
 });
