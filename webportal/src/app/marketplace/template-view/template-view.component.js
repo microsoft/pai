@@ -190,14 +190,26 @@ $(function() {
         });
 
         $('#upload-docker').click(() => {
-            $('#upload-modal-title').html('Upload DockerImage');
+            makeUploaDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
+        });
+        
+        $('#upload-script').click(() => {
+            makeUploaDialog('Upload Script', 'script', 'scriptSchema');
+        });
+
+        $('#upload-data').click(() => {
+            makeUploaDialog('Upload Data', 'data', 'dataSchema');
+        });
+
+        function makeUploaDialog(dialogTitle, uploadDataType, uploadFormSchema){
+            $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
             $('#upload-body-form').removeClass('hidden');
             $('#upload-submit').removeClass('hidden');
             let element = document.getElementById('upload-body-form');
             element.innerHTML = '';
             let editor = new JSONEditor(element, {
-                schema: jobSchema['dockerimageSchema'],
+                schema: jobSchema[uploadFormSchema],
                 theme: 'bootstrap3',
                 iconlib: 'bootstrap3',
                 disable_array_reorder: true,
@@ -214,20 +226,10 @@ $(function() {
                 let error = editor.validate();
                 if (error.length == 0) {
                     uploadData = editor.getValue();
-                    uploadData['type'] = 'dockerimage';
+                    uploadData['type'] = uploadDataType;
                 }
             });
-        });
-
-        $('#upload-script').click(() => {
-            $('#upload-body-select').addClass('hidden');
-            $('#upload-body-form').removeClass('hidden');
-        });
-
-        $('#upload-data').click(() => {
-            $('#upload-body-select').addClass('hidden');
-            $('#upload-body-form').removeClass('hidden');
-        });
+        }
 
         $('#upload-submit').click(() => {
             $('#upload-body-form').addClass('hidden');
