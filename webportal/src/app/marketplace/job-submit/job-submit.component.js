@@ -101,15 +101,15 @@ $(document).on('click', '#submitJob', () => {
 });
 
 $(document).ready(() => {
-  userAuth.checkToken(function(token) {
+  userAuth.checkToken(function (token) {
     userTemplate.initPage();
     $('#submitJob').attr('disabled', 'disabled');
-    document.getElementById('importYaml').addEventListener('change', function(evt) {
+    document.getElementById('importYaml').addEventListener('change', function (evt) {
       let files = evt.target.files;
       if (files.length) {
         let f = files[0];
         let reader = new FileReader(); // read the local file
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           userTemplate.updatePageFromYaml(e.target.result);
         };
         reader.readAsText(f);
@@ -122,10 +122,19 @@ $(document).ready(() => {
     const name = query.name;
 
     if (type != null && name != null) {
-        const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
-        $.getJSON(u, (data)=>{
-          userTemplate.updatePageFromJson(data);
+      const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
+      $.getJSON(u, (data) => {
+        userTemplate.updatePageFromJson(data);
       });
     }
   });
 });
+
+window.onbeforeunload = function () {
+  if ($('#submitJob').prop("disabled") == true) {
+    return undefined;
+  } else {
+    return 'you will lost your editing, save as yaml';
+  }
+}
+
