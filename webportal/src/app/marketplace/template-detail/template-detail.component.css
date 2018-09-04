@@ -15,3 +15,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+.break-word {
+    word-wrap: break-word;
+}
