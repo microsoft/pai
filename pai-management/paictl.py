@@ -591,7 +591,7 @@ def main(args):
         "machine": Machine(),
         "service": Service(),
         "cluster": Cluster(),
-        "configuration": Configuration()
+        "config": Configuration()
         })
 
     main_handler.register(parser)
