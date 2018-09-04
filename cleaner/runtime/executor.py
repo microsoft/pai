@@ -81,7 +81,6 @@ class Executor(LoggerMixin):
         self.active_workers = {}
         self.lock = Lock()
         self.main = None
-        self.stop = False
         self.on_complete = complete_callback
 
     def run_async(self, key, rule):
@@ -116,11 +115,12 @@ class Executor(LoggerMixin):
             return self
 
         def executor_main():
-            while not self.stop:
+            while True:
                 result = self.out_queue.get()
                 self._on_worker_complete(*result)
 
         self.main = Thread(target=executor_main)
+        self.main.daemon = True
         self.main.start()
         return self
 
@@ -135,5 +135,5 @@ class Executor(LoggerMixin):
             if workers == 0:
                 break
             time.sleep(1)
-        time.sleep(2)
-        self.stop = True
+        time.sleep(1)
+
