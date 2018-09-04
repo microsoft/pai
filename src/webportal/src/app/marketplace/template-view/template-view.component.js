@@ -114,7 +114,7 @@ function search(query) {
         if ($jobsSlick.data('request-id') !== requestId) return;
 
         $.getJSON(url, {query: query, pageno: page})
-            .then(function(data) {
+            .done(function(data) {
                 if ($jobsSlick.data('request-id') !== requestId) return;
 
                 const items = data.items;
@@ -150,6 +150,12 @@ function search(query) {
 
                 if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
                     setTimeout(append, 100, page + 1);
+                }
+            }).fail(function(jqxhr, _, error) {
+                if (jqxhr.status == 500) {
+                    alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+                } else {
+                    alert(error);
                 }
             });
     }
