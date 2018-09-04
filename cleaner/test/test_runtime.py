@@ -135,3 +135,7 @@ class TestExecutor(TestCase):
         rule = Rule(key="PwdRule", condition=self.true, action=self.action_pwd)
         executor.run_async(rule.key, rule).end()
         self.assertTrue(self.two == 2, "two rules should be executed successfully")
+
+
+if __name__ == "__main__":
+    main()
