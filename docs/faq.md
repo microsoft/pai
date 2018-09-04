@@ -72,11 +72,12 @@ Possible solutions:
 Reference:
 https://www.quora.com/Why-is-it-that-Hadoop-is-not-suitable-for-small-files
 
-For tensorflow, Users can prepare data in [TFrecord](https://www.tensorflow.org/api_guides/python/python_io) format and store it in hdfs:
+- For Tensorflow
+Users can prepare data in [TFrecord](https://www.tensorflow.org/api_guides/python/python_io) format and store it in hdfs:
 
-- Example scripts: [mnist-examples](https://github.com/cheyang/mnist-examples)
+  - Example scripts: [mnist-examples](https://github.com/cheyang/mnist-examples)
 
-- How to use:
+  - How to use:
 ``` bash
 # convert data to TFRecord format
 python convert_to_records.py --directory hdfs://10.*.*.*:9000/test
@@ -85,6 +86,39 @@ python mnist_train.py --train_dir hdfs://10.*.*.*:9000/test --checkpoint_dir hdf
 ```
 
 Reference: https://www.alibabacloud.com/help/zh/doc-detail/53928.htm
+
+- For Pytorch:
+There is no complete instance on the Internet for pytorch to solve the hdfs small file problem, but users can refer to the following method to build a custom dataloader to try to solve this problem. Official opinion on "pytorch reading hdfs": [issue-97](https://github.com/chainer/chainermn/issues/97), [issue-5867](https://github.com/pytorch/pytorch/issues/5867)
+
+  - (1) Create [sequence file](https://wiki.apache.org/hadoop/SequenceFile) at HDFS
+  
+  Reference example scripts to write a sequence file: [SequenceFileWriterDemo.py](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileWriterDemo.py)
+  
+  - (2) Build customize Pytorch data reader to read from HDFS sequence file
+  
+  (2.1) Build Pytorch customize [dataloader](Loading huge data functionality)
+  
+  Just define a Dataset object, that only loads a list of files in __init__, and loads them every time __getindex__ is called. Then, wrap it in a torch.utils.DataLoader with multiple workers, and you’ll have your files loaded lazily in parallel.
+
+``` bash
+class MyDataset(torch.utils.Dataset):
+    def __init__(self):
+        self.data_files = os.listdir('data_dir')
+        sort(self.data_files)
+
+    def __getindex__(self, idx):
+        return load_file(self.data_files[idx])
+
+    def __len__(self):
+        return len(self.data_files)
+
+
+dset = MyDataset()
+loader = torch.utils.DataLoader(dset, num_workers=8)
+``` 
+
+  (2.2) Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
+
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job? 
 
