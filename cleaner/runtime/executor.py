@@ -27,6 +27,8 @@ from cleaner.utils.timer import CountdownTimer, Timeout
 class RunningResult(object):
     SUCCESS = "success"
     FAILED = "failed"
+    TIMEOUT = "timeout"
+    FALSE_CONDITION = "false_condition"
 
 
 class Worker(LoggerMixin, multiprocessing.Process):
@@ -55,11 +57,13 @@ class Worker(LoggerMixin, multiprocessing.Process):
                 with CountdownTimer(self.rule.action_timeout):
                     subprocess.check_call(bash_command, shell=True, close_fds=True)
                     self.out_queue.put((self.key, RunningResult.SUCCESS))
+            else:
+                self.out_queue.put((self.key, RunningResult.FALSE_CONDITION))
         except subprocess.CalledProcessError as e:
             self.out_queue.put((self.key, RunningResult.FAILED))
             self.logger.error("worker %s fails to run rule %s, error is %s", self.__class__.__name__, self.key, str(e))
         except Timeout:
-            self.out_queue.put((self.key, RunningResult.FAILED))
+            self.out_queue.put((self.key, RunningResult.TIMEOUT))
             self.logger.error("worker timeout when running rule %s", self.key)
 
     def run(self):
@@ -103,7 +107,6 @@ class Executor(LoggerMixin):
             while not self.stop:
                 result = self.out_queue.get()
                 self._on_worker_complete(*result)
-                time.sleep(1)
 
         self.main = Thread(target=executor_main)
         self.main.daemon = True

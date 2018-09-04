@@ -24,6 +24,12 @@ import time
 import subprocess
 
 
+def check_docker_cache(threshold):
+    proc = subprocess.Popen(['/bin/bash', './scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
+    out, _ = proc.communicate()
+    return float(out) > threshold
+
+
 class Cleaner(LoggerMixin):
     def __init__(self, cool_down_time=2):
         self.rules = {}
@@ -35,11 +41,6 @@ class Cleaner(LoggerMixin):
             self.rules[key] = rule
 
     def add_docker_cache_rule(self):
-        def check_docker_cache(threshold):
-            proc = subprocess.Popen(['/bin/bash', './scripts/reclaimable_docker_cache.sh'], stdout=subprocess.PIPE)
-            out, _ = proc.communicate()
-            return float(out) > threshold
-
         condition = Condition(key="docker_cache_condition",
                               input_data=1,
                               method=check_docker_cache)

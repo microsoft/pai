@@ -22,18 +22,27 @@ from unittest import TestCase, main
 import time
 
 
-class LoggerTest(TestCase, LoggerMixin):
+class UtilsTest(TestCase, LoggerMixin):
 
     def test_logger(self):
         self.assertTrue(self.logger is not None, "logger cannot be None.")
 
-    def test_time(self):
+    def test_timer_exception(self):
         count = 0
         with self.assertRaises(Timeout):
             with CountdownTimer(timedelta(seconds=1)):
                 while count < 3:
                     time.sleep(1)
                     count += 1
+
+    def test_timer_no_exception(self):
+        no_timeout = True
+        try:
+            with CountdownTimer(timedelta(seconds=3)):
+                time.sleep(1)
+        except Timeout:
+            no_timeout = False
+        self.assertTrue(no_timeout)
 
 
 if __name__ == "__main__":
