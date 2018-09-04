@@ -256,6 +256,18 @@ $(function() {
                 });
             });
         });
+
+        document.getElementById('importYaml').addEventListener('change', function(evt) {
+            let files = evt.target.files;
+            if (files.length) {
+                let f = files[0];
+                let reader = new FileReader(); // read the local file
+                reader.onload = function(e) {
+                    uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+                };
+                reader.readAsText(f);
+            }
+        }, false);
     });
 });
 
