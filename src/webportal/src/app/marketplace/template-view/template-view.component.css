@@ -12,6 +12,10 @@
     width: 100%;
 }
 
+.slick-track {
+    margin-left: 0;
+}
+
 .thumbnail {
     margin-bottom: 0;
 }
