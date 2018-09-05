@@ -31,4 +31,4 @@ class LoggerMixin(object):
         return self._logger
 
     def _get_logger(self):
-        return multiprocessing.get_logger().root.getChild(".".join([self.__class__.__module__, self.__class__.__name__]))
+        return multiprocessing.get_logger().getChild(".".join([self.__class__.__module__, self.__class__.__name__]))

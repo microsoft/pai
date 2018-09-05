@@ -17,6 +17,9 @@
 
 
 from unittest import TestCase, main
+import multiprocessing
+import logging
+from logging.handlers import RotatingFileHandler
 from multiprocessing import Queue
 from datetime import timedelta
 from cleaner.runtime.executor import Worker, RunningResult, Executor
@@ -158,5 +161,15 @@ class TestExecutor(TestCase):
         self.assertTrue(executor.main.is_alive(), "the daemon thread should not exit.")
 
 
+def setup_logging():
+    root = multiprocessing.get_logger()
+    handler = RotatingFileHandler("/tmp/cleaner_test.log", maxBytes=1024 * 1024 * 20, backupCount=10)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+
 if __name__ == "__main__":
+    setup_logging()
     main()
