@@ -248,7 +248,7 @@ $(function() {
             upload(false /* isYamlFile*/);
         });
 
-        $('#uploadYaml').change(function(evt) {
+        $('#upload-yaml').change(function(evt) {
             let files = evt.target.files;
             if (files.length) {
                 let f = files[0];
