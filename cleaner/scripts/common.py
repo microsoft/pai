@@ -22,14 +22,18 @@ from logging.handlers import RotatingFileHandler
 
 def run_cmd(cmd, logger):
     proc = subprocess.Popen(["/bin/bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    lines = []
     while True:
         line = proc.stdout.readline()
         if not line:
             break
-        logger.info(line.decode("UTF-8").strip())
+        line = line.encode("UTF-8").strip()
+        logger.info(line)
+        lines.append(line)
     proc.wait()
     if proc.returncode:
         logger.error("failed to run command %s, error code is %d", cmd, proc.returncode)
+    return lines
 
 
 def setup_action_logging(file, logger):

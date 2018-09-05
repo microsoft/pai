@@ -15,32 +15,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import unittest
-import mock
-import subprocess
+from unittest import TestCase, main
 import logging
 from cleaner.scripts.common import run_cmd
 
 
-class TestCommon(unittest.TestCase):
+class TestCommon(TestCase):
 
-    @unittest.patch(subprocess)
-    def testRunCmd(self, patched_subprocess):
-        mock_stdout = mock.Mock()
-        mock_stdout.readline = mock.Mock()
-        mock_stdout.readline.side_effect = ["test", None]
+    def setUp(self):
+        self.logger = logging.getLogger("test")
 
-        mock_proc = mock.Mock()
-        mock_proc.stdout = mock.Mock(return_value=mock_stdout)
-        mock_proc.wait = mock.Mock()
-        mock_proc.returncode = mock.Mock(return_value=0)
+    def testRunCmdOneLine(self):
+        out = run_cmd("echo test", self.logger)
+        self.assertEqual(out[0], "test")
 
-        patched_subprocess.Popen = mock.Mock(return_value=mock_proc)
-
-        logger = logging.getLogger("test")
-        run_cmd("pwd", logger)
-        self.assertTrue(mock_stdout.readline.call_count == 2)
+    def testRunCmdEmptyOut(self):
+        out = run_cmd("echo test > /dev/null", self.logger)
+        self.assertEqual(len(out), 0)
 
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

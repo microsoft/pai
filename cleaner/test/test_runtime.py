@@ -85,15 +85,15 @@ class TestWorker(TestCase):
         result = queue.get()
         self.assertTrue(result == (rule.key, RunningResult.TIMEOUT))
 
-    @mock.patch("signal")
-    def testWorkerNoTimer(self, patched_signal):
-        patched_signal.alarm = mock.Mock()
+    @mock.patch("signal.alarm")
+    def testWorkerNoTimer(self, patched_alarm):
         rule = Rule(key="TestWorkerNoTimer", condition=self.true, action=self.loop_action, action_timeout=None)
         queue = Queue()
         worker = Worker(rule.key, rule, queue)
+        worker.start()
         worker.terminate()
 
-        patched_signal.alarm.assert_not_called()
+        patched_alarm.assert_not_called()
 
 
 class TestExecutor(TestCase):
