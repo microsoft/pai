@@ -15,44 +15,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from cleaner.utils.logger import LoggerMixin
-from cleaner.utils.timer import CountdownTimer, Timeout
-from datetime import timedelta
-from unittest import TestCase, main
-import time
+import unittest
+import mock
+import subprocess
+import logging
+from cleaner.scripts.common import run_cmd
 
 
-class UtilsTest(TestCase, LoggerMixin):
+class TestCommon(unittest.TestCase):
 
-    def test_logger(self):
-        self.assertTrue(self.logger is not None, "logger cannot be None.")
+    @unittest.patch(subprocess)
+    def testRunCmd(self, patched_subprocess):
+        mock_stdout = mock.Mock()
+        mock_stdout.readline = mock.Mock()
+        mock_stdout.readline.side_effect = ["test", None]
 
-    def test_timer_exception(self):
-        count = 0
-        with self.assertRaises(Timeout):
-            with CountdownTimer(duration=timedelta(seconds=1)):
-                while count < 3:
-                    time.sleep(1)
-                    count += 1
+        mock_proc = mock.Mock()
+        mock_proc.stdout = mock.Mock(return_value=mock_stdout)
+        mock_proc.wait = mock.Mock()
+        mock_proc.returncode = mock.Mock(return_value=0)
 
-    def test_timer_no_exception(self):
-        no_timeout = True
-        try:
-            with CountdownTimer(duration=timedelta(seconds=3)):
-                time.sleep(1)
-        except Timeout:
-            no_timeout = False
-        self.assertTrue(no_timeout)
+        patched_subprocess.Popen = mock.Mock(return_value=mock_proc)
 
-    def test_no_timer(self):
-        no_timer = True
-        try:
-            with CountdownTimer(duration=None):
-                time.sleep(1)
-        except Timeout:
-            no_timer = False
-        self.assertTrue(no_timer)
+        logger = logging.getLogger("test")
+        run_cmd("pwd", logger)
+        self.assertTrue(mock_stdout.readline.call_count == 2)
 
 
 if __name__ == "__main__":
-    main()
+    unittest.main()

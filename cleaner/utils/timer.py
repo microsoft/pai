@@ -31,11 +31,14 @@ class CountdownTimer(LoggerMixin):
     """
 
     def __init__(self, duration=timedelta(hours=1), name="countdown_timer"):
-        self.duration_in_seconds = int(duration.total_seconds())
+        self.duration_in_seconds = int(duration.total_seconds()) if duration else 0
         self.name = name
         self.enter_time = 0
 
     def __enter__(self):
+        if self.duration_in_seconds == 0:
+            return
+
         try:
             signal.signal(signal.SIGALRM, self.on_alarm)
             signal.alarm(self.duration_in_seconds)
@@ -46,6 +49,9 @@ class CountdownTimer(LoggerMixin):
             self.logger.exception(e)
 
     def __exit__(self, type, value, traceback):
+        if self.duration_in_seconds == 0:
+            return
+
         try:
             signal.alarm(0)
             self.logger.info("exit the countdown timer %s after %d seconds" % (self.name, time.time() - self.enter_time))

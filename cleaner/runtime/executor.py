@@ -55,7 +55,7 @@ class Worker(LoggerMixin, multiprocessing.Process):
             if condition_method(condition_input):
                 self.logger.info("condition %s is true, will run action %s.", self.rule.condition.key,
                                  self.rule.action.key)
-                with CountdownTimer(self.rule.action_timeout):
+                with CountdownTimer(duration=self.rule.action_timeout):
                     subprocess.check_call(bash_command, shell=True, close_fds=True)
                     self.out_queue.put((self.key, RunningResult.SUCCESS))
             else:
