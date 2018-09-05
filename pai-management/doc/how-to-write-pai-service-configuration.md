@@ -67,11 +67,11 @@ User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/c
 
 User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) startup configuration at OpenPAI's [folder / file](../bootstrap/prometheus/prometheus-deployment.yaml.template) 
 
-User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../bootstrap/prometheus/node-exporter.yaml.template)
+User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../bootstrap/node-exporter/node-exporter.yaml.template)
 
 ## Configure Alert Manager <a name="alertmanager"></a>
 
-User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../bootstrap/prometheus/alert-configmap.yaml.template). Please refer to [doc](../../prometheus/doc/alert-manager.md#configuration) for more info.
+User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../bootstrap/alert-manager/alert-configmap.yaml.template). Please refer to [doc](../../prometheus/doc/alert-manager.md#configuration) for more info.
 
 User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../prometheus/prometheus-alert)
 
