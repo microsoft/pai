@@ -99,6 +99,7 @@ const save = function(options, callback) {
             type: type,
             name: name,
             b64text: b64text,
+            client: client,
           }, callback);
         } else {
           logger.debug(res);
@@ -113,15 +114,16 @@ const save = function(options, callback) {
 };
 
 /**
- * Save the template.
- * @param {*} options A MAP object containing keys 'type', 'name', and 'b64text'.
+ * Update the template.
+ * @param {*} options A MAP object containing keys 'type', 'name', 'b64text' and 'client'.
  * @param {*} callback A function object accepting 2 parameters which are error and result.
  */
 const update = function(options, callback) {
   let type = options.type;
   let name = options.name;
   let b64text = options.b64text;
-  defaultGithubClient.repos.getContent({
+  let client = options.client;
+  client.repos.getContent({
     owner: config.owner,
     repo: config.repository,
     path: `${type}/${name}.yaml`,
@@ -129,7 +131,7 @@ const update = function(options, callback) {
     if (err) {
       return callback(err, null);
     } else {
-      defaultGithubClient.repos.updateFile({
+      client.repos.updateFile({
         owner: config.owner,
         repo: config.repository,
         path: res.data.path,
@@ -138,6 +140,7 @@ const update = function(options, callback) {
         sha: res.data.sha,
       }, function(err, res) {
         if (err) {
+          logger.error(`Error when trying to update file ${type}/${name}.yaml`);
           callback(err, null);
         } else {
           logger.debug(res);
