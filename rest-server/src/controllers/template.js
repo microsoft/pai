@@ -117,7 +117,7 @@ const share = (req, res) => {
     });
   }
   let account = req.user.username;
-  logger.debug(`${account} is tring to share template.`);
+  logger.debug(`${account} is trying to share template.`);
   userModel.getUserGithubPAT(account, function(err, pat) {
     if (err) {
       logger.error(err);

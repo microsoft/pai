@@ -122,10 +122,18 @@ $(document).ready(() => {
     const name = query.name;
 
     if (type != null && name != null) {
-        const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
-        $.getJSON(u, (data)=>{
-          userTemplate.updatePageFromJson(data);
+      const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
+      $.getJSON(u, (data) => {
+        userTemplate.updatePageFromJson(data);
       });
     }
   });
 });
+
+window.onbeforeunload = function() {
+  if ($('#submitJob').prop('disabled') == true) {
+    return undefined;
+  } else {
+    return 'you will lost your editing, save as yaml';
+  }
+};

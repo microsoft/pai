@@ -16,6 +16,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+require('json-editor'); /* global JSONEditor */
 require('slick-carousel');
 require('slick-carousel/slick/slick.css');
 const url = require('url');
@@ -25,6 +26,7 @@ const template = require('./template-view.component.ejs');
 const slideTemplate = require('./template-view.slide.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
+const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
 
 const slideContext = {
     parseType: function parseType(rawType) {
@@ -36,6 +38,8 @@ const slideContext = {
         }[rawType] || 'job';
     },
 };
+
+let uploadData ={};
 
 function prepareCarousel($carousel) {
     const $prev = $('<a class="btn btn-link"><span class="glyphicon glyphicon-menu-left"></span></a>')
@@ -110,7 +114,7 @@ function search(query) {
         if ($jobsSlick.data('request-id') !== requestId) return;
 
         $.getJSON(url, {query: query, pageno: page})
-            .then(function(data) {
+            .done(function(data) {
                 if ($jobsSlick.data('request-id') !== requestId) return;
 
                 const items = data.items;
@@ -147,6 +151,12 @@ function search(query) {
                 if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
                     setTimeout(append, 100, page + 1);
                 }
+            }).fail(function(jqxhr, _, error) {
+                if (jqxhr.status == 500) {
+                    alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+                } else {
+                    alert(error);
+                }
             });
     }
 }
@@ -158,7 +168,13 @@ $(function() {
     $('#content-wrapper').html(template(query));
     $('#search').submit(function(event) {
         event.preventDefault();
-        search($(this).find('input').val());
+        let query = $(this).find('input').val();
+        if (query) {
+            search(query);
+        } else {
+            // No query, list popular templates
+            window.location.reload(false);
+        }
     });
     prepareCarousel($('#marketplace-jobs'));
     prepareCarousel($('#marketplace-dockers'));
@@ -177,32 +193,63 @@ $(function() {
         }
 
         $('#upload-button').click(() => {
-            $('#upload-body-select').removeClass('hidden');
-            $('#upload-body-form').addClass('hidden');
-            $('#upload-body-success').addClass('hidden');
+            userAuth.checkToken((token) => {
+                $('#upload-body-select').removeClass('hidden');
+                $('#upload-body-form').addClass('hidden');
+                $('#upload-body-success').addClass('hidden');
+                $('#upload-submit').addClass('hidden');
+            });
         });
 
-        $('#upload-docker, #upload-script, #upload-data').click(() => {
+        $('#upload-docker').click(() => {
+            makeUploadDialog('Upload DockerImage', 'dockerimage', 'dockerimageSchema');
+        });
+
+        $('#upload-script').click(() => {
+            makeUploadDialog('Upload Script', 'script', 'scriptSchema');
+        });
+
+        $('#upload-data').click(() => {
+            makeUploadDialog('Upload Data', 'data', 'dataSchema');
+        });
+
+        function makeUploadDialog(dialogTitle, uploadDataType, uploadFormSchema) {
+            $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
             $('#upload-body-form').removeClass('hidden');
-        });
-        $('#upload-body-form').submit((event) => {
-            event.preventDefault();
+            $('#upload-submit').removeClass('hidden');
+            let element = document.getElementById('upload-body-form');
+            element.innerHTML = '';
+            let editor = new JSONEditor(element, {
+                schema: jobSchema[uploadFormSchema],
+                theme: 'bootstrap3',
+                iconlib: 'bootstrap3',
+                disable_array_reorder: true,
+                no_additional_properties: true,
+                show_errors: 'change',
+                disable_properties: true,
+                startval: {
+                    'protocol_version': 'v2',
+                    'version': '1.0.0',
+                    'contributor': cookies.get('user'),
+                },
+            });
+            editor.on('change', () => {
+                let error = editor.validate();
+                if (error.length == 0) {
+                    uploadData = editor.getValue();
+                    uploadData['type'] = uploadDataType;
+                }
+            });
+        }
+
+        $('#upload-submit').click(() => {
             $('#upload-body-form').addClass('hidden');
-            const name = $('#upload-body-form :input[id=upload-name]').val();
-            const description = $('#upload-body-form :input[id=upload-description]').val();
-            const uri = $('#upload-body-form :input[id=upload-uri]').val();
+            $('#upload-submit').addClass('hidden');
             userAuth.checkToken((token) => {
                 $.ajax({
                     url: `${webportalConfig.restServerUri}/api/v2/template`,
-                    data: {
-                        type: 'dockerimage',
-                        name: name,
-                        version: '1.0.0',
-                        contributor: cookies.get('user'),
-                        uri: uri,
-                        description: description,
-                    },
+                    data: uploadData,
                     type: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,

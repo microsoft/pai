@@ -387,6 +387,8 @@ const editYaml = () => {
   let res = yamlHelper.exportToYaml(editors);
   yamleditor.setValue(res);
   $('#yaml-modal').modal('show');
+  $('#yaml-content').css('height', document.documentElement.clientHeight * 0.8);
+  $('#yaml-editor-holder').css('height', document.documentElement.clientHeight * 0.79);
 };
 
 const updatePageByYamlEditor = () => {

@@ -65,6 +65,13 @@ const search = function(query, types, callback, limit = 4) {
           callback(categories);
         }
       },
+      error: function(jqxhr, _, error) {
+        if (jqxhr.status == 500) {
+            alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+        } else {
+            alert(error);
+        }
+      },
     });
   }
 };
