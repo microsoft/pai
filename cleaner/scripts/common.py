@@ -15,16 +15,26 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from scripts import common
+import subprocess
 import logging
-
-logger = logging.getLogger("docker_cache_clean")
-
-
-def main():
-    common.setup_action_logging("/datastorage/cleaner/docker_cache_clean.log", logger)
-    common.run_cmd("docker system prune -af", logger)
+from logging.handlers import RotatingFileHandler
 
 
-if __name__ == "__main__":
-    main()
+def run_cmd(cmd, logger):
+    proc = subprocess.Popen(["/bin/bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        logger.info(line.decode("UTF-8").strip())
+    proc.wait()
+    if proc.returncode:
+        logger.error("failed to run command %s, error code is %d", cmd, proc.returncode)
+
+
+def setup_action_logging(file, logger):
+    handler = RotatingFileHandler(file, maxBytes=1024 * 1024 * 20, backupCount=5)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)

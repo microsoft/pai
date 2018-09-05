@@ -14,17 +14,3 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-from scripts import common
-import logging
-
-logger = logging.getLogger("docker_cache_clean")
-
-
-def main():
-    common.setup_action_logging("/datastorage/cleaner/docker_cache_clean.log", logger)
-    common.run_cmd("docker system prune -af", logger)
-
-
-if __name__ == "__main__":
-    main()

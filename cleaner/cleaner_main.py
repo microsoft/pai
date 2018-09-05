@@ -29,7 +29,7 @@ logger = multiprocessing.get_logger()
 
 
 class Cleaner:
-    def __init__(self, cool_down_time=2):
+    def __init__(self, cool_down_time=10):
         self.rules = {}
         self.cool_down_time = cool_down_time
 
