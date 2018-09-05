@@ -24,7 +24,7 @@
     <td><%= convertState(hjss) %></td>
     <td>
       <% if (hjss === 'Waiting' || hjss === 'Running') { %>
-        <button class="btn btn-default btn-xs" onclick="stopJob('<%= legacy ? '' : namespace || username %>', '<%= jobName %>')">Stop</button>
+        <button class="btn btn-default btn-xs" onclick="stopJob('<%= namespace %>', '<%= jobName %>')">Stop</button>
       <% } else { %>
         <button class="btn btn-default btn-xs" disabled>Stop</button>
       <% } %>
@@ -53,7 +53,7 @@
         Go to Application Tracking Page
       </a>
       &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="<%= grafanaUri %>/dashboard/db/joblevelmetrics?var-job=<%= jobName %>" target="_blank">
+      <a href="<%= grafanaUri %>/dashboard/db/joblevelmetrics?var-job=<%= (namespace ? (namespace + '~') : '') + jobName %>" target="_blank">
         Go to Job Metrics Page
       </a>
     </td>

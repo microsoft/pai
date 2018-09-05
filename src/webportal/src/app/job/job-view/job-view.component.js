@@ -345,8 +345,7 @@ const loadJobDetail = (namespace, jobName) => {
       } else {
         $('#view-table').html(jobDetailTableComponent({
           jobName: data.name,
-          legacy: data.legacy,
-          namespace: data.namespace || data.username,
+          namespace: namespace,
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
           grafanaUri: webportalConfig.grafanaUri,
