@@ -254,7 +254,12 @@ $(function() {
                 let f = files[0];
                 let reader = new FileReader(); // read the local file
                 reader.onload = function(e) {
-                    uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+                    try{
+                        uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+                    } catch(error) {
+                        alert('Failed to load the file! The selected file format or content may be not correct.');
+                        return;
+                    }
                     $('#upload-body-select').addClass('hidden');
                     upload(true /* isYamlFile*/);
                 };
