@@ -248,7 +248,7 @@ $(function() {
             upload(false /* isYamlFile*/);
         });
 
-        document.getElementById('uploadYaml').addEventListener('change', function(evt) {
+        $('#uploadYaml').change(function(evt) {
             let files = evt.target.files;
             if (files.length) {
                 let f = files[0];
@@ -262,7 +262,7 @@ $(function() {
                 };
                 reader.readAsText(f);
             }
-        }, false);
+        });
 
         function upload(isYamlFile) {
             userAuth.checkToken((token) => {
