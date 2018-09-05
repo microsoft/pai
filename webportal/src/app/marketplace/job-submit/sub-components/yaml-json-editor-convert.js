@@ -43,16 +43,16 @@ const convertParameterFromKeyValue = (d) => {
 };
 
 const yamlLoad = (yamlString) => {
-  try{
+  try {
     return yaml.safeLoad(yamlString);
-  } catch(error) {
-    alert("Failed to load yaml file: " + error);
+  } catch (error) {
+    alert('Failed to load yaml file: ' + error);
     return null;
   }
 };
 
 const yamlToJsonEditor = (data) => {
-  try{
+  try {
     if ('tasks' in data) {
       data['tasks'].forEach((task) => {
         task['instances'] = task['resource']['instances'];
@@ -64,14 +64,14 @@ const yamlToJsonEditor = (data) => {
         convertParameterToKeyValue(task);
       });
     }
-  
+
     if ('parameters' in data) {
       convertParameterToKeyValue(data);
     }
-  
+
     return data;
-  } catch(error) {
-    alert("Failed to parse yaml content: " + error);
+  } catch (error) {
+    alert('Failed to parse yaml content: ' + error);
     return null;
   }
 };
