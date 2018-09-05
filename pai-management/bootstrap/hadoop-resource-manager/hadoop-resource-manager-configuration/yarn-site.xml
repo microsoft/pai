@@ -235,6 +235,15 @@
     <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
     <value>88000</value>
   </property>
+  
+  <property>
+    <description>
+    The duration (in ms) the YARN client waits for an expected state change
+    to occur.  -1 means unlimited wait time.
+    </description>
+    <name>yarn.client.application-client-protocol.poll-timeout-ms</name>
+    <value>300000</value>
+  </property>
 
   <property>
     <description>The minimum allocation for every container request at the RM,
