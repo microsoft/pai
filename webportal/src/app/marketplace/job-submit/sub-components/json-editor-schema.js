@@ -251,21 +251,6 @@ const scriptSchema = {
       type: 'string',
       format: 'textarea',
     },
-    parameters: parametersSchema,
-    roles: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: {
-            type: 'string',
-          },
-          command: {
-            type: 'textarea',
-          },
-        },
-      },
-    },
   },
   required: [
     'name',
