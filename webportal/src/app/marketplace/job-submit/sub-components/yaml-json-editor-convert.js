@@ -54,7 +54,7 @@ const yamlLoad = (yamlString) => {
 const yamlToJsonEditor = (data) => {
   try {
     if (!data || typeof data !== 'object') {
-      throw new Error('Content is null or do not have required format.');
+      throw new Error('Content is null or does not have required format.');
     }
 
     if ('tasks' in data) {
