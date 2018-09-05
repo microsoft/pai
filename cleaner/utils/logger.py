@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import logging
+import multiprocessing
 
 
 class LoggerMixin(object):
@@ -30,4 +31,4 @@ class LoggerMixin(object):
         return self._logger
 
     def _get_logger(self):
-        return logging.root.getChild(".".join([self.__class__.__module__, self.__class__.__name__]))
+        return multiprocessing.get_logger().root.getChild(".".join([self.__class__.__module__, self.__class__.__name__]))

@@ -22,6 +22,9 @@ from cleaner.model.action import Action
 from cleaner.model.rule import Rule
 import time
 import subprocess
+import multiprocessing
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 class Cleaner(LoggerMixin):
@@ -70,7 +73,17 @@ def add_docker_cache_rule(cache_cleaner):
     cache_cleaner.add_rule(rule.key, rule)
 
 
+def setup_logging(filename):
+    root = multiprocessing.get_logger()
+    handler = RotatingFileHandler(filename, maxBytes=1024 * 1024 * 20, backupCount=10)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+
 if __name__ == "__main__":
+    setup_logging("/datastorage/cleaner/cleaner.log")
     cleaner = Cleaner()
     add_docker_cache_rule(cleaner)
     cleaner.run()
