@@ -221,15 +221,19 @@ const downloadInParallel = (list, callback) => {
         });
         res.on('end', function() {
           if (res.statusCode == 200) {
-            let one = yaml.safeLoad(responses.join(''));
-            templates.push({
-              type: one.type,
-              name: one.name,
-              contributor: one.contributor,
-              version: ref,
-              description: one.description,
-              score: item.score,
-            });
+            try {
+              let one = yaml.safeLoad(responses.join(''));
+              templates.push({
+                type: one.type,
+                name: one.name,
+                contributor: one.contributor,
+                version: ref,
+                description: one.description,
+                score: item.score,
+              });
+            } catch (err) {
+              logger.error('failed to parse YAML at ' + contentUrl);
+            }
           } else {
             logger.error(res.statusMessage);
           }
