@@ -115,8 +115,5 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
-      - name: docker-config
-        hostPath:
-          path: /etc/docker-config
 
 
