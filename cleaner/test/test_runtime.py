@@ -46,6 +46,8 @@ class TestWorker(TestCase):
         self.bad_action = Action(command="bad_command")
         self.loop_action = Action(command="while true; do sleep 1; done")
 
+        setup_logging()
+
     def testWorkerConditionTrue(self):
         rule = Rule(key="TestWorkerConditionTrue", condition=self.true, action=self.good_action)
         queue = Queue()
@@ -89,6 +91,8 @@ class TestExecutor(TestCase):
         self.true = Condition(key="TestExecutorCondition", method=condition_true)
         self.action_pwd = Action(key="TestExecutorAction", command="pwd")
         self.action_sleep = Action(key="TestExecutorAction", command="sleep 1")
+
+        setup_logging()
 
     def testExecRuleSuccess(self):
         self.success = False
@@ -163,11 +167,12 @@ class TestExecutor(TestCase):
 
 def setup_logging():
     root = multiprocessing.get_logger()
-    handler = RotatingFileHandler("/tmp/cleaner_test.log", maxBytes=1024 * 1024 * 20, backupCount=10)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
-    root.setLevel(logging.INFO)
+    if len(root.handlers) == 0:
+        handler = RotatingFileHandler("/tmp/cleaner_test.log", maxBytes=1024 * 1024 * 20, backupCount=10)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+        handler.setFormatter(formatter)
+        root.addHandler(handler)
+        root.setLevel(logging.INFO)
 
 
 if __name__ == "__main__":
