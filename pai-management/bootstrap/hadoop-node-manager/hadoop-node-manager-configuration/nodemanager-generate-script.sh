@@ -69,6 +69,3 @@ sed  -i "s/{cpu_vcores}/${cpu_vcores}/g" $HADOOP_CONF_DIR/yarn-site.xml
 # Backup hadoop configuration for job (Spark) use
 cp $HADOOP_CONF_DIR/* /hadoop-configuration-for-jobs/
 
-# Copy docker .config file for yarn-container
-cp -a /root/.docker /docker-config/
-

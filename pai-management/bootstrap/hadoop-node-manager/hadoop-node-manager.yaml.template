@@ -55,12 +55,8 @@ spec:
           name: hadoop-node-manager-config-volume-for-jobs
         - mountPath: /host-configuration
           name: host-confg-volume
-        - mountPath: /root/.docker
-          name: docker-cred-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
-        - mountPath: /docker-config
-          name: docker-config
         readinessProbe:
           exec:
             command:
@@ -116,9 +112,6 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
-      - name: docker-cred-volume
-        configMap:
-          name: docker-credentials
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
