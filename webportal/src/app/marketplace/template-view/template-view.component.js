@@ -254,24 +254,17 @@ $(function() {
                 let f = files[0];
                 let reader = new FileReader(); // read the local file
                 reader.onload = function(e) {
-                    try{
-                        uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
-                    } catch(error) {
-                        alert('Failed to load the file! The selected file format or content may be not correct.');
-                        return;
+                    uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+                    if (uploadData) {
+                        $('#upload-body-select').addClass('hidden');
+                        upload(true /* isYamlFile*/);
                     }
-                    $('#upload-body-select').addClass('hidden');
-                    upload(true /* isYamlFile*/);
                 };
                 reader.readAsText(f);
             }
         }, false);
 
         function upload(isYamlFile) {
-            if (!uploadData) {
-                alert('Nothing to upload');
-                return;
-            }
             userAuth.checkToken((token) => {
                 $.ajax({
                     url: `${webportalConfig.restServerUri}/api/v2/template`,
