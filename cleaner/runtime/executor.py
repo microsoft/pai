@@ -90,18 +90,22 @@ class Executor(LoggerMixin):
 
         with self.lock:
             if key in self.active_workers:
-                self.logger.info("command with key %s is running and will not start it anymore.", key)
+                self.logger.info("worker %s is running", key)
                 return self
 
             worker = Worker(key, rule, self.out_queue)
             self.active_workers[key] = worker
         worker.start()
+        self.logger.info("worker %s is started.", key)
         return self
 
     def _on_worker_complete(self, key, state):
-        self.logger.info("command with key %s finished with state %s", key, state)
+        self.logger.info("worker %s finished with state %s", key, state)
         with self.lock:
-            self.active_workers.pop(key)
+            try:
+                self.active_workers.pop(key)
+            except KeyError:
+                self.logger.error("errors occurs when remove worker %s", key)
         if self.on_complete is not None:
             self.on_complete(key, state)
 
@@ -136,4 +140,15 @@ class Executor(LoggerMixin):
                 break
             time.sleep(1)
         time.sleep(1)
+
+    def terminate(self):
+        """
+        force all the worker to terminate
+        :return:
+        """
+        with self.lock:
+            for w in self.active_workers:
+                w.terminate()
+                w.join()
+
 

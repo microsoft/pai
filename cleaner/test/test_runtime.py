@@ -136,6 +136,17 @@ class TestExecutor(TestCase):
         executor.run_async(rule.key, rule).end()
         self.assertTrue(self.two == 2, "two rules should be executed successfully")
 
+    def testExecTerminate(self):
+        self.terminate = True
+
+        def on_complete(key, state):
+            self.terminate = False
+
+        executor = Executor(complete_callback=on_complete).start()
+        rule = Rule(key="SleepRule", condition=self.true, action=self.action_sleep)
+        executor.run_async(rule.key, rule).terminate()
+        self.assertTrue(self.terminate, "worker should be terminated and rule should not be completed.")
+
 
 if __name__ == "__main__":
     main()

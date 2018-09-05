@@ -37,10 +37,14 @@ class Cleaner(LoggerMixin):
     def run(self):
         executor = Executor()
         executor.start()
-        while True:
-            for (key, rule) in self.rules.items():
-                executor.run_async(key, rule)
-            time.sleep(self.cool_down_time)
+        try:
+            while True:
+                for (key, rule) in self.rules.items():
+                    executor.run_async(key, rule)
+                time.sleep(self.cool_down_time)
+        except:
+            self.logger.error("cleaner interrupted and will exit.")
+            executor.terminate()
 
 
 def check_docker_cache(threshold):
