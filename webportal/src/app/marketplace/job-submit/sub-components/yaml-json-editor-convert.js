@@ -53,6 +53,10 @@ const yamlLoad = (yamlString) => {
 
 const yamlToJsonEditor = (data) => {
   try {
+    if(!data || typeof data !== 'object'){
+      throw('Content is null or do not have required format.');
+    }
+
     if ('tasks' in data) {
       data['tasks'].forEach((task) => {
         task['instances'] = task['resource']['instances'];
@@ -71,7 +75,7 @@ const yamlToJsonEditor = (data) => {
 
     return data;
   } catch (error) {
-    alert('Failed to parse yaml content: ' + error);
+    alert('Failed to parse yaml file: ' + error);
     return null;
   }
 };
