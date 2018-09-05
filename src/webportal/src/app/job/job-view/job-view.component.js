@@ -213,8 +213,14 @@ const loadJobs = (specifiedVc) => {
         }
       },
     },
-    'rowId'(row) {
-      return row.name;
+    'rowId'({ legacy, name, namespace, username }) {
+      if (legacy) {
+        return name;
+      }
+      if (namespace) {
+        return namespace + '-' + name
+      }
+      return username + '-' + name
     },
     'columns': [
       {title: 'Job', data: null, render({legacy, name, namespace, username}, type) {
@@ -286,12 +292,16 @@ const stopJob = (namespace, jobName) => {
             // Detail view: reload current page
             return window.location.reload(false);
           } else {
+            const url = namespace
+              ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+              : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
             // Table view: replace current row
             const api = $jobTable.dataTable().api();
-            const row = api.row('#' + jobName);
+            const rowId = namespace ? (namespace + '-' + jobName) : jobName
+            const row = api.row('#' + rowId);
             const rowData = row.data();
             $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
+              url: url,
               type: 'GET',
               success: function(data) {
                 rowData.appExitCode = data.jobStatus.appExitCode;
@@ -335,6 +345,8 @@ const loadJobDetail = (namespace, jobName) => {
       } else {
         $('#view-table').html(jobDetailTableComponent({
           jobName: data.name,
+          legacy: data.legacy,
+          namespace: data.namespace || data.username,
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
           grafanaUri: webportalConfig.grafanaUri,
