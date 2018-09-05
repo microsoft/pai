@@ -104,10 +104,15 @@ class Executor(LoggerMixin):
         with self.lock:
             try:
                 self.active_workers.pop(key)
-            except KeyError:
+            except KeyError as e:
                 self.logger.error("errors occurs when remove worker %s", key)
+                self.logger.exception(e)
         if self.on_complete is not None:
-            self.on_complete(key, state)
+            try:
+                self.on_complete(key, state)
+            except Exception as e:
+                self.logger.error("errors occur when calling complete callback.")
+                self.logger.exception(e)
 
     def start(self):
         """
@@ -138,6 +143,7 @@ class Executor(LoggerMixin):
                 workers = len(self.active_workers)
             if workers == 0:
                 break
+            self.logger.info("there are %d workers running and wait", workers)
             time.sleep(1)
         time.sleep(1)
 
@@ -147,8 +153,7 @@ class Executor(LoggerMixin):
         :return:
         """
         with self.lock:
-            for w in self.active_workers:
-                w.terminate()
-                w.join()
-
-
+            for (key, worker) in self.active_workers.items():
+                self.logger.info("will terminate worker %s", key)
+                worker.terminate()
+                worker.join()

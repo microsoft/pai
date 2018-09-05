@@ -147,6 +147,16 @@ class TestExecutor(TestCase):
         executor.run_async(rule.key, rule).terminate()
         self.assertTrue(self.terminate, "worker should be terminated and rule should not be completed.")
 
+    def testExecException(self):
+
+        def on_complete(key, state):
+            raise Exception()
+
+        executor = Executor(complete_callback=on_complete).start()
+        rule = Rule(key="PwdRule", condition=self.true, action=self.action_pwd)
+        executor.run_async(rule.key, rule)
+        self.assertTrue(executor.main.is_alive(), "the daemon thread should not exit.")
+
 
 if __name__ == "__main__":
     main()
