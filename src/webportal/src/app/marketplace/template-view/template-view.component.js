@@ -248,25 +248,23 @@ $(function() {
             upload(false /* isYamlFile*/);
         });
 
-        document.getElementById('uploadYaml').addEventListener('change', function(evt) {
+        $('#upload-yaml').change(function(evt) {
             let files = evt.target.files;
             if (files.length) {
                 let f = files[0];
                 let reader = new FileReader(); // read the local file
                 reader.onload = function(e) {
                     uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
-                    $('#upload-body-select').addClass('hidden');
-                    upload(true /* isYamlFile*/);
+                    if (uploadData) {
+                        $('#upload-body-select').addClass('hidden');
+                        upload(true /* isYamlFile*/);
+                    }
                 };
                 reader.readAsText(f);
             }
-        }, false);
+        });
 
         function upload(isYamlFile) {
-            if (!uploadData) {
-                alert('Nothing to upload');
-                return;
-            }
             userAuth.checkToken((token) => {
                 $.ajax({
                     url: `${webportalConfig.restServerUri}/api/v2/template`,
