@@ -61,13 +61,13 @@ Please fire a pull request if you find any rule useful.
 
 # Muting firing alert
 
-OpenPai leverage [amtool](https://github.com/prometheus/alertmanager#amtool) to interactive with
+OpenPAI leverage [amtool](https://github.com/prometheus/alertmanager#amtool) to interactive with
 alert manager. If you're using [dev-box](../../pai-management/doc/cluster-bootup.md#c-step-0) to do
 cluster management, the amtool might has already been installed for you, you can try to execute
 `amtool` in your shell to test. If it hasn't been installed, please install it using method provided
 by amtool [README](https://github.com/prometheus/alertmanager#install-1).
 
-To ease configuration, OpenPai provides a script that generate amtool config file for you, you can use
+To ease configuration, OpenPAI provides a script that generate amtool config file for you, you can use
 
 ```
 python utilities/gen-amtool-config.py -p /cluster-configuration
