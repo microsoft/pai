@@ -24,7 +24,6 @@ prerequisite:
 
 # paictl will generate the template file with the name "filename".template with jinja2.
 template-list:
-  - node-label.sh
   - hbase-master.yaml
   - hbase-regionserver.yaml
   - delete.yaml
