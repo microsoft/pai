@@ -27,6 +27,7 @@ const slideTemplate = require('./template-view.slide.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
+const yamlHelper = require('../job-submit/sub-components/yaml-json-editor-convert.js');
 
 const slideContext = {
     parseType: function parseType(rawType) {
@@ -194,6 +195,7 @@ $(function() {
 
         $('#upload-button').click(() => {
             userAuth.checkToken((token) => {
+                $('#upload-modal-title').html('Upload New Item');
                 $('#upload-body-select').removeClass('hidden');
                 $('#upload-body-form').addClass('hidden');
                 $('#upload-body-success').addClass('hidden');
@@ -246,6 +248,28 @@ $(function() {
         $('#upload-submit').click(() => {
             $('#upload-body-form').addClass('hidden');
             $('#upload-submit').addClass('hidden');
+            upload(false /* isYamlFile*/);
+        });
+
+        document.getElementById('uploadYaml').addEventListener('change', function(evt) {
+            let files = evt.target.files;
+            if (files.length) {
+                let f = files[0];
+                let reader = new FileReader(); // read the local file
+                reader.onload = function(e) {
+                    uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+                    $('#upload-body-select').addClass('hidden');
+                    upload(true /* isYamlFile*/);
+                };
+                reader.readAsText(f);
+            }
+        }, false);
+
+        function upload(isYamlFile) {
+            if (!uploadData) {
+                alert('Nothing to upload');
+                return;
+            }
             userAuth.checkToken((token) => {
                 $.ajax({
                     url: `${webportalConfig.restServerUri}/api/v2/template`,
@@ -259,13 +283,17 @@ $(function() {
                         $('#upload-body-success').removeClass('hidden');
                     },
                     error: (xhr, textStatus, error) => {
-                        $('#upload-body-form').removeClass('hidden');
+                        if (isYamlFile) {
+                            $('#upload-body-select').removeClass('hidden');
+                        } else {
+                            $('#upload-body-form').removeClass('hidden');
+                        }
                         const res = JSON.parse(xhr.responseText);
                         alert(res.message);
                     },
                 });
             });
-        });
+        }
     });
 });
 
