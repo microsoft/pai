@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -21,17 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
+echo "Call stop script to stop all service first"
+/bin/bash stop.sh || exit $?
 
-kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
-kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f node-exporter-ds.yaml || exit $?
-kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
-kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f watchdog-ds.yaml || exit $?
-
-{% if clusterinfo['prometheusinfo']['alerting'] %}
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-deployment.yaml || exit $?
-{% endif %}
 
 popd > /dev/null

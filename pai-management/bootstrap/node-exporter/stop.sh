@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -17,10 +19,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+INSTANCES="daemonset/node-exporter"
 
-echo "Clean the prometheus's data on the disk"
-
-
-# TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.
-
-# Note: Please clean prometheus, clean node-exporter in its individual directory
+for instance in ${INSTANCES}; do
+  kubectl delete --ignore-not-found --now ${instance}
+done

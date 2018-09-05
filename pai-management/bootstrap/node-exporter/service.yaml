@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,10 +15,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+prerequisite:
+  - cluster-configuration
+  - drivers
 
-echo "Clean the prometheus's data on the disk"
+template-list:
+  - node-exporter.yaml
+
+start-script: start.sh
+stop-script: stop.sh
+delete-script: delete.sh
+refresh-script: refresh.sh
+upgraded-script: upgraded.sh
 
 
-# TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.
-
-# Note: Please clean prometheus, clean node-exporter in its individual directory
+deploy-rules:
+  notin: no-exporter
