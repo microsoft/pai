@@ -197,9 +197,8 @@ $(function() {
             userAuth.checkToken((token) => {
                 $('#upload-modal-title').html('Upload New Item');
                 $('#upload-body-select').removeClass('hidden');
-                $('#upload-body-form').addClass('hidden');
+                $('#upload-body-form-container').addClass('hidden');
                 $('#upload-body-success').addClass('hidden');
-                $('#upload-submit').addClass('hidden');
             });
         });
 
@@ -218,8 +217,7 @@ $(function() {
         function makeUploadDialog(dialogTitle, uploadDataType, uploadFormSchema) {
             $('#upload-modal-title').html(dialogTitle);
             $('#upload-body-select').addClass('hidden');
-            $('#upload-body-form').removeClass('hidden');
-            $('#upload-submit').removeClass('hidden');
+            $('#upload-body-form-container').removeClass('hidden');
             let element = document.getElementById('upload-body-form');
             element.innerHTML = '';
             let editor = new JSONEditor(element, {
@@ -246,8 +244,7 @@ $(function() {
         }
 
         $('#upload-submit').click(() => {
-            $('#upload-body-form').addClass('hidden');
-            $('#upload-submit').addClass('hidden');
+            $('#upload-body-form-container').addClass('hidden');
             upload(false /* isYamlFile*/);
         });
 
@@ -286,7 +283,7 @@ $(function() {
                         if (isYamlFile) {
                             $('#upload-body-select').removeClass('hidden');
                         } else {
-                            $('#upload-body-form').removeClass('hidden');
+                            $('#upload-body-form-container').removeClass('hidden');
                         }
                         const res = JSON.parse(xhr.responseText);
                         alert(res.message);

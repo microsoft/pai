@@ -133,7 +133,7 @@ const share = (req, res) => {
     template.save({
       type: type,
       name: name,
-      item: item,
+      template: item,
       pat: pat,
     }, function(err, saved) {
       if (err) {
