@@ -72,7 +72,6 @@ const portTypeSchema = {
 const taskSchema = {
   type: 'object',
   format: 'grid',
-  headerTemplate: '{{ self.role }}',
   options: {
     disable_edit_json: true,
     disable_collapse: true,
@@ -82,42 +81,66 @@ const taskSchema = {
       type: 'string',
       pattern: '^[A-Za-z0-9._~]+$',
       propertyOrder: 1,
+      options: {
+        grid_columns: 12,
+      },
     },
     data: {
       type: 'string',
       propertyOrder: 2,
+      options: {
+        grid_columns: 4,
+      },
     },
     script: {
       type: 'string',
       propertyOrder: 3,
+      options: {
+        grid_columns: 4,
+      },
     },
     dockerimage: {
       type: 'string',
       propertyOrder: 4,
+      options: {
+        grid_columns: 4,
+      },
     },
     instances: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
       propertyOrder: 5,
+      options: {
+        grid_columns: 3,
+      },
     },
     cpu: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
       propertyOrder: 6,
+      options: {
+        grid_columns: 3,
+      },
     },
     memoryMB: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
       propertyOrder: 7,
+      options: {
+        grid_columns: 3,
+      },
     },
     gpu: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
       propertyOrder: 8,
+      options: {
+        grid_columns: 3,
+      },
     },
     minFailedTaskCount: {
       type: 'number',
@@ -371,6 +394,9 @@ const jobSchema = {
       type: 'string',
       format: 'textarea',
       propertyOrder: 1008,
+      options: {
+        grid_columns: 12,
+      },
     },
   },
   required: [
