@@ -21,6 +21,7 @@
 
 INSTANCES="deployment/prometheus-deployment
 configmap/prometheus-configmap
+configmap/prometheus-alert
 "
 
 for instance in ${INSTANCES}; do
