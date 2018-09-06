@@ -45,7 +45,7 @@ spec:
         - name: DELETE_CONFIG
           value: hadoop-node-manager-delete
         - name: WORKER_CONFIG
-          value: delete-data.sh
+          value: delete.sh
         readinessProbe:
           exec:
             command:
