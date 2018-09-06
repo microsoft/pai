@@ -274,7 +274,7 @@ const stopJob = (jobName) => {
           Authorization: `Bearer ${token}`,
         },
         success: (data) => {
-          const $jobTable = $('#job-table')
+          const $jobTable = $('#job-table');
           if ($jobTable.length === 0) {
             // Detail view: reload current page
             return window.location.reload(false);
