@@ -45,7 +45,7 @@ class CountdownTimer(LoggerMixin):
             self.logger.info("setup countdown timer %s with duration %d" % (self.name, self.duration_in_seconds))
             self.enter_time = time.time()
         except ValueError as e:
-            self.logger.error("Failed to setup countdown timer %s" % self.name)
+            self.logger.error("Failed to setup countdown timer %s", self.name)
             self.logger.exception(e)
 
     def __exit__(self, type, value, traceback):
@@ -56,9 +56,9 @@ class CountdownTimer(LoggerMixin):
             signal.alarm(0)
             self.logger.info("exit the countdown timer %s after %d seconds" % (self.name, time.time() - self.enter_time))
         except ValueError as e:
-            self.logger.error("Failed to setup countdown time %s" % self.name)
+            self.logger.error("Failed to setup countdown time %s", self.name)
             self.logger.exception(e)
 
     def on_alarm(self, signum, frame):
-        self.logger.error("%s : the maximum time duration %d reached and will exit." % (self.name, self.duration_in_seconds))
+        self.logger.error("%s : the maximum time duration %d reached and will exit.", self.name, self.duration_in_seconds)
         raise Timeout()

@@ -48,6 +48,7 @@ class Worker(LoggerMixin, multiprocessing.Process):
         bash_command = self.rule.action.command
         bash_command = "exec bash -c '{0}'".format(bash_command)
         self.logger.info("will execute command %s", bash_command)
+        exc = None
 
         try:
             condition_input = self.rule.condition.input_data
@@ -62,13 +63,17 @@ class Worker(LoggerMixin, multiprocessing.Process):
                 self.out_queue.put((self.key, RunningResult.FALSE_CONDITION))
         except subprocess.CalledProcessError as e:
             self.out_queue.put((self.key, RunningResult.FAILED))
-            self.logger.error("worker %s fails to run rule %s, error is %s", self.__class__.__name__, self.key, str(e))
-        except Timeout:
+            exc = e
+        except Timeout as e:
             self.out_queue.put((self.key, RunningResult.TIMEOUT))
-            self.logger.error("worker timeout when running rule %s", self.key)
-        except:
+            exc = e
+        except Exception as e:
             self.out_queue.put((self.key, RunningResult.UNEXPECTED_ERROR))
-            self.logger.error("rule %s failed with unexpected error %s", self.key, str(sys.exc_info()))
+            exc = e
+
+        if exc is not None:
+            self.logger.error("rule %s failed with errors.", self.key)
+            self.logger.exception(exc)
 
     def run(self):
         self._do()
