@@ -21,6 +21,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 
