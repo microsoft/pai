@@ -30,4 +30,4 @@ upgraded-script: upgraded.sh
 
 
 deploy-rules:
-  notin: no-exporter
+  notin: no-nodeexporter
