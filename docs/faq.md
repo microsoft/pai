@@ -60,6 +60,66 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 
 A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
 
+### Q: Deep learning training based on a large number of small files on Hadoop HDFS problem.
+
+A: This is a typical issue when trained with large number of small files of HDFS. This problem can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue. 
+
+Possible solutions: 
+- User compact small files through scripts or opensources tools. (For example using TFRecord for Tensorflow.)
+- [HAR (Hadoop Archive) Files](https://hadoop.apache.org/docs/r1.2.1/hadoop_archives.html)
+- [Sequence Files](https://wiki.apache.org/hadoop/SequenceFile) 
+
+Reference:
+https://www.quora.com/Why-is-it-that-Hadoop-is-not-suitable-for-small-files
+
+- For Tensorflow
+Users can prepare data in [TFrecord](https://www.tensorflow.org/api_guides/python/python_io) format and store it in hdfs:
+
+  - Example scripts: [mnist-examples](https://github.com/cheyang/mnist-examples)
+
+  - How to use:
+``` bash
+# convert data to TFRecord format
+python convert_to_records.py --directory hdfs://10.*.*.*:9000/test
+# read and train MNIST
+python mnist_train.py --train_dir hdfs://10.*.*.*:9000/test --checkpoint_dir hdfs://10.*.*.*:9000/checkpoint
+```
+
+Reference: https://www.alibabacloud.com/help/zh/doc-detail/53928.htm
+
+- For Pytorch:
+There is no complete instance on the Internet for pytorch to solve the hdfs small file problem, but users can refer to the following method to build a custom dataloader to try to solve this problem. Official opinion on "pytorch reading hdfs": [issue-97](https://github.com/chainer/chainermn/issues/97), [issue-5867](https://github.com/pytorch/pytorch/issues/5867)
+
+  - (1) Create [sequence file](https://wiki.apache.org/hadoop/SequenceFile) at HDFS
+  
+  Reference example scripts to write a sequence file: [SequenceFileWriterDemo.py](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileWriterDemo.py)
+  
+  - (2) Build customize Pytorch data reader to read from HDFS sequence file
+  
+(2.1) Build Pytorch [customize dataloader](https://discuss.pytorch.org/t/loading-huge-data-functionality/346/2)
+  
+  Just define a Dataset object, that only loads a list of files in __init__, and loads them every time __getindex__ is called. Then, wrap it in a torch.utils.DataLoader with multiple workers, and you’ll have your files loaded lazily in parallel.
+
+``` bash
+class MyDataset(torch.utils.Dataset):
+    def __init__(self):
+        self.data_files = os.listdir('data_dir')
+        sort(self.data_files)
+
+    def __getindex__(self, idx):
+        return load_file(self.data_files[idx])
+
+    def __len__(self):
+        return len(self.data_files)
+
+
+dset = MyDataset()
+loader = torch.utils.DataLoader(dset, num_workers=8)
+``` 
+
+(2.2) Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
+
+
 ### Q: How to use private docker registry job image when submitting an OpenPAI job? 
 
 A: Please refer [job_tutorial.md](./job_tutorial.md) to config the auth file at job submit json file:
