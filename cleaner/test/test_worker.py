@@ -15,33 +15,52 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import subprocess
-import multiprocessing
-import logging
-import sys
+from cleaner.worker import Worker
+from cleaner.utils import common
+import mock
+import time
+from multiprocessing import Queue
+from unittest import TestCase, main
 
 
-def run_cmd(cmd, logger):
-    proc = subprocess.Popen(["/bin/bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    lines = []
-    while True:
-        line = proc.stdout.readline()
-        if not line:
-            break
-        line = line.encode("UTF-8").strip()
-        logger.info(line)
-        lines.append(line)
-    proc.wait()
-    if proc.returncode:
-        logger.error("failed to run command %s, error code is %d", cmd, proc.returncode)
-    return lines
+def called_by_worker(queue):
+    queue.put(1)
 
 
-def setup_logging():
-    logger = multiprocessing.get_logger()
-    if len(logger.handlers) == 0:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+def timeout_worker(queue):
+    time.sleep(2)
+    queue.put(1)
+
+
+class TestWorker(TestCase):
+
+    def setUp(self):
+        common.setup_logging()
+
+    def testWorkerRunOnce(self):
+        queue = Queue()
+        worker = Worker(called_by_worker, queue, long_run=False)
+        worker.start()
+        worker.join()
+        data = queue.get(timeout=2)
+        self.assertEqual(data, 1)
+
+    def testWorkerLongRun(self):
+        queue = Queue()
+        worker = Worker(called_by_worker, queue, cool_down_time=0.1)
+        worker.start()
+        time.sleep(3)
+        worker.terminate()
+        worker.join()
+        self.assertTrue(queue.qsize() > 1)
+
+    def testWorkerTimeout(self):
+        queue = Queue()
+        worker = Worker(timeout_worker, queue, long_run=False, timeout=1)
+        worker.start()
+        worker.join()
+        self.assertEqual(queue.qsize(), 0)
+
+
+if __name__ == "__main__":
+    main()

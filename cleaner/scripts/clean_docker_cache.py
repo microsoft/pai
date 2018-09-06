@@ -15,14 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from utils import common
+from cleaner.utils import common
 import multiprocessing
 
 logger = multiprocessing.get_logger()
 
 
 def get_cache_size():
-    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null")
+    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null". logger)
     size = 0
     if len(out) == 0:
         logger.error("cannot retrieve cache size.")
