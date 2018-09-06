@@ -23,10 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash configmap-create.sh || exit $?
 
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh || exit $?
-
 i=0
 
 while !  kubectl get configmap | grep -q "grafana-configuration" 

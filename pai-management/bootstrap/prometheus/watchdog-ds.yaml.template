@@ -34,8 +34,6 @@ spec:
         prometheus.io/path: "/"
         prometheus.io/port: "9101"
     spec:
-      nodeSelector:
-        watchdog: "true"
       containers:
       - name: watchdog
         image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}

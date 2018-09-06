@@ -233,7 +233,7 @@ mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
 # retrieve the yarn local dir
-hadoop_tmp_dir=$(hdfs getconf -confKey "hadoop.tmp.dir") || { echo "cannot get the YARN local directory."; exit 1; }
+hadoop_tmp_dir="/var/lib/hadoopdata"
 container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
 mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
