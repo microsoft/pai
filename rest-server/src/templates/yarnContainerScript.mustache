@@ -38,6 +38,7 @@ function debug_log()
 function exit_handler()
 {
   rc=$?
+  echo "Exited with $rc"
   local handler="Yarn container exit handler"
   local if_cgroup_oom=""
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
