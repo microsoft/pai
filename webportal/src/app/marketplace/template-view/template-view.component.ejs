@@ -158,24 +158,30 @@
             </div>
             <div class="modal-body">
                 <div class="row" id="upload-body-select">
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-12 col-md-offset-0">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <button type="button" id="upload-docker" class="btn btn-default btn-lg btn-block">Upload<br>Docker</button>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <button type="button" id="upload-script" class="btn btn-default btn-lg btn-block">Upload<br>Script</button>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <button type="button" id="upload-data" class="btn btn-default btn-lg btn-block">Upload<br>Data</button>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="upload-yaml" class="btn btn-default btn-lg btn-block">Upload<br>Job Yaml</label>
+                                <input type="file" id="upload-yaml" name="upload-yaml" class="file hidden" title="">
                             </div>
                         </div>
                     </div>
                 </div>
-                <form class="hidden" id="upload-body-form">
-                </form>
-                <div class="text-center hidden" id="upload-submit">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                <div class="hidden" id="upload-body-form-container">
+                    <form id="upload-body-form">
+                    </form>
+                    <div class="text-center" id="upload-submit">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
                 </div>
                 <div class="text-center hidden" id="upload-body-success">
                     <p class="h1"><span class="glyphicon glyphicon-ok-circle"></span></p>

@@ -43,27 +43,41 @@ const convertParameterFromKeyValue = (d) => {
 };
 
 const yamlLoad = (yamlString) => {
-  return yaml.safeLoad(yamlString);
+  try {
+    return yaml.safeLoad(yamlString);
+  } catch (error) {
+    alert('Failed to load yaml file: ' + error);
+    return null;
+  }
 };
 
 const yamlToJsonEditor = (data) => {
-  if ('tasks' in data) {
-    data['tasks'].forEach((task) => {
-      task['instances'] = task['resource']['instances'];
-      task['cpu'] = task['resource']['resourcePerInstance']['cpu'];
-      task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
-      task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
-      task['portList'] = task['resource']['portList'];
-      delete task['resource'];
-      convertParameterToKeyValue(task);
-    });
-  }
+  try {
+    if (!data || typeof data !== 'object') {
+      throw new Error('Content is null or does not have required format.');
+    }
 
-  if ('parameters' in data) {
-    convertParameterToKeyValue(data);
-  }
+    if ('tasks' in data) {
+      data['tasks'].forEach((task) => {
+        task['instances'] = task['resource']['instances'];
+        task['cpu'] = task['resource']['resourcePerInstance']['cpu'];
+        task['gpu'] = task['resource']['resourcePerInstance']['gpu'];
+        task['memoryMB'] = task['resource']['resourcePerInstance']['memoryMB'];
+        task['portList'] = task['resource']['portList'];
+        delete task['resource'];
+        convertParameterToKeyValue(task);
+      });
+    }
 
-  return data;
+    if ('parameters' in data) {
+      convertParameterToKeyValue(data);
+    }
+
+    return data;
+  } catch (error) {
+    alert('Failed to parse yaml file. ' + error);
+    return null;
+  }
 };
 
 const jsonEditorToJobJson = (editors) => {
