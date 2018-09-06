@@ -76,7 +76,7 @@ class clean:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
             sys.exit(1)
 
-        commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
+        commandline = "sudo /bin/bash {0}/kubernetes-cleanup.sh".format(self.jobname)
         if self.force_flag:
             commandline += " -f"
         if common.ssh_shell_with_password_input_paramiko(node_config, commandline) == False:
@@ -126,5 +126,3 @@ class clean:
 
 
         self.logger.info("The kubernetes has been destroyed, and metadata has been removed")
-
-

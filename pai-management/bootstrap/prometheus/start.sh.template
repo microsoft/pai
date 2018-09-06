@@ -21,9 +21,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh || exit $?
 
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?

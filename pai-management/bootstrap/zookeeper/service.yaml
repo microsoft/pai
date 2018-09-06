@@ -19,7 +19,6 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - node-label.sh
   - zookeeper.yaml
   - stop.sh
   - refresh.sh
@@ -30,3 +29,6 @@ stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
 upgraded-script: upgraded.sh
+
+deploy-rules:
+  in: pai-master

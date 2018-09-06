@@ -17,4 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl create configmap grafana-configuration --from-file=grafana-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+# minify json files
+tmp="$(mktemp)"
+for i in `find grafana-configuration/ -type f -regex ".*json" ` ; do
+    cat $i | python minify.py > $tmp
+    mv $tmp $i
+done
+
+# create configmap
+for i in `find grafana-configuration/ -type f -regex ".*json" ` ; do
+    echo --from-file=$i
+done | xargs kubectl create configmap grafana-configuration --dry-run -o yaml | kubectl apply -f - || exit $?

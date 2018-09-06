@@ -34,12 +34,16 @@ spec:
         prometheus.io/path: "/"
         prometheus.io/port: "9101"
     spec:
-      nodeSelector:
-        watchdog: "true"
       containers:
       - name: watchdog
         image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}
         imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9101
+          initialDelaySeconds: 30
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
@@ -53,6 +57,8 @@ spec:
           - "/watchdog.py"
           - "--interval"
           - "30"
+          - "--port"
+          - "9101"
           - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
       volumes:
         - name: collector-mount

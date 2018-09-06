@@ -31,8 +31,15 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
-      nodeSelector:
-        node-exporter: "true"
+      affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: no-nodeexporter
+                  operator: NotIn
+                  values:
+                  - "true"
       containers:
       - image: prom/node-exporter:v0.16.0
         imagePullPolicy: Always
@@ -89,8 +96,12 @@ spec:
         readinessProbe:
           exec:
             command:
-            - python
-            - /usr/local/healthy_check.py
+            - "python"
+            - "/job_exporter/no_older_than.py"
+            - "--delta"
+            - "60"
+            - "/datastorage/prometheus/job_exporter.prom"
+            - "/datastorage/prometheus/gpu_exporter.prom"
           initialDelaySeconds: 30
           periodSeconds: 30
         resources:
@@ -105,8 +116,6 @@ spec:
           name: docker-bin
         - mountPath: /var/run/docker.sock
           name: docker-socket
-        - name: docker
-          mountPath: /var/lib/docker
         - mountPath: /dev
           name: device-mount
         - mountPath: /var/drivers
@@ -142,9 +151,6 @@ spec:
         - name: sys
           hostPath:
             path: /sys
-        - name: docker
-          hostPath:
-            path: /var/lib/docker
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true

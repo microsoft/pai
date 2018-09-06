@@ -56,6 +56,8 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubeschedulerversion"] = k8sDict["clusterinfo"]["kube-scheduler-version"]
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
+        if "etcd-data-path" not in k8sDict["clusterinfo"]:
+            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
 
         # section : component_list
 
@@ -140,31 +142,6 @@ class paiObjectModel:
             k8sDict["proxymachinelist"] = proxyDict
 
         return k8sDict
-
-
-
-    def labelExpend(self, host):
-
-        if "pai-master" in host and host["pai-master"] == "true":
-
-            host["hadoop-name-node"] = "true"
-            host["hadoop-resource-manager"] = "true"
-            host["zookeeper"] = "true"
-            host["jobhistory"] = "true"
-            host["launcher"] = "true"
-            host["restserver"] = "true"
-            host["webportal"] = "true"
-            host["prometheus"] = "true"
-            host["grafana"] = "true"
-            host["pylon"] = "true"
-            host["node-exporter"] = "true"
-
-        if "pai-worker" in host and host["pai-worker"] == "true":
-
-            host["hadoop-data-node"] = "true"
-            host["hadoop-node-manager"] = "true"
-            host["node-exporter"] = "true"
-
 
 
     def serviceParse(self):
@@ -300,6 +277,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
 
+
         # section: machineinfo
 
         serviceDict["machineinfo"] = self.rawData["clusterConfiguration"]["machine-sku"]
@@ -311,7 +289,6 @@ class paiObjectModel:
 
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             hostname = host["hostname"]
-            self.labelExpend(host)
             host["nodename"] = host["hostip"]
             host["machinetype"] = host["machine-type"]
             host["ip"] = host["hostip"]

@@ -60,7 +60,6 @@ sudo docker pull docker.io/openpai/dev-box
 # By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
         -v /pathConfiguration:/cluster-configuration  \
@@ -76,7 +75,28 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Go to pai-management working dir
+##### (3) Check out a latest release branch of OpenPAI
+
+```bash
+cd /pai
+
+# fetch tags
+git fetch --tags
+
+# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
+# checkout a release branch. For example: v0.x.y
+git checkout v0.x.y
+
+# check current branch
+git status
+```
+- sucessful result:
+```bash
+HEAD detached at v0.6.1
+nothing to commit, working directory clean
+```
+
+##### (4) Go to pai-management working dir
 
 ```bash
 cd /pai/pai-management
@@ -139,12 +159,27 @@ Check all configruation items of the quick-start.yaml are correct.
 
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
+##### (1) generate configuration files
+
 ```bash
 cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
 python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+
+```
+
+##### (2) update docker tag to release version 
+
+```bash
+vi ~/pai-config/services-configuration.yaml
+```
+
+For example: v0.x.y branch, user should change docker-tag to v0.x.y.
+
+```bash
+docker-tag: v0.x.y
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)

@@ -42,7 +42,7 @@ class service_start:
         cmd = "/bin/bash {0}".format(start_script)
         err_msg = "Failed to execute the start script of service {0}".format(self.service_name)
         self.logger.info("Begin to execute service {0}'s start script.".format(self.service_name))
-        linux_shell.execute_shell(cmd, err_msg)
+        linux_shell.execute_shell_raise(cmd, err_msg)
 
 
 

@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/python
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,47 +16,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-option=$1
+import argparse
+import datetime
+import os
 
-apt-get install -y gawk
+def check_no_older_than(paths, delta):
+    """ raise RuntimeError exception if any path in paths is older than `now - delta` """
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(seconds=delta)
+    oldest = now - delta
 
-docker stop kubelet
-docker rm kubelet
+    for path in paths:
+        mtime = os.path.getmtime(path)
+        mtime = datetime.datetime.fromtimestamp(mtime)
+        if oldest > mtime:
+            raise RuntimeError("{} was updated more than {} seconds ago".format(path, delta))
 
-for ID in `docker ps -a | awk "/k8s_/ {print\\$1}"`; do docker kill $ID; docker rm $ID ;  done
 
-if [ -d "/etc/kubernetes" ]; then
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("paths", nargs="+", help="file to be checked")
+    parser.add_argument("-d", "--delta", type=int, default=60, help="check file is no older than -d seconds")
+    args = parser.parse_args()
 
-    rm -rf /etc/kubernetes
-
-fi
-
-if [ -d "/var/etcd/data" -a "$option" == "-f" ]; then
-
-    rm -rf /var/etcd/data
-
-fi
-
-if [ -d "/var/log/pods" ]; then
-
-    rm -rf /var/log/pods
-
-fi
-
-if [ -d "/var/lib/kubelet/pods" ]; then
-
-    rm -rf /var/lib/kubelet/pods
-
-fi
-
-if [ -d "src" ]; then
-
-    rm -rf src
-
-fi
-
-if [ -f "kubernetes.tar" ]; then
-
-    rm -rf kubernetes.tar
-
-fi
+    check_no_older_than(args.paths, args.delta)

@@ -66,7 +66,7 @@ Either build new image by yourself or use our [pre-built images](https://hub.doc
 Exported by ZooKeeper
 
 `
-echo mntr | nc ZooKeeper_IP 2185
+echo mntr | nc ZooKeeper_IP 2181
 `
 
 Todo:

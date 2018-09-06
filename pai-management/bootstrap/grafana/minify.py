@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,8 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'webportal' in machinelist[ host ] and machinelist[ host ][ 'webportal' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} webportal=true || exit $?
-    {% endif %}
-{% endfor %}
+import json
+import sys
+
+def minify(raw):
+    """ minify json file """
+    obj = json.loads(raw)
+    return json.dumps(obj, separators=(",", ":"))
+
+if __name__ == '__main__':
+    sys.stdout.write(minify(sys.stdin.read()))
