@@ -46,8 +46,10 @@
 
 .component{
   margin: 15px auto;
-  
+  display: flex;
+  align-items: center;
 }
+
 .component-image{
   padding: 23px;
   img{
@@ -55,15 +57,8 @@
     max-width: 100px;
   }
 }
-.component-summary{ 
-  .contributor{
-    font-size: 18px;
-    margin-top: 10px;
-    padding-top: 5px;
-  }
-  .description{
-    margin-top: 15px;
-    padding-top: 5px;
-  }
-}
 
+.input-group{
+  margin-top: 50px;
+  margin-bottom: 30px;
+}

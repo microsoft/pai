@@ -23,7 +23,7 @@
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
   margin-right: 20px;
-  width: 182px;
+  width: 166px;
   height: 200px;
   text-align: center;
   font-family: wf_segoe-ui,Helvetica Neue,Helvetica,Arial,Verdana;
@@ -46,7 +46,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  width: 162px;
+  width: 146px;
 }
 
 .card .text-container .item-title {
@@ -56,14 +56,16 @@
   font-weight: 600;
 }
 
+.card .text-container .item-contributor {
+  padding: 10px 0 0 0;
+  display: block;
+  font-size: 13px;
+}
+
 .card .text-container .item-dsp {
   padding: 10px 0 0 0;
   display: block;
   font-size: 12px;
-}
-
-.card .text-container .none {
-  display: none;
 }
 
 /*

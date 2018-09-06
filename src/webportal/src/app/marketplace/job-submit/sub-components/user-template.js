@@ -41,8 +41,6 @@ const dockerScriptDataFormat = require('./docker-script-data-format.ejs');
 const taskFormat = require('./task-format.ejs');
 const addModalFormat = require('./add.ejs');
 const userEditModalComponent = require('./edit.ejs');
-const userChooseSummaryLayout = require('./summary-layout.ejs');
-const userChooseInsertLayout = require('./insert-layout.ejs');
 const jobSchema = require('./json-editor-schema.js');
 const yamlHelper = require('./yaml-json-editor-convert.js');
 const common = require('../../template-common/template-search.component.js');
@@ -65,9 +63,7 @@ let yamleditor = null;
 
 let addModalVariables = {
   addEditor: null,
-  finalEditor: null,
   id: -1,
-  active: false,
 };
 
 const emptyPage = () => {
@@ -83,10 +79,12 @@ const emptyPage = () => {
 };
 
 const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
-  $(containerName).append(userEditModalComponent({
-    type: type,
-    id: id,
-  })); // append the modal html
+  if (containerName != null) {
+    $(containerName).append(userEditModalComponent({
+      type: type,
+      id: id,
+    })); // append the modal html
+  }
 
   let element = document.getElementById(`${type}${id}-json-editor-holder`);
   let editor = new JSONEditor(element, {
@@ -205,24 +203,6 @@ const insertNewDockerDataScript = (item) => {
   addNewJsonEditor(item, id, type);
 };
 
-const saveTemplateOnAddModal = (type, id) => {
-  addModalVariables.finalEditor = addModalVariables.addEditor;
-  let data = addModalVariables.finalEditor.getValue();
-  $(`#${type}${id}-modal .edit-save`).attr('data-dismiss', 'modal');
-  $(`#${type}${id}-modal .edit-save`).attr('aria-hidden', 'true');
-
-  $(`#${type}-summary`).html(userChooseSummaryLayout({
-    name: data.name,
-    contributor: data.contributor,
-    description: data.description,
-    type: type,
-    id: id,
-  }));
-  $(`#${type}${id}-edit-button`).on('click', () => {
-    $(`#${type}${id}-modal`).modal({backdrop: 'static', keyboard: false});
-  });
-};
-
 const updatePageFromJson = (data) => { // data is a json
   if ('type' in data) {
     emptyPage();
@@ -270,7 +250,7 @@ const replaceHrefs = (htmls) => {
     $(obj).attr('data-toggle', 'tooltip');
     $(obj).attr('data-html', 'ture');
     $(obj).attr('data-placement', 'right');
-    $(obj).attr('title', '<h5>' + $(obj).find('.none').html() + '</h5>');
+    $(obj).attr('title', '<h5>' + $(obj).find('.item-dsp').html() + '</h5>');
     $(obj).click(() => {
       let items = $(obj).attr('id').split('-');
       $.ajax({
@@ -280,7 +260,6 @@ const replaceHrefs = (htmls) => {
         success: (data) => {
           data = yamlHelper.yamlToJsonEditor(data);
           addModalVariables.addEditor.setValue(data);
-          saveTemplateOnAddModal(items[0], addModalVariables.id);
         },
       });
     });
@@ -290,58 +269,35 @@ const replaceHrefs = (htmls) => {
 
 const showAddModal = (type) => {
   if (type != 'task') {
-    addModalVariables.active = true;
     addModalVariables.addEditor = null;
-    addModalVariables.finalEditor = null;
     addModalVariables.id = editors[type].length + 1;
 
     $('#addModalPlace').html(addModalFormat({
-      name: '',
-      contributor: '',
-      description: '',
       type: type,
       id: addModalVariables.id,
-      summaryLayout: userChooseInsertLayout,
     }));
     $('#recommandPlaceHolder').html(common.generateLoading());
-
-    addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, '#editPlaceHolder');
-    $(`#${type}${addModalVariables.id}-modal .edit-save`).click(() => {
-      saveTemplateOnAddModal(type, addModalVariables.id);
-    });
+    addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, null);
 
     // ----------- recommand ---------------
-    common.load(type, replaceHrefs, 3);
+    common.load(type, replaceHrefs, 4);
 
     $('#btn-add-search').click((event) => {
-      common.search($('#add-search').val(), [type], replaceHrefs, 3);
+      common.search($('#add-search').val(), [type], replaceHrefs, 4);
     });
     $('#add-search').on('keyup', (event) => {
       if (event.keyCode == 13) {
-        common.search($('#add-search').val(), [type], replaceHrefs, 3);
+        common.search($('#add-search').val(), [type], replaceHrefs, 4);
       }
     });
 
     // ---------- some button listener ----------
-    $('#btn-add-customize').click(() => {
-      $(`#${type}${addModalVariables.id}-modal`).modal({backdrop: 'static', keyboard: false});
-    });
-
-    $('#btn-close-add-modal').click(() => {
-      addModalVariables.active = false;
-    });
-
-    $('#btn-add-modal').click(() => {
-      addModalVariables.active = false;
-      $('#btn-add-modal').attr('data-dismiss', 'modal');
-      $('#btn-add-modal').attr('aria-hidden', 'true');
-      $('#recommandPlaceHolder').html('');
-      $('#editPlaceHolder').html('');
-      if (addModalVariables.finalEditor != null) {
-        let d = addModalVariables.finalEditor.getValue();
-        d['type'] = type;
-        insertNewDockerDataScript(d);
-      }
+    $(`#${type}${addModalVariables.id}-edit-save-button`).click(() => {
+      $('#addModal').modal('hide');
+      let data = addModalVariables.addEditor.getValue();
+      data['type'] = type;
+      $('#addModalPlace').html('');
+      insertNewDockerDataScript(data);
     });
     $('#addModal').modal({backdrop: 'static', keyboard: false});
   } else { // add task;
