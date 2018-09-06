@@ -17,7 +17,7 @@
 
 from cleaner.worker import Worker
 from cleaner.utils import common
-import mock
+import datetime
 import time
 from multiprocessing import Queue
 from unittest import TestCase, main
@@ -56,7 +56,7 @@ class TestWorker(TestCase):
 
     def testWorkerTimeout(self):
         queue = Queue()
-        worker = Worker(timeout_worker, queue, long_run=False, timeout=1)
+        worker = Worker(timeout_worker, queue, long_run=False, timeout=datetime.timedelta(seconds=1))
         worker.start()
         worker.join()
         self.assertEqual(queue.qsize(), 0)
