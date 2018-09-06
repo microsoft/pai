@@ -16,23 +16,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from unittest import TestCase, main
-import logging
-from cleaner.scripts.common import run_cmd
+import mock
+from cleaner.utils.common import setup_logging
+from cleaner.scripts import clean_docker_cache
 
 
-class TestCommon(TestCase):
+class TestCacheClean(TestCase):
 
     def setUp(self):
-        self.logger = logging.getLogger("test")
+        setup_logging()
 
-    def testRunCmdOneLine(self):
-        out = run_cmd("echo test", self.logger)
-        self.assertEqual(out[0], "test")
+    @mock.patch("cleaner.utils.common.run_cmd")
+    def testCacheSizeZero(self, mock_cmd):
+        mock_cmd.return_value = []
+        self.assertEqual(clean_docker_cache.get_cache_size(), 0)
 
-    def testRunCmdEmptyOut(self):
-        out = run_cmd("echo test > /dev/null", self.logger)
-        self.assertEqual(len(out), 0)
+        mock_cmd.return_value = ["0"]
+        self.assertEqual(clean_docker_cache.get_cache_size(), 0)
 
+        mock_cmd.return_value = ["error"]
+        self.assertEqual(clean_docker_cache.get_cache_size(), 0)
 
 if __name__ == "__main__":
     main()

@@ -17,12 +17,16 @@
 
 from cleaner.utils.logger import LoggerMixin
 from cleaner.utils.timer import CountdownTimer, Timeout
+from cleaner.utils.common import run_cmd, setup_logging
 from datetime import timedelta
 from unittest import TestCase, main
 import time
 
 
 class UtilsTest(TestCase, LoggerMixin):
+
+    def setUp(self):
+        setup_logging()
 
     def test_logger(self):
         self.assertTrue(self.logger is not None, "logger cannot be None.")
@@ -52,6 +56,14 @@ class UtilsTest(TestCase, LoggerMixin):
         except Timeout:
             no_timer = False
         self.assertTrue(no_timer)
+
+    def testRunCmdOneLine(self):
+        out = run_cmd("echo test", self.logger)
+        self.assertEqual(out[0], "test")
+
+    def testRunCmdEmptyOut(self):
+        out = run_cmd("echo test > /dev/null", self.logger)
+        self.assertEqual(len(out), 0)
 
 
 if __name__ == "__main__":

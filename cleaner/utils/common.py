@@ -15,47 +15,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import subprocess
+import multiprocessing
+import logging
+import sys
 
-class Condition:
-    def __init__(self, key="condition", owner="default", version="1.0", input_data=None, method=None):
-        self._key = key
-        self._owner = owner
-        self._version = version
-        self._input_data = input_data
-        self._method = method
 
-    @property
-    def key(self):
-        return self._key
+def run_cmd(cmd, logger):
+    proc = subprocess.Popen(["/bin/bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    lines = []
+    while True:
+        line = proc.stdout.readline()
+        if not line:
+            break
+        line = line.encode("UTF-8").strip()
+        logger.info(line)
+        lines.append(line)
+    proc.wait()
+    if proc.returncode:
+        logger.error("failed to run command %s, error code is %d", cmd, proc.returncode)
+    return lines
 
-    @property
-    def owner(self):
-        return self._owner
 
-    @owner.setter
-    def owner(self, name):
-        self._owner = name
-
-    @property
-    def version(self):
-        return self._version
-
-    @version.setter
-    def version(self, version):
-        self._version = version
-
-    @property
-    def input_data(self):
-        return self._input_data
-
-    @input_data.setter
-    def input_data(self, data):
-        self._input_data = data
-
-    @property
-    def method(self):
-        return self._method
-
-    @method.setter
-    def method(self, method):
-        self._method = method
+def setup_logging():
+    logger = multiprocessing.get_logger()
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)

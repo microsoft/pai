@@ -15,16 +15,31 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import common
-import logging
+from utils import common
+import multiprocessing
 
-logger = logging.getLogger("docker_cache_clean")
+logger = multiprocessing.get_logger()
 
 
-def main():
-    common.setup_action_logging("/datastorage/cleaner/docker_cache_clean.log", logger)
-    common.run_cmd("docker system prune -af", logger)
+def get_cache_size():
+    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null")
+    size = 0
+    if len(out) == 0:
+        logger.error("cannot retrieve cache size.")
+        return size
+    try:
+        size = float(out[0])
+    except ValueError:
+        logger.error("cannot convert cache size, reset size to 0")
+        size = 0
+    return size
+
+
+def check_and_clean(threshold):
+    if get_cache_size() > threshold:
+        common.run_cmd("docker system prune -af", logger)
 
 
 if __name__ == "__main__":
-    main()
+    common.setup_logging()
+    check_and_clean(10)
