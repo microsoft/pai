@@ -22,7 +22,7 @@ logger = multiprocessing.get_logger()
 
 
 def get_cache_size():
-    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null". logger)
+    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null", logger)
     size = 0
     if len(out) == 0:
         logger.error("cannot retrieve cache size.")
