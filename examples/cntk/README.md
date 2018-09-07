@@ -25,11 +25,14 @@ The following contents show some basic CNTK examples, other customized CNTK code
 
 # CNTK grapheme-to-phoneme examples
 
+###prepare
 To run CNTK examples in OpenPAI, you need to do the following things:
 1. Prepare the data by downloading all files in https://git.io/vbT5A(`wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b`) and put them up to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/cntk/data`.
 2. Prepare the execable code(`wget https://github.com/Microsoft/pai/raw/master/examples/cntk/cntk-g2p.sh`) and config(`wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/BrainScript/G2P.cntk`). And upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/cntk/code`.
 3. Prepare a docker image and upload it to docker hub. You can get the tutorial below.
 4. Prepare a job configuration file and submit it through webportal.
+Note that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket!`/bin/bash prepare.sh ip:port`
+
 
 OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.caffe` with your own. 
 
