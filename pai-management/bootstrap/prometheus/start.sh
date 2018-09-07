@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,34 +19,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
+pushd $(dirname "$0") > /dev/null
 
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
-# patch for webhdfs upload issue when using nginx as a reverse proxy
-wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 
-git clone https://github.com/apache/hadoop.git
-
-cd hadoop
-
-git checkout branch-2.9.0
-
-cp /hadoop-2.9.0.gpu-port.patch /hadoop
-cp /HDFS-13773.patch /hadoop
-cp /docker-executor.patch /hadoop
-
-git apply hadoop-2.9.0.gpu-port.patch
-git apply HDFS-13773.patch
-git apply docker-executor.patch
-
-mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
-
-cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
-
-echo "Successfully build hadoop 2.9.0 AI"
-
-
-
-# When Changing the patch id, please update the filename here.
-rm /hadoop-binary/*-done
-touch /hadoop-binary/12932984-12933562-docker_executor-done
+popd > /dev/null
