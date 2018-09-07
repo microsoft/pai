@@ -19,7 +19,7 @@
 const express = require('express');
 
 const param = require('../middlewares/parameter');
-const schema = require('../config/template');
+const config = require('../config/template');
 const template = require('../controllers/template');
 const token = require('../config/token');
 
@@ -29,7 +29,7 @@ router.route('/')
   /** GET /api/v2/template?query=XXX[&type=YYY][&pageno=ZZZ] - Search templates by keywords */
   .get(template.filter)
   /** POST /api/v2/template - Share the job and its resources as template */
-  .post(token.check, param.validate(schema), template.share);
+  .post(token.check, param.validate(config.schema), template.share);
 
 router.route('/:type')
   /** GET /api/v2/template/:type[?pageno=XXX] - Get list of templates */

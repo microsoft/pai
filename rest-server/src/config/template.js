@@ -18,6 +18,8 @@
 
 const Joi = require('joi');
 
+const templateTypes = ['data', 'dockerimage', 'job', 'script'];
+
 const templateInputSchema = Joi.object().keys({
   protocol_version: Joi.string()
     .allow('')
@@ -25,7 +27,7 @@ const templateInputSchema = Joi.object().keys({
   name: Joi.string()
     .required(),
   type: Joi.string()
-    .valid(['data', 'dockerimage', 'job', 'script']),
+    .valid(templateTypes),
   contributor: Joi.string()
     .required(),
   description: Joi.string()
@@ -75,4 +77,7 @@ const templateInputSchema = Joi.object().keys({
   }),
 }).required();
 
-module.exports = templateInputSchema;
+module.exports = {
+  schema: templateInputSchema,
+  types: templateTypes,
+};

@@ -17,16 +17,17 @@
 
 
 const cacheWrapper = require('../middlewares/cache');
+const config = require('../config/template');
 const logger = require('../config/logger');
 const template = require('../models/template');
 const userModel = require('../models/user');
 
 const fetch = (req, cb) => {
   let type = req.params.type;
-  if (!type) {
+  if (!type || !config.types.includes(type)) {
     return cb({
       code: 400,
-      message: 'Failed to extract "type" parameter in the request.',
+      message: 'Found illegal type value in the request.',
     }, null);
   }
   let name = req.params.name;
@@ -64,10 +65,17 @@ const filter = (req, cb) => {
       message: 'Failed to extract "query" parameter in the request.',
     }, null);
   }
+  let type = req.query.type;
+  if (type && !config.types.includes(type)) {
+    return cb({
+      code: 400,
+      message: 'Found illegal type value in the request.'
+    });
+  }
   template.search({
     keywords: query,
     pageNo: req.query.pageno,
-    type: req.query.type,
+    type: type,
   }, function(err, list) {
     if (err) {
       logger.error(err);
@@ -85,9 +93,16 @@ const filter = (req, cb) => {
 };
 
 const list = (req, cb) => {
+  let type = req.params.type;
+  if (!config.types.includes(type)) {
+    return cb({
+      code: 400,
+      message: 'Found illegal type value in the request.'
+    });
+  }
   template.search({
     pageNo: req.query.pageno,
-    type: req.params.type,
+    type: type,
   }, function(err, list) {
     if (err) {
       logger.error(err);
