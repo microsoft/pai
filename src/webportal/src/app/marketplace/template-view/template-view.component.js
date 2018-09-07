@@ -151,7 +151,7 @@ function search(query) {
           })).each(function() {
             $dataSlick.slick('slickAdd', this);
           });
-        
+
           if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
             setTimeout(append, 100, page + 1);
           }
