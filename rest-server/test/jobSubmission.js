@@ -66,7 +66,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       );
     global.nock(global.webhdfsUri)
       .put(/op=CREATE/)
-      .times(4)
+      .times(6)
       .reply(
         201,
         {}
