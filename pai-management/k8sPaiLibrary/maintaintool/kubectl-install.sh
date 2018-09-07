@@ -19,12 +19,11 @@
 
 mkdir -p ~/.kube
 
-[[ -f "/usr/local/bin/kubectl" ]] &&
-{
+if which kubectl > /dev/null; then
     echo "kubectl has been installed."
     echo "Skip this precess"
     exit 0
-}
+fi
 
 set -e
 

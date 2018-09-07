@@ -17,8 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'webportal' in machinelist[ host ] and machinelist[ host ][ 'webportal' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} webportal=true || exit $?
-    {% endif %}
-{% endfor %}
+pushd $(dirname "$0") > /dev/null
+
+echo "Call stop script to stop all service first"
+/bin/bash stop.sh || exit $?
+
+
+popd > /dev/null

@@ -22,8 +22,6 @@ pushd $(dirname "$0") > /dev/null
 echo "refresh hbase-configuration"
 kubectl create configmap hbase-configuration --from-file=hbase-configuration/ --dry-run -o yaml | kubectl apply -f -
 
-echo "relabel the node label"
-sh node-label.sh
 
 
 {% for host in machinelist %}

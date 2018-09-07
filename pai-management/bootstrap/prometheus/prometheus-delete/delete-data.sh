@@ -21,4 +21,6 @@
 echo "Clean the prometheus's data on the disk"
 
 
-#TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.
+# TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.
+
+# Note: Please clean prometheus, clean node-exporter in its individual directory
