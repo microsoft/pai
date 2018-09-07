@@ -254,6 +254,7 @@ class Job {
                   },
                 };
               } else {
+                // older pattern is ${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/
                 sshInfo = {
                   'containers': [],
                   'keyPair': {
