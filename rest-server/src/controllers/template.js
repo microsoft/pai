@@ -67,6 +67,7 @@ const filter = (req, cb) => {
   template.search({
     keywords: query,
     pageNo: req.query.pageno,
+    type: req.query.type,
   }, function(err, list) {
     if (err) {
       logger.error(err);
