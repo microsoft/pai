@@ -435,18 +435,17 @@ class Job {
     return frameworkDescription;
   }
 
-  generateSshKeyFiles(name) {
+  generateSshKeyFiles(name, next) {
     keygen({
       location: name,
       read: true,
       destroy: true,
     }, function (err, out) {
       if (err) {
-        logger.info('Generate ssh key failed' + err);
-        return null
+        next(err)
       } else {
         let sshKeyFiles = [{'content':out.pubKey, 'fileName': name+'.pub'},{'content':out.key,'fileName':name}];
-        return sshKeyFiles
+        next(null,sshKeyFiles)
       }
     });
   }
@@ -556,17 +555,23 @@ class Job {
       },
       // generate ssh key file
       (parallelCallback) => {
-        async.each(this.generateSshKeyFiles(name), (file, eachCallback) => {
-          hdfs.createFile(
-            `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
-            file.content,
-            {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
-            (error, result) => {
-              eachCallback(error);
-            }
-          );
-        }, (error) => {
-          parallelCallback(error);
+        this.generateSshKeyFiles(name,(error, sshKeyFiles) => {
+          if (error) {
+            logger.error("Generated ssh key files failed");
+          } else {
+            async.each(sshKeyFiles, (file, eachCallback) => {
+              hdfs.createFile(
+                `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
+                file.content,
+                {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
+                (error, result) => {
+                  eachCallback(error);
+                }
+              );
+            }, (error) => {
+              parallelCallback(error);
+            });
+          }
         });
       },
     ], (parallelError) => {
