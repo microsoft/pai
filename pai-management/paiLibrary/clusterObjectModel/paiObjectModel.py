@@ -144,32 +144,6 @@ class paiObjectModel:
         return k8sDict
 
 
-
-    def labelExpend(self, host):
-
-        if "pai-master" in host and host["pai-master"] == "true":
-
-            host["hadoop-name-node"] = "true"
-            host["hadoop-resource-manager"] = "true"
-            host["zookeeper"] = "true"
-            host["jobhistory"] = "true"
-            host["launcher"] = "true"
-            host["restserver"] = "true"
-            host["webportal"] = "true"
-            host["prometheus"] = "true"
-            host["grafana"] = "true"
-            host["pylon"] = "true"
-            host["watchdog"] = "true"
-            host["node-exporter"] = "true"
-
-        if "pai-worker" in host and host["pai-worker"] == "true":
-
-            host["hadoop-data-node"] = "true"
-            host["hadoop-node-manager"] = "true"
-            host["node-exporter"] = "true"
-
-
-
     def serviceParse(self):
 
         serviceDict = dict()
@@ -303,6 +277,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
 
+
         # section: machineinfo
 
         serviceDict["machineinfo"] = self.rawData["clusterConfiguration"]["machine-sku"]
@@ -314,7 +289,6 @@ class paiObjectModel:
 
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             hostname = host["hostname"]
-            self.labelExpend(host)
             host["nodename"] = host["hostip"]
             host["machinetype"] = host["machine-type"]
             host["ip"] = host["hostip"]
