@@ -16,13 +16,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const checkToken = (callback) => {
+const checkToken = (callback, redirectToLogin=true) => {
   const authToken = cookies.get('token');
-  if (authToken) {
-    callback(authToken);
-  } else {
-    // alert('Please login first!');
+  if (!authToken && redirectToLogin) {
     window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
+  } else {
+    callback(authToken);
   }
 };
 

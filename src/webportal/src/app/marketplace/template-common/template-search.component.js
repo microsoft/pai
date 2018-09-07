@@ -2,6 +2,7 @@ require('./cards-format.scss');
 
 const loadingComponent = require('./loading.ejs');
 const viewCardsComponent = require('./cards.ejs');
+const userAuth = require('../../user/user-auth/user-auth.component');
 const webportalConfig = require('../../config/webportal.config.js');
 
 const generateUI = function(type, data, limit) {
@@ -43,36 +44,44 @@ const load = function(type, callback, limit = 4) {
 
 const search = function(query, types, callback, limit = 4) {
   if (query) {
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/template?query=` + encodeURIComponent(query),
-      type: 'GET',
-      dataType: 'json',
-      success: function(res) {
-        let data = res.items;
-        let categories = {};
-        types.forEach((item) => {
-          categories[item] = [];
-        });
-        data.forEach((item) => {
-          if (item.type in categories) {
-            categories[item.type].push(item);
+    userAuth.checkToken((token) => {
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v2/template?query=` + encodeURIComponent(query),
+        type: 'GET',
+        dataType: 'json',
+        beforeSend: function setHeader(xhr) {
+          if (token) {
+            // Used for the backend server to fetch current user's GitHub PAT
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
           }
-        });
-        Object.keys(categories).forEach((type) => {
-          categories[type] = generateUI(type, categories[type], limit);
-        });
-        if (callback) {
-          callback(categories);
-        }
-      },
-      error: function(jqxhr, _, error) {
-        if (jqxhr.status == 500) {
-            alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
-        } else {
-            alert(error);
-        }
-      },
-    });
+        },
+        success: function(res) {
+          let data = res.items;
+          let categories = {};
+          types.forEach((item) => {
+            categories[item] = [];
+          });
+          data.forEach((item) => {
+            if (item.type in categories) {
+              categories[item.type].push(item);
+            }
+          });
+          Object.keys(categories).forEach((type) => {
+            categories[type] = generateUI(type, categories[type], limit);
+          });
+          if (callback) {
+            callback(categories);
+          }
+        },
+        error: function(jqxhr, _, error) {
+          if (jqxhr.status == 500) {
+              alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+          } else {
+              alert(error);
+          }
+        },
+      });
+    }, false);
   }
 };
 
