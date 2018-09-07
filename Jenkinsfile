@@ -65,7 +65,6 @@ sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
 QUICK_START_PATH=${JENKINS_HOME}/${BED}/singlebox/quick-start
 CONFIG_PATH=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
-cd pai-management/
 
 # generate quick-start
 $JENKINS_HOME/scripts/${BED}-gen_single-box.sh ${QUICK_START_PATH}
@@ -81,11 +80,12 @@ sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" $CONFIG_PATH/services-configuratio
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
 
+cd build/
 # build images
-sudo ./paictl.py image build -p $CONFIG_PATH
+sudo ./pai_build.py build -c $CONFIG_PATH
 
 # push images
-sudo ./paictl.py image push -p $CONFIG_PATH
+sudo ./pai_build.py push -c $CONFIG_PATH
 
 '''
       }
@@ -144,7 +144,7 @@ rm -rf /cluster-configuration/cluster-configuration.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
-cd /pai/pai-management
+cd /pai/
 
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
@@ -161,6 +161,7 @@ fi
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
 
+cd /pai/
 # Step 1. Generate config
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
@@ -242,7 +243,7 @@ rm -rf /cluster-configuration/cluster-configuration.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
-cd /pai/pai-management
+cd /pai/
 
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
@@ -553,7 +554,7 @@ set -x
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 
-cd /pai/pai-management
+cd /pai/
 
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
@@ -597,7 +598,7 @@ set -x
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 
-cd /pai/pai-management
+cd /pai/
 
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
