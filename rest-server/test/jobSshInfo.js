@@ -70,20 +70,6 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       );
 
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/job4')
-      .reply(
-        200,
-        mustache.render(
-          frameworkDetailTemplate,
-          {
-            'frameworkName': 'job4',
-            'userName': 'test',
-            'applicationId': 'app4',
-          }
-        )
-      );
-
-    nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job5')
       .reply(
         200,
@@ -93,6 +79,20 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
             'frameworkName': 'job5',
             'userName': 'test',
             'applicationId': 'app5',
+          }
+        )
+      );
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job6')
+      .reply(
+        200,
+        mustache.render(
+          frameworkDetailTemplate,
+          {
+            'frameworkName': 'job6',
+            'userName': 'test',
+            'applicationId': 'app6',
           }
         )
       );
@@ -136,20 +136,20 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       );
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job4/ssh/app4?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/job6/ssh/app6?op=LISTSTATUS')
       .reply(
         200,
         {
           'FileStatuses': {
             'FileStatus': [
               {
-                'pathSuffix': 'container_1519960554030_0044_01_000002-10.240.0.15-39035',
+                'pathSuffix': 'container_1519960554030_0046_01_000002-10.240.0.15-39035',
               },
               {
-                'pathSuffix': 'container_1519960554030_0044_01_000003-10.240.0.17-28730',
+                'pathSuffix': 'container_1519960554030_0046_01_000003-10.240.0.17-28730',
               },
               {
-                'pathSuffix': 'container_1519960554030_0044_01_000004-10.240.0.16-30690',
+                'pathSuffix': 'container_1519960554030_0046_01_000004-10.240.0.16-30690',
               },
             ],
           },
@@ -157,17 +157,17 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       );
 
     nock(webhdfsUri)
-      .get('/webhdfs/v1/Container/test/job4/ssh/keyFiles?op=LISTSTATUS')
+      .get('/webhdfs/v1/Container/test/job6/ssh/keyFiles?op=LISTSTATUS')
       .reply(
         200,
         {
           'FileStatuses': {
             'FileStatus': [
               {
-                'pathSuffix': 'job4.pub',
+                'pathSuffix': 'job6.pub',
               },
               {
-                'pathSuffix': 'job4',
+                'pathSuffix': 'job6',
               },
             ],
           },
@@ -193,7 +193,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
 
   it('Case 2 (Positive): Ssh info stored in new pattern will get info succeed.', (done) => {
     chai.request(server)
-      .get('/api/v1/jobs/job4/ssh')
+      .get('/api/v1/jobs/job6/ssh')
       .end((err, res) => {
         expect(res, 'status code').to.have.status(200);
         expect(res, 'response format').be.json;
