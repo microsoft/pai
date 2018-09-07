@@ -234,30 +234,50 @@ class Job {
     hdfs.list(
       folderPathPrefix,
       null,
-      (error, result) => {
+      (error, connectInfo) => {
         if (!error) {
-          let sshInfo = {
-            'containers': [],
-            'keyPair': {
-              'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/`,
-              'publicKeyFileName': `${applicationId}.pub`,
-              'privateKeyFileName': `${applicationId}`,
-              'privateKeyDirectDownloadLink':
-                `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}/.ssh/${applicationId}?op=OPEN`,
-            },
-          };
-          for (let x of result.content.FileStatuses.FileStatus) {
-            let pattern = /^container_(.*)-(.*)-(.*)$/g;
-            let arr = pattern.exec(x.pathSuffix);
-            if (arr !== null) {
-              sshInfo.containers.push({
-                'id': 'container_' + arr[1],
-                'sshIp': arr[2],
-                'sshPort': arr[3],
-              });
-            }
-          }
-          next(null, sshInfo);
+          let latestKeyFilePath = `/Container/${userName}/${jobName}/ssh/keyFiles`;
+          let sshInfo = {};
+          // Handle backward compatibility
+          hdfs.list(latestKeyFilePath,
+            null,
+            (error, result) => {
+              if (!error) {
+                sshInfo = {
+                  'containers': [],
+                  'keyPair': {
+                    'folderPath': `${launcherConfig.hdfsUri}${latestKeyFilePath}`,
+                    'publicKeyFileName': `${jobName}.pub`,
+                    'privateKeyFileName': `${jobName}`,
+                    'privateKeyDirectDownloadLink':
+                      `${launcherConfig.webhdfsUri}/webhdfs/v1${latestKeyFilePath}/${jobName}?op=OPEN`,
+                  },
+                };
+              } else {
+                sshInfo = {
+                  'containers': [],
+                  'keyPair': {
+                    'folderPath': `${launcherConfig.hdfsUri}${folderPathPrefix}/.ssh/`,
+                    'publicKeyFileName': `${applicationId}.pub`,
+                    'privateKeyFileName': `${applicationId}`,
+                    'privateKeyDirectDownloadLink':
+                      `${launcherConfig.webhdfsUri}/webhdfs/v1${folderPathPrefix}/.ssh/${applicationId}?op=OPEN`,
+                  },
+                };
+              }
+              for (let x of connectInfo.content.FileStatuses.FileStatus) {
+                let pattern = /^container_(.*)-(.*)-(.*)$/g;
+                let arr = pattern.exec(x.pathSuffix);
+                if (arr !== null) {
+                  sshInfo.containers.push({
+                    'id': 'container_' + arr[1],
+                    'sshIp': arr[2],
+                    'sshPort': arr[3],
+                  });
+                }
+              }
+              next(null, sshInfo);
+            });
         } else {
           next(error);
         }
@@ -440,12 +460,12 @@ class Job {
       location: name,
       read: true,
       destroy: true,
-    }, function (err, out) {
+    }, function(err, out) {
       if (err) {
-        next(err)
+        next(err);
       } else {
-        let sshKeyFiles = [{'content':out.pubKey, 'fileName': name+'.pub'},{'content':out.key,'fileName':name}];
-        next(null,sshKeyFiles)
+        let sshKeyFiles = [{'content': out.pubKey, 'fileName': name+'.pub'}, {'content': out.key, 'fileName': name}];
+        next(null, sshKeyFiles);
       }
     });
   }
@@ -553,11 +573,10 @@ class Job {
           }
         );
       },
-      // generate ssh key file
       (parallelCallback) => {
-        this.generateSshKeyFiles(name,(error, sshKeyFiles) => {
+        this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
           if (error) {
-            logger.error("Generated ssh key files failed");
+            logger.error('Generated ssh key files failed');
           } else {
             async.each(sshKeyFiles, (file, eachCallback) => {
               hdfs.createFile(
