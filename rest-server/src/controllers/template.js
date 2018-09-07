@@ -69,7 +69,7 @@ const filter = (req, cb) => {
   if (type && !config.types.includes(type)) {
     return cb({
       code: 400,
-      message: 'Found illegal type value in the request.'
+      message: 'Found illegal type value in the request.',
     });
   }
   template.search({
@@ -97,7 +97,7 @@ const list = (req, cb) => {
   if (!config.types.includes(type)) {
     return cb({
       code: 400,
-      message: 'Found illegal type value in the request.'
+      message: 'Found illegal type value in the request.',
     });
   }
   template.search({
