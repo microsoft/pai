@@ -66,8 +66,7 @@ function webhdfs_create_file()
 
 function webhdfs_download_file()
 {
-  # webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
-  webHdfsRequestPath="http://10.151.40.133:50070/webhdfs/v1/Container/admin/spark-example-test7/ssh/application_1535595852691_0693/.ssh/application_1535595852691_0693.pub?user.name=admin&op=OPEN"
+  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
   localPath=${2}
   echo "[CAN-TEST-webhdfs_download_file] webHdfsPath = $webHdfsRequestPath"
   echo "[CAN-TEST-webhdfs_download_file] localPath = $localPath"
@@ -126,8 +125,7 @@ function generate_ssh_connect_info()
 
 # Check whether hdfs bianry and ssh exists, if not ignore ssh preparation and start part
 # Start sshd in docker container
-if which hdfs && service --status-all 2>&1 | grep -q ssh; then
-
+if service --status-all 2>&1 | grep -q ssh; then
   prepare_ssh
   get_ssh_key_files
   ssh_connect_info_folder=${PAI_WEB_HDFS_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/$APP_ID
@@ -135,40 +133,39 @@ if which hdfs && service --status-all 2>&1 | grep -q ssh; then
   dest_file_path=${ssh_connect_info_folder}/$PAI_CONTAINER_ID-$PAI_CONTAINER_HOST_IP-$PAI_CONTAINER_SSH_PORT
   generate_ssh_connect_info ${dest_file_path}
 
-
-
-  # Generate ssh config
-  ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
-  hdfs dfs -mkdir -p ${ssh_config_path}
-  hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT
-  while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
-    printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
-    sleep 10
-  done
-  NodeList=($(hdfs dfs -ls ${ssh_config_path} \
-    | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" \
-    | grep -oE "[^/]+$" \
-    | sed -e "s/^$APP_ID+//g" \
-    | sort -n))
-  if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
-    printf "%s %s\n%s\n%s\n\n" \
-      "[ERROR]" "NodeList" \
-      "${NodeList[@]}" \
-      "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
-    exit 2
+  if which hdfs; then
+    # Generate ssh config
+    ssh_config_path=${HDFS_LAUNCHER_PREFIX}/${PAI_USER_NAME}/${PAI_JOB_NAME}/ssh/config
+    hdfs dfs -mkdir -p ${ssh_config_path}
+    hdfs dfs -touchz ${ssh_config_path}/$APP_ID+$PAI_CURRENT_TASK_ROLE_NAME+$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX+$PAI_CONTAINER_HOST_IP+$PAI_CONTAINER_SSH_PORT
+    while [ `hdfs dfs -ls $ssh_config_path | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" | wc -l` -lt  $PAI_JOB_TASK_COUNT ]; do
+      printf "%s %s\n" "[INFO]" "Waiting for ssh service in other containers ..."
+      sleep 10
+    done
+    NodeList=($(hdfs dfs -ls ${ssh_config_path} \
+      | grep "/$PAI_JOB_NAME/ssh/config/$APP_ID+" \
+      | grep -oE "[^/]+$" \
+      | sed -e "s/^$APP_ID+//g" \
+      | sort -n))
+    if [ "${#NodeList[@]}" -ne $PAI_JOB_TASK_COUNT ]; then
+      printf "%s %s\n%s\n%s\n\n" \
+        "[ERROR]" "NodeList" \
+        "${NodeList[@]}" \
+        "ssh services in ${#NodeList[@]} containers are available, not equal to $PAI_JOB_TASK_COUNT, exit ..."
+      exit 2
+    fi
+    for line in "${NodeList[@]}"; do
+      node=(${line//+/ });
+      printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
+        "Host ${node[0]}-${node[1]}" \
+        "HostName ${node[2]}" \
+        "Port ${node[3]}" \
+        "User root" \
+        "StrictHostKeyChecking no" \
+        "UserKnownHostsFile /dev/null" \
+        "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
+    done
   fi
-  for line in "${NodeList[@]}"; do
-    node=(${line//+/ });
-    printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
-      "Host ${node[0]}-${node[1]}" \
-      "HostName ${node[2]}" \
-      "Port ${node[3]}" \
-      "User root" \
-      "StrictHostKeyChecking no" \
-      "UserKnownHostsFile /dev/null" \
-      "IdentityFile /root/.ssh/$APP_ID" >> /root/.ssh/config
-  done
-
   # Start ssh service
   start_ssh_service
 fi
