@@ -57,15 +57,31 @@ mv /pai/code/* ./
 function webhdfs_create_file()
 {
   webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=CREATE"
-  redirectUri=$(curl -i -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url})
-  createResponse=$(curl -i -S -X PUT ${redirectUri})
+  redirectResponse=$(curl -i -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url}' '%{http_code})
+  redirectCode=$(cut -d ' ' -f 2 <<< ${redirectResponse})
+  if [[ ${redirectCode} = "307" ]]; then
+    redirectUri=$(cut -d ' ' -f 1 <<< ${redirectResponse})
+    createResponse=$(curl -i -S -X PUT ${redirectUri})
+  else
+    printf "%s %s\n %s %s\n %s %s\n" \
+      "[WARNING]" "Webhdfs creates folder failed" \
+      "Folder Path:" ${webHdfsRequestPath} \
+      "Response code:" ${redirectCode}
+  fi
 }
 
 function webhdfs_download_file()
 {
   webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
   localPath=${2}
-  downloadResponse=$(curl -S -L ${webHdfsRequestPath} -o ${localPath})
+  downloadResponse=$(curl -S -L ${webHdfsRequestPath} -o ${localPath} -w %{http_code})
+  if [[ ${downloadResponse} = "200" ]]; then
+    printf "%s %s\n" \
+      "[INFO]" "Webhdfs downloads file succeed"
+  else
+    printf "%s %s\n" \
+      "[WARNING]" "Webhdfs downloads file failed"
+  fi
 }
 
 function prepare_ssh()
