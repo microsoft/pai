@@ -18,9 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-echo "Clean the prometheus's data on the disk"
-
-
-# TODO: Yanjie should write script to clean all node-exporter, GPU-exporter and prom's data on host.
-
-# Note: Please clean prometheus, clean node-exporter in its individual directory
+# TODO need to refactor refresh.sh

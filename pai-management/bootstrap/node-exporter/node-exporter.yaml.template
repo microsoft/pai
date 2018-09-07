@@ -31,15 +31,6 @@ spec:
         app: node-exporter
       name: node-exporter
     spec:
-      affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-              - matchExpressions:
-                - key: no-nodeexporter
-                  operator: NotIn
-                  values:
-                  - "true"
       containers:
       - image: prom/node-exporter:v0.16.0
         imagePullPolicy: Always

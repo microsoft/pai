@@ -19,32 +19,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-INSTANCES="daemonset/node-exporter
-daemonset/watchdog
-deployment/watchdog
-deployment/prometheus-deployment
-configmap/prometheus-configmap
-configmap/prometheus-alert
-configmap/watchdog
-deployment/alertmanager
-configmap/alertmanager
-"
+INSTANCES="daemonset/node-exporter"
 
 for instance in ${INSTANCES}; do
   kubectl delete --ignore-not-found --now ${instance}
 done
-
-{% for host in machinelist %}
-    {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit $?
-    {% endif %}
-    {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
-    {% endif %}
-    {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog- || exit $?
-    {% endif %}
-    {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager- || exit $?
-    {% endif %}
-{% endfor %}
