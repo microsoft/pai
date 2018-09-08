@@ -125,6 +125,7 @@ $(document).ready(() => {
       const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
       $.getJSON(u, (data) => {
         userTemplate.updatePageFromJson(data);
+        $('#submitJob').attr('disabled', false);
       });
     }
   });

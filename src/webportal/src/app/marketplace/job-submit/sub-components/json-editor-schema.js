@@ -88,6 +88,7 @@ const taskSchema = {
     data: {
       type: 'string',
       propertyOrder: 2,
+      enum: [],
       options: {
         grid_columns: 4,
       },
@@ -95,6 +96,7 @@ const taskSchema = {
     script: {
       type: 'string',
       propertyOrder: 3,
+      enum: [],
       options: {
         grid_columns: 4,
       },
@@ -102,6 +104,7 @@ const taskSchema = {
     dockerimage: {
       type: 'string',
       propertyOrder: 4,
+      enum: [],
       options: {
         grid_columns: 4,
       },
