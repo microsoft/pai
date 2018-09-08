@@ -127,8 +127,8 @@ def ssh_exec(host_config, command, histogram=ssh_histogram):
             port = int(host_config["sshport"])
         key_filename = None
         if 'key-filename' in host_config:
-            if os.path.isfile(str(host_config['key_filename'])):
-                key_filename = str(host_config['key_filename'])
+            if os.path.isfile(str(host_config['key-filename'])) and host_config['key-filename'] is not None:
+                key_filename = str(host_config['key-filename'])
             else:
                 logger.warn("The key file: {0} specified doesn't exist".format(host_config['key-filename']))
 

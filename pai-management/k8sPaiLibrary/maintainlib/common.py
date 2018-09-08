@@ -169,7 +169,7 @@ def sftp_paramiko(src, dst, filename, host_config):
         port = int(host_config['sshport'])
     key_filename = None
     if 'key-filename' in host_config:
-        if os.path.isfile(str(host_config['key-filename'])):
+        if os.path.isfile(str(host_config['key-filename'])) and host_config['key-filename'] is not None:
             key_filename = str(host_config['key-filename'])
         else:
             logger.warn("The key file: {0} specified doesn't exist".format(host_config['key-filename']))
@@ -225,7 +225,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
             return (None, None)
         port = int(host_config['sshport'])
     key_filename = None
-    if 'key-filename' in host_config:
+    if 'key-filename' in host_config and host_config['key-filename'] is not None:
         if os.path.isfile(str(host_config['key-filename'])):
             key_filename = str(host_config['key-filename'])
         else:
@@ -263,7 +263,7 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
         port = int(host_config['sshport'])
     key_filename = None
     if 'key-filename' in host_config:
-        if os.path.isfile(str(host_config['key-filename'])):
+        if os.path.isfile(str(host_config['key-filename'])) and host_config['key-filename'] is not None:
             key_filename = str(host_config['key-filename'])
         else:
             logger.warn("The key file: {0} specified doesn't exist".format(host_config['key-filename']))
