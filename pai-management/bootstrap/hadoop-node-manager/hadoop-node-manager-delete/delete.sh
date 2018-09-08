@@ -17,6 +17,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# Clean running job
+
+if which docker > /dev/null && [ -S /var/run/docker.sock ]; then
+
+    echo "Clean hadoop jobs"
+
+    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs timeout 30 docker stop || \
+    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs docker kill
+
+fi
+
+
+# Clean data
 
 echo "Clean the hadoop node manager's data on the disk"
 
