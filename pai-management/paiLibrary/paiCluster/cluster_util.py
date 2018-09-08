@@ -51,6 +51,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     # Prepare config of ssh info.
     quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
     quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
+    quick_start_config["ssh-key-filename"] = quick_start_config_raw["ssh-key-filename"]
     quick_start_config["ssh-port"] = \
         22 if "ssh-port" not in quick_start_config_raw \
         else quick_start_config_raw["ssh-port"]
@@ -75,6 +76,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                 "hostip": m0["ip"],
                 "username": quick_start_config["ssh-username"],
                 "password": quick_start_config["ssh-password"],
+                "key-filename": quick_start_config["ssh-key-filename"],
                 "sshport": quick_start_config["ssh-port"]
             },
             "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2 | head -n 1")
@@ -87,6 +89,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
                 "hostip": m["ip"],
                 "username": quick_start_config["ssh-username"],
                 "password": quick_start_config["ssh-password"],
+                "key-filename": quick_start_config["ssh-key-filename"],
                 "sshport": quick_start_config["ssh-port"]
             },
             "hostname")

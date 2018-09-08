@@ -21,6 +21,7 @@ default-machine-properties:
   # Account with sudo permission
   username: {{ env["ssh-username"] }}
   password: {{ env["ssh-password"] }}
+  key-filename: {{ env["ssh-key-filename"] }}
   sshport: {{ env["ssh-port"] }}
 
 machine-sku:

@@ -138,9 +138,10 @@ machines:
   - 192.168.1.13
 
 # (Required) Log-in info of all machines. System administrator should guarantee
-# that the username/password pair is valid and has sudo privilege.
+# that the username/password pair or username/key-filename is valid and has sudo privilege.
 ssh-username: pai
 ssh-password: pai-password
+ssh-key-filename: key-filename
 
 # (Optional, default=22) Port number of ssh service on each machine.
 #ssh-port: 22
@@ -337,9 +338,10 @@ machines:
   - 192.168.1.11
 
 # (Required) Log-in info of all machines. System administrator should guarantee
-# that the username/password pair is valid and has sudo privilege.
+# that the username/password pair or username/key-filename is valid and has sudo privilege.
 ssh-username: pai
 ssh-password: pai-password
+ssh-key-filename: key-filename
 
 # (Optional, default=22) Port number of ssh service on each machine.
 #ssh-port: 22
