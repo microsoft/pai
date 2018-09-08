@@ -95,7 +95,6 @@ const updateTaskSchema = ()=>{
   ['data', 'script', 'dockerimage'].forEach((type) => {
     jobSchema['taskSchema']['properties'][type]['enum'] = Array.from(candidateList[type]);
   });
-  console.log(candidateList);
 };
 
 const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-editor-container') => {
@@ -186,7 +185,6 @@ const addNewJsonEditor = (d, id, type) => {
 
   // close button
   $(`#${type}${id}-close-button`).on('click', () => {
-    console.log(editors);
     $(`#${type}${id}-modal`).modal('hide');
     editors[type][id - 1].setValue(editorsValue[type][id - 1]);
   });
