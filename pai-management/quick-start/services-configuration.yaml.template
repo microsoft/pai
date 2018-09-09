@@ -73,6 +73,7 @@ frameworklauncher:
   frameworklauncher-port: 9086
 
 
+
 restserver:
   # port for rest api server
   server-port: 9186
@@ -102,6 +103,7 @@ prometheus:
   node-exporter-port: 9100
   # How frequently to scrape targets
   scrape_interval: 30
+
   # port for yarn exporter
   yarn_exporter_port: 9459
 

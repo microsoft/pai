@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,8 +19,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true || exit $?
-    {% endif %}
-{% endfor %}
+pushd $(dirname "$0") > /dev/null
+
+kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
+
+popd > /dev/null

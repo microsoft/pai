@@ -49,6 +49,9 @@ sed  -i "s/{ZOOKEEPER_ADDRESS}/${ZOOKEEPER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-sit
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s#{HOST_YARN_NODEMANAGER_STORAGE}#${HOST_YARN_NODEMANAGER_STORAGE}#g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s#{HOST_HADOOP_TMP_STORAGE}#${HOST_HADOOP_TMP_STORAGE}#g" $HADOOP_CONF_DIR/yarn-site.xml
+sed  -i "s#{CURRENT_IMAGE_NAME}#${CURRENT_IMAGE_NAME}#g" $HADOOP_CONF_DIR/yarn-site.xml
 
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
 
@@ -65,3 +68,4 @@ sed  -i "s/{cpu_vcores}/${cpu_vcores}/g" $HADOOP_CONF_DIR/yarn-site.xml
 
 # Backup hadoop configuration for job (Spark) use
 cp $HADOOP_CONF_DIR/* /hadoop-configuration-for-jobs/
+

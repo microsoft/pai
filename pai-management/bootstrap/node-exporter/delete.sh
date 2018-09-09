@@ -17,17 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-echo "Clean the hadoop node manager's data on the disk"
+echo "Call stop script to stop all service first"
+/bin/bash stop.sh || exit $?
 
-if [ -d "/mnt/yarn/node" ]; then
 
-    rm -rf /mnt/yarn/node
-
-fi
-
-if [ -d "/mnt/hadooptmp/nodemanager" ]; then
-
-    rm -rf /mnt/hadooptmp/nodemanager
-
-fi
+popd > /dev/null

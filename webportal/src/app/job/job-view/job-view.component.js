@@ -213,6 +213,9 @@ const loadJobs = (specifiedVc) => {
         }
       },
     },
+    'rowId'(row) {
+      return row.name;
+    },
     'columns': [
       {title: 'Job', data: 'name', render(name, type) {
         if (type !== 'display') return name;
@@ -271,8 +274,33 @@ const stopJob = (jobName) => {
           Authorization: `Bearer ${token}`,
         },
         success: (data) => {
-          window.location.href = 'view.html?jobName=' + jobName;
-          loadJobs();
+          const $jobTable = $('#job-table');
+          if ($jobTable.length === 0) {
+            // Detail view: reload current page
+            return window.location.reload(false);
+          } else {
+            // Table view: replace current row
+            const api = $jobTable.dataTable().api();
+            const row = api.row('#' + jobName);
+            const rowData = row.data();
+            $.ajax({
+              url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
+              type: 'GET',
+              success: function(data) {
+                rowData.appExitCode = data.jobStatus.appExitCode;
+                rowData.completedTime = data.jobStatus.completedTime;
+                rowData.createdTime = data.jobStatus.createdTime;
+                rowData.executionType = data.jobStatus.executionType;
+                rowData.retries = data.jobStatus.retries;
+                rowData.state = data.jobStatus.state;
+                rowData.subState = data.jobStatus.subState;
+                rowData.username = data.jobStatus.username;
+                rowData.virtualCluster = data.jobStatus.virtualCluster;
+                row.data(rowData);
+                row.invalidate();
+              },
+            });
+          }
         },
         error: (xhr, textStatus, error) => {
           const res = JSON.parse(xhr.responseText);
