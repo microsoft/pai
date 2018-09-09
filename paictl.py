@@ -534,7 +534,7 @@ def main():
     module = sys.argv[1]
     del sys.argv[1]
 
-    elif module == "machine":
+    if module == "machine":
 
         pai_machine()
 
