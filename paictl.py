@@ -28,8 +28,6 @@ import logging.config
 from deployment.paiLibrary.common import linux_shell
 from deployment.paiLibrary.common import file_handler
 from deployment.paiLibrary.clusterObjectModel import objectModelFactory
-from deployment.paiLibrary.paiBuild import build_center
-from deployment.paiLibrary.paiBuild import push_center
 from deployment.paiLibrary.paiService import service_management_start
 from deployment.paiLibrary.paiService import service_management_stop
 from deployment.paiLibrary.paiService import service_management_delete
@@ -285,52 +283,6 @@ def kubectl_env_checking(cluster_object_mode):
     return True
 
 
-
-
-def pai_build_info():
-
-    logger.error("The command is wrong.")
-    logger.error("Build image: paictl.py image build -p /path/to/configuration/ [ -n image-x ]")
-    logger.error("Push image : paictl.py image push -p /path/to/configuration/ [ -n image-x ]")
-
-
-
-def pai_build():
-
-    if len(sys.argv) < 2:
-        pai_build_info()
-        return
-
-    option = sys.argv[1]
-    del sys.argv[1]
-
-    if option not in ["build", "push"]:
-        pai_build_info()
-        return
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--config-path', dest = "config_path", required=True, help="The path of your configuration directory.")
-    parser.add_argument('-n', '--image-name', dest = "image_name", default='all', help="Build and push the target image to the registry")
-    args = parser.parse_args(sys.argv[1:])
-
-    config_path = args.config_path
-    image_name = args.image_name
-    cluster_object_model = load_cluster_objectModel_service(config_path)
-
-    image_list = None
-    if image_name != "all":
-        image_list = [ image_name ]
-
-    if option == "build":
-        center = build_center.build_center(cluster_object_model, image_list)
-        center.run()
-
-    if option == "push":
-        center = push_center.push_center(cluster_object_model, image_list)
-        center.run()
-
-
-
 def pai_machine_info():
 
     logger.error("The command is wrong.")
@@ -582,11 +534,7 @@ def main():
     module = sys.argv[1]
     del sys.argv[1]
 
-    if module == "image":
-
-        pai_build()
-
-    elif module == "machine":
+    if module == "machine":
 
         pai_machine()
 
