@@ -79,7 +79,7 @@ sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
 # build images
-cd build/
+cd /pai/build/
 sudo ./pai_build.py build -c $CONFIG_PATH
 # push images
 sudo ./pai_build.py push -c $CONFIG_PATH
