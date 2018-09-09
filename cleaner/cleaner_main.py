@@ -39,14 +39,22 @@ class Cleaner(LoggerMixin):
             w.start()
             self.logger.info("worker %s started.", k)
 
+    def terminate(self):
+        for k, w in self.workers.items():
+            try:
+                # terminate the worker and all its subprocesses
+                common.kill_process_tree(w.pid, 1, self.logger)
+            except Exception as e:
+                self.logger.error("errors occur when terminating worker %s.", k)
+                self.logger.exception(e)
+
     def sync(self):
         try:
             for w in self.workers.values():
                 w.join()
         except:
             self.logger.error("cleaner interrupted and will exit.")
-            for w in self.workers.values():
-                w.terminate()
+            self.terminate()
             time.sleep(1)
 
 

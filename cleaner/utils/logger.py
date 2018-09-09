@@ -19,6 +19,14 @@ import multiprocessing
 
 
 class LoggerMixin(object):
+    """
+    This mixin is to add a logger property conveniently to classes derived from it.
+    The usage is like:
+
+        class A(LoggerMixin):
+            def do_something():
+                self.logger().info("log message")
+    """
 
     @property
     def logger(self):
