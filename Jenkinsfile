@@ -328,10 +328,10 @@ sudo chown core:core -R /mnt/jenkins/workspace
                     def responseCode = 500
                     while(!responseCode.equals(200)){
                       try {
-                        sleep(6)
+                        sleep(30)
                         echo "Waiting for PAI to be ready ..."
 
-                        def response = httpRequest(env.SINGLE_BOX_URL)
+                        def response = httpRequest(env.SINGLE_BOX_URL + "/rest-server/api/v1")
                         println("Status: "+response.status)
                         println("Content: "+response.content)
 
@@ -431,10 +431,10 @@ done
                     def responseCode = 500
                     while(!responseCode.equals(200)){
                       try {
-                        sleep(6)
+                        sleep(30)
                         echo "Waiting for PAI to be ready ..."
 
-                        def response = httpRequest(env.CLUSTER_URL)
+                        def response = httpRequest(env.CLUSTER_URL + "/rest-server/api/v1")
                         println("Status: "+response.status)
                         println("Content: "+response.content)
 
