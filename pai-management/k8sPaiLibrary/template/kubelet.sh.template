@@ -17,14 +17,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
 set -e
 
 scriptPath=$1
 apt-get -y install python-pip
 pip install docker
-DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || exit $?
+DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || {
+
+   error_code=$?
+   echo "Failed to Get the docker root path from docker api."
+   exit $error_code
+
+}
 
 echo "Docker ROOT DIR IS $DOCKER_ROOT_DIR_FOR_KUBELET"
 
@@ -61,5 +65,3 @@ docker run \
   --image-pull-progress-deadline=10m \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --v=2
-
-popd > /dev/null
