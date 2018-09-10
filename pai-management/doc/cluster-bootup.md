@@ -169,7 +169,7 @@ cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
-python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+python paictl.py config generate -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
 
 ```
 
