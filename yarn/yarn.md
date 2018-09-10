@@ -102,6 +102,10 @@ Similarly, admin can change VC quotas or delete a VC,
 for deletion scenario, all running jobs under deleted VC should be stopped firstly.
 **During entire refreshment, admin must ensure the sum of all VC capacity equals to 100.**
 
+Todo:
+1. For items supporting configurated at runtime, avoid restarting service to refresh.
+2. Automatic refreshment.
+
 ### Upgrading
 
 Either build new image by yourself or use our [pre-built images](https://hub.docker.com/r/openpai/hadoop-run/). 
