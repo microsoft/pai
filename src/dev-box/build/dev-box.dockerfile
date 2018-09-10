@@ -81,6 +81,6 @@ RUN echo y | pip uninstall requests && \
 COPY build/container-setup.sh /
 
 COPY build/kubectl-install.sh /kubectl-install.sh
-RUN /bin/bash kubectl-install.sh
+RUN /bin/bash /kubectl-install.sh
 
 CMD ["/bin/bash"]
