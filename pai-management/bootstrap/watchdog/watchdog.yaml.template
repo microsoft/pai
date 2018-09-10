@@ -15,49 +15,58 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% set prom_info = clusterinfo['prometheusinfo'] %}
-{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
-{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
-{% else %}
-{% set port = 9093 %}
-{% endif %}
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: alertmanager
+  name: watchdog
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: alertmanager
+      app: watchdog
   template:
     metadata:
-      name: alertmanager
+      name: watchdog
       labels:
-        app: alertmanager
+        app: watchdog
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9101"
     spec:
-      hostNetwork: true
-      hostPID: true
-      nodeSelector:
-        alertmanager: "true"
       containers:
-      - name: alertmanager
-        image: prom/alertmanager:v0.15.1
-        args:
-          - '--config.file=/etc/alertmanager/config.yml'
-          - '--storage.path=/alertmanager'
-        ports:
-        - name: alertmanager
-          containerPort: {{ port }}
+      - name: watchdog
+        image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}
+        imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9101
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        resources:
+          limits:
+            memory: "1Gi"
         volumeMounts:
-        - name: config-volume
-          mountPath: /etc/alertmanager
-        - name: alertmanager
-          mountPath: /alertmanager
+        - mountPath: /datastorage/prometheus
+          name: collector-mount
+        - mountPath: /etc/watchdog
+          name: config-volume
+        command:
+          - "python"
+          - "/watchdog.py"
+          - "--interval"
+          - "30"
+          - "--port"
+          - "9101"
+          - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
       volumes:
-      - name: config-volume
-        configMap:
-          name: alertmanager
-      - name: alertmanager
-        emptyDir: {}
+        - name: collector-mount
+          hostPath:
+            path: {{ clusterinfo["dataPath"] }}/prometheus
+        - name: config-volume
+          configMap:
+            name: watchdog
+      imagePullSecrets:
+      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
+      hostNetwork: true

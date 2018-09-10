@@ -30,8 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hadoop-node-manager: "true"
       containers:
       - name: hadoop-node-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -55,8 +53,6 @@ spec:
           name: hadoop-node-manager-config-volume-for-jobs
         - mountPath: /host-configuration
           name: host-confg-volume
-        - mountPath: /root/.docker
-          name: docker-cred-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
         readinessProbe:
@@ -81,6 +77,12 @@ spec:
           value: nodemanager-generate-script.sh
         - name: START_SERVICE
           value: nodemanager-start-service.sh
+        - name: HOST_YARN_NODEMANAGER_STORAGE
+          value: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
+        - name: HOST_HADOOP_TMP_STORAGE
+          value: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
+        - name: CURRENT_IMAGE_NAME
+          value: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
@@ -90,7 +92,6 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
-      # Docker's storage base directory
       - name: driver-path
         hostPath:
           path: /var/drivers
@@ -109,9 +110,6 @@ spec:
       - name: host-confg-volume
         configMap:
           name: host-configuration
-      - name: docker-cred-volume
-        configMap:
-          name: docker-credentials
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager

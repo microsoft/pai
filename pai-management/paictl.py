@@ -452,6 +452,7 @@ class Service(SubCmd):
         service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
         service_management_starter.run()
 
+
     def service_stop(self, args):
         cluster_object_model, service_list = self.process_args(args)
 
@@ -460,6 +461,38 @@ class Service(SubCmd):
 
     def service_delete(self, args):
         cluster_object_model, service_list = self.process_args(args)
+
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----------     Dangerous Operation!!!    ---------------")
+        logger.warning("------     The target service will be stopped    -------")
+        logger.warning("------    And the persistent data on the disk    -------")
+        logger.warning("-------             will be deleted             --------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------     It's an irreversible operation      -------")
+        logger.warning("--------           After this operation,         -------")
+        logger.warning("------ the deleted service data is unrecoverable -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("----    Please ensure you wanna do this operator, ------")
+        logger.warning("-------        after knowing all risk above.     -------")
+        logger.warning("--------------------------------------------------------")
+        logger.warning("--------------------------------------------------------")
+
+        count_input = 0
+        while True:
+            user_input = raw_input("Do you want to continue this operation? (Y/N) ")
+            if user_input == "N":
+                return
+            elif user_input == "Y":
+                break
+            else:
+                print(" Please type Y or N.")
+            count_input = count_input + 1
+            if count_input == 3:
+                logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                return
 
         service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
         service_management_deleter.run()

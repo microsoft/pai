@@ -29,9 +29,7 @@ spec:
         app: drivers-one-shot
     spec:
       hostNetwork: true
-      hostPID: true
-      nodeSelector:
-        machinetype: gpu
+      hostPID: true      
       containers:
       - name: nvidia-drivers
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
