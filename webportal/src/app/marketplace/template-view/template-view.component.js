@@ -260,7 +260,7 @@ $(function() {
         let f = files[0];
         let reader = new FileReader(); // read the local file
         reader.onload = function(e) {
-          uploadData = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(e.target.result));
+          uploadData = yamlHelper.jsonToJsonEditor(yamlHelper.yamlLoad(e.target.result));
           if (uploadData) {
             $('#upload-body-select').addClass('hidden');
             upload(true /* isYamlFile*/);

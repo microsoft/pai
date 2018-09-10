@@ -51,7 +51,7 @@ const yamlLoad = (yamlString) => {
   }
 };
 
-const yamlToJsonEditor = (data) => {
+const jsonToJsonEditor = (data) => {
   try {
     if (!data || typeof data !== 'object') {
       throw new Error('Content is null or does not have required format.');
@@ -126,7 +126,7 @@ const exportToYaml = (editors) => {
 
 module.exports = {
   yamlLoad,
-  yamlToJsonEditor,
+  jsonToJsonEditor,
   jsonEditorToJobJson,
   exportToYaml,
 };
