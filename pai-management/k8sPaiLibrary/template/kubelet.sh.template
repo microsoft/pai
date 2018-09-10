@@ -21,7 +21,7 @@ pushd $(dirname "$0") > /dev/null
 
 set -e
 
-apt-get install python-pip
+apt-get -y install python-pip
 pip install docker
 
 DOCKER_ROOT_DIR_FOR_KUBELET=`python docker-info-root-dir.py` || exit $?
