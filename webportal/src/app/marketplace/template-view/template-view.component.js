@@ -67,6 +67,7 @@ function prepareCarousel($carousel) {
 function loadCarousel($slick, type, page) {
     const requestId = Date.now();
     $slick.data('request-id', requestId);
+    $slick.parents('section').find('h2 a').addClass('hidden');
 
     const url = `${webportalConfig.restServerUri}/api/v2/template/${type}`;
 
@@ -86,6 +87,12 @@ function loadCarousel($slick, type, page) {
 
                 if (data.pageNo * data.pageSize < Math.min(data.totalCount, 30)) {
                     setTimeout(apply, 100, page + 1);
+                }
+
+                if (data.totalCount > 5) {
+                    $slick.parents('section').find('h2 a')
+                        .removeClass('hidden')
+                        .attr('href', '/template-list.html?type=' + type);
                 }
             });
     }
@@ -109,6 +116,11 @@ function search(query) {
 
     const url = `${webportalConfig.restServerUri}/api/v2/template`;
 
+    $jobsSlick.parents('section').find('h2 a').addClass('hidden');
+    $dockersSlick.parents('section').find('h2 a').addClass('hidden');
+    $scriptsSlick.parents('section').find('h2 a').addClass('hidden');
+    $dataSlick.parents('section').find('h2 a').addClass('hidden');
+
     setTimeout(append, 0, 1);
 
     function append(page) {
@@ -127,6 +139,12 @@ function search(query) {
                 })).each(function() {
                     $jobsSlick.slick('slickAdd', this);
                 });
+                if ($jobsSlick.find('.thumbnail').length > 5) {
+                    $jobsSlick.parents('section').find('h2 a')
+                        .removeClass('hidden')
+                        .attr('href', '/template-list.html?type=job&query=' + query);
+                }
+
                 $(slideTemplate.call(slideContext, {
                     items: items.filter(function(item) {
                         return item.type === 'dockerimage';
@@ -134,6 +152,12 @@ function search(query) {
                 })).each(function() {
                     $dockersSlick.slick('slickAdd', this);
                 });
+                if ($dockersSlick.find('.thumbnail').length > 5) {
+                    $dockersSlick.parents('section').find('h2 a')
+                        .removeClass('hidden')
+                        .attr('href', '/template-list.html?type=job&query=' + query);
+                }
+
                 $(slideTemplate.call(slideContext, {
                     items: items.filter(function(item) {
                         return item.type === 'script';
@@ -141,6 +165,12 @@ function search(query) {
                 })).each(function() {
                     $scriptsSlick.slick('slickAdd', this);
                 });
+                if ($scriptsSlick.find('.thumbnail').length > 5) {
+                    $scriptsSlick.parents('section').find('h2 a')
+                        .removeClass('hidden')
+                        .attr('href', '/template-list.html?type=job&query=' + query);
+                }
+
                 $(slideTemplate.call(slideContext, {
                     items: items.filter(function(item) {
                         return item.type === 'data';
@@ -148,6 +178,11 @@ function search(query) {
                 })).each(function() {
                     $dataSlick.slick('slickAdd', this);
                 });
+                if ($dataSlick.find('.thumbnail').length > 5) {
+                    $dataSlick.parents('section').find('h2 a')
+                        .removeClass('hidden')
+                        .attr('href', '/template-list.html?type=job&query=' + query);
+                }
 
                 if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
                     setTimeout(append, 100, page + 1);
