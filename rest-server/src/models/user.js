@@ -224,6 +224,7 @@ const getUserList = (callback) => {
           username: userName,
           admin: res.get(etcdConfig.userAdminPath(userName)),
           virtualCluster: res.has(etcdConfig.userVirtualClusterPath(userName)) ? res.get(etcdConfig.userVirtualClusterPath(userName)) : 'default',
+          hasGithubPAT: res.has(etcdConfig.userGithubPATPath(userName)) ? true : false,
         });
       }
     });

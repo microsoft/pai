@@ -37,7 +37,6 @@
     "eslint": "4.17.0",
     "eslint-config-google": "0.9.1",
     "express": "4.16.2",
-    "express-jwt": "5.3.0",
     "fs-extra": "4.0.2",
     "http-errors": "1.6.3",
     "joi": "13.0.1",

@@ -17,16 +17,17 @@
 
 
 const cacheWrapper = require('../middlewares/cache');
+const config = require('../config/template');
 const logger = require('../config/logger');
 const template = require('../models/template');
 const userModel = require('../models/user');
 
 const fetch = (req, cb) => {
   let type = req.params.type;
-  if (!type) {
+  if (!type || !config.types.includes(type)) {
     return cb({
       code: 400,
-      message: 'Failed to extract "type" parameter in the request.',
+      message: 'Found illegal type value in the request.',
     }, null);
   }
   let name = req.params.name;
@@ -64,29 +65,48 @@ const filter = (req, cb) => {
       message: 'Failed to extract "query" parameter in the request.',
     }, null);
   }
-  template.search({
-    keywords: query,
-    pageNo: req.query.pageno,
-  }, function(err, list) {
-    if (err) {
-      logger.error(err);
-      cb({
-        code: 500,
-        message: 'Failed to scan templates.',
-      }, null);
-    } else {
-      cb(null, {
-        code: 200,
-        data: list,
-      });
-    }
+  let type = req.query.type;
+  if (type && !config.types.includes(type)) {
+    return cb({
+      code: 400,
+      message: 'Found illegal type value in the request.',
+    });
+  }
+  let account = req.user ? req.user.username : null;
+  userModel.getUserGithubPAT(account, function(err, pat) {
+    template.search({
+      keywords: query,
+      pageNo: req.query.pageno,
+      type: type,
+      pat: err ? null : pat,
+    }, function(err, list) {
+      if (err) {
+        logger.error(err);
+        cb({
+          code: 500,
+          message: 'Failed to scan templates.',
+        }, null);
+      } else {
+        cb(null, {
+          code: 200,
+          data: list,
+        });
+      }
+    });
   });
 };
 
 const list = (req, cb) => {
+  let type = req.params.type;
+  if (!config.types.includes(type)) {
+    return cb({
+      code: 400,
+      message: 'Found illegal type value in the request.',
+    });
+  }
   template.search({
     pageNo: req.query.pageno,
-    type: req.params.type,
+    type: type,
   }, function(err, list) {
     if (err) {
       logger.error(err);

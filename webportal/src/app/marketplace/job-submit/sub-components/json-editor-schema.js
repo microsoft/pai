@@ -88,22 +88,25 @@ const taskSchema = {
     data: {
       type: 'string',
       propertyOrder: 2,
+      enum: [],
       options: {
-        grid_columns: 4,
+          grid_columns: 4,
       },
     },
     script: {
       type: 'string',
       propertyOrder: 3,
+      enum: [],
       options: {
-        grid_columns: 4,
+          grid_columns: 4,
       },
     },
     dockerimage: {
       type: 'string',
       propertyOrder: 4,
+      enum: [],
       options: {
-        grid_columns: 4,
+          grid_columns: 4,
       },
     },
     instances: {
@@ -112,7 +115,7 @@ const taskSchema = {
       multipleOf: 1,
       propertyOrder: 5,
       options: {
-        grid_columns: 3,
+          grid_columns: 3,
       },
     },
     cpu: {
@@ -121,7 +124,7 @@ const taskSchema = {
       multipleOf: 1,
       propertyOrder: 6,
       options: {
-        grid_columns: 3,
+          grid_columns: 3,
       },
     },
     memoryMB: {
@@ -139,7 +142,7 @@ const taskSchema = {
       multipleOf: 1,
       propertyOrder: 8,
       options: {
-        grid_columns: 3,
+          grid_columns: 3,
       },
     },
     minFailedTaskCount: {
