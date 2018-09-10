@@ -72,23 +72,27 @@ const filter = (req, cb) => {
       message: 'Found illegal type value in the request.',
     });
   }
-  template.search({
-    keywords: query,
-    pageNo: req.query.pageno,
-    type: type,
-  }, function(err, list) {
-    if (err) {
-      logger.error(err);
-      cb({
-        code: 500,
-        message: 'Failed to scan templates.',
-      }, null);
-    } else {
-      cb(null, {
-        code: 200,
-        data: list,
-      });
-    }
+  let account = req.user ? req.user.username : null;
+  userModel.getUserGithubPAT(account, function(err, pat) {
+    template.search({
+      keywords: query,
+      pageNo: req.query.pageno,
+      type: type,
+      pat: err ? null : pat,
+    }, function(err, list) {
+      if (err) {
+        logger.error(err);
+        cb({
+          code: 500,
+          message: 'Failed to scan templates.',
+        }, null);
+      } else {
+        cb(null, {
+          code: 200,
+          data: list,
+        });
+      }
+    });
   });
 };
 
