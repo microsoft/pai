@@ -26,6 +26,7 @@ const jwtCheck = new express.Router();
 
 jwtCheck.use(jwt({
   secret: config.jwtSecret,
+  userProperty: 'user',
 }), (err, req, res, next) => {
   next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
 });
@@ -48,6 +49,7 @@ const tokenPostInputSchema = Joi.object().keys({
 // module exports
 module.exports = {
   secret: config.jwtSecret,
+  userProperty: 'user',
   check: jwtCheck,
   tokenPostInputSchema: tokenPostInputSchema,
 };

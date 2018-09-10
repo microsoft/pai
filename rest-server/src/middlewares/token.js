@@ -16,27 +16,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const express = require('express');
+const jwt = require('jsonwebtoken');
+const set = require('lodash.set');
 
-const param = require('../middlewares/parameter');
-const config = require('../config/template');
-const template = require('../controllers/template');
-const token = require('../middlewares/token');
+const config = require('../config/token');
+const createError = require('../util/error');
 
-const router = new express.Router();
+const createMiddleware = (throwErrorIfUnauthorized) => {
+  return function(req, _, next) {
+    try {
+      let token = getToken(req);
+      let result = jwt.verify(token, config.secret);
+      set(req, config.userProperty, result);
+    } catch (_) {
+      if (throwErrorIfUnauthorized) {
+        let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');
+        return next(error);
+      }
+    }
+    next();
+  };
+};
 
-router.route('/')
-  /** GET /api/v2/template?query=XXX[&type=YYY][&pageno=ZZZ] - Search templates by keywords */
-  .get(token.tryCheck, template.filter)
-  /** POST /api/v2/template - Share the job and its resources as template */
-  .post(token.check, param.validate(config.schema), template.share);
+const getToken = (req) => {
+  let parts = req.headers.authorization.split(' ');
+  if (parts.length == 2) {
+    var scheme = parts[0];
+    var credentials = parts[1];
+    if (/^Bearer$/i.test(scheme)) {
+      return credentials;
+    }
+  }
+  throw new Error('Could not find JWT token in the request.');
+};
 
-router.route('/:type')
-  /** GET /api/v2/template/:type[?pageno=XXX] - Get list of templates */
-  .get(template.list);
-
-router.route('/:type/:name')
-  /** GET /api/v2/template/:type/:name[?version=XXX] - Return the template content */
-  .get(template.fetch);
-
-module.exports = router;
+module.exports = {
+  check: createMiddleware(true),
+  tryCheck: createMiddleware(false),
+};
