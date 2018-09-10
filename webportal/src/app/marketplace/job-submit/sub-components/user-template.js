@@ -245,6 +245,7 @@ const insertNewDockerDataScript = (item) => {
 };
 
 const updatePageFromJson = (data) => { // data is a json
+  yamlHelper.jsonToJsonEditor(data);
   if ('type' in data) {
     emptyPage();
 
@@ -277,8 +278,7 @@ const updatePageFromJson = (data) => { // data is a json
 };
 
 const updatePageFromYaml = (d) => { // d is a string
-  let data = yamlHelper.yamlToJsonEditor(yamlHelper.yamlLoad(d));
-  updatePageFromJson(data);
+  updatePageFromJson(yamlHelper.yamlLoad(d));
 };
 
 const replaceHrefs = (htmls) => {
@@ -301,7 +301,7 @@ const replaceHrefs = (htmls) => {
         type: 'GET',
         dataType: 'json',
         success: (data) => {
-          data = yamlHelper.yamlToJsonEditor(data);
+          data = yamlHelper.jsonToJsonEditor(data);
           addModalVariables.addEditor.setValue(data);
         },
       });
