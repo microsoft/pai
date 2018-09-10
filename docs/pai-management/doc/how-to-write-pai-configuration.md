@@ -27,9 +27,9 @@ Note: Please do not change the name of the configuration files. And those 4 file
       - [configure customize docker repository](./how-to-write-pai-configuration.md#docker_repo)
       - [configure OpenPAI admin user account](./how-to-write-pai-configuration.md#configure_user_acc)
     - port / data folder etc.
-      - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry) 
+      - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry)
       - [configure HDFS data / OpenPAI temp data folder](./how-to-write-pai-configuration.md#data_folder)
-    - component version 
+    - component version
       - [configure K8s component version](./how-to-write-pai-configuration.md#k8s_component)
       - [configure docker version](./how-to-write-pai-configuration.md#docker_repo)
       - [configure nvidia gpu driver version](./how-to-write-pai-configuration.md#driver_version)
@@ -54,7 +54,7 @@ Note: Please do not change the name of the configuration files. And those 4 file
       - [YARN / HDFS](./how-to-write-pai-service-configuration.md#hadoop)
       - [Zookeeper](./how-to-write-pai-service-configuration.md#zookeeper)
     - Monitor
-      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
+      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus)
       - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
 - [Appendix: Default values in auto-generated configuration files](#appendix)
 
@@ -245,7 +245,7 @@ kubernetes:
 | ```kube-controller-manager-version```|kubernetes-configuration.yaml| The version of kube-controller-manager.If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/cloud-controller-manager?gcrImageListsize=50)|
 | ```dashboard-version```|kubernetes-configuration.yaml| The version of kubernetes-dashboard. If the registry is gcr, you could find the version tag [here](https://console.cloud.google.com/gcr/images/google-containers/GLOBAL/kubernetes-dashboard-amd64?gcrImageListsize=50)|
 
-### how to check 
+### how to check
 
 ```check kubernetes version:```:
 
@@ -308,7 +308,7 @@ docker-registry-info:
   - secret-name: <anything>
 ```
 
-### how to check 
+### how to check
 
 ```check docker OpenPAI public registry:```:
 
@@ -365,7 +365,7 @@ Server:
 daeaa9a81d3f        aiplatform/drivers                                    "/bin/sh -c ./inst..."   8 days ago          Up 8 days                                    k8s_nvidia-drivers_drivers-one-shot-d7fr4_default_9d91059c-9078-11e8-8aea-000d3ab5296b_0
 ccf53c260f6f        gcr.io/google_containers/pause-amd64:3.0              "/pause"                 8 days ago          Up 8 days                                    k8s_POD_drivers-one-shot-d7fr4_default_9d91059c-9078-11e8-8aea-000d3ab5296b_0
 
-# (2) login driver container 
+# (2) login driver container
 
 ~$ sudo docker exec -it daeaa9a81d3f /bin/bash
 
@@ -416,15 +416,10 @@ hadoop:
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
-<<<<<<< HEAD:docs/pai-management/doc/how-to-write-pai-configuration.md
-| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../../src/hadoop-ai).|
-| ```hadoop-version```|services-configuration.yaml| Please set this to ```2.9.0```.|
-=======
 | ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
->>>>>>> origin/master:pai-management/doc/how-to-write-pai-configuration.md
 | ```virtualClusters```|services-configuration.yaml| Hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
-### how to check 
+### how to check
 
 ```check virtual cluster:```:
 
@@ -468,7 +463,7 @@ restserver:
 | ```default-pai-admin-username```|services-configuration.yaml| Database admin username, and admin username of pai.|
 | ```default-pai-admin-password```|services-configuration.yaml| Database admin password|
 
-### how to check 
+### how to check
 
 ```check admin user:```:
 
@@ -523,7 +518,7 @@ pylon:
 
 - ```port```: Port of pylon, you can use the default value.
 
-### how to check 
+### how to check
 
 Users can browse to each service's dashboard:
 

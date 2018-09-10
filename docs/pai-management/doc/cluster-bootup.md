@@ -478,13 +478,8 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 
 ### 3 Getting help  <a name="troubleshooting_3"></a>
 
-<<<<<<< HEAD:docs/pai-management/doc/cluster-bootup.md
 - [StackOverflow:](../../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
-- [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
-=======
-- [StackOverflow:](../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
->>>>>>> origin/master:pai-management/doc/cluster-bootup.md
 
 ## Maintenance <a name="maintenance"></a>
 ####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)

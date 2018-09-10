@@ -176,17 +176,10 @@ This configuration consists of 7 parts.
     - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
     - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
 - Example
-<<<<<<< HEAD:docs/pai-management/doc/add-service.md
-    - [Hadoop-name-node's node-label.sh](../../../src/hadoop-name-node/deploy/node-label.sh.template)
-    - [Hadoop name node](../../../src/hadoop-name-node/deploy/hadoop-name-node.yaml.template)
-    - [Hadoop data node](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
-=======
     - Specify which label of roles you want to deploy your service in [services-configuration.yaml](https://github.com/Microsoft/pai/blob/master/cluster-configuration/services-configuration.yaml)
     - Use NodeAffinity to schedule pods onto the right machines, such as:
-        - [Hadoop name node](../bootstrap/hadoop-name-node/hadoop-name-node.yaml.template)
-        - [Hadoop data node](../bootstrap/hadoop-data-node/hadoop-data-node.yaml.template)
->>>>>>> origin/master:pai-management/doc/add-service.md
-
+        - [Hadoop name node](../../../src/hadoop-name-node/deploy/hadoop-name-node.yaml.template)
+        - [Hadoop data node](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
 
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
 - Benefits
