@@ -21,7 +21,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-{% if clusterinfo['prometheusinfo']['alerting'] %}
+{% if 'alerting' in clusterinfo['prometheusinfo'] %}
+kubectl create configmap alert-templates --from-file=../../../prometheus/alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
 {% endif %}

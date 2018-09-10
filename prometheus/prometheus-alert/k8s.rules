@@ -22,36 +22,24 @@ groups:
       rules:
       - alert: k8sApiServerNotOk
         expr: k8s_api_server_count{error!="ok"} > 0
-        for: 1m
-        labels:
-          type: k8s_component
+        for: 5m
         annotations:
-          summary: "api server in {{$labels.address}} is not ok"
-          description: "api server in {{$labels.address}} is {{$labels.error}"
+          summary: "api server in {{$labels.address}} is {{$labels.error}"
 
       - alert: k8sEtcdNotOk
         expr: k8s_etcd_count{error!="ok"} > 0
-        for: 1m
-        labels:
-          type: k8s_component
+        for: 5m
         annotations:
-          summary: "etcd server in {{$labels.address}} is not ok"
-          description: "etcd server in {{$labels.address}} is {{$labels.error}"
+          summary: "etcd server in {{$labels.address}} is {{$labels.error}"
 
       - alert: k8sKubeletNotOk
         expr: k8s_kubelet_count{error!="ok"} > 0
-        for: 1m
-        labels:
-          type: k8s_component
+        for: 5m
         annotations:
-          summary: "kubelet in {{$labels.address}} is not ok"
-          description: "kubelet in {{$labels.address}} is {{$labels.error}"
+          summary: "kubelet in {{$labels.address}} is {{$labels.error}"
 
       - alert: k8sDockerDaemonNotOk
         expr: docker_daemon_count{error!="ok"} > 0
-        for: 1m
-        labels:
-          type: docker_daemon
+        for: 5m
         annotations:
-          summary: "docker daemon in {{$labels.ip}} is not ok"
-          description: "docker daemon in {{$labels.ip}} is {{$labels.error}"
+          summary: "docker daemon in {{$labels.ip}} is {{$labels.error}"

@@ -39,11 +39,13 @@ spec:
           name: data-path
         - mountPath: /hadoop-node-manager-delete
           name: hadoop-node-manager-delete-config
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
         env:
         - name: DELETE_CONFIG
           value: hadoop-node-manager-delete
         - name: WORKER_CONFIG
-          value: delete-data.sh
+          value: delete.sh
         readinessProbe:
           exec:
             command:
@@ -60,3 +62,7 @@ spec:
       - name: hadoop-node-manager-delete-config
         configMap:
           name: hadoop-node-manager-delete
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
+
