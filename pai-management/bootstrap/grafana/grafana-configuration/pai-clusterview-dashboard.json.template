@@ -29,93 +29,6 @@
           "colorBackground": false,
           "colorValue": true,
           "colors": [
-            "#d44a3a",
-            "#299c46",
-            "#299c46"
-          ],
-          "datasource": "PM",
-          "description": "",
-          "format": "none",
-          "gauge": {
-            "maxValue": 100,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": false,
-            "thresholdMarkers": true
-          },
-          "height": "312px",
-          "id": 9,
-          "interval": null,
-          "links": [
-            {
-              "dashboard": "PAI Cluster Node List",
-              "type": "absolute",
-              "url": "{{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/pai_clusterview"
-            }
-          ],
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "minSpan": 3,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "span": 3,
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "targets": [
-            {
-              "expr": "sum(node_uname_info)",
-              "format": "time_series",
-              "hide": false,
-              "instant": false,
-              "intervalFactor": 2,
-              "legendFormat": "{sum(node_uname_info)} node",
-              "refId": "A"
-            }
-          ],
-          "thresholds": "1",
-          "title": "Detected Node Number",
-          "type": "singlestat",
-          "valueFontSize": "80%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current"
-        },
-        {
-          "cacheTimeout": null,
-          "colorBackground": false,
-          "colorValue": true,
-          "colors": [
             "#299c46",
             "rgba(237, 129, 40, 0.89)",
             "#d44a3a"
@@ -129,7 +42,7 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
-          "height": "312",
+          "height": "370",
           "id": 10,
           "interval": null,
           "links": [],
@@ -168,7 +81,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "100 * (count(nvidiasmi_utilization_gpu > 0) / sum(nvidiasmi_attached_gpus))",
+              "expr": "100 * (yarn_gpus_used / sum(nvidiasmi_attached_gpus))",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -177,7 +90,7 @@
             }
           ],
           "thresholds": "10, 90",
-          "title": "Active GPUs ( % )",
+          "title": "Allocated GPUs ( % )",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -194,11 +107,12 @@
           "colorBackground": false,
           "colorValue": false,
           "colors": [
-            "#299c46",
+            "rgb(255, 0, 0)",
             "rgba(237, 129, 40, 0.89)",
-            "#d44a3a"
+            "rgba(237, 129, 40, 0.89)"
           ],
           "datasource": null,
+          "description": "Nodes available to run jobs.",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -207,7 +121,7 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
-          "height": "150",
+          "height": "180",
           "id": 11,
           "interval": null,
           "links": [],
@@ -241,21 +155,21 @@
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": true
+            "lineColor": "rgb(31, 220, 13)",
+            "show": false
           },
           "tableColumn": "",
           "targets": [
             {
-              "expr": "count(nvidiasmi_utilization_gpu > 0)",
+              "expr": "yarn_nodes_active",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
               "refId": "A"
             }
           ],
-          "thresholds": "50, 90",
-          "title": "Active GPUs",
+          "thresholds": "1",
+          "title": "Worker Nodes",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
@@ -270,13 +184,14 @@
         {
           "cacheTimeout": null,
           "colorBackground": false,
-          "colorValue": true,
+          "colorValue": false,
           "colors": [
-            "#d44a3a",
-            "#299c46",
-            "#299c46"
+            "rgb(255, 0, 0)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(237, 129, 40, 0.89)"
           ],
           "datasource": null,
+          "description": "Total nodes of your cluster.",
           "format": "none",
           "gauge": {
             "maxValue": 100,
@@ -285,8 +200,8 @@
             "thresholdLabels": false,
             "thresholdMarkers": true
           },
-          "height": "150",
-          "id": 12,
+          "height": "180",
+          "id": 16,
           "interval": null,
           "links": [],
           "mappingType": 1,
@@ -301,7 +216,7 @@
             }
           ],
           "maxDataPoints": 100,
-          "minSpan": 3,
+          "minSpan": null,
           "nullPointMode": "connected",
           "nullText": null,
           "postfix": "",
@@ -319,26 +234,264 @@
           "sparkline": {
             "fillColor": "rgba(31, 118, 189, 0.18)",
             "full": false,
+            "lineColor": "rgb(31, 220, 13)",
+            "show": false
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "count(node_uname_info)",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "1",
+          "title": "Total Nodes",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "#299c46",
+            "rgba(237, 129, 40, 0.89)",
+            "#d44a3a"
+          ],
+          "datasource": null,
+          "description": "GPUs allocated by YARN.",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "180",
+          "id": 13,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": null,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "yarn_gpus_used",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "50, 90",
+          "title": "Allocated GPUs",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "#d44a3a",
+            "rgba(237, 129, 40, 0.89)",
+            "#299c46"
+          ],
+          "datasource": null,
+          "description": "GPUs available to use.",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "180",
+          "id": 14,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": null,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
+            "lineColor": "rgb(31, 120, 193)",
+            "show": true
+          },
+          "tableColumn": "",
+          "targets": [
+            {
+              "expr": "yarn_total_gpu_num-yarn_gpus_used",
+              "format": "time_series",
+              "hide": false,
+              "intervalFactor": 2,
+              "refId": "A"
+            }
+          ],
+          "thresholds": "50, 90",
+          "title": "Free GPUs",
+          "type": "singlestat",
+          "valueFontSize": "80%",
+          "valueMaps": [
+            {
+              "op": "=",
+              "text": "0",
+              "value": "null"
+            }
+          ],
+          "valueName": "current"
+        },
+        {
+          "cacheTimeout": null,
+          "colorBackground": false,
+          "colorValue": true,
+          "colors": [
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(237, 129, 40, 0.89)"
+          ],
+          "datasource": null,
+          "description": "GPUs in your cluster that can't be utilized.",
+          "format": "none",
+          "gauge": {
+            "maxValue": 100,
+            "minValue": 0,
+            "show": false,
+            "thresholdLabels": false,
+            "thresholdMarkers": true
+          },
+          "height": "180",
+          "id": 15,
+          "interval": null,
+          "links": [],
+          "mappingType": 1,
+          "mappingTypes": [
+            {
+              "name": "value to text",
+              "value": 1
+            },
+            {
+              "name": "range to text",
+              "value": 2
+            }
+          ],
+          "maxDataPoints": 100,
+          "minSpan": null,
+          "nullPointMode": "connected",
+          "nullText": null,
+          "postfix": "",
+          "postfixFontSize": "50%",
+          "prefix": "",
+          "prefixFontSize": "50%",
+          "rangeMaps": [
+            {
+              "from": "null",
+              "text": "N/A",
+              "to": "null"
+            }
+          ],
+          "span": 2,
+          "sparkline": {
+            "fillColor": "rgba(31, 118, 189, 0.18)",
+            "full": false,
             "lineColor": "rgb(31, 120, 193)",
             "show": false
           },
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(nvidiasmi_attached_gpus)",
+              "expr": "sum(nvidiasmi_attached_gpus)-yarn_total_gpu_num",
               "format": "time_series",
+              "hide": false,
               "intervalFactor": 2,
               "refId": "A"
             }
           ],
           "thresholds": "1",
-          "title": "Total GPUs",
+          "title": "NotAvailable GPUs",
           "type": "singlestat",
           "valueFontSize": "80%",
           "valueMaps": [
             {
               "op": "=",
-              "text": "N/A",
+              "text": "0",
               "value": "null"
             }
           ],
@@ -388,7 +541,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s])) * 100",
+              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])) * 100",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",
@@ -553,14 +706,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -647,14 +800,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",

@@ -61,9 +61,7 @@ machine-list:
       dashboard: "true"
       zkid: "1"
       pai-master: "true"
-      watchdog: "true"
-      alert-manager: "true"
-
+      
 
     - hostname: hostname
       hostip: IP
@@ -73,8 +71,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
-
+      
 
     - hostname: hostname
       hostip: IP
@@ -84,7 +81,6 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      node-exporter: "true"
 
 
     - hostname: hostname

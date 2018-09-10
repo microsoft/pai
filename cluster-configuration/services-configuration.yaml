@@ -34,7 +34,7 @@ cluster:
     # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
     #docker-username: your_registry_username
     #docker-password: your_registry_password
-
+  
     docker-tag: latest
 
     # The name of the secret in kubernetes will be created in your cluster
@@ -47,7 +47,6 @@ hadoop:
   # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
   # Notice: the name should be hadoop-{hadoop-version}.tar.gz
   custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
-  hadoop-version: 2.9.0
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
   #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
@@ -85,7 +84,7 @@ restserver:
   # database admin password
   default-pai-admin-password: your_default_pai_admin_password
 
-
+  
 webportal:
   # port for webportal
   server-port: 9286
@@ -101,8 +100,11 @@ prometheus:
   prometheus-port: 9091
   # port for node exporter
   node-exporter-port: 9100
+  # port for yarn exporter
+  yarn_exporter_port: 9459
   # How frequently to scrape targets
   scrape_interval: 30
+ 
   # if you want to enable alert manager to send alert email, uncomment following lines and fill
   # right values.
   #  alerting:

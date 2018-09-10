@@ -31,8 +31,6 @@ spec:
     spec:
       hostNetwork: false
       hostPID: false
-      nodeSelector:
-        webportal: "true"
       containers:
       - name: webportal
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

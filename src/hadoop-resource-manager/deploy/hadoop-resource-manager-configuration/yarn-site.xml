@@ -35,6 +35,11 @@
     </property>
 
     <property>
+        <name>yarn.resourcemanager.bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+
+    <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
         <value>1048576</value>
         <description>default is 8GB, here we set 1024G</description>
@@ -230,6 +235,15 @@
     <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
     <value>88000</value>
   </property>
+  
+  <property>
+    <description>
+    The duration (in ms) the YARN client waits for an expected state change
+    to occur.  -1 means unlimited wait time.
+    </description>
+    <name>yarn.client.application-client-protocol.poll-timeout-ms</name>
+    <value>900000</value>
+  </property>
 
   <property>
     <description>The minimum allocation for every container request at the RM,
@@ -247,6 +261,12 @@
     <value>8</value>
   </property>
 
-
+  <property>
+    <description>The maximum allocation for every container request at the RM in terms of virtual CPU cores.
+      Requests higher than this will throw an InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-vcores</name>
+    <value>32</value>
+  </property>
+    
 </configuration>
 

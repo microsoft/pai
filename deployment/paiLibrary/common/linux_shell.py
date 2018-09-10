@@ -25,6 +25,18 @@ logger = logging.getLogger(__name__)
 
 
 
+def execute_shell_raise(shell_cmd, error_msg):
+
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        logger.error(error_msg)
+        raise
+
+
+
+
 def execute_shell(shell_cmd, error_msg):
 
     try:

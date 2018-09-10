@@ -54,5 +54,5 @@ spec:
       name: varetcd
   volumes:
   - hostPath:
-      path: /var/etcd/data
+      path: {{ clusterconfig['etcd-data-path'] }}
     name: varetcd

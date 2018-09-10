@@ -399,7 +399,6 @@ hadoop:
   # custom_hadoop_binary_path specifies the path PAI stores the custom built hadoop-ai
   # Notice: the name should be hadoop-{hadoop-version}.tar.gz
   custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
-  hadoop-version: 2.9.0
   virtualClusters:
     default:
       description: default queue for all users.
@@ -417,8 +416,12 @@ hadoop:
 
 | Configuration Property | File | Meaning |
 | --- | --- | --- |
+<<<<<<< HEAD:docs/pai-management/doc/how-to-write-pai-configuration.md
 | ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../../src/hadoop-ai).|
 | ```hadoop-version```|services-configuration.yaml| Please set this to ```2.9.0```.|
+=======
+| ```custom-hadoop-binary-path```|services-configuration.yaml| Please set a path here for paictl to build [hadoop-ai](../../hadoop-ai).|
+>>>>>>> origin/master:pai-management/doc/how-to-write-pai-configuration.md
 | ```virtualClusters```|services-configuration.yaml| Hadoop queue setting. Each VC will be assigned with (capacity / total_capacity * 100%) of resources. paictl will create the 'default' VC with 0 capacity, if it is not been specified. paictl will split resources to each VC evenly if the total capacity is 0. The capacity of each VC will be  set to 0 if it is a negative number.|
 
 ### how to check 

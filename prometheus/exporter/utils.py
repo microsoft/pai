@@ -51,10 +51,13 @@ class Metric(object):
         return "{}{} {}".format(self.name, labels, self.value)
 
 def export_metrics_to_file(path, metrics):
+    """ if metrics not None, should still open the path, to modify time stamp of file,
+    readiness probe needs this"""
     with codecs.open(path, "w", encoding="utf-8") as f:
-        for metric in metrics:
-            f.write(str(metric))
-            f.write("\n")
+        if metrics is not None:
+            for metric in metrics:
+                f.write(str(metric))
+                f.write("\n")
 
 
 def check_output(*args, **kwargs):

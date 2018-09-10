@@ -16,82 +16,131 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import argparse
 import urlparse
 import os
-import subprocess
 import json
 import sys
 import requests
 import logging
 from logging.handlers import RotatingFileHandler
 import time
-import common
-import collections
-import copy
+import threading
 
-import utils
-from utils import Metric
+import paramiko
+import yaml
+from wsgiref.simple_server import make_server
+from prometheus_client import make_wsgi_app, Counter, Summary, Histogram
+from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, Summary, REGISTRY
 
 logger = logging.getLogger(__name__)
 
 
-class MetricEntity(object):
-    """ interface that has one method that can convert this obj into Metric """
-    def to_metric(self):
-        pass
+##### watchdog will generate following metrics
+# Document about these metrics is in `prometheus/doc/watchdog-metrics.md`
+
+error_counter = Counter("process_error_log_total", "total count of error log", ["type"])
+
+api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
+        "Response latency for requesting k8s api healthz (seconds)")
+
+# use `histogram_quantile(0.95, sum(rate(ssh_resp_latency_seconds_bucket[5m])) by (le))`
+# to get 95 percentile latency in past 5 miniute.
+ssh_histogram = Histogram("ssh_resp_latency_seconds",
+        "Response latency for ssh (seconds)")
+
+etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
+        "Response latency for requesting etcd healthz (seconds)")
+
+kubelet_healthz_histogram = Histogram("k8s_kubelet_resp_latency_seconds",
+        "Response latency for requesting kubelet healthz (seconds)")
+
+list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
+        "Response latency for list pods from k8s api (seconds)")
+
+list_nodes_histogram = Histogram("k8s_api_list_nodes_latency_seconds",
+        "Response latency for list nodes from k8s api (seconds)")
+
+def gen_pai_pod_gauge():
+    return GaugeMetricFamily("pai_pod_count", "count of pai pod",
+            labels=["service_name", "name", "phase", "host_ip",
+                "initialized", "pod_scheduled", "ready"])
+
+def gen_pai_container_gauge():
+    return GaugeMetricFamily("pai_container_count", "count of container pod",
+            labels=["service_name", "pod_name", "name", "state", "host_ip", "ready"])
+
+def gen_pai_node_gauge():
+    return GaugeMetricFamily("pai_node_count", "count of pai node",
+            labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready"])
+
+def gen_docker_daemon_gauge():
+    return GaugeMetricFamily("docker_daemon_count", "count of docker daemon",
+            labels=["host_ip", "error"])
+
+def gen_k8s_component_gauge():
+    return GaugeMetricFamily("k8s_component_count", "count of k8s component",
+            labels=["service_name", "error", "host_ip"])
+
+##### watchdog will generate above metrics
+
+class AtomicRef(object):
+    """ a thread safe way to store and get object, should not modify data get from this ref """
+    def __init__(self):
+        self.data = None
+        self.lock = threading.RLock()
+
+    def get_and_set(self, new_data):
+        data = None
+        with self.lock:
+            data, self.data = self.data, new_data
+        return data
+
+    def get(self):
+        with self.lock:
+            return self.data
 
 
-class PaiPod(MetricEntity):
-    """ represent a pod count, all fields except condition_map should of type string """
+class CustomCollector(object):
+    def __init__(self, atomic_ref):
+        self.atomic_ref = atomic_ref
 
-    def __init__(self, name, phase, host_ip, condition_map):
-        self.name = name
-        self.phase = phase # should be lower case
-        self.host_ip = host_ip # maybe None
-        self.condition_map = condition_map
+    def collect(self):
+        data = self.atomic_ref.get()
 
-    def to_metric(self):
-        label = {"name": self.name, "phase": self.phase}
+        if data is not None:
+            for datum in data:
+                yield datum
+        else:
+            # https://stackoverflow.com/a/6266586
+            # yield nothing
+            return
+            yield
 
-        if self.host_ip is not None:
-            label["host_ip"] = self.host_ip
+def ssh_exec(host_config, command, histogram=ssh_histogram):
+    with ssh_histogram.time():
+        hostip = str(host_config["hostip"])
+        username = str(host_config["username"])
+        password = str(host_config["password"])
+        port = 22
+        if "sshport" in host_config:
+            port = int(host_config["sshport"])
 
-        for k, v in self.condition_map.items():
-            label[k] = v
+        ssh = paramiko.SSHClient()
 
-        return Metric("pai_pod_count", label, 1)
+        try:
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=hostip, port=port, username=username, password=password)
 
+            logger.info("Executing the command on host [{0}]: {1}".format(hostip, command))
 
-class PaiContainer(MetricEntity):
-    """ represent a container count, all fields should of type string """
+            stdin, stdout, stderr = ssh.exec_command(command, get_pty=True)
 
-    def __init__(self, service_name, name, state, ready):
-        self.service_name = service_name
-        self.name = name
-        self.state = state
-        self.ready = ready
-
-    def to_metric(self):
-        label = {"service_name": self.service_name, "name": self.name, "state": self.state,
-                "ready": self.ready}
-        return Metric("pai_container_count", label, 1)
-
-
-class PaiNode(MetricEntity):
-    """ will output metric like
-    pai_node_count{name="1.2.3.4", out_of_disk="true", memory_pressure="true"} 1 """
-
-    def __init__(self, name, condition_map):
-        self.name = name
-        # key should be underscore instead of camel case, value should be lower case
-        self.condition_map = condition_map
-
-    def to_metric(self):
-        label = {"name": self.name}
-        for k, v in self.condition_map.items():
-            label[k] = v
-
-        return Metric("pai_node_count", label, 1)
+            out = "".join(map(lambda x: x.encode("utf-8"), stdout))
+            err = "".join(map(lambda x: x.encode("utf-8"), stderr))
+            return out, err
+        finally:
+            ssh.close()
 
 
 def catch_exception(fn, msg, default, *args, **kwargs):
@@ -99,23 +148,17 @@ def catch_exception(fn, msg, default, *args, **kwargs):
     try:
         return fn(*args, **kwargs)
     except Exception as e:
+        error_counter.labels(type="parse").inc()
         logger.exception(msg)
         return default
 
 
-def keep_not_none(item):
-    """ used in filter to keep item that is not None """
-    return item is not None
-
-
-def to_metric(metric_entity):
-    return metric_entity.to_metric()
-
-
-def parse_pod_item(pod):
-    """ return pai_pod and list of pai_container, return None on not pai service
+def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
+    """ add metrics to pai_pod_gauge or pai_container_gauge if successfully paesed pod.
     Because we are parsing json outputed by k8s, its format is subjected to change,
     we should test if field exists before accessing it to avoid KeyError """
+
+    pod_name = pod["metadata"]["name"]
     labels = pod["metadata"].get("labels")
     if labels is None or "app" not in labels.keys():
         logger.warning("unkown pod %s", pod["metadata"]["name"])
@@ -134,21 +177,28 @@ def parse_pod_item(pod):
     if status.get("hostIP") is not None:
         host_ip = status["hostIP"]
 
-    condition_map = {}
+    initialized = pod_scheduled = ready = "unknown"
 
     conditions = status.get("conditions")
     if conditions is not None:
         for cond in conditions:
-            cond_t = cond["type"].lower() # Initialized|Ready|PodScheduled
+            cond_t = cond["type"] # Initialized|Ready|PodScheduled
             cond_status = cond["status"].lower()
 
-            condition_map[cond_t] = cond_status
+            if cond_t == "Initialized":
+                initialized = cond_status
+            elif cond_t == "PodScheduled":
+                pod_scheduled = cond_status
+            elif cond_t == "Ready":
+                ready = cond_status
+            else:
+                error_counter.labels(type="unknown_pod_cond").inc()
+                logger.error("unexpected condition %s in pod %s", cond_t, pod_name)
 
-    pai_pod = PaiPod(service_name, phase, host_ip, condition_map)
+    pai_pod_gauge.add_metric([service_name, pod_name, phase, host_ip,
+        initialized, pod_scheduled, ready], 1)
 
     # generate pai_containers
-    pai_containers = []
-
     if status.get("containerStatuses") is not None:
         container_statuses = status["containerStatuses"]
 
@@ -164,60 +214,46 @@ def parse_pod_item(pod):
             if container_status.get("state") is not None:
                 state = container_status["state"]
                 if len(state) != 1:
+                    error_counter.labels(type="unexpected_container_state").inc()
                     logger.error("unexpected state %s in container %s",
                             json.dumps(state), container_name)
                 else:
                     container_state = state.keys()[0].lower()
 
-            pai_containers.append(PaiContainer(service_name, container_name,
-                container_state, str(ready).lower()))
+            pai_container_gauge.add_metric([service_name, pod_name, container_name,
+                container_state, host_ip, str(ready).lower()], 1)
 
-    return pai_pod, pai_containers
-
-
-def robust_parse_pod_item(item):
-    return catch_exception(parse_pod_item,
-            "catch exception when parsing pod item",
-            None,
-            item)
+    return pai_pod_gauge, pai_container_gauge
 
 
-def parse_pods_status(podsJsonObject):
-    metrics = []
+def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
+    def _map_fn(item):
+        return catch_exception(parse_pod_item,
+                "catch exception when parsing pod item",
+                None,
+                pai_pod_gauge, pai_container_gauge, item)
 
-    results = filter(keep_not_none,
-            map(robust_parse_pod_item, podsJsonObject["items"]))
-
-    pai_pods = map(lambda result: result[0], results)
-    pai_containers = map(lambda result: result[1], results)
-    pai_containers = [subitem for sublist in pai_containers for subitem in sublist]
-
-    pod_metrics = map(to_metric, pai_pods)
-    container_metrics = map(to_metric, pai_containers)
-
-    return pod_metrics + container_metrics
+    map(_map_fn, podsJsonObject["items"])
 
 
-def collect_healthz(metric_name, address, port, url):
-    label = {"address": address, "error": "ok"}
+def collect_healthz(gauge, histogram, service_name, address, port, url):
+    with histogram.time():
+        error = "ok"
+        try:
+            error = requests.get("http://{}:{}{}".format(address, port, url)).text
+        except Exception as e:
+            error_counter.labels(type="healthz").inc()
+            error = str(e)
+            logger.exception("requesting %s:%d%s failed", address, port, url)
 
-    try:
-        healthy = requests.get("http://{}:{}{}".format(address, port, url)).text
-
-        if healthy != "ok":
-            label["error"] = healthy
-    except Exception as e:
-        label["error"] = str(e)
-        logger.exception("requesting %s:%d%s failed", address, port, url)
-
-    return Metric(metric_name, label, 1)
+        gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_componentStaus(api_server_ip, api_server_port, nodesJsonObject):
-    metrics = []
-
-    metrics.append(collect_healthz("k8s_api_server_count", api_server_ip, api_server_port, "/healthz"))
-    metrics.append(collect_healthz("k8s_etcd_count", api_server_ip, api_server_port, "/healthz/etcd"))
+def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJsonObject):
+    collect_healthz(k8s_gauge, api_healthz_histogram,
+            "k8s_api_server", api_server_ip, api_server_port, "/healthz")
+    collect_healthz(k8s_gauge, etcd_healthz_histogram,
+            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd")
 
     # check kubelet
     nodeItems = nodesJsonObject["items"]
@@ -225,15 +261,14 @@ def collect_k8s_componentStaus(api_server_ip, api_server_port, nodesJsonObject):
     for name in nodeItems:
         ip = name["metadata"]["name"]
 
-        metrics.append(collect_healthz("k8s_kubelet_count", ip, 10255, "/healthz"))
+        collect_healthz(k8s_gauge, kubelet_healthz_histogram,
+            "k8s_kubelet", ip, 10255, "/healthz")
 
-    return metrics
 
-
-def parse_node_item(node):
+def parse_node_item(pai_node_gauge, node):
     name = node["metadata"]["name"]
 
-    cond_map = {}
+    disk_pressure = memory_pressure = out_of_disk = ready = "unknown"
 
     if node.get("status") is not None:
         status = node["status"]
@@ -242,130 +277,145 @@ def parse_node_item(node):
             conditions = status["conditions"]
 
             for cond in conditions:
-                cond_t = utils.camel_to_underscore(cond["type"])
+                cond_t = cond["type"]
                 status = cond["status"].lower()
 
-                cond_map[cond_t] = status
+                if cond_t == "DiskPressure":
+                    disk_pressure = status
+                elif cond_t == "MemoryPressure":
+                    memory_pressure = status
+                elif cond_t == "OutOfDisk":
+                    out_of_disk = status
+                elif cond_t == "Ready":
+                    ready = status
+                else:
+                    error_counter.labels(type="unknown_node_cond").inc()
+                    logger.error("unexpected condition %s in node %s", cond_t, name)
     else:
         logger.warning("unexpected structure of node %s: %s", name, json.dumps(node))
 
-    return PaiNode(name, cond_map)
+    pai_node_gauge.add_metric([name, disk_pressure, memory_pressure, out_of_disk, ready], 1)
+
+    return pai_node_gauge
 
 
-def robust_parse_node_item(item):
-    return catch_exception(parse_node_item,
-            "catch exception when parsing node item",
-            None,
-            item)
+def process_nodes_status(pai_node_gauge, nodesJsonObject):
+    def _map_fn(item):
+        return catch_exception(parse_node_item,
+                "catch exception when parsing node item",
+                None,
+                pai_node_gauge, item)
+
+    map(_map_fn, nodesJsonObject["items"])
 
 
-def parse_nodes_status(nodesJsonObject):
-    nodeItems = nodesJsonObject["items"]
-
-    return map(to_metric,
-            map(robust_parse_node_item, nodesJsonObject["items"]))
-
-
-def collect_docker_daemon_status(hosts):
-    metrics = []
-
+def collect_docker_daemon_status(docker_daemon_gauge, hosts):
     cmd = "sudo systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
 
     for host in hosts:
-        label = {"ip": host["hostip"], "error": "ok"}
+        host_ip = host["hostip"]
+        error = "ok"
 
         try:
-            flag = common.ssh_shell_paramiko(host, cmd)
-            if not flag:
-                label["error"] = "config" # configuration is not correct
+            out, err = ssh_exec(host, cmd)
+            if "active" not in out:
+                error = "inactive"
         except Exception as e:
-            label["error"] = str(e)
-            logger.exception("ssh to %s failed", host["hostip"])
+            error_counter.labels(type="docker").inc()
+            error = str(e)
+            logger.exception("ssh to %s failed", host_ip)
 
-        metrics.append(Metric("docker_daemon_count", label, 1))
+        docker_daemon_gauge.add_metric([host_ip, error], 1)
 
-    return metrics
-
-
-def log_and_export_metrics(path, metrics):
-    utils.export_metrics_to_file(path, metrics)
-    for metric in metrics:
-        logger.info(metric)
+    return docker_daemon_gauge
 
 
 def load_machine_list(configFilePath):
-    cluster_config = common.load_yaml_file(configFilePath)
-    return cluster_config['hosts']
+    with open(configFilePath, "r") as f:
+        return yaml.load(f)["hosts"]
 
 
-#####
-# Watchdog generate 7 metrics:
-# * pai_pod_count
-# * pai_container_count
-# * pai_node_count
-# * docker_daemon_count
-# * k8s_api_server_count
-# * k8s_etcd_count
-# * k8s_kubelet_count
-# Document about these metrics is in `prometheus/doc/watchdog-metrics.md`
-#####
+def request_with_histogram(url, histogram):
+    with histogram.time():
+        return requests.get(url).json()
 
-def main(argv):
-    logDir = argv[0]
-    timeSleep = int(argv[1])
 
-    address = os.environ["K8S_API_SERVER_URI"]
+def try_remove_old_prom_file(path):
+    """ try to remove old prom file, since old prom file are exposed by node-exporter,
+    if we do not remove, node-exporter will still expose old metrics """
+    if os.path.isfile(path):
+        try:
+            os.unlink(path)
+        except Exception as e:
+            log.warning("can not remove old prom file %s", path)
+
+def main(args):
+    logDir = args.log
+
+    try_remove_old_prom_file(logDir + "/watchdog.prom")
+
+    address = args.k8s_api
     parse_result = urlparse.urlparse(address)
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
 
-    hosts = load_machine_list("/etc/watchdog/config.yml")
+    hosts = load_machine_list(args.hosts)
 
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    fh = RotatingFileHandler(logDir + "/watchdog.log", maxBytes= 1024 * 1024 * 100, backupCount=5)
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-    fh.setFormatter(formatter)
-    rootLogger.addHandler(fh)
+    list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
+    list_nodes_url = "{}/api/v1/nodes/".format(address)
+
+    atomic_ref = AtomicRef()
+
+    REGISTRY.register(CustomCollector(atomic_ref))
+
+    app = make_wsgi_app(REGISTRY)
+    httpd = make_server("", int(args.port), app)
+    t = threading.Thread(target=httpd.serve_forever)
+    t.daemon = True
+    t.start()
 
     while True:
-        try:
-            metrics = []
+        # these gauge is generate on each iteration
+        pai_pod_gauge = gen_pai_pod_gauge()
+        pai_container_gauge = gen_pai_container_gauge()
+        pai_node_gauge = gen_pai_node_gauge()
+        docker_daemon_gauge = gen_docker_daemon_gauge()
+        k8s_gauge = gen_k8s_component_gauge()
 
+        try:
             # 1. check service level status
-            podsStatus = requests.get("{}/api/v1/namespaces/default/pods/".format(address)).json()
-            pods_metrics = parse_pods_status(podsStatus)
-            if pods_metrics is not None:
-                metrics.extend(pods_metrics)
+            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram)
+            process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodesStatus = requests.get("{}/api/v1/nodes/".format(address)).json()
-            nodes_metrics = parse_nodes_status(nodesStatus)
-            if nodes_metrics is not None:
-                metrics.extend(nodes_metrics)
+            nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram)
+            process_nodes_status(pai_node_gauge, nodesStatus)
 
             # 3. check docker deamon status
-            docker_daemon_metrics = collect_docker_daemon_status(hosts)
-            if docker_daemon_metrics is not None:
-                metrics.extend(docker_daemon_metrics)
+            collect_docker_daemon_status(docker_daemon_gauge, hosts)
 
             # 4. check k8s level status
-            k8s_metrics = collect_k8s_componentStaus(api_server_ip, api_server_port, nodesStatus)
-            if k8s_metrics is not None:
-                metrics.extend(k8s_metrics)
-
-            # 5. log and export
-            log_and_export_metrics(logDir + "/watchdog.prom", metrics)
+            collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus)
         except Exception as e:
+            error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
 
-            # do not lost metrics due to exception
-            log_and_export_metrics(logDir + "/watchdog.prom", metrics)
+        atomic_ref.get_and_set([pai_pod_gauge, pai_container_gauge, pai_node_gauge,
+            docker_daemon_gauge, k8s_gauge])
 
-        time.sleep(timeSleep)
+        time.sleep(float(args.interval))
 
-# python watch_dog.py /datastorage/prometheus /usr/local/cluster-configuration.yaml 3
-# requires env K8S_API_SERVER_URI set to correct value, eg. http://10.151.40.133:8080
+# python watchdog.py http://10.151.40.133:8080
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("k8s_api", help="kubernetes api uri eg. http://10.151.40.133:8080")
+    parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
+    parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
+    parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
+    parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
+    args = parser.parse_args()
+
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+            level=logging.INFO)
+
+    main(args)

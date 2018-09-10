@@ -44,6 +44,7 @@ RUN apt-get -y update && \
       openssh-server \
       openssh-client \
       git \
+      bash-completion \
       inotify-tools \
       rsync \
       realpath \
@@ -52,17 +53,34 @@ RUN apt-get -y update && \
     git clone https://github.com/Microsoft/pai.git &&\
     pip install python-etcd docker kubernetes
 
+WORKDIR /tmp
+
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
+RUN echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
+
 # Only node manager need this.#
-#COPY docker-17.06.2-ce.tgz /usr/local
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
-RUN cp docker-17.06.2-ce.tgz /usr/local
-RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
+RUN tar xzvf docker-17.06.2-ce.tgz
+RUN mv docker/* /usr/local/bin/
+
+# alert manager tool
+RUN wget https://github.com/prometheus/alertmanager/releases/download/v0.15.2/alertmanager-0.15.2.linux-amd64.tar.gz
+RUN tar xzvf alertmanager-0.15.2.linux-amd64.tar.gz
+RUN mv alertmanager-0.15.2.linux-amd64/amtool /usr/local/bin
+
+RUN wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x kubectl
+RUN mv kubectl /usr/local/bin
+
+# reinstall requests otherwise will get error: `cannot import name DependencyWarning`
+RUN echo y | pip uninstall requests && \
+    echo y | pip install requests && \
+    echo y | pip install docopt
 
 COPY build/container-setup.sh /
 
 COPY build/kubectl-install.sh /kubectl-install.sh
 RUN /bin/bash kubectl-install.sh
 
-CMD ["/container-setup.sh"]
+CMD ["/bin/bash"]

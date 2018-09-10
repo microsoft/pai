@@ -23,6 +23,7 @@ echo ${labels[0]} > ${WORKSPACE}/BED.txt
 
           sh '''#!/bin/bash
 set -ex
+
 echo ${GIT_BRANCH//\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
 '''
           env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
@@ -161,8 +162,10 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
 # ! TODO wait for cluster ready
 sleep 6s
+
 # Step 3. Start all PAI services
 # start pai services
 ./paictl.py service start -p /cluster-configuration
@@ -251,8 +254,10 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
 # ! TODO wait for cluster ready
 sleep 6s
+
 # Step 3. Start all PAI services
 # start pai services
 ./paictl.py service start -p /cluster-configuration
@@ -533,9 +538,11 @@ else
 fi
 # delete service for next install
 ./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
 EOF
+
 # clean k8s
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
@@ -572,9 +579,11 @@ else
 fi
 # delete service for next install
 ./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
 EOF
+
 # clean k8s
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y

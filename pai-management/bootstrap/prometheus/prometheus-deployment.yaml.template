@@ -32,8 +32,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        prometheus: "true"
       containers:
       - name: prometheus
         image: prom/prometheus:v2.1.0

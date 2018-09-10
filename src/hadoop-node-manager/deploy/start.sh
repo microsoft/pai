@@ -19,9 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh || exit $?
 
 #chmod u+x configmap-create.sh
 

@@ -19,8 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
-/bin/bash node-label.sh || exit $?
 
 kubectl apply --overwrite=true -f drivers.yaml || exit $?
 

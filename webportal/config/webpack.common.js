@@ -38,7 +38,7 @@ const htmlMinifierOptions = {
   removeTagWhitespace: true
 };
 
-const config = {
+const config = (env, argv) => ({
   entry: {
     index: './src/app/index.js',
     layout: './src/app/layout/layout.component.js',
@@ -154,11 +154,6 @@ const config = {
     ]),
     new ExtractTextPlugin({
       filename: 'styles/[name].bundle.css'
-    }),
-    new UglifyJsPlugin({
-      cache: true,
-      parallel: true,
-      sourceMap: true
     }),
     new webpack.ProvidePlugin({
       _: 'underscore'
@@ -284,13 +279,17 @@ const config = {
       cache: true,
       chunks: ['layout', 'docs']
     })
-  ],
+  ].concat(argv.debug ? [] : [new UglifyJsPlugin({
+    cache: true,
+    parallel: true,
+    sourceMap: true
+  })]),
   node: {
     global: true,
     fs: 'empty',
     process: true,
     module: false
   }
-};
+});
 
 module.exports = config;

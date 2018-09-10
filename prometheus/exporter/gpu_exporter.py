@@ -64,6 +64,13 @@ def collect_gpu_info():
         else:
             logger.exception("command '%s' return with error (code %d): %s",
                     e.cmd, e.returncode, e.output)
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            logger.warning("nvidia-smi not found")
+
+        return None
+
+
 
 def convert_gpu_info_to_metrics(gpuInfos):
     if gpuInfos is None:

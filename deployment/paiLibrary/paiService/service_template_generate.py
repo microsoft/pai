@@ -18,7 +18,7 @@
 
 import logging
 import logging.config
-
+import yaml
 
 from ..common import template_handler
 from ..common import file_handler
@@ -58,6 +58,43 @@ class service_template_generate:
 
 
 
+    # Add "NodeAffinity" to service deployment yaml file
+    # according to the "deploy-rules" in service.yaml config file
+    # Currently support "In" and "NotIn" rules or the combination of them.
+    def add_deploy_rule_to_yaml(self, str_src_yaml):
+        
+        service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod']
+    
+        config = yaml.load(str_src_yaml)
+
+        # judge whether it's a service deploy file, eg. exclude configmap
+        if 'kind' in config and config['kind'] in service_deploy_kind_list:
+            match_expressions_arr = []
+
+            deploy_rules = self.service_conf['deploy-rules']
+            for operator, label in deploy_rules.items():
+                match_expression = dict()
+                if operator.lower() == 'in':   
+                    match_expression['operator'] = 'In'
+                if operator.lower() == 'notin':
+                    match_expression['operator'] = 'NotIn'
+                                
+                match_expression['key'] = label
+                match_expression['values'] = ['true']
+                match_expressions_arr.append(match_expression)
+
+            config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
+                {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
+                [{'matchExpressions': match_expressions_arr}]}}}
+        
+        else:
+            logging.info("It is not a service deploy file! Only support " + str(service_deploy_kind_list))
+            return str_src_yaml
+
+        return yaml.dump(config, default_flow_style=False)
+
+
+
     def generate_template(self):
 
         self.logger.info("Begin to generate the template file in service {0}'s configuration.".format(self.service_name))
@@ -84,8 +121,14 @@ class service_template_generate:
                 self.logger.exception("failed to generate template file from %s with dict %s", template_path, service_conf_dict)
                 raise e
 
+            # judge whether it's a service deploy file 
+            if "deploy-rules" in self.service_conf and template_file.find("yaml") >= 0 and template_file.find("delete") == -1:
+                generated_template = self.add_deploy_rule_to_yaml(generated_template)
+
             file_handler.write_generated_file(target_path,  generated_template)
 
+            
+        
         self.logger.info("The template file of service {0} is generated.".format(self.service_name))
 
 
