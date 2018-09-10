@@ -20,7 +20,6 @@ const jwt = require('jsonwebtoken');
 
 const config = require('../config/token');
 const createError = require('../util/error');
-const logger = require('../config/logger');
 
 const createMiddleware = (throwErrorIfUnauthorized) => {
   return function(req, _, next) {
@@ -41,8 +40,8 @@ const createMiddleware = (throwErrorIfUnauthorized) => {
 const getToken = (req) => {
   let parts = req.headers.authorization.split(' ');
   if (parts.length == 2) {
-    var scheme = parts[0];
-    var credentials = parts[1];
+    let scheme = parts[0];
+    let credentials = parts[1];
     if (/^Bearer$/i.test(scheme)) {
       return credentials;
     }

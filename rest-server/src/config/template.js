@@ -43,10 +43,10 @@ const templateInputSchema = Joi.object().keys({
       then: Joi.forbidden(),
       otherwise: Joi.string().required(),
     }),
-  usage: Joi.when('type', {	
-    is: 'script',	
-    then: Joi.object(),	
-    otherwise: Joi.forbidden(),	
+  usage: Joi.when('type', {
+    is: 'script',
+    then: Joi.object(),
+    otherwise: Joi.forbidden(),
   }),
   prerequisites: Joi.when('type', {
     is: 'job',
