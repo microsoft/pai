@@ -54,6 +54,7 @@ function prepareCarousel($carousel) {
   setTimeout(function() {
     $slick.slick({
       slidesToShow: 5,
+      slidesToScroll: 5,
       swipe: false,
       infinite: false,
       prevArrow: $prev,
