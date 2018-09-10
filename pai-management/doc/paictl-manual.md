@@ -137,7 +137,7 @@ python paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir
 ### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
 
 ```
-python paictl.py cluster generate-configuration -p /path/to/machinelist.csv
+python paictl.py config generate -p /path/to/machinelist.csv
 ```
 
 - The machine list should be provided in CSV format.
