@@ -17,17 +17,17 @@
 
 
 const jwt = require('jsonwebtoken');
-const set = require('lodash.set');
 
 const config = require('../config/token');
 const createError = require('../util/error');
+const logger = require('../config/logger');
 
 const createMiddleware = (throwErrorIfUnauthorized) => {
   return function(req, _, next) {
     try {
       let token = getToken(req);
       let result = jwt.verify(token, config.secret);
-      set(req, config.userProperty, result);
+      req[config.userProperty] = result;
     } catch (_) {
       if (throwErrorIfUnauthorized) {
         let error = createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.');

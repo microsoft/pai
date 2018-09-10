@@ -17,19 +17,7 @@
 
 // module dependencies
 const Joi = require('joi');
-const express = require('express');
-const jwt = require('express-jwt');
 const config = require('./index');
-const createError = require('../util/error');
-
-const jwtCheck = new express.Router();
-
-jwtCheck.use(jwt({
-  secret: config.jwtSecret,
-  userProperty: 'user',
-}), (err, req, res, next) => {
-  next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
-});
 
 // define input schema
 const tokenPostInputSchema = Joi.object().keys({
@@ -50,6 +38,5 @@ const tokenPostInputSchema = Joi.object().keys({
 module.exports = {
   secret: config.jwtSecret,
   userProperty: 'user',
-  check: jwtCheck,
   tokenPostInputSchema: tokenPostInputSchema,
 };

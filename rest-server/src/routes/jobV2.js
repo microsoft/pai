@@ -18,7 +18,7 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
+const token = require('../middlewares/token');
 const jobController = require('../controllers/job');
 const jobParam = require('../middlewares/jobV2');
 
@@ -29,17 +29,17 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v2/jobs - Update job */
-    .post(tokenConfig.check, jobParam.submission, jobController.init, jobController.update);
+    .post(token.check, jobParam.submission, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v2/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v2/jobs/:jobName - Update job */
-    .put(tokenConfig.check, jobParam.submission, jobController.update)
+    .put(token.check, jobParam.submission, jobController.update)
 
     /** DELETE /api/v2/jobs/:jobName - Remove job */
-    .delete(tokenConfig.check, jobController.remove);
+    .delete(token.check, jobController.remove);
 
 /** Load job when API with jobName route parameter is hit */
 router.param('jobName', jobController.load);
