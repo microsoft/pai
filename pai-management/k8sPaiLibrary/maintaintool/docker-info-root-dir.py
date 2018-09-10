@@ -20,9 +20,6 @@ from __future__ import print_function
 import docker
 import sys
 
-
-sys.exit(1)
-
 client = docker.from_env()
 docker_info_dict = client.info()
 
