@@ -229,7 +229,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     for response_msg in stderr:
         result_stderr += response_msg
 
-    exit_code_ssh = stdout.recv_exit_status()
+    exit_code_ssh = stdout.channel.recv_exit_status()
     if exit_code_ssh != 0:
         sys.exit(exit_code_ssh)
 
@@ -263,7 +263,7 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     for response_msg in stdout:
         print (response_msg.encode('utf-8').strip('\n'))
 
-    exit_code_ssh = stdout.recv_exit_status()
+    exit_code_ssh = stdout.channel.recv_exit_status()
     if exit_code_ssh != 0:
         sys.exit(exit_code_ssh)
 
