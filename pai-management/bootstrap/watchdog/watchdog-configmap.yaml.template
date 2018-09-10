@@ -7,5 +7,9 @@ data:
 
     hosts:
     {% for _, hostInfo in machinelist.items() %}
-    - {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }} }
+    {% if 'ssh-secret-name' in clusterinfo['prometheusinfo'] -%}
+    - {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }}, keyfile_path: /etc/secret-volume/{{ clusterinfo['prometheusinfo']['ssh-secret-name'] }} }
+    {% else -%}
+    - {hostip: {{ hostInfo['ip'] }}, port: {{ hostInfo['sshport'] }}, username: {{ hostInfo['username'] }}, password: {{ hostInfo['password'] }}  }
+    {% endif -%}
     {% endfor %}
