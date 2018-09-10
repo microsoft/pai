@@ -69,15 +69,9 @@ function loadCarousel($slick, type, page) {
   $slick.data('request-id', requestId);
   $slick.parents('section').find('h2 a').addClass('hidden');
 
-  const url = `${webportalConfig.restServerUri}/api/v2/template/${type}`;
-
-  setTimeout(apply, 0, 1);
-
-  return;
-
   function apply(page) {
     if ($slick.data('request-id') !== requestId) return;
-    $.getJSON(url, {pageno: page})
+    $.getJSON(`${webportalConfig.restServerUri}/api/v2/template/${type}`, {pageno: page})
       .then(function(data) {
         if ($slick.data('request-id') !== requestId) return;
 
@@ -96,6 +90,7 @@ function loadCarousel($slick, type, page) {
         }
       });
   }
+  setTimeout(apply, 0, 1);
 }
 
 function search(query) {
@@ -114,8 +109,6 @@ function search(query) {
   const $scriptsSlick = clear($('#marketplace-scripts .slick-slider')).data('request-id', requestId);
   const $dataSlick = clear($('#marketplace-datas .slick-slider')).data('request-id', requestId);
 
-  const url = `${webportalConfig.restServerUri}/api/v2/template`;
-
   $jobsSlick.parents('section').find('h2 a').addClass('hidden');
   $dockersSlick.parents('section').find('h2 a').addClass('hidden');
   $scriptsSlick.parents('section').find('h2 a').addClass('hidden');
@@ -126,74 +119,91 @@ function search(query) {
   function append(page) {
     if ($jobsSlick.data('request-id') !== requestId) return;
 
-    $.getJSON(url, {query: query, pageno: page})
-      .done(function(data) {
-        if ($jobsSlick.data('request-id') !== requestId) return;
+    userAuth.checkToken((token) => {
+      $.ajax({
+        url: `${webportalConfig.restServerUri}/api/v2/template`,
+        type: 'GET',
+        dataType: 'json',
+        data: {
+          query: query,
+          pageno: page,
+        },
+        beforeSend: function setHeader(xhr) {
+          if (token) {
+            // Used for the backend server to fetch current user's GitHub PAT
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+          }
+        },
+        success: function(data) {
+          if ($jobsSlick.data('request-id') !== requestId) return;
 
-        const items = data.items;
+          const items = data.items;
 
-        $(slideTemplate.call(slideContext, {
-          items: items.filter(function(item) {
-            return item.type === 'job';
-          }),
-        })).each(function(index, element) {
-          $jobsSlick.slick('slickAdd', element);
-        });
-        if ($jobsSlick.find('.thumbnail').length > 5) {
-          $jobsSlick.parents('section').find('h2 a')
-            .removeClass('hidden')
-            .attr('href', '/template-list.html?type=job&query=' + query);
-        }
+          $(slideTemplate.call(slideContext, {
+            items: items.filter(function(item) {
+              return item.type === 'job';
+            }),
+          })).each(function(index, element) {
+            $jobsSlick.slick('slickAdd', element);
+          });
+          if ($jobsSlick.find('.thumbnail').length > 5) {
+            $jobsSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
 
-        $(slideTemplate.call(slideContext, {
-          items: items.filter(function(item) {
-            return item.type === 'dockerimage';
-          }),
-        })).each(function(index, element) {
-          $dockersSlick.slick('slickAdd', element);
-        });
-        if ($dockersSlick.find('.thumbnail').length > 5) {
-          $dockersSlick.parents('section').find('h2 a')
-            .removeClass('hidden')
-            .attr('href', '/template-list.html?type=job&query=' + query);
-        }
+          $(slideTemplate.call(slideContext, {
+            items: items.filter(function(item) {
+              return item.type === 'dockerimage';
+            }),
+          })).each(function(index, element) {
+            $dockersSlick.slick('slickAdd', element);
+          });
+          if ($dockersSlick.find('.thumbnail').length > 5) {
+            $dockersSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
 
-        $(slideTemplate.call(slideContext, {
-          items: items.filter(function(item) {
-            return item.type === 'script';
-          }),
-        })).each(function(index, element) {
-          $scriptsSlick.slick('slickAdd', element);
-        });
-        if ($scriptsSlick.find('.thumbnail').length > 5) {
-          $scriptsSlick.parents('section').find('h2 a')
-            .removeClass('hidden')
-            .attr('href', '/template-list.html?type=job&query=' + query);
-        }
+          $(slideTemplate.call(slideContext, {
+            items: items.filter(function(item) {
+              return item.type === 'script';
+            }),
+          })).each(function(index, element) {
+            $scriptsSlick.slick('slickAdd', element);
+          });
+          if ($scriptsSlick.find('.thumbnail').length > 5) {
+            $scriptsSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
 
-        $(slideTemplate.call(slideContext, {
-          items: items.filter(function(item) {
-            return item.type === 'data';
-          }),
-        })).each(function(index, element) {
-          $dataSlick.slick('slickAdd', element);
-        });
-        if ($dataSlick.find('.thumbnail').length > 5) {
-          $dataSlick.parents('section').find('h2 a')
-            .removeClass('hidden')
-            .attr('href', '/template-list.html?type=job&query=' + query);
-        }
+          $(slideTemplate.call(slideContext, {
+            items: items.filter(function(item) {
+              return item.type === 'data';
+            }),
+          })).each(function(index, element) {
+            $dataSlick.slick('slickAdd', element);
+          });
+          if ($dataSlick.find('.thumbnail').length > 5) {
+            $dataSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
 
-        if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
-          setTimeout(append, 100, page + 1);
-        }
-      }).fail(function(jqxhr, _, error) {
-        if (jqxhr.status == 500) {
-          alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
-        } else {
-          alert(error);
-        }
+          if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
+            setTimeout(append, 100, page + 1);
+          }
+        },
+        error: function(jqxhr, _, error) {
+          if (jqxhr.status == 500) {
+            alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+          } else {
+            alert(error);
+          }
+        },
       });
+    }, false);
   }
 }
 
@@ -326,4 +336,3 @@ $(function() {
     }
   });
 });
-
