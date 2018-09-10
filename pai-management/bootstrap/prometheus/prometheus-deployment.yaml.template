@@ -15,6 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set prometheus_url = clusterinfo["prometheusinfo"]["prometheus_url"] %}
+{% set prometheus_port = clusterinfo["prometheusinfo"]["prometheus_port"] %}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,10 +43,11 @@ spec:
             memory: "10Gi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
-          - '--web.listen-address=0.0.0.0:{{clusterinfo['prometheusinfo']['prometheus_port']}}'
+          - '--web.listen-address=0.0.0.0:{{prometheus_port}}'
+          - '--web.external-url={{prometheus_url}}:{{prometheus_port}}'
         ports:
         - name: web
-          containerPort: {{clusterinfo['prometheusinfo']['prometheus_port']}}
+          containerPort: {{prometheus_port}}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus

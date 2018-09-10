@@ -62,23 +62,25 @@ class service_template_generate:
     # according to the "deploy-rules" in service.yaml config file
     # Currently support "In" and "NotIn" rules or the combination of them.
     def add_deploy_rule_to_yaml(self, str_src_yaml):
-        
         service_deploy_kind_list = ['DaemonSet', 'Deployment', 'StatefulSets', 'Pod']
-    
+
         config = yaml.load(str_src_yaml)
 
         # judge whether it's a service deploy file, eg. exclude configmap
-        if 'kind' in config and config['kind'] in service_deploy_kind_list:
+        # Some service may not being configured to run, for example when alert manager is not
+        # configure, alert-manager-deployment.yaml contains nothing, and hence config is None.
+        # In this case, return original content.
+        if config is not None and 'kind' in config and config['kind'] in service_deploy_kind_list:
             match_expressions_arr = []
 
             deploy_rules = self.service_conf['deploy-rules']
             for operator, label in deploy_rules.items():
                 match_expression = dict()
-                if operator.lower() == 'in':   
+                if operator.lower() == 'in':
                     match_expression['operator'] = 'In'
                 if operator.lower() == 'notin':
                     match_expression['operator'] = 'NotIn'
-                                
+
                 match_expression['key'] = label
                 match_expression['values'] = ['true']
                 match_expressions_arr.append(match_expression)
@@ -86,7 +88,6 @@ class service_template_generate:
             config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
                 {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
                 [{'matchExpressions': match_expressions_arr}]}}}
-        
         else:
             logging.info("It is not a service deploy file! Only support " + str(service_deploy_kind_list))
             return str_src_yaml
@@ -127,8 +128,6 @@ class service_template_generate:
 
             file_handler.write_generated_file(target_path,  generated_template)
 
-            
-        
         self.logger.info("The template file of service {0} is generated.".format(self.service_name))
 
 
