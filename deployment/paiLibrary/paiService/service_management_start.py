@@ -116,7 +116,7 @@ class serivce_management_start:
                 time.sleep(10)
 
             except Exception as error:
-                self.logger.error("Some error occurs when starting service {0}".format(serv))
+                self.logger.exception("Some error occurs when starting service {0}".format(serv))
                 sys.exit(1)
 
         self.done_dict[serv] = True

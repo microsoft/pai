@@ -252,17 +252,9 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["prometheusinfo"]["node_exporter_port"] = \
             serviceDict["clusterinfo"]["prometheusinfo"]["node-exporter-port"]
 
-        alert_manager_hosts = []
-        for host in self.rawData["clusterConfiguration"]["machine-list"]:
-            if host.get("alert-manager") is None or host["alert-manager"].lower() != "true":
-                continue
-
-            alert_manager_hosts.append(host["hostip"])
-
         # template can check clusterinfo['prometheusinfo']['alerting'] to see if alert is enabled
         if serviceDict["clusterinfo"]["prometheusinfo"].get("alerting") is not None:
-            serviceDict["clusterinfo"]["prometheusinfo"]["alerting"]["alert-manager-hosts"] = \
-                    alert_manager_hosts
+            serviceDict["clusterinfo"]["prometheusinfo"]["alerting"]["alert-manager-hosts"] = self.getMasterIP()
 
         # section
 

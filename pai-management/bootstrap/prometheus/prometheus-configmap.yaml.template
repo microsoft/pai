@@ -16,7 +16,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% set prom_info = clusterinfo['prometheusinfo'] %}
-{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
+{% set has_alert_manager = 'alerting' in prom_info %}
+
+{% if has_alert_manager and 'alert_manager_port' in prom_info['alerting'] %}
 {% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
 {% else %}
 {% set port = 9093 %}
@@ -33,7 +35,7 @@ data:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
     - job_name: 'node_exporter'
-      scrape_interval: {{ clusterinfo['prometheusinfo']['scrape_interval']|default(30) }}s
+      scrape_interval: {{ prom_info['scrape_interval']|default(30) }}s
       kubernetes_sd_configs:
       - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
         role: node
@@ -68,12 +70,10 @@ data:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: replace
           target_label: pai_service_name
-{% if clusterinfo['prometheusinfo']['alerting'] %}
+{% if has_alert_manager %}
     alerting:
       alertmanagers:
         - static_configs:
           - targets:
-            {% for host in clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
-            - {{ host }}:{{ port }}
-            {% endfor %}
+            - {{ prom_info['alerting']['alert-manager-hosts'] }}:{{ port }}
 {% endif %}

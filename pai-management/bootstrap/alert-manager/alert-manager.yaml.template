@@ -16,12 +16,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% set prom_info = clusterinfo['prometheusinfo'] %}
-{% if 'alerting' in prom_info and 'alert_manager_port' in prom_info['alerting'] %}
+{% set has_alert_manager = 'alerting' in prom_info %}
+{% if has_alert_manager and 'alert_manager_port' in prom_info['alerting'] %}
+{% set host = clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
 {% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
 {% else %}
 {% set port = 9093 %}
 {% endif %}
 
+{% if has_alert_manager %}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,17 +48,24 @@ spec:
         args:
           - '--config.file=/etc/alertmanager/config.yml'
           - '--storage.path=/alertmanager'
+          - '--web.external-url=http://{{host}}:{{port}}'
         ports:
         - name: alertmanager
           containerPort: {{ port }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
+        - name: templates-volume
+          mountPath: /etc/alertmanager/template
         - name: alertmanager
           mountPath: /alertmanager
       volumes:
       - name: config-volume
         configMap:
           name: alertmanager
+      - name: templates-volume
+        configMap:
+          name: alert-templates
       - name: alertmanager
         emptyDir: {}
+{% endif %}
