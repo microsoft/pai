@@ -136,8 +136,8 @@ function search(query) {
                     items: items.filter(function(item) {
                         return item.type === 'job';
                     }),
-                })).each(function() {
-                    $jobsSlick.slick('slickAdd', this);
+                })).each(function(index, element) {
+                    $jobsSlick.slick('slickAdd', element);
                 });
                 if ($jobsSlick.find('.thumbnail').length > 5) {
                     $jobsSlick.parents('section').find('h2 a')
@@ -149,8 +149,8 @@ function search(query) {
                     items: items.filter(function(item) {
                         return item.type === 'dockerimage';
                     }),
-                })).each(function() {
-                    $dockersSlick.slick('slickAdd', this);
+                })).each(function(index, element) {
+                    $dockersSlick.slick('slickAdd', element);
                 });
                 if ($dockersSlick.find('.thumbnail').length > 5) {
                     $dockersSlick.parents('section').find('h2 a')
@@ -162,8 +162,8 @@ function search(query) {
                     items: items.filter(function(item) {
                         return item.type === 'script';
                     }),
-                })).each(function() {
-                    $scriptsSlick.slick('slickAdd', this);
+                })).each(function(index, element) {
+                    $scriptsSlick.slick('slickAdd', element);
                 });
                 if ($scriptsSlick.find('.thumbnail').length > 5) {
                     $scriptsSlick.parents('section').find('h2 a')
@@ -175,8 +175,8 @@ function search(query) {
                     items: items.filter(function(item) {
                         return item.type === 'data';
                     }),
-                })).each(function() {
-                    $dataSlick.slick('slickAdd', this);
+                })).each(function(index, element) {
+                    $dataSlick.slick('slickAdd', element);
                 });
                 if ($dataSlick.find('.thumbnail').length > 5) {
                     $dataSlick.parents('section').find('h2 a')
