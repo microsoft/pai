@@ -86,7 +86,7 @@ function loadCarousel($slick, type, page) {
         if (data.totalCount > 5) {
           $slick.parents('section').find('h2 a')
             .removeClass('hidden')
-            .attr('href', '/template-list.html?type=' + type);
+            .attr('href', '/template-list.html?type=' + slideContext.parseType(type));
         }
       });
   }
@@ -162,7 +162,7 @@ function search(query) {
           if ($dockersSlick.find('.thumbnail').length > 5) {
             $dockersSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=job&query=' + query);
+              .attr('href', '/template-list.html?type=docker&query=' + query);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -175,7 +175,7 @@ function search(query) {
           if ($scriptsSlick.find('.thumbnail').length > 5) {
             $scriptsSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=job&query=' + query);
+              .attr('href', '/template-list.html?type=script&query=' + query);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -188,7 +188,7 @@ function search(query) {
           if ($dataSlick.find('.thumbnail').length > 5) {
             $dataSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=job&query=' + query);
+              .attr('href', '/template-list.html?type=data&query=' + query);
           }
 
           if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
