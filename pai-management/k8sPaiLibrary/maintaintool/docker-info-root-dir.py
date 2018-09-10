@@ -26,4 +26,5 @@ docker_info_dict = client.info()
 if 'DockerRootDir' in docker_info_dict:
     print(docker_info_dict['DockerRootDir'])
 else:
-    print("FALSE")
+    print("Failed to get DockerRootDir through docker api.")
+    sys.exit(1)
