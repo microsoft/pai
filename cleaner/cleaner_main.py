@@ -43,7 +43,7 @@ class Cleaner(LoggerMixin):
         for k, w in self.workers.items():
             try:
                 # terminate the worker and all its subprocesses
-                common.kill_process_tree(w.pid, 1, self.logger)
+                common.kill_process_tree(w.pid, 5, self.logger)
             except Exception as e:
                 self.logger.error("errors occur when terminating worker %s.", k)
                 self.logger.exception(e)
