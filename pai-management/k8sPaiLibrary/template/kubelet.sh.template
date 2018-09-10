@@ -17,11 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
+
 set -e
 
+apt-get install python-pip
+pip install docker
 
-DOCKER_ROOT_DIR_FOR_KUBELET=`docker info | grep "Docker Root Dir" | awk -F' ' '{print $NF}'`
+DOCKER_ROOT_DIR_FOR_KUBELET=`python docker-info-root-dir.py` || exit $?
 
+echo "Docker ROOT DIR IS $DOCKER_ROOT_DIR_FOR_KUBELET"
 
 
 docker run \
@@ -56,3 +61,5 @@ docker run \
   --image-pull-progress-deadline=10m \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --v=2
+
+popd > /dev/null
