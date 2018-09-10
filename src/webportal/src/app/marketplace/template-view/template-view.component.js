@@ -40,7 +40,7 @@ const slideContext = {
   },
 };
 
-let uploadData ={};
+let uploadData = {};
 
 function prepareCarousel($carousel) {
   const $prev = $('<a class="btn btn-link"><span class="glyphicon glyphicon-menu-left"></span></a>')
@@ -60,12 +60,14 @@ function prepareCarousel($carousel) {
       nextArrow: $next,
     });
   });
+
   return $slick;
 }
 
 function loadCarousel($slick, type, page) {
   const requestId = Date.now();
   $slick.data('request-id', requestId);
+  $slick.parents('section').find('h2 a').addClass('hidden');
 
   function apply(page) {
     if ($slick.data('request-id') !== requestId) return;
@@ -80,7 +82,13 @@ function loadCarousel($slick, type, page) {
         if (data.pageNo * data.pageSize < Math.min(data.totalCount, 30)) {
           setTimeout(apply, 100, page + 1);
         }
-    });
+
+        if (data.totalCount > 5) {
+          $slick.parents('section').find('h2 a')
+            .removeClass('hidden')
+            .attr('href', '/template-list.html?type=' + type);
+        }
+      });
   }
   setTimeout(apply, 0, 1);
 }
@@ -95,12 +103,19 @@ function search(query) {
   }
 
   const requestId = Date.now();
+
   const $jobsSlick = clear($('#marketplace-jobs .slick-slider')).data('request-id', requestId);
   const $dockersSlick = clear($('#marketplace-dockers .slick-slider')).data('request-id', requestId);
   const $scriptsSlick = clear($('#marketplace-scripts .slick-slider')).data('request-id', requestId);
   const $dataSlick = clear($('#marketplace-datas .slick-slider')).data('request-id', requestId);
 
+  $jobsSlick.parents('section').find('h2 a').addClass('hidden');
+  $dockersSlick.parents('section').find('h2 a').addClass('hidden');
+  $scriptsSlick.parents('section').find('h2 a').addClass('hidden');
+  $dataSlick.parents('section').find('h2 a').addClass('hidden');
+
   setTimeout(append, 0, 1);
+
   function append(page) {
     if ($jobsSlick.data('request-id') !== requestId) return;
 
@@ -123,34 +138,58 @@ function search(query) {
           if ($jobsSlick.data('request-id') !== requestId) return;
 
           const items = data.items;
+
           $(slideTemplate.call(slideContext, {
             items: items.filter(function(item) {
               return item.type === 'job';
             }),
-          })).each(function() {
-            $jobsSlick.slick('slickAdd', this);
+          })).each(function(index, element) {
+            $jobsSlick.slick('slickAdd', element);
           });
+          if ($jobsSlick.find('.thumbnail').length > 5) {
+            $jobsSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
+
           $(slideTemplate.call(slideContext, {
             items: items.filter(function(item) {
               return item.type === 'dockerimage';
             }),
-          })).each(function() {
-            $dockersSlick.slick('slickAdd', this);
+          })).each(function(index, element) {
+            $dockersSlick.slick('slickAdd', element);
           });
+          if ($dockersSlick.find('.thumbnail').length > 5) {
+            $dockersSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
+
           $(slideTemplate.call(slideContext, {
             items: items.filter(function(item) {
               return item.type === 'script';
             }),
-          })).each(function() {
-            $scriptsSlick.slick('slickAdd', this);
+          })).each(function(index, element) {
+            $scriptsSlick.slick('slickAdd', element);
           });
+          if ($scriptsSlick.find('.thumbnail').length > 5) {
+            $scriptsSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
+
           $(slideTemplate.call(slideContext, {
             items: items.filter(function(item) {
               return item.type === 'data';
             }),
-          })).each(function() {
-            $dataSlick.slick('slickAdd', this);
+          })).each(function(index, element) {
+            $dataSlick.slick('slickAdd', element);
           });
+          if ($dataSlick.find('.thumbnail').length > 5) {
+            $dataSlick.parents('section').find('h2 a')
+              .removeClass('hidden')
+              .attr('href', '/template-list.html?type=job&query=' + query);
+          }
 
           if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
             setTimeout(append, 100, page + 1);
@@ -205,7 +244,7 @@ $(function() {
         $('#upload-body-select').removeClass('hidden');
         $('#upload-body-form-container').addClass('hidden');
         $('#upload-body-success').addClass('hidden');
-     });
+      });
     });
 
     $('#upload-docker').click(() => {
