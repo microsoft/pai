@@ -19,10 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
+kubectl apply --overwrite=true -f rest-server.yaml|| exit $?
 
-/bin/bash node-label.sh || exit $?
-
-kubectl apply --overwrite=true -f rest-server.yaml || exit $?
 
 popd > /dev/null

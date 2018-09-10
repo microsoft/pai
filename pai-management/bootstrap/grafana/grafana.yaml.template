@@ -23,18 +23,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-       task: monitor
-       app: grafana
+      app: grafana            
   template:
     metadata:
       labels:
-        task: monitor
         app: grafana
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        grafana: "true"
       volumes:
       - name: grafana-confg-volume
         configMap:

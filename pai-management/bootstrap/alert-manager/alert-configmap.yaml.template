@@ -12,6 +12,8 @@ data:
       smtp_from: {{ alert_info['smtp_from'] }}
       smtp_auth_username: {{ alert_info['smtp_auth_username'] }}
       smtp_auth_password: {{ alert_info['smtp_auth_password'] }}
+    templates:
+    - '/etc/alertmanager/template/*.tmpl'
     route:
       receiver: pai-alert
       group_wait: 30s
@@ -22,4 +24,5 @@ data:
     - name: 'pai-alert'
       email_configs:
         - to: {{ alert_info['alert_receiver'] }}
+          html: '{{ '{{' }} template "email.pai.html" . {{ '}}' }}'
 {% endif %}

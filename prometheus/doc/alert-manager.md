@@ -4,10 +4,8 @@ release.
 
 # Configuration
 
-To enable Alert Manager, follow the following steps:
-* select a node to deploy Alert Manager, both master and work node can be used as Alter Manager.
-* in `cluster-configuration` file, set `alert-manager: "true"` for this node.
-* configure Alert Manager by adding `alerting` fields under `prometheus` to services-configuration file.
+To enable Alert Manager, please configure Alert Manager by adding `alerting` fields under `prometheus`
+to services-configuration file.
 
 Refer to example [`cluster-configuration`](../../cluster-configuration/cluster-configuration.yaml) and
 [`service-configuration`](../../cluster-configuration/services-configuration.yaml) for more
@@ -47,6 +45,9 @@ Following are these rule's triggering condition:
 | PaiServicePodNotRunning | kubernetes indicate one of pai service pod is not in running status |
 | PaiServicePodNotReady | kubernetes indicate one of pai service pod is not in ready status |
 
+Our email template is similar to original Alert Manager's, except We only render annotation.summary
+if the key exist. This can make alert email simpler to read and understand.
+
 If you want to add more rules, please reference syntax
 [here](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/).
 After adding rules, you should stop and start prometheus by using paictl
@@ -58,3 +59,41 @@ cd $pai-management
 ```
 
 Please fire a pull request if you find any rule useful.
+
+# Muting firing alert
+
+OpenPAI leverage [amtool](https://github.com/prometheus/alertmanager#amtool) to interactive with
+alert manager. If you're using [dev-box](../../pai-management/doc/cluster-bootup.md#c-step-0) to do
+cluster management, the amtool might has already been installed for you, you can try to execute
+`amtool` in your shell to test. If it hasn't been installed, please install it using method provided
+by amtool [README](https://github.com/prometheus/alertmanager#install-1).
+
+To silent an alerts
+
+```
+$ amtool silence add alertname=Test_Alert
+b3ede22e-ca14-4aa0-932c-ca2f3445f926
+
+$ amtool silence add alertname="Test_Alert" instance=~".+0"
+e48cb58a-0b17-49ba-b734-3585139b1d25
+```
+
+Please refer amtool
+[README](https://github.com/prometheus/alertmanager#examples) for more example commands for managing
+alert.
+
+Please remember the script and amtool are only usable when you have alert manager up and running.
+You should also have amtool configured correctly.
+To ease configuration, OpenPAI provides a script that generate amtool config file for you, you can use
+
+```
+python utilities/gen-amtool-config.py -p /cluster-configuration
+```
+
+to generate config, or using
+
+```
+python utilities/gen-amtool-config.py -p /cluster-configuration -f
+```
+
+to overwrite existing amtool config.

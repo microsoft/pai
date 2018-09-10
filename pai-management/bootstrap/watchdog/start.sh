@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,8 +19,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype=gpu || exit $?
-    {% endif %}
-{% endfor %}
+pushd $(dirname "$0") > /dev/null
+
+kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f watchdog.yaml || exit $?
+
+popd > /dev/null

@@ -17,7 +17,6 @@ sudo docker pull docker.io/openpai/dev-box
 # By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
         -v /pathConfiguration:/cluster-configuration  \
@@ -62,7 +61,6 @@ sudo docker build -t dev-box .
 # Run your dev-box
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
         -v /pathConfiguration:/cluster-configuration  \

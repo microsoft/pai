@@ -30,6 +30,7 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 ## Customized deploy <a name="customizeddeploy"></a>
 
 ### Steps:
+
 - [Step 0. Prepare the dev-box](#c-step-0)
 - [Step 1. Prepare the quick-start.yaml file](#c-step-1)
 - [Step 2. Generate OpenPAI configuration files](#c-step-2)
@@ -49,6 +50,8 @@ Please refer to this [section](./how-to-setup-dev-box.md) for the customize sett
 
 ##### (1) Run your dev-box
 
+Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn't run on any PAI cluster node.
+
 ```bash
 
 # Pull the dev-box image from Docker Hub
@@ -60,7 +63,6 @@ sudo docker pull docker.io/openpai/dev-box
 # By now, you can leave it as it is, we only mount those two directories into docker container for later usage.
 sudo docker run -itd \
         -e COLUMNS=$COLUMNS -e LINES=$LINES -e TERM=$TERM \
-        -v /var/lib/docker:/var/lib/docker \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v /pathHadoop:/pathHadoop \
         -v /pathConfiguration:/cluster-configuration  \
@@ -76,7 +78,28 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Go to pai-management working dir
+##### (3) Check out a latest release branch of OpenPAI
+
+```bash
+cd /pai
+
+# fetch tags
+git fetch --tags
+
+# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
+# checkout a release branch. For example: v0.x.y
+git checkout v0.x.y
+
+# check current branch
+git status
+```
+- sucessful result:
+```bash
+HEAD detached at v0.6.1
+nothing to commit, working directory clean
+```
+
+##### (4) Go to pai-management working dir
 
 ```bash
 cd /pai/pai-management
@@ -99,11 +122,11 @@ sudo docker ps
 
 ### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
-Prepare the file under dev-box folder: /pai/pai-management/quick-start 
+Prepare the file under dev-box folder: /pai/pai-management/quick-start
 
-There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
+There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml
 
-An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly. 
+An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
 ```yaml
 # quick-start.yaml
@@ -139,12 +162,27 @@ Check all configruation items of the quick-start.yaml are correct.
 
 After the quick-start.yaml is ready, use it to generate four configuration yaml files as follows.
 
+##### (1) generate configuration files
+
 ```bash
 cd /pai/pai-management
 
 # cmd should be executed under /pai/pai-management directory in the dev-box.
 
-python paictl.py cluster generate-configuration -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+python paictl.py config generate -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+
+```
+
+##### (2) update docker tag to release version
+
+```bash
+vi ~/pai-config/services-configuration.yaml
+```
+
+For example: v0.x.y branch, user should change docker-tag to v0.x.y.
+
+```bash
+docker-tag: v0.x.y
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
@@ -163,7 +201,7 @@ Please refer to this [section](./how-to-write-pai-configuration.md) for the deta
 
 ### Step 3(Optional). Customize configure OpenPAI <a name="c-step-3"></a>
 
-This method is for advanced users. 
+This method is for advanced users.
 
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](how-to-write-pai-configuration.md).
 
@@ -178,9 +216,9 @@ If user want to customize configuration, please see the table below
       - [configure customize docker repository](./how-to-write-pai-configuration.md#docker_repo)
       - [configure OpenPAI admin user account](./how-to-write-pai-configuration.md#configure_user_acc)
     - port / data folder etc.
-      - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry) 
+      - [configure service entry](./how-to-write-pai-configuration.md#configure_service_entry)
       - [configure HDFS data / OpenPAI temp data folder](./how-to-write-pai-configuration.md#data_folder)
-    - component version 
+    - component version
       - [configure K8s component version](./how-to-write-pai-configuration.md#k8s_component)
       - [configure docker version](./how-to-write-pai-configuration.md#docker_repo)
       - [configure nvidia gpu driver version](./how-to-write-pai-configuration.md#driver_version)
@@ -205,7 +243,7 @@ If user want to customize configuration, please see the table below
       - [YARN / HDFS](./how-to-write-pai-service-configuration.md#hadoop)
       - [Zookeeper](./how-to-write-pai-service-configuration.md#zookeeper)
     - Monitor
-      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus) 
+      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus)
       - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
 - [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
 
@@ -276,7 +314,7 @@ http://<master>:9090/#!/pod?namespace=default
 
 Where `<master>` is the same as in the previous [section](#step-2).
 
-## Singlebox deploy <a name="singlebox"></a> 
+## Singlebox deploy <a name="singlebox"></a>
 
 ### Steps:
 
@@ -284,9 +322,9 @@ Where `<master>` is the same as in the previous [section](#step-2).
 
 - Step 1. Prepare the quick-start.yaml file
 
-Prepare the file under dev-box folder: /pai/pai-management/quick-start 
+Prepare the file under dev-box folder: /pai/pai-management/quick-start
 
-There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml 
+There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
@@ -335,7 +373,7 @@ ssh-password: pai-password
 - [3 Getting help](#troubleshooting_3)
 
 ### 1 Troubleshooting OpenPAI services <a name="troubleshooting_1"></a>
- 
+
 #### 1.1 Diagnosing the problem  <a name="troubleshooting_1.1"></a>
 
 - Monitor
@@ -380,7 +418,7 @@ As OpenPAI services are deployed on kubernetes, please refer [debug kubernetes p
 
 #### 1.2 Fix problem  <a name="troubleshooting_1.2"></a>
 - Update OpenPAI Configuration
-  
+
 Check and refine 4 yaml files:
 
 ```
@@ -390,7 +428,7 @@ Check and refine 4 yaml files:
     - serivices-configuration.yaml
 ```
 
-- Customize config for specific service 
+- Customize config for specific service
 
 If user want to customize single service, you could find service config file at [pai-management/bootstrap](../bootstrap) and find image dockerfile at [pai-management/src](../src).
 
@@ -398,7 +436,7 @@ If user want to customize single service, you could find service config file at 
 
   - Customize image dockerfile or code
 
-User could find service's image dockerfile at [pai-management/src](#pai-management/src) and customize them. 
+User could find service's image dockerfile at [pai-management/src](#pai-management/src) and customize them.
 
   - Rebuild image
 
@@ -428,7 +466,7 @@ python paictl.py service stop \
   [ -n service-name ]
 ```
 
-If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped. 
+If the -n parameter is specified, only the given service, e.g. rest-server, webportal, watchdog, etc., will be stopped. If not, all PAI services will be stopped.
 
 2. ```Boot up single all OpenPAI services.```
 
@@ -441,7 +479,7 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 ### 3 Getting help  <a name="troubleshooting_3"></a>
 
 - [StackOverflow:](../../docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
-- [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github 
+- [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
 
 ## Maintenance <a name="maintenance"></a>
 ####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)

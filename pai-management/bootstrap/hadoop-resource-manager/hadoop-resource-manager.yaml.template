@@ -34,8 +34,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hadoop-resource-manager: "true"
       containers:
       - name: hadoop-resource-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

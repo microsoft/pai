@@ -15,52 +15,57 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set prom_info = clusterinfo['prometheusinfo'] %}
+{% set has_alert_manager = 'alerting' in prom_info %}
+{% if has_alert_manager and 'alert_manager_port' in prom_info['alerting'] %}
+{% set host = clusterinfo['prometheusinfo']['alerting']['alert-manager-hosts'] %}
+{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
+{% else %}
+{% set port = 9093 %}
+{% endif %}
+
+{% if has_alert_manager %}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: watchdog
+  name: alertmanager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: watchdog
+      app: alertmanager
   template:
     metadata:
-      name: watchdog
+      name: alertmanager
       labels:
-        app: watchdog
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/"
-        prometheus.io/port: "9101"
+        app: alertmanager
     spec:
-      nodeSelector:
-        watchdog: "true"
-      containers:
-      - name: watchdog
-        image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}watchdog:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "1Gi"
-        volumeMounts:
-        - mountPath: /datastorage/prometheus
-          name: collector-mount
-        - mountPath: /etc/watchdog
-          name: config-volume
-        command:
-          - "python"
-          - "/watchdog.py"
-          - "--interval"
-          - "30"
-          - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
-      volumes:
-        - name: collector-mount
-          hostPath:
-            path: {{ clusterinfo["dataPath"] }}/prometheus
-        - name: config-volume
-          configMap:
-            name: watchdog
-      imagePullSecrets:
-      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
       hostNetwork: true
+      hostPID: true
+      containers:
+      - name: alertmanager
+        image: prom/alertmanager:v0.15.1
+        args:
+          - '--config.file=/etc/alertmanager/config.yml'
+          - '--storage.path=/alertmanager'
+          - '--web.external-url=http://{{host}}:{{port}}'
+        ports:
+        - name: alertmanager
+          containerPort: {{ port }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: templates-volume
+          mountPath: /etc/alertmanager/template
+        - name: alertmanager
+          mountPath: /alertmanager
+      volumes:
+      - name: config-volume
+        configMap:
+          name: alertmanager
+      - name: templates-volume
+        configMap:
+          name: alert-templates
+      - name: alertmanager
+        emptyDir: {}
+{% endif %}

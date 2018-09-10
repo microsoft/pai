@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -17,8 +19,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'hadoop-resource-manager' in machinelist[ host ] and machinelist[ host ][ 'hadoop-resource-manager' ] == 'true' -%}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager=true || exit $?
-    {% endif %}
-{% endfor %}
+INSTANCES="
+deployment/prometheus-deployment
+configmap/prometheus-configmap
+configmap/prometheus-alert
+"
+
+for instance in ${INSTANCES}; do
+  kubectl delete --ignore-not-found --now ${instance}
+done
+

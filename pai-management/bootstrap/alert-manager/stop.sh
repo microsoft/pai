@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #!/bin/bash
 
 # Copyright (c) Microsoft Corporation
@@ -17,17 +19,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in machinelist %}
-    {% if 'prometheus' in machinelist[ host ] and machinelist[ host ][ 'prometheus' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus=true || exit $?
-    {% endif %}
-    {% if 'node-exporter' in machinelist[ host ] and machinelist[ host ][ 'node-exporter' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter=true  || exit $?
-    {% endif %}
-    {% if 'watchdog' in machinelist[ host ] and machinelist[ host ][ 'watchdog' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} watchdog=true || exit $?
-    {% endif %}
-    {% if 'alert-manager' in machinelist[ host ] and machinelist[ host ][ 'alert-manager' ] == 'true' %}
-kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} alertmanager=true || exit $?
-    {% endif %}
-{% endfor %}
+INSTANCES="
+deployment/alertmanager
+configmap/alertmanager
+configmap/alert-templates
+"
+
+for instance in ${INSTANCES}; do
+  kubectl delete --ignore-not-found --now ${instance}
+done
+
