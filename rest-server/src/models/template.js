@@ -25,8 +25,6 @@ const yaml = require('js-yaml');
 const logger = require('../config/logger');
 const config = require('../config/github');
 
-const defaultGithubClient = github();
-
 const contentUrlPrefix = `https://raw.githubusercontent.com/${config.owner}/${config.repository}`;
 
 /**
@@ -58,17 +56,13 @@ const load = (options, callback) => {
   });
 };
 
-const getAuthenticatedClient = (pat, callback) => {
+const getAuthenticatedClient = (pat) => {
   let client = github();
-  try {
-    client.authenticate({
-      type: 'token',
-      token: pat,
-    });
-    callback(null, client);
-  } catch (err) {
-    callback(err, null);
-  }
+  client.authenticate({
+    type: 'token',
+    token: pat,
+  });
+  return client;
 };
 
 /**
@@ -81,36 +75,35 @@ const save = function(options, callback) {
   let name = options.name;
   let template = options.template;
   let pat = options.pat;
-  getAuthenticatedClient(pat, function(err, client) {
-    if (err) {
-      return callback(err, null);
-    } else {
-      let b64text = base64.encode(yaml.dump(template));
-      client.repos.createFile({
-        owner: config.owner,
-        repo: config.repository,
-        path: `${type}/${name}.yaml`,
-        message: 'Create template from PAI Marketplace.',
-        content: b64text,
-      }, function(err, res) {
-        if (err) {
-          // Maybe existed, try to update
-          update({
-            type: type,
-            name: name,
-            b64text: b64text,
-            client: client,
-          }, callback);
-        } else {
-          logger.debug(res);
-          callback(null, {
-            new: true,
-            summary: createSummary(type, name, res),
-          });
-        }
-      });
-    }
-  });
+  try {
+    let client = getAuthenticatedClient(pat);
+    let b64text = base64.encode(yaml.dump(template));
+    client.repos.createFile({
+      owner: config.owner,
+      repo: config.repository,
+      path: `${type}/${name}.yaml`,
+      message: 'Create template from PAI Marketplace.',
+      content: b64text,
+    }, function(err, res) {
+      if (err) {
+        // Maybe existed, try to update
+        update({
+          type: type,
+          name: name,
+          b64text: b64text,
+          client: client,
+        }, callback);
+      } else {
+        logger.debug(res);
+        callback(null, {
+          new: true,
+          summary: createSummary(type, name, res),
+        });
+      }
+    });
+  } catch (err) {
+    return callback(err, null);
+  }
 };
 
 /**
@@ -163,6 +156,21 @@ const createSummary = (type, name, res) => {
   };
 };
 
+const defaultGithubClient = github();
+
+const getAuthenticatedClientOrDefault = (options) => {
+  let pat = options.pat;
+  if (pat) {
+    try {
+      return getAuthenticatedClient(pat);
+    } catch (_) {
+      logger.error('authentication failed with pat ' + pat);
+    }
+  }
+  logger.debug('use anonymous GitHub client');
+  return defaultGithubClient;
+};
+
 /**
  * Get related templates by the given query.
  * @param {*} options A MAP object containing keys 'keywords', 'type', 'pageSize', 'pageNo'.
@@ -170,8 +178,9 @@ const createSummary = (type, name, res) => {
  */
 const search = (options, callback) => {
   let params = createQuery(options);
+  let client = getAuthenticatedClientOrDefault(options);
   logger.debug(params);
-  defaultGithubClient.search.code(params, function(err, res) {
+  client.search.code(params, function(err, res) {
     if (err) {
       callback(err, null);
     } else {
