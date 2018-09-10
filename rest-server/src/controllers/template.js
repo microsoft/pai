@@ -159,7 +159,7 @@ const share = (req, res) => {
       if (err) {
         logger.error(err);
         return res.status(500).json({
-          message: 'Failed to save the template.',
+          message: 'Failed to save the template. Current Github PAT may not have write access to template repo. Error: {{Code:' + err.code + '},'+ err.message + '}',
         });
       }
       return res.status(saved.new ? 201 : 200).json(saved.summary);
