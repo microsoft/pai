@@ -24,49 +24,49 @@ const url = require('url');
 $('#sidebar-menu--template-view').addClass('active');
 
 const context = {
-    parseType: function(raw) {
-        return {
-            'job': 'job',
-            'dockerimage': 'docker',
-            'script': 'script',
-            'data': 'data',
-        }[raw];
-    },
+  parseType: function(raw) {
+    return {
+      'job': 'job',
+      'dockerimage': 'docker',
+      'script': 'script',
+      'data': 'data',
+    }[raw];
+  },
 };
 
 function request(type, query) {
-    if (type === 'docker') type = 'dockerimage';
-    const uri = query
-        ? `${webportalConfig.restServerUri}/api/v2/template?query=${encodeURIComponent(query)}&type=${type}`
-        : `${webportalConfig.restServerUri}/api/v2/template/${type}`;
+  if (type === 'docker') type = 'dockerimage';
+  const uri = query
+    ? `${webportalConfig.restServerUri}/api/v2/template?query=${encodeURIComponent(query)}&type=${type}`
+    : `${webportalConfig.restServerUri}/api/v2/template/${type}`;
 
-    return req(1);
+  return req(1);
 
-    function req(page) {
-        return $.getJSON(uri, {pageno: page})
-            .then(render)
-            .then(function(data) {
-                if (data.pageNo * data.pageSize < data.totalCount) {
-                    return req(+data.pageNo + 1);
-                }
-            });
-    }
+  function req(page) {
+    return $.getJSON(uri, {pageno: page})
+      .then(render)
+      .then(function(data) {
+        if (data.pageNo * data.pageSize < data.totalCount) {
+          return req(+data.pageNo + 1);
+        }
+      });
+  }
 }
 
 function render(data) {
-    $('#result-count').text(data.totalCount);
-    $('#results').append(itemTemplate.call(context, data));
-    return data;
+  $('#result-count').text(data.totalCount);
+  $('#results').append(itemTemplate.call(context, data));
+  return data;
 }
 
 $(function() {
-    const query = url.parse(window.location.href, true).query;
+  const query = url.parse(window.location.href, true).query;
 
-    if (!(query.type in {job: true, docker: true, script: true, data: true})) {
-        return window.location.href = '/';
-    }
+  if (!(query.type in {job: true, docker: true, script: true, data: true})) {
+    return window.location.href = '/';
+  }
 
-    $('#content-wrapper').html(template({type: query.type, query: query.query}));
+  $('#content-wrapper').html(template({type: query.type, query: query.query}));
 
-    request(query.type, query.query);
+  request(query.type, query.query);
 });
