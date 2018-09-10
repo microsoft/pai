@@ -320,7 +320,6 @@ const showAddModal = (type) => {
       id: addModalVariables.id,
     }));
     $('#recommandPlaceHolder').html(common.generateLoading());
-
     addModalVariables.addEditor = loadEditor(null, type, addModalVariables.id, false, null);
 
     // ----------- recommand ---------------
