@@ -78,13 +78,8 @@ RUN echo y | pip uninstall requests && \
     echo y | pip install requests && \
     echo y | pip install docopt
 
-# COPY build/container-setup.sh /
-
 RUN rm -rf /tmp/*
 
 WORKDIR /
-
-# COPY build/kubectl-install.sh /kubectl-install.sh
-# RUN /bin/bash /kubectl-install.sh
 
 CMD ["/bin/bash"]
