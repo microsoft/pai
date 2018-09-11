@@ -126,11 +126,11 @@ def ssh_exec(host_config, command, histogram=ssh_histogram):
         if "sshport" in host_config:
             port = int(host_config["sshport"])
         key_filename = None
-        if 'keyfile_path' in host_config:
-            if os.path.isfile(str(host_config['keyfile_path'])) and host_config['keyfile_path'] is not None:
-                key_filename = str(host_config['keyfile_path'])
+        if 'keyfile-path' in host_config:
+            if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
+                key_filename = str(host_config['keyfile-path'])
             else:
-                logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile_path']))
+                logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
 
         ssh = paramiko.SSHClient()
 
