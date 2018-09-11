@@ -117,10 +117,15 @@ prometheus:
   #    smtp_auth_username: user@gmail.com
   #    smtp_auth_password: gmail_password
 
-  # if you want to use key file to login nodes:
-  # 1. create secret with command 'kubectl create secret generic ssh-key-secret --from-file=<secret name>=/path/to/keyfile'
-  # 2. uncomment following line and fill value with the relative path to ${data-path}
-  # ssh-secret-name: <secret name>
+  # if you want to use key file to login nodes
+  {% if 'ssh-keyfile-path' in env -%}
+  ssh-keyfile-path: {{ env['ssh-keyfile-path'] }}
+  {% if 'ssh-secret-name' in env -%}
+  ssh-secret-name: {{ env['ssh-secret-name'] }}
+  {% else -%}
+  ssh-secret-name: ssh-key-secret
+  {% endif %}
+  {% endif %}
 
 pylon:
   # port of pylon

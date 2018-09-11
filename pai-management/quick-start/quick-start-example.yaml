@@ -30,7 +30,9 @@ ssh-username: <username>
 ssh-password: <password>
 
 # (Optional, default=None) the key file that ssh client uses, that has higher priority then password.
+# Secret name is used by kubernetes to create secret for the key file in cluster so that service could use it.
 #ssh-keyfile-path: <keyfile-path>
+#ssh-secret-name: <secret-name>
 
 # (Optional, default=22) Port number of ssh service on each machine.
 #ssh-port: 22
