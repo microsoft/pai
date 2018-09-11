@@ -43,4 +43,4 @@ fi
 
 
 chmod u+x $scriptPath/kubelet.sh
-./$scriptPath/kubelet.sh $scriptPath
+./$scriptPath/kubelet.sh

@@ -19,16 +19,18 @@
 
 set -e
 
-scriptPath=$1
-apt-get -y install python-pip
-pip install docker
-DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || {
+#scriptPath=$1
+#apt-get -y install python-pip
+#pip install docker
+#DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || {
+#
+#   error_code=$?
+#   echo "Failed to Get the docker root path from docker api."
+#   exit $error_code
+#
+#}
 
-   error_code=$?
-   echo "Failed to Get the docker root path from docker api."
-   exit $error_code
-
-}
+DOCKER_ROOT_DIR_FOR_KUBELET=`docker info | grep "Docker Root Dir" | awk -F' ' '{print $NF}'`
 
 echo "Docker ROOT DIR IS $DOCKER_ROOT_DIR_FOR_KUBELET"
 
