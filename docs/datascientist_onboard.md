@@ -1,5 +1,3 @@
-[TOC]
-
 # Getting Started with PAI
 
 ## Overview
@@ -97,8 +95,10 @@ You can specify the download commands in [job JSON configuration file](#3.-Write
 
 3) Use HDFS mount.    
     [HDFS mount](https://github.com/Microsoft/hdfs-mount.git) is a tool to mount HDFS as a local Linux file system. Use CNTK job for example, to use this tool, firstly install it in your job container, refer to [CNTK job container Dockerfile](https://github.com/Microsoft/pai/blob/45fb9385db65538d16b5feb2929e67773bc0eeb8/examples/cntk/Dockerfile.example.cntk#L36). Excecute `hdfs-mount` command in your code, e.g. [CNTK job's start script](https://github.com/Microsoft/pai/blob/45fb9385db65538d16b5feb2929e67773bc0eeb8/examples/cntk/cntk-g2p.sh#L31), then you can use the mounted HDFS directory as local file system.
-		
-##### 1.2.2 Large dataset or amount of smallfiles
+
+
+**1.2.2 Large dataset or amount of smallfiles**
+
 If your dataset is large, solutions in the above section may get worse performance, this section provide some solutions to read HDFS data directlly.
 
 If your dataset consist of smallfiles, it can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue.
@@ -127,15 +127,16 @@ If your dataset consist of smallfiles, it can cause namenode memory management p
 
     There is no complete instance on the Internet for pytorch to solve the hdfs small file problem, but users can refer to the following method to build a custom dataloader to try to solve this problem. Official opinion on "pytorch reading hdfs": [issue-97](https://github.com/chainer/chainermn/issues/97), [issue-5867](https://github.com/pytorch/pytorch/issues/5867)
 
-1. Create [sequence file](https://wiki.apache.org/hadoop/SequenceFile) at HDFS
+    (1) Create [sequence file](https://wiki.apache.org/hadoop/SequenceFile) at HDFS
   
     Reference example scripts to write a sequence file: [SequenceFileWriterDemo.py](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileWriterDemo.py)
   
-  2. Build customize Pytorch data reader to read from HDFS sequence file
+  (2) Build customize Pytorch data reader to read from HDFS sequence file
   
-     2.1 Build Pytorch [customize dataloader](https://discuss.pytorch.org/t/loading-huge-data-functionality/346/2)
+    - (2.1) Build Pytorch [customize dataloader](https://discuss.pytorch.org/t/loading-huge-data-functionality/346/2)
     
-      Just define a Dataset object, that only loads a list of files in __init__, and loads them every time __getindex__ is called. Then, wrap it in a torch.utils.DataLoader with multiple workers, and you’ll have your files loaded lazily in parallel.
+    Just define a Dataset object, that only loads a list of files in __init__, and loads them every time __getindex__ is called. Then, wrap it in a torch.utils.DataLoader with multiple workers, and you’ll have your files loaded lazily in parallel.
+
         ``` bash
         class MyDataset(torch.utils.Dataset):
             def __init__(self):
@@ -148,7 +149,7 @@ If your dataset consist of smallfiles, it can cause namenode memory management p
         dset = MyDataset()
         loader = torch.utils.DataLoader(dset, num_workers=8)
         ``` 
-     2.2 Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
+     - (2.2) Use python [sequence file reader](https://github.com/matteobertozzi/Hadoop/blob/master/python-hadoop/examples/SequenceFileReader.py) method rewrite related methods of dataloader 
 
 
 ### 2. Prepare your job container
@@ -168,6 +169,7 @@ For your convenience, we have pre-built some images for you:
 You can find their Dockerfile in the corresponding directory of [PAI job examples](https://github.com/Microsoft/pai/tree/master/examples).
 
 To customize your own job container, usually there are the following two scenarios:
+
 #### 3.1 Need to modify the DL framework's version, or add some dependencies
 
 You can modify our example's Dockerfile, change the DL framework's version or add the commands to install additional dependencies, then build the image and push it to your own docker registry.
@@ -186,7 +188,7 @@ docker push ${your_user_name}/pai.run.tensorflow
 ```
  
 
-### 3.2 Need to change the CUDA or cuDNN's version
+#### 3.2 Need to change the CUDA or cuDNN's version
 In this scenario, you should rebuild base image, then build job image. Firstly, find the base-image's Dockerfile `Dockerfile.build.base` at [base image directory](https://github.com/Microsoft/pai/tree/master/job-tutorial/Dockerfiles), e.g. change the cuda tag at [cuda9.0-cudnn7/Dockefile.build.base Line33](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33) , all the version tags can be found at [nvidia/cuda](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33).
 Then run the following command to build and push base image, replace the ${cuda_version} and ${cudnn_version} to the version you chose, replace ${your_user_name} to the user name of your docker registery:
 ```
