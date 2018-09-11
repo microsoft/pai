@@ -17,7 +17,7 @@ This document assumes:
 
 ## Basic Workflow 
 
-To run a job on PAI, you should follow the follow the following basic workflow:
+To run a job on PAI, you should follow the following basic workflow:
 1. Prepare your data and code, upload them to HDFS.
 2. Prepare your job container
 3. Write a job JSON configuration file
@@ -171,7 +171,7 @@ You can find their Dockerfile in the corresponding directory of [PAI job example
 
 To customize your own job container, usually there are the following two scenarios:
 
-#### 3.1 Need to modify the DL framework's version, or add some dependencies
+#### 2.1 Need to modify the DL framework's version, or add some dependencies
 
 You can modify our example's Dockerfile, change the DL framework's version or add the commands to install additional dependencies, then build the image and push it to your own docker registry.
 
@@ -189,7 +189,7 @@ docker push ${your_user_name}/pai.run.tensorflow
 ```
  
 
-#### 3.2 Need to change the CUDA or cuDNN's version
+#### 2.2 Need to change the CUDA or cuDNN's version
 In this scenario, you should rebuild base image, then build job image. Firstly, find the base-image's Dockerfile `Dockerfile.build.base` at [base image directory](https://github.com/Microsoft/pai/tree/master/job-tutorial/Dockerfiles), e.g. change the cuda tag at [cuda9.0-cudnn7/Dockefile.build.base Line33](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33) , all the version tags can be found at [nvidia/cuda](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33).
 Then run the following command to build and push base image, replace the ${cuda_version} and ${cudnn_version} to the version you chose, replace ${your_user_name} to the user name of your docker registery:
 ```
