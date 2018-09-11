@@ -11,8 +11,8 @@
 
 ## Prerequisites
 This document assumes:
-	• The PAI system has already been deployed properly and a docker registry is available to store docker images. 
-	• You have done the debug of your code on your local machine to ensure it works well.
+- The PAI system has already been deployed properly and a docker registry is available to store docker images. 
+- You have done the debug of your code on your local machine to ensure it works well.
 
 
 ## Basic Workflow 
@@ -56,7 +56,8 @@ We assumes that you've prepared your code on your local machine and done the deb
 #### 1.2 Operate HDFS data
 **Note:** The relative positions of your code and the data downloaded into the container may be changed, debug your code and make sure it can get access to the dataset.
 
-##### 1.2.1 Small dataset
+**1.2.1 Small dataset**
+
 If your data size is small, you have the following ways to handle your code and data:
 
 1) You can use HDFS commands in your code to download data to the container when it is launched.
@@ -97,11 +98,11 @@ You can specify the download commands in [job JSON configuration file](#3.-Write
     [HDFS mount](https://github.com/Microsoft/hdfs-mount.git) is a tool to mount HDFS as a local Linux file system. Use CNTK job for example, to use this tool, firstly install it in your job container, refer to [CNTK job container Dockerfile](https://github.com/Microsoft/pai/blob/45fb9385db65538d16b5feb2929e67773bc0eeb8/examples/cntk/Dockerfile.example.cntk#L36). Excecute `hdfs-mount` command in your code, e.g. [CNTK job's start script](https://github.com/Microsoft/pai/blob/45fb9385db65538d16b5feb2929e67773bc0eeb8/examples/cntk/cntk-g2p.sh#L31), then you can use the mounted HDFS directory as local file system.
 
 
-**1.2.2 Large dataset or amount of smallfiles**
+**1.2.2 Large dataset or amount of small files**
 
 If your dataset is large, solutions in the above section may get worse performance, this section provide some solutions to read HDFS data directlly.
 
-If your dataset consist of smallfiles, it can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue.
+If your dataset consist of small files, it can cause namenode memory management problem and compute framework performance problem. People usually pack multiple small files and download it in batches to mitigate this issue.
 
 **Pack data solutions:**
 - User compact small files through scripts or opensources tools. (For example using TFRecord for Tensorflow.)
