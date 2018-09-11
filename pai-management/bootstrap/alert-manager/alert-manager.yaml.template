@@ -41,7 +41,6 @@ spec:
         app: alertmanager
     spec:
       hostNetwork: true
-      hostPID: true
       containers:
       - name: alertmanager
         image: prom/alertmanager:v0.15.1
@@ -68,4 +67,9 @@ spec:
           name: alert-templates
       - name: alertmanager
         emptyDir: {}
+      tolerations:
+      - key: node.kubernetes.io/memory-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"
 {% endif %}
