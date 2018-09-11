@@ -256,4 +256,52 @@
   </description>
 </property>
 
+<property>
+    <name>dfs.namenode.http-address</name>
+    <value>0.0.0.0:5070</value>
+    <description>
+        The address and the base port where the dfs namenode web ui will listen on.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.https-address</name>
+    <value>0.0.0.0:5470</value>
+    <description>
+        The namenode secure http server address and port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.backup.address</name>
+    <value>0.0.0.0:5100</value>
+    <description>
+        The backup node server address and port. If the port is 0 then the server will start on a free port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.backup.http-address</name>
+    <value>0.0.0.0:5105</value>
+    <description>
+        The backup node http server address and port. If the port is 0 then the server will start on a free port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.secondary.http-address</name>
+    <value>0.0.0.0:5090</value>
+    <description>
+        The secondary namenode http server address and port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.namenode.secondary.https-address</name>
+    <value>0.0.0.0:5091</value>
+    <description>
+        The secondary namenode HTTPS server address and port.
+    </description>
+</property>
+
 </configuration>
