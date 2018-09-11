@@ -141,7 +141,7 @@ Suppose to create file *test_file* under directory */test*. First step is submit
 curl -i -X PUT "http://hdfs-name-node-address:5070/webhdfs/v1/test/test_file?op=CREATE"
 ```
 This command will return the data node where the file should be written. The location URI would be like
->http://hdfs-name-node-address:50075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-data-node-address:9000&createflag=&createparent=true&overwrite=false
+>http://hdfs-name-node-address:5075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-data-node-address:9000&createflag=&createparent=true&overwrite=false
 
 Then run following command with this URI to write file data:
 ```bash
