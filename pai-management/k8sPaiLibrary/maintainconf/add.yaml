@@ -56,9 +56,7 @@ add-worker-node:
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-worker-node
 
-    - name: docker-info-root-dir.py
-      src: k8sPaiLibrary/maintaintool/docker-info-root-dir.py
-      dst: add-worker-node
+
 
 
 
@@ -123,8 +121,5 @@ add-master-node-task-two:
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-master-node-task-two
 
-    - name: docker-info-root-dir.py
-      src: k8sPaiLibrary/maintaintool/docker-info-root-dir.py
-      dst: add-master-node-task-two
 
 

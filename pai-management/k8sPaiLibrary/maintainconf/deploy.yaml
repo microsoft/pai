@@ -65,9 +65,6 @@ master-deployment:
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: master-deployment
 
-    - name: docker-info-root-dir.py
-      src: k8sPaiLibrary/maintaintool/docker-info-root-dir.py
-      dst: master-deployment
 
 
 
@@ -104,9 +101,6 @@ worker-deployment:
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: worker-deployment
 
-    - name: docker-info-root-dir.py
-      src: k8sPaiLibrary/maintaintool/docker-info-root-dir.py
-      dst: worker-deployment
 
 
 proxy-deployment:
@@ -150,6 +144,3 @@ proxy-deployment:
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: proxy-deployment
 
-    - name: docker-info-root-dir.py
-      src: k8sPaiLibrary/maintaintool/docker-info-root-dir.py
-      dst: proxy-deployment
