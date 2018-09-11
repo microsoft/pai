@@ -1,7 +1,3 @@
-#!/bin/bash
-
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,12 +15,17 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+from __future__ import print_function
 
-{% if 'alerting' in clusterinfo['prometheusinfo'] %}
-kubectl create configmap alert-templates --from-file=../../../prometheus/alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
-{% endif %}
+import docker
+import sys
 
-popd > /dev/null
+
+client = docker.from_env()
+docker_info_dict = client.info()
+
+if 'DockerRootDir' in docker_info_dict:
+    print(docker_info_dict['DockerRootDir'])
+else:
+    print("Failed to get DockerRootDir through docker api.")
+    sys.exit(1)

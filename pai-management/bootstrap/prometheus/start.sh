@@ -25,4 +25,5 @@ kubectl create configmap prometheus-alert --from-file=../../../prometheus/promet
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 
+
 popd > /dev/null
