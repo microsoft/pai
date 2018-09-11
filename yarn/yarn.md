@@ -83,9 +83,9 @@ virtualClusters:
     description: Default VC.
     capacity: 100
 ```
-If admin wants to reserve a certain resources for other usage, 
+If admin wants to reserve some resources for other usage, 
 a new VC(i.e., vc1) can be added:
-* step 1: Add a new VC called `vc1`
+* step 1: Add a new VC called `vc1`, allocate a certain quota for it, 
 ```yaml
 virtualClusters:
   default:
