@@ -65,7 +65,6 @@ spec:
         resources:
           limits:
             memory: "4Gi"
-            cpu: "100m"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

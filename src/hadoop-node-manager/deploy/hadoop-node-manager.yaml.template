@@ -65,7 +65,6 @@ spec:
         resources:
           limits:
             memory: "4Gi"
-            cpu: "100m"
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}

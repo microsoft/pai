@@ -29,7 +29,7 @@ spec:
         app: drivers-one-shot
     spec:
       hostNetwork: true
-      hostPID: true      
+      hostPID: true
       containers:
       - name: nvidia-drivers
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -60,7 +60,6 @@ spec:
         resources:
           limits:
             memory: "1Gi"
-            cpu: "100m"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
