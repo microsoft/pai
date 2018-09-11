@@ -69,4 +69,9 @@ spec:
             name: watchdog
       imagePullSecrets:
       - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
+      tolerations:
+      - key: node.kubernetes.io/memory-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"
       hostNetwork: true
