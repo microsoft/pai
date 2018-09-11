@@ -110,12 +110,12 @@ The Prometheus service will collect those metrics and monitor HDFS in real time.
 
 * Data Node: all the metrics can be retrieved by command
 ```bash
-curl http://DATA_NODE_ADDRESS:50075/jmx
+curl http://DATA_NODE_ADDRESS:5075/jmx
 ```
 
 * Name Node: all the metrics can be retrieved by command
 ```bash
-curl http://NAME_NODE_ADDRESS:50070/jmx
+curl http://NAME_NODE_ADDRESS:5070/jmx
 ```
 
 # High Availability <a name="High_Availability"></a>
@@ -131,14 +131,14 @@ Data on HDFS can be accessed by various ways. Users can choose the proper way ac
 
 WebHDFS provides a set of REST APIs and this is our recommended way to access data.
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
-The rest server URI is http://hdfs-name-node-address:50070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
+The rest server URI is http://hdfs-name-node-address:5070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
 in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
 Suppose to create file *test_file* under directory */test*. First step is submit a request without redirection and data with command:
 ```bash
-curl -i -X PUT "http://hdfs-name-node-address:50070/webhdfs/v1/test/test_file?op=CREATE"
+curl -i -X PUT "http://hdfs-name-node-address:5070/webhdfs/v1/test/test_file?op=CREATE"
 ```
 This command will return the data node where the file should be written. The location URI would be like
 >http://hdfs-name-node-address:50075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-data-node-address:9000&createflag=&createparent=true&overwrite=false
@@ -151,7 +151,7 @@ curl -i -X PUT -T file-data-to-write returned-location-uri
 2. Delete a File<br>
 If we want to delete the file created by above example, run following command:
 ```bash
-curl -i -X DELETE "http://hdfs-name-node-address:50070/webhdfs/v1/test/test_file?op=DELETE"
+curl -i -X DELETE "http://hdfs-name-node-address:5070/webhdfs/v1/test/test_file?op=DELETE"
 ```
 
 ## HDFS Command <a name="HDFS_Command"></a>
@@ -169,7 +169,7 @@ file [cluster-configuration.yaml](../../cluster-configuration/cluster-configurat
 
 ## Web Portal <a name="Web_Portal"></a>
 
-Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:50070/explorer.html after the cluster is ready.
+Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready.
 The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
 in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
