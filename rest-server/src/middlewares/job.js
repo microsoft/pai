@@ -24,8 +24,7 @@ const createError = require('../util/error');
 
 const checkMinTaskNumber = (req, res, next) => {
   if ('killAllOnCompletedTaskNumber' in req.body) {
-    const errorMessage = 'killAllOnCompletedTaskNumber has been obsoleted, please use minFailedTaskCount and minSucceededTaskCount instead.';
-    next(createError('Bad Request', 'InvalidParametersError', errorMessage));
+    res.set('X-Warning', 'killAllOnCompletedTaskNumber has been obsoleted, please use minFailedTaskCount and minSucceededTaskCount instead.');
   }
   for (let i = 0; i < req.body.taskRoles.length; i ++) {
     const taskNumber = req.body.taskRoles[i].taskNumber;
