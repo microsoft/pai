@@ -76,11 +76,12 @@ def parse_docker_stats(stats):
         id = data[i][0]
         containerInfo = {
             "id": data[i][0],
-            "CPUPerc": parse_percentile(data[i][1]),
-            "MemUsage_Limit": parse_usage_limit(data[i][2]),
-            "NetIO": parse_io(data[i][3]),
-            "BlockIO": parse_io(data[i][4]),
-            "MemPerc": parse_percentile(data[i][5])
+            "name": data[i][1],
+            "CPUPerc": parse_percentile(data[i][2]),
+            "MemUsage_Limit": parse_usage_limit(data[i][3]),
+            "NetIO": parse_io(data[i][4]),
+            "BlockIO": parse_io(data[i][5]),
+            "MemPerc": parse_percentile(data[i][6])
         }
         containerStats[id] = containerInfo
     return containerStats
@@ -91,7 +92,7 @@ def stats():
         logger.info("ready to run docker stats")
         dockerDockerStats = utils.check_output([
             "docker", "stats", "--no-stream", "--format",
-            "table {{.Container}}, {{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
+            "table {{.Container}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
         return parse_docker_stats(dockerDockerStats)
     except subprocess.CalledProcessError as e:
         logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))

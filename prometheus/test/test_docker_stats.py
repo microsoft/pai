@@ -55,7 +55,8 @@ class TestDockerStats(unittest.TestCase):
         file = open(sample_path, "r")
         docker_stats = file.read()
         stats_info = parse_docker_stats(docker_stats)
-        target_stats_info = {'722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636': {'BlockIO': {'out': 156000000.0, 'in': 28600000.0}, 'NetIO': {'out': 425000000000.0, 'in': 1580000000000.0}, 'CPUPerc': '0.00', 'MemPerc': '0.19', 'id': '722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636', 'MemUsage_Limit': {'usage': 111149056.0, 'limit': 59088012574.72}}, '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419': {'BlockIO': {'out': 0.0, 'in': 28000000.0}, 'NetIO': {'out': 0.0, 'in': 0.0}, 'CPUPerc': '0.00', 'MemPerc': '6.23', 'id': '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419', 'MemUsage_Limit': {'usage': 19587399.68, 'limit': 314572800.0}}}
+        target_stats_info = {'722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636': {'BlockIO': {'out': 156000000.0, 'in': 28600000.0}, 'NetIO': {'out': 425000000000.0, 'in': 1580000000000.0}, 'CPUPerc': '0.00', 'MemPerc': '0.19', 'id': '722dac0a62cf0243e63a268b8ef995e8386c185c712f545c0c403b295a529636', 'MemUsage_Limit': {'usage': 111149056.0, 'limit': 59088012574.72}, 'name': 'alert-manager'}, '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419': {'BlockIO': {'out': 0.0, 'in': 28000000.0}, 'NetIO': {'out': 0.0, 'in': 0.0}, 'CPUPerc': '0.00', 'MemPerc': '6.23', 'id': '33a22dcd4ba31ebc4a19fae865ee62285b6fae98a6ab72d2bc65e41cdc70e419', 'MemUsage_Limit': {'usage': 19587399.68, 'limit': 314572800.0}, 'name': 'prometheus'}}
+        print stats_info.values()
         self.assertEqual(target_stats_info, stats_info)
 
     def test_convert_to_byte(self):
