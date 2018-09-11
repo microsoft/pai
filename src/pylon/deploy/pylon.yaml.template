@@ -65,6 +65,5 @@ spec:
           resources:
             limits:
               memory: "1Gi"
-              cpu: "100m"
       imagePullSecrets:
         - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
