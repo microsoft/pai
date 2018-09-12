@@ -22,35 +22,24 @@ groups:
       rules:
       - alert: NodeFilesystemUsage
         expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 80
-        for: 2m
-        labels:
-          type: node
+        for: 5m
         annotations:
-          summary: "{{$labels.instance}}: High Filesystem usage detected"
-          description: "{{$labels.instance}}: Filesystem usage is above 80% (current value is: {{ $value }})"
+          summary: "FileSystem usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
+
       - alert: NodeMemoryUsage
         expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes )) / node_memory_MemTotal_bytes * 100 > 80
-        for: 2m
-        labels:
-          type: node
+        for: 5m
         annotations:
-          summary: "{{$labels.instance}}: High Memory usage detected"
-          description: "{{$labels.instance}}: Memory usage is above 80% (current value is: {{ $value }})"
+          summary: "Memory usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
 
       - alert: NodeCPUUsage
         expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
-        for: 2m
-        labels:
-          type: node
+        for: 5m
         annotations:
-          summary: "{{$labels.instance}}: High CPU usage detected"
-          description: "{{$labels.instance}}: CPU usage is above 80% (current value is: {{ $value }})"
+          summary: "CPU usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
 
       - alert: NodeDiskPressure
         expr: pai_node_count{disk_pressure="true"} > 1
-        for: 1m
-        labels:
-          type: node
+        for: 5m
         annotations:
-          summary: "node {{$labels.instance}} is under disk pressure"
-          description: "node {{$labels.instance}} is under disk pressure"
+          summary: "{{$labels.instance}} is under disk pressure"

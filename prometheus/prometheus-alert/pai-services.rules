@@ -23,11 +23,8 @@ groups:
       - alert: PaiServicePodNotRunning
         expr: pai_pod_count{phase!="running"} > 0
         for: 1m
-        labels:
-          type: pai_service
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not running detected"
-          description: "{{$labels.name}} in {{$labels.host_ip}} is not running"
 
       - alert: PaiServicePodNotReady
         expr: pai_pod_count{phase="running", ready="false"} > 0
@@ -36,7 +33,6 @@ groups:
           type: pai_service
         annotations:
           summary: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
-          description: "{{$labels.name}} in {{$labels.host_ip}} not ready detected"
 
       - alert: PaiServiceNotUp
         expr: up != 1
@@ -44,5 +40,4 @@ groups:
         labels:
           type: pai_service
         annotations:
-          summary: "{{$labels.name}} in {{$labels.host_ip}} not up detected"
-          description: "{{$labels.name}} in {{$labels.host_ip}} not up detected"
+          summary: "{{$labels.job}} in {{$labels.instance}} not up detected"

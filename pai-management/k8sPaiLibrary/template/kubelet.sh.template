@@ -19,13 +19,27 @@
 
 set -e
 
+scriptPath=$1
+apt-get -y install python-pip
+pip install docker
+DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || {
+
+   error_code=$?
+   echo "Failed to Get the docker root path from docker api."
+   exit $error_code
+
+}
+
+echo "Docker ROOT DIR IS $DOCKER_ROOT_DIR_FOR_KUBELET"
+
+
 docker run \
     --name=kubelet \
     --volume=/etc/kubernetes:/etc/kubernetes:rw \
     --volume=/:/rootfs:rw \
     --volume=/sys:/sys:rw \
     --volume=/dev:/dev:rw \
-    --volume=/var/lib/docker/:/var/lib/docker:rw \
+    --volume=${DOCKER_ROOT_DIR_FOR_KUBELET}:${DOCKER_ROOT_DIR_FOR_KUBELET}:rw \
     --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
@@ -46,6 +60,14 @@ docker run \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
+  {% if 'pai-master' in hostcofig -%}
+  --node-labels pai-master=true \
+  {% endif -%}
+  {% if 'pai-worker' in hostcofig -%}
+  --node-labels pai-worker=true \
+  {% endif -%}
   --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
   --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
+  --image-pull-progress-deadline=10m \
+  --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --v=2

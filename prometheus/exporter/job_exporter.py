@@ -20,7 +20,6 @@ import copy
 import sys
 import time
 import logging
-from logging.handlers import RotatingFileHandler
 
 import docker_stats
 import docker_inspect
@@ -29,6 +28,32 @@ import utils
 from utils import Metric
 
 logger = logging.getLogger(__name__)
+
+
+# k8s will prepend "k8s_" to pod name. There will also be a container name prepend with "k8s_POD_"
+# which is a docker container used to construct network & pid namespace for specific container. These
+# container prepend with "k8s_POD" consume nothing.
+pai_services = map(lambda s: "k8s_" + s, [
+    "rest-server",
+    "pylon",
+    "webportal",
+    "grafana",
+    "prometheus",
+    "alertmanager",
+    "watchdog",
+    "end-to-end-test",
+    "frameworklauncher",
+    "hadoop-jobhistory-service",
+    "hadoop-name-node",
+    "hadoop-node-manager",
+    "hadoop-resource-manager",
+    "hadoop-data-node",
+    "zookeeper",
+    "node-exporter",
+    "gpu-exporter",
+    "yarn-exporter",
+    "nvidia-drivers"
+])
 
 def parse_from_labels(labels):
     gpuIds = []
@@ -43,7 +68,6 @@ def parse_from_labels(labels):
         else:
             otherLabels[key] = val
 
-
     return gpuIds, otherLabels
 
 
@@ -54,47 +78,58 @@ def collect_job_metrics(gpuInfos):
         return None
 
     result = []
-    for container in stats:
-        inspectInfo = docker_inspect.inspect(container)
-        if inspectInfo is None or not inspectInfo["labels"]:
-            continue
+    for container_id, stats in stats.items():
+        pai_service_name = None
 
-        gpuIds, otherLabels = parse_from_labels(inspectInfo["labels"])
-        otherLabels.update(inspectInfo["env"])
+        # TODO speed this up, since this is O(n^2)
+        for service_name in pai_services:
+            if stats["name"].startswith(service_name):
+                pai_service_name = service_name[4:] # remove "k8s_" prefix
+                break
 
-        for id in gpuIds:
-            if gpuInfos:
-                logger.info(gpuInfos)
-                labels = copy.deepcopy(otherLabels)
-                labels["minor_number"] = id
+        if pai_service_name is None:
+            inspectInfo = docker_inspect.inspect(container_id)
+            if inspectInfo is None or not inspectInfo["labels"]:
+                continue
 
-                result.append(Metric("container_GPUPerc", labels, gpuInfos[id]["gpuUtil"]))
-                result.append(Metric("container_GPUMemPerc", labels, gpuInfos[id]["gpuMemUtil"]))
+            gpuIds, otherLabels = parse_from_labels(inspectInfo["labels"])
+            otherLabels.update(inspectInfo["env"])
 
-        result.append(Metric("container_CPUPerc", otherLabels, stats[container]["CPUPerc"]))
-        result.append(Metric("container_MemUsage", otherLabels, stats[container]["MemUsage_Limit"]["usage"]))
-        result.append(Metric("container_MemLimit", otherLabels, stats[container]["MemUsage_Limit"]["limit"]))
-        result.append(Metric("container_NetIn", otherLabels, stats[container]["NetIO"]["in"]))
-        result.append(Metric("container_NetOut", otherLabels, stats[container]["NetIO"]["out"]))
-        result.append(Metric("container_BlockIn", otherLabels, stats[container]["BlockIO"]["in"]))
-        result.append(Metric("container_BlockOut", otherLabels, stats[container]["BlockIO"]["out"]))
-        result.append(Metric("container_MemPerc", otherLabels, stats[container]["MemPerc"]))
+            for id in gpuIds:
+                if gpuInfos:
+                    logger.info(gpuInfos)
+                    labels = copy.deepcopy(otherLabels)
+                    labels["minor_number"] = id
+
+                    result.append(Metric("container_GPUPerc", labels, gpuInfos[id]["gpuUtil"]))
+                    result.append(Metric("container_GPUMemPerc", labels, gpuInfos[id]["gpuMemUtil"]))
+
+            result.append(Metric("container_CPUPerc", otherLabels, stats["CPUPerc"]))
+            result.append(Metric("container_MemUsage", otherLabels, stats["MemUsage_Limit"]["usage"]))
+            result.append(Metric("container_MemLimit", otherLabels, stats["MemUsage_Limit"]["limit"]))
+            result.append(Metric("container_NetIn", otherLabels, stats["NetIO"]["in"]))
+            result.append(Metric("container_NetOut", otherLabels, stats["NetIO"]["out"]))
+            result.append(Metric("container_BlockIn", otherLabels, stats["BlockIO"]["in"]))
+            result.append(Metric("container_BlockOut", otherLabels, stats["BlockIO"]["out"]))
+            result.append(Metric("container_MemPerc", otherLabels, stats["MemPerc"]))
+        else:
+            labels = {"name": pai_service_name}
+            result.append(Metric("service_cpu_percent", labels, stats["CPUPerc"]))
+            result.append(Metric("service_mem_usage_byte", labels, stats["MemUsage_Limit"]["usage"]))
+            result.append(Metric("service_mem_limit_byte", labels, stats["MemUsage_Limit"]["limit"]))
+            result.append(Metric("service_mem_usage_percent", labels, stats["MemPerc"]))
+            result.append(Metric("service_net_in_byte", labels, stats["NetIO"]["in"]))
+            result.append(Metric("service_net_out_byte", labels, stats["NetIO"]["out"]))
+            result.append(Metric("service_block_in_byte", labels, stats["BlockIO"]["in"]))
+            result.append(Metric("service_block_out_byte", labels, stats["BlockIO"]["out"]))
 
     return result
 
 def main(argv):
-    logDir = argv[0]
-    gpuMetricsPath = logDir + "/gpu_exporter.prom"
-    jobMetricsPath = logDir + "/job_exporter.prom"
-    timeSleep = int(argv[1])
-
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    fh = RotatingFileHandler(logDir + "/gpu_exporter.log", maxBytes= 1024 * 1024 * 10, backupCount=5)
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s")
-    fh.setFormatter(formatter)
-    rootLogger.addHandler(fh)
+    log_dir = argv[0]
+    gpu_metrics_path = log_dir + "/gpu_exporter.prom"
+    job_metrics_path = log_dir + "/job_exporter.prom"
+    time_sleep_s = int(argv[1])
 
     iter = 0
 
@@ -104,21 +139,22 @@ def main(argv):
         try:
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
-            gpuInfos = singleton.try_get()
+            gpu_infos = singleton.try_get()
 
-            gpuMetrics = gpu_exporter.convert_gpu_info_to_metrics(gpuInfos)
-            if gpuMetrics is not None:
-                utils.export_metrics_to_file(gpuMetricsPath, gpuMetrics)
+            gpu_metrics = gpu_exporter.convert_gpu_info_to_metrics(gpu_infos)
+            utils.export_metrics_to_file(gpu_metrics_path, gpu_metrics)
 
             # join with docker stats metrics and docker inspect labels
-            jobMetrics = collect_job_metrics(gpuInfos)
-            if jobMetrics is not None:
-                utils.export_metrics_to_file(jobMetricsPath, jobMetrics)
+            job_metrics = collect_job_metrics(gpu_infos)
+            utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
 
-        time.sleep(timeSleep)
+        time.sleep(time_sleep_s)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
+            level=logging.INFO)
+
     main(sys.argv[1:])

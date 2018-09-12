@@ -37,6 +37,7 @@ function debug_log()
 
 function exit_handler()
 {
+  rc=$?
   local handler="Yarn container exit handler"
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
@@ -49,8 +50,12 @@ function exit_handler()
   else
     debug_log "$handler" "docker container $docker_name has already exited"
   fi
-
-  kill 0
+  
+  debug_log "$handler" "write exit code to file"
+  debug_log "$handler" "yarn container exit code: $rc"
+  debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+  echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+  exit $rc
 }
 
 set -x
@@ -228,8 +233,8 @@ mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
 # retrieve the yarn local dir
-hadoop_tmp_dir=$(hdfs getconf -confKey "hadoop.tmp.dir") || { echo "cannot get the YARN local directory."; exit 1; }
-container_id=$(cat /proc/self/cgroup | head -n 1 | awk -F '/' '{print $NF}')
+hadoop_tmp_dir="/var/lib/hadoopdata"
+container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
 mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
 container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID
@@ -264,3 +269,4 @@ docker run --name $docker_name \
   --env-file $ENV_LIST \
   --entrypoint '/bin/bash' {{{ jobData.image }}} \
   '/pai/bootstrap/docker_bootstrap.sh'
+

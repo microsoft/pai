@@ -31,8 +31,6 @@ spec:
     spec:
       hostNetwork: false
       hostPID: false
-      nodeSelector:
-        pylon: "true"
       containers:
         - name: pylon
           image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}pylon:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

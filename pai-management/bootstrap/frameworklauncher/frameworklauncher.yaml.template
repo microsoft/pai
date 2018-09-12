@@ -30,8 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        launcher: "true"
       containers:
       - name: frameworklauncher
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

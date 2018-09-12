@@ -30,8 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        zookeeper: "true"
       containers:
       - name: zookeeper
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

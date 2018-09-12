@@ -60,9 +60,9 @@ Before start, you need to meet the following requirements:
     - [Write job from scratch in deepth](./docs/job_tutorial.md)
     - [Learn more example jobs](./examples/#offtheshelf)
 - How to submit PAI jobs
+    - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
-    - [Submit a job in web portal](./docs/submit_from_webportal.md)
 - How to request on-demand resource for in place training
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
     
@@ -72,7 +72,9 @@ Before start, you need to meet the following requirements:
 - [Monitoring](./webportal/README.md)
 
 ## Resources
-The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+
+- The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+- Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today. 
 
 ## Get Involved
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai

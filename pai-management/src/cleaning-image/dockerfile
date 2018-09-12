@@ -17,6 +17,11 @@
 
 FROM base-image
 
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz && \
+    tar xzvf docker-17.06.2-ce.tgz && \
+    mv docker/* /usr/bin/ && \
+    rm docker-17.06.2-ce.tgz
+
 COPY start.sh /usr/local/start.sh
 RUN chmod a+x /usr/local/start.sh
 

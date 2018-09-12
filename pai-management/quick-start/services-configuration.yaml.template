@@ -73,6 +73,7 @@ frameworklauncher:
   frameworklauncher-port: 9086
 
 
+
 restserver:
   # port for rest api server
   server-port: 9186
@@ -103,6 +104,28 @@ prometheus:
   # How frequently to scrape targets
   scrape_interval: 30
 
+  # port for yarn exporter
+  yarn_exporter_port: 9459
+
+  # if you want to enable alert manager to send alert email, uncomment following lines and fill
+  # right values.
+  #  alerting:
+  #    alert_manager_port: 9093
+  #    alert_receiver: alert@example.com
+  #    smtp_url: smtp.gmail.com:587
+  #    smtp_from: foo_bar@gmail.com
+  #    smtp_auth_username: user@gmail.com
+  #    smtp_auth_password: gmail_password
+
+  # if you want to use key file to login nodes
+  {% if 'ssh-keyfile-path' in env -%}
+  ssh-keyfile-path: {{ env['ssh-keyfile-path'] }}
+  {% if 'ssh-secret-name' in env -%}
+  ssh-secret-name: {{ env['ssh-secret-name'] }}
+  {% else -%}
+  ssh-secret-name: ssh-key-secret
+  {% endif %}
+  {% endif %}
 
 pylon:
   # port of pylon

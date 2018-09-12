@@ -24,7 +24,7 @@ echo ${labels[0]} > ${WORKSPACE}/BED.txt
           sh '''#!/bin/bash
 set -ex
 
-echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
+echo ${GIT_BRANCH//\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
 '''
           env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
           echo "Image tag: ${IMAGE_TAG}"
@@ -75,7 +75,7 @@ sudo chown core:core -R /mnt/jenkins/workspace
 # generate config
 ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
-./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
+./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # change ectdid, zkid
@@ -117,7 +117,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \
@@ -126,6 +125,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-singlebox \
   openpai.azurecr.io/paiclusterint/dev-box > SINGLE_BOX_DEV_BOX.txt
 
 '''
@@ -165,7 +165,7 @@ fi
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
 
 # Step 1. Generate config
-./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
+./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
@@ -177,6 +177,9 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
+# ! TODO wait for cluster ready
+sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
@@ -218,7 +221,6 @@ sudo docker run -itd \
   -e COLUMNS=$COLUMNS \
   -e LINES=$LINES \
   -e TERM=$TERM \
-  -v /var/lib/docker:/var/lib/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/jenkins/scripts:/jenkins/scripts \
   -v /pathHadoop:/pathHadoop \
@@ -227,6 +229,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-cluster \
   openpai.azurecr.io/paiclusterint/dev-box > CLUSTER_DEV_BOX.txt
 
 '''
@@ -266,7 +269,7 @@ fi
 /jenkins/scripts/${BED}-gen_cluster.sh /quick-start
 
 # Step 1. Generate config
-./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
+./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
@@ -278,6 +281,9 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
+# ! TODO wait for cluster ready
+sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
@@ -322,10 +328,10 @@ sudo chown core:core -R /mnt/jenkins/workspace
                     def responseCode = 500
                     while(!responseCode.equals(200)){
                       try {
-                        sleep(6)
+                        sleep(30)
                         echo "Waiting for PAI to be ready ..."
 
-                        def response = httpRequest(env.SINGLE_BOX_URL)
+                        def response = httpRequest(env.SINGLE_BOX_URL + "/rest-server/api/v1")
                         println("Status: "+response.status)
                         println("Content: "+response.content)
 
@@ -372,7 +378,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
@@ -425,10 +431,10 @@ done
                     def responseCode = 500
                     while(!responseCode.equals(200)){
                       try {
-                        sleep(6)
+                        sleep(30)
                         echo "Waiting for PAI to be ready ..."
 
-                        def response = httpRequest(env.CLUSTER_URL)
+                        def response = httpRequest(env.CLUSTER_URL + "/rest-server/api/v1")
                         println("Status: "+response.status)
                         println("Content: "+response.content)
 
@@ -476,7 +482,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",

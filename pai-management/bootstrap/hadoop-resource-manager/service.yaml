@@ -23,7 +23,6 @@ prerequisite:
   - hadoop-data-node
 
 template-list:
-  - node-label.sh
   - hadoop-resource-manager.yaml
   - stop.sh
   - refresh.sh
@@ -35,3 +34,7 @@ stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
 upgraded-script: upgraded.sh
+
+
+deploy-rules:
+  in: pai-master

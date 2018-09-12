@@ -21,20 +21,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x node-label.sh
-
-/bin/bash node-label.sh || exit $?
-
-kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
+{% if 'ssh-keyfile-path' in clusterinfo['prometheusinfo'] and 'ssh-secret-name' in clusterinfo['prometheusinfo']-%}
+kubectl create secret generic {{ clusterinfo['prometheusinfo']['ssh-secret-name'] }} --from-file=pkey={{ clusterinfo['prometheusinfo']['ssh-keyfile-path'] }}
+{% endif -%}
 kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f node-exporter-ds.yaml || exit $?
+kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
-kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f watchdog-ds.yaml || exit $?
 
-{% if clusterinfo['prometheusinfo']['alerting'] %}
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-deployment.yaml || exit $?
-{% endif %}
 
 popd > /dev/null
