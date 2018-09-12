@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,10 +15,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM node:boron
 
-echo "Call stop script to stop all service first"
-/bin/bash stop.sh || exit $?
+RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
+    /etc/apt/sources.list.d/jessie-backports.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends -t \
+      jessie-backports \
+      dos2unix \
+      openssh-server \
+      && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
+WORKDIR /usr/src/app
 
-popd > /dev/null
+ENV NODE_ENV=production \
+    SERVER_PORT=8080
+
+COPY package.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN dos2unix src/templates/*
+
+EXPOSE ${SERVER_PORT}
+
+CMD ["npm", "start"]

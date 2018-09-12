@@ -2,7 +2,7 @@
 
 1. Job config file
 
-    Prepare a job config file as described in [examples/README.md](../docs/job_tutorial.md#json-config-file-for-job-submission), for example, `exampleJob.json`.
+    Prepare a job config file as described in [examples/README.md](../job_tutorial.md#json-config-file-for-job-submission), for example, `exampleJob.json`.
 
 2. Authentication
 
@@ -54,7 +54,7 @@
 
 ## Root URI
 
-Configure the rest server port in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml).
+Configure the rest server port in [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml).
 
 ## API Details
 
@@ -444,7 +444,7 @@ Configure the rest server port in [services-configuration.yaml](../cluster-confi
 
     *Parameters*
 
-    [job config json](../docs/job_tutorial.md#json-config-file-for-job-submission)
+    [job config json](../job_tutorial.md#json-config-file-for-job-submission)
 
     *Response if succeeded*
     ```

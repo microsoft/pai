@@ -44,7 +44,7 @@ matrix:
       node_js: 6
       env: NODE_ENV=test
       before_install:
-        - cd rest-server
+        - cd src/rest-server
       install:
         - npm install
       script:
@@ -54,7 +54,7 @@ matrix:
       node_js: 7
       env: NODE_ENV=test
       before_install:
-        - cd rest-server
+        - cd src/rest-server
       install:
         - npm install
       script:
