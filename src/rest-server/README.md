@@ -17,4 +17,4 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-See [README.md](../../docs/README.md)
+See [README.md](../../docs/rest-server/README.md)

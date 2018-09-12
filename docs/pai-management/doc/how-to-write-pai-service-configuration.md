@@ -44,7 +44,7 @@ User could customize FrameworkLauncher startup configuration at OpenPAI's [folde
 
 ## Configure Rest-server <a name="restserver"></a>
 
-User could customize rest server at OpenPAI's [folder / file](../bootstrap/rest-server/rest-server.yaml.template)
+User could customize rest server at OpenPAI's [folder / file](../../../pai-management/bootstrap/rest-server/rest-server.yaml.template)
 
 User could customize rest server startup configuration at OpenPAI's [folder / file](../../../src)
 
