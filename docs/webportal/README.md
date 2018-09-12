@@ -10,13 +10,13 @@ An [express](https://expressjs.com/) served, [AdminLTE](https://adminlte.io/) th
 
 ## Dependencies
 
-Since [job toturial](../docs/job_tutorial.md) is included in the document tab, make sure **`docs`** directory is exists as a sibling of `web-portal` directory.
+Since [job toturial](../job_tutorial.md) is included in the document tab, make sure **`docs`** directory is exists as a sibling of `web-portal` directory.
 
 To run web portal, the following services should be started, and url of services should be correctly configured:
 
-* [REST Server](../rest-server)
-* [Prometheus](../prometheus)
-* [Grafana](../grafana)
+* [REST Server](../../src/rest-server)
+* [Prometheus](../../src/prometheus)
+* [Grafana](../../src/grafana)
 * YARN
 * Kubernetes
 
@@ -38,7 +38,7 @@ For development
 
 ## Configuration
 
-If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
+If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml) file:
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9286.
 
@@ -46,10 +46,10 @@ If web portal is deployed within PAI cluster, the following config field could b
 
 If web portal is deployed as a standalone service, the following envioronment variables must be configured:
 
-* `REST_SERVER_URI`: URI of [REST Server](../rest-server)
-* `PROMETHEUS_URI`: URI of [Prometheus](../prometheus)
+* `REST_SERVER_URI`: URI of [REST Server](../../rest-server)
+* `PROMETHEUS_URI`: URI of [Prometheus](../../prometheus)
 * `YARN_WEB_PORTAL_URI`: URI of YARN's web portal
-* `GRAFANA_URI`: URI of [Grafana](../grafana)
+* `GRAFANA_URI`: URI of [Grafana](../../grafana)
 * `K8S_DASHBOARD_URI`: URI of Kubernetes' dashboard
 * `K8S_API_SERVER_URI`: URI of Kubernetes' api server
 * `EXPORTER_PORT`: Port of node exporter
@@ -101,7 +101,7 @@ To run web portal on system, a [Node.js](https://nodejs.org/) 6+ runtime is requ
 
 ### Submit a job
 
-Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [job tutorial](../docs/job_tutorial.md).
+Click the tab "Submit Job" to show a button asking you to select a json file for the submission. The job config file must follow the format shown in [job tutorial](../job_tutorial.md).
 
 ### View job status
 

@@ -63,7 +63,7 @@ matrix:
     - language: node_js
       node_js: 6
       before_install:
-        - cd webportal
+        - cd src/webportal
       install:
         - npm run yarn install
         - npm run build
@@ -72,7 +72,7 @@ matrix:
     - language: node_js
       node_js: 7
       before_install:
-        - cd webportal
+        - cd src/webportal
       install:
         - npm run yarn install
         - npm run build

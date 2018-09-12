@@ -69,7 +69,7 @@ Before start, you need to meet the following requirements:
 ### Cluster administration    
 - [Deployment infrastructure](./docs/pai-management/doc/cluster-bootup.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
-- [Monitoring](./webportal/README.md)
+- [Monitoring](./docs/webportal/README.md)
 
 ## Resources
 
