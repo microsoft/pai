@@ -22,10 +22,13 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const markedConfig = require('./marked.config');
 const helpers = require('./helpers');
+
+const title = 'Platform for AI';
+const version = require('../package.json').version;
 
 
 const htmlMinifierOptions = {
@@ -168,7 +171,8 @@ const config = (env, argv) => ({
       'window.cookies': 'js-cookie'
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'index.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -176,7 +180,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'index']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'register.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -184,7 +189,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'register']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'user-view.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -192,7 +198,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'userView']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'login.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -200,7 +207,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'login']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'change-password.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -208,7 +216,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'changePassword']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'dashboard.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -216,7 +225,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'dashboard']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'submit.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -224,7 +234,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'submit']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'view.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -232,7 +243,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'view']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'virtual-clusters.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -240,7 +252,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'virtualClusters']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'cluster-view/services.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -248,7 +261,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'services']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'cluster-view/hardware.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -256,7 +270,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'hardware']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'cluster-view/k8s.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -264,7 +279,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'k8s']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'cluster-view/hardware/detail.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -272,7 +288,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'hardwareDetail']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'docs.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
