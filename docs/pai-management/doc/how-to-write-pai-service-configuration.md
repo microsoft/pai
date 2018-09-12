@@ -28,7 +28,7 @@ User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder /
 
 User could customize Webportal at OpenPAI's [folder / file](../../webportal/README.md#Configuration) 
 
-User could customize Webportal startup configuration at OpenPAI's [folder / file](../../../pai-management/bootstrap/webportal/webportal.yaml.template) 
+User could customize Webportal startup configuration at OpenPAI's [folder / file](../../../src/webportal/deploy/webportal.yaml.template) 
 
 ## Configure Pylon <a name="pylon"></a>
 
@@ -44,7 +44,7 @@ User could customize FrameworkLauncher startup configuration at OpenPAI's [folde
 
 ## Configure Rest-server <a name="restserver"></a>
 
-User could customize rest server at OpenPAI's [folder / file](../../../pai-management/bootstrap/rest-server/rest-server.yaml.template)
+User could customize rest server at OpenPAI's [folder / file](../../../src/rest-server/deploy/rest-server.yaml.template)
 
 User could customize rest server startup configuration at OpenPAI's [folder / file](../../../src)
 
