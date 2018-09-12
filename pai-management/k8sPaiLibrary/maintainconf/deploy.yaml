@@ -67,6 +67,7 @@ master-deployment:
 
 
 
+
 worker-deployment:
 
     template-list:
@@ -99,6 +100,7 @@ worker-deployment:
     - name: docker-config-update.py
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: worker-deployment
+
 
 
 proxy-deployment:
@@ -141,3 +143,4 @@ proxy-deployment:
     - name: docker-config-update.py
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: proxy-deployment
+

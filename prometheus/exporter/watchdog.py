@@ -125,12 +125,18 @@ def ssh_exec(host_config, command, histogram=ssh_histogram):
         port = 22
         if "sshport" in host_config:
             port = int(host_config["sshport"])
+        key_filename = None
+        if 'keyfile-path' in host_config:
+            if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
+                key_filename = str(host_config['keyfile-path'])
+            else:
+                logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
 
         ssh = paramiko.SSHClient()
 
         try:
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(hostname=hostip, port=port, username=username, password=password)
+            ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
 
             logger.info("Executing the command on host [{0}]: {1}".format(hostip, command))
 

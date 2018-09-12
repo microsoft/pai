@@ -21,8 +21,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
+{% if 'ssh-keyfile-path' in clusterinfo['prometheusinfo'] and 'ssh-secret-name' in clusterinfo['prometheusinfo']-%}
+kubectl create secret generic {{ clusterinfo['prometheusinfo']['ssh-secret-name'] }} --from-file=pkey={{ clusterinfo['prometheusinfo']['ssh-keyfile-path'] }}
+{% endif -%}
 kubectl create configmap prometheus-alert --from-file=../../../prometheus/prometheus-alert --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
+
 
 popd > /dev/null

@@ -59,6 +59,8 @@ add-worker-node:
 
 
 
+
+
 # First step to add a master node is add the node to the etcd cluster.
 
 add-master-node-task-one:
@@ -118,5 +120,6 @@ add-master-node-task-two:
     - name: docker-config-update.py
       src: k8sPaiLibrary/maintaintool/docker-config-update.py
       dst: add-master-node-task-two
+
 
 

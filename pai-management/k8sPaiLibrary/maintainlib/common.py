@@ -167,11 +167,16 @@ def sftp_paramiko(src, dst, filename, host_config):
         if port_validation(host_config['sshport']) == False:
             return False
         port = int(host_config['sshport'])
-
+    key_filename = None
+    if 'keyfile-path' in host_config:
+        if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
+            key_filename = str(host_config['keyfile-path'])
+        else:
+            logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
     # First make sure the folder exist.
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
 
     stdin, stdout, stderr = ssh.exec_command("sudo mkdir -p {0}".format(dst), get_pty=True)
     stdin.write(password + '\n')
@@ -183,7 +188,10 @@ def sftp_paramiko(src, dst, filename, host_config):
 
     # Put the file to target Path.
     transport = paramiko.Transport((hostip, port))
-    transport.connect(username=username, password=password)
+    pkey = None
+    if key_filename is not None:
+        pkey = paramiko.RSAKey.from_private_key_file(key_filename)
+    transport.connect(username=username, pkey=pkey, password=password)
 
     sftp = paramiko.SFTPClient.from_transport(transport)
     sftp.put('{0}/{1}'.format(src, filename), '{0}/{1}'.format(dst, filename))
@@ -216,9 +224,15 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
         if port_validation(host_config['sshport']) == False:
             return (None, None)
         port = int(host_config['sshport'])
+    key_filename = None
+    if 'keyfile-path' in host_config and host_config['keyfile-path'] is not None:
+        if os.path.isfile(str(host_config['keyfile-path'])):
+            key_filename = str(host_config['keyfile-path'])
+        else:
+            logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
@@ -228,6 +242,11 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     result_stderr = ""
     for response_msg in stderr:
         result_stderr += response_msg
+
+    exit_code_ssh = stdout.channel.recv_exit_status()
+    if exit_code_ssh != 0:
+        sys.exit(exit_code_ssh)
+
     ssh.close()
     return (result_stdout, result_stderr)
 
@@ -247,16 +266,26 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
         if port_validation(host_config['sshport']) == False:
             return False
         port = int(host_config['sshport'])
+    key_filename = None
+    if 'keyfile-path' in host_config:
+        if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
+            key_filename = str(host_config['keyfile-path'])
+        else:
+            logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
     stdin.write(password + '\n')
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
         print (response_msg.encode('utf-8').strip('\n'))
+
+    exit_code_ssh = stdout.channel.recv_exit_status()
+    if exit_code_ssh != 0:
+        sys.exit(exit_code_ssh)
 
     ssh.close()
     return True

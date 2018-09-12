@@ -243,11 +243,14 @@ if (config.env !== 'test') {
       prepareStoragePath();
     } else {
       logger.info('base storage path exists');
-      getUserList((errMsg, res) => {
+      getUserList((errMsg, userInfoList) => {
         if (errMsg) {
-          logger.warn('get user list failed');
+          logger.warn('get user list failed', errMsg);
         } else {
-          logger.warn(res);
+          logger.warn('users:', userInfoList);
+          if (userInfoList.length === 0) {
+            setDefaultAdmin();
+          }
         }
       });
     }
