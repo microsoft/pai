@@ -42,5 +42,9 @@ if [ ! -d "$manifestpath" ]; then
 fi
 
 
+# generate certs for kubelet
+chmod u+x $scriptPath/certs.sh
+./$scriptPath/certs.sh
+
 chmod u+x $scriptPath/kubelet.sh
 ./$scriptPath/kubelet.sh

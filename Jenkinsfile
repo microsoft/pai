@@ -24,7 +24,7 @@ echo ${labels[0]} > ${WORKSPACE}/BED.txt
           sh '''#!/bin/bash
 set -ex
 
-echo ${GIT_BRANCH/\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
+echo ${GIT_BRANCH//\\//-}-$(git rev-parse --short HEAD)-${BUILD_ID} > ${WORKSPACE}/IMAGE_TAG.txt
 '''
           env.IMAGE_TAG = readFile("${WORKSPACE}/IMAGE_TAG.txt").trim()
           echo "Image tag: ${IMAGE_TAG}"
@@ -77,7 +77,10 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py cluster generate-configuration -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" $CONFIG_PATH/services-configuration.yaml
+sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
 
@@ -123,6 +126,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-singlebox \
   openpai.azurecr.io/paiclusterint/dev-box > SINGLE_BOX_DEV_BOX.txt
 
 '''
@@ -165,12 +169,18 @@ fi
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
+# ! TODO wait for cluster ready
+sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
@@ -221,6 +231,7 @@ sudo docker run -itd \
   --pid=host \
   --privileged=true \
   --net=host \
+  --name=dev-box-cluster \
   openpai.azurecr.io/paiclusterint/dev-box > CLUSTER_DEV_BOX.txt
 
 '''
@@ -263,12 +274,18 @@ fi
 ./paictl.py cluster generate-configuration -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+# change ectdid, zkid
+sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
+sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
 
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
+
+# ! TODO wait for cluster ready
+sleep 6s
 
 # Step 3. Start all PAI services
 # start pai services
@@ -363,13 +380,13 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
-\\"memoryMB\\": 256,
+\\"memoryMB\\": 2048,
 \\"command\\": \\"/bin/bash --version\\"
 }
 ]
@@ -467,13 +484,13 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 --header 'Content-Type: application/json' \
 --data "{
 \\"jobName\\": \\"$JOB_NAME\\",
-\\"image\\": \\"aiplatform/pai.run.cntk\\",
+\\"image\\": \\"docker.io/openpai/alpine:bash\\",
 \\"taskRoles\\": [
 {
 \\"name\\": \\"Master\\",
 \\"taskNumber\\": 1,
 \\"cpuNumber\\": 1,
-\\"memoryMB\\": 256,
+\\"memoryMB\\": 2048,
 \\"command\\": \\"/bin/bash --version\\"
 }
 ]
@@ -568,10 +585,14 @@ else
 fi
 
 # delete service for next install
-./paictl.py service delete -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
+./paictl.py service delete -p /cluster-configuration << EOF
+Y
+EOF
 
 # clean k8s
-./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
 
@@ -612,10 +633,14 @@ else
 fi
 
 # delete service for next install
-./paictl.py service delete -p /cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration
+
+./paictl.py service delete -p /cluster-configuration << EOF
+Y
+EOF
 
 # clean k8s
-./paictl.py cluster k8s-clean -p /cluster-configuration << EOF
+./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
 

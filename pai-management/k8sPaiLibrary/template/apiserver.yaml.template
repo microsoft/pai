@@ -41,3 +41,14 @@ spec:
     - --anonymous-auth=true
     - --cors-allowed-origins
     - .*
+    - --kubelet-client-certificate
+    - /certs/apiserver.crt
+    - --kubelet-client-key
+    - /certs/apiserver.key
+    volumeMounts:
+    - mountPath: /certs
+      name: certs
+  volumes:
+  - hostPath:
+      path: /etc/pai.certs
+    name: certs

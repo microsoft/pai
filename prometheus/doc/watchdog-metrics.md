@@ -62,7 +62,6 @@ vi watchdog-xx.log
 | ---------- |  ----------- |
 | k8s_api_server_count | has error key in label, if error != "ok", means api server is not functioning correctly |
 | k8s_etcd_count | has error key in label, if error != "ok", means etcd is not functioning correctly |
-| k8s_kubelet_count | has error key in label, if error != "ok", means kubelet is not functioning correctly |
 
 # Alerting
 Alerting rules are under `[prometheus/prometheus-alert](../prometheus-alert)`, we added some basic

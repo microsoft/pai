@@ -38,15 +38,6 @@ groups:
           summary: "etcd server in {{$labels.address}} is not ok"
           description: "etcd server in {{$labels.address}} is {{$labels.error}"
 
-      - alert: k8sKubeletNotOk
-        expr: k8s_kubelet_count{error!="ok"} > 0
-        for: 1m
-        labels:
-          type: k8s_component
-        annotations:
-          summary: "kubelet in {{$labels.address}} is not ok"
-          description: "kubelet in {{$labels.address}} is {{$labels.error}"
-
       - alert: k8sDockerDaemonNotOk
         expr: docker_daemon_count{error!="ok"} > 0
         for: 1m
