@@ -46,10 +46,10 @@ If web portal is deployed within PAI cluster, the following config field could b
 
 If web portal is deployed as a standalone service, the following envioronment variables must be configured:
 
-* `REST_SERVER_URI`: URI of [REST Server](../../rest-server)
-* `PROMETHEUS_URI`: URI of [Prometheus](../../prometheus)
+* `REST_SERVER_URI`: URI of [REST Server](../../src/rest-server)
+* `PROMETHEUS_URI`: URI of [Prometheus](../../src/prometheus)
 * `YARN_WEB_PORTAL_URI`: URI of YARN's web portal
-* `GRAFANA_URI`: URI of [Grafana](../../grafana)
+* `GRAFANA_URI`: URI of [Grafana](../../src/grafana)
 * `K8S_DASHBOARD_URI`: URI of Kubernetes' dashboard
 * `K8S_API_SERVER_URI`: URI of Kubernetes' api server
 * `EXPORTER_PORT`: Port of node exporter
