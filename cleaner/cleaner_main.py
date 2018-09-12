@@ -17,7 +17,7 @@
 
 import time
 from datetime import timedelta
-from cleaner.scripts import clean_docker_cache
+from cleaner.scripts import clean_docker_cache, check_deleted_files
 from cleaner.worker import Worker
 from cleaner.utils.logger import LoggerMixin
 from cleaner.utils import common
@@ -64,6 +64,9 @@ def main():
     cleaner = Cleaner()
     cache_worker = Worker(clean_docker_cache.check_and_clean, 10, timeout=timedelta(minutes=5))
     cleaner.add_worker("clean_docker_cache", cache_worker)
+
+    file_worker = Worker(check_deleted_files.list_and_check_files, 10, timeout=timedelta(minutes=5))
+    cleaner.add_worker("check_deleted_files", file_worker)
 
     cleaner.start()
     cleaner.sync()

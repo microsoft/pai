@@ -16,4 +16,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import psutil
-import 
+import multiprocessing
+import os
+from cleaner.utils import common
+
+logger = multiprocessing.get_logger()
+
+
+def list_and_check_files():
+    for proc in psutil.process_iter():
+        check_deleted_files(proc)
+
+
+def check_deleted_files(proc):
+    if proc is None:
+        return
+    try:
+        for file in proc.open_files():
+            if file.path and not os.path.exists(file.path):
+                # Currently we only print warnings in log file. In the future we will expose metrics to Prometheus
+                logger.warn("process %s opened file %s but the file has been deleted.", proc.pid, file.path)
+    except psutil.Error as e:
+        logger.error("cannot check deleted files for process %s.", proc.pid)
+        logger.exception(e)
+
+
+def main():
+    logger.info("start to check the deleted files opened by each running process.")
+    list_and_check_files()
+
+
+if __name__ == "__main__":
+    main()
