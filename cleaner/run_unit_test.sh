@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,30 +15,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -e
+#!/bin/bash
 
-scriptPath=$1
+set -x
 
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+export PYTHONPATH=$PYTHONPATH:$DIR
 
-#stop all swap on the machine
+nose_args="--with-coverage \
+    --cover-erase \
+    --cover-html \
+    --logging-level=DEBUG \
+    -s \
+    -v "
 
-swapoff -a
-
-# check etc/ exist or not.
-staticpod="$scriptPath/etc"
-if [ -d "$staticpod" ]; then
-
-    cp -r $scriptPath/etc /
-
-fi
-
-manifestpath="/etc/kubernetes/manifests"
-if [ ! -d "$manifestpath" ]; then
-
-    mkdir -p $manifestpath
-
-fi
-
-
-chmod u+x $scriptPath/kubelet.sh
-./$scriptPath/kubelet.sh
+nosetests $nose_args

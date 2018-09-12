@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,30 +15,31 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-set -e
+from cleaner.utils import common
+import multiprocessing
 
-scriptPath=$1
-
-
-#stop all swap on the machine
-
-swapoff -a
-
-# check etc/ exist or not.
-staticpod="$scriptPath/etc"
-if [ -d "$staticpod" ]; then
-
-    cp -r $scriptPath/etc /
-
-fi
-
-manifestpath="/etc/kubernetes/manifests"
-if [ ! -d "$manifestpath" ]; then
-
-    mkdir -p $manifestpath
-
-fi
+logger = multiprocessing.get_logger()
 
 
-chmod u+x $scriptPath/kubelet.sh
-./$scriptPath/kubelet.sh
+def get_cache_size():
+    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null", logger)
+    size = 0
+    if len(out) == 0:
+        logger.error("cannot retrieve cache size.")
+        return size
+    try:
+        size = float(out[0])
+    except ValueError:
+        logger.error("cannot convert cache size, reset size to 0")
+        size = 0
+    return size
+
+
+def check_and_clean(threshold):
+    if get_cache_size() > threshold:
+        common.run_cmd("docker system prune -af", logger)
+
+
+if __name__ == "__main__":
+    common.setup_logging()
+    check_and_clean(10)
