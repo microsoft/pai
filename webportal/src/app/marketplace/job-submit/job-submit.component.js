@@ -20,6 +20,7 @@ require('bootstrap/js/modal.js');
 const webportalConfig = require('../../config/webportal.config.js');
 const loadingComponent = require('../../job/loading/loading.component.ejs');
 const loading = require('../../job/loading/loading.component');
+const common = require('../template-common/template-search.component.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const submitComponent = require('./job-submit.component.ejs');
 const userTemplate = require('./sub-components/user-template.js');
@@ -68,7 +69,9 @@ $(document).on('click', '#yaml-edit-save-button', () => {
 
 $(document).on('click', '#submitJob', () => {
   userAuth.checkToken((token) => {
-    loading.showLoading();
+    // loading.showLoading();
+    $('#submit-job-loading').removeClass('no-submit').addClass('loading-submit');
+    $('#submit-job-loading').html(common.generateLoading());
     let data = userTemplate.createSubmitData();
     data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
     $.ajax({
@@ -81,7 +84,8 @@ $(document).on('click', '#submitJob', () => {
       type: 'PUT',
       dataType: 'json',
       success: (data) => {
-        loading.hideLoading();
+        // loading.hideLoading();
+        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
         if (data.error) {
           alert(data.message);
           $('#submitHint').text(data.message);
@@ -92,7 +96,8 @@ $(document).on('click', '#submitJob', () => {
         window.location.replace('/view.html');
       },
       error: (xhr, textStatus, error) => {
-        loading.hideLoading();
+        // loading.hideLoading();
+        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
         const res = JSON.parse(xhr.responseText);
         alert(res.message);
       },

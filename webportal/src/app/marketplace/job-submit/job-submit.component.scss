@@ -1,7 +1,12 @@
+.content{
+    background: #f1f1f1;
+}
 .box-content{
     padding-bottom: 0;
     .main-button{
         padding: 5px 20px;
+        width: 118px;
+        margin-right: 12px;
         background: white;
         border:1px solid #BEBEBE;
         color: #3B3B3B;
@@ -149,6 +154,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin-left: -15px;
 }
 
 .add-new-item .add-new-item-content {
@@ -160,6 +166,7 @@
 }
 
 .shadow{
+    // padding-left: 15px;
     line-height: 10px;
     box-shadow: 0 4px 4px 0 rgba(0,0,0,.2),0 6px 20px 0 rgba(0,0,0,.1) !important;
 }
@@ -184,7 +191,7 @@
 }
 // docker box style
 .box-content .sty-docker{
-    min-height: 150px;
+    min-height: 178px;
     width: 178px;
     .edit-task{
         background: none;
@@ -195,8 +202,8 @@
     }
     img{
         width: 60px;
-        margin-left: 46px;
-        margin-top: 10px;
+        margin-left: 44px;
+        margin-top: 28px;
     }
     h5{
         color: #333;
@@ -234,17 +241,20 @@
 .footer{
     width: 100%;
     height: 72px;
-    background: #ECF0F5;
+    background: #f1f1f1;
     position: fixed;
+    left: 230px;
     bottom: 0;
     .position-btns{
         position: relative;
-        left: 64%;
+        left: 36%;
         top: 20px;
     }
     .sty-margin{
-        padding: 6px 20px;
+        padding: 5px 20px;
         margin-right: 12px;
+        width: 118px;
+        border-radius: 0;
     }
 }
 
@@ -252,6 +262,21 @@ textarea#yaml-editor-holder{
     width: 100%;
     height: auto;
     min-height: 400px;
+}
+
+// when user submit job, add mask and loading
+.no-submit{
+    display: none;
+}
+
+.loading-submit{
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,.2);
+    left: 0;
+    top: 0;
 }
 
 // hand style
