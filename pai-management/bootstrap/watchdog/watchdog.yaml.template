@@ -52,6 +52,11 @@ spec:
           name: collector-mount
         - mountPath: /etc/watchdog
           name: config-volume
+        {% if 'ssh-secret-name' in clusterinfo['prometheusinfo'] %}
+        - mountPath: /etc/secret-volume
+          readOnly: true
+          name: secret-volume
+        {% endif %}
         command:
           - "python"
           - "/watchdog.py"
@@ -67,6 +72,11 @@ spec:
         - name: config-volume
           configMap:
             name: watchdog
+        {% if 'ssh-secret-name' in clusterinfo['prometheusinfo'] %}
+        - name: secret-volume
+          secret:
+            secretName: {{ clusterinfo['prometheusinfo']['ssh-secret-name'] }}
+        {% endif %}
       imagePullSecrets:
       - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
       tolerations:

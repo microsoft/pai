@@ -15,23 +15,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-
-template-list:
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - refresh.sh
-  - delete.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+import multiprocessing
 
 
-deploy-rules:
-  in: pai-master
+class LoggerMixin(object):
+    """
+    This mixin is to add a logger property conveniently to classes derived from it.
+    The usage is like:
+
+        class A(LoggerMixin):
+            def do_something():
+                self.logger().info("log message")
+    """
+
+    @property
+    def logger(self):
+        try:
+            if self._logger is None:
+                self._logger = self._get_logger()
+        except AttributeError:
+            self._logger = self._get_logger()
+        return self._logger
+
+    def _get_logger(self):
+        return multiprocessing.get_logger().getChild(".".join([self.__class__.__module__, self.__class__.__name__]))

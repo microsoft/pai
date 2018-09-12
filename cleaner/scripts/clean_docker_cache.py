@@ -15,23 +15,31 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+from cleaner.utils import common
+import multiprocessing
 
-template-list:
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - refresh.sh
-  - delete.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+logger = multiprocessing.get_logger()
 
 
-deploy-rules:
-  in: pai-master
+def get_cache_size():
+    out = common.run_cmd("source ./scripts/reclaimable_docker_cache.sh 2> /dev/null", logger)
+    size = 0
+    if len(out) == 0:
+        logger.error("cannot retrieve cache size.")
+        return size
+    try:
+        size = float(out[0])
+    except ValueError:
+        logger.error("cannot convert cache size, reset size to 0")
+        size = 0
+    return size
+
+
+def check_and_clean(threshold):
+    if get_cache_size() > threshold:
+        common.run_cmd("docker system prune -af", logger)
+
+
+if __name__ == "__main__":
+    common.setup_logging()
+    check_and_clean(10)
