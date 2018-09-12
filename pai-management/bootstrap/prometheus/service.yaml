@@ -22,6 +22,7 @@ prerequisite:
 template-list:
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
+  - start.sh
   - refresh.sh
   - delete.yaml
 
