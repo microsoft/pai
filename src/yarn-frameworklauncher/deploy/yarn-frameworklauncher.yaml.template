@@ -64,7 +64,7 @@ spec:
           value: "{{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_port' ] }}"
         resources:
           limits:
-            memory: "4Gi"
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
