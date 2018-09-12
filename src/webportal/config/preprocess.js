@@ -22,9 +22,9 @@ const helpers = require('./helpers');
 
 // copy docs to app
 fse.copySync(
-    helpers.root('dependency/docs/job_tutorial.md'),
+    helpers.root('../../docs/job_tutorial.md'),
     helpers.root('src/app/job/job-docs/job-docs.md'));
 
 fse.copySync(
-    helpers.root('dependency/examples/tensorflow/tensorflow.distributed-cifar10.json'),
+    helpers.root('../../examples/tensorflow/tensorflow.distributed-cifar10.json'),
     helpers.root('src/app/job/job-submit/job-submit.example.json'));

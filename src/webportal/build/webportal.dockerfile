@@ -24,6 +24,7 @@ ENV NODE_ENV=production \
 
 COPY package.json .
 RUN npm run yarn install
+COPY dependency/ ../../
 COPY . .
 RUN npm run build
 
