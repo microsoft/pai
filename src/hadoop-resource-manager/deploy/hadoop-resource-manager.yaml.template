@@ -77,9 +77,6 @@ spec:
         - containerPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
           name: scrape
-        resources:
-          limits:
-            memory: "1Gi"
         command:
           - "python3"
           - "/usr/local/yarn_exporter.py"
