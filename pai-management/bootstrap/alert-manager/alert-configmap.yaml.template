@@ -25,4 +25,6 @@ data:
       email_configs:
         - to: {{ alert_info['alert_receiver'] }}
           html: '{{ '{{' }} template "email.pai.html" . {{ '}}' }}'
+          headers:
+            subject: '{{ clusterinfo["clusterid"] }}: {{ '{{' }} template "__subject" . {{ '}}' }}'
 {% endif %}
