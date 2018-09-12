@@ -15,23 +15,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+#!/bin/bash
 
-template-list:
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - refresh.sh
-  - delete.yaml
+# This script parse the result of "docker system df" command to get the total reclaimable disk space.
+# This command will list the reclaimable space of all docker objects including images, local volumes and build caches.
+# Following is a example of the command's output:
+# TYPE                TOTAL               ACTIVE              SIZE                RECLAIMABLE
+# Images              38                  18                  16.13GB             11.26GB (69%)
+# Containers          42                  42                  95.3MB              0B (0%)
+# Local Volumes       13                  1                   3.553GB             3.28GB (92%)
+# Build Cache         0                   0                   0B                  0B
+#
+# We summer up the result in column 5 (RECLAIMABLE) and return the size in gigabytes.
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
-
-
-deploy-rules:
-  in: pai-master
+docker system df | \
+gawk 'BEGIN {s=0}
+      END {print s}
+      match($5, /([0-9]+\.?[0-9]*)(M|G|B)/, a) {
+          if(a[2] == "M")
+              s += a[1]/1024;
+          else if(a[2] == "B")
+              s += a[1]/1024/1024;
+          else
+              s += a[1];
+      }'

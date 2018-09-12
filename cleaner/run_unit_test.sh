@@ -15,23 +15,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+#!/bin/bash
 
-template-list:
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - refresh.sh
-  - delete.yaml
+set -x
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+export PYTHONPATH=$PYTHONPATH:$DIR
 
+nose_args="--with-coverage \
+    --cover-erase \
+    --cover-html \
+    --logging-level=DEBUG \
+    -s \
+    -v "
 
-deploy-rules:
-  in: pai-master
+nosetests $nose_args

@@ -53,6 +53,10 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     # Prepare config of ssh info.
     quick_start_config["ssh-username"] = quick_start_config_raw["ssh-username"]
     quick_start_config["ssh-password"] = quick_start_config_raw["ssh-password"]
+    if "ssh-keyfile-path" in quick_start_config_raw:
+        quick_start_config["ssh-keyfile-path"] = quick_start_config_raw["ssh-keyfile-path"]
+    if "ssh-secret-name" in quick_start_config_raw:
+        quick_start_config["ssh-secret-name"] = quick_start_config_raw["ssh-secret-name"]
     quick_start_config["ssh-port"] = \
         22 if "ssh-port" not in quick_start_config_raw \
         else quick_start_config_raw["ssh-port"]
@@ -72,25 +76,31 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
         quick_start_config["dns"] = quick_start_config_raw["dns"]
     else:
         m0 = quick_start_config["machines"][0]
+        host_config = {
+            "hostip": m0["ip"],
+            "username": quick_start_config["ssh-username"],
+            "password": quick_start_config["ssh-password"],
+            "sshport": quick_start_config["ssh-port"]
+        }
+        if "ssh-keyfile-path" in quick_start_config:
+            host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
-            {
-                "hostip": m0["ip"],
-                "username": quick_start_config["ssh-username"],
-                "password": quick_start_config["ssh-password"],
-                "sshport": quick_start_config["ssh-port"]
-            },
+            host_config,
             "cat /etc/resolv.conf | grep nameserver | cut -d ' ' -f 2 | head -n 1")
         quick_start_config["dns"] = result_stdout.strip()
     #
     # Auto-complete missing configuration items: Part 2 -- hostnames.
     for m in quick_start_config["machines"]:
+        host_config = {
+            "hostip": m["ip"],
+            "username": quick_start_config["ssh-username"],
+            "password": quick_start_config["ssh-password"],
+            "sshport": quick_start_config["ssh-port"]
+        }
+        if "ssh-keyfile-path" in quick_start_config:
+            host_config["keyfile-path"] = quick_start_config["ssh-keyfile-path"]
         result_stdout, result_stderr = pai_common.ssh_shell_paramiko_with_result(
-            {
-                "hostip": m["ip"],
-                "username": quick_start_config["ssh-username"],
-                "password": quick_start_config["ssh-password"],
-                "sshport": quick_start_config["ssh-port"]
-            },
+            host_config,
             "hostname")
         m["hostname"] = result_stdout.strip()
     #
