@@ -50,8 +50,8 @@ Before start, you need to meet the following requirements:
 - Recommend no Docker installed or a Docker with api version >= 1.26.
 
 #### 2 Deploy OpenPAI
-##### 2.1 [Customized deploy](./pai-management/doc/cluster-bootup.md#customizeddeploy)
-##### 2.2 [Single Box deploy](./pai-management/doc/cluster-bootup.md#singlebox)
+##### 2.1 [Customized deploy](./docs/pai-management/doc/cluster-bootup.md#customizeddeploy)
+##### 2.2 [Single Box deploy](./docs/pai-management/doc/cluster-bootup.md#singlebox)
 
 ## How to use
 ### How to train jobs
@@ -67,7 +67,7 @@ Before start, you need to meet the following requirements:
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
     
 ### Cluster administration    
-- [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
+- [Deployment infrastructure](./docs/pai-management/doc/cluster-bootup.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
 - [Monitoring](./webportal/README.md)
 
