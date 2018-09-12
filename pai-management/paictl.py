@@ -84,12 +84,21 @@ def login_docker_registry(docker_registry, docker_username, docker_password):
     logger.info("docker registry login successfully")
 
 
+def to_str(value):
+    try:
+        return str(value)
+    except UnicodeEncodeError:
+        return str(value.encode("utf8"))
+    except:
+        raise
+
+
 
 def generate_secret_base64code(docker_info):
 
     domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
+    username = docker_info[ "docker_username" ] and to_str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and to_str(docker_info[ "docker_password" ])
 
     if domain == "public":
         domain = ""
@@ -112,8 +121,8 @@ def generate_secret_base64code(docker_info):
 
 def generate_docker_credential(docker_info):
 
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
+    username = docker_info[ "docker_username" ] and to_str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and to_str(docker_info[ "docker_password" ])
 
     if username and passwd:
         credential = linux_shell.execute_shell_with_output(
