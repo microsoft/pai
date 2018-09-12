@@ -188,6 +188,11 @@ docker tag pai.run.tensorflow ${your_user_name}/pai.run.tensorflow
 docker push ${your_user_name}/pai.run.tensorflow
 ```
  
+ **Tips:** You can debug your container locally, ensure it works well then go on the submit job process. Excecute the following command:
+ ```
+ docker run -v ${local_codedir}:${container_codedir} -v ${local_datadir}:${container_datadir} ${image_name_you_built} -c ${commands_to_exec}
+ ```
+
 
 #### 2.2 Need to change the CUDA or cuDNN's version
 In this scenario, you should rebuild base image, then build job image. Firstly, find the base-image's Dockerfile `Dockerfile.build.base` at [base image directory](https://github.com/Microsoft/pai/tree/master/job-tutorial/Dockerfiles), e.g. change the cuda tag at [cuda9.0-cudnn7/Dockefile.build.base Line33](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33) , all the version tags can be found at [nvidia/cuda](https://github.com/Microsoft/pai/blob/a59f05fe32934dd1164c26caafc0676f0763b692/job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base#L33).
