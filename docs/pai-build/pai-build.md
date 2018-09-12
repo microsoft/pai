@@ -27,7 +27,7 @@ Build image by using ```pai_build.py``` which put under ``build/``. for the conf
 ### Build infrastructure services <a name="Service_Build"></a>
 
 ```
-python pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
+sudo ./pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
 ```
 
 - Build the corresponding component.
@@ -36,7 +36,7 @@ python pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
 ### Push infrastructure image(s) <a name="Image_Push"></a>
 
 ```
-python pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
+sudo ./pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
 ```
 
 - tag and push image to the docker registry which is configured in the ```cluster-configuration```.
