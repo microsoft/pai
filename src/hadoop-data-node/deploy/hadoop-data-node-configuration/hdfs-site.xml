@@ -271,4 +271,36 @@
    <value>{{ host_config['ip'] }}</value>
 </property>
 
+<property>
+    <name>dfs.datanode.address</name>
+    <value>0.0.0.0:5010</value>
+    <description>
+        The datanode server address and port for data transfer.
+    </description>
+</property>
+
+<property>
+    <name>dfs.datanode.http.address</name>
+    <value>0.0.0.0:5075</value>
+    <description>
+        The datanode http server address and port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.datanode.ipc.address</name>
+    <value>0.0.0.0:5020</value>
+    <description>
+        The datanode ipc server address and port.
+    </description>
+</property>
+
+<property>
+    <name>dfs.datanode.https.address</name>
+    <value>0.0.0.0:5475</value>
+    <description>
+        The datanode secure http server address and port.
+    </description>
+</property>
+
 </configuration>
