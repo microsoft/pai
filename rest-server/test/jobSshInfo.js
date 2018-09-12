@@ -83,6 +83,20 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
         )
       );
 
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job6')
+      .reply(
+        200,
+        mustache.render(
+          frameworkDetailTemplate,
+          {
+            'frameworkName': 'job6',
+            'userName': 'test',
+            'applicationId': 'app6',
+          }
+        )
+      );
+
     //
     // Mock WebHDFS
     //
@@ -120,6 +134,46 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
           },
         }
       );
+
+    nock(webhdfsUri)
+      .get('/webhdfs/v1/Container/test/job6/ssh/app6?op=LISTSTATUS')
+      .reply(
+        200,
+        {
+          'FileStatuses': {
+            'FileStatus': [
+              {
+                'pathSuffix': 'container_1519960554030_0046_01_000002-10.240.0.15-39035',
+              },
+              {
+                'pathSuffix': 'container_1519960554030_0046_01_000003-10.240.0.17-28730',
+              },
+              {
+                'pathSuffix': 'container_1519960554030_0046_01_000004-10.240.0.16-30690',
+              },
+            ],
+          },
+        }
+      );
+
+    nock(webhdfsUri)
+      .get('/webhdfs/v1/Container/test/job6/ssh/keyFiles?op=LISTSTATUS')
+      .reply(
+        200,
+        {
+          'FileStatuses': {
+            'FileStatus': [
+              {
+                'pathSuffix': 'job6.pub',
+              },
+              {
+                'pathSuffix': 'job6',
+              },
+            ],
+          },
+        }
+      );
+
   });
 
   //
@@ -137,11 +191,22 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       });
   });
 
+  it('Case 2 (Positive): Ssh info stored in new pattern will get info succeed.', (done) => {
+    chai.request(server)
+      .get('/api/v1/jobs/job6/ssh')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(200);
+        expect(res, 'response format').be.json;
+        expect(JSON.stringify(res.body), 'response body content').include('keyPair');
+        done();
+      });
+  });
+
   //
   // Negative cases
   //
 
-  it('Case 2 (Negative): The job does not exist at all.', (done) => {
+  it('Case 3 (Negative): The job does not exist at all.', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/job2/ssh')
       .end((err, res) => {
@@ -151,7 +216,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       });
   });
 
-  it('Case 3 (Negative): The job exists, but does not contain SSH info.', (done) => {
+  it('Case 4 (Negative): The job exists, but does not contain SSH info.', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/job3/ssh')
       .end((err, res) => {
@@ -161,7 +226,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       });
   });
 
-  it('Case 4 (Negative): Cannot connect to Launcher.', (done) => {
+  it('Case 5 (Negative): Cannot connect to Launcher.', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/job4/ssh')
       .end((err, res) => {
@@ -171,7 +236,7 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       });
   });
 
-  it('Case 5 (Negative): Cannot connect to WebHDFS.', (done) => {
+  it('Case 6 (Negative): Cannot connect to WebHDFS.', (done) => {
     chai.request(server)
       .get('/api/v1/jobs/job5/ssh')
       .end((err, res) => {
@@ -181,4 +246,3 @@ describe('Get job SSH info: GET /api/v1/jobs/:jobName/ssh', () => {
       });
   });
 });
- 
