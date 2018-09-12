@@ -27,16 +27,16 @@ Build image by using ```pai_build.py``` which put under ``build/``. for the conf
 ### Build infrastructure services <a name="Service_Build"></a>
 
 ```
-sudo ./pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
+./pai_build.py build -c /path/to/configuration-dir/ [ -s component-list ]
 ```
 
 - Build the corresponding component.
-- If the option `-n` is added, only the specified component will be built. By default will build all components under ``src/``
+- If the option `-s` is added, only the specified component will be built. By default will build all components under ``src/``
 
 ### Push infrastructure image(s) <a name="Image_Push"></a>
 
 ```
-sudo ./pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
+./pai_build.py push -c /path/to/configuration-dir/ [ -i image-list ]
 ```
 
 - tag and push image to the docker registry which is configured in the ```cluster-configuration```.

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,34 +15,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
+FROM node:boron
 
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
-# patch for webhdfs upload issue when using nginx as a reverse proxy
-wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
+RUN echo "deb http://http.debian.net/debian jessie-backports main" > \
+    /etc/apt/sources.list.d/jessie-backports.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends -t \
+      jessie-backports \
+      dos2unix \
+      openssh-server \
+      && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-git clone https://github.com/apache/hadoop.git
+WORKDIR /usr/src/app
 
-cd hadoop
+ENV NODE_ENV=production \
+    SERVER_PORT=8080
 
-git checkout branch-2.9.0
+COPY package.json ./
 
-cp /hadoop-2.9.0.gpu-port.patch /hadoop
-cp /HDFS-13773.patch /hadoop
-cp /docker-executor.patch /hadoop
+RUN npm install
 
-git apply hadoop-2.9.0.gpu-port.patch
-git apply HDFS-13773.patch
-git apply docker-executor.patch
+COPY . .
 
-mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
+RUN dos2unix src/templates/*
 
-cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
+EXPOSE ${SERVER_PORT}
 
-echo "Successfully build hadoop 2.9.0 AI"
-
-
-
-# When Changing the patch id, please update the filename here.
-rm /hadoop-binary/*-done
-touch /hadoop-binary/12932984-12933562-docker_executor-done
+CMD ["npm", "start"]

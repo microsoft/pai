@@ -393,7 +393,7 @@ class paiObjectModel:
     def getWebhdfsUri(self):
 
         vip = self.getMasterIP()
-        port = "50070"
+        port = "5070"
         ret = "http://{0}:{1}".format(vip, str(port))
         return ret
 

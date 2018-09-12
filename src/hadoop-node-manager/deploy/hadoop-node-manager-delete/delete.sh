@@ -17,34 +17,29 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cd /
+# Clean running job
 
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
-# patch for webhdfs upload issue when using nginx as a reverse proxy
-wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
+if which docker > /dev/null && [ -S /var/run/docker.sock ]; then
 
-git clone https://github.com/apache/hadoop.git
+    echo "Clean hadoop jobs"
 
-cd hadoop
-
-git checkout branch-2.9.0
-
-cp /hadoop-2.9.0.gpu-port.patch /hadoop
-cp /HDFS-13773.patch /hadoop
-cp /docker-executor.patch /hadoop
-
-git apply hadoop-2.9.0.gpu-port.patch
-git apply HDFS-13773.patch
-git apply docker-executor.patch
-
-mvn package -Pdist,native -DskipTests -Dmaven.javadoc.skip=true -Dtar
-
-cp /hadoop/hadoop-dist/target/hadoop-2.9.0.tar.gz /hadoop-binary
-
-echo "Successfully build hadoop 2.9.0 AI"
+    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs timeout 30 docker stop || \
+    docker ps | awk '/container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}/ { print $NF}' | xargs docker kill
+fi
 
 
+# Clean data
 
-# When Changing the patch id, please update the filename here.
-rm /hadoop-binary/*-done
-touch /hadoop-binary/12932984-12933562-docker_executor-done
+echo "Clean the hadoop node manager's data on the disk"
+
+if [ -d "/mnt/yarn/node" ]; then
+
+    rm -rf /mnt/yarn/node
+
+fi
+
+if [ -d "/mnt/hadooptmp/nodemanager" ]; then
+
+    rm -rf /mnt/hadooptmp/nodemanager
+
+fi
