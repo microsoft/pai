@@ -28,7 +28,7 @@ User could customize [Kubernetes](https://kubernetes.io/) at OpenPAI's [folder /
 
 User could customize Webportal at OpenPAI's [folder / file](../../webportal/README.md#Configuration) 
 
-User could customize Webportal startup configuration at OpenPAI's [folder / file](../bootstrap/webportal/webportal.yaml.template) 
+User could customize Webportal startup configuration at OpenPAI's [folder / file](../../../pai-management/bootstrap/webportal/webportal.yaml.template) 
 
 ## Configure Pylon <a name="pylon"></a>
 

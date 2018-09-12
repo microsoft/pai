@@ -5,7 +5,7 @@
 </p>
 
 The system architecture is illustrated above.
-User submits jobs or monitors cluster status through the [Web Portal](../webportal/README.md),
+User submits jobs or monitors cluster status through the [Web Portal](webportal/README.md),
 which calls APIs provided by the [REST server](rest-server/README.md).
 Third party tools can also call REST server directly for job management.
 Upon receiving API calls, the REST server coordinates with [FrameworkLauncher](../frameworklauncher/README.md) (short for Launcher)

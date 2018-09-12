@@ -22,9 +22,10 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production \
     SERVER_PORT=8080
 
-COPY copied_file/ /usr/src/
-COPY copied_file/webportal/ /usr/src/app/
+COPY package.json .
 RUN npm run yarn install
+COPY dependency/ ../../
+COPY . .
 RUN npm run build
 
 EXPOSE ${SERVER_PORT}
