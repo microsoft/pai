@@ -18,12 +18,11 @@
 import psutil
 import multiprocessing
 import os
-from cleaner.utils import common
 
 logger = multiprocessing.get_logger()
 
 
-def list_and_check_files():
+def list_and_check_files(arg):
     for proc in psutil.process_iter():
         check_deleted_files(proc)
 

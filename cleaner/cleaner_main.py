@@ -58,6 +58,20 @@ class Cleaner(LoggerMixin):
             time.sleep(1)
 
 
+def get_timedelta(time):
+    pass
+
+
+def get_worker(args):
+    if args.subcmd == "docker_cache":
+        worker = Worker(clean_docker_cache.check_and_clean, args.threshold, timeout=get_timedelta(args.timeout))
+    elif args.subcmd == "deleted_files":
+        worker = Worker(check_deleted_files.list_and_check_files, None, timeout=get_timedelta(args.timeout))
+    else:
+        raise ValueError("subcommand in arguments is not supported.")
+    return worker
+
+
 def main():
     common.setup_logging()
 
