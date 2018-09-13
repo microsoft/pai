@@ -18,11 +18,11 @@ A: Please check [job_log.md](./job_log.md)'s introduction.
 
 ### Q: To improve the cluster usage, user would like to see a VC can use up all cluster resource if others don’t use it.
 
-A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. Default value of -1 implies a queue can use complete capacity of the cluster. [OpenPAI capacity scheduler](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit. 
+A: By default, a VC can use up all cluster resource if others don’t use it. OpenPAI use [capacity scheduler](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html) of YARN for resource allocation. maximum-capacity defines a limit beyond which a queue cannot use the capacity of the cluster. This provides a means to limit how much excess capacity a queue can use. Default value of -1 implies a queue can use complete capacity of the cluster. [OpenPAI capacity scheduler](../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) not set this item and there is no limit. 
 
 ### Q: To ensure one user cannot occupy excessive resource, operator would like to set a quota constraint for individual users. 
 
-A: OpenPAI use capacity scheduler of YARN for resource allocation. User can configure the items "[yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor, yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html)" to control the user's resource quota. These configuration items are in this file [capacity-scheduler.xml.template](../pai-management/bootstrap/hadoop-resource-manager/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) of OpenPAI.
+A: OpenPAI use capacity scheduler of YARN for resource allocation. User can configure the items "[yarn.scheduler.capacity.root.{{ queueName }}.user-limit-factor, yarn.scheduler.capacity.root.{{ queueName }}.minimum-user-limit-percent](https://hadoop.apache.org/docs/r1.2.1/capacity_scheduler.html)" to control the user's resource quota. These configuration items are in this file [capacity-scheduler.xml.template](../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration/capacity-scheduler.xml.template) of OpenPAI.
 
 ```xml
   <property>
@@ -58,7 +58,7 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 
 ### Q: How to configure virtual cluster capacity? 
 
-A: Please refer [configure virtual cluster capacity](../pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
+A: Please refer [configure virtual cluster capacity](./pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job? 
 

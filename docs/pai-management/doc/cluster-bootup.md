@@ -394,7 +394,7 @@ http://<master>:9090
 
 ```From OpenPAI watchdog```:
 
-[OpenPAI watchdog](../../prometheus/doc/watchdog-metrics.md)
+[OpenPAI watchdog](../../alerting/watchdog-metrics.md)
 
 - Log
 
