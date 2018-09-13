@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #!/bin/bash
 
@@ -19,13 +19,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-INSTANCES="
-deployment/alertmanager
-configmap/alertmanager
-configmap/alert-templates
-"
+pushd $(dirname "$0") > /dev/null
 
-for instance in ${INSTANCES}; do
-  kubectl delete --ignore-not-found --now ${instance}
-done
+{% if 'alerting' in clusterinfo['prometheusinfo'] %}
+kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
+{% endif %}
 
+popd > /dev/null
