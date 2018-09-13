@@ -1,3 +1,7 @@
+#!/bin/bash
+
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,23 +19,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - prometheus-configmap.yaml
-  - prometheus-deployment.yaml
-  - start.sh
-  - refresh.sh
-  - delete.yaml
+{% if 'ssh-keyfile-path' in clusterinfo['prometheusinfo'] and 'ssh-secret-name' in clusterinfo['prometheusinfo']-%}
+kubectl create secret generic {{ clusterinfo['prometheusinfo']['ssh-secret-name'] }} --from-file=pkey={{ clusterinfo['prometheusinfo']['ssh-keyfile-path'] }}
+{% endif -%}
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+kubectl create configmap prometheus-alert --from-file=alerting --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 
-
-deploy-rules:
-  in: pai-master
+popd > /dev/null
