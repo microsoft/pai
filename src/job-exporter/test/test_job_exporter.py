@@ -16,12 +16,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import copy
 import unittest
 import yaml
 import logging
 import logging.config
-from exporter import job_exporter
+
+sys.path.append(os.path.abspath("../src/"))
+
+import job_exporter
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +39,7 @@ class TestJobExporter(unittest.TestCase):
         except:
             pass
 
-        configuration_path = "test_logging.yaml"
+        configuration_path = "logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:

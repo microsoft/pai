@@ -16,15 +16,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import unittest
 import yaml
 import logging
 import logging.config
-from exporter.docker_stats import parse_docker_stats
-from exporter.docker_stats import convert_to_byte
-from exporter.docker_stats import parse_usage_limit
-from exporter.docker_stats import parse_io
-from exporter.docker_stats import parse_percentile
+
+sys.path.append(os.path.abspath("../src/"))
+
+from docker_stats import parse_docker_stats
+from docker_stats import convert_to_byte
+from docker_stats import parse_usage_limit
+from docker_stats import parse_io
+from docker_stats import parse_percentile
 
 class TestDockerStats(unittest.TestCase):
     """
@@ -36,7 +40,7 @@ class TestDockerStats(unittest.TestCase):
         except:
             pass
 
-        configuration_path = "test_logging.yaml"
+        configuration_path = "logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:

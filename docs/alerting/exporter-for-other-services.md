@@ -17,7 +17,7 @@ metrics, this can easy code maintenance and the way for metrics collecting.
 ## Current metrics and alerts
 
 See [exporter metrics](./exporter-metrics.md) and [watchdog metrics](./watchdog-metrics.md) for metrics
-we are exposing and see [prometheus-alert](../prometheus-alert) for alerts we already defined.
+we are exposing and see [prometheus-alert](../../src/prometheus/deploy/alerting) for alerts we already defined.
 
 # Goal
 
