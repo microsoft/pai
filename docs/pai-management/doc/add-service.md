@@ -190,8 +190,8 @@ This configuration consists of 7 parts.
 
 [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 - example
-    - [Grafana](../bootstrap/grafana/grafana.yaml.template)
-    - [prometheus](../bootstrap/prometheus/prometheus-deployment.yaml.template)
+    - [Grafana](../../../bootstrap/grafana/grafana.yaml.template)
+    - [prometheus](../../../src/prometheus/deploy/prometheus-deployment.yaml.template)
 
 [Job](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/)
 - Benefits

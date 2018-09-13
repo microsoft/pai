@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,22 +21,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Call stop to stop all hadoop service first"
-sh stop.sh
-
-echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap hbase-delete --from-file=hbase-delete/
-
-echo "Create cleaner daemon"
-kubectl create -f delete.yaml
-sleep 5
-
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
-
-echo "Hbase Service clean job is done"
-echo "Delete Hbase cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-hbase
-kubectl delete configmap hbase-delete
-sleep 5
+{% if 'alerting' in clusterinfo['prometheusinfo'] %}
+kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
+kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
+{% endif %}
 
 popd > /dev/null

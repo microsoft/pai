@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,24 +15,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM python:2.7
 
-echo "Call stop to stop all hadoop service first"
-sh stop.sh
+ENV NVIDIA_VERSION=current
+ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
+ENV PATH=$PATH:$NV_DRIVER/bin
 
-echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap hbase-delete --from-file=hbase-delete/
+RUN mkdir -p /job_exporter
+COPY src/* /job_exporter/
 
-echo "Create cleaner daemon"
-kubectl create -f delete.yaml
-sleep 5
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+RUN tar xzvf docker-17.06.2-ce.tgz -C /usr/local/
+RUN mv /usr/local/docker/* /usr/bin/
 
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
-
-echo "Hbase Service clean job is done"
-echo "Delete Hbase cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-hbase
-kubectl delete configmap hbase-delete
-sleep 5
-
-popd > /dev/null
+CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30

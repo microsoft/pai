@@ -19,22 +19,26 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Call stop to stop all hadoop service first"
-sh stop.sh
+echo "Call stop to stop service first"
+/bin/bash stop.sh || exit $?
 
-echo "Create hadoop-delete configmap for deleting data on the host"
-kubectl create configmap hbase-delete --from-file=hbase-delete/
+echo "Create prometheus-delete configmap for deleting data on the host"
+kubectl create configmap prometheus-delete --from-file=prometheus-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
-kubectl create -f delete.yaml
+kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-prometheus || exit $?
 
-echo "Hbase Service clean job is done"
-echo "Delete Hbase cleaner daemon and configmap"
-kubectl delete ds delete-batch-job-hbase
-kubectl delete configmap hbase-delete
+echo "Hadoop Service clean job is done"
+echo "Delete cleaner daemon and configmap"
+if kubectl get daemonset | grep -q "delete-batch-job-prometheus"; then
+    kubectl delete ds delete-batch-job-prometheus || exit $?
+fi
+if kubectl get configmap | grep -q "prometheus-delete"; then
+    kubectl delete configmap prometheus-delete || exit $?
+fi
 sleep 5
 
 popd > /dev/null
