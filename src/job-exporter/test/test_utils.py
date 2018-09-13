@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import unittest
 import yaml
 import threading
@@ -23,8 +24,10 @@ import logging
 import logging.config
 import tempfile
 
-from exporter import utils
-from exporter.utils import Metric
+sys.path.append(os.path.abspath("../src/"))
+
+import utils
+from utils import Metric
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +41,7 @@ class TestUtils(unittest.TestCase):
         except:
             pass
 
-        configuration_path = "test_logging.yaml"
+        configuration_path = "logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:

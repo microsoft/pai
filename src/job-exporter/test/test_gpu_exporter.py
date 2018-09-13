@@ -16,12 +16,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import unittest
 import yaml
 import logging
 import logging.config
-from exporter import gpu_exporter
-from exporter.utils import Metric
+
+sys.path.append(os.path.abspath("../src/"))
+
+import gpu_exporter
+from utils import Metric
 
 class TestGPUExporter(unittest.TestCase):
     """
@@ -33,7 +37,7 @@ class TestGPUExporter(unittest.TestCase):
         except:
             pass
 
-        configuration_path = "test_logging.yaml"
+        configuration_path = "logging.yaml"
 
         if os.path.exists(configuration_path):
             with open(configuration_path, 'rt') as f:
