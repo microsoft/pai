@@ -57,23 +57,23 @@ User could customize Hadoop startup configuration at OpenPAI's [folder / file](.
 
 ## Configure Zookeeper <a name="zookeeper"></a>
 
-User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../src/zookeeper/zoo.cfg) 
+User could customize [Zookeeper](https://zookeeper.apache.org/) at OpenPAI's [folder / file](../../../src/zookeeper/zoo.cfg) 
 
 User could customize [Zookeeper](https://zookeeper.apache.org/) startup configuration at OpenPAI's [folder / file](../../../src/zookeeper/deploy/zookeeper.yaml.template)
 
 ## Configure Prometheus / Exporter <a name="prometheus"></a>
 
-User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) at OpenPAI's [folder / file](../bootstrap/prometheus/prometheus-configmap.yaml.template)
+User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) at OpenPAI's [folder / file](../../../src/prometheus/prometheus-configmap.yaml.template)
 
-User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) startup configuration at OpenPAI's [folder / file](../bootstrap/prometheus/prometheus-deployment.yaml.template) 
+User could customize [Prometheus](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) startup configuration at OpenPAI's [folder / file](../../../src/prometheus/prometheus-deployment.yaml.template) 
 
-User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../bootstrap/node-exporter/node-exporter.yaml.template)
+User could customize [Node-exporter](https://github.com/prometheus/node_exporter) startup configuration at OpenPAI's [folder / file](../../../src/node-exporter/node-exporter.yaml.template)
 
 ## Configure Alert Manager <a name="alertmanager"></a>
 
-User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../bootstrap/alert-manager/alert-configmap.yaml.template). Please refer to [doc](../../prometheus/doc/alert-manager.md#configuration) for more info.
+User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../../../src/alert-manager/alert-configmap.yaml.template). Please refer to [doc](../../alerting/alert-manager.md#configuration) for more info.
 
-User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../prometheus/prometheus-alert)
+User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting/prometheus-alert)
 
 ## Configure Grafana <a name="grafana"></a>
 
