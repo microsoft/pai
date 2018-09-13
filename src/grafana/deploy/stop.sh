@@ -29,10 +29,4 @@ if kubectl get configmap | grep -q "grafana-configuration"; then
 fi
 
 
-{% for host in machinelist %}
-    {% if 'grafana' in machinelist[ host ] and machinelist[ host ][ 'grafana' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} grafana- || exit $?
-    {% endif %}
-{% endfor %}
-
 popd > /dev/null
