@@ -55,9 +55,7 @@ sudo --preserve-env $JENKINS_HOME/scripts/prepare_build_env.sh'''
         }
         steps {
           sh '''#! /bin/bash
-
 set -ex
-
 # prepare path
 sudo mkdir -p ${JENKINS_HOME}/${BED}/singlebox/quick-start
 sudo mkdir -p ${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
@@ -65,13 +63,11 @@ sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
 QUICK_START_PATH=${JENKINS_HOME}/${BED}/singlebox/quick-start
 CONFIG_PATH=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
-cd pai-management/
 
 # generate quick-start
 $JENKINS_HOME/scripts/${BED}-gen_single-box.sh ${QUICK_START_PATH}
 # ! fix permission
 sudo chown core:core -R /mnt/jenkins/workspace
-
 # generate config
 ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
@@ -83,13 +79,11 @@ sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configurati
 sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
-
 # build images
-sudo ./paictl.py image build -p $CONFIG_PATH
-
+cd build/
+sudo ./pai_build.py build -c $CONFIG_PATH
 # push images
-sudo ./paictl.py image push -p $CONFIG_PATH
-
+sudo ./pai_build.py push -c $CONFIG_PATH
 '''
       }
     }
@@ -105,10 +99,8 @@ sudo ./paictl.py image push -p $CONFIG_PATH
           steps {
             sh '''#!/bin/bash
 set -ex
-
 CONFIG_PATH=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
 QUICK_START_PATH=${JENKINS_HOME}/${BED}/singlebox/quick-start
-
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop.
 # Assume the directory path of your cluster-configuration is /pathConfiguration.
@@ -127,7 +119,6 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-singlebox \
   openpai.azurecr.io/paiclusterint/dev-box > SINGLE_BOX_DEV_BOX.txt
-
 '''
             script {
               env.SINGLE_BOX_DEV_BOX = readFile("$WORKSPACE/SINGLE_BOX_DEV_BOX.txt").trim()
@@ -137,18 +128,15 @@ sudo docker run -itd \
               try {
                 sh '''#!/bin/bash
 set -ex
-
 # Working in your dev-box
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -ex
-
 # prepare directory
 rm -rf /cluster-configuration/cluster-configuration.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
-cd /pai/pai-management
-
+cd /pai
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -160,10 +148,8 @@ else
     git checkout --track origin/${GIT_BRANCH}
     git reset --hard origin/${GIT_BRANCH}
 fi
-
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
-
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
@@ -173,7 +159,6 @@ sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-con
 sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
-
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
@@ -184,13 +169,10 @@ sleep 6s
 # Step 3. Start all PAI services
 # start pai services
 ./paictl.py service start -p /cluster-configuration
-
 EOF_DEV_BOX
-
 sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
 sudo chown core:core -R /mnt/jenkins/workspace
-
 '''
               } catch (err) {
                 echo "Deploy SingleBox Failed: ${err}"
@@ -209,10 +191,8 @@ sudo chown core:core -R /mnt/jenkins/workspace
           steps {
             sh '''#!/bin/bash
 set -ex
-
 CONFIG_PATH=${JENKINS_HOME}/${BED}/cluster/cluster-configuration
 QUICK_START_PATH=${JENKINS_HOME}/${BED}/cluster/quick-start
-
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop.
 # Assume the directory path of your cluster-configuration is /pathConfiguration.
@@ -231,7 +211,6 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-cluster \
   openpai.azurecr.io/paiclusterint/dev-box > CLUSTER_DEV_BOX.txt
-
 '''
             script {
               env.CLUSTER_DEV_BOX = readFile("$WORKSPACE/CLUSTER_DEV_BOX.txt").trim()
@@ -241,18 +220,15 @@ sudo docker run -itd \
               try {
                 sh '''#!/bin/bash
 set -ex
-
 # Working in your dev-box
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -ex
-
 # prepare directory
 rm -rf /cluster-configuration/cluster-configuration.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
-cd /pai/pai-management
-
+cd /pai
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -264,10 +240,8 @@ else
     git checkout --track origin/${GIT_BRANCH}
     git reset --hard origin/${GIT_BRANCH}
 fi
-
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_cluster.sh /quick-start
-
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
@@ -277,7 +251,6 @@ sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-confi
 sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
-
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
@@ -288,13 +261,10 @@ sleep 6s
 # Step 3. Start all PAI services
 # start pai services
 ./paictl.py service start -p /cluster-configuration
-
 EOF_DEV_BOX
-
 sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
 sudo chown core:core -R /mnt/jenkins/workspace
-
 '''
               } catch (err) {
                 echo "Deploy Cluster Failed: ${err}"
@@ -351,12 +321,9 @@ sudo chown core:core -R /mnt/jenkins/workspace
                   sh (
                     //returnStatus: true,
                     script: '''#!/bin/bash
-
 set -ex
 #set -euxo pipefail
-
 sleep 60
-
 TOKEN=$(
 curl --silent --verbose \
 $SINGLE_BOX_URL/rest-server/api/v1/token \
@@ -368,7 +335,6 @@ $SINGLE_BOX_URL/rest-server/api/v1/token \
 }' \\
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
 )
-
 # Submit a job
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
@@ -398,8 +364,6 @@ curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
 if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
-
-
 '''
                   )
                 } catch (err) {
@@ -455,12 +419,9 @@ done
                   sh (
                     //returnStatus: true,
                     script: '''#!/bin/bash
-
 set -ex
 #set -euxo pipefail
-
 sleep 60
-
 TOKEN=$(
 curl --silent --verbose \
 $CLUSTER_URL/rest-server/api/v1/token \
@@ -472,7 +433,6 @@ $CLUSTER_URL/rest-server/api/v1/token \
 }' \\
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
 )
-
 # Submit a job
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
@@ -502,8 +462,6 @@ curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME \
 if [ "$STATUS" == 'SUCCEEDED' ]; then exit 0; fi
 if [ "$STATUS" != 'WAITING' ] && [ "$STATUS" != 'RUNNING' ]; then exit 1; fi
 done
-
-
 '''
                   )
                 } catch (err) {
@@ -563,13 +521,10 @@ done
           steps {
             sh '''#!/bin/bash
 set -x
-
 # Working in your dev-box
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
-
-cd /pai/pai-management
-
+cd /pai
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -581,7 +536,6 @@ else
     git checkout --track origin/${GIT_BRANCH}
     git reset --hard origin/${GIT_BRANCH}
 fi
-
 # delete service for next install
 ./paictl.py service start -p /cluster-configuration -n cluster-configuration
 
@@ -593,11 +547,8 @@ EOF
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
-
 EOF_DEV_BOX
-
 sudo docker rm -f ${SINGLE_BOX_DEV_BOX}
-
 '''
           }
         }
@@ -611,13 +562,10 @@ sudo docker rm -f ${SINGLE_BOX_DEV_BOX}
           steps {
             sh '''#!/bin/bash
 set -x
-
 # Working in your dev-box
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
-
-cd /pai/pai-management
-
+cd /pai
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -629,7 +577,6 @@ else
     git checkout --track origin/${GIT_BRANCH}
     git reset --hard origin/${GIT_BRANCH}
 fi
-
 # delete service for next install
 ./paictl.py service start -p /cluster-configuration -n cluster-configuration
 
@@ -641,11 +588,8 @@ EOF
 ./paictl.py cluster k8s-clean -p /cluster-configuration -f << EOF
 Y
 EOF
-
 EOF_DEV_BOX
-
 sudo docker rm -f ${CLUSTER_DEV_BOX}
-
 '''
           }
         }
