@@ -26,5 +26,5 @@ export LAUNCHER_OPTS="$LAUNCHER_OPTS -DLAUNCHER_LOG_DIR=$LAUNCHER_LOG_DIR"
 export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin
 export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native
 export HADOOP_CLASSPATH=$(hadoop classpath)
-java $LAUNCHER_OPTS -cp *:$CLASSPATH:$HADOOP_CLASSPATH com.microsoft.frameworklauncher.service.Bootstrap
+java $JAVA_OPTS $LAUNCHER_OPTS -cp *:$CLASSPATH:$HADOOP_CLASSPATH com.microsoft.frameworklauncher.service.Bootstrap
 popd

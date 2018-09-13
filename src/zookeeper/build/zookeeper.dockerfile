@@ -26,7 +26,7 @@ COPY build/zoo.cfg /etc/zookeeper/conf/
 COPY build/myid /
 
 # Use sed to modify Zookeeper env variable to also log to the console
-RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /usr/share/zookeeper/bin/zkEnv.sh
+RUN sed -i '/^ZOO_LOG4J_PROP/ s:.*:ZOO_LOG4J_PROP="INFO,CONSOLE":' /etc/zookeeper/conf/environment
 
 COPY build/run.sh /usr/local/run.sh
 RUN chmod a+x /usr/local/run.sh

@@ -46,6 +46,9 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        env:
+        - name: JAVA_OPTS
+          value: "-server -Xmx512m"
         resources:
           limits:
             memory: "1Gi"
