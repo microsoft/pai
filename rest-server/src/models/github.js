@@ -18,49 +18,47 @@
 
 const dbUtility = require('../util/dbUtil');
 const logger = require('../config/logger');
+const userModel = require('../models/user');
 
 /**
  * A K-V store with 10-min timeout.
- * Key: HTTP requested path.
- * Val: { code: xxx, data: yyy }
+ * Key: user name.
+ * Val: GitHub PAT.
  */
-const cache = dbUtility.getStorageObject('localCache', {
+const patCache = dbUtility.getStorageObject('localCache', {
   ttlSeconds: 600,
 });
 
-const wrapWithCache = (handler) => {
-  return function(req, res) {
-    let key = req.originalUrl;
-    cache.get(key, null, function(err1, val1) {
-      if (err1 || !val1) {
-        handler(req, function(err2, val2) {
-          if (err2) {
-            // Double check because other request may fill in cache already
-            cache.get(key, null, function(err3, val3) {
-              if (err3 || !val3) {
-                logger.error(err3);
-                res.status(err2.code).json({
-                  message: err2.message,
-                });
-              } else {
-                res.status(val3.code).json(val3.data);
-              }
-            });
-          } else {
-            cache.set(key, val2, null, function(err3, _) {
-              if (err3) {
-                logger.error(err3);
-              }
-              res.status(val2.code).json(val2.data);
-            });
-          }
-        });
-      } else {
-        logger.debug(`hit cache with path "${key}"`);
-        res.status(val1.code).json(val1.data);
+const getPatWithCache = (userName, callback) => {
+  if (!userName) {
+    return callback(new Error('Found invalid userName.'), null);
+  }
+  patCache.get(userName, null, function(err, val) {
+    if (err) {
+      return callback(err, null);
+    }
+    if (val) {
+      logger.debug(`hit cache with account "${userName}"`);
+      return callback(null, val);
+    }
+    userModel.getUserGithubPAT(userName, function(err, pat) {
+      if (err) {
+        return callback(err, null);
       }
+      if (!pat) {
+        return callback(null, null);
+      }
+      logger.debug('cache the GitHub pat for current user');
+      patCache.set(userName, pat, null, function(err, _) {
+        if (err) {
+          logger.error(err);
+        }
+        callback(null, pat);
+      });
     });
-  };
+  });
 };
 
-module.exports = wrapWithCache;
+module.exports = {
+  getPAT: getPatWithCache,
+};
