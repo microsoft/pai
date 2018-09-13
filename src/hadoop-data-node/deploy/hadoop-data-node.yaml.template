@@ -54,6 +54,8 @@ spec:
           limits:
             memory: "1Gi"
         env:
+        - name: HADOOP_DATANODE_OPTS
+          value: "-Xmx512m"
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG
