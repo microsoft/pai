@@ -15,6 +15,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-copy-list:
-  - src: ../prometheus/exporter
-    dst: src/gpu-exporter/copied_file
+FROM python:3.7
+
+WORKDIR /root/
+
+COPY src/yarn_exporter.py /usr/local/
+COPY src/requirements.txt /usr/local/
+
+RUN pip3 install -r /usr/local/requirements.txt

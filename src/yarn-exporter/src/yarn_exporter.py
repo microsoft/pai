@@ -16,9 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from datetime import datetime, time, timedelta
 from wsgiref.simple_server import make_server
-from collections import defaultdict
 import urllib.parse
 import argparse
 
@@ -26,6 +24,7 @@ from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, REGIS
 from prometheus_client import make_wsgi_app
 import attr
 import requests
+
 
 class YarnCollector(object):
     api_path = '/'
@@ -40,6 +39,7 @@ class YarnCollector(object):
 
     def collect(self):
         raise NotImplemented
+
 
 @attr.s
 class YarnMetric(object):
@@ -72,6 +72,7 @@ class YarnMetric(object):
         else:
             raise ValueError('property metric_type value must in {0}, can not be {1}'.format(self.supported_type, self.metric_type))
 
+
 class YarnMetricCollector(YarnCollector):
     api_path = '/ws/v1/cluster/metrics'
 
@@ -90,7 +91,7 @@ class YarnMetricCollector(YarnCollector):
                                     'The number of allocated GPUs',['cluster']).create_metric()
         gpus_used.add_metric([self.cluster_name], metric['allocatedGPUs'])
         yield gpus_used
-        
+
         nodes_all = YarnMetric('nodes_all', YarnMetric.GAUGE,
                                'The total number of nodes', ['cluster']).create_metric()
         nodes_all.add_metric([self.cluster_name], metric['totalNodes'])
@@ -130,12 +131,11 @@ def get_parser():
     parser.add_argument("--host", "-H", help="Exporter host address", default="0.0.0.0")
     parser.add_argument("--collected-apps", "-c", nargs="*",
                         help="Name of applications need to collect running status")
-    
+
     return parser
 
 if __name__ == "__main__":
     args = get_parser().parse_args()
-
 
     REGISTRY.register(YarnMetricCollector(args.yarn_url + '/metrics', args.cluster_name))
     app = make_wsgi_app(REGISTRY)

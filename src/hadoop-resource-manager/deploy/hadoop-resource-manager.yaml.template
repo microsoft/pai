@@ -81,7 +81,7 @@ spec:
           - "python3"
           - "/usr/local/yarn_exporter.py"
           - "http://127.0.0.1:8088"
-          - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"       
+          - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

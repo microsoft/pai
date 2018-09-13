@@ -15,19 +15,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
+FROM python:2.7
 
-template-list:
-  - node-exporter.yaml
+ENV NVIDIA_VERSION=current
+ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
+ENV PATH=$PATH:$NV_DRIVER/bin
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+RUN mkdir -p /job_exporter
+COPY src/* /job_exporter/
 
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
+RUN tar xzvf docker-17.06.2-ce.tgz -C /usr/local/
+RUN mv /usr/local/docker/* /usr/bin/
 
-deploy-rules:
-  notin: no-nodeexporter
+CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30
