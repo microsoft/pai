@@ -64,7 +64,7 @@ spec:
           periodSeconds: 3
         resources:
           limits:
-            memory: "4Gi"
+            memory: "6Gi"
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -86,6 +86,8 @@ spec:
           value: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
         - name: CURRENT_IMAGE_NAME
           value: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        - name: YARN_NODEMANAGER_HEAPSIZE
+          value: "4098"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
