@@ -63,13 +63,15 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: TIMELINE_SERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: YARN_RESOURCEMANAGER_HEAPSIZE
+          value: "6144"
         - name: GENERATE_CONFIG
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
         resources:
           limits:
-            memory: "16Gi"
+            memory: "8Gi"
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
