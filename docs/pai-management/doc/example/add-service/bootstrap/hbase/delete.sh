@@ -29,7 +29,7 @@ echo "Create cleaner daemon"
 kubectl create -f delete.yaml
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-hbase
 
 echo "Hbase Service clean job is done"
 echo "Delete Hbase cleaner daemon and configmap"
