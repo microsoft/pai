@@ -34,7 +34,7 @@ User could customize Webportal startup configuration at OpenPAI's [folder / file
 
 User could customize Pylon at OpenPAI's [folder / file](../../pylon/README.md#Configuration) 
 
-User could customize Pylon startup configuration at OpenPAI's [folder / file](../../../src/pylon/pylon.yaml.template) 
+User could customize Pylon startup configuration at OpenPAI's [folder / file](../../../src/pylon/deploy/pylon.yaml.template) 
 
 ## Configure FrameworkLauncher <a name="frameworklauncher"></a>
 
@@ -73,7 +73,7 @@ User could customize [Node-exporter](https://github.com/prometheus/node_exporter
 
 User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../../../src/alert-manager/deploy/alert-configmap.yaml.template). Please refer to [doc](../../alerting/alert-manager.md#configuration) for more info.
 
-User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting/prometheus-alert)
+User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting)
 
 ## Configure Grafana <a name="grafana"></a>
 
