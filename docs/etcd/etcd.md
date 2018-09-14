@@ -45,7 +45,7 @@ For general instructions about upgrading etcd please refer [upgrading-etcd](http
 
 ## Service Monitoring
 
-- Watchdog can report the etcd health metrics `etcd_current_status_error`. Please refer [watchdog doc](../../prometheus/doc/watchdog-metrics.md) for the detailed metrics.
+- Watchdog can report the etcd health metrics `etcd_current_status_error`. Please refer [watchdog doc](../alerting/watchdog-metrics.md) for the detailed metrics.
 - Etcd service can be monitored by Prometheus or Grafana. Please refer [monitoring](https://coreos.com/etcd/docs/latest/op-guide/monitoring.html) for details.
 - Etcd's status can also be found from the cluster's Kubernets dashboard. In the Pods view the pods with name prefix "etcd-server" will run etcd service.
 
