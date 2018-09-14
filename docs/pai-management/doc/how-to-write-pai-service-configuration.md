@@ -38,9 +38,9 @@ User could customize Pylon startup configuration at OpenPAI's [folder / file](..
 
 ## Configure FrameworkLauncher <a name="frameworklauncher"></a>
 
-User could customize FrameworkLauncher at OpenPAI's [folder / file](../../frameworklauncher/doc/USERMANUAL.md#Configuration) 
+User could customize FrameworkLauncher at OpenPAI's [folder / file](../../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Configuration)
 
-User could customize FrameworkLauncher startup configuration at OpenPAI's [folder / file](../bootstrap/frameworklauncher/frameworklauncher.yaml.template) 
+User could customize FrameworkLauncher startup configuration at OpenPAI's [folder / file](../../../pai-management/bootstrap/frameworklauncher/frameworklauncher.yaml.template)
 
 ## Configure Rest-server <a name="restserver"></a>
 
