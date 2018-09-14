@@ -52,7 +52,7 @@ python paictl.py image build -p /path/to/configuration/ -n hadoop-run
 
 HDFS name node and data node both have it configuration files.
 They are located in [name node configuration](../../src/hadoop-name-node/deploy/hadoop-name-node-configuration)
-and [data node configuration](../src/hadoop-data-node/deploy/hadoop-data-node-configuration) respectively.
+and [data node configuration](../../src/hadoop-data-node/deploy/hadoop-data-node-configuration) respectively.
 All the HDFS related properties are in file *core-site.xml* and *hdfs-site.xml*. 
 Please refer [core-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-common/core-default.xml)
 and [hdfs-site.xml](https://hadoop.apache.org/docs/r2.9.0/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml)
