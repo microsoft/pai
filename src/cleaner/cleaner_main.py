@@ -61,7 +61,7 @@ class Cleaner(LoggerMixin):
 
 def get_worker(arg):
     if arg == "docker_cache":
-        worker = Worker(clean_docker_cache.check_and_clean, 10, timeout=timedelta(minutes=10))
+        worker = Worker(clean_docker_cache.check_and_clean, 50, timeout=timedelta(minutes=10))
     elif arg == "deleted_files":
         worker = Worker(check_deleted_files.list_and_check_files, None, timeout=timedelta(minutes=10))
     else:
@@ -77,7 +77,7 @@ def main():
     common.setup_logging()
 
     cleaner = Cleaner()
-    cleaner.add_worker(args.otpion, get_worker(args.option))
+    cleaner.add_worker(args.option, get_worker(args.option))
     cleaner.start()
     cleaner.sync()
 
