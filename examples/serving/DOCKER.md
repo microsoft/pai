@@ -16,10 +16,10 @@ You can also jump to [Serving a TensorFlow model](#serving-a-tensorflow-model) u
 
 We need to build a TensorFlow serving image with GPU support to serve a TensorFlow model on PAI, this can be done in two steps:
 
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base) which can be built directly.
 
     ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda9.0-cudnn7
+    $ cd ../Dockerfiles/cuda9.0-cudnn7
     $ sudo docker build -f Dockerfile.build.base \
     >                   -t pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04 .
     $ cd -

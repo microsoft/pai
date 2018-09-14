@@ -20,7 +20,7 @@
 const marked = require('marked');
 
 
-const baseUrl = 'https://github.com/Microsoft/pai/tree/master/job-tutorial/';
+const baseUrl = 'https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles';
 
 const renderer = new marked.Renderer();
 renderer.link = (href, title, text) => {
