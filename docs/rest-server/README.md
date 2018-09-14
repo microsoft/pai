@@ -27,14 +27,14 @@ REST Server exposes a set of interface that allows you to manage jobs.
 ## Architecture
 
 REST Server is a Node.js API service for PAI that deliver client requests to different upstream
-services, including [FrameworkLauncher](../../src/frameworklauncher), Apache Hadoop YARN, WebHDFS and
+services, including [FrameworkLauncher](../frameworklauncher/README.md), Apache Hadoop YARN, WebHDFS and
 etcd, with some request transformation.
 
 ## Dependencies
 
 To start a REST Server service, the following services should be ready and correctly configured.
 
-* [FrameworkLauncher](../../src/frameworklauncher)
+* [FrameworkLauncher](../frameworklauncher/README.md)
 * Apache Hadoop YARN
 * HDFS
 * etcd
@@ -59,7 +59,7 @@ If REST Server is deployed by [pai management tool][pai-management], configurati
 If REST Server is deployed manually, the following fields should be configured as environment
 variables:
 
-* `LAUNCHER_WEBSERVICE_URI`: URI endpoint of [Framework Launcher](../../src/frameworklauncher)
+* `LAUNCHER_WEBSERVICE_URI`: URI endpoint of [Framework Launcher](../frameworklauncher/README.md)
 * `HDFS_URI`: URI endpoint of HDFS
 * `WEBHDFS_URI`: URI endpoint of WebHDFS
 * `YARN_URI`: URI endpoint of Apache Hadoop YARN
