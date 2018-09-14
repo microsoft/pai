@@ -117,7 +117,7 @@
                             },
                             {
                                 "name": "frameworklauncher-config-volume",
-                                "mountPath": "/frameworklauncher-configuration"
+                                "mountPath": "/yarn-frameworklauncher-configuration"
                             },
                             {
                                 "name": "launcher-log",

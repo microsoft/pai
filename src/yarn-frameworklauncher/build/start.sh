@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,7 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# the copy will be placed in the path src/framworklauncher/copied_file
-copy-list:
-  - src: ../frameworklauncher
-    dst: src/frameworklauncher/copied_file
+#get the config generating script from kubenretes configmap
+cp /yarn-frameworklauncher-configuration/${GENERATE_CONFIG}  generate_config.sh
+chmod u+x generate_config.sh
+
+./generate_config.sh
+
+
+./usr/local/launcher/start.sh

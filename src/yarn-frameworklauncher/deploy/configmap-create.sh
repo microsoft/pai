@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,20 +17,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM hadoop-run
+kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
-RUN apt-get -y update && \
-    apt-get -y install maven
-RUN rm -rf /var/lib/apt/lists/*
-
-COPY copied_file/ /usr/local/
-RUN chmod u+x /usr/local/frameworklauncher/build.sh
-RUN ./usr/local/frameworklauncher/build.sh && \
-    mkdir -p /usr/local/launcher && \
-    cp -r /usr/local/frameworklauncher/dist/* /usr/local/launcher
-RUN chmod u+x /usr/local/launcher/start.sh
-COPY start.sh /usr/local/start.sh
-RUN chmod a+x /usr/local/start.sh
-
-
-CMD ["/usr/local/start.sh"]
+kubectl create configmap yarn-frameworklauncher-delete --from-file=yarn-frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?

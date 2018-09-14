@@ -17,6 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl create configmap frameworklauncher-configmap --from-file=frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+pushd $(dirname "$0") > /dev/null
 
-kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+echo "refresh the configmap of launcher"
+
+kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+
+echo "Relabel the node with laucher tag"
+/bin/bash node-label.sh || exit $?
+
+{% for host in machinelist %}
+
+    {% if 'launcher' not in machinelist[ host ] %}
+if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
+    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
+    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
+fi
+    {% endif %}
+
+{% endfor %}
+
+popd > /dev/null

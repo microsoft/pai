@@ -39,7 +39,7 @@ spec:
           name: hadoop-nm-config-volume
         - mountPath: /hadoop-dn-configuration
           name: hadoop-dn-config-volume
-        - mountPath: /frameworklauncher-configuration
+        - mountPath: /yarn-frameworklauncher-configuration
           name: frameworklauncher-config-volume
         - mountPath: /usr/local/launcher/logs
           name: launcher-log
