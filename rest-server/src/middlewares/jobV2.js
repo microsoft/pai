@@ -17,11 +17,16 @@
 
 
 // module dependencies
+const async = require('async');
+const yaml = require('js-yaml');
+
 const param = require('./parameter');
 const jobConfig = require('../config/job');
 const jobConfigV2 = require('../config/jobV2');
 const createError = require('../util/error');
 const logger = require('../config/logger');
+const launcherConfig = require('../config/launcher');
+const Hdfs = require('../util/hdfs');
 
 const checkMinTaskNumber = (req, res, next) => {
   logger.info('check:');
@@ -79,6 +84,23 @@ const getCommands = (element) => {
   return res;
 };
 
+const saveYamlToHDFS = (req) => {
+  const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+  async.parallel([
+    (parallelCallback) => {
+      let jobConfigYaml = launcherConfig.jobConfigFileName.replace('json', 'yaml');
+      hdfs.createFile(
+        `/Container/${req.user.username}/${req.body.name}/${jobConfigYaml}`,
+        yaml.safeDump(req.body),
+        {'user.name': req.user.username, 'permission': '644', 'overwrite': 'true'},
+        (error, result) => {
+          parallelCallback(error);
+        }
+      );
+    },
+  ]);
+};
+
 const replaceParameters = (str, param) => {
   if (typeof str != 'string') return str;
   let newstr = str;
@@ -99,6 +121,7 @@ const replaceParameters = (str, param) => {
 };
 
 const parseParameters = (req, res, next) => {
+  saveYamlToHDFS(req);
   let queue = [[req.body, req.body['parameters']]];
   while (queue.length > 0) {
     let item = queue.shift();
