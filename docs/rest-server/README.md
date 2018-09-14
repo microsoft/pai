@@ -134,4 +134,4 @@ Read [API document](./API.md) for the details of REST API.
 
 
 [pai-management]: ../pai-management
-[service-configuration]: ../../cluster-configuration/services-configuration.yaml
+[service-configuration]: ../../examples/cluster-configuration/services-configuration.yaml
