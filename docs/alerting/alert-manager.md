@@ -87,13 +87,13 @@ You should also have amtool configured correctly.
 To ease configuration, OpenPAI provides a script that generate amtool config file for you, you can use
 
 ```
-python utilities/gen-amtool-config.py -p /cluster-configuration
+python src/utilities/gen-amtool-config.py -p /cluster-configuration
 ```
 
 to generate config, or using
 
 ```
-python utilities/gen-amtool-config.py -p /cluster-configuration -f
+python src/utilities/gen-amtool-config.py -p /cluster-configuration -f
 ```
 
 to overwrite existing amtool config.
