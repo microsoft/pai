@@ -13,19 +13,19 @@ First of all, PAI runs all jobs in Docker container.
 
 We need to build a Open MPI base image with GPU support to run Open MPI workload on PAI, this can be done in two steps:
 
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
 
     ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
+    $ cd ../Dockerfiles/cuda8.0-cudnn6
     $ sudo docker build -f Dockerfile.build.base \
     >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
     $ cd -
     ```
 
-2. Build an Open MPI Docker image for PAI. We prepared a [mpi Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.mpi) which can be built directly.
+2. Build an Open MPI Docker image for PAI. We prepared a [mpi Dockerfile](../Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.mpi) which can be built directly.
 
     ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
+    $ cd ../Dockerfiles/cuda8.0-cudnn6
     $ sudo docker build -f Dockerfile.build.mpi \
     >                   -t pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
     $ cd -

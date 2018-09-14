@@ -8,12 +8,12 @@ OpenPAI doesn't directly build etcd service. The service's image is pulled from 
 
 ## Configuration
 
-Configuration file [kubernetes-configuration.yaml](../../cluster-configuration/kubernetes-configuration.yaml) defines etcd as kubernetes storage and specifies the version.
+Configuration file [kubernetes-configuration.yaml](../../examples/cluster-configuration/kubernetes-configuration.yaml) defines etcd as kubernetes storage and specifies the version.
 ```yaml
 storage-backend: etcd3
 etcd-version: 3.2.17
 ```
-The etcd node can be configured in file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml) by adding a `etcdid` label on the machine.
+The etcd node can be configured in file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml) by adding a `etcdid` label on the machine.
 
 ## Deployment
 
@@ -45,7 +45,7 @@ For general instructions about upgrading etcd please refer [upgrading-etcd](http
 
 ## Service Monitoring
 
-- Watchdog can report the etcd health metrics `etcd_current_status_error`. Please refer [watchdog doc](../../prometheus/doc/watchdog-metrics.md) for the detailed metrics.
+- Watchdog can report the etcd health metrics `etcd_current_status_error`. Please refer [watchdog doc](../alerting/watchdog-metrics.md) for the detailed metrics.
 - Etcd service can be monitored by Prometheus or Grafana. Please refer [monitoring](https://coreos.com/etcd/docs/latest/op-guide/monitoring.html) for details.
 - Etcd's status can also be found from the cluster's Kubernets dashboard. In the Pods view the pods with name prefix "etcd-server" will run etcd service.
 
@@ -59,7 +59,7 @@ Sometimes the etcd nodes may not healthy, it can be repaired with command
 ```bash
 python paictl.py machine etcd-fix -p /path/to/configuration/directory -l /path/to/your/errornodelist.yaml
 ```
-Please follow instructions in [machine maintenance](./machine-maintenance.md) for the details.
+Please follow instructions in [machine maintenance](../pai-management/doc/machine-maintenance.md) for the details.
 
 ## Data Stored on Etcd
 
