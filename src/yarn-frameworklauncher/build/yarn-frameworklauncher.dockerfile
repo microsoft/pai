@@ -21,14 +21,15 @@ RUN apt-get -y update && \
     apt-get -y install maven
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY dependency/ /usr/local/
+RUN mkdir /usr/local/frameworklauncher
+
+COPY dependency/yarn/ /usr/local/frameworklauncher/
 RUN chmod u+x /usr/local/frameworklauncher/build.sh
 RUN ./usr/local/frameworklauncher/build.sh && \
     mkdir -p /usr/local/launcher && \
     cp -r /usr/local/frameworklauncher/dist/* /usr/local/launcher
 RUN chmod u+x /usr/local/launcher/start.sh
-COPY start.sh /usr/local/start.sh
+COPY build/start.sh /usr/local/start.sh
 RUN chmod a+x /usr/local/start.sh
-
 
 CMD ["/usr/local/start.sh"]

@@ -18,7 +18,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: frameworklauncher-ds
+  name: yarn-frameworklauncher-ds
 spec:
   selector:
     matchLabels:
@@ -76,7 +76,7 @@ spec:
           name: hadoop-data-node-configuration
       - name: frameworklauncher-config-volume
         configMap:
-          name: frameworklauncher-configmap
+          name: yarn-frameworklauncher-configmap
       - name: gpu-confg-volume
         configMap:
           name: gpu-configuration

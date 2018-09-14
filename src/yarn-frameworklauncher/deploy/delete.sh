@@ -23,14 +23,14 @@ pushd $(dirname "$0") > /dev/null
 echo "Call stop script to stop all service first"
 /bin/bash stop.sh || exit $?
 
-echo "Create frameworklauncher-delete configmap for deleting data on the host"
-kubectl create configmap frameworklauncher-delete --from-file=frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+echo "Create yarn-frameworklauncher-delete configmap for deleting data on the host"
+kubectl create configmap yarn-frameworklauncher-delete --from-file=yarn-frameworklauncher-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
 echo "Create cleaner daemon"
 kubectl apply --overwrite=true -f delete.yaml || exit $?
 sleep 5
 
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-frameworker-launcher || exit $?
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v delete-batch-job-frameworker-launcher || exit $?
 
 echo "Frameworklauncher clean job is done"
 echo "Delete cleaner daemon and configmap"
@@ -38,8 +38,8 @@ if kubectl get daemonset | grep -q "delete-batch-job-frameworker-launcher"; then
     kubectl delete ds delete-batch-job-frameworker-launcher || exit $?
 fi
 
-if kubectl get configmap | grep -q "frameworklauncher-delete"; then
-    kubectl delete configmap frameworklauncher-delete || exit $?
+if kubectl get configmap | grep -q "yarn-frameworklauncher-delete"; then
+    kubectl delete configmap yarn-frameworklauncher-delete || exit $?
 fi
 sleep 5
 

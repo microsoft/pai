@@ -54,7 +54,7 @@ service_list="$(kubectl get pods)"
 }
 
 @test "check frameworklauncher" {
-  [[ $service_list == *"frameworklauncher-ds"!(*$'\n'*)"Running"* ]]
+  [[ $service_list == *"yarn-frameworklauncher-ds"!(*$'\n'*)"Running"* ]]
 }
 
 @test "check rest server" {
