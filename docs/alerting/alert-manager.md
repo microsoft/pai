@@ -7,8 +7,8 @@ release.
 To enable Alert Manager, please configure Alert Manager by adding `alerting` fields under `prometheus`
 to services-configuration file.
 
-Refer to example [`cluster-configuration`](../../cluster-configuration/cluster-configuration.yaml) and
-[`service-configuration`](../../cluster-configuration/services-configuration.yaml) for more
+Refer to example [`cluster-configuration`](../../examples/cluster-configuration/cluster-configuration.yaml) and
+[`service-configuration`](../../examples/cluster-configuration/services-configuration.yaml) for more
 information.
 
 `alerting` fields has following subfield:
