@@ -21,7 +21,6 @@ prerequisite:
 
 template-list:
   - grafana.yaml
-  - stop.sh
   - grafana-configuration/pai-clusterview-dashboard.json
   - grafana-configuration/pai-nodeview-dashboard.json
   - grafana-configuration/pai-jobview-dashboard.json
