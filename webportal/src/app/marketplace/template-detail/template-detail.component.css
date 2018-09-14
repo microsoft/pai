@@ -4,7 +4,7 @@
     align-items: stretch;
 }
 
-#job-description {
+#description {
     flex-grow: 1;
     width: 100%;
     background-color: white;

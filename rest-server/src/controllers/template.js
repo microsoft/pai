@@ -18,9 +18,9 @@
 
 const cacheWrapper = require('../middlewares/cache');
 const config = require('../config/template');
+const github = require('../models/github');
 const logger = require('../config/logger');
 const template = require('../models/template');
-const userModel = require('../models/user');
 
 const fetch = (req, cb) => {
   let type = req.params.type;
@@ -73,7 +73,7 @@ const filter = (req, cb) => {
     });
   }
   let account = req.user ? req.user.username : null;
-  userModel.getUserGithubPAT(account, function(err, pat) {
+  github.getPAT(account, function(err, pat) {
     template.search({
       keywords: query,
       pageNo: req.query.pageno,
@@ -138,7 +138,7 @@ const share = (req, res) => {
   }
   let account = req.user.username;
   logger.debug(`${account} is trying to share template.`);
-  userModel.getUserGithubPAT(account, function(err, pat) {
+  github.getPAT(account, function(err, pat) {
     if (err) {
       logger.error(err);
       return res.status(500).json({
@@ -159,7 +159,7 @@ const share = (req, res) => {
       if (err) {
         logger.error(err);
         return res.status(500).json({
-          message: 'Failed to save the template.',
+          message: 'Failed to save the template. Current Github PAT may not have write access to template repo. Error: {{Code:' + err.code + '},'+ err.message + '}',
         });
       }
       return res.status(saved.new ? 201 : 200).json(saved.summary);
