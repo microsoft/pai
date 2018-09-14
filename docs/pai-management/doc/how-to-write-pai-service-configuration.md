@@ -73,7 +73,7 @@ User could customize [Node-exporter](https://github.com/prometheus/node_exporter
 
 User could customize [Alert Manager](https://prometheus.io/docs/alerting/alertmanager/) at OpenPAI's [folder / file](../../../src/alert-manager/alert-configmap.yaml.template). Please refer to [doc](../../alerting/alert-manager.md#configuration) for more info.
 
-User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting/prometheus-alert)
+User could customize [Alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) at OpenPAI's [folder / file](../../../src/prometheus/deploy/alerting)
 
 ## Configure Grafana <a name="grafana"></a>
 
