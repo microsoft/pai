@@ -80,49 +80,65 @@ class TestCacheClean(TestCase):
 
 class TestFileDelete(TestCase):
 
-    def setUp(self):
+    proc = None
+
+    @classmethod
+    def setUpClass(cls):
         setup_logging()
 
         def proc_target():
             while True:
                 time.sleep(1)
 
-        self.proc = multiprocessing.Process(target=proc_target)
+        cls.proc = multiprocessing.Process(target=proc_target)
+        cls.proc.start()
 
-    def tearDown(self):
-        self.proc.terminate()
+    @classmethod
+    def tearDownClass(cls):
+        cls.proc.terminate()
 
-    @mock.patch("multiprocessing.get_logger")
-    def testFileEmpty(self, mock_logger):
+    @mock.patch("os.path.exists")
+    def testFileEmpty(self, mock_os):
         ps_proc = psutil.Process(self.proc.pid)
-        ps_proc.open_files = mock.Mock(return_value=[""])
-        check_deleted_files.check_deleted_files(ps_proc)
-        mock_logger.warn.assert_not_called()
 
-    @mock.path("multiprocessing.get_logger")
-    def testFileDeleted(self, mock_logger):
+        file = mock.Mock()
+        file.path = ""
+        ps_proc.open_files = mock.Mock(return_value=[file])
+
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_os.assert_not_called()
+        self.assertFalse(bool(file.path) and not mock_os(file.path))
+
+    @mock.patch("os.path.exists", return_value=False)
+    def testFileDeleted(self, mock_os):
         ps_proc = psutil.Process(self.proc.pid)
-        ps_proc.open_files = mock.Mock(return_value=["/file_should_not_exist"])
-        check_deleted_files.check_deleted_files(ps_proc)
-        mock_logger.warn.assert_called_once()
 
-    @mock.path("multiprocessing.get_logger")
-    def testFileExist(self, mock_logger):
+        file = mock.Mock()
+        file.path = "/file_should_not_exist"
+        ps_proc.open_files = mock.Mock(return_value=[file])
+
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_os.assert_called_with(file.path)
+        self.assertTrue(bool(file.path) and not mock_os(file.path))
+
+    @mock.patch("os.path.exists", return_value=True)
+    def testFileExist(self, mock_os):
         ps_proc = psutil.Process(self.proc.pid)
-        open("/tmp/test_exist_file", "a").close()
 
-        ps_proc.open_files = mock.Mock(return_value=["/tmp/test_exist_file"])
+        file = mock.Mock()
+        file.path = "/tmp/test_exist_file"
+        ps_proc.open_files = mock.Mock(return_value=[file])
+
         check_deleted_files.check_deleted_files(ps_proc)
-        mock_logger.warn.assert_not_called()
+        mock_os.assert_called_with(file.path)
+        self.assertFalse(bool(file.path) and not mock_os(file.path))
 
-        os.remove("/tmp/test_exist_file")
-    
-    @mock.path("multiprocessing.get_logger")
-    def testFileException(self, mock_logger):
+    @mock.patch("os.path.exists")
+    def testFileException(self, mock_os):
         ps_proc = psutil.Process(self.proc.pid)
         ps_proc.open_files = mock.Mock(side_effect=psutil.Error())
         check_deleted_files.check_deleted_files(ps_proc)
-        mock_logger.error.assert_called_once()
+        mock_os.assert_not_called()
 
 
 if __name__ == "__main__":
