@@ -17,9 +17,12 @@
 
 from unittest import TestCase, main
 import mock
+import time
+import psutil
+import os
 import multiprocessing
 from cleaner.utils.common import setup_logging
-from cleaner.scripts import clean_docker_cache
+from cleaner.scripts import clean_docker_cache, check_deleted_files
 
 CALLED_CMD = "docker system prune -af"
 LOGGER = multiprocessing.get_logger()
@@ -73,6 +76,53 @@ class TestCacheClean(TestCase):
     def testCleanFalse(self, mock_cmd, mock_size):
         clean_docker_cache.check_and_clean(0)
         mock_cmd.assert_not_called()
+
+
+class TestFileDelete(TestCase):
+
+    def setUp(self):
+        setup_logging()
+
+        def proc_target():
+            while True:
+                time.sleep(1)
+
+        self.proc = multiprocessing.Process(target=proc_target)
+
+    def tearDown(self):
+        self.proc.terminate()
+
+    @mock.patch("multiprocessing.get_logger")
+    def testFileEmpty(self, mock_logger):
+        ps_proc = psutil.Process(self.proc.pid)
+        ps_proc.open_files = mock.Mock(return_value=[""])
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_logger.warn.assert_not_called()
+
+    @mock.path("multiprocessing.get_logger")
+    def testFileDeleted(self, mock_logger):
+        ps_proc = psutil.Process(self.proc.pid)
+        ps_proc.open_files = mock.Mock(return_value=["/file_should_not_exist"])
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_logger.warn.assert_called_once()
+
+    @mock.path("multiprocessing.get_logger")
+    def testFileExist(self, mock_logger):
+        ps_proc = psutil.Process(self.proc.pid)
+        open("/tmp/test_exist_file", "a").close()
+
+        ps_proc.open_files = mock.Mock(return_value=["/tmp/test_exist_file"])
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_logger.warn.assert_not_called()
+
+        os.remove("/tmp/test_exist_file")
+    
+    @mock.path("multiprocessing.get_logger")
+    def testFileException(self, mock_logger):
+        ps_proc = psutil.Process(self.proc.pid)
+        ps_proc.open_files = mock.Mock(side_effect=psutil.Error())
+        check_deleted_files.check_deleted_files(ps_proc)
+        mock_logger.error.assert_called_once()
 
 
 if __name__ == "__main__":
