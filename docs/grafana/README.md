@@ -11,7 +11,7 @@ Prometheus scrapes metrics through exporters. It stores all scraped samples loca
 # Dependencies
 
 The Grafana can start up independently, but to show the monitoring data, it depends on the following service:
-[Prometheus](../prometheus/README.md)
+[Prometheus](../../src/prometheus)
 
 # Build
 
@@ -22,7 +22,7 @@ python paictl.py image build -p /path/to/cluster-configuration/dir -n grafana
 ```
 
 # Configuration / Reconfiguration
-You can change the following configuration of Grafana in [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml) file:
+You can change the following configuration of Grafana in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
 
 ```
 grafana-port: 3000        # port for grafana

@@ -10,9 +10,9 @@
 
 ## 1 Diagnose job failure reason  <a name="job"></a>
 
-OpenPAI job is launched by [famework launcher](../frameworklauncher/doc/USERMANUAL.md), and each task container is managed by launcher application master.
+OpenPAI job is launched by [famework launcher](../subprojects/frameworklauncher/yarn/README.md), and each task container is managed by launcher application master.
 
-LauncherAM will manage each job's tasks by customized feature requirement. You can refer to this document  [frameworklauncher architecture](../frameworklauncher/doc/USERMANUAL.md#Architecture) to understand the relationship between them.
+LauncherAM will manage each job's tasks by customized feature requirement. You can refer to this document  [frameworklauncher architecture](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Architecture) to understand the relationship between them.
 
  When we diagnose job problems through logs, we shoud pay attention to job launcher AM log (get the main reason) or zoom in job task container log.
 
@@ -136,7 +136,7 @@ ContainerLogHttpAddress:
 
 ### 1.3 Job exitStatus Convention <a name="exit"></a>
 
-You can check all the defined ExitStatus by: ExitType, ExitDiagnostics from framework launcher [USERMANUAL.md](../frameworklauncher/doc/USERMANUAL.md#ExitStatus_Convention)
+You can check all the defined ExitStatus by: ExitType, ExitDiagnostics from framework launcher [USERMANUAL.md](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ExitStatus_Convention)
 
 ## 2 Diagnostic job retried many times reason  <a name="retry"></a>
 
