@@ -22,7 +22,7 @@ python paictl.py image build -p /path/to/cluster-configuration/dir -n grafana
 ```
 
 # Configuration / Reconfiguration
-You can change the following configuration of Grafana in [services-configuration.yaml](../cluster-configuration/services-configuration.yaml) file:
+You can change the following configuration of Grafana in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
 
 ```
 grafana-port: 3000        # port for grafana
