@@ -61,7 +61,7 @@ for the detailed property descriptions.
 ## Storage Path <a name="Storage_Path"></a>
 
 HDFS's data storage path on a machine is configured by *cluster.data-path* in 
-file [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml).
+file [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
 All the HDFS related data both on name node and data node will be stored under this path.
 
 ### Name Node <a name="Name_Node"></a>
@@ -132,7 +132,7 @@ Data on HDFS can be accessed by various ways. Users can choose the proper way ac
 WebHDFS provides a set of REST APIs and this is our recommended way to access data.
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
 The rest server URI is http://hdfs-name-node-address:5070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
+in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
@@ -165,13 +165,13 @@ All commands are located in *bin* directory.
 Please refer [HDFS Command Guid](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
 Here the *name-node-port* is 9000. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true* in configuration
-file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
+file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
 
 ## Web Portal <a name="Web_Portal"></a>
 
 Data on HDFS can be accessed by pointing your web browser to http://hdfs-name-node-address:5070/explorer.html after the cluster is ready.
 The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../cluster-configuration/cluster-configuration.yaml).
+in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
 From release 2.9.0 users can upload or delete files on the web portal. On earlier release users can only browse the data.
 
 ## Mountable HDFS <a name="Mountable_HDFS"></a>
