@@ -38,7 +38,7 @@ For development
 
 ## Configuration
 
-If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../../cluster-configuration/services-configuration.yaml) file:
+If web portal is deployed within PAI cluster, the following config field could be change in the `webportal` section in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
 
 * `server-port`: Integer. The network port to access the web portal. The default value is 9286.
 
