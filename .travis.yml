@@ -34,7 +34,7 @@ matrix:
       install:
         - pip install markdown
       script:
-        - python utilities/doc_checker.py .
+        - python src/utilities/doc_checker.py .
 
     - language: java
       jdk: oraclejdk8
