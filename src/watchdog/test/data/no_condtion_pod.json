@@ -116,7 +116,7 @@
                                 "mountPath": "/hadoop-dn-configuration"
                             },
                             {
-                                "name": "frameworklauncher-config-volume",
+                                "name": "yarn-frameworklauncher-config-volume",
                                 "mountPath": "/yarn-frameworklauncher-configuration"
                             },
                             {
