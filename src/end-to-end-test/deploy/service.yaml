@@ -17,7 +17,7 @@
 
 prerequisite:
   - cluster-configuration
-  - frameworklauncher
+  - yarn-frameworklauncher
   - rest-server
 
 template-list:
