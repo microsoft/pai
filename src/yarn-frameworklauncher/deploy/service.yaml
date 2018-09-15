@@ -21,7 +21,7 @@ prerequisite:
   - hadoop-batch-job
 
 template-list:
-  - frameworklauncher.yaml
+  - yarn-frameworklauncher.yaml
   - stop.sh
   - refresh.sh
   - delete.yaml

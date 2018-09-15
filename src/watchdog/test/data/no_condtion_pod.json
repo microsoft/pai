@@ -4,10 +4,10 @@
     "items": [
         {
             "metadata": {
-                "name": "frameworklauncher-ds-2684q",
-                "generateName": "frameworklauncher-ds-",
+                "name": "yarn-frameworklauncher-ds-2684q",
+                "generateName": "yarn-frameworklauncher-ds-",
                 "namespace": "default",
-                "selfLink": "/api/v1/namespaces/default/pods/frameworklauncher-ds-2684q",
+                "selfLink": "/api/v1/namespaces/default/pods/yarn-frameworklauncher-ds-2684q",
                 "uid": "b492b284-8a77-11e8-a8fc-000d3ab25bb6",
                 "resourceVersion": "87290",
                 "creationTimestamp": "2018-07-18T10:45:37Z",
@@ -20,7 +20,7 @@
                     {
                         "apiVersion": "extensions/v1beta1",
                         "kind": "DaemonSet",
-                        "name": "frameworklauncher-ds",
+                        "name": "yarn-frameworklauncher-ds",
                         "uid": "b4918fda-8a77-11e8-a8fc-000d3ab25bb6",
                         "controller": true,
                         "blockOwnerDeletion": true
@@ -51,9 +51,9 @@
                         }
                     },
                     {
-                        "name": "frameworklauncher-config-volume",
+                        "name": "yarn-frameworklauncher-config-volume",
                         "configMap": {
-                            "name": "frameworklauncher-configmap",
+                            "name": "yarn-frameworklauncher-configmap",
                             "defaultMode": 420
                         }
                     },
@@ -116,8 +116,8 @@
                                 "mountPath": "/hadoop-dn-configuration"
                             },
                             {
-                                "name": "frameworklauncher-config-volume",
-                                "mountPath": "/frameworklauncher-configuration"
+                                "name": "yarn-frameworklauncher-config-volume",
+                                "mountPath": "/yarn-frameworklauncher-configuration"
                             },
                             {
                                 "name": "launcher-log",

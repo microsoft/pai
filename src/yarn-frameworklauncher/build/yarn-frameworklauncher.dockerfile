@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,23 +15,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
+FROM hadoop-run
 
-if kubectl get daemonset | grep -q "frameworklauncher-ds"; then
-    kubectl delete ds frameworklauncher-ds || exit $?
-fi
+RUN apt-get -y update && \
+    apt-get -y install maven
+RUN rm -rf /var/lib/apt/lists/*
 
-if kubectl get configmap | grep -q "frameworklauncher-configmap"; then
-    kubectl delete configmap frameworklauncher-configmap || exit $?
-fi
+RUN mkdir /usr/local/frameworklauncher
 
+COPY dependency/yarn/ /usr/local/frameworklauncher/
+RUN chmod u+x /usr/local/frameworklauncher/build.sh
+RUN ./usr/local/frameworklauncher/build.sh && \
+    mkdir -p /usr/local/launcher && \
+    cp -r /usr/local/frameworklauncher/dist/* /usr/local/launcher
+RUN chmod u+x /usr/local/launcher/start.sh
+COPY build/start.sh /usr/local/start.sh
+RUN chmod a+x /usr/local/start.sh
 
-{% for host in machinelist %}
-    {% if 'launcher' in machinelist[ host ] and machinelist[ host ][ 'launcher' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
-    {% endif %}
-{% endfor %}
-
-
-
-popd > /dev/null
+CMD ["/usr/local/start.sh"]

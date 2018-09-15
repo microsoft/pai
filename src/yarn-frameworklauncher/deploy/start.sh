@@ -23,6 +23,6 @@ pushd $(dirname "$0") > /dev/null
 
 /bin/bash configmap-create.sh || exit $?
 
-kubectl apply --overwrite=true -f frameworklauncher.yaml || exit $?
+kubectl apply --overwrite=true -f yarn-frameworklauncher.yaml || exit $?
 
 popd > /dev/null

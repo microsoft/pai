@@ -37,11 +37,11 @@ spec:
         volumeMounts:
         - mountPath: /mnt
           name: data-path
-        - mountPath: /frameworklauncher-delete
-          name: frameworklauncher-delete-config
+        - mountPath: /yarn-frameworklauncher-delete
+          name: yarn-frameworklauncher-delete-config
         env:
         - name: DELETE_CONFIG
-          value: frameworklauncher-delete
+          value: yarn-frameworklauncher-delete
         - name: WORKER_CONFIG
           value: delete-data.sh
         readinessProbe:
@@ -57,6 +57,6 @@ spec:
       - name: data-path
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}
-      - name: frameworklauncher-delete-config
+      - name: yarn-frameworklauncher-delete-config
         configMap:
-          name: frameworklauncher-delete
+          name: yarn-frameworklauncher-delete

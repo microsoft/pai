@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #get the config generating script from kubenretes configmap
-cp /frameworklauncher-configuration/${GENERATE_CONFIG}  generate_config.sh
+cp /yarn-frameworklauncher-configuration/${GENERATE_CONFIG}  generate_config.sh
 chmod u+x generate_config.sh
 
 ./generate_config.sh
