@@ -331,7 +331,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/token \
 --data '{
 "username": "admin",
 "password": "admin-password",
-"expiration": 7200
+"expiration": 3600
 }' \\
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['token'])"
 )
