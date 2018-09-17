@@ -18,6 +18,7 @@
 
 import git
 import sys
+import time
 import logging
 
 
@@ -28,38 +29,51 @@ from ...paiLibrary.common import directory_handler
 
 class git_storage:
 
-    def __init__(self, storage_configuration):
+    def __init__(self, storage_configuration, local_store = "/tmp/pai-conf-sync/git-storage"):
 
         self.repo_url = storage_configuration["url"]
         self.branch = storage_configuration["branch"]
         self.path = storage_configuration["path"]
 
+        self.time = str(int(time.time()))
         self.logger = logging.getLogger(__name__)
+        self.local_store = "{0}-{1}".format(local_store, self.time)
 
 
 
-    def git_clone(self, local_store = "/tmp/pai-conf-sync/git-storage"):
+    def git_clone(self):
         try:
-            self.repo = git.Repo.clone_from(self.repo_url, local_store, branch=self.branch)
+            self.repo = git.Repo.clone_from(self.repo_url, self.local_store, branch=self.branch)
         except:
             self.logger.error("Failed to clone the repo from [ url: {0},  branch: {1} ]".format(self.repo_url, self.branch))
             sys.exit(1)
 
 
 
-    def git_file_clean(self, local_store = "/tmp/pai-conf-sync/git-storage"):
-        file_handler.file_delete(local_store)
+    def git_file_clean(self):
+        file_handler.file_delete(self.local_store)
 
 
 
-    def get_conf(self, local_store = "/tmp/pai-conf-sync/git-storage"):
 
-        configuation_path = "{0}/{1}".format(local_store, self.path)
+    def rm_conf(self):
+        configuation_path = "{0}/{1}".format(self.local_store, self.path)
+        directory_handler.directory_delete(configuation_path)
+
+
+
+    def get_conf(self):
+
+        configuation_path = "{0}/{1}".format(self.local_store, self.path)
         if not directory_handler.directory_exist_or_not(configuation_path):
             self.logger.error("Unable to find configuration path in the repo.")
             self.logger.error("Path: {0}".format(self.path))
             self.logger.error("Repo: {0}".format(self.repo_url))
             sys.exit(1)
+
+        pai_temp_path = "./tmp-config-{0}".format(self.time)
+        directory_handler.directory_copy(configuation_path, pai_temp_path)
+
 
 
 
