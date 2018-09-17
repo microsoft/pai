@@ -73,57 +73,6 @@ def load_cluster_objectModel_k8s(config_path):
 
 
 
-def login_docker_registry(docker_registry, docker_username, docker_password):
-
-    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
-    error_msg = "docker registry login error"
-    linux_shell.execute_shell(shell_cmd, error_msg)
-    logger.info("docker registry login successfully")
-
-
-
-def generate_secret_base64code(docker_info):
-
-    domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if domain == "public":
-        domain = ""
-
-    if username and passwd:
-        login_docker_registry( domain, username, passwd )
-
-        base64code = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json | base64",
-            "Failed to base64 the docker's config.json"
-        )
-    else:
-        logger.info("docker registry authentication not provided")
-
-        base64code = "{}".encode("base64")
-
-    docker_info["base64code"] = base64code.replace("\n", "")
-
-
-
-def generate_docker_credential(docker_info):
-
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if username and passwd:
-        credential = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json",
-            "Failed to get the docker's config.json"
-        )
-    else:
-        credential = "{}"
-
-    docker_info["credential"] = credential
-
-
-
 def generate_image_url_prefix(docker_info):
 
     domain = str(docker_info["docker_registry_domain"])
@@ -205,8 +154,6 @@ def cluster_object_model_generate_service(config_path):
 
     cluster_config = load_cluster_objectModel_service(config_path)
 
-    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
@@ -298,45 +245,6 @@ class SubCmd(object):
         """ will call run with expected args, subclass do not have to override this method
         if subclass use `add_handler` to register handler. """
         args.handler(args)
-
-
-class Image(SubCmd):
-    def register(self, parser):
-        image_parser = parser.add_subparsers(help="image operations")
-
-        def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                    help="The path of your configuration directory.")
-            parser.add_argument("-n", "--image-name", dest="image_name", default="all",
-                    help="Build and push the target image to the registry")
-
-        build_parser = SubCmd.add_handler(image_parser, self.image_build, "build")
-        push_parser = SubCmd.add_handler(image_parser, self.image_push, "push")
-
-        add_arguments(build_parser)
-        add_arguments(push_parser)
-
-    def process_args(self, args):
-        cluster_object_model = load_cluster_objectModel_service(args.config_path)
-
-        image_list = None
-        if args.image_name != "all":
-            image_list = [args.image_name]
-
-        return cluster_object_model, image_list
-
-    def image_build(self, args):
-        cluster_object_model, image_list = self.process_args(args)
-
-        center = build_center.build_center(cluster_object_model, image_list)
-        center.run()
-
-    def image_push(self, args):
-        cluster_object_model, image_list = self.process_args(args)
-
-        center = push_center.push_center(cluster_object_model, image_list)
-        center.run()
-
 
 class Machine(SubCmd):
     def register(self, parser):
@@ -503,11 +411,11 @@ class Service(SubCmd):
 
 class Cluster(SubCmd):
     def register(self, parser):
-        image_parser = parser.add_subparsers(help="cluster operations")
+        cluster_parser = parser.add_subparsers(help="cluster operations")
 
-        bootup_parser = SubCmd.add_handler(image_parser, self.k8s_bootup, "k8s-bootup")
-        clean_parser = SubCmd.add_handler(image_parser, self.k8s_clean, "k8s-clean")
-        install_parser = SubCmd.add_handler(image_parser, self.install_kubectl, "install-kubectl")
+        bootup_parser = SubCmd.add_handler(cluster_parser, self.k8s_bootup, "k8s-bootup")
+        clean_parser = SubCmd.add_handler(cluster_parser, self.k8s_clean, "k8s-clean")
+        install_parser = SubCmd.add_handler(cluster_parser, self.install_kubectl, "install-kubectl")
 
         bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
             help="path of cluster configuration file")
@@ -617,7 +525,6 @@ def main(args):
     parser = argparse.ArgumentParser()
 
     main_handler = Main({
-        "image": Image(),
         "machine": Machine(),
         "service": Service(),
         "cluster": Cluster(),
