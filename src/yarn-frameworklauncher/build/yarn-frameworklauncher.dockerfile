@@ -15,17 +15,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - rest-server
+FROM hadoop-run
 
-template-list:
-  - end-to-end-test.yaml
-  - stop.sh
+RUN apt-get -y update && \
+    apt-get -y install maven
+RUN rm -rf /var/lib/apt/lists/*
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+RUN mkdir /usr/local/frameworklauncher
+
+COPY dependency/yarn/ /usr/local/frameworklauncher/
+RUN chmod u+x /usr/local/frameworklauncher/build.sh
+RUN ./usr/local/frameworklauncher/build.sh && \
+    mkdir -p /usr/local/launcher && \
+    cp -r /usr/local/frameworklauncher/dist/* /usr/local/launcher
+RUN chmod u+x /usr/local/launcher/start.sh
+COPY build/start.sh /usr/local/start.sh
+RUN chmod a+x /usr/local/start.sh
+
+CMD ["/usr/local/start.sh"]

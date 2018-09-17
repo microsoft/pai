@@ -17,15 +17,23 @@
 
 prerequisite:
   - cluster-configuration
-  - yarn-frameworklauncher
-  - rest-server
+  - prometheus
 
 template-list:
-  - end-to-end-test.yaml
-  - stop.sh
+  - grafana.yaml
+  - grafana-configuration/pai-clusterview-dashboard.json
+  - grafana-configuration/pai-nodeview-dashboard.json
+  - grafana-configuration/pai-jobview-dashboard.json
+  - grafana-configuration/pai-taskroleview-dashboard.json
+  - grafana-configuration/pai-taskview-dashboard.json
+  - grafana-configuration/prom-datasource.json
+  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh
 refresh-script: refresh.sh
 upgraded-script: upgraded.sh
+
+deploy-rules:
+  in: pai-master

@@ -48,7 +48,7 @@ def setup_logging():
     """
     Setup logging configuration.
     """
-    configuration_path = "sysconf/logging.yaml"
+    configuration_path = "deployment/sysconf/logging.yaml"
     logging_configuration = file_handler.load_yaml_config(configuration_path)
     logging.config.dictConfig(logging_configuration)
 

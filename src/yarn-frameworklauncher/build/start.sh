@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,17 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - yarn-frameworklauncher
-  - rest-server
+#get the config generating script from kubenretes configmap
+cp /yarn-frameworklauncher-configuration/${GENERATE_CONFIG}  generate_config.sh
+chmod u+x generate_config.sh
 
-template-list:
-  - end-to-end-test.yaml
-  - stop.sh
+./generate_config.sh
 
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+
+./usr/local/launcher/start.sh

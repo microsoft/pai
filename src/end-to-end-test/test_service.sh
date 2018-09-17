@@ -53,8 +53,8 @@ service_list="$(kubectl get pods)"
   [[ $service_list == *"zookeeper-ds"!(*$'\n'*)"Running"* ]]
 }
 
-@test "check frameworklauncher" {
-  [[ $service_list == *"frameworklauncher-ds"!(*$'\n'*)"Running"* ]]
+@test "check yarn-frameworklauncher" {
+  [[ $service_list == *"yarn-frameworklauncher-ds"!(*$'\n'*)"Running"* ]]
 }
 
 @test "check rest server" {

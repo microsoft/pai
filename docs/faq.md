@@ -79,7 +79,7 @@ password
 
 Note: userprivateimage.azurecr.io is docker_registry_server
 
-- (2) [Upload it to HDFS](../pai-management/doc/hdfs.md#WebHDFS). 
+- (2) [Upload it to HDFS](./hadoop/hdfs.md#WebHDFS). 
 
 File path at hdfs example: hdfs://master_ip:9000/user/paidemo/authfile
 
