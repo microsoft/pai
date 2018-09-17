@@ -15,30 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import multiprocessing
-from cleaner.utils import common
+#!/bin/bash
 
-logger = multiprocessing.get_logger()
+# This scripts leverage the lsof command and filters the result to get the list of files which has been opened by
+# a process but the file is deleted later. The output of the deleted file list is like:
+# COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NLINK     NODE NAME
+# dhclient  1008 root  txt    REG    8,1   487248     0 12320783 /sbin/dhclient (deleted)
+# python   31848 root    3w   REG    8,1        0     0 29362883 /tmp/tmp_out.txt (deleted)
+#
+# We only retrieve the process id (first column) and file path (10th column).
 
-
-def list_and_check_files(arg):
-    files = common.run_cmd("source ./scripts/list_deleted_files.sh 2>/dev/null", logger)
-    if len(files) <= 1:
-        logger.info("no deleted files found.")
-    else:
-        # skip the field names from the command
-        files = files[1:]
-
-    for f in files:
-        f_fields = f.split(" ")
-        logger.warning("process %s opened file %s but the file has been deleted.", f_fields[0], f_fields[1])
-
-
-def main():
-    common.setup_logging()
-    logger.info("start to check the deleted files opened by each running process.")
-    list_and_check_files(None)
-
-
-if __name__ == "__main__":
-    main()
+lsof +L1 | awk '{print $1, $10}'
