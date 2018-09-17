@@ -21,17 +21,18 @@ from cleaner.utils import common
 logger = multiprocessing.get_logger()
 
 
-def list_and_check_files(arg):
-    files = common.run_cmd("source ./scripts/list_deleted_files.sh 2>/dev/null", logger)
+def list_and_check_files(arg, log=logger):
+    files = common.run_cmd("source ./scripts/list_deleted_files.sh 2>/dev/null", log)
     if len(files) <= 1:
-        logger.info("no deleted files found.")
+        log.info("no deleted files found.")
+        return
     else:
         # skip the field names from the command
         files = files[1:]
 
     for f in files:
         f_fields = f.split(" ")
-        logger.warning("process [%s] opened file [%s] but the file has been deleted.", f_fields[0], f_fields[1])
+        log.warning("process [%s] opened file [%s] but the file has been deleted.", f_fields[0], f_fields[1])
 
 
 def main():
