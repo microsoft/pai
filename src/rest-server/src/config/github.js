@@ -21,9 +21,10 @@
  * the branch that Marketplace backend tracks must be 'master'.
  */
 let dataSource = {
-  owner: 'shishaochen',
-  repository: 'paitemplate',
+  owner: 'Microsoft',
+  repository: 'pai',
   branch: 'master',
+  path: 'marketplace',
 };
 
 module.exports = dataSource;
