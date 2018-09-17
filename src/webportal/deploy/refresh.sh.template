@@ -62,5 +62,6 @@ echo "Keep pods consistent with labels."
             {% endif %}
         {% endif %}       
     {% endfor %}
+{% endfor %}
 
 popd > /dev/null
