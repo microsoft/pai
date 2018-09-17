@@ -24,14 +24,39 @@ echo "relabel node's label"
 /bin/bash node-label.sh || exit $?
 
 {% for host in machinelist %}
+    {% for role in serviceinfo['deploy-rules'] %}
+        
+        {% if 'in' in role %}    
+            {% if role['in'] in machinelist[host] %}
+                kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}='true' || exit $?
+                if ! `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q {{servicename}}`; then
+                    echo "Start service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    chmod +x {{serviceinfo['start-script']}}
+                    ./{{serviceinfo['start-script']}}
+                fi
+            {% else %}
+                if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q {{role['in']}}='true'; then
+                    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the cluster-configuration machinelist doesn't specify this label"
+                    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}- || exit $?
+                fi
+                if `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q {{servicename}}`; then
+                    echo "Stop service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    chmod +x {{serviceinfo['stop-script']}}
+                    ./{{serviceinfo['stop-script']}}
+                fi
+            {% endif %}
+        {% endif %}
 
-    {% if 'webportal' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "webportal="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have webportal's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal- || exit $?
-fi
-    {% endif %}
-
-{% endfor %}
+        {% if 'notin' in role %}
+            {% if role['notin'] in machinelist[host] %}
+                kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['notin']}}='true' || exit $?     
+            {% else %}
+                if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q {{role['notin']}}='true'; then
+                    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the cluster-configuration machinelist doesn't specify this label"
+                    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['notin']}}- || exit $?
+                fi
+            {% endif %}
+        {% endif %}       
+    {% endfor %}
 
 popd > /dev/null

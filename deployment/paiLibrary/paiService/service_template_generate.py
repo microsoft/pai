@@ -76,20 +76,21 @@ class service_template_generate:
             match_expressions_arr = []
 
             deploy_rules = self.service_conf['deploy-rules']
-            for operator, label in deploy_rules.items():
-                match_expression = dict()
-                if operator.lower() == 'in':
-                    match_expression['operator'] = 'In'
-                if operator.lower() == 'notin':
-                    match_expression['operator'] = 'NotIn'
+            for rule in deploy_rules:
+                for operator, label in rule.items():
+                    match_expression = dict()
+                    if operator.lower() == 'in':
+                        match_expression['operator'] = 'In'
+                    if operator.lower() == 'notin':
+                        match_expression['operator'] = 'NotIn'
 
-                match_expression['key'] = label
-                match_expression['values'] = ['true']
-                match_expressions_arr.append(match_expression)
+                    match_expression['key'] = label
+                    match_expression['values'] = ['true']
+                    match_expressions_arr.append(match_expression)
 
-            config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
-                {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
-                [{'matchExpressions': match_expressions_arr}]}}}
+                config['spec']['template']['spec']['affinity'] = {'nodeAffinity': \
+                    {'requiredDuringSchedulingIgnoredDuringExecution': {'nodeSelectorTerms': \
+                    [{'matchExpressions': match_expressions_arr}]}}}
         else:
             logging.info("It is not a service deploy file! Only support " + str(service_deploy_kind_list))
             return str_src_yaml

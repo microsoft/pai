@@ -31,4 +31,4 @@ refresh-script: refresh.sh
 upgraded-script: upgraded.sh
 
 deploy-rules:
-  in: pai-master
+  - in: pai-master
