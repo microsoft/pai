@@ -23,6 +23,12 @@ pushd $(dirname "$0") > /dev/null
 echo "refresh hadoop-jobhistory-configuration"
 kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
+echo "Re-label all the node in the cluster!"
+echo "Keep pods consistent with labels."
+
+# "For NotIn rule, it's for Daemonset, so just update label is enough, Daemonset's status will change with labels."
+
+
 {% for host in machinelist %}
     {% for role in serviceinfo['deploy-rules'] %}
         

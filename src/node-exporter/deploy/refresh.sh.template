@@ -18,6 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+pushd $(dirname "$0") > /dev/null
+
+echo "Re-label all the node in the cluster!"
+echo "Keep pods consistent with labels."
+
+# "For NotIn rule, it's for Daemonset, so just update label is enough, Daemonset's status will change with labels."
+
+
 {% for host in machinelist %}
     {% for role in serviceinfo['deploy-rules'] %}
         
@@ -55,3 +63,5 @@
     {% endfor %}
     
 {% endfor %}
+
+popd > /dev/null
