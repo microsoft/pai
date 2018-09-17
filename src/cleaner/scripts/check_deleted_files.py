@@ -31,7 +31,7 @@ def list_and_check_files(arg):
 
     for f in files:
         f_fields = f.split(" ")
-        logger.warning("process %s opened file %s but the file has been deleted.", f_fields[0], f_fields[1])
+        logger.warning("process [%s] opened file [%s] but the file has been deleted.", f_fields[0], f_fields[1])
 
 
 def main():

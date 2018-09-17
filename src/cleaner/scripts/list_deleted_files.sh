@@ -25,4 +25,4 @@
 #
 # We only retrieve the process id (first column) and file path (10th column).
 
-lsof +L1 | awk '{print $1, $10}'
+lsof +L1 | awk '{print $2, $10}'
