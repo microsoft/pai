@@ -35,7 +35,7 @@ const contentUrlPrefix = `https://raw.githubusercontent.com/${config.owner}/${co
 const load = (options, callback) => {
   let ref = options.version ? options.version : config.branch;
   let responses = [];
-  let contentUrl = `${contentUrlPrefix}/${ref}/${options.type}/${options.name}.yaml`;
+  let contentUrl = `${contentUrlPrefix}/${ref}/${config.path}/${options.type}/${options.name}.yaml`;
   logger.debug('fetch content of ' + contentUrl);
   https.get(contentUrl, function(res) {
     res.on('data', function(chunk) {
@@ -81,7 +81,7 @@ const save = function(options, callback) {
     client.repos.createFile({
       owner: config.owner,
       repo: config.repository,
-      path: `${type}/${name}.yaml`,
+      path: `${config.path}/${type}/${name}.yaml`,
       message: 'Create template from PAI Marketplace.',
       content: b64text,
     }, function(err, res) {
@@ -119,7 +119,7 @@ const update = function(options, callback) {
   client.repos.getContent({
     owner: config.owner,
     repo: config.repository,
-    path: `${type}/${name}.yaml`,
+    path: `${config.path}/${type}/${name}.yaml`,
   }, function(err, res) {
     if (err) {
       return callback(err, null);
@@ -198,15 +198,15 @@ const search = (options, callback) => {
 
 const createQuery = (options) => {
   let params = {
-    q: `in:file+language:yaml+repo:${config.owner}/${config.repository}`,
+    q: `in:file+language:yaml+repo:${config.owner}/${config.repository}+path:${config.path}`,
     per_page: 5,
     page: 1,
   };
+  if (options.type) {
+    params.q += `/${options.type}`;
+  }
   if (options.keywords) {
     params.q = options.keywords + `+${params.q}`;
-  }
-  if (options.type) {
-    params.q += `+path:${options.type}`;
   }
   if (options.pageSize) {
     params.per_page = options.pageSize;

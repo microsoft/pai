@@ -1,4 +1,3 @@
-
 ### Goal
 
 Provide a centralized service for maintaining configuration information and distributed synchronization. 
@@ -27,12 +26,12 @@ paictl.py image push -p /path/to/cluster/config -n zookeeper
 
 * Manual build
 
-refer to [dockerfile](https://github.com/Microsoft/pai/blob/master/pai-management/src/zookeeper/dockerfile).
+refer to [dockerfile](../../src/zookeeper/build/zookeeper.dockerfile).
 
 
 ### Configuration  
 
-Configuration file is [here](https://github.com/Microsoft/pai/blob/master/pai-management/src/zookeeper/zoo.cfg), you can keep it in most cases.
+Configuration file is [here](../../src/zookeeper/build/zoo.cfg), you can keep it in most cases.
 
 
 ### Deployment
