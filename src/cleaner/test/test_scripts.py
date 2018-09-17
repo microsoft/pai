@@ -21,8 +21,8 @@ import time
 import psutil
 import os
 import multiprocessing
-from cleaner.utils.common import setup_logging
-from cleaner.scripts import clean_docker_cache, check_deleted_files
+from cleaner.utils.common import setup_logging, run_cmd
+from cleaner.scripts import clean_docker_cache
 
 CALLED_CMD = "docker system prune -af"
 LOGGER = multiprocessing.get_logger()
@@ -76,6 +76,31 @@ class TestCacheClean(TestCase):
     def testCleanFalse(self, mock_cmd, mock_size):
         clean_docker_cache.check_and_clean(0)
         mock_cmd.assert_not_called()
+
+
+class TestDeletedFiles(TestCase):
+
+    def testDeleted(self):
+        test_file = "/tmp/deleted_test.txt"
+
+        def open_and_loop():
+            with open(test_file, "w"):
+                while True:
+                    pass
+
+        proc = multiprocessing.Process(target=open_and_loop)
+        proc.start()
+        time.sleep(1)
+        os.remove("/tmp/deleted_test.txt")
+        time.sleep(1)
+
+        mock_logger = mock.Mock()
+        cmd_out = run_cmd("source ./scripts/list_deleted_files.sh", mock_logger)
+        files = [f.split(" ")[1] for f in cmd_out[1:]]
+        self.assertTrue(test_file in files)
+
+        proc.terminate()
+        proc.join()
 
 
 if __name__ == "__main__":
