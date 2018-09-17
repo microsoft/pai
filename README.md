@@ -50,28 +50,31 @@ Before start, you need to meet the following requirements:
 - Recommend no Docker installed or a Docker with api version >= 1.26.
 
 #### 2 Deploy OpenPAI
-##### 2.1 [Customized deploy](./pai-management/doc/cluster-bootup.md#customizeddeploy)
-##### 2.2 [Single Box deploy](./pai-management/doc/cluster-bootup.md#singlebox)
+##### 2.1 [Customized deploy](./docs/pai-management/doc/cluster-bootup.md#customizeddeploy)
+##### 2.2 [Single Box deploy](./docs/pai-management/doc/cluster-bootup.md#singlebox)
 
 ## How to use
 ### How to train jobs
 - How to write PAI jobs
-    - [Learn from Example Jobs](./examples/README.md)
+    - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart) 
     - [Write job from scratch in deepth](./docs/job_tutorial.md)
+    - [Learn more example jobs](./examples/#offtheshelf)
 - How to submit PAI jobs
+    - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md) 
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
-    - [Submit a job in web portal](https://github.com/Microsoft/pai/blob/master/job-tutorial/README.md#job-submission)
 - How to request on-demand resource for in place training
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
     
 ### Cluster administration    
-- [Deployment infrastructure](./pai-management/doc/cluster-bootup.md)
+- [Deployment infrastructure](./docs/pai-management/doc/cluster-bootup.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
-- [Monitoring](./webportal/README.md)
+- [Monitoring](./docs/webportal/README.md)
 
 ## Resources
-The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+
+- The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+- Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today. 
 
 ## Get Involved
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai

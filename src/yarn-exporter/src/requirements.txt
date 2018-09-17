@@ -1,0 +1,11 @@
+altgraph==0.15
+attrs==18.1.0
+certifi==2018.4.16
+chardet==3.0.4
+future==0.16.0
+idna==2.7
+macholib==1.9
+pefile==2017.11.5
+prometheus-client==0.2.0
+requests==2.19.1
+urllib3==1.23
