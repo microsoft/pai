@@ -40,10 +40,6 @@ class local_storage:
 
 
 
-
-
-
-
     def get_conf(self, path = "/tmp/pai-conf-temp/"):
 
 

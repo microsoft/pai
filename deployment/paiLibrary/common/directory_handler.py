@@ -21,6 +21,7 @@ import logging
 import logging.config
 #
 from . import linux_shell
+from . import file_handler
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,14 @@ def directory_exist_or_not(path):
 
 
 
+def copy_file(self, src_prefix, dst_prefix):
+
+    file_list = file_handler.get_file_list_in_path(src_prefix)
+    dir_list = get_subdirectory_list(src_prefix)
+
+    directory_create(dst_prefix)
+    for sub_dir in dir_list:
+        self.copy_file(src_prefix + "/" + sub_dir, dst_prefix + "/" + sub_dir)
 
 
 
