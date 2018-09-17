@@ -73,6 +73,57 @@ def load_cluster_objectModel_k8s(config_path):
 
 
 
+def login_docker_registry(docker_registry, docker_username, docker_password):
+
+    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
+    error_msg = "docker registry login error"
+    linux_shell.execute_shell(shell_cmd, error_msg)
+    logger.info("docker registry login successfully")
+
+
+
+def generate_secret_base64code(docker_info):
+
+    domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
+    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
+
+    if domain == "public":
+        domain = ""
+
+    if username and passwd:
+        login_docker_registry( domain, username, passwd )
+
+        base64code = linux_shell.execute_shell_with_output(
+            "cat ~/.docker/config.json | base64",
+            "Failed to base64 the docker's config.json"
+        )
+    else:
+        logger.info("docker registry authentication not provided")
+
+        base64code = "{}".encode("base64")
+
+    docker_info["base64code"] = base64code.replace("\n", "")
+
+
+
+def generate_docker_credential(docker_info):
+
+    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
+    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
+
+    if username and passwd:
+        credential = linux_shell.execute_shell_with_output(
+            "cat ~/.docker/config.json",
+            "Failed to get the docker's config.json"
+        )
+    else:
+        credential = "{}"
+
+    docker_info["credential"] = credential
+
+
+
 def generate_image_url_prefix(docker_info):
 
     domain = str(docker_info["docker_registry_domain"])
@@ -154,6 +205,8 @@ def cluster_object_model_generate_service(config_path):
 
     cluster_config = load_cluster_objectModel_service(config_path)
 
+    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
+    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
     generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
 
     if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
