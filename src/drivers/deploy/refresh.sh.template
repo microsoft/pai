@@ -27,14 +27,42 @@ echo "New machine with GPU label will be labeled on kubernetes"
 echo "Remove the label on the machine without GPU tag"
 
 {% for host in machinelist %}
+    {% for role in serviceinfo['deploy-rules'] %}
 
-    {% if 'gpu' not in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "machinetype=gpu"; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have GPU's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype- || exit $?
-fi
-    {% endif %}
+        {% if 'in' in role %}
+            {% if role['in'] in machineinfo[machinelist[host]] %}
+                kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}='true' || exit $?
+                if !(kubectl get po -o wide | grep -1 host['nodename'] | grep -q {{servicename}})
+                    echo "Start service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    ./{{serviceinfo['start-script']}}
+                fi
+            {% else %}
+                if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q {{role['in']}}"=true"; then
+                    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the cluster-configuration machinelist doesn't specify this label"
+                    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}- || exit $?
+                fi
+            {% endif %}
+        {% endif %}
 
+        {% if 'notin' in role %}
+            {% if role['notin'] in machineinfo[machinelist[host]] %}
+                kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['notin']}}='true' || exit $?
+                if kubectl get po -o wide | grep -1 host['nodename'] | grep -q {{servicename}}
+                    echo "Remove service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    ./{{serviceinfo['stop-script']}}
+                fi
+            {% endif %}
+            {% else %}
+                if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q {{role['notin']}}"=true"; then
+                    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the cluster-configuration machinelist doesn't specify this label"
+                    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['notin']}}- || exit $?
+                fi
+            {% endif %}
+        {% endif %}
+        
+    {% endfor %}
+
+    
 {% endfor %}
 
 popd > /dev/null

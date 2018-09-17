@@ -49,7 +49,9 @@ class service_template_generate:
         servce_conf_dict = {
             "clusterinfo": self.cluster_object_mode['clusterinfo'],
             "machineinfo": self.cluster_object_mode["machineinfo"],
-            "machinelist": self.cluster_object_mode["machinelist"]
+            "machinelist": self.cluster_object_mode["machinelist"],
+            "serviceinfo": self.service_conf,
+            "servicename": self.service_name
         }
 
         self.logger.info("Done. Template mapper for service {0} is created.".format(self.service_name))
