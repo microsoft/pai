@@ -58,6 +58,15 @@ const config = (env, argv) => ({
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
+    templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
+    templateView: './src/app/marketplace/template-view/template-view.component.js',
+    templateList: './src/app/marketplace/template-list/template-list.component.js',
+    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker',
+    'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
+    'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
+    'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
+    'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker'
   },
   output: {
     path: helpers.root('dist'),
@@ -295,6 +304,38 @@ const config = (env, argv) => ({
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'docs']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'submit-v2.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'jobSubmit']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'template.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateDetail']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'marketplace.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateView']
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Platform for AI',
+      filename: 'template-list.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateList']
     })
   ].concat(argv.debug ? [] : [new UglifyJsPlugin({
     cache: true,
