@@ -37,7 +37,7 @@ for these extra items, please refer to [hadoop-ai](../hadoop-ai/README.md).
 
 YARN configuration files([RM](../../src/hadoop-resource-manager/deploy/hadoop-resource-manager-configuration), 
 [NM](../../src/hadoop-node-manager/deploy/hadoop-node-manager-configuration)) 
-will be generated according to [setting](../../examples/cluster-configuration) and hardware when service starts. 
+will be generated according to [setting](../../deployment/quick-start) and hardware when service starts. 
 Advanced users can modify related scripts under these folder to customize cluster.
 
 
