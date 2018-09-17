@@ -42,7 +42,7 @@ spec:
           periodSeconds: 30
         resources:
           limits:
-            memory: "512Mi"
+            memory: "128Mi"
         volumeMounts:
         - mountPath: /datastorage/prometheus
           name: collector-mount
@@ -97,7 +97,7 @@ spec:
           periodSeconds: 30
         resources:
           limits:
-            memory: "512Mi"
+            memory: "128Mi"
         securityContext:
           privileged: true
         volumeMounts:

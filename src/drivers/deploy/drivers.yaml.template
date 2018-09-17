@@ -59,7 +59,7 @@ spec:
           periodSeconds: 3
         resources:
           limits:
-            memory: "1Gi"
+            memory: "256Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

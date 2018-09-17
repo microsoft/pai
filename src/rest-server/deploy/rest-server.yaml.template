@@ -60,6 +60,6 @@ spec:
           hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
         resources:
           limits:
-            memory: "1Gi"
+            memory: "512Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
