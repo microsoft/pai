@@ -23,7 +23,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grafana            
+      app: grafana
   template:
     metadata:
       labels:
@@ -52,6 +52,6 @@ spec:
           value: "true"
         resources:
           limits:
-            memory: "1Gi"
+            memory: "256Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

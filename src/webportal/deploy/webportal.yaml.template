@@ -58,6 +58,6 @@ spec:
           hostPort: {{ clusterinfo['webportalinfo']['server_port'] }}
         resources:
           limits:
-            memory: "1Gi"
+            memory: "512Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
