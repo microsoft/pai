@@ -62,7 +62,7 @@ spec:
           value: {{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_vip' ] }}
         - name: FRAMEWORKLAUNCHER_PORT
           value: "{{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_port' ] }}"
-        - name: JAVA_OPTS
+        - name: LAUNCHER_OPTS
           value: "-server -Xmx512m"
         resources:
           limits:
