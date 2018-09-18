@@ -49,7 +49,6 @@ Note: Please working on dev-box when managing your cluster.
 - You could skip the build process, and pull service image from our public registry.
 
 
-- [A Guide For Build Service Image](doc/image-build.md)
 
 - [A Guide For Service Maintenance](doc/service-maintain.md)
 
