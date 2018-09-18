@@ -19,18 +19,22 @@ FROM ubuntu:16.04
 
 RUN apt-get -y update && \
     apt-get -y install \
+      python-pip \
+      python-yaml \
+      python-jinja2 \
+      git \
       vim &&\
     pip install python-etcd kubernetes
 
 WORKDIR /tmp
 
 
-COPY dependency/depolyment /
+COPY dependency /
 
 RUN rm -rf /tmp/*
 
 WORKDIR /
 
-COPY ./build/start_monitor.sh /
+COPY ./build/start_monitor.py /
 
 CMD ["/bin/bash"]
