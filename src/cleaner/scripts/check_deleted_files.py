@@ -20,9 +20,18 @@ from cleaner.utils import common
 
 logger = multiprocessing.get_logger()
 
+# This command  will output the deleted files which has been opened by a process.
+# The output of the deleted file list is like:
+# COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NLINK     NODE NAME
+# dhclient  1008 root  txt    REG    8,1   487248     0 12320783 /sbin/dhclient (deleted)
+# python   31848 root    3w   REG    8,1        0     0 29362883 /tmp/tmp_out.txt (deleted)
+#
+# We only retrieve the PID (second column) and NAME (10th column).
+DELETED_FILES_CMD = "lsof +L1 2>/dev/null | awk '{print $2, $10}'"
+
 
 def list_and_check_files(arg, log=logger):
-    files = common.run_cmd("source ./scripts/list_deleted_files.sh 2>/dev/null", log)
+    files = common.run_cmd(DELETED_FILES_CMD, log)
     if len(files) <= 1:
         log.info("no deleted files found.")
         return

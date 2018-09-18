@@ -75,7 +75,7 @@ class TestDeletedFiles(TestCase):
         time.sleep(1)
 
         mock_logger = mock.Mock()
-        cmd_out = run_cmd("source ./scripts/list_deleted_files.sh", mock_logger)
+        cmd_out = run_cmd(check_deleted_files.DELETED_FILES_CMD, mock_logger)
         files = [f.split(" ")[1] for f in cmd_out[1:]]
         self.assertTrue(test_file in files)
 
