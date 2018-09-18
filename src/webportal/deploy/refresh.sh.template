@@ -33,20 +33,18 @@ echo "Keep pods consistent with labels."
         {% if 'in' in role %}    
             {% if role['in'] in machinelist[host] %}
                 kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}='true' || exit $?
-                if ! `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q {{servicename}}`; then
-                    echo "Start service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
-                    chmod +x {{serviceinfo['start-script']}}
-                    ./{{serviceinfo['start-script']}}
+                if ! `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q webportal`; then
+                    echo "Start service webportal frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    /bin/bash ./{{serviceinfo['start-script']}}
                 fi
             {% else %}
                 if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q {{role['in']}}='true'; then
                     echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the cluster-configuration machinelist doesn't specify this label"
                     kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} {{role['in']}}- || exit $?
                 fi
-                if `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q {{servicename}}`; then
-                    echo "Stop service {{servicename}} frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
-                    chmod +x {{serviceinfo['stop-script']}}
-                    ./{{serviceinfo['stop-script']}}
+                if `kubectl get po -o wide | grep -1 {{machinelist[ host ]['nodename']}} | grep -q webportal`; then
+                    echo "Stop service webportal frome Node {{ machinelist[ host ][ 'nodename'] }} according to the cluster-configuration label definithion change"
+                    /bin/bash ./{{serviceinfo['stop-script']}}
                 fi
             {% endif %}
         {% endif %}
