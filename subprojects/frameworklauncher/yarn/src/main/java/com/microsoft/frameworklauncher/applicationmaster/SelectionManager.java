@@ -259,7 +259,7 @@ public class SelectionManager { // THREAD SAFE
     }
 
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
-    if (optimizedRequestResource.getPortNumber() > 0 && ValueRangeUtils.getValueNumber(optimizedRequestResource.getPortRanges()) <= 0) {
+    if (optimizedRequestResource.getPortNumber() > 0) {
       if (ValueRangeUtils.getValueNumber(reusedPorts) > 0) {
         LOGGER.logInfo(
             "select: reuse pre-selected ports: %s", CommonExts.toString(reusedPorts));
@@ -269,7 +269,8 @@ public class SelectionManager { // THREAD SAFE
         LOGGER.logInfo(
             "select: select ports from all filteredNodes: %s", CommonExts.toString(portRanges));
         if (ValueRangeUtils.getValueNumber(portRanges) == optimizedRequestResource.getPortNumber()) {
-          optimizedRequestResource.setPortRanges(portRanges);
+          optimizedRequestResource.setPortRanges(ValueRangeUtils.addRange(portRanges, optimizedRequestResource.getPortRanges()));
+          optimizedRequestResource.setPortNumber(0);
         }
       }
     }
@@ -323,7 +324,8 @@ public class SelectionManager { // THREAD SAFE
       for (int i = 1; i < filteredNodes.size(); i++) {
         overlapPorts = ValueRangeUtils.intersectRangeList(overlapPorts, allNodes.get(filteredNodes.get(i)).getAvailableResource().getPortRanges());
       }
-      return ValueRangeUtils.getSubRangeRandomly(overlapPorts, optimizedRequestResource.getPortNumber(),
+      List<ValueRange> availableOverlapPorts = ValueRangeUtils.subtractRange(overlapPorts, optimizedRequestResource.getPortRanges());
+      return ValueRangeUtils.getSubRangeRandomly(availableOverlapPorts, optimizedRequestResource.getPortNumber(),
           conf.getAmContainerMinPort());
     }
     return new ArrayList<>();
