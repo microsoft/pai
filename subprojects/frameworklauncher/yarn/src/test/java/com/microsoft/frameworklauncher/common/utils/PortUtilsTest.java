@@ -48,7 +48,7 @@ public class PortUtilsTest {
     String portString = PortUtils.toPortString(testValueRange, portDefinitions);
     Assert.assertEquals(portString, "http_SSH:9000,9001,9002,9003;http_Port:40,41;");
 
-    //Test PortUtils for random ports.
+    // Test PortUtils for random ports.
     Map<String, Ports> portDefinitions2 = new HashMap<>();
     Ports ports3 = new Ports();
     ports3.setCount(2);
@@ -71,7 +71,7 @@ public class PortUtilsTest {
     Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
     Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
 
-    //Test PortUtils for random ports and user specific ports 1#.
+    // Test PortUtils for random ports and user specific ports 1#.
     Map<String, Ports> portDefinitions3 = new HashMap<>();
 
     portDefinitions3.put("http_Port", ports1);
@@ -89,7 +89,7 @@ public class PortUtilsTest {
     Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
     Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
 
-    //Test PortUtils for random ports and user specific ports 2#.
+    // Test PortUtils for random ports and user specific ports 2#.
     Map<String, Ports> portDefinitions4 = new HashMap<>();
 
     portDefinitions4.put("http_Port", ports2);
@@ -107,7 +107,7 @@ public class PortUtilsTest {
     Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
     Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
 
-    //Test PortUtils for random ports and user specific ports 3#.
+    // Test PortUtils for random ports and user specific ports 3#.
     Map<String, Ports> portDefinitions5 = new HashMap<>();
     portDefinitions5.put("http_Port", ports3);
     portDefinitions5.put("http_SSH", ports2);

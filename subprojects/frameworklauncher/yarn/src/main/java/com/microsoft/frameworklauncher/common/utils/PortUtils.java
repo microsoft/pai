@@ -33,11 +33,12 @@ public class PortUtils {
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       List<ValueRange> coalescedPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
-      // If defined static ports, directly reuse it, and remove the static ports from all ports list
+      // Check user specified ports.
       List<ValueRange> staticPorts = new ArrayList();
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
+        // If defined static ports, directly use it, and remove the static ports from all ports list
         if (ports.getCount() > 0 && ports.getStart() > 0) {
           portString.append(portLabel).append(":").append(ports.getStart());
           for (int i = 1; i < ports.getCount(); i++) {
@@ -49,6 +50,8 @@ public class PortUtils {
         }
       }
       coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, staticPorts);
+
+      // Check the dynamic ports.
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
