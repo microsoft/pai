@@ -575,24 +575,30 @@ class Job {
         );
       },
       (parallelCallback) => {
-        this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
-          if (error) {
-            logger.error('Generated ssh key files failed');
-          } else {
-            async.each(sshKeyFiles, (file, eachCallback) => {
-              hdfs.createFile(
-                `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
-                file.content,
-                {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
-                (error, result) => {
-                  eachCallback(error);
-                }
-              );
-            }, (error) => {
-              parallelCallback(error);
-            });
-          }
-        });
+        // Add OS platform check
+        // Only generate ssh key files on Linux
+        if (process.platform.toUpperCase() === 'LINUX') {
+          this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
+            if (error) {
+              logger.error('Generated ssh key files failed');
+            } else {
+              async.each(sshKeyFiles, (file, eachCallback) => {
+                hdfs.createFile(
+                  `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
+                  file.content,
+                  {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
+                  (error, result) => {
+                    eachCallback(error);
+                  }
+                );
+              }, (error) => {
+                parallelCallback(error);
+              });
+            }
+          });
+        } else {
+          parallelCallback(null);
+        }
       },
     ], (parallelError) => {
       return next(parallelError);
