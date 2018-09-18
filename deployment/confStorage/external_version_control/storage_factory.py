@@ -22,14 +22,16 @@ import yaml
 import logging
 import logging.config
 
-from .local_storage import local_storage
+from .external_config import external_config
+from .git_storage import git_storage
+
 
 
 
 logger = logging.getLogger(__name__)
 
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
-conf_storage_path = "{0}/../../sysconf/conf_external_storage.yaml"
+conf_storage_path = "{0}/../../sysconf/conf_external_storage.yaml".format(package_directory_kubeinstall)
 
 
 
@@ -49,7 +51,7 @@ def get_external_storage(storage_configuration_path = None):
     storage_conf = load_yaml_config(conf_storage_path)
 
     if storage_conf["type"] == "git":
-        return local_storage(storage_conf)
+        return git_storage(storage_conf)
     elif storage_conf["type"] == "local":
         pass
     else:
