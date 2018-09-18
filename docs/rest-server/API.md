@@ -973,7 +973,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
 ## About legacy jobs
 
-Since [Framework ACL](../frameworklauncher/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,
 jobs will have a namespace with job-creater's username. However there were still some jobs created before
 the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped,
 but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
