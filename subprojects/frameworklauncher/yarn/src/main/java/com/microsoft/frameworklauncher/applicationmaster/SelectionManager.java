@@ -260,8 +260,8 @@ public class SelectionManager { // THREAD SAFE
 
     ResourceDescriptor optimizedRequestResource = YamlUtils.deepCopy(requestResource, ResourceDescriptor.class);
     // Do a first round port allocation:
-    // In these round, allocated the common Ports from all candidate nodes. if successfully get the ports, but not get candidate nodes in
-    // next steps, the request will set to RM for node relax.  if not successfully get the ports, will try another time after narrow down
+    // In this round, allocate the common ports from all candidate nodes. if successfully get the ports, and finally not get candidate nodes in
+    // next steps, the request will send to RM for node relax. if not successfully get the ports, will try another time after narrow down
     // the candidates.
     if (optimizedRequestResource.getPortNumber() > 0) {
       if (ValueRangeUtils.getValueNumber(reusedPorts) > 0) {
