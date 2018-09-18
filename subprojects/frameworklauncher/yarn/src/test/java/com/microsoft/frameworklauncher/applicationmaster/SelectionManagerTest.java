@@ -363,23 +363,23 @@ public class SelectionManagerTest {
     sm.addNode(node1);
     sm.addNode(node2);
 
-    //Allocate ports by count randomly.
+    // Allocate ports by count randomly.
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, new ArrayList<>()), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
-    //Allocate ports by specific ports.
+    // Allocate ports by specific ports.
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 0, ports3), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
-    //Allocate ports by specific ports.
+    // Allocate ports by specific ports.
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 0, ports4), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(1, result.getNodeHosts().size());
 
-    //Allocate ports by specific ports and Random count
+    // Allocate ports by specific ports and Random count
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 1, ports4), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(1, result.getNodeHosts().size());
     Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
@@ -387,7 +387,7 @@ public class SelectionManagerTest {
     Assert.assertEquals(1, ValueRangeUtils.getValueNumber(randomPorts));
 
 
-    //Allocate ports by specific ports and Random count 2#
+    // Allocate ports by specific ports and Random count 2#
     result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
