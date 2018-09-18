@@ -213,14 +213,14 @@ const loadJobs = (specifiedVc) => {
         }
       },
     },
-    'rowId'({ legacy, name, namespace, username }) {
+    'rowId'({legacy, name, namespace, username}) {
       if (legacy) {
         return name;
       }
       if (namespace) {
-        return namespace + '-' + name
+        return namespace + '-' + name;
       }
-      return username + '-' + name
+      return username + '-' + name;
     },
     'columns': [
       {title: 'Job', data: null, render({legacy, name, namespace, username}, type) {
@@ -297,7 +297,7 @@ const stopJob = (namespace, jobName) => {
               : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
             // Table view: replace current row
             const api = $jobTable.dataTable().api();
-            const rowId = namespace ? (namespace + '-' + jobName) : jobName
+            const rowId = namespace ? (namespace + '-' + jobName) : jobName;
             const row = api.row('#' + rowId);
             const rowData = row.data();
             $.ajax({
