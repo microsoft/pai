@@ -26,7 +26,13 @@
 FROM pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
 
 ENV TENSORFLOW_VERSION=1.4.0
-ENV BAZEL_VERSION 0.11.0
+ENV BAZEL_VERSION=0.5.4
+
+#update and upgrade, install git
+RUN apt-get update && apt-get -y upgrade && apt-get install -y git
+
+#install numpy
+RUN pip install numpy
 
 WORKDIR /
 
@@ -44,7 +50,12 @@ RUN mkdir /bazel && \
 
 # Download and build TensorFlow.
 WORKDIR /tensorflow
-RUN git clone --branch=r1.4 --depth=1 https://github.com/tensorflow/tensorflow.git .
+RUN git clone -b r1.4 https://github.com/tensorflow/tensorflow.git . && \
+	git cherry-pick -n f73d7c && \
+	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/mpi_ops.cc && \
+	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.cc && \
+	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.cu.cc && \
+	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.h
 ENV TF_NEED_CUDA=1 \
     TF_CUDA_COMPUTE_CAPABILITIES=3.0,3.5,5.2,6.0,6.1 \
     TF_CUDA_VERSION=8.0 \
@@ -61,11 +72,11 @@ ENV TF_NEED_CUDA=1 \
     TF_DOWNLOAD_MKL=0
 RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} \
-    bazel clean \
-    ./configure \
-    bazel build -c opt --config=cuda \
+    bazel clean && \
+    ./configure && \
+    bazel build --config=opt --config=cuda \
 	--cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" \
-        tensorflow/tools/pip_package:build_pip_package && \
+        //tensorflow/tools/pip_package:build_pip_package && \
     rm /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/pip && \
     pip --no-cache-dir install --upgrade /tmp/pip/tensorflow-*.whl && \
@@ -73,3 +84,4 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
     rm -rf /root/.cache
 
 WORKDIR /root
+ADD tf-mpi.py tf-mpi.py
