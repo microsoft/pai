@@ -29,6 +29,7 @@ from ...paiLibrary.common import file_handler
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 
+
 class getting_external_config:
 
     def __init__(self, **kwargs):
@@ -37,18 +38,18 @@ class getting_external_config:
 
         # Configuration for local conf
         self.local_conf_path = "{0}/../../sysconf/conf_external_storage.yaml".format(package_directory_kubeinstall)
-        if "local_conf_path" in kwargs:
+        if "local_conf_path" in kwargs and kwargs["local_conf_path"] != None:
             self.local_conf_path = kwargs["local_conf_path"]
 
         # Configuration for configmap [Access to k8s through exist kube_config.]
         self.kube_config_path = None
-        if "kube_config_path" in kwargs:
+        if "kube_config_path" in kwargs and kwargs["kube_conf_path"] != None:
             self.kube_config_path = kwargs["kube_conf_path"]
 
         # Configuration for configmap [Access to k8s through api-server address.]
         # Only support k8s deployed by openPai.
         self.kube_api_server_address = None
-        if "kube_api_server_address" in kwargs:
+        if "kube_api_server_address" in kwargs and kwargs["kube_api_server_address"] != None:
             self.kube_api_server_address = kwargs["kube_api_server_address"]
 
         self.external_storage_configuration = None
