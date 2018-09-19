@@ -29,7 +29,7 @@ spec:
         app: delete-batch-job-prometheus
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name: cleaning-one-shot
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaning-image:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
