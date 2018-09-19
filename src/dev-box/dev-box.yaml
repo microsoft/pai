@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: dev-box
+spec:
+  selector:
+    matchLabels:
+      app: dev-box
+  template:
+    metadata:
+      labels:
+        app: dev-box
+      name: dev-box
+    spec:
+      nodeSelector:
+        dev-box: "true"
+      containers:
+      - image: docker.io/openpai/dev-box
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /root/.docker
+          name: docker-cred-volume
+        - mountPath: /bin/docker
+          name: docker-bin
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        name: dev-box
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 3000; done;" ]
+      volumes:
+        - name: docker-bin
+          hostPath:
+            path: /bin/docker
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: docker-cred-volume
+          configMap:
+            name: docker-credentials
+      hostNetwork: true
