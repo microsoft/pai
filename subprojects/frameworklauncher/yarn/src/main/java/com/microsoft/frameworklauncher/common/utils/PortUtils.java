@@ -38,7 +38,7 @@ public class PortUtils {
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
-        // If defined static ports, directly reuse it, and remove the static ports from all ports list
+        // If defined static ports, directly use it, and remove the static ports from all ports list
         if (ports.getCount() > 0 && ports.getStart() > 0) {
           portString.append(portLabel).append(":").append(ports.getStart());
           for (int i = 1; i < ports.getCount(); i++) {
