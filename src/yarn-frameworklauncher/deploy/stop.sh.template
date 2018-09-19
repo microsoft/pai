@@ -33,7 +33,7 @@ if kubectl get daemonset | grep -q "frameworklauncher-ds"; then
 fi
 
 if kubectl get configmap | grep -q "frameworklauncher-configmap"; then
-    kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
+    kubectl delete configmap frameworklauncher-configmap || exit $?
 fi
 
 
