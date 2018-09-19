@@ -33,13 +33,13 @@ public class PortUtils {
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       List<ValueRange> coalescedPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
-      // Check user specified ports.
+      // Assign static ports
       List<ValueRange> staticPorts = new ArrayList();
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
         // If defined static ports, directly use it, and remove the static ports from all ports list
-        if (ports.getCount() > 0 && ports.getStart() > 0) {
+        if (ports.getCount() > 0 && ports.getStart() != 0) {
           portString.append(portLabel).append(":").append(ports.getStart());
           for (int i = 1; i < ports.getCount(); i++) {
             portString.append(",").append(ports.getStart() + i);
@@ -51,25 +51,23 @@ public class PortUtils {
       }
       coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, staticPorts);
 
-      // Check the dynamic ports.
+      // Assign dynamic ports.
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
-        if (ports.getCount() > 0) {
-          if (ports.getStart() == 0) {
-            // If defined dynamic ports, assign portRanges for it.
-            // Need to assign in a fixed way, such as sequentially, in case samePortAllocation specified.
-            List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
-                coalescedPortRanges, ports.getCount(), 0);
-            coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
+        if (ports.getCount() > 0 && ports.getStart() == 0) {
+          // If defined dynamic ports, assign portRanges for it.
+          // Need to assign in a fixed way, such as sequentially, in case samePortAllocation specified.
+          List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
+              coalescedPortRanges, ports.getCount(), 0);
+          coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
 
-            assert (ValueRangeUtils.getValueNumber(assignedPortRanges) == ports.getCount());
-            portString.append(portLabel).append(":").append(assignedPortRanges.get(0).toDetailedString(","));
-            for (int i = 1; i < assignedPortRanges.size(); i++) {
-              portString.append(",").append(assignedPortRanges.get(i).toDetailedString(","));
-            }
-            portString.append(";");
+          assert (ValueRangeUtils.getValueNumber(assignedPortRanges) == ports.getCount());
+          portString.append(portLabel).append(":").append(assignedPortRanges.get(0).toDetailedString(","));
+          for (int i = 1; i < assignedPortRanges.size(); i++) {
+            portString.append(",").append(assignedPortRanges.get(i).toDetailedString(","));
           }
+          portString.append(";");
         }
       }
     }
