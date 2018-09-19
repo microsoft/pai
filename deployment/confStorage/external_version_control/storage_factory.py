@@ -22,7 +22,7 @@ import yaml
 import logging
 import logging.config
 
-from .external_config import external_config
+from .external_config import getting_external_config
 from .git_storage import git_storage
 
 

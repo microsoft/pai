@@ -29,7 +29,7 @@ from ...paiLibrary.common import file_handler
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
 
-class external_config:
+class getting_external_config:
 
     def __init__(self, **kwargs):
 
@@ -77,15 +77,17 @@ class external_config:
             self.logger.error("Please check the configmap named [pai-external-storage] in the namespace [default].")
             sys.exit(1)
 
-        self.external_storage_configuration = yaml.load(configmap_data_dict["external-storage-conf"])
+        self.external_storage_configuration = yaml.load(configmap_data_dict["data"]["external-storage-conf"])
 
 
 
     def get_latest_external_configuration(self):
 
+        # Through KUBE_CONFIG
         if self.kube_config_path != None:
             self.load_from_k8s_configmap()
 
+        # Through kube-api-address, and generate config
         if self.kube_api_server_address != None:
             kube_conf_template_path = "{0}/../../k8sPaiLibrary/template/config.template".format(package_directory_kubeinstall)
             kube_conf_template = file_handler.read_template(kube_conf_template_path)
@@ -99,7 +101,9 @@ class external_config:
             self.load_from_k8s_configmap(
                 KUBE_CONFIG_PATH="{0}/config".format(package_directory_kubeinstall)
             )
+            file_handler.file_delete("{0}/config".format(package_directory_kubeinstall))
 
+        # Through local file
         if self.kube_config_path == None and self.kube_api_server_address == None:
             self.load_from_local_conf()
 
@@ -107,6 +111,78 @@ class external_config:
 
 
 
+
+class uploading_external_config:
+
+
+    def __init__(self, **kwargs):
+
+        self.logger = logging.getLogger(__name__)
+
+        # Configuration for local conf
+        self.local_conf_path = "{0}/../../sysconf/conf_external_storage.yaml".format(package_directory_kubeinstall)
+        if "local_conf_path" in kwargs:
+            self.local_conf_path = kwargs["local_conf_path"]
+
+        # Configuration for configmap [Access to k8s through exist kube_config.]
+        self.kube_config_path = None
+        if "kube_config_path" in kwargs:
+            self.kube_config_path = kwargs["kube_conf_path"]
+
+        # Configuration for configmap [Access to k8s through api-server address.]
+        # Only support k8s deployed by openPai.
+        self.kube_api_server_address = None
+        if "kube_api_server_address" in kwargs:
+            self.kube_api_server_address = kwargs["kube_api_server_address"]
+
+        if self.kube_api_server_address == None and self.kube_config_path == None:
+            self.logger.error("Unable to find or construct the kubeconfig to connect to target cluster.")
+            sys.exit(1)
+
+
+
+    def read_file_from_path(file_path):
+        with open(file_path, "r") as fin:
+            file_data = fin.read().decode('utf-8')
+
+        return file_data
+
+
+
+    def load_from_local_conf(self):
+        return self.read_file_from_path(self.local_conf_path)
+
+
+
     def update_latest_external_configuration(self):
-        None
+
+        KUBE_CONFIG_PATH = None
+        DELETE_FLAG = False
+
+        if self.kube_config_path != None:
+            KUBE_CONFIG_PATH = self.kube_config_path
+
+        elif self.kube_api_server_address != None:
+            kube_conf_template_path = "{0}/../../k8sPaiLibrary/template/config.template".format(package_directory_kubeinstall)
+            kube_conf_template = file_handler.read_template(kube_conf_template_path)
+            kube_conf_data = template_handler.generate_from_template_dict(
+                kube_conf_template,
+                {
+                    'clusterconfig': {'api-servers-ip': str(self.kube_api_server_address)}
+                }
+            )
+            file_handler.write_generated_file("{0}/config".format(package_directory_kubeinstall), kube_conf_data)
+            KUBE_CONFIG_PATH = "{0}/config".format(package_directory_kubeinstall)
+            DELETE_FLAG = True
+
+        else:
+            self.logger.error("Unable to find or construct the kubeconfig to connect to target cluster.")
+            sys.exit(1)
+
+        external_storage_conf_dict = dict()
+        external_storage_conf_dict["external-storage-conf"] = self.load_from_local_conf()
+        conf_storage_util.update_configmap(KUBE_CONFIG_PATH, "pai-external-storage-conf", external_storage_conf_dict)
+
+        if DELETE_FLAG:
+            file_handler.file_delete(KUBE_CONFIG_PATH)
 

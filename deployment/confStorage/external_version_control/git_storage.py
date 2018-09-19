@@ -57,8 +57,8 @@ class git_storage:
 
 
     def rm_conf(self):
-        configuation_path = "{0}/{1}".format(self.local_store, self.path)
-        directory_handler.directory_delete(configuation_path)
+        pai_temp_path = "./tmp-config-{0}".format(self.time)
+        directory_handler.directory_delete(pai_temp_path)
 
 
 
@@ -73,6 +73,20 @@ class git_storage:
 
         pai_temp_path = "./tmp-config-{0}".format(self.time)
         directory_handler.directory_copy(configuation_path, pai_temp_path)
+
+
+
+    def open(self):
+        self.git_clone()
+        self.get_conf()
+        return "./tmp-config-{0}".format(self.time)
+
+
+
+    def close(self):
+        self.rm_conf()
+        self.git_file_clean()
+
 
 
 
