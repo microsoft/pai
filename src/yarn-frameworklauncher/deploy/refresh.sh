@@ -19,14 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "pylon-ds"; then
-    kubectl delete ds pylon-ds || exit $?
-fi
+echo "refresh the configmap of launcher"
 
-{% for host in machinelist %}
-    {% if 'pylon' in machinelist[ host ] and machinelist[ host ][ 'pylon' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon- || exit $?
-    {% endif %}
-{% endfor %}
+kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+
 
 popd > /dev/null

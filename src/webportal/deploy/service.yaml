@@ -21,8 +21,6 @@ prerequisite:
 
 template-list:
   - webportal.yaml
-  - stop.sh
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh

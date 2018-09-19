@@ -17,17 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "zookeeper-ds"; then
-    kubectl delete ds zookeeper-ds || exit $?
-fi
 
-
-{% for host in machinelist %}
-    {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null

@@ -21,7 +21,6 @@ prerequisite:
 template-list:
   - watchdog-configmap.yaml
   - watchdog.yaml
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh

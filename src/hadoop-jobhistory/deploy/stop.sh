@@ -19,14 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "rest-server-ds"; then
-    kubectl delete ds rest-server-ds || exit $?
+if kubectl get daemonset | grep -q "hadoop-jobhistory-service"; then
+    kubectl delete ds hadoop-jobhistory-service || exit $?
 fi
 
-{% for host in machinelist %}
-    {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver- || exit $?
-    {% endif %}
-{% endfor %}
+if kubectl get configmap | grep -q "hadoop-jobhistory-configuration"; then
+    kubectl delete configmap hadoop-jobhistory-configuration || exit $?
+fi
 
 popd > /dev/null

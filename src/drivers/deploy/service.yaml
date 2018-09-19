@@ -20,11 +20,9 @@ prerequisite:
 
 template-list:
   - drivers.yaml
-  - stop.sh
-  - refresh.sh
-  # Note： your script should start all your service dependency. Make sure service has completed the starting process.
+  
 
-
+# Note： your script should start all your service dependency. Make sure service has completed the starting process.
 start-script: start.sh
 stop-script: stop.sh
 delete-script: delete.sh

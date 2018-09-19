@@ -19,18 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "hadoop-name-node-ds"; then
-    kubectl delete ds hadoop-name-node-ds || exit $?
-fi
-
-if kubectl get configmap | grep -q "hadoop-name-node-configuration"; then
-    kubectl delete configmap hadoop-name-node-configuration || exit $?
-fi
-
-{% for host in machinelist %}
-    {% if 'hadoop-name-node' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node- || exit $?
-    {% endif %}
-{% endfor %}
+echo "refresh watchdog configuration"
+kubectl apply -f watchdog-configmap.yaml || exit $?
 
 popd > /dev/null

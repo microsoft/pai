@@ -19,15 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "webportal-ds"; then
-    kubectl delete ds webportal-ds
-fi
 
-{% for host in machinelist %}
-    {% if 'webportal' in machinelist[ host ] and machinelist[ host ][ 'webportal' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal- || exit $?
-    {% endif %}
-{% endfor %}
+echo "refresh hadoop-jobhistory-configuration"
+kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 
 popd > /dev/null

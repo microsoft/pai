@@ -20,8 +20,6 @@ prerequisite:
 
 template-list:
   - pylon.yaml
-  - stop.sh
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh

@@ -27,10 +27,4 @@ if kubectl get configmap | grep -q "hadoop-node-manager-configuration"; then
     kubectl delete configmap hadoop-node-manager-configuration || exit $?
 fi
 
-{% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager- || exit $?
-    {% endif %}
-{% endfor %}
-
 popd > /dev/null

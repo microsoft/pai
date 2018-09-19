@@ -20,8 +20,6 @@ prerequisite:
 
 template-list:
   - zookeeper.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh

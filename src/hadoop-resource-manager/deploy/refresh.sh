@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,25 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
-  - drivers
-  - zookeeper
-  - hadoop-name-node
-  - hadoop-data-node
-  - hadoop-resource-manager
-  - hadoop-node-manager
-
-template-list:
-  - hadoop-jobhistory.yaml
-  - delete.yaml
-
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+pushd $(dirname "$0") > /dev/null
 
 
-deploy-rules:
-  - in: pai-master
+echo "refresh hadoop-resource-manager-configuration"
+kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+
+
+
+popd > /dev/null

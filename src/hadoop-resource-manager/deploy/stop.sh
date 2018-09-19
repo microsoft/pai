@@ -19,21 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "yarn-frameworklauncher-ds"; then
-    kubectl delete ds yarn-frameworklauncher-ds || exit $?
+if kubectl get daemonset | grep -q "hadoop-resource-manager-ds"; then
+    kubectl delete ds hadoop-resource-manager-ds || exit $?
 fi
 
-if kubectl get configmap | grep -q "yarn-frameworklauncher-configmap"; then
-    kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
+if kubectl get configmap | grep -q "hadoop-resource-manager-configuration"; then
+    kubectl delete configmap hadoop-resource-manager-configuration || exit $?
 fi
-
-
-{% for host in machinelist %}
-    {% if 'launcher' in machinelist[ host ] and machinelist[ host ][ 'launcher' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
-    {% endif %}
-{% endfor %}
-
-
 
 popd > /dev/null

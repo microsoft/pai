@@ -23,8 +23,6 @@ prerequisite:
 
 template-list:
   - hadoop-data-node.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh

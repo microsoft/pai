@@ -24,8 +24,6 @@ prerequisite:
 
 template-list:
   - hadoop-resource-manager.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
   - hadoop-resource-manager-configuration/capacity-scheduler.xml
 

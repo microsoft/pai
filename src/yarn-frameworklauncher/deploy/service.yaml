@@ -22,8 +22,6 @@ prerequisite:
 
 template-list:
   - yarn-frameworklauncher.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
