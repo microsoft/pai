@@ -35,15 +35,18 @@ class Submitter(object):  # relate to the jobs
             print("Job " + config["jobName"] + " start failed!")
         else:
             old = time.time()
-            state = self.jobmanager.get_status(job_name=config["jobName"])["state"]
-            while (state == "RUNNING" or state == "WAITING") and time.time() - old < 60 * self.threshold:
-                time.sleep(20)
+            try:
                 state = self.jobmanager.get_status(job_name=config["jobName"])["state"]
-            if state == "FAILED":
-                print(config['jobName'] + " is failed!")
-            else:
-                print(config['jobName'] + " is succeeded!")
-                self.jobmanager.stop(config["jobName"])
+                while (state == "RUNNING" or state == "WAITING") and time.time() - old < 60 * self.threshold:
+                    time.sleep(20)
+                    state = self.jobmanager.get_status(job_name=config["jobName"])["state"]
+                if state == "FAILED":
+                    print(config['jobName'] + " is failed!")
+                else:
+                    print(config['jobName'] + " is succeeded!")
+                    self.jobmanager.stop(config["jobName"])
+            except:
+                print("Get state of job " + config["jobName"] + " failed!")
 
     def submit(self, filepath):
         ###
