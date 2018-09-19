@@ -24,15 +24,31 @@ Copy the project into the container.
 5. Run the start.sh script file and use your own parameters of mode, hdfs_socket, webhdfs_socket, PAI_username,PAI_password and rest_server_socket.
 Pay attention to the order, you must give the 6 parameters in the above order. Refer to [Parameters of the start.sh](#Parameters of the start.sh).
 `/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/ 10.20.30.40:50070 test test`
-6. Wait until all jobs are finished.
+6. When you run the script, you should choice the examples you want to test.
+See [Parameters of the start.sh](#Parameters of the start.sh) to get the reference.
+7. Wait until all jobs are finished.
 ####Parameters of the start.sh
 There are 6 parameters required by start.sh. They are:
+
 **mode**: the mode you want to enter, you can refer to the [later document](#mode).
+
 **rest_server_socket**: the socket of rest server of PAI.
+
 **hdfs_socket**: the socket of hdfs of PAI.
+
 **webhdfs_socket**: the socket of webhdfs of PAI.
+
 **PAI_username**: the username of PAI.
+
 **PAI_password**: the password of PAI.
+
+And during the runtime of this shell script, it will require you input F/S or job names to strict the testing example.
+
+Enter **F** means you want to run all examples;
+
+Enter **S** means you want to run only the stable examples;(the others are unstable due to data downloading, see [Note](#Note) to get reference.)
+
+Enter job names like `cntk-mpi,tensorflow-mpi,sklearn-mnist` means you want to run just the three examples.
 ####mode
 The project offers 3 different modes.
 1. **ci mode**: If the job can run correctly within 10 minutes, the project will regards it succeeded.
