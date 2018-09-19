@@ -35,25 +35,14 @@ conf_storage_path = "{0}/../../sysconf/conf_external_storage.yaml".format(packag
 
 
 
-def load_yaml_config(config_path):
 
-    with open(config_path, "r") as f:
-        cluster_data = yaml.load(f)
+def get_external_storage(**kwargs):
 
-    return cluster_data
-
-
-
-def get_external_storage(storage_configuration_path = None):
-
-    if storage_configuration_path == None:
-        storage_configuration_path = conf_storage_path
-    storage_conf = load_yaml_config(conf_storage_path)
+    get_config = getting_external_config(kwargs)
+    storage_conf = get_config.get_latest_external_configuration()
 
     if storage_conf["type"] == "git":
         return git_storage(storage_conf)
-    elif storage_conf["type"] == "local":
-        pass
     else:
         logger.error("External Storage Type [ {0} ] is not supported yet.".format(storage_conf["type"]))
         sys.exit(1)
