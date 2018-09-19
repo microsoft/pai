@@ -66,7 +66,7 @@ describe('Submit job: POST /api/v1/jobs', () => {
       );
 
     // Add OS platform check
-    // Only generate ssh key files on Linux
+    // Since ssh-keygen package only works for Linux
     if (process.platform.toUpperCase() === 'LINUX') {
       global.nock(global.webhdfsUri)
       .put(/op=CREATE/)

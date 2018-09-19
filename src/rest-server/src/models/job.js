@@ -576,11 +576,12 @@ class Job {
       },
       (parallelCallback) => {
         // Add OS platform check
-        // Only generate ssh key files on Linux
+        // Since ssh-keygen package only works for Linux
         if (process.platform.toUpperCase() === 'LINUX') {
           this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
             if (error) {
-              logger.error('Generated ssh key files failed');
+              logger.warn('Generated ssh key files failed will skip generate ssh info');
+              parallelCallback(null);
             } else {
               async.each(sshKeyFiles, (file, eachCallback) => {
                 hdfs.createFile(
