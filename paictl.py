@@ -299,45 +299,6 @@ class SubCmd(object):
         if subclass use `add_handler` to register handler. """
         args.handler(args)
 
-
-class Image(SubCmd):
-    def register(self, parser):
-        image_parser = parser.add_subparsers(help="image operations")
-
-        def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                    help="The path of your configuration directory.")
-            parser.add_argument("-n", "--image-name", dest="image_name", default="all",
-                    help="Build and push the target image to the registry")
-
-        build_parser = SubCmd.add_handler(image_parser, self.image_build, "build")
-        push_parser = SubCmd.add_handler(image_parser, self.image_push, "push")
-
-        add_arguments(build_parser)
-        add_arguments(push_parser)
-
-    def process_args(self, args):
-        cluster_object_model = load_cluster_objectModel_service(args.config_path)
-
-        image_list = None
-        if args.image_name != "all":
-            image_list = [args.image_name]
-
-        return cluster_object_model, image_list
-
-    def image_build(self, args):
-        cluster_object_model, image_list = self.process_args(args)
-
-        center = build_center.build_center(cluster_object_model, image_list)
-        center.run()
-
-    def image_push(self, args):
-        cluster_object_model, image_list = self.process_args(args)
-
-        center = push_center.push_center(cluster_object_model, image_list)
-        center.run()
-
-
 class Machine(SubCmd):
     def register(self, parser):
         machine_parser = parser.add_subparsers(help="machine operations")
@@ -503,11 +464,11 @@ class Service(SubCmd):
 
 class Cluster(SubCmd):
     def register(self, parser):
-        image_parser = parser.add_subparsers(help="cluster operations")
+        cluster_parser = parser.add_subparsers(help="cluster operations")
 
-        bootup_parser = SubCmd.add_handler(image_parser, self.k8s_bootup, "k8s-bootup")
-        clean_parser = SubCmd.add_handler(image_parser, self.k8s_clean, "k8s-clean")
-        install_parser = SubCmd.add_handler(image_parser, self.install_kubectl, "install-kubectl")
+        bootup_parser = SubCmd.add_handler(cluster_parser, self.k8s_bootup, "k8s-bootup")
+        clean_parser = SubCmd.add_handler(cluster_parser, self.k8s_clean, "k8s-clean")
+        install_parser = SubCmd.add_handler(cluster_parser, self.install_kubectl, "install-kubectl")
 
         bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
             help="path of cluster configuration file")
@@ -617,7 +578,6 @@ def main(args):
     parser = argparse.ArgumentParser()
 
     main_handler = Main({
-        "image": Image(),
         "machine": Machine(),
         "service": Service(),
         "cluster": Cluster(),

@@ -50,7 +50,7 @@ function exit_handler()
   else
     debug_log "$handler" "docker container $docker_name has already exited"
   fi
-  
+
   debug_log "$handler" "write exit code to file"
   debug_log "$handler" "yarn container exit code: $rc"
   debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
@@ -219,13 +219,15 @@ if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -stat $PAI_CODE_DIR \
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
   code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
+  printf "%s %s\n" "[INFO]" "User code_dir_size is ${code_dir_size}"
   # TODO: Make the threshold configurable
-  if [ $code_dir_size -gt 200000000 ]; then
+  if [ $code_dir_size -gt 0 ] && [ $code_dir_size -le 200000000 ]; then
+    hdfs dfs -get $PAI_CODE_DIR $code_dir \
+      || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
+  else
     echo "$PAI_CODE_DIR is larger than 200MB, exit."
     exit 1
   fi
-  hdfs dfs -get $PAI_CODE_DIR $code_dir \
-    || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
 fi
 
 # Prepare docker debug log
