@@ -1,5 +1,5 @@
 protocol_version: v2
-name : mnist_pytorch
+name : pytorch_mnist
 type : job
 version : 1.0.0
 contributor : Qi Chen
