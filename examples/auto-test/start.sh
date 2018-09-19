@@ -9,6 +9,7 @@ if [ ! -d "pai/" ]; then
     else
         threshold=30
     fi
+    echo "If the sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10 job failed, it may due to the official data downloading source being unstable. Just try again!"
     abspath=`pwd`/pai_tmp/examples/auto-test
     python3 $abspath/start_all_test.py --path ./examples --threshold $threshold --rest_server_socket $2 --hdfs_socket $3 --webhdfs_socket $4 --PAI_username $5 --PAI_password $6
     rm -rf ./examples/
