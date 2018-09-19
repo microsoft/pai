@@ -199,6 +199,7 @@ const convert = (req, res, next) => {
     };
     newbody.taskRoles.push(taskRole);
   });
+  req.params.username = req.user.username;
   req.body = newbody;
   next();
 };
