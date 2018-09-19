@@ -15,6 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# enable recommended admission-control and DenyEscalatingExec which is required to secure job-exporter
+# see https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#is-there-a-recommended-set-of-admission-controllers-to-use
+
 apiVersion: v1
 kind: Pod
 metadata:
@@ -27,6 +30,7 @@ spec:
     name: apiserver-container
     command:
     - /usr/local/bin/kube-apiserver
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,DenyEscalatingExec
     - --insecure-bind-address
     - {{ hostcofig['hostip'] }}
     - --storage-backend

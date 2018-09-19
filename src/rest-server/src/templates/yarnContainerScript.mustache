@@ -244,6 +244,9 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
   || { echo "Can not pull Docker image"; exit 1; }
+
+## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
+## network consumption
 docker run --name $docker_name \
   --rm \
   --tty \

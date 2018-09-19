@@ -28,7 +28,7 @@ spec:
     spec:
       restartPolicy: OnFailure
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  one-time-job-hadoop
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

@@ -50,6 +50,7 @@ class Metric(object):
 
         return "{}{} {}".format(self.name, labels, self.value)
 
+
 def export_metrics_to_file(path, metrics):
     """ if metrics not None, should still open the path, to modify time stamp of file,
     readiness probe needs this"""
@@ -66,11 +67,17 @@ def check_output(*args, **kwargs):
     kwargs["stderr"] = subprocess.PIPE
     process = subprocess.Popen(*args, **kwargs)
     outs = []
+    errs = []
 
     while process.poll() is None:
         out, err = process.communicate()
         outs.append(out)
+        errs.append(err)
+    if process.returncode != 0:
+        logger.warn("process `%s` failed with return code %d, stdout %s, stderr %s",
+                args, process.returncode, "".join(outs), "".join(errs))
     return "".join(outs)
+
 
 class Singleton(object):
     """ wrapper around gpu metrics getter, because getter may block
@@ -136,3 +143,16 @@ def camel_to_underscore(label):
     https://stackoverflow.com/a/1176023 """
     tmp = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', label)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', tmp).lower()
+
+
+def walk_json_field_safe(obj, *fields):
+    """ for example a=[{"a": {"b": 2}}]
+    walk_json_field_safe(a, 0, "a", "b") will get 2
+    walk_json_field_safe(a, 0, "not_exist") will get None
+    """
+    try:
+        for f in fields:
+            obj = obj[f]
+        return obj
+    except:
+        return None
