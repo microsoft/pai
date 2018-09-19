@@ -8,18 +8,20 @@ from job_manage import JobManager
 
 
 class Config(object):
-    def __init__(self, rest_server_socket, hdfs_socket, webhdfs_socket, PAI_username, PAI_password):
+    def __init__(self, rest_server_socket, hdfs_socket, webhdfs_socket, PAI_username, PAI_password, jobs):
         self.rest_server_socket = rest_server_socket
         self.hdfs_socket = hdfs_socket
         self.webhdfs_socket = webhdfs_socket
         self.PAI_username = PAI_username
         self.PAI_password = PAI_password
+        self.jobs = set(jobs.split(','))
 
 
 class Submitter(object):  # relate to the jobs
     def __init__(self, threshold, config):
         self.jobmanager = JobManager(config)
         self.threshold = threshold
+        self.jobs = config.jobs
 
     def runandlisten(self, config):
         ###
@@ -59,9 +61,12 @@ class Submitter(object):  # relate to the jobs
         try:
             with open(filepath, 'r') as fp:
                 config = json5.load(fp)
-                config["jobName"] += ('_' + time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())))
-                thread = Thread(target=self.runandlisten, args=(config,))
-                thread.start()
+                if config["jobName"] not in self.jobs:
+                    print("Skip job " + config["jobName"] + "!")
+                else:
+                    config["jobName"] += ('_' + time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())))
+                    thread = Thread(target=self.runandlisten, args=(config,))
+                    thread.start()
         except:
             print("The formulation of file " + filepath + " is wrong!")
 
@@ -112,7 +117,8 @@ parser.add_argument('--hdfs_socket', type=str, default="")
 parser.add_argument('--webhdfs_socket', type=str, default="")
 parser.add_argument('--PAI_username', type=str, default="")
 parser.add_argument('--PAI_password', type=str, default="")
+parser.add_argument('--jobs', type=str, default="")
 args = parser.parse_args()
-config = Config(rest_server_socket=args.rest_server_socket, hdfs_socket=args.hdfs_socket, webhdfs_socket=args.hdfs_socket, PAI_username=args.PAI_username, PAI_password=args.PAI_password)
+config = Config(rest_server_socket=args.rest_server_socket, hdfs_socket=args.hdfs_socket, webhdfs_socket=args.hdfs_socket, PAI_username=args.PAI_username, PAI_password=args.PAI_password, jobs=args.jobs)
 scanner = Scanner(args.threshold, config)
 scanner.scan(args.path)
