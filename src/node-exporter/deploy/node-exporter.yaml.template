@@ -90,7 +90,7 @@ spec:
             - "python"
             - "/job_exporter/no_older_than.py"
             - "--delta"
-            - "60"
+            - "120"
             - "/datastorage/prometheus/job_exporter.prom"
             - "/datastorage/prometheus/gpu_exporter.prom"
           initialDelaySeconds: 30
