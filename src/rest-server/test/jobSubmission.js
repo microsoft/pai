@@ -64,13 +64,26 @@ describe('Submit job: POST /api/v1/jobs', () => {
         200,
         {}
       );
-    global.nock(global.webhdfsUri)
+
+    // Add OS platform check
+    // Since ssh-keygen package only works for Linux
+    if (process.platform.toUpperCase() === 'LINUX') {
+      global.nock(global.webhdfsUri)
       .put(/op=CREATE/)
       .times(6)
       .reply(
         201,
         {}
       );
+    } else {
+      global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(4)
+      .reply(
+        201,
+        {}
+      );
+    }
   };
 
   const prepareNockForCaseP02 = prepareNockForCaseP01;

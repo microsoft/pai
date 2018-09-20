@@ -553,7 +553,9 @@ else
     git reset --hard origin/${GIT_BRANCH}
 fi
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
+Y
+EOF
 
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
@@ -594,7 +596,9 @@ else
     git reset --hard origin/${GIT_BRANCH}
 fi
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration
+./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
+Y
+EOF
 
 ./paictl.py service delete -p /cluster-configuration << EOF
 Y
