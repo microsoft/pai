@@ -312,12 +312,12 @@ const stopJob = (jobName) => {
 };
 
 const setJobRetryLink = (jobName, retryCount) => {
-  console.log("[CAN-TEST] jobName is " + jobName + " retryCount is " + retryCount);
-  console.log("[CAN-TEST] yarnWebPortalUri is " + webportalConfig.yarnWebPortalUri);
-  const jobSessionTemplate = JSON.stringify({"iCreate":1,"iStart":0,"iEnd":1,"iLength":20,"aaSorting":[[0,"desc",1]],"oSearch":{"bCaseInsensitive":true,"sSearch":jobName,"bRegex":false,"bSmart":true},"abVisCols":[]});
-  sessionStorage.setItem("apps",jobSessionTemplate);
-  window.location.href = webportalConfig.yarnWebPortalUri;
-}
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': jobName, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(webportalConfig.yarnWebPortalUri);
+};
 
 const loadJobDetail = (jobName) => {
   loading.showLoading();

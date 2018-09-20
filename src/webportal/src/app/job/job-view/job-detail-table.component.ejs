@@ -21,11 +21,15 @@
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
     <td>
-      <a name='jobRetryLink'
-         onclick="setJobRetryLink('<%= jobName %>','<%= jobStatus.retries %>')"
-         href='javascript:void(0);'>
+      <% if (jobStatus.retries === 0) { %>
         <%= jobStatus.retries %>
-      </a>
+      <% } else { %>
+        <a name='jobRetryLink'
+          onclick="setJobRetryLink('<%= jobName %>','<%= jobStatus.retries %>')"
+          href='javascript:void(0);'>
+          <%= jobStatus.retries %>
+        </a>
+      <% } %>
     </td>
     <td><%= convertState(hjss) %></td>
     <td>
