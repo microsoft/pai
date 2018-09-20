@@ -104,5 +104,5 @@ kubectl label --overwrite=true nodes $NODE-IP-ADDRESS dev-box=true
 ```bash
 cd pai/src/dev-box
 
-kubectl create -f dev-box.yaml
+kubectl create -f dev-box-k8s-deploy.yaml
 ```

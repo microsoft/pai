@@ -1,44 +1,27 @@
-apiVersion: apps/v1
-kind: DaemonSet
+apiVersion: v1
+kind: Pod
 metadata:
-  annotations:
-    prometheus.io/scrape: 'true'
-  name: dev-box
+  labels:
+    app: dev-box2
+  name: dev-box2
 spec:
-  selector:
-    matchLabels:
-      app: dev-box
-  template:
-    metadata:
-      labels:
-        app: dev-box
-      name: dev-box
-    spec:
-      nodeSelector:
-        dev-box: "true"
-      containers:
-      - image: docker.io/openpai/dev-box
-        imagePullPolicy: Always
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /root/.docker
-          name: docker-cred-volume
-        - mountPath: /bin/docker
-          name: docker-bin
-        - mountPath: /var/run/docker.sock
-          name: docker-socket
-        name: dev-box
-        command: [ "/bin/bash", "-c", "--" ]
-        args: [ "while true; do sleep 3000; done;" ]
-      volumes:
-        - name: docker-bin
-          hostPath:
-            path: /bin/docker
-        - name: docker-socket
-          hostPath:
-            path: /var/run/docker.sock
-        - name: docker-cred-volume
-          configMap:
-            name: docker-credentials
-      hostNetwork: true
+  nodeSelector:
+    dev-box: "true"
+  containers:
+  - image: docker.io/openpai/dev-box
+    imagePullPolicy: Always
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-socket
+    name: dev-box2
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 3000; done;" ]
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
+  hostNetwork: true
+  restartPolicy: Always
+
