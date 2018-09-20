@@ -4,9 +4,6 @@ A tool to manage your pai cluster.
 
 ## Index
 
-- [ Manage infrastructure images ](#Image)
-    - [ Build infrastructure image(s) ](#Image_Build)
-    - [ Push infrastructure image(s) ](#Image_Push)
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
@@ -21,27 +18,6 @@ A tool to manage your pai cluster.
     - [ Stop Kubernetes ](#Cluster_K8s_Stop)
     - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
 - [ Appendix: An example of the `machine-list` file ](#Machine_Nodelist_Example)
-
-## Manage infrastructure images <a name="Image"></a>
-
-### Build infrastructure image(s) <a name="Image_Build"></a>
-
-```
-python paictl.py image build -p /path/to/cluster-configuration/dir [ -n image-name ]
-```
-
-- Build hadoop-ai with tuned configurations.
-- Build and tag the image of the corresponding component.
-- If the option `-n` is added, only the specified image will be built and tagged.
-
-### Push infrastructure image(s) <a name="Image_Push"></a>
-
-```
-python paictl.py image push -p /path/to/cluster-configuration/dir [ -n image-name ]
-```
-
-- Push the tagged image to the docker registry which is configured in the cluster-configuration.
-- If the option `-n` is added, only the specified image will be pushed.
 
 
 ## Maintain machines <a name="Machine"></a>
@@ -101,7 +77,7 @@ python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service
 python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
 ```
 
-- 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc. 
+- 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc.
 - Delete all services by default.
 - If the option `-n` is set, only the specified service will be deleted.
 
