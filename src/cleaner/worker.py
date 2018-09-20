@@ -43,7 +43,7 @@ class Worker(LoggerMixin, multiprocessing.Process):
             self.logger.error("command %s timeout.", method_name)
             exc = e
         except Exception as e:
-            self.logger.error("unexpected error to run command %s.", method_name)
+            self.logger.error("unexpected error to run method %s.", method_name)
             exc = e
 
         if exc is not None:
