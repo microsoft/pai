@@ -49,6 +49,8 @@ Enter **F** means you want to run all examples;
 Enter **S** means you want to run only the stable examples;(the others are unstable due to data downloading, see [Note](#Note) to get reference.)
 
 Enter job names like `cntk-mpi,tensorflow-mpi,sklearn-mnist` means you want to run just the three examples.
+
+Here is an example to start the script: `/bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/ 10.20.30.40:9000 http://10.20.30.40:50070 test test`
 ####mode
 The project offers 3 different modes.
 1. **ci mode**: If the job can run correctly within 10 minutes, the project will regards it succeeded.

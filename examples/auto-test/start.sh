@@ -15,7 +15,7 @@ if [ ! -d "pai/" ]; then
     read -p "Please input name of the examples you want to run with ',' between two names, or you can just input F/S to run full jobs or only stable jobs:" mode
     if [ $mode == "F" ]; then
         jobs=$full
-    elif [$mode == "S" ]; then
+    elif [ $mode == "S" ]; then
         jobs=$stable
     else
         jobs=$mode
