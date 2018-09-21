@@ -20,9 +20,7 @@ package com.microsoft.frameworklauncher.common.utils;
 import com.microsoft.frameworklauncher.common.model.Ports;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,31 +33,41 @@ public class PortUtils {
 
     if (portsDefinitions != null && !portsDefinitions.isEmpty()) {
       List<ValueRange> coalescedPortRanges = ValueRangeUtils.coalesceRangeList(portRanges);
+      // Assign static ports
+      List<ValueRange> staticPorts = new ArrayList();
       for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
         String portLabel = portDefinition.getKey();
         Ports ports = portDefinition.getValue();
-        if (ports.getCount() > 0) {
-          // If defined static ports, directly reuse it.
-          if (ports.getStart() != 0) {
-            portString.append(portLabel).append(":").append(ports.getStart());
-            for (int i = 1; i < ports.getCount(); i++) {
-              portString.append(",").append(ports.getStart() + i);
-            }
-            portString.append(";");
-          } else {
-            // If defined dynamic ports, assign portRanges for it.
-            // Note to assign in a fixed way, such as sequentially, in case samePortAllocation specified.
-            List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
-                coalescedPortRanges, ports.getCount(), 0);
-            coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
-
-            assert (ValueRangeUtils.getValueNumber(assignedPortRanges) == ports.getCount());
-            portString.append(portLabel).append(":").append(assignedPortRanges.get(0).toDetailedString(","));
-            for (int i = 1; i < assignedPortRanges.size(); i++) {
-              portString.append(",").append(assignedPortRanges.get(i).toDetailedString(","));
-            }
-            portString.append(";");
+        // If defined static ports, directly use it, and remove the static ports from all ports list
+        if (ports.getCount() > 0 && ports.getStart() != 0) {
+          portString.append(portLabel).append(":").append(ports.getStart());
+          for (int i = 1; i < ports.getCount(); i++) {
+            portString.append(",").append(ports.getStart() + i);
           }
+          portString.append(";");
+          ValueRange newRange = ValueRange.newInstance(ports.getStart(), ports.getStart() + ports.getCount() - 1);
+          staticPorts.add(newRange);
+        }
+      }
+      coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, staticPorts);
+
+      // Assign dynamic ports.
+      for (Map.Entry<String, Ports> portDefinition : portsDefinitions.entrySet()) {
+        String portLabel = portDefinition.getKey();
+        Ports ports = portDefinition.getValue();
+        if (ports.getCount() > 0 && ports.getStart() == 0) {
+          // If defined dynamic ports, assign portRanges for it.
+          // Need to assign in a fixed way, such as sequentially, in case samePortAllocation specified.
+          List<ValueRange> assignedPortRanges = ValueRangeUtils.getSubRangeSequentially(
+              coalescedPortRanges, ports.getCount(), 0);
+          coalescedPortRanges = ValueRangeUtils.subtractRange(coalescedPortRanges, assignedPortRanges);
+
+          assert (ValueRangeUtils.getValueNumber(assignedPortRanges) == ports.getCount());
+          portString.append(portLabel).append(":").append(assignedPortRanges.get(0).toDetailedString(","));
+          for (int i = 1; i < assignedPortRanges.size(); i++) {
+            portString.append(",").append(assignedPortRanges.get(i).toDetailedString(","));
+          }
+          portString.append(";");
         }
       }
     }
