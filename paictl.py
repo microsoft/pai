@@ -546,6 +546,9 @@ class Configuration(SubCmd):
         generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate",
                                              description="Generate configuration files based on a quick-start yaml file.",
                                              formatter_class=argparse.RawDescriptionHelpFormatter)
+        update_parser = SubCmd.add_handler(conf_parser, self.update_configuration, "update",
+                                           description="Update configuration to kubernetes cluster as configmap.",
+                                           formatter_class=argparse.RawDescriptionHelpFormatter)
 
         generate_parser.add_argument("-i", "--input", dest="quick_start_config_file", required=True,
                                      help="the path of the quick-start configuration file (yaml format) as the input")
@@ -554,6 +557,14 @@ class Configuration(SubCmd):
         generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
                                      help="overwrite existing files")
 
+        mutually_update_option = update_parser.add_mutually_exclusive_group()
+        mutually_update_option.add_argument("-p", "--cluster-conf-path", dest="cluster_conf_path", default=None,
+                                            help="the path of directory which stores the cluster configuration.")
+        mutually_update_option.add_argument("-e", "--external-storage-conf-path", dest="external_storage_conf_path",  default=None,
+                                            help="the path of external storage configuration.")
+        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+
 
 
     def generate_configuration(self, args):
@@ -561,6 +572,17 @@ class Configuration(SubCmd):
                 args.quick_start_config_file,
                 args.configuration_directory,
                 args.force)
+
+
+
+    def update_configuration(self, args):
+        sync_handler = synchronization(
+            pai_cluster_configuration_path=args.pai_cluster_configuration_path,
+            local_conf_path=args.external_storage_conf_path,
+            kube_config_path=args.kube_config_path
+        )
+        sync_handler.sync_data_from_source()
+
 
 
 
