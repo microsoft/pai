@@ -37,6 +37,7 @@ $(document).ready(() => {
     const username = $('#form-register :input[name=username]').val();
     const password = $('#form-register :input[name=password]').val();
     const virtualClusters = $('#form-register :input[name=virtualCluster]').val();
+    const githubPAT = $('#form-register :input[name=githubPAT]').val();
     const admin = $('#form-register :input[name=admin]').is(':checked') ? true : false;
     userAuth.checkToken((token) => {
       $.ajax({
@@ -67,11 +68,33 @@ $(document).ready(() => {
               },
               dataType: 'json',
               success: (updateVcData) => {
-                $('#form-register').trigger('reset');
                 if (updateVcData.error) {
                   alert(updateVcData.message);
                 } else {
-                  alert('Add new user successfully');
+                  $.ajax({
+                    url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
+                    data: {
+                      githubPAT: githubPAT,
+                    },
+                    type: 'PUT',
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                    dataType: 'json',
+                    success: (updateGithubPATData) => {
+                      $('#form-register').trigger('reset');
+                      if (updateGithubPATData.error) {
+                        alert(updateGithubPATData.message);
+                      } else {
+                        alert('Add new user successfully');
+                      }
+                    },
+                    error: (xhr, textStatus, error) => {
+                      $('#form-register').trigger('reset');
+                      const res = JSON.parse(xhr.responseText);
+                      alert(res.message);
+                    },
+                  });
                 }
                 window.location.href = '/user-view.html';
               },

@@ -17,11 +17,14 @@
 
 // module dependencies
 const Etcd2 = require('./etcd2');
+const LocalCache = require('./localCache');
 
 const getStorageObject = (type, options = null) => {
   switch (type) {
     case 'etcd2':
       return new Etcd2(options);
+    case 'localCache':
+      return new LocalCache(options);
     default:
   }
 };
