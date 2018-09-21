@@ -25,6 +25,8 @@ import argparse
 import logging
 import logging.config
 
+from deployment.confStorage.synchronization import synchronization
+
 from deployment.paiLibrary.common import linux_shell
 from deployment.paiLibrary.common import file_handler
 from deployment.paiLibrary.clusterObjectModel import objectModelFactory

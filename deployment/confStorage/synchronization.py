@@ -68,6 +68,8 @@ class synchronization:
         conf_uploader = upload_configuration(configuration_path, self.kube_config_path)
         conf_uploader.run()
 
+        external_storage_handler.close()
+
 
 
 
