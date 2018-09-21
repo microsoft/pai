@@ -66,15 +66,6 @@ public @interface PortValidation {
       int dynamicPortNumber = PortUtils.getDynamicPortNumber(r.getPortDefinitions());
       int staticPortNumber = ValueRangeUtils.getValueNumber(PortUtils.getStaticPortRanges(r.getPortDefinitions()));
 
-      if (dynamicPortNumber > 0 && staticPortNumber > 0) {
-        context.disableDefaultConstraintViolation();
-        String notValidMessage = String.format(
-            "Illegal PortDefinitions: All start fields should be nonzero or zero: PortDefinitions: [%s]",
-            CommonExts.toString(r.getPortDefinitions()));
-        context.buildConstraintViolationWithTemplate(notValidMessage).addConstraintViolation();
-        return false;
-      }
-
       if (!ResourceDescriptor.checkHadoopLibrarySupportsPort() && (dynamicPortNumber > 0 || staticPortNumber > 0)) {
         context.disableDefaultConstraintViolation();
         String notValidMessage = String.format(
