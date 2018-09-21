@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # node level instead of container level.
 # So current implementation is not workable for container running in host PID namespace.
 # Also since lsof can not capture most of short-lived connections, this workaround is useful
-# for long-lived connections.
+# only for long-lived connections.
 
 # To bring lsof in container's PID namespace, job exporter needs to be in host PID namespace
 # and is privileged. This has serious security issue since any people can exec into
@@ -169,8 +169,8 @@ def main(pids):
     """ test purpose """
     conns = iftop()
 
-    logger.info("conns is %s", conns)
-    logger.info("lsof_result is %s", lsof_result)
+    logger.debug("conns is %s", conns)
+    logger.debug("lsof_result is %s", lsof_result)
 
     for pid in pids:
         lsof_result = lsof(pid)
@@ -179,5 +179,5 @@ def main(pids):
 
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-                        level=logging.INFO)
+                        level=logging.DEBUG)
     main(sys.argv[1:])

@@ -172,6 +172,6 @@ def main(argv):
 
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.INFO)
+            level=logging.DEBUG)
 
     main(sys.argv[1:])
