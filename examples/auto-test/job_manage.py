@@ -1,6 +1,7 @@
 from hdfs import Client
 import urllib3
 import json
+import time
 
 
 class JobManager(object):
@@ -14,7 +15,10 @@ class JobManager(object):
             # Get the token from rest server API
             ###
             token_ready = False
+            loop_count = 0
             while not token_ready:
+                time.sleep(loop_count)
+                loop_count += 1
                 http_object = self.http.request(
                     'POST',
                     self.rest_server_socket + 'token',
