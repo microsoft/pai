@@ -23,6 +23,7 @@ import com.microsoft.frameworklauncher.common.model.NodeConfiguration;
 import com.microsoft.frameworklauncher.common.model.PlatformSpecificParametersDescriptor;
 import com.microsoft.frameworklauncher.common.model.ResourceDescriptor;
 import com.microsoft.frameworklauncher.common.model.ValueRange;
+import com.microsoft.frameworklauncher.common.utils.ValueRangeUtils;
 import com.microsoft.frameworklauncher.common.utils.YamlUtils;
 import com.microsoft.frameworklauncher.testutils.FeatureTestUtils;
 import com.microsoft.frameworklauncher.zookeeperstore.MockZookeeperStore;
@@ -362,18 +363,36 @@ public class SelectionManagerTest {
     sm.addNode(node1);
     sm.addNode(node2);
 
+    // Allocate ports by count randomly.
     SelectionResult result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, new ArrayList<>()), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
-    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 2, null, gpuNodeConfig);
+    // Allocate ports by specific ports.
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 0, ports3), null, null, 2, null, gpuNodeConfig);
     Assert.assertEquals(2, result.getNodeHosts().size());
     Assert.assertEquals(2007, result.getOverlapPorts().get(0).getBegin().intValue());
     Assert.assertEquals(2010, result.getOverlapPorts().get(0).getEnd().intValue());
 
-    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports4), null, null, 1, null, gpuNodeConfig);
+    // Allocate ports by specific ports.
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 0, ports4), null, null, 1, null, gpuNodeConfig);
     Assert.assertEquals(1, result.getNodeHosts().size());
+
+    // Allocate ports by specific ports and Random count
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 1, ports4), null, null, 1, null, gpuNodeConfig);
+    Assert.assertEquals(1, result.getNodeHosts().size());
+    Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
+    List<ValueRange> randomPorts  =ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports4);
+    Assert.assertEquals(1, ValueRangeUtils.getValueNumber(randomPorts));
+
+
+    // Allocate ports by specific ports and Random count 2#
+    result = sm.select(ResourceDescriptor.newInstance(1, 1, 1, 0L, 2, ports3), null, null, 1, null, gpuNodeConfig);
+    Assert.assertEquals(2, result.getNodeHosts().size());
+    Assert.assertEquals(3, ValueRangeUtils.getValueNumber(result.getOptimizedResource().getPortRanges()));
+    randomPorts  =ValueRangeUtils.subtractRange(result.getOptimizedResource().getPortRanges(), ports3);
+    Assert.assertEquals(2, ValueRangeUtils.getValueNumber(randomPorts));
 
   }
 
