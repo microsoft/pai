@@ -40,11 +40,13 @@ spec:
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /hadoop-configuration
-          name: hadoop-resource-manager-config-volume
+          name: hadoop-resource-manager-config-generated
         - mountPath: /var/lib/yarn
           name: yarn-resourcemanager-storage
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /jobstatus
+          name: job-status
         readinessProbe:
           exec:
             command:
@@ -52,6 +54,19 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        livenessProbe:
+          exec:
+            command:
+            - bash
+            - -c
+            - '[ -f "/jobstatus/jobok" ] && [ -f "/jobstatus/configok" ] && [ "/jobstatus/jobok" -nt "/jobstatus/configok" ]'
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        livenessProbe:
+          tcpSocket:
+            port: 8088
+          initialDelaySeconds: 60
+          periodSeconds: 30
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -67,6 +82,25 @@ spec:
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
+
+      - name: config-monitor
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}config-monitor:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1Gi"
+        command:
+          - sleep
+          - infinity
+        volumeMounts:
+        - mountPath: /hadoop-configuration
+          name: hadoop-resource-manager-config-generated
+        - mountPath: /jobstatus
+          name: job-status
+        - mountPath: /hadoop-configuration-configmap
+          name: hadoop-resource-manager-config-volume
+
+
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
@@ -94,3 +128,7 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/resourcemanager
+      - name: hadoop-resource-manager-config-generated
+        emptyDir: {}
+      - name: job-status
+        emptyDir: {}
