@@ -42,7 +42,7 @@ pai_services = map(lambda s: "k8s_" + s, [
     "alertmanager",
     "watchdog",
     "end-to-end-test",
-    "frameworklauncher",
+    "yarn-frameworklauncher",
     "hadoop-jobhistory-service",
     "hadoop-name-node",
     "hadoop-node-manager",
