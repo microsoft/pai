@@ -31,6 +31,7 @@ import java.util.Map;
 public class PortUtilsTest {
   @Test
   public void testPortUtils() throws Exception {
+    //Test PortUtils for user specific ports.
     Map<String, Ports> portDefinitions = new HashMap<>();
     Ports ports1 = new Ports();
     ports1.setCount(2);
@@ -47,6 +48,7 @@ public class PortUtilsTest {
     String portString = PortUtils.toPortString(testValueRange, portDefinitions);
     Assert.assertEquals(portString, "http_SSH:9000,9001,9002,9003;http_Port:40,41;");
 
+    // Test PortUtils for random ports.
     Map<String, Ports> portDefinitions2 = new HashMap<>();
     Ports ports3 = new Ports();
     ports3.setCount(2);
@@ -63,6 +65,58 @@ public class PortUtilsTest {
     Assert.assertEquals(portString.split(",").length, 5);
 
     List<ValueRange> valueRangeResult = PortUtils.toPortRanges(portString);
+    Assert.assertEquals(testValueRange.size(), valueRangeResult.size());
+    Assert.assertEquals(testValueRange.get(0).getBegin(), valueRangeResult.get(0).getBegin());
+    Assert.assertEquals(testValueRange.get(0).getEnd(), valueRangeResult.get(0).getEnd());
+    Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
+    Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
+
+    // Test PortUtils for random ports and user specific ports 1#.
+    Map<String, Ports> portDefinitions3 = new HashMap<>();
+
+    portDefinitions3.put("http_Port", ports1);
+    portDefinitions3.put("http_SSH", ports4);
+
+    portString = PortUtils.toPortString(testValueRange, portDefinitions3);
+    Assert.assertEquals(portString.split(";").length, 2);
+    Assert.assertEquals(portString.split(",").length, 5);
+    Assert.assertEquals(portString, "http_Port:40,41;http_SSH:9000,9001,9002,9003;");
+
+    valueRangeResult = PortUtils.toPortRanges(portString);
+    Assert.assertEquals(testValueRange.size(), valueRangeResult.size());
+    Assert.assertEquals(testValueRange.get(0).getBegin(), valueRangeResult.get(0).getBegin());
+    Assert.assertEquals(testValueRange.get(0).getEnd(), valueRangeResult.get(0).getEnd());
+    Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
+    Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
+
+    // Test PortUtils for random ports and user specific ports 2#.
+    Map<String, Ports> portDefinitions4 = new HashMap<>();
+
+    portDefinitions4.put("http_Port", ports2);
+    portDefinitions4.put("http_SSH", ports3);
+
+    portString = PortUtils.toPortString(testValueRange, portDefinitions4);
+    Assert.assertEquals(portString.split(";").length, 2);
+    Assert.assertEquals(portString.split(",").length, 5);
+    Assert.assertEquals(portString, "http_Port:9000,9001,9002,9003;http_SSH:40,41;");
+
+    valueRangeResult = PortUtils.toPortRanges(portString);
+    Assert.assertEquals(testValueRange.size(), valueRangeResult.size());
+    Assert.assertEquals(testValueRange.get(0).getBegin(), valueRangeResult.get(0).getBegin());
+    Assert.assertEquals(testValueRange.get(0).getEnd(), valueRangeResult.get(0).getEnd());
+    Assert.assertEquals(testValueRange.get(1).getBegin(), valueRangeResult.get(1).getBegin());
+    Assert.assertEquals(testValueRange.get(1).getEnd(), valueRangeResult.get(1).getEnd());
+
+    // Test PortUtils for random ports and user specific ports 3#.
+    Map<String, Ports> portDefinitions5 = new HashMap<>();
+    portDefinitions5.put("http_Port", ports3);
+    portDefinitions5.put("http_SSH", ports2);
+    portString = PortUtils.toPortString(testValueRange, portDefinitions5);
+    Assert.assertEquals(portString.split(";").length, 2);
+    Assert.assertEquals(portString.split(",").length, 5);
+    Assert.assertEquals(portString, "http_SSH:9000,9001,9002,9003;http_Port:40,41;");
+
+    valueRangeResult = PortUtils.toPortRanges(portString);
     Assert.assertEquals(testValueRange.size(), valueRangeResult.size());
     Assert.assertEquals(testValueRange.get(0).getBegin(), valueRangeResult.get(0).getBegin());
     Assert.assertEquals(testValueRange.get(0).getEnd(), valueRangeResult.get(0).getEnd());
