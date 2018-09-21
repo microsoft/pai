@@ -35,12 +35,12 @@ package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 class upload_configuration:
 
 
-    def __init__(self, config_path):
+    def __init__(self, config_path, kube_confg_path):
 
         self.logger = logging.getLogger(__name__)
         self.KUBE_CONFIG_DEFAULT_LOCATION = os.path.expanduser("~/.kube/config")
-        if os.environ.get('KUBECONFIG', None) != None:
-            self.KUBE_CONFIG_DEFAULT_LOCATION = os.environ.get('KUBECONFIG', None)
+        if kube_confg_path != None:
+            self.KUBE_CONFIG_DEFAULT_LOCATION = kube_confg_path
 
         self.config_path = config_path
 

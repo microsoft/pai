@@ -36,21 +36,20 @@ class getting_external_config:
 
         self.logger = logging.getLogger(__name__)
 
+        # Local cluster configuration path
+        self.local_cluster_conf_path = None
+        if "local_cluster_configuration" in kwargs and kwargs["local_cluster_configuration"] != None:
+            self.local_cluster_conf_path = kwargs["local_cluster_configuration"]
+
         # Configuration for local conf
-        self.local_conf_path = "{0}/../../sysconf/conf_external_storage.yaml".format(package_directory_kubeinstall)
-        if "local_conf_path" in kwargs and kwargs["local_conf_path"] != None:
-            self.local_conf_path = kwargs["local_conf_path"]
+        self.external_storage_conf_path = None
+        if "external_storage_conf_path" in kwargs and kwargs["external_storage_conf_path"] != None:
+            self.external_storage_conf_path = kwargs["external_storage_conf_path"]
 
         # Configuration for configmap [Access to k8s through exist kube_config.]
         self.kube_config_path = None
         if "kube_config_path" in kwargs and kwargs["kube_conf_path"] != None:
             self.kube_config_path = kwargs["kube_conf_path"]
-
-        # Configuration for configmap [Access to k8s through api-server address.]
-        # Only support k8s deployed by openPai.
-        self.kube_api_server_address = None
-        if "kube_api_server_address" in kwargs and kwargs["kube_api_server_address"] != None:
-            self.kube_api_server_address = kwargs["kube_api_server_address"]
 
         self.external_storage_configuration = None
 
@@ -65,7 +64,7 @@ class getting_external_config:
 
 
     def load_from_local_conf(self):
-        self.external_storage_configuration = self.load_yaml_config(self.local_conf_path)
+        self.external_storage_configuration = self.load_yaml_config(self.external_storage_conf_path)
 
 
 
@@ -82,31 +81,26 @@ class getting_external_config:
 
 
 
+    def construct_local_storage_type(self):
+
+        external_storage_conf_tmp = dict()
+        external_storage_conf_tmp["type"] = "local"
+        external_storage_conf_tmp["path"] = "path"
+        self.external_storage_configuration = external_storage_conf_tmp
+
+
+
     def get_latest_external_configuration(self):
-
-        # Through KUBE_CONFIG
-        if self.kube_config_path != None:
-            self.load_from_k8s_configmap()
-
-        # Through kube-api-address, and generate config
-        if self.kube_api_server_address != None:
-            kube_conf_template_path = "{0}/../../k8sPaiLibrary/template/config.template".format(package_directory_kubeinstall)
-            kube_conf_template = file_handler.read_template(kube_conf_template_path)
-            kube_conf_data = template_handler.generate_from_template_dict(
-                kube_conf_template,
-                {
-                    'clusterconfig' : { 'api-servers-ip': str(self.kube_api_server_address) }
-                }
-            )
-            file_handler.write_generated_file("{0}/config".format(package_directory_kubeinstall), kube_conf_data)
-            self.load_from_k8s_configmap(
-                KUBE_CONFIG_PATH="{0}/config".format(package_directory_kubeinstall)
-            )
-            file_handler.file_delete("{0}/config".format(package_directory_kubeinstall))
-
-        # Through local file
-        if self.kube_config_path == None and self.kube_api_server_address == None:
+        if self.local_cluster_conf_path != None:
             self.load_from_local_conf()
+        elif self.external_storage_conf_path != None:
+            self.construct_local_storage_type()
+        elif self.kube_config_path != None:
+            self.load_from_k8s_configmap()
+        else:
+            self.logger.error("Ops, unable to get configuration conf.")
+            self.logger.error("Please check your command and the corresponding path in your parameters.")
+            sys.exit(1)
 
         return self.external_storage_configuration
 

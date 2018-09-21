@@ -24,25 +24,19 @@ import logging.config
 
 from .external_config import getting_external_config
 from .git_storage import git_storage
-
-
+from .local_storage import local_storage
 
 
 logger = logging.getLogger(__name__)
 
-package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
-conf_storage_path = "{0}/../../sysconf/conf_external_storage.yaml".format(package_directory_kubeinstall)
 
 
-
-
-def get_external_storage(**kwargs):
-
-    get_config = getting_external_config(kwargs)
-    storage_conf = get_config.get_latest_external_configuration()
+def get_external_storage(storage_conf):
 
     if storage_conf["type"] == "git":
         return git_storage(storage_conf)
+    elif storage_conf["type"] == "local":
+        return local_storage(storage_conf)
     else:
         logger.error("External Storage Type [ {0} ] is not supported yet.".format(storage_conf["type"]))
         sys.exit(1)
