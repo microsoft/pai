@@ -19,22 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "refresh the configmap of launcher"
-
-kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
-
-echo "Relabel the node with laucher tag"
-/bin/bash node-label.sh || exit $?
-
-{% for host in machinelist %}
-
-    {% if 'launcher' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "launcher="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have launcher's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
+if kubectl get daemonset | grep -q "webportal-ds"; then
+    kubectl delete ds webportal-ds
 fi
-    {% endif %}
-
-{% endfor %}
 
 popd > /dev/null
