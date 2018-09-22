@@ -26,8 +26,6 @@ prerequisite:
 
 template-list:
   - hadoop-jobhistory.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
@@ -38,4 +36,4 @@ upgraded-script: upgraded.sh
 
 
 deploy-rules:
-  in: pai-master
+  - in: pai-master

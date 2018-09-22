@@ -17,21 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-echo "relabel node's label"
-/bin/bash node-label.sh || exit $?
+echo "refresh the configmap of launcher"
 
-{% for host in machinelist %}
+kubectl create configmap yarn-frameworklauncher-configmap --from-file=yarn-frameworklauncher-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
-    {% if 'restserver' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "restserver="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have restserver's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver- || exit $?
-fi
-    {% endif %}
-
-{% endfor %}
 
 popd > /dev/null
