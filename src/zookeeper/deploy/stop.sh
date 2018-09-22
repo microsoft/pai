@@ -24,10 +24,4 @@ if kubectl get daemonset | grep -q "zookeeper-ds"; then
 fi
 
 
-{% for host in machinelist %}
-    {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper- || exit $?
-    {% endif %}
-{% endfor %}
-
 popd > /dev/null

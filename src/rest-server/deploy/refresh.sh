@@ -17,23 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
-
-if kubectl get daemonset | grep -q "yarn-frameworklauncher-ds"; then
-    kubectl delete ds yarn-frameworklauncher-ds || exit $?
-fi
-
-if kubectl get configmap | grep -q "yarn-frameworklauncher-configmap"; then
-    kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
-fi
-
-
-{% for host in machinelist %}
-    {% if 'launcher' in machinelist[ host ] and machinelist[ host ][ 'launcher' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
-    {% endif %}
-{% endfor %}
-
 
 
 popd > /dev/null

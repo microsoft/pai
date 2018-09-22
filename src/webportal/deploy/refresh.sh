@@ -17,20 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "hadoop-jobhistory-service"; then
-    kubectl delete ds hadoop-jobhistory-service || exit $?
-fi
-
-if kubectl get configmap | grep -q "hadoop-jobhistory-configuration"; then
-    kubectl delete configmap hadoop-jobhistory-configuration || exit $?
-fi
-
-{% for host in machinelist %}
-    {% if 'jobhistory' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null
