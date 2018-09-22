@@ -17,32 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-
-echo "refresh prometheus configuration"
-kubectl apply -f prometheus-configmap.yaml || exit $?
-
-echo "relabel node's label"
-/bin/bash node-label.sh || exit $?
-
-{% for host in machinelist %}
-
-    {% if 'prometheus' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "prometheus="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have prometheus's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} prometheus- || exit $?
+if kubectl get daemonset | grep -q "hadoop-node-manager-ds"; then
+    kubectl delete ds hadoop-node-manager-ds || exit $?
 fi
-    {% endif %}
 
-    {% if 'node-exporter' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "node-exporter="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have node-exporter's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} node-exporter- || exit $?
+if kubectl get configmap | grep -q "hadoop-node-manager-configuration"; then
+    kubectl delete configmap hadoop-node-manager-configuration || exit $?
 fi
-    {% endif %}
-
-{% endfor %}
 
 popd > /dev/null

@@ -17,21 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-echo "relabel node's lable"
-/bin/bash node-label.sh || exit $?
 
-{% for host in machinelist %}
+echo "refresh hadoop-resource-manager-configuration"
+kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
-    {% if 'pylon' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "pylon="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have pylon's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon- || exit $?
-fi
-    {% endif %}
 
-{% endfor %}
 
 popd > /dev/null
