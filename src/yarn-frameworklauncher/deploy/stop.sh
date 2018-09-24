@@ -19,21 +19,13 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "relabel the node label"
-/bin/bash node-label.sh || exit $?
-
-
-{% for host in machinelist %}
-
-    {% if 'zookeeper' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "zookeeper="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have zookeeper's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper- || exit $?
+if kubectl get daemonset | grep -q "yarn-frameworklauncher-ds"; then
+    kubectl delete ds yarn-frameworklauncher-ds || exit $?
 fi
-    {% endif %}
 
-{% endfor %}
-
+if kubectl get configmap | grep -q "yarn-frameworklauncher-configmap"; then
+    kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
+fi
 
 
 popd > /dev/null
