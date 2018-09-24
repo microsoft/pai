@@ -19,14 +19,12 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "drivers-one-shot"; then
-    kubectl delete ds drivers-one-shot || exit $?
+if kubectl get daemonset | grep -q "hadoop-jobhistory-service"; then
+    kubectl delete ds hadoop-jobhistory-service || exit $?
 fi
 
-{% for host in machinelist %}
-    {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype- || exit $?
-    {% endif %}
-{% endfor %}
+if kubectl get configmap | grep -q "hadoop-jobhistory-configuration"; then
+    kubectl delete configmap hadoop-jobhistory-configuration || exit $?
+fi
 
 popd > /dev/null

@@ -21,8 +21,6 @@ prerequisite:
 
 template-list:
   - rest-server.yaml
-  - stop.sh
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
@@ -32,4 +30,4 @@ upgraded-script: upgraded.sh
 
 
 deploy-rules:
-  in: pai-master
+  - in: pai-master

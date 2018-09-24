@@ -19,30 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "yarn-frameworklauncher-ds"; then
-    kubectl delete ds yarn-frameworklauncher-ds || exit $?
-fi
 
-if kubectl get configmap | grep -q "yarn-frameworklauncher-configmap"; then
-    kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
-fi
-
-# Also check frameworklauncher-ds for backward compatibility
-if kubectl get daemonset | grep -q "frameworklauncher-ds"; then
-    kubectl delete ds frameworklauncher-ds || exit $?
-fi
-
-if kubectl get configmap | grep -q "frameworklauncher-configmap"; then
-    kubectl delete configmap frameworklauncher-configmap || exit $?
-fi
-
-
-{% for host in machinelist %}
-    {% if 'launcher' in machinelist[ host ] and machinelist[ host ][ 'launcher' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} launcher- || exit $?
-    {% endif %}
-{% endfor %}
-
+echo "refresh hadoop-jobhistory-configuration"
+kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 
 popd > /dev/null
