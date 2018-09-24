@@ -32,7 +32,7 @@ matrix:
     - language: python
       python: 2.7
       install:
-        - pip install markdown
+        - pip install markdown==2.6.11
       script:
         - python src/utilities/doc_checker.py .
 
