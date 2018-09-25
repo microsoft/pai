@@ -69,20 +69,3 @@ class synchronization:
         conf_uploader.run()
 
         external_storage_handler.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
