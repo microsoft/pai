@@ -86,13 +86,3 @@ class git_storage:
     def close(self):
         self.rm_conf()
         self.git_file_clean()
-
-
-
-
-
-
-
-
-
-

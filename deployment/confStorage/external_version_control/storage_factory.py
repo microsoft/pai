@@ -40,12 +40,3 @@ def get_external_storage(storage_conf):
     else:
         logger.error("External Storage Type [ {0} ] is not supported yet.".format(storage_conf["type"]))
         sys.exit(1)
-
-
-
-
-
-
-
-
-
