@@ -311,6 +311,14 @@ const stopJob = (jobName) => {
   }
 };
 
+const setJobRetryLink = (jobName, retryCount) => {
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': jobName, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(webportalConfig.yarnWebPortalUri);
+};
+
 const loadJobDetail = (jobName) => {
   loading.showLoading();
   configInfo = null;
@@ -412,6 +420,8 @@ window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
+window.setJobRetryLink = setJobRetryLink;
+
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
