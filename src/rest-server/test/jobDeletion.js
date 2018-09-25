@@ -17,28 +17,28 @@
 
 
 // test
-describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
+describe('Delete job: DELETE /api/v1/user/:username/jobs/:jobName', () => {
   const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
   const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
 
   afterEach(function() {
     if (!nock.isDone()) {
-      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
   it('[P-01] should delete job by admin', (done) => {
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/job')
+      .get('/v1/Frameworks/test_user~job')
       .reply(200, 
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
-          'userName': 'test',
+          'userName': 'test_user',
           'applicationId': 'app1',
         }
       ))
-      .get('/v1/Frameworks/job/FrameworkRequest')
+      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
       .reply(200, {
         'frameworkDescriptor': {
           'user': {
@@ -46,11 +46,12 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
           },
         },
       })
-      .delete(`/v1/Frameworks/job`)
+      .delete(`/v1/Frameworks/test_user~job`)
+      .matchHeader('UserName', 'test_user')
       .reply(202);
 
     chai.request(server)
-      .delete('/api/v1/jobs/job')
+      .delete('/api/v1/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
         expect(res).to.have.status(202);
@@ -60,7 +61,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
 
   it('[P-02] should delete own job', (done) => {
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/job')
+      .get('/v1/Frameworks/test_user~job')
       .reply(200, 
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
@@ -68,7 +69,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
           'applicationId': 'app1',
         }
       ))
-      .get('/v1/Frameworks/job/FrameworkRequest')
+      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
       .reply(200, {
         'frameworkDescriptor': {
           'user': {
@@ -76,11 +77,12 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
           },
         },
       })
-      .delete(`/v1/Frameworks/job`)
+      .delete(`/v1/Frameworks/test_user~job`)
+      .matchHeader('UserName', 'test_user')
       .reply(202);
 
     chai.request(server)
-      .delete('/api/v1/jobs/job')
+      .delete('/api/v1/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(202);
@@ -90,7 +92,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
 
   it('[N-01] should forbid non-admin delete other\'s job', (done) => {
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/job')
+      .get('/v1/Frameworks/test_user~job')
       .reply(200, 
         mustache.render(frameworkDetailTemplate, {
           'frameworkName': 'job',
@@ -98,7 +100,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
           'applicationId': 'app1',
         }
       ))
-      .get('/v1/Frameworks/job/FrameworkRequest')
+      .get('/v1/Frameworks/test_user~job/FrameworkRequest')
       .reply(200, {
         'frameworkDescriptor': {
           'user': {
@@ -108,7 +110,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
       });
 
     chai.request(server)
-      .delete('/api/v1/jobs/job')
+      .delete('/api/v1/user/test_user/jobs/job')
       .set('Authorization', `Bearer ${userToken}`)
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -119,7 +121,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
 
   it('[N-02] should forbid to delete not exist job.', (done) => {
     nock(launcherWebserviceUri)
-      .get('/v1/Frameworks/job')
+      .get('/v1/Frameworks/test_user~job')
       .reply(404, {
         'exception': 'NotFoundException',
         'message': '',
@@ -127,11 +129,43 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
       });
 
     chai.request(server)
-      .delete('/api/v1/jobs/job')
+      .delete('/api/v1//user/test_user/jobs/job')
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
         expect(res).to.have.status(404);
         expect(res.body.code).to.equal('NoJobError');
+        done();
+      });
+  });
+});
+
+describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
+  const userToken = jwt.sign({username: 'test_user', admin: false}, process.env.JWT_SECRET, {expiresIn: 60});
+  const adminToken = jwt.sign({username: 'test_admin', admin: true}, process.env.JWT_SECRET, {expiresIn: 60});
+
+  afterEach(function() {
+    if (!nock.isDone()) {
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  it('[N] should firbid delete job without namespace', (done) => {
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/job')
+      .reply(200, 
+        mustache.render(frameworkDetailTemplate, {
+          'frameworkName': 'job',
+          'userName': 'test',
+          'applicationId': 'app1',
+        }
+      ))
+    chai.request(server)
+      .delete('/api/v1/jobs/job')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.code).to.equal('ReadOnlyJobError');
         done();
       });
   });
