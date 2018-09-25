@@ -1,15 +1,34 @@
 # PAIShare
 
-PAIShare is designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
+PAIShare is part of OpenPAI, it is designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
+
+You can try PAIShare on **marketplace and submit job v2**.
 
 
 
 ## Table of Contents
 
-1. [When to consider PAIShare](#when-to-consider-paishare)
-2. [How to use](#how-to-use)
-3. [System design](#system-design)
-4. [Resource](#resource)
+1. [What is the PAIShare](#what-is-the-paishare)
+2. [When to consider PAIShare](#when-to-consider-paishare)
+3. [How to use](#how-to-use)
+4. [System design](#system-design)
+5. [Resource](#resource)
+
+
+
+## What is the PAIShare
+
+In fact, OpenPAI's job configuration can be composed by tasks, docker images, script and data.
+
+When writing a job configuration, you can create new components(tasks, data, script and docker images) or use existing ones.
+
+![Paishare_reuse_data](./images/PAIShare_reuse_data.png)
+
+And you can share the script, data, docker images or whole job configuration on the marketplace, and other people can reuse it easily.
+
+![paishare_marketplace](./images/PAIShare_marketplace.png)
+
+
 
 
 
