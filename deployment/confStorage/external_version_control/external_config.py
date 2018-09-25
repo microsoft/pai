@@ -92,9 +92,9 @@ class getting_external_config:
 
     def get_latest_external_configuration(self):
         if self.local_cluster_conf_path != None:
-            self.load_from_local_conf()
-        elif self.external_storage_conf_path != None:
             self.construct_local_storage_type()
+        elif self.external_storage_conf_path != None:
+            self.load_from_local_conf()
         elif self.kube_config_path != None:
             self.load_from_k8s_configmap()
         else:
