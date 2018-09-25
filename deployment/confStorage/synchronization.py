@@ -42,7 +42,7 @@ class synchronization:
         if "local_conf_path" in kwargs and kwargs["local_conf_path"] != None:
             self.local_conf_path = kwargs["local_conf_path"]
 
-        if "kube_config_path" in kwargs and kwargs["kube_conf_path"] != None:
+        if "kube_config_path" in kwargs and kwargs["kube_config_path"] != None:
             self.kube_config_path = kwargs["kube_conf_path"]
 
         if "pai_cluster_configuration_path" in kwargs and kwargs["pai_cluster_configuration_path"] != None:
