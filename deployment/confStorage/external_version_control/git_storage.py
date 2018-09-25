@@ -55,7 +55,6 @@ class git_storage:
 
 
 
-
     def rm_conf(self):
         pai_temp_path = "./tmp-config-{0}".format(self.time)
         directory_handler.directory_delete(pai_temp_path)
