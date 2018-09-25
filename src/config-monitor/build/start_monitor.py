@@ -12,7 +12,7 @@ from deployment.paiLibrary.common import file_handler, template_handler
 
 from deployment.paiLibrary.clusterObjectModel import objectModelFactory
 
-
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def get_dict_by_keys(dict_items, key_list):
@@ -25,17 +25,18 @@ def get_dict_by_keys(dict_items, key_list):
 
 def touch_file(file_path):
     basedir = os.path.dirname(file_path)
-    if not os.path.exists(basedir):
+    if basedir != "" and not os.path.exists(basedir):
         os.makedirs(basedir)
     with open(file_path, 'a'):
         os.utime(file_path, None)
 
 
 class ConfigOp(object):
+    timestamp_pattern = re.compile(r'\.{2}\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}\.\d{9}')
     def __init__(self, conf_dir):
         self.conf_dir = conf_dir
         # An effective timestamp: 2018_09_10_07_59_11.260092899
-        self.timestamp_pattern = re.compile(r'\.{2}\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}\.\d{9}')
+        # self.timestamp_pattern = re.compile(r'\.{2}\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2}\.\d{9}')
 
     def load_cluster_config(self):
         object_model = objectModelFactory.objectModelFactory(self.conf_dir)
@@ -54,8 +55,6 @@ class ConfigOp(object):
 
 
 
-
-
 class YarnActionOp(object):
 
     def __init__(self, source_dir="/hadoop-configuration-configmap", dst_dir="/hadoop-configuration"):
@@ -69,7 +68,7 @@ class YarnActionOp(object):
                                  "resourcemanager-start-service.sh",
                                  "yarn-env.sh",
                                  "yarn-site.xml"]
-        self.config_template_list = ["capacity-scheduler.xml.template"]
+        self.config_template_list = ["capacity-scheduler.xml"]
         self.config_ready_file = "/jobstatus/configok"
 
 
@@ -83,6 +82,7 @@ class YarnActionOp(object):
             been explicitly specified in the configuration file.
           - If all capacities are 0, resources will be split evenly to each VC.
         """
+        logger.info("Generate hadoop queues from vc")
         hadoop_queues_config = {}
         #
         virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
@@ -122,21 +122,26 @@ class YarnActionOp(object):
         self.update_config_ready()
 
     def generate_service_config_files(self, cluster_config, source_dir, dst_dir):
+        logger.info("Begin to copy config files")
         for copy_file in self.config_copy_list:
             shutil.copy(os.path.join(source_dir, copy_file), os.path.join(dst_dir, copy_file))
+        logger.info("Begin to generate config templates")
         for template_file in self.config_template_list:
-            template_path = os.path.join(source_dir, template_file)
-            dst_path = os.path.join(dst_dir, template_file.strip(".template"))
+            template_path = os.path.join(source_dir, template_file + ".template")
+            dst_path = os.path.join(dst_dir, template_file)
             template_data = file_handler.read_template(template_path)
             try:
+                logger.debug("Generate template file from {0} to {1}".format(template_path, dst_path))
                 generated_template = template_handler.generate_from_template_dict(template_data, cluster_config)
             except Exception as e:
                 self.logger.exception("failed to generate template file from %s with dict %s", template_path,
                                       cluster_config)
                 raise e
+            logger.debug("Write template config to {}".format(dst_path))
             file_handler.write_generated_file(dst_path, generated_template)
 
     def update_config_ready(self):
+        logger.debug("Update config ready file")
         touch_file(self.config_ready_file)
 
 
@@ -153,7 +158,7 @@ class Config(object):
         self.current_cluster_config = None
 
     def get_timestamp(self):
-        return self.current_timestamp
+        return self.current_timestamp 
 
     def load_timestamp(self):
         self.current_timestamp = self.config_op.load_timestamp()
@@ -161,7 +166,7 @@ class Config(object):
             raise RuntimeError("Can't find effective timestamp.")
 
     def get_cluster_config(self):
-        return self.current_cluster_config
+        return self.current_cluster_config 
 
     def load_cluster_config(self):
         self.current_cluster_config = self.config_op.load_cluster_config()
@@ -169,8 +174,11 @@ class Config(object):
 
     def update_service(self):
         try:
-            self.action_op.update(self.cluster_config)
-        except:
+            logger.debug(self.current_cluster_config)
+            self.action_op.update(self.current_cluster_config)
+        except Exception as e:
+            logger.error("Update error")
+            raise e
             return False
         return True
 
@@ -197,11 +205,16 @@ class Monitor(object):
         return False
 
     def monitor(self):
+        # self.current_config_object.load_timestamp()
+        # self.current_config_object.load_cluster_config()
+        # self.new_config_object.load_timestamp()
+        # self.new_config_object.load_cluster_config()
         while True:
             while self.new_config_object.get_timestamp() == self.current_config_object.get_timestamp():
+                logger.debug("Config have no change, current timestamp: {}".format(self.new_config_object.get_timestamp()))
                 time.sleep(self.monitor_interval)
                 self.new_config_object.load_timestamp()
-            logger.info("Config change: current timestamp: {0}, new timestamp: {1}".format(
+            logger.info("Config changed, current timestamp: {0}, new timestamp: {1}".format(
                 self.current_config_object.get_timestamp(), self.new_config_object.get_timestamp()))
             self.new_config_object.load_cluster_config()
             if self.check_update_need(self.current_config_object.get_cluster_config(),
@@ -216,8 +229,9 @@ class Monitor(object):
 
 if __name__ == "__main__":
 
-    yarn_action = YarnActionOp(source_dir="/hadoop-configuration-configmap", dst_dir="/hadoop-configuration")
-    config_op = ConfigOp(conf_dir="/cluster-configuration")
+    yarn_action = YarnActionOp(source_dir="hadoop-configuration-configmap", dst_dir="hadoop-configuration")
+    yarn_action.config_ready_file = "configok"
+    config_op = ConfigOp(conf_dir="cluster-configuration")
     monitor = Monitor(Config(config_op, yarn_action))
     monitor.monitor()
 
