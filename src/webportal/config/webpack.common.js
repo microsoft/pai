@@ -306,7 +306,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'docs']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'submit-v2.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -314,7 +315,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'jobSubmit']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'template.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -322,7 +324,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'templateDetail']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'marketplace.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
@@ -330,7 +333,8 @@ const config = (env, argv) => ({
       chunks: ['layout', 'templateView']
     }),
     new HtmlWebpackPlugin({
-      title: 'Platform for AI',
+      title: title,
+      version: version,
       filename: 'template-list.html',
       template: './src/app/layout/layout.component.ejs',
       minify: htmlMinifierOptions,
