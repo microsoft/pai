@@ -22,11 +22,11 @@ In fact, OpenPAI's job configuration can be composed by tasks, docker images, sc
 
 When writing a job configuration, you can create new components(tasks, data, script and docker images) or use existing ones.
 
-![Paishare_reuse_data](./images/PAIShare_reuse_data.png)
+![Paishare_reuse_data](./images/Paishare_reuse_data.png)
 
 And you can share the script, data, docker images or whole job configuration on the marketplace, and other people can reuse it easily.
 
-![paishare_marketplace](./images/PAIShare_marketplace.png)
+![paishare_marketplace](./images/paishare_marketplace.png)
 
 
 
