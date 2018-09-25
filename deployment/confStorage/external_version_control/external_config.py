@@ -85,7 +85,7 @@ class getting_external_config:
 
         external_storage_conf_tmp = dict()
         external_storage_conf_tmp["type"] = "local"
-        external_storage_conf_tmp["path"] = "path"
+        external_storage_conf_tmp["path"] = self.local_cluster_conf_path
         self.external_storage_configuration = external_storage_conf_tmp
 
 
