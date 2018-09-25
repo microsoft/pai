@@ -27,5 +27,14 @@ if kubectl get configmap | grep -q "yarn-frameworklauncher-configmap"; then
     kubectl delete configmap yarn-frameworklauncher-configmap || exit $?
 fi
 
+# Also check frameworklauncher-ds for backward compatibility
+if kubectl get daemonset | grep -q "frameworklauncher-ds"; then
+    kubectl delete ds frameworklauncher-ds || exit $?
+fi
+
+if kubectl get configmap | grep -q "frameworklauncher-configmap"; then
+    kubectl delete configmap frameworklauncher-configmap || exit $?
+fi
+
 
 popd > /dev/null
