@@ -63,10 +63,10 @@ spec:
         - name: FRAMEWORKLAUNCHER_PORT
           value: "{{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_port' ] }}"
         - name: LAUNCHER_OPTS
-          value: "-server -Xmx512m"
+          value: "-server -Xmx3072m -Djute.maxbuffer=49107800"
         resources:
           limits:
-            memory: "1Gi"
+            memory: "4Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
