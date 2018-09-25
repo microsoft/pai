@@ -55,7 +55,7 @@ class getting_external_config:
 
 
 
-    def load_yaml_config(config_path):
+    def load_yaml_config(self, config_path):
         with open(config_path, "r") as f:
             cluster_data = yaml.load(f)
 
