@@ -29,7 +29,7 @@ spec:
         app: yarn-frameworklauncher
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name: yarn-frameworklauncher
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
