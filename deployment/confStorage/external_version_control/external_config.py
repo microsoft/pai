@@ -48,8 +48,8 @@ class getting_external_config:
 
         # Configuration for configmap [Access to k8s through exist kube_config.]
         self.kube_config_path = None
-        if "kube_config_path" in kwargs and kwargs["kube_conf_path"] != None:
-            self.kube_config_path = kwargs["kube_conf_path"]
+        if "kube_config_path" in kwargs and kwargs["kube_config_path"] != None:
+            self.kube_config_path = kwargs["kube_config_path"]
 
         self.external_storage_configuration = None
 
