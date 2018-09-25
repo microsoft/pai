@@ -577,7 +577,7 @@ class Configuration(SubCmd):
 
     def update_configuration(self, args):
         sync_handler = synchronization(
-            pai_cluster_configuration_path=args.pai_cluster_configuration_path,
+            pai_cluster_configuration_path=args.cluster_conf_path,
             local_conf_path=args.external_storage_conf_path,
             kube_config_path=args.kube_config_path
         )
