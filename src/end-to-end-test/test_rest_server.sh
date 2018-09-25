@@ -28,9 +28,11 @@ rest_server_uri=$REST_SERVER_URI
 }
 
 @test "submit cntk test job" {
+  account="$(cat ./etc/account.config)"
+  account=(${account//:/ })
   job_name="cntk-test-$RANDOM-$RANDOM"
   token="$(cat ./etc/token.config)"
-  result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X POST -d @- $rest_server_uri/api/v1/jobs)"
+  result="$(cat ./etc/cntk.json | sed -e "s@CNTK_TEST@$job_name@g" -e "s@HDFS_URI@$hdfs_uri@g" | curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X POST -d @- $rest_server_uri/api/v1/user/${account[0]}/jobs)"
   [[ ! $result == *Error* ]]
 }
 
@@ -38,7 +40,7 @@ rest_server_uri=$REST_SERVER_URI
   account="$(cat ./etc/account.config)"
   account=(${account//:/ })
   token="$(cat ./etc/token.config)"
-  job_list="$(curl -H "Content-Type: application/json" -X GET $rest_server_uri/api/v1/jobs | jq -r --arg username ${account[0]} --argjson timestamp $(( $(date +%s) * 1000 - 24 * 60 * 60 * 1000 )) '.[] | select((.username | match($username)) and (.state | match("SUCCEEDED")) and (.createdTime < $timestamp)) | .name')"
-  result="$(for job in $job_list; do curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X DELETE $rest_server_uri/api/v1/jobs/$job; done)"
+  job_list="$(curl -H "Content-Type: application/json" -X GET $rest_server_uri/api/v1/user/${account[0]}/jobs | jq -r --arg username ${account[0]} --argjson timestamp $(( $(date +%s) * 1000 - 24 * 60 * 60 * 1000 )) '.[] | select((.username | match($username)) and (.state | match("SUCCEEDED")) and (.createdTime < $timestamp)) | .name')"
+  result="$(for job in $job_list; do curl -H "Content-Type: application/json" -H "Authorization: Bearer $token" -X DELETE $rest_server_uri/api/v1/user/${account[0]}/jobs/$job; done)"
   [[ ! $result == *Error* ]]
 }

@@ -52,7 +52,7 @@ task_role_no={{{ idx }}}
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
-mv /pai/code/* ./
+cp -r /pai/code/* ./
 
 function webhdfs_create_file()
 {

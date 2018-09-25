@@ -17,21 +17,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-echo "relabel node's label"
-/bin/bash node-label.sh || exit $?
-
-{% for host in machinelist %}
-
-    {% if 'webportal' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "webportal="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have webportal's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} webportal- || exit $?
+if kubectl get daemonset | grep -q "hadoop-data-node-ds"; then
+    kubectl delete ds hadoop-data-node-ds || exit $?
 fi
-    {% endif %}
 
-{% endfor %}
+if kubectl get configmap | grep -q "hadoop-data-node-configuration"; then
+    kubectl delete configmap hadoop-data-node-configuration || exit $?
+fi
 
 popd > /dev/null

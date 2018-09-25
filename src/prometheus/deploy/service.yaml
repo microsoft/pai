@@ -22,7 +22,6 @@ template-list:
   - prometheus-configmap.yaml
   - prometheus-deployment.yaml
   - start.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
@@ -32,4 +31,4 @@ refresh-script: refresh.sh
 upgraded-script: upgraded.sh
 
 deploy-rules:
-  in: pai-master
+  - in: pai-master

@@ -30,7 +30,7 @@ spec:
         app: grafana
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       volumes:
       - name: grafana-confg-volume
         configMap:

@@ -99,10 +99,10 @@ HEAD detached at v0.6.1
 nothing to commit, working directory clean
 ```
 
-##### (4) Go to pai-management working dir
+##### (4) Go to pai working dir
 
 ```bash
-cd /pai/pai-management
+cd /pai
 ```
 
 Now you are free to configure your cluster and run PAI commands...
@@ -122,9 +122,9 @@ sudo docker ps
 
 ### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
-Prepare the file under dev-box folder: /pai/pai-management/quick-start
+Prepare the file under dev-box folder: /pai/deployment/quick-start/
 
-There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml
+There is a example file under path: /pai/deployment/quick-start/quick-start-example.yaml
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
@@ -168,11 +168,11 @@ After the quick-start.yaml is ready, use it to generate four configuration yaml 
 ##### (1) generate configuration files
 
 ```bash
-cd /pai/pai-management
+cd /pai
 
-# cmd should be executed under /pai/pai-management directory in the dev-box.
+# cmd should be executed under pai directory in the dev-box.
 
-python paictl.py config generate -i /pai/pai-management/quick-start/quick-start.yaml -o ~/pai-config -f
+python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 
 ```
 
@@ -260,9 +260,9 @@ Check all configruation items are correct.
 After the configuration files are prepared, the Kubernetes services can be started using `paictl` tool:
 
 ```
-cd /pai/pai-management
+cd /pai
 
-# cmd should be executed under /pai/pai-management directory in the dev-box.
+# cmd should be executed under /pai directory in the dev-box.
 
 python paictl.py cluster k8s-bootup \
   -p ~/pai-config
@@ -292,9 +292,9 @@ Where `<master>` denotes the IP address of the load balancer of Kubernetes maste
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
 ```
-cd /pai/pai-management
+cd /pai
 
-# cmd should be executed under /pai/pai-management directory in the dev-box.
+# cmd should be executed under /pai directory in the dev-box.
 
 python paictl.py service start \
   -p ~/pai-config \
@@ -325,9 +325,9 @@ Where `<master>` is the same as in the previous [section](#step-2).
 
 - Step 1. Prepare the quick-start.yaml file
 
-Prepare the file under dev-box folder: /pai/pai-management/quick-start
+Prepare the file under dev-box folder: /pai/deployment/quick-start/quick-start
 
-There is a example file under path: /pai/pai-management/quick-start/quick-start-example.yaml
+There is a example file under path: /pai/deployment/quick-start/quick-start-example.yaml
 
 An example yaml file is shown below. Note that you should change the IP address of the machine and ssh information accordingly.
 
@@ -434,13 +434,13 @@ Check and refine 4 yaml files:
 
 - Customize config for specific service
 
-If user want to customize single service, you could find service config file at [pai-management/bootstrap](../../../src) and find image dockerfile at [pai-management/src](../../../src).
+If user want to customize single service, you could find service config file at [src](../../../src) and find image dockerfile at [src](../../../src).
 
 - Update Code & Image
 
   - Customize image dockerfile or code
 
-User could find service's image dockerfile at [pai-management/src](#pai-management/src) and customize them.
+User could find service's image dockerfile at [src](../../../src) and customize them.
 
   - Rebuild image
 

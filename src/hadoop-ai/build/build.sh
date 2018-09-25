@@ -19,7 +19,7 @@
 
 cd /
 
-wget https://issues.apache.org/jira/secure/attachment/12932984/hadoop-2.9.0.gpu-port.20180725.patch -O hadoop-2.9.0.gpu-port.patch
+wget https://issues.apache.org/jira/secure/attachment/12940533/hadoop-2.9.0.gpu-port.20180920.patch -O hadoop-2.9.0.gpu-port.patch
 # patch for webhdfs upload issue when using nginx as a reverse proxy
 wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
 
@@ -47,4 +47,5 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 # When Changing the patch id, please update the filename here.
 rm /hadoop-binary/*-done
-touch /hadoop-binary/12932984-12933562-docker_executor-done
+touch /hadoop-binary/12940533-12933562-docker_executor-done
+

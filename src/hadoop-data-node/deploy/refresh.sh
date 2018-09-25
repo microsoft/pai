@@ -19,18 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "hadoop-node-manager-ds"; then
-    kubectl delete ds hadoop-node-manager-ds || exit $?
-fi
 
-if kubectl get configmap | grep -q "hadoop-node-manager-configuration"; then
-    kubectl delete configmap hadoop-node-manager-configuration || exit $?
-fi
+echo "refresh hadoop-data-node-configuration"
+kubectl create configmap hadoop-data-node-configuration --from-file=hadoop-data-node-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
-{% for host in machinelist %}
-    {% if 'hadoop-node-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-node-manager- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null

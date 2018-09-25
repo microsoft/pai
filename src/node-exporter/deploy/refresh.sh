@@ -17,16 +17,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "drivers-one-shot"; then
-    kubectl delete ds drivers-one-shot || exit $?
-fi
 
-{% for host in machinelist %}
-    {% if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null
