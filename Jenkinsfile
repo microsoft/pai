@@ -118,7 +118,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-singlebox \
-  openpai.azurecr.io/paiclusterint/dev-box > SINGLE_BOX_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > SINGLE_BOX_DEV_BOX.txt
 '''
             script {
               env.SINGLE_BOX_DEV_BOX = readFile("$WORKSPACE/SINGLE_BOX_DEV_BOX.txt").trim()
@@ -210,7 +210,7 @@ sudo docker run -itd \
   --privileged=true \
   --net=host \
   --name=dev-box-cluster \
-  openpai.azurecr.io/paiclusterint/dev-box > CLUSTER_DEV_BOX.txt
+  10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > CLUSTER_DEV_BOX.txt
 '''
             script {
               env.CLUSTER_DEV_BOX = readFile("$WORKSPACE/CLUSTER_DEV_BOX.txt").trim()
