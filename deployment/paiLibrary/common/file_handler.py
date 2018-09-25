@@ -21,7 +21,6 @@ import logging
 import logging.config
 
 from . import linux_shell
-from . import directory_handler
 
 logger = logging.getLogger(__name__)
 
