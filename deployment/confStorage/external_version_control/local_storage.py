@@ -51,7 +51,7 @@ class local_storage:
             sys.exit(1)
 
         pai_temp_path = "./tmp-config-{0}".format(self.time)
-        directory_handler.directory_copy(configuation_path, pai_temp_path)
+        directory_handler.directory_copy("{0}/*".format(configuation_path), pai_temp_path)
 
 
 
