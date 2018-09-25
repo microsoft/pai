@@ -51,12 +51,12 @@ class synchronization:
 
 
     def get_external_storage_conf(self):
-        getting_external_config(
+        external_config = getting_external_config(
             external_storage_conf_path = self.local_conf_path,
             local_cluster_configuration = self.pai_cluster_configuration_path,
             kube_config_path = self.kube_config_path
         )
-        return getting_external_config.get_latest_external_configuration()
+        return external_config.get_latest_external_configuration()
 
 
 
