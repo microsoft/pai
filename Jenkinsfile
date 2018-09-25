@@ -64,6 +64,9 @@ sudo chown core:core -R /pathHadoop/
 QUICK_START_PATH=${JENKINS_HOME}/${BED}/singlebox/quick-start
 CONFIG_PATH=${JENKINS_HOME}/${BED}/singlebox/cluster-configuration
 
+# Install necessary python package
+sudo pip install GitPython
+
 # generate quick-start
 $JENKINS_HOME/scripts/${BED}-gen_single-box.sh ${QUICK_START_PATH}
 # ! fix permission
