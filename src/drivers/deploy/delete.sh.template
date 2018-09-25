@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,21 +17,21 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-prerequisite:
-  - cluster-configuration
+pushd $(dirname "$0") > /dev/null
 
-template-list:
-  - drivers.yaml
-  - clean.yaml
-  - delete.sh
+{% if clusterinfo['drivers']['set-nvidia-runtime'] %}
+kubectl apply --overwrite=true -f clean.yaml || exit $?
 
-# Note： your script should start all your service dependency. Make sure service has completed the starting process.
-start-script: start.sh
-stop-script: stop.sh
-delete-script: delete.sh
-refresh-script: refresh.sh
-upgraded-script: upgraded.sh
+export PYTHONPATH="../../../deployment"
 
+# wait until all clean finished
+python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rollback-nvidia-runtime
 
-deploy-rules:
-  - notin: no-drivers
+sleep 30 # SIGHUP in clean container may restart dockerd which will leads to restart of all docker containers include api server
+
+kubectl delete -f clean.yaml
+{% endif %}
+
+/bin/bash stop.sh || exit $?
+
+popd > /dev/null

@@ -50,6 +50,8 @@ spec:
           name: drivers-log
         - mountPath: /usr/src
           name: kernel-head
+        - mountPath: /etc
+          name: etc-path
         readinessProbe:
           exec:
             command:
@@ -62,6 +64,10 @@ spec:
             memory: "2Gi"
           requests:
             memory: "256Mi"
+        command:
+        - "./install-all-drivers"
+        args:
+        - "--config-runtime"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
@@ -80,4 +86,6 @@ spec:
       - name: kernel-head
         hostPath:
           path: /usr/src
-
+      - name: etc-path
+        hostPath:
+          path: /etc

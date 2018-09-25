@@ -46,9 +46,8 @@ RUN apt-get -y update && \
         python-prettytable \
         python-netifaces \
         python-pip \
-        git \
         realpath \
-        dos2unix \
+        gawk \
         module-init-tools && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -58,12 +57,6 @@ RUN apt-get -y update && \
 
 WORKDIR $STAGE_DIR
 
-COPY build/install-* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
-RUN chmod u+x install-nvidia-drivers
-RUN chmod u+x install-all-drivers
-RUN chmod u+x enable-nvidia-persistenced-mode.sh
-RUN dos2unix *
-
 ENV NVIDIA_VERSION=384.111
 
 RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
@@ -71,9 +64,10 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
     ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run --extract-only && \
     rm ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
 
-
 ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
 ENV PATH=$PATH:$NV_DRIVER/bin
+
+COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 
 CMD ./install-all-drivers
