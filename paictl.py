@@ -577,9 +577,12 @@ class Configuration(SubCmd):
 
 
     def update_configuration(self, args):
-        args.cluster_conf_path = os.path.expanduser(args.cluster_conf_path)
-        args.external_storage_conf_path = os.path.expanduser(args.external_storage_conf_path)
-        args.kube_config_path = os.path.expanduser(args.kube_config_path)
+        if args.cluster_conf_path != None:
+            args.cluster_conf_path = os.path.expanduser(args.cluster_conf_path)
+        if args.external_storage_conf_path != None:
+            args.external_storage_conf_path = os.path.expanduser(args.external_storage_conf_path)
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
         sync_handler = synchronization(
             pai_cluster_configuration_path=args.cluster_conf_path,
             local_conf_path=args.external_storage_conf_path,
