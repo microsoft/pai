@@ -105,10 +105,6 @@ public class FrameworkDescriptorTest {
         // MapValueNotNullValidation
         Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource.portDefinitions: " +
             "Map value is null for Map key: [ht%%tp]"));
-
-        // PortValidation
-        Assert.assertTrue(m.contains("taskRoles[HBaseRegionServer].taskService.resource: " +
-            "Illegal PortDefinitions: All start fields should be nonzero or zero"));
       }
     }
   }

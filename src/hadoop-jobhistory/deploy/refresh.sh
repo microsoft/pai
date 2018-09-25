@@ -19,18 +19,9 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "hadoop-resource-manager-ds"; then
-    kubectl delete ds hadoop-resource-manager-ds || exit $?
-fi
 
-if kubectl get configmap | grep -q "hadoop-resource-manager-configuration"; then
-    kubectl delete configmap hadoop-resource-manager-configuration || exit $?
-fi
+echo "refresh hadoop-jobhistory-configuration"
+kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
-{% for host in machinelist %}
-    {% if 'hadoop-resource-manager' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null

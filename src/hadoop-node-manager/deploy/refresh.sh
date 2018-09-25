@@ -19,15 +19,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "zookeeper-ds"; then
-    kubectl delete ds zookeeper-ds || exit $?
-fi
+
+echo "refresh hadoop-node-manager-configuration"
+kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
 
 
-{% for host in machinelist %}
-    {% if 'zookeeper' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} zookeeper- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null

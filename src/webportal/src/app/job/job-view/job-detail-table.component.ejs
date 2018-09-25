@@ -20,7 +20,17 @@
     <td><a href="virtual-clusters.html?vcName=<%= vcName %>"><%= vcName %></a></td>
     <td><%= convertTime(false, jobStatus.createdTime) %></td>
     <td><%= convertTime(true, jobStatus.createdTime, jobStatus.completedTime) %></td>
-    <td><%= jobStatus.retries %></td>
+    <td>
+      <% if (jobStatus.retries === 0) { %>
+        <%= jobStatus.retries %>
+      <% } else { %>
+        <a name='jobRetryLink'
+          onclick="setJobRetryLink('<%= namespace %>', '<%= jobName %>','<%= jobStatus.retries %>')"
+          href='javascript:void(0);'>
+          <%= jobStatus.retries %>
+        </a>
+      <% } %>
+    </td>
     <td><%= convertState(hjss) %></td>
     <td>
       <% if (hjss === 'Waiting' || hjss === 'Running') { %>
@@ -74,7 +84,7 @@
     <% } %>
   </div>
 </div>
- 
+
 <hr class="divider">
 
 <table class="table table-condensed">
