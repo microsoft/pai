@@ -27,7 +27,6 @@ template-list:
   - grafana-configuration/pai-taskroleview-dashboard.json
   - grafana-configuration/pai-taskview-dashboard.json
   - grafana-configuration/prom-datasource.json
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
@@ -36,4 +35,4 @@ refresh-script: refresh.sh
 upgraded-script: upgraded.sh
 
 deploy-rules:
-  in: pai-master
+  - in: pai-master

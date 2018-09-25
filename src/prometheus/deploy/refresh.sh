@@ -17,28 +17,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
 
-echo "refresh hadoop-resource-manager-configuration"
-kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
-
-echo "relabel the node label"
-/bin/bash node-label.sh || exit $?
-
-
-{% for host in machinelist %}
-
-    {% if 'hadoop-resource-manager' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "hadoop-resource-manager="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have hadoop-resource-manager's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-resource-manager- || exit $?
-fi
-    {% endif %}
-
-
-{% endfor %}
-
+echo "refresh prometheus configuration"
+kubectl apply -f prometheus-configmap.yaml || exit $?
 
 
 popd > /dev/null

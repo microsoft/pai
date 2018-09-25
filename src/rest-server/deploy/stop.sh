@@ -19,22 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "Re-label all the node in the cluster!"
-echo "New machine with GPU label will be labeled on kubernetes"
-
-/bin/bash node-label.sh || exit $?
-
-echo "Remove the label on the machine without GPU tag"
-
-{% for host in machinelist %}
-
-    {% if 'gpu' not in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "machinetype=gpu"; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have GPU's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} machinetype- || exit $?
+if kubectl get daemonset | grep -q "rest-server-ds"; then
+    kubectl delete ds rest-server-ds || exit $?
 fi
-    {% endif %}
-
-{% endfor %}
 
 popd > /dev/null

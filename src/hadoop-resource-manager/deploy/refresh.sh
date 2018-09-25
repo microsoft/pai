@@ -19,14 +19,10 @@
 
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "rest-server-ds"; then
-    kubectl delete ds rest-server-ds || exit $?
-fi
 
-{% for host in machinelist %}
-    {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} restserver- || exit $?
-    {% endif %}
-{% endfor %}
+echo "refresh hadoop-resource-manager-configuration"
+kubectl create configmap hadoop-resource-manager-configuration --from-file=hadoop-resource-manager-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
+
+
 
 popd > /dev/null
