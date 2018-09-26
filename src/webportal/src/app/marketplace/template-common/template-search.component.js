@@ -75,7 +75,12 @@ const search = function(query, types, callback, limit = 4) {
         },
         error: function(jqxhr, _, error) {
           if (jqxhr.status == 500) {
-              alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+              if (window.confirm([
+                  'Thank you for showing the interests to our preview feature, you are just one step away from it.',
+                  'As we store all the cool examples in GitHub, it is required to set up your Personal Access Token to allow us to check out them on your behave.',
+              ].join('\n'))) {
+                  location.href = '/change-github-pat.html';
+              }
           } else {
               alert(error);
           }
