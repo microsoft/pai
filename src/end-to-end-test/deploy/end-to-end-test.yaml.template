@@ -38,8 +38,6 @@ spec:
       - name: end-to-end-test
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}end-to-end-test:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: HDFS_URI
           value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}

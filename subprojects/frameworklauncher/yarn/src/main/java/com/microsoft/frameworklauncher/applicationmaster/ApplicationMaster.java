@@ -459,6 +459,13 @@ public class ApplicationMaster extends AbstractService {
     }
   }
 
+  private void attemptToStop() throws Exception {
+    for (TaskStatus taskStatus : statusManager.getTaskStatus(
+        new HashSet<>(Collections.singletonList(TaskState.TASK_COMPLETED)))) {
+      attemptToStop(taskStatus);
+    }
+  }
+
   // Only can be used in completeContainer, onTaskToRemove or to release a not live associated Container.
   // Should use completeContainer to release a live associated Container or need to log
   // the diagnostics of a Container.
@@ -679,6 +686,13 @@ public class ApplicationMaster extends AbstractService {
       attemptToRetry();
     });
     LOGGER.logInfo("All the previous CONTAINER_COMPLETED Tasks have been driven");
+
+    transitionTaskStateQueue.queueSystemTask(() -> {
+      // Also drive TASK_COMPLETED Tasks in case no attemptToStop has been triggered
+      // by previous attemptToRetry.
+      attemptToStop();
+    });
+    LOGGER.logInfo("All the previous TASK_COMPLETED Tasks have been driven");
   }
 
   private void addContainerRequest(TaskStatus taskStatus) throws Exception {

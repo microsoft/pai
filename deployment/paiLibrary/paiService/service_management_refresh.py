@@ -66,7 +66,8 @@ class service_management_refresh:
             return
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        service_refresher = service_refresh.service_refresh(service_conf, serv)
+        machinelist = self.cluster_object_model['machinelist']
+        service_refresher = service_refresh.service_refresh(service_conf, serv, machinelist)
 
         dependency_list = service_refresher.get_dependency()
         if dependency_list != None:

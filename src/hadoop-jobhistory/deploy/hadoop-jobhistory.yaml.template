@@ -29,7 +29,7 @@ spec:
         app: hadoop-jobhistory-service
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  hadoop-jobhistory-service
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
