@@ -251,6 +251,7 @@ docker pull {{{ jobData.image }}} \
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
 ## network consumption
 docker run --name $docker_name \
+  --init \
   --rm \
   --tty \
   --privileged=false \
