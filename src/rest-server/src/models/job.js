@@ -240,16 +240,28 @@ class Job {
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
-      `/Container/${userName}/${jobName}/JobConfig.json`,
+      `/Container/${userName}/${jobName}/JobConfig.yaml`,
       null,
       (error, result) => {
         if (!error) {
-          next(null, JSON.parse(result.content));
-        } else {
-          next(error);
+          next(null, result.content);
+        } 
+        else {
+          hdfs.readFile(
+            `/Container/${userName}/${jobName}/JobConfig.json`,
+            null,
+            (error, result) => {
+              if (!error) {
+                next(null, JSON.parse(result.content));
+              } else {
+                next(error);
+              }
+            }
+          );
         }
       }
     );
+    
   }
 
   getJobSshInfo(userName, namespace, jobName, applicationId, next) {

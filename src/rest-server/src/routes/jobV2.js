@@ -41,6 +41,10 @@ router.route('/:jobName')
     /** DELETE /api/v2/jobs/:jobName - Remove job */
     .delete(token.check, jobController.remove);
 
+/** GET /api/v2/jobs/:jobName/config - Get job config */
+router.route('/:jobName/config')
+    .get(jobController.getConfig);
+
 /** Load job when API with jobName route parameter is hit */
 router.param('jobName', jobController.load);
 
