@@ -166,6 +166,7 @@ class uploading_external_config:
 
         if self.kube_config_path != None:
             KUBE_CONFIG_PATH = self.kube_config_path
+            self.logger.info("The path of KUBE_CONFIG is detected: {0} ".format(self.kube_config_path))
         else:
             self.logger.error("Unable to find the kubeconfig to connect to target cluster.")
             sys.exit(1)
