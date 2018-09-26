@@ -24,4 +24,14 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl apply --overwrite=true -f secret.yaml || exit $?
 
+# Label all the machines
+{% for host in machinelist %}
+    {% if 'pai-master' in machinelist[ host ] and machinelist[ host ][ 'pai-master' ] == 'true' %}
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} pai-master=true || exit $?
+    {% endif %}
+    {% if 'pai-worker' in machinelist[ host ] and machinelist[ host ][ 'pai-worker' ] == 'true' %}
+kubectl label --overwrite=true nodes {{ machinelist[ host ][ 'nodename' ] }} pai-worker=true || exit $?
+    {% endif %}
+{% endfor %}
+
 popd > /dev/null
