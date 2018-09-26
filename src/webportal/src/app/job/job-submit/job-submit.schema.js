@@ -146,7 +146,7 @@ const jobSchema = {
   properties: {
     jobName: {
       type: 'string',
-      pattern: '^[A-Za-z0-9-._~]+$',
+      pattern: '^[A-Za-z0-9-._]+$',
       propertyOrder: 100,
       options: {
         grid_columns: 4,

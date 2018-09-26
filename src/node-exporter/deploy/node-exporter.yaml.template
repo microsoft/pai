@@ -99,7 +99,7 @@ spec:
           limits:
             memory: "1Gi"
         securityContext:
-          privileged: true
+          privileged: true # this is required by job-exporter
         volumeMounts:
         - mountPath: /root/.docker
           name: docker-cred-volume
@@ -145,6 +145,7 @@ spec:
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true
+      hostPID: true # This is required since job-exporter should get list of pid in container
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

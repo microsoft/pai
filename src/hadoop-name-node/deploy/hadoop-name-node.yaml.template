@@ -29,7 +29,7 @@ spec:
         app: hadoop-name-node
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  hadoop-name-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

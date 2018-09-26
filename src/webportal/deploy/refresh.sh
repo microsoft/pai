@@ -17,20 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
 pushd $(dirname "$0") > /dev/null
 
-if kubectl get daemonset | grep -q "hadoop-name-node-ds"; then
-    kubectl delete ds hadoop-name-node-ds || exit $?
-fi
-
-if kubectl get configmap | grep -q "hadoop-name-node-configuration"; then
-    kubectl delete configmap hadoop-name-node-configuration || exit $?
-fi
-
-{% for host in machinelist %}
-    {% if 'hadoop-name-node' in machinelist[ host ] -%}
-kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} hadoop-name-node- || exit $?
-    {% endif %}
-{% endfor %}
 
 popd > /dev/null

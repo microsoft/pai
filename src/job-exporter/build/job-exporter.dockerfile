@@ -22,11 +22,16 @@ ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
 ENV PATH=$PATH:$NV_DRIVER/bin
 
-RUN mkdir -p /job_exporter
-COPY src/* /job_exporter/
-
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
 RUN tar xzvf docker-17.06.2-ce.tgz -C /usr/local/
 RUN mv /usr/local/docker/* /usr/bin/
+RUN apt-get update && apt-get install -y build-essential git iftop lsof
+
+RUN git clone https://github.com/yadutaf/infilter --depth 1
+RUN cd infilter && make
+RUN cp infilter/infilter /usr/bin
+
+RUN mkdir -p /job_exporter
+COPY src/* /job_exporter/
 
 CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30

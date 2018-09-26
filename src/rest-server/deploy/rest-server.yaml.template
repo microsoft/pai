@@ -35,8 +35,6 @@ spec:
       - name: rest-server
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}

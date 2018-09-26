@@ -46,9 +46,9 @@ describe('Submit job: POST /api/v2/jobs', () => {
   // Define functions to prepare nock interceptors
   //
 
-  const prepareNockForCaseP01 = (jobName) => {
+  const prepareNockForCaseP01 = (username, jobName) => {
     global.nock(global.launcherWebserviceUri)
-      .get(`/v1/Frameworks/${jobName}`)
+      .get(`/v1/Frameworks/${username}~${jobName}`)
       .reply(
         404,
         {}
@@ -61,7 +61,7 @@ describe('Submit job: POST /api/v2/jobs', () => {
   
     it('[P-01] Submit a job to the default vc', (done) => {
       let jobConfig = yaml.load(fs.readFileSync("../../marketplace/job/tensorflow_cifar10.yaml", {encoding: 'utf-8'}));
-      prepareNockForCaseP01(jobConfig.name);
+      prepareNockForCaseP01('user1', jobConfig.name);
       global.chai.request(global.server)
         .post('/api/v2/jobs')
         .set('Authorization', 'Bearer ' + validToken)

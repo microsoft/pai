@@ -19,25 +19,8 @@
 
 pushd $(dirname "$0") > /dev/null
 
-
-echo "refresh hadoop-jobhistory-configuration"
-kubectl create configmap hadoop-jobhistory-configuration --from-file=hadoop-jobhistory-configuration/ --dry-run -o yaml | kubectl apply -f - || exit $?
-
-echo "relabel the node label"
-/bin/bash node-label.sh || exit $?
-
-
-{% for host in machinelist %}
-
-    {% if 'jobhistory' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "jobhistory="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have jobhistory's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} jobhistory- || exit $?
+if kubectl get daemonset | grep -q "webportal-ds"; then
+    kubectl delete ds webportal-ds
 fi
-    {% endif %}
-
-{% endfor %}
-
-
 
 popd > /dev/null

@@ -17,21 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 pushd $(dirname "$0") > /dev/null
 
-echo "relabel node's lable"
-/bin/bash node-label.sh || exit $?
-
-{% for host in machinelist %}
-
-    {% if 'pylon' not in machinelist[ host ] %}
-if kubectl describe node {{ machinelist[ host ][ 'nodename' ] }} | grep -q "pylon="; then
-    echo "Remove Node {{ machinelist[ host ][ 'nodename'] }}'s label, due to the node doesn't have pylon's label"
-    kubectl label nodes {{ machinelist[ host ][ 'nodename' ] }} pylon- || exit $?
+if kubectl get daemonset | grep -q "zookeeper-ds"; then
+    kubectl delete ds zookeeper-ds || exit $?
 fi
-    {% endif %}
 
-{% endfor %}
 
 popd > /dev/null
