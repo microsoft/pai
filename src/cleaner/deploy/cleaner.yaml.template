@@ -47,6 +47,23 @@ spec:
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
+      - name: deleted-files-cleaner
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        args:
+        - 'deleted_files'
+        imagePullPolicy: Always
+        securityContext:
+          privileged: True
+        volumeMounts:
+        - mountPath: /var/run/docker.socket
+          name: docker-socket
+        livenessProbe:
+          exec:
+            command:
+            - test
+            - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
+            initialDelaySeconds: 60
+            periodSeconds: 30
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

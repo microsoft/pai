@@ -17,6 +17,7 @@
 
 import time
 import argparse
+import os
 from datetime import timedelta
 from cleaner.scripts import clean_docker_cache, check_deleted_files
 from cleaner.worker import Worker
@@ -26,8 +27,9 @@ from cleaner.utils import common
 
 class Cleaner(LoggerMixin):
 
-    def __init__(self):
+    def __init__(self, liveness):
         self.workers = {}
+        self.liveness = liveness
 
     def add_worker(self, key, worker):
         if key not in self.workers:
@@ -49,10 +51,25 @@ class Cleaner(LoggerMixin):
                 self.logger.error("errors occur when terminating worker %s.", k)
                 self.logger.exception(e)
 
+    def update_liveness(self):
+        if self.liveness:
+            file_name = os.path.join("/tmp", self.liveness)
+            with open(file_name, "a"):
+                os.utime(file_name, None)
+
     def sync(self):
         try:
-            for w in self.workers.values():
-                w.join()
+            while True:
+                stop = True
+                for k, w in self.workers.items():
+                    if w.poll() is None:
+                        stop = False
+                    else:
+                        self.logger.error("worker %s exit with code %s", k, w.returncode)
+                if stop:
+                    break
+                self.update_liveness()
+                time.sleep(2)
         except:
             self.logger.error("cleaner interrupted and will exit.")
             self.terminate()
@@ -69,6 +86,12 @@ def get_worker(arg):
     return worker
 
 
+liveness_files = {
+    "docker_cache": "docker-cache-cleaner-healthy",
+    "deleted_files": "deleted-files-cleaner-healthy"
+}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("option", help="the functions currently supported: [docker_cache | deleted_files]")
@@ -76,7 +99,7 @@ def main():
 
     common.setup_logging()
 
-    cleaner = Cleaner()
+    cleaner = Cleaner(liveness_files[args.option])
     cleaner.add_worker(args.option, get_worker(args.option))
     cleaner.start()
     cleaner.sync()
