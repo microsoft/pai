@@ -437,12 +437,52 @@ const showSshInfo = (containerId) => {
   }
 };
 
+const rerunJob = (namespace, jobName) => {
+  window.location.replace('/submit-v2.html');
+  userAuth.checkToken((token) => {
+  
+    $('#submit-job-loading').removeClass('no-submit').addClass('loading-submit');
+    $('#submit-job-loading').html(common.generateLoading());
+    let data = userTemplate.createSubmitData();
+    data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
+      data: JSON.stringify(data),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      contentType: 'application/json; charset=utf-8',
+      type: 'PUT',
+      dataType: 'json',
+      success: (data) => {
+        // loading.hideLoading();
+        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
+        if (data.error) {
+          alert(data.message);
+          $('#submitHint').text(data.message);
+        } else {
+          alert('submit success');
+          $('#submitHint').text('submitted successfully!');
+        }
+        window.location.replace('/view.html');
+      },
+      error: (xhr, textStatus, error) => {
+        // loading.hideLoading();
+        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
+    });
+  });
+};
+
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 window.setJobRetryLink = setJobRetryLink;
+window.rerunJob = rerunJob;
 
 
 const resizeContentWrapper = () => {
@@ -471,4 +511,4 @@ $(document).ready(() => {
   }
 });
 
-module.exports = {loadJobs, stopJob, loadJobDetail};
+module.exports = {loadJobs, stopJob, loadJobDetail, rerunJob};
