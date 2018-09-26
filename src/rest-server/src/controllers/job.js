@@ -149,6 +149,7 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
+        console.log("controller job getconfig success");
         return res.status(200).json(result);
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`));

@@ -239,19 +239,23 @@ class Job {
       jobName = `${namespace}~${jobName}`;
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
+    console.log(`${launcherConfig.webhdfsUri}/Container/${userName}/${jobName}/JobConfig.yaml`);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.yaml`,
       null,
       (error, result) => {
         if (!error) {
+          console.log("found yaml");
           next(null, result.content);
         } 
         else {
+          console.log("not found yaml, searching json");
           hdfs.readFile(
             `/Container/${userName}/${jobName}/JobConfig.json`,
             null,
             (error, result) => {
               if (!error) {
+                console.log("found json");
                 next(null, JSON.parse(result.content));
               } else {
                 next(error);
