@@ -612,12 +612,12 @@ class Configuration(SubCmd):
 
 
     def get_configuration(self, args):
-        if args.external_storage_conf_path != None:
-            args.external_storage_conf_path = os.path.expanduser(args.external_storage_conf_path)
+        if args.config_output_path != None:
+            args.config_output_path = os.path.expanduser(args.config_output_path)
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
         get_handler = download_configuration(
-            config_output_path = args.external_storage_conf_path,
+            config_output_path = args.config_output_path,
             kube_config_path = args.kube_config_path
         )
         get_handler.run()
