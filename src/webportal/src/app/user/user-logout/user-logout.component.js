@@ -20,6 +20,7 @@ const userLogout = () => {
   cookies.remove('user');
   cookies.remove('token');
   cookies.remove('admin');
+  cookies.remove('paishareOptIn');
   window.location.replace('/login.html');
 };
 

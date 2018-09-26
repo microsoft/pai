@@ -37,3 +37,6 @@ $('#navbar').html(userLoginNavHtml);
 if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
 }
+if (cookies.get('paishareOptIn') !== 'true') {
+  $('.paishare').hide();
+}
