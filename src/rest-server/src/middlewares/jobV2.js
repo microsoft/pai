@@ -104,7 +104,6 @@ const saveYamlToHDFS = (req) => {
   ]);
 };
 
-
 const replaceParameters = (str, param) => {
   if (typeof str != 'string') return str;
   let newstr = str;
