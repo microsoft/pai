@@ -59,8 +59,16 @@ sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-s
 
 # set memory and cpu resource for nodemanager
 mem_total=`cat /proc/meminfo | grep "MemTotal" | awk '{print $2}'`
-# memory size to nodemanager is floor(mem_total * 0.8)
-let mem_total=mem_total*8/10/1024/1024*1024
+# memory size to nodemanager is (mem_total - mem_reserved)
+if [ $(grep 'ip:' /host-configuration/host-configuration.yaml|wc -l) -gt 1 ]
+then
+    echo "Node role is 'Worker'. Reserve 12G for os and k8s."
+    let mem_reserved=12*1024
+else
+    echo "Node role is 'Master & Worker'. Reserve 40G for os and k8s."
+    let mem_reserved=40*1024
+fi
+let mem_total=(mem_total/1024/1024*1024)-mem_reserved
 sed  -i "s/{mem_total}/${mem_total}/g" $HADOOP_CONF_DIR/yarn-site.xml
 
 cpu_vcores=`cat /proc/cpuinfo | grep "processor" | wc -l`

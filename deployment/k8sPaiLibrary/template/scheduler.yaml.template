@@ -36,3 +36,7 @@ spec:
         port: 10251
       initialDelaySeconds: 15
       timeoutSeconds: 1
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"

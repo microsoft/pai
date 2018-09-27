@@ -46,7 +46,7 @@ spec:
           periodSeconds: 30
         resources:
           limits:
-            memory: "1Gi"
+            memory: "256Mi"
         volumeMounts:
         - mountPath: /datastorage/prometheus
           name: collector-mount

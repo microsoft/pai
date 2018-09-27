@@ -56,5 +56,8 @@ spec:
         - name: webportal
           containerPort: 8080
           hostPort: {{ clusterinfo['webportalinfo']['server_port'] }}
+        resources:
+          limits:
+            memory: "512Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

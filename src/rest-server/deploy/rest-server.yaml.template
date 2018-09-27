@@ -56,5 +56,8 @@ spec:
         - name: rest-server
           containerPort: 8080
           hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
+        resources:
+          limits:
+            memory: "512Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
