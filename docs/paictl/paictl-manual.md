@@ -5,6 +5,7 @@ A tool to manage your pai cluster.
 ## Index
 - [Manage cluster configuration](#Config)
     - [Set external storage configuration to k8s](#External_Set)
+    - [Generate cluster configuration with machine list](#Config_Generate)
     - [Update the cluster configuration in the k8s](#Config_Update)
     - [Get the cluster configuration from the k8s](#Config_Get)
 - [ Maintain machines ](#Machine)
@@ -59,6 +60,12 @@ python paictl.py config -e external-config-update [ -c kube-config ]
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
+### Generate cluster configuratin from quick-start.yaml
+```yaml
+python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
+```
+- quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml.
+- More infomation about this command please refer to this [link](../pai-management/cluster-bootup.md#c-step-1). 
 
 ### Update the cluster configuration in the k8s
 
