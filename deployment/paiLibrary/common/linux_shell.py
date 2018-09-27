@@ -58,3 +58,15 @@ def execute_shell_with_output(shell_cmd, error_msg):
         sys.exit(1)
 
     return res
+
+
+def execute_shell_return(shell_cmd, error_msg):
+
+    try:
+        subprocess.check_call( shell_cmd, shell=True )
+
+    except subprocess.CalledProcessError:
+        logger.warning(error_msg)
+        return False
+
+    return True

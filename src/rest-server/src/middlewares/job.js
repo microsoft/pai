@@ -24,8 +24,7 @@ const createError = require('../util/error');
 
 const checkMinTaskNumber = (req, res, next) => {
   if ('killAllOnCompletedTaskNumber' in req.body) {
-    const errorMessage = 'killAllOnCompletedTaskNumber has been obsoleted, please use minFailedTaskCount and minSucceededTaskCount instead.';
-    next(createError('Bad Request', 'InvalidParametersError', errorMessage));
+    res.set('X-Warning', 'killAllOnCompletedTaskNumber has been obsoleted, please use minFailedTaskCount and minSucceededTaskCount instead.');
   }
   for (let i = 0; i < req.body.taskRoles.length; i ++) {
     const taskNumber = req.body.taskRoles[i].taskNumber;
@@ -49,9 +48,19 @@ const query = (req, res, next) => {
   if (req.query.username) {
     query.username = req.query.username;
   }
+  if (req.params.username) {
+    query.username = req.params.username;
+  }
   req._query = query;
   next();
 };
 
+const checkReadonly = (req, res, next) => {
+  if (!('username' in req.params)) {
+    return next(createError('Forbidden', 'ReadOnlyJobError', 'Job without user namespace is readonly.'));
+  }
+  next();
+};
+
 // module exports
-module.exports = {submission, query};
+module.exports = {submission, query, checkReadonly};

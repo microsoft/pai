@@ -17,12 +17,156 @@
 
 
 // test
+describe('Job execution type API /api/v1/user/:username/jobs/:jobName/executionType', () => {
+  after(function() {
+    if (!nock.isDone()) {
+      // TODO: Split mocks into each cases and enable the following error with afterEach.
+      nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
+    }
+  });
+
+  // Mock launcher webservice
+  before(() => {
+    let frameworkDetail = {
+      'summarizedFrameworkInfo': {
+        'executionType': 'START',
+      },
+      'aggregatedFrameworkStatus': {
+        'frameworkStatus': {
+          'name': 'test',
+          'frameworkState': 'APPLICATION_RUNNING',
+          'frameworkRetryPolicyState': {
+            'succeededRetriedCount': 0,
+            'transientNormalRetriedCount': 0,
+            'transientConflictRetriedCount': 0,
+            'nonTransientRetriedCount': 0,
+            'unKnownRetriedCount': 0,
+          },
+          'firstRequestTimestamp': new Date().getTime(),
+          'frameworkCompletedTimestamp': new Date().getTime(),
+          'applicationExitCode': 0,
+        },
+      },
+      'aggregatedFrameworkRequest': {
+        'frameworkRequest': {
+          'frameworkDescriptor': {
+            'user': {
+              'name': 'iamadmin',
+            },
+          },
+        },
+      },
+    };
+
+    nock(launcherWebserviceUri)
+      .get('/v1/Frameworks/iamadmin~test1')
+      .twice()
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test1';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/test2~test2')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test2';
+        frameworkDetail.aggregatedFrameworkRequest.frameworkRequest.frameworkDescriptor.user.name = 'test2';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~test3')
+      .reply(200, () => {
+        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test3';
+        return frameworkDetail;
+      })
+      .get('/v1/Frameworks/iamadmin~test1/FrameworkRequest')
+      .reply(200, {
+        'frameworkDescriptor': {
+          'user': {
+            'name': 'iamadmin',
+          },
+        },
+      })
+      .get('/v1/Frameworks/test2~test2/FrameworkRequest')
+      .reply(200, {
+        'frameworkDescriptor': {
+          'user': {
+            'name': 'test2',
+          },
+        },
+      })
+      .put('/v1/Frameworks/iamadmin~test1/ExecutionType', {
+        'executionType': 'STOP',
+      })
+      .reply(202, null)
+      .put('/v1/Frameworks/test2~test2/ExecutionType', {
+        'executionType': 'STOP',
+      })
+      .reply(202, null);
+  });
+
+  // PUT /api/v1/jobs/:jobName/executionType
+  it('should stop job successfully', (done) => {
+    chai.request(server)
+      .put('/api/v1/user/iamadmin/jobs/test1/executionType')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
+      .send({
+        'value': 'STOP',
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(202);
+        expect(res, 'json response').be.json;
+        expect(res.body.message, 'response message').equal('execute job test1 successfully');
+        done();
+      });
+  });
+
+  it('admin should stop other user\'s job successfully', (done) => {
+    chai.request(server)
+      .put('/api/v1/user/test2/jobs/test2/executionType')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
+      .send({
+        'value': 'STOP',
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(202);
+        expect(res, 'json response').be.json;
+        expect(res.body.message, 'response message').equal('execute job test2 successfully');
+        done();
+      });
+  });
+
+  it('should not stop job without authorization', (done) => {
+    chai.request(server)
+      .put('/api/v1/user/iamadmin/jobs/test3/executionType')
+      .send({
+        'value': 'STOP',
+      })
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(401);
+        expect(res, 'json response').be.json;
+        expect(res.body.code, 'response code').equal('UnauthorizedUserError');
+        done();
+      });
+  });
+
+  it('#909: should check request payload', (done) => {
+    chai.request(server)
+      .put('/api/v1/user/iamadmin/jobs/test1/executionType')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
+      .set('Content-Type', 'text/unknown')
+      .send('value=STOP')
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(400);
+        done();
+      });
+  });
+});
+
 describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
   after(function() {
     if (!nock.isDone()) {
       // TODO: Split mocks into each cases and enable the following error with afterEach.
-      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
@@ -61,22 +205,12 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
 
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test1')
-      .twice()
       .reply(200, () => {
         frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test1';
         return frameworkDetail;
-      })
-      .get('/v1/Frameworks/test2')
-      .reply(200, () => {
-        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test2';
-        frameworkDetail.aggregatedFrameworkRequest.frameworkRequest.frameworkDescriptor.user.name = 'test2';
-        return frameworkDetail;
-      })
-      .get('/v1/Frameworks/test3')
-      .reply(200, () => {
-        frameworkDetail.aggregatedFrameworkStatus.frameworkStatus.name = 'test3';
-        return frameworkDetail;
-      })
+      });
+
+    nock(launcherWebserviceUri)
       .get('/v1/Frameworks/test1/FrameworkRequest')
       .reply(200, {
         'frameworkDescriptor': {
@@ -84,27 +218,17 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
             'name': 'iamadmin',
           },
         },
-      })
-      .get('/v1/Frameworks/test2/FrameworkRequest')
-      .reply(200, {
-        'frameworkDescriptor': {
-          'user': {
-            'name': 'test2',
-          },
-        },
-      })
+      });
+
+    nock(launcherWebserviceUri)
       .put('/v1/Frameworks/test1/ExecutionType', {
-        'executionType': 'STOP',
-      })
-      .reply(202, null)
-      .put('/v1/Frameworks/test2/ExecutionType', {
         'executionType': 'STOP',
       })
       .reply(202, null);
   });
 
   // PUT /api/v1/jobs/:jobName/executionType
-  it('should stop job successfully', (done) => {
+  it('cannot stop job without namespace', (done) => {
     chai.request(server)
       .put('/api/v1/jobs/test1/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
@@ -113,49 +237,6 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
       })
       .end((err, res) => {
         expect(res, 'status code').to.have.status(202);
-        expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('execute job test1 successfully');
-        done();
-      });
-  });
-
-  it('admin should stop other user\'s job successfully', (done) => {
-    chai.request(server)
-      .put('/api/v1/jobs/test2/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
-      .send({
-        'value': 'STOP',
-      })
-      .end((err, res) => {
-        expect(res, 'status code').to.have.status(202);
-        expect(res, 'json response').be.json;
-        expect(res.body.message, 'response message').equal('execute job test2 successfully');
-        done();
-      });
-  });
-
-  it('should not stop job without authorization', (done) => {
-    chai.request(server)
-      .put('/api/v1/jobs/test3/executionType')
-      .send({
-        'value': 'STOP',
-      })
-      .end((err, res) => {
-        expect(res, 'status code').to.have.status(401);
-        expect(res, 'json response').be.json;
-        expect(res.body.code, 'response code').equal('UnauthorizedUserError');
-        done();
-      });
-  });
-
-  it('#909: should check request payload', (done) => {
-    chai.request(server)
-      .put('/api/v1/jobs/test1/executionType')
-      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
-      .set('Content-Type', 'text/unknown')
-      .send('value=STOP')
-      .end((err, res) => {
-        expect(res, 'status code').to.have.status(400);
         done();
       });
   });

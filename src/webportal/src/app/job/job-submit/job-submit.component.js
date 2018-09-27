@@ -75,9 +75,10 @@ const exportFile = (data, filename, type) => {
 
 const submitJob = (jobConfig) => {
   userAuth.checkToken((token) => {
+    const user = cookies.get('user');
     loading.showLoading();
     $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobConfig.jobName}`,
+      url: `${webportalConfig.restServerUri}/api/v1/user/${user}/jobs/${jobConfig.jobName}`,
       data: JSON.stringify(jobConfig),
       headers: {
         Authorization: `Bearer ${token}`,

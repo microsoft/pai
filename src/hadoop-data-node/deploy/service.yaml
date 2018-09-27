@@ -23,8 +23,6 @@ prerequisite:
 
 template-list:
   - hadoop-data-node.yaml
-  - stop.sh
-  - refresh.sh
   - delete.yaml
 
 start-script: start.sh
@@ -35,4 +33,4 @@ upgraded-script: upgraded.sh
 
 
 deploy-rules:
-  in: pai-worker
+  - in: pai-worker

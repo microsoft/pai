@@ -1,10 +1,18 @@
-# Setup dev-box
+# Setup dev-box document
 
-## Install docker on your server
+# Table of Contents
+- 1. [Install docker on your server](#c-step-1)
+        - 1.1 [Use prebuild dev-box image](#c-step-1.1)
+        - 1.2 [build dev-box docker image on your own](#c-step-1.2)
+- 2. [Deploy dev-box over existing K8s](#c-step-2)
+
+
+## Install docker on your server <a name="c-step-1"></a>
+
 
 ```dev-box``` is a docker container used to boot up or/and maintain a PAI cluster. For convenience, we provide a prebuild Docker image on Docker Hub.
 
-## Use prebuild dev-box image
+### Use prebuild dev-box image <a name="c-step-1.1"></a>
 
 ```bash
 
@@ -34,9 +42,9 @@ cd /pai/pai-management
 
 ```
 
-## Or build dev-box docker image on your own
+### build dev-box docker image on your own <a name="c-step-1.2"></a>
 
-### Build dev-box on the latest code
+#### Build dev-box on the latest code
 
 ```bash
 
@@ -51,7 +59,7 @@ sudo docker build -t dev-box .
 
 ```
 
-### Start your dev-box container
+#### Start your dev-box container
 
 - Suppose the path of `custom-hadoop-binary-path` in your service-configuration is `/pathHadoop`
 - Suppose the directory path of your cluster-configuration is `/pathConfiguration`. Note: Don't change the configuration file name！
@@ -76,4 +84,25 @@ cd /pai/pai-management
 
 # Now you are free to configure your cluster and run PAI commands...
 
+```
+
+## Deploy dev-box over existing K8s <a name="c-step-2"></a>
+
+If you want to deploy dev-box in already deployed kubernetes.
+
+Prerequisites:
+The user has installed kubectl on the current machine.
+
+(1) Create a label for the server to be deployed:
+
+```bash
+kubectl label --overwrite=true nodes $NODE-IP-ADDRESS dev-box=true
+```
+
+(2) Deploy dev-box to kubernetes
+
+```bash
+cd pai/src/dev-box
+
+kubectl create -f dev-box-k8s-deploy.yaml
 ```

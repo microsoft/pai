@@ -22,6 +22,7 @@ template-list:
   - gpu-configuration/gpu-configuration.json
   - docker-credentials/config.json
   - stop.sh
+  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh
