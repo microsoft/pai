@@ -46,6 +46,8 @@ spec:
             command:
             - test
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
+          initialDelaySeconds: 60
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
@@ -61,6 +63,8 @@ spec:
             command:
             - test
             - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
+          initialDelaySeconds: 60
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
