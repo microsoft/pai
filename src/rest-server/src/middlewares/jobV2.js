@@ -85,11 +85,11 @@ const getCommands = (element) => {
 };
 
 const saveYamlToHDFS = (req) => {
-  let namespace = req.params.username;
+  let namespace = req.user.username;
   let jobname = req.job.name;
-  if (namespace) {
-    jobName = `${namespace}~${jobName}`;
-  }
+  console.log(`**************saveyaml namespace: ${namespace} jobname: ${req.job.jobname}************`);
+  jobname = `${namespace}~${jobname}`;
+  
   const hdfs = new Hdfs(launcherConfig.webhdfsUri);
   async.parallel([
     (parallelCallback) => {
