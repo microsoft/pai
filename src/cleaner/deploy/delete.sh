@@ -19,4 +19,8 @@
 
 echo "stop the cleaner service."
 
-/bin/bash ./deploy/stop.sh || exit $?
+pushd $(dirname "$0") > /dev/null
+
+/bin/bash stop.sh || exit $?
+
+popd > /dev/null
