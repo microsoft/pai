@@ -87,7 +87,6 @@ const getCommands = (element) => {
 const saveYamlToHDFS = (req) => {
   let namespace = req.user.username;
   let jobname = req.job.name;
-  console.log(`**************saveyaml namespace: ${namespace} jobname: ${req.job.jobname}************`);
   jobname = `${namespace}~${jobname}`;
   
   const hdfs = new Hdfs(launcherConfig.webhdfsUri);
