@@ -60,13 +60,13 @@ class Cleaner(LoggerMixin):
     def sync(self):
         try:
             while True:
-                stop = True
-                for k, w in self.workers.items():
-                    if w.is_alive():
-                        stop = False
-                    else:
-                        self.logger.error("worker %s exit with code %s", k, w.returncode)
-                if stop:
+                stopped_workers = [(k, w) for k, w in self.workers.items() if not w.is_alive()]
+                if len(stopped_workers) > 0:
+                    for k, w in stopped_workers:
+                        self.logger.error("worker %s exit with code %s", k, w.exitcode)
+                        self.workers.pop(k)
+                if len(self.workers) == 0:
+                    self.logger.info("all workers are stopped and exit cleaner.")
                     break
                 self.update_liveness()
                 time.sleep(2)
