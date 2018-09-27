@@ -248,14 +248,12 @@ class Job {
           next(null, yaml.safeDump(result.content));
         } 
         else {
-          console.log("not found yaml, searching json");
           hdfs.readFile(
             `/Container/${userName}/${jobName}/JobConfig.json`,
             null,
             (error, result) => {
               if (!error) {
-                console.log("found json");
-                next(null, JSON.parse(result.content));
+                next(null, JSON.stringify(JSON.parse(result.content), null, 2));
               } else {
                 next(error);
               }
