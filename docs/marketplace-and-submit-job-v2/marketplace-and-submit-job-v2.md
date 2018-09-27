@@ -1,38 +1,35 @@
-# PAIShare
+# Marketplace and Submit job v2
 
-PAIShare is part of OpenPAI, it is designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
-
-You can try PAIShare on **marketplace and submit job v2**.
+Marketplace and Submit job v2 are designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
 
 
 
 ## Table of Contents
 
-1. [What is the PAIShare](#what-is-the-paishare)
-2. [When to consider PAIShare](#when-to-consider-paishare)
+1. [Marketplace and Submit job V2 Overview](#marketplace-and-submit-job-v2-overview)
+2. [When to consider marketplace and submit job v2](#when-to-consider-marketplace-and-submit-job-v2)
 3. [How to use](#how-to-use)
 4. [System design](#system-design)
 5. [Resource](#resource)
 
 
 
-## What is the PAIShare
-
+## Marketplace and Submit job V2 Overview
 In fact, OpenPAI's job configuration can be composed by tasks, docker images, script and data.
 
 When writing a job configuration, you can create new components(tasks, data, script and docker images) or use existing ones.
 
-![Paishare_reuse_data](./images/Paishare_reuse_data.png)
+![Paishare_reuse_data](./images/marketplace_reuse_data.png)
 
 And you can share the script, data, docker images or whole job configuration on the marketplace, and other people can reuse it easily.
 
-![paishare_marketplace](./images/paishare_marketplace.png)
+![paishare_marketplace](./images/marketplace.png)
 
 
 
 
 
-## When to consider PAIShare
+## When to consider marketplace and submit job v2
 
 1. When you want to try different models on your collected/downloaded data.
 2. When you want to use your model to train or predict on different data.
@@ -48,19 +45,19 @@ And you can share the script, data, docker images or whole job configuration on 
 1. At PAI home page, click the top right corner to **login**
 2. At the left sidebar, click "marketplace"
 
-![pai-homepage-click-marketplace](./images/PAIShare_import_from_marketplace1.png)
+![pai-homepage-click-marketplace](./images/marketplace_import1.png)
 
 3. Then choose a job template, for example: tensorflow_cifar10
 
-![marketplace-click-tensorflow-cifar10](./images/PAIShare_import_from_marketplace2.png)
+![marketplace-click-tensorflow-cifar10](./images/marketplace_import2.png)
 
 4. In job details page, click the "use" button, then it will go to the submit page(v2 version).
 
-   ![marketplace-job-details](./images/PAIShare_import_from_marketplace3.png)
+   ![marketplace-job-details](./images/marketplace_import3.png)
 
 5. Click "Submit" button at the bottom, If you successfully submitted the job, you will see a success message.
 
-![submit-job](./images/PAIShare_import_from_marketplace4.png)
+![submit-job](./images/marketplace_import4.png)
 
 
 
@@ -68,7 +65,7 @@ And you can share the script, data, docker images or whole job configuration on 
 
 ### Introduction to yaml file
 
-In PAIShare,  we use **yaml** to describe the job configuration.
+In submit job v2,  we use **yaml** to describe the job configuration.
 
 Below is an example for tensorflow image classification :
 
@@ -106,36 +103,34 @@ For more examples, please refer to [marketplace directory](https://github.com/Mi
 
 
 
-### Submit job page
+### Submit job V2
 
 1. At PAI home page, click the top right corner to **login** (Ignore this step if you are already logged in).
 
 2. At the left sidebar, click "Submit Job V2"
 
-   ![pai-homepage-click-submit-job-v2](./images/PAIShare_submit_job_page1.png)
+   ![pai-homepage-click-submit-job-v2](./images/submit_job_v2_1.png)
 
 3. In submit job(v2) page, there are two ways to configure your job.
 
    Firstly, you can import your template from yaml file
 
-![import-template-from-local-yaml-file](./images/PAIShare_submit_job_page2.png)
+![import-template-from-local-yaml-file](./images/submit_job_v2_2.png)
 
 ​       Or you can add you job components by web UI:
 
-![add-job-by-web-ui](./images/PAIShare_submit_job_page3.png)
+![add-job-by-web-ui](./images/submit_job_v2_3.png)
 
 For example, when you click the add docker image button, you can fill the table or choose a docker image which from marketplace.
 
-![add-docker](./images/PAIShare_submit_job_page4.png)
+![add-docker](./images/submit_job_v2_4.png)
 
 4. After import or add some job components, you can edit or delete a task/docker/script/data by web UI. Furthermore, you can edit the yaml directly to change the components.
 
-   ![edit-delete-component-or-edit-yaml](./images/PAIShare_submit_job_page5.png)
+   ![edit-delete-component-or-edit-yaml](./images/submit_job_v2_5.png)
 
 
 5. Then click "Submit" button at the bottom, if your job configuration is right you will see a success message.
-
-
 
 
 
