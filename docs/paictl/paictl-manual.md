@@ -64,8 +64,8 @@ python paictl.py config -e external-config-update [ -c kube-config ]
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
-- quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml.
-- More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1). 
+- quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1).
+- More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-2). 
 
 ### Update the cluster configuration in the k8s
 
