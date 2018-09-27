@@ -44,18 +44,20 @@ python paictl.py config -e external-config-update [ -c kube-config ]
 #     Git       #
 #################
 
-#type: git
-#url: https://github.com/microsoft/pai.git
-#branch: branch_name
-#path: path
+type: git
+url: https://github.com/example/example
+branch: example_branch
+# relative path in the project source code
+path: a/b/c
 ```    
 ```yaml
 ##################
 # Local storage. #
 ##################
 
-#type: local
-#path: path
+type: local
+# absolute path in your system
+path: /a/b/c
 ```
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
