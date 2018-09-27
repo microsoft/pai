@@ -69,5 +69,6 @@ Use "release" as the first parameter of start.sh to enter this mode.
 3. **normal mode**: If the job can run correctly within 30 minutes, the project will regards it succeeded.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
-If the sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10 job failed,
+If the **sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10** job failed,
 it may due to the official data downloading source being unstable. Just try again!
+Now(27th September, 2018), the mpi examples are still unready. Ignore them!
