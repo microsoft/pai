@@ -21,7 +21,7 @@ class JobManager(object):
                 loop_count += 1
                 http_object = self.http.request(
                     'POST',
-                    self.rest_server_socket + 'token',
+                    self.rest_server_url + 'token',
                     headers={
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
@@ -33,10 +33,10 @@ class JobManager(object):
                 else:
                     print(http_object.status, http_object.data)
 
-        self.rest_server_socket = config.rest_server_socket  # rest server socket
+        self.rest_server_url = config.rest_server_url  # rest server url
         self.http = urllib3.PoolManager()  # urllib3 http
         self.token = get_token(config.PAI_username, config.PAI_password, expiration)  # rest Server token
-        self.hdfs_client = Client(config.webhdfs_socket)  # hdfs web socket
+        self.hdfs_client = Client(config.webhdfs_url)  # hdfs web url
 
     def get_status(self, job_name="", has_service=False, service='main'):
         ###
@@ -46,7 +46,7 @@ class JobManager(object):
         # output: the information of the given job, its formation is following
         # return_json = {
         #     "state": str  # the state of the given job, include "SUCCEEDED"/"RUNNING"/"FAILED"
-        #     "services": {}  # a list of dicts, key is the service name and the value is the socket of that service
+        #     "services": {}  # a list of dicts, key is the service name and the value is the url of that service
         #     "exit_type": str  # if the given job exits, there will be this item, include
         #                  "SUCCEEDED"/"TRANSIENT_NORMAL"/"TRANSIENT_CONFLICT"/"NON_TRANSIENT"/"UNKNOWN"
         #     "log": [str]  # the logs of the given job, every log is from its own container
@@ -54,7 +54,7 @@ class JobManager(object):
         ###
         response = self.http.request(
             'GET',
-            self.rest_server_socket + 'jobs/' + job_name,
+            self.rest_server_url + 'jobs/' + job_name,
         )
         data = json.loads(response.data.decode('utf-8'))
         #return_json = {"state": data["jobStatus"]["state"].encode("utf-8")}
@@ -90,7 +90,7 @@ class JobManager(object):
         ###
         response = self.http.request(
             'POST',
-            self.rest_server_socket + 'jobs',
+            self.rest_server_url + 'jobs',
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + self.token,
@@ -113,7 +113,7 @@ class JobManager(object):
         ###
         response = self.http.request(
             'PUT',
-            self.rest_server_socket + 'jobs/' + job_name + '/executionType',
+            self.rest_server_url + 'jobs/' + job_name + '/executionType',
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + self.token,

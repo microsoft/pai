@@ -8,10 +8,10 @@ from job_manage import JobManager
 
 
 class Config(object):
-    def __init__(self, rest_server_socket, hdfs_socket, webhdfs_socket, PAI_username, PAI_password, jobs):
-        self.rest_server_socket = rest_server_socket
-        self.hdfs_socket = hdfs_socket
-        self.webhdfs_socket = webhdfs_socket
+    def __init__(self, rest_server_url, hdfs_url, webhdfs_url, PAI_username, PAI_password, jobs):
+        self.rest_server_url = rest_server_url
+        self.hdfs_url = hdfs_url
+        self.webhdfs_url = webhdfs_url
         self.PAI_username = PAI_username
         self.PAI_password = PAI_password
         self.jobs = set(jobs.split(','))
@@ -101,7 +101,7 @@ class Scanner(object):  # relate to the files
             if os.path.isdir(rootpath + '/' + item):
                 files = os.listdir(rootpath + '/' + item)
                 if "prepare.sh" in files:  # run the prepare shell script to download the data and code, then upload them to hdfs
-                    os.system("/bin/bash " + rootpath + '/' + item + '/' + "prepare.sh " + self.config.hdfs_socket)
+                    os.system("/bin/bash " + rootpath + '/' + item + '/' + "prepare.sh " + self.config.hdfs_url)
                 for file in files:
                     if file.endswith(".json"):
                         filepath = rootpath + '/' + item + '/' + file
@@ -112,13 +112,13 @@ class Scanner(object):  # relate to the files
 parser = argparse.ArgumentParser()
 parser.add_argument('--path', type=str, default='.')
 parser.add_argument('--threshold', type=int, default=30)
-parser.add_argument('--rest_server_socket', type=str, default="")
-parser.add_argument('--hdfs_socket', type=str, default="")
-parser.add_argument('--webhdfs_socket', type=str, default="")
+parser.add_argument('--rest_server_url', type=str, default="")
+parser.add_argument('--hdfs_url', type=str, default="")
+parser.add_argument('--webhdfs_url', type=str, default="")
 parser.add_argument('--PAI_username', type=str, default="")
 parser.add_argument('--PAI_password', type=str, default="")
 parser.add_argument('--jobs', type=str, default="")
 args = parser.parse_args()
-config = Config(rest_server_socket=args.rest_server_socket, hdfs_socket=args.hdfs_socket, webhdfs_socket=args.hdfs_socket, PAI_username=args.PAI_username, PAI_password=args.PAI_password, jobs=args.jobs)
+config = Config(rest_server_url=args.rest_server_url, hdfs_url=args.hdfs_url, webhdfs_url=args.hdfs_url, PAI_username=args.PAI_username, PAI_password=args.PAI_password, jobs=args.jobs)
 scanner = Scanner(args.threshold, config)
 scanner.scan(args.path)

@@ -50,7 +50,10 @@ function prepare_code(){
     hdfs dfs -put G2P.cntk hdfs://$1/examples/cntk/code
 }
 
-echo "You must input hdfs socket as the only parameter! Or you cannot run this script correctly!"
+if [ $# != 1 ]; then
+	echo "You must input hdfs socket as the only parameter! Or you cannot run this script correctly!"
+	exit 1
+fi
 
 #make directory on HDFS
 echo "Make cntk directory, waiting..."
