@@ -85,7 +85,6 @@ const getCommands = (element) => {
 };
 
 const saveYamlToHDFS = (req) => {
-  console.log("************************save yaml to hdfs*************************")
   const hdfs = new Hdfs(launcherConfig.webhdfsUri);
   async.parallel([
     (parallelCallback) => {
