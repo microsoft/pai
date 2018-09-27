@@ -16,7 +16,7 @@ You have 2 ways to run the project.
 One is submitting a job on PAI, and the other one is running it on your local machine.
 ### Running on PAI <a name="Running_on_PAI"></a>
 1. Submit the job onto PAI according to the [test_all_examples.json.igr](https://github.com/Microsoft/pai/blob/master/examples/auto-test/test_all_examples.json.igr) in this folder.
-You must edit the command with your own parameters. Refer to [Parameters of the start.sh](#Parameters of the start.sh) to edit your parameters.
+You must edit the command with your own parameters. Refer to [Parameters of the start.sh](#Parameters_of_the_start.sh) to edit your parameters.
 2. See the job's stdout in the application page.
 3. For the succeeded test items, you could do nothing, but it may not mean there is nothing wrong with the job. You'd better check it.
 4. For the failed test items, you should check the stdout in application page.
@@ -31,10 +31,10 @@ Copy the project into the container.
 `sudo docker cp ./pai/examples/auto-test my-autotest:/root/`
 4. Execute the container. `sudo docker exec -it my-autotest /bin/bash`
 5. Run the start.sh script file and use your own parameters of mode, hdfs_socket, webhdfs_socket, PAI_username,PAI_password and rest_server_socket.
-Pay attention to the order, you must give the 6 parameters in the above order. Refer to [Parameters of the start.sh](#Parameters of the start.sh).
+Pay attention to the order, you must give the 6 parameters in the above order. Refer to [Parameters of the start.sh](#Parameters_of_the_start.sh).
 `/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/ 10.20.30.40:50070 test test`
 6. When you run the script, you should choice the examples you want to test.
-See [Parameters of the start.sh](#Parameters of the start.sh) to get the reference.
+See [Parameters of the start.sh](#Parameters_of_the_start.sh) to get the reference.
 7. Wait until all jobs are finished.
 ### Parameters of the start.sh <a name="Parameters_of_the_start.sh"></a>
 There are 6 parameters required by start.sh. They are:
