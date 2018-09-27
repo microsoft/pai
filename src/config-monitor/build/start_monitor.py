@@ -229,9 +229,9 @@ class Monitor(object):
 
 if __name__ == "__main__":
 
-    yarn_action = YarnActionOp(source_dir="hadoop-configuration-configmap", dst_dir="hadoop-configuration")
-    yarn_action.config_ready_file = "configok"
-    config_op = ConfigOp(conf_dir="cluster-configuration")
+    yarn_action = YarnActionOp(source_dir="/hadoop-configuration-configmap", dst_dir="/hadoop-configuration")
+    yarn_action.config_ready_file = "/jobstatus/configok"
+    config_op = ConfigOp(conf_dir="/cluster-configuration")
     monitor = Monitor(Config(config_op, yarn_action))
     monitor.monitor()
 

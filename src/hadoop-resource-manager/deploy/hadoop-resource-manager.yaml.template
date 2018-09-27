@@ -59,14 +59,9 @@ spec:
             command:
             - bash
             - -c
-            - '[ -f "/jobstatus/jobok" ] && [ -f "/jobstatus/configok" ] && [ "/jobstatus/jobok" -nt "/jobstatus/configok" ]'
-          initialDelaySeconds: 5
+            - 'curl -s localhost:8088 && [ -f "/jobstatus/jobok" ] && [ -f "/jobstatus/configok" ] && [ "/jobstatus/jobok" -nt "/jobstatus/configok" ]'
+          initialDelaySeconds: 30
           periodSeconds: 3
-        livenessProbe:
-          tcpSocket:
-            port: 8088
-          initialDelaySeconds: 60
-          periodSeconds: 30
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -90,8 +85,8 @@ spec:
           limits:
             memory: "1Gi"
         command:
-          - sleep
-          - infinity
+          - python
+          - start_monitor.py
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-resource-manager-config-generated
@@ -99,6 +94,8 @@ spec:
           name: job-status
         - mountPath: /hadoop-configuration-configmap
           name: hadoop-resource-manager-config-volume
+        - mountPath: /cluster-configuration
+          name: cluster-configuration  
 
 
       - name: yarn-exporter
@@ -132,3 +129,6 @@ spec:
         emptyDir: {}
       - name: job-status
         emptyDir: {}
+      - name: cluster-configuration
+        configMap:
+          name: service-configuration
