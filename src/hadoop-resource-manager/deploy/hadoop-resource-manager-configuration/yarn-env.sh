@@ -52,7 +52,7 @@ fi
 # and/or YARN_RESOURCEMANAGER_OPTS.
 # If not specified, the default value will be picked from either YARN_HEAPMAX
 # or JAVA_HEAP_MAX with YARN_HEAPMAX as the preferred option of the two.
-export YARN_RESOURCEMANAGER_HEAPSIZE=8192
+#export YARN_RESOURCEMANAGER_HEAPSIZE=8192
 
 # Specify the max Heapsize for the timeline server using a numerical value
 # in the scale of MB. For example, to specify an jvm option of -Xmx1000m, set

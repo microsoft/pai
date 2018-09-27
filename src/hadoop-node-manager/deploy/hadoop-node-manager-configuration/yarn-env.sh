@@ -77,7 +77,7 @@ export YARN_RESOURCEMANAGER_HEAPSIZE=8192
 # and/or YARN_NODEMANAGER_OPTS.
 # If not specified, the default value will be picked from either YARN_HEAPMAX
 # or JAVA_HEAP_MAX with YARN_HEAPMAX as the preferred option of the two.
-export YARN_NODEMANAGER_HEAPSIZE=4096
+#export YARN_NODEMANAGER_HEAPSIZE=4096
 
 # Specify the JVM options to be used when starting the NodeManager.
 # These options will be appended to the options specified as YARN_OPTS
