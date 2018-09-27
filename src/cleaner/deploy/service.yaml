@@ -20,7 +20,6 @@ prerequisite:
 
 template-list:
   - cleaner.yaml
-  - refresh.sh
 
 start-script: start.sh
 stop-script: stop.sh
