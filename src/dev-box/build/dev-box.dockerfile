@@ -53,6 +53,8 @@ RUN apt-get -y update && \
     git clone https://github.com/Microsoft/pai.git &&\
     pip install python-etcd docker kubernetes GitPython
 
+RUN cd /pai && git fetch && git checkout hao/mt && cd /
+
 WORKDIR /tmp
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64

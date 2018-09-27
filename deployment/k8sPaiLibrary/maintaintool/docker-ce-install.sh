@@ -23,47 +23,49 @@ scriptPath=$1
 if command -v python >/dev/null 2>&1; then
     echo python has been installed. And skip python install.
 else
-    apt-get update
-    apt-get -y install python
-    if command -v python >/dev/null 2>&1; then
-        echo Successfully install python
-    else
-        echo Failed install python
-        exit 1
-    fi
+    echo "Python not found!!! --- Shouldn't be here!"
+    # apt-get update
+    # apt-get -y install python
+    # if command -v python >/dev/null 2>&1; then
+    #     echo Successfully install python
+    # else
+    #     echo Failed install python
+    #     exit 1
+    # fi
 fi
 
 # Prepare docker for remote host
 if command -v docker >/dev/null 2>&1; then
     echo docker has been installed. And skip docker install.
 else
-    apt-get update
-    apt-get -y install \
-               apt-transport-https \
-               ca-certificates \
-               curl \
-               software-properties-common
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    apt-key fingerprint 0EBFCD88
+    echo "Docker not found!!! --- Shouldn't be here!"
+    # apt-get update
+    # apt-get -y install \
+    #            apt-transport-https \
+    #            ca-certificates \
+    #            curl \
+    #            software-properties-common
+    # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    # apt-key fingerprint 0EBFCD88
 
-    # Suppose your host is amd64.
-    add-apt-repository \
-        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) \
-        stable"
+    # # Suppose your host is amd64.
+    # add-apt-repository \
+    #     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    #     $(lsb_release -cs) \
+    #     stable"
 
-    apt-get update
+    # apt-get update
 
-    apt-get -y install docker-ce
+    # apt-get -y install docker-ce
 
-    docker run hello-world
+    # sudo docker run hello-world
 
-    if command -v docker >/dev/null 2>&1; then
-        echo Successfully install docker
-    else
-        echo Failed install docker
-        exit 1
-    fi
+    # if command -v docker >/dev/null 2>&1; then
+    #     echo Successfully install docker
+    # else
+    #     echo Failed install docker
+    #     exit 1
+    # fi
 fi
 
 if command -v nvidia-container-runtime >/dev/null 2>&1; then
