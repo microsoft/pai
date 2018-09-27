@@ -3,7 +3,10 @@
 A tool to manage your pai cluster.
 
 ## Index
-
+- [Manage cluster configuration](#Config)
+    - [Set external storage configuration to k8s](#External_Set)
+    - [Update the cluster configuration in the k8s](#Config_Update)
+    - [Get the cluster configuration from the k8s](#Config_Get)
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
@@ -19,6 +22,69 @@ A tool to manage your pai cluster.
     - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
 - [ Appendix: An example of the `machine-list` file ](#Machine_Nodelist_Example)
 
+
+
+## Manage Cluster Configuration <a name="Config"></a>
+
+
+### Set external storage configuration to k8s <a name="External_Set"></a>
+
+```
+python paictl.py config -e external-config-update [ -c kube-config ] 
+```
+
+- External storage is responsible for storing your cluster configuration. And it is not a part of OpenPai's service. Now OpenPai supports 2 method to integrate.
+    - git: Admin could manage their cluster configuration with git such as VSTS, Github or Gitlab. Of course, you could setup your own git server.  
+    - local: If you don't have a git repo to manage your cluster configuration, you can store it in the local disk. 
+
+- External storage configuration
+```yaml
+#################
+#     Git       #
+#################
+
+#type: git
+#url: https://github.com/microsoft/pai.git
+#branch: branch_name
+#path: path
+```    
+```yaml
+##################
+# Local storage. #
+##################
+
+#type: local
+#path: path
+```
+
+- kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
+
+
+### Update the cluster configuration in the k8s
+
+###### 1. Update cluster configuration from local path
+
+```
+python paictl config update -p /path/to/local/configuration [-c kubeconfig-path ]
+```
+- Same as local storage.
+###### 2. Update cluster configuration from the external storage (Get the external storage from local)
+```
+python paictl config update -e external-storage-config [-c kubeconfig-path]
+```
+- Configure the external storage configuration and pass the configuration file with the parameter ```-e```.
+
+###### 3. Update cluster configuration from the external storage (Get the external storage from k8s)
+```
+python paictl config update [-c kubeconfig-path]
+```
+- Note: Please ensure that you have upload the external storage configuration to k8s with the [command](#External_Set).
+
+
+### Get the cluster configuration from the k8s
+```yaml
+paictl.py config get -o /path/to/output [-c kube-config]
+```
 
 ## Maintain machines <a name="Machine"></a>
 
