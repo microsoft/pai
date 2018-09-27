@@ -245,8 +245,7 @@ class Job {
       (error, result) => {
         if (!error) {
           next(null, yaml.safeDump(result.content));
-        } 
-        else {
+        } else {
           hdfs.readFile(
             `/Container/${userName}/${jobName}/JobConfig.json`,
             null,
@@ -261,7 +260,6 @@ class Job {
         }
       }
     );
-    
   }
 
   getJobSshInfo(userName, namespace, jobName, applicationId, next) {
