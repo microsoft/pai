@@ -80,4 +80,4 @@ fi
 
 python $scriptPath/docker-config-update.py -s $scriptPath/docker-daemon.json -d /etc/docker/daemon.json
 
-systemctl restart docker
+#systemctl restart docker
