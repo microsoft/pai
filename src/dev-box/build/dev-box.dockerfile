@@ -54,6 +54,7 @@ RUN apt-get -y update && \
     pip install python-etcd docker kubernetes GitPython
 
 RUN cd /pai && git fetch && git checkout hao/mt && cd /
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 
 WORKDIR /tmp
 
