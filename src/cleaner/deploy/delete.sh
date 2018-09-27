@@ -19,4 +19,4 @@
 
 echo "stop the cleaner service."
 
-/bin/bash stop.sh || exit $?
+/bin/bash ./deploy/stop.sh || exit $?

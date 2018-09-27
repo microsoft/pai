@@ -62,7 +62,7 @@ class Cleaner(LoggerMixin):
             while True:
                 stop = True
                 for k, w in self.workers.items():
-                    if w.poll() is None:
+                    if w.is_alive():
                         stop = False
                     else:
                         self.logger.error("worker %s exit with code %s", k, w.returncode)
@@ -70,8 +70,9 @@ class Cleaner(LoggerMixin):
                     break
                 self.update_liveness()
                 time.sleep(2)
-        except:
+        except Exception as e:
             self.logger.error("cleaner interrupted and will exit.")
+            self.logger.exception(e)
             self.terminate()
             time.sleep(1)
 
