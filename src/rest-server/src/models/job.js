@@ -239,7 +239,6 @@ class Job {
       jobName = `${namespace}~${jobName}`;
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
-    console.log(`${launcherConfig.webhdfsUri}/Container/${userName}/${jobName}/JobConfig.yaml`);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.yaml`,
       null,
