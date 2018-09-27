@@ -29,6 +29,7 @@ spec:
         app: cleaner
     spec:
       hostPID: true
+      hostNetwork: true
       containers:
       - name: docker-cache-cleaner
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -38,15 +39,16 @@ spec:
         securityContext:
           privileged: True
         volumeMounts:
-        - mountPath: /var/run/docker.socket
+        - mountPath: /var/run/docker.sock
           name: docker-socket
         livenessProbe:
           exec:
             command:
             - test
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
-          initialDelaySeconds: 60
-          periodSeconds: 30
+        resources:
+          limits:
+            memory: "1Gi"
       - name: deleted-files-cleaner
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         args:
@@ -54,19 +56,17 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: True
-        volumeMounts:
-        - mountPath: /var/run/docker.socket
-          name: docker-socket
         livenessProbe:
           exec:
             command:
             - test
             - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
-            initialDelaySeconds: 60
-            periodSeconds: 30
+        resources:
+          limits:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
       - name: docker-socket
         hostPath:
-          path: /var/run/docker.socket
+          path: /var/run/docker.sock
