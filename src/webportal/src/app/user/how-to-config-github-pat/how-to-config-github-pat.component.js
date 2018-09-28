@@ -16,12 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-const userLogout = () => {
-  cookies.remove('user');
-  cookies.remove('token');
-  cookies.remove('admin');
-  cookies.remove('hasGitHubPAT');
-  window.location.replace('/login.html');
-};
+// module dependencies
+const changeGithubPATComponent = require('./how-to-config-github-pat.component.ejs');
 
-module.exports = {userLogout};
+$('#content-wrapper').html(changeGithubPATComponent);
+
+$('#sidebar-menu--documents').addClass('active');
+$('#sidebar-menu--documents--how-to-config-github-pat').addClass('active');

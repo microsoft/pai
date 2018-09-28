@@ -18,62 +18,59 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: hadoop-data-node-ds
+  name: cleaner-ds
 spec:
   selector:
     matchLabels:
-      app: hadoop-data-node
+      app: cleaner
   template:
     metadata:
       labels:
-        app: hadoop-data-node
+        app: cleaner
     spec:
+      hostPID: true
       hostNetwork: true
-      hostPID: false
       containers:
-      - name:  hadoop-data-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - name: docker-cache-cleaner
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        args:
+        - 'docker_cache'
         imagePullPolicy: Always
+        securityContext:
+          privileged: True
         volumeMounts:
-        - mountPath: /var/lib/hdfs/data
-          name: hadoop-data-storage
-        - mountPath: /hadoop-configuration
-          name: hadoop-data-node-config-volume
-        - mountPath: /host-configuration
-          name: host-confg-volume
-        - mountPath: /var/lib/hadoopdata
-          name: hadoop-tmp-storage
-        readinessProbe:
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        livenessProbe:
           exec:
             command:
-            - cat
-            - /jobstatus/jobok
-          initialDelaySeconds: 5
-          periodSeconds: 3
+            - test
+            - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
+          initialDelaySeconds: 60
+          periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
-        env:
-        - name: HADOOP_DATANODE_OPTS
-          value: "-Xmx512m"
-        - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: GENERATE_CONFIG
-          value: datanode-generate-script.sh
-        - name: START_SERVICE
-          value: datanode-start-service.sh
+      - name: deleted-files-cleaner
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        args:
+        - 'deleted_files'
+        imagePullPolicy: Always
+        securityContext:
+          privileged: True
+        livenessProbe:
+          exec:
+            command:
+            - test
+            - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        resources:
+          limits:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
-      - name: hadoop-tmp-storage
+      - name: docker-socket
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/datanode
-      - name: hadoop-data-storage
-        hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data
-      - name: hadoop-data-node-config-volume
-        configMap:
-          name:  hadoop-data-node-configuration
-      - name: host-confg-volume
-        configMap:
-          name: host-configuration
+          path: /var/run/docker.sock

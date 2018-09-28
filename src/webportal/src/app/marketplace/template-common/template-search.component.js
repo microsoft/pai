@@ -4,6 +4,7 @@ const loadingComponent = require('./loading.ejs');
 const viewCardsComponent = require('./cards.ejs');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const webportalConfig = require('../../config/webportal.config.js');
+const githubThrottled = require('./github-throttled');
 
 const generateUI = function(type, data, limit) {
   if (data.length == 0) return '';
@@ -75,7 +76,7 @@ const search = function(query, types, callback, limit = 4) {
         },
         error: function(jqxhr, _, error) {
           if (jqxhr.status == 500) {
-              alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+              githubThrottled();
           } else {
               alert(error);
           }

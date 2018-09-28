@@ -15,30 +15,23 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: kube-controller-manager
-  namespace: kube-system
-spec:
-  hostNetwork: true
-  containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/kube-controller-manager:{{ clusterconfig['kubecontrollermanagerversion'] }}
-    name: kube-controller-manager
-    command:
-    - /usr/local/bin/kube-controller-manager
-    - --master
-    - {{ clusterconfig['api-servers-ip'] }}:8080
-    - --service-cluster-ip-range
-    - {{ clusterconfig['service-cluster-ip-range'] }}
-    - --leader-elect=true
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 10252
-      initialDelaySeconds: 15
-      timeoutSeconds: 1
-    resources:
-      limits:
-        memory: "1Gi"
-        cpu: "1000m"
+FROM python:2.7
+
+RUN apt-get -y update && \
+    apt-get -y install lsof gawk
+
+RUN pip install psutil
+
+RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz \
+    | tar -xzvC /usr/local \
+    && mv /usr/local/docker/* /usr/bin
+
+ENV PYTHONPATH "${PYTHONPATH}:/"
+RUN mkdir -p /cleaner
+WORKDIR /cleaner
+
+COPY scripts /cleaner/scripts
+COPY utils /cleaner/utils
+COPY ./*.py /cleaner/
+
+ENTRYPOINT ["python", "/cleaner/cleaner_main.py"]

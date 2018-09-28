@@ -28,6 +28,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
 const yamlHelper = require('../job-submit/sub-components/yaml-json-editor-convert.js');
+const githubThrottled = require('../template-common/github-throttled');
 
 const slideContext = {
   parseType: function parseType(rawType) {
@@ -198,7 +199,7 @@ function search(query) {
         },
         error: function(jqxhr, _, error) {
           if (jqxhr.status == 500) {
-            alert('The backend server is suffering from too many requests. Please wait for 1-3 minutes and retry!');
+            githubThrottled();
           } else {
             alert(error);
           }

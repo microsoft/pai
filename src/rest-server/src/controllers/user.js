@@ -106,7 +106,7 @@ const getUserList = (req, res, next) => {
 const updateUserGithubPAT =(req, res, next) => {
   const username = req.params.username;
   const githubPAT = req.body.githubPAT;
-  if (req.user.admin) {
+  if (req.user.admin || req.user.username == username) {
     userModel.updateUserGithubPAT(username, githubPAT, (err) => {
       if (err) {
         return next(createError.unknown(err));

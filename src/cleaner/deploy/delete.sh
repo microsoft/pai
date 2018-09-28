@@ -17,11 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+echo "stop the cleaner service."
+
 pushd $(dirname "$0") > /dev/null
 
-#chmod u+x configmap-create.sh
-/bin/bash configmap-create.sh || exit $?
-
-kubectl apply --overwrite=true -f secret.yaml || exit $?
+/bin/bash stop.sh || exit $?
 
 popd > /dev/null

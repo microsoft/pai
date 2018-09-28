@@ -53,6 +53,7 @@ $(document).ready(() => {
           cookies.set('user', data.user, {expires: expiration});
           cookies.set('token', data.token, {expires: expiration});
           cookies.set('admin', data.admin, {expires: expiration});
+          cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
           const query = url.parse(window.location.href, true).query;
           window.location.replace(query.origin ? query.origin : '/template.html');
         }

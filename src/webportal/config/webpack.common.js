@@ -62,6 +62,8 @@ const config = (env, argv) => ({
     templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
     templateView: './src/app/marketplace/template-view/template-view.component.js',
     templateList: './src/app/marketplace/template-list/template-list.component.js',
+    changeGitHubPAT: './src/app/user/change-github-pat/change-github-pat.component.js',
+    howToConfigGitHubPAT: './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
     'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker',
     'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
     'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
@@ -340,6 +342,24 @@ const config = (env, argv) => ({
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'templateList']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'change-github-pat.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'changeGitHubPAT']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'how-to-config-github-pat.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'howToConfigGitHubPAT']
     })
   ].concat(argv.debug ? [] : [new UglifyJsPlugin({
     cache: true,
