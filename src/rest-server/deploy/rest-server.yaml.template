@@ -52,6 +52,8 @@ spec:
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
+        - name: APP_TRACK_URI
+          value: 'http://65.52.108.118:84/yarn/100.101.27.103:8088/cluster/app/'
         ports:
         - name: rest-server
           containerPort: 8080

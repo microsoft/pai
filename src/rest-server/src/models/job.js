@@ -342,7 +342,7 @@ class Job {
         completedTime: frameworkStatus.frameworkCompletedTimestamp,
         appId: frameworkStatus.applicationId,
         appProgress: frameworkStatus.applicationProgress,
-        appTrackingUrl: frameworkStatus.applicationTrackingUrl,
+        appTrackingUrl: process.env.APP_TRACK_URI+frameworkStatus.applicationId,
         appLaunchedTime: frameworkStatus.applicationLaunchedTimestamp,
         appCompletedTime: frameworkStatus.applicationCompletedTimestamp,
         appExitCode: frameworkStatus.applicationExitCode,
