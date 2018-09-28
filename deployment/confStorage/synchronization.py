@@ -63,6 +63,7 @@ class synchronization:
     def sync_data_from_source(self):
         self.external_storage_configuration = self.get_external_storage_conf()
         with get_external_storage(self.external_storage_configuration) as configuration_path:
+            print configuration_path
             self.logger.info("The temporary cluster configuration path is : {0}".format(configuration_path))
             conf_uploader = upload_configuration(configuration_path, self.kube_config_path)
             conf_uploader.run()
