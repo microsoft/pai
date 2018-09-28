@@ -64,6 +64,8 @@ spec:
         - name: GITHUB_PATH
           value: {{ clusterinfo['restserverinfo']['github_path'] }}
 {% endif %}
+        - name: APP_TRACK_URI
+          value: 'http://65.52.108.118:84/yarn/100.101.27.103:8088/cluster/app/'
         ports:
         - name: rest-server
           containerPort: 8080
