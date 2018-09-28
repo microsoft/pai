@@ -20,11 +20,39 @@
  * Due to limitation described at https://developer.github.com/v3/search/#search-code,
  * the branch that Marketplace backend tracks must be 'master'.
  */
-let dataSource = {
-  owner: 'Microsoft',
-  repository: 'pai',
-  branch: 'master',
-  path: 'marketplace',
+const fse = require('fs-extra');
+const Joi = require('joi');
+const dotenv = require('dotenv');
+
+require.extensions['.mustache'] = (module, filename) => {
+  module.exports = fse.readFileSync(filename, 'utf8');
 };
+
+dotenv.config();
+
+let dataSource = {
+  owner: process.env.GITHUB_OWNER,
+  repository: process.env.GITHUB_REPOSITORY,
+  branch: process.env.GITHUB_BRANCH,
+  path: process.env.GITHUB_PATH,
+};
+
+// define dataSource schema
+const dataSourceSchema = Joi.object().keys({
+  owner: Joi.string()
+    .default('Microsoft'),
+  repository: Joi.string()
+    .default('pai'),
+  branch: Joi.string()
+    .default('master'),
+  path: Joi.string()
+    .default('marketplace'),
+}).required();
+
+const {error, value} = Joi.validate(dataSource, dataSourceSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
+dataSource = value;
 
 module.exports = dataSource;
