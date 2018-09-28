@@ -50,5 +50,6 @@ machine-list:
   {%- endif %}
   {%- if loop.length == 1 %}
     pai-worker: "true"
+    docker-data: /var/lib/docker
   {%- endif %}
 {%- endfor %}
