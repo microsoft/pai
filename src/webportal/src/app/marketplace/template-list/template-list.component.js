@@ -18,6 +18,7 @@
 const template = require('./template-list.component.ejs');
 const itemTemplate = require('./template-list.item.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
+const githubThrottled = require('../template-common/github-throttled');
 require('./template-list.component.css');
 const url = require('url');
 
@@ -48,6 +49,10 @@ function request(type, query) {
       .then(function(data) {
         if (data.pageNo * data.pageSize < data.totalCount) {
           return req(+data.pageNo + 1);
+        }
+      }).catch(function(error) {
+        if (!githubThrottled()) {
+          throw error;
         }
       });
   }

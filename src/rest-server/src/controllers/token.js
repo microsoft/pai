@@ -28,7 +28,7 @@ const get = (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
   const expiration = req.body.expiration;
-  tokenModel.check(username, password, (err, state, admin) => {
+  tokenModel.check(username, password, (err, state, admin, hasGitHubPAT) => {
     if (err) {
       return next(createError.unknown(err));
     }
@@ -46,6 +46,7 @@ const get = (req, res, next) => {
         user: username,
         token: token,
         admin: admin,
+        hasGitHubPAT: hasGitHubPAT,
       });
     });
   });

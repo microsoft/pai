@@ -34,7 +34,9 @@ const check = (username, password, callback) => {
         }
         callback(null,
           derivedKey === res.get(etcdConfig.userPasswdPath(username)),
-          res.get(etcdConfig.userAdminPath(username)) === 'true');
+          res.get(etcdConfig.userAdminPath(username)) === 'true',
+          res.has(etcdConfig.userGithubPATPath(username)) &&
+            Boolean(res.get(etcdConfig.userGithubPATPath(username))));
       });
     });
   });
