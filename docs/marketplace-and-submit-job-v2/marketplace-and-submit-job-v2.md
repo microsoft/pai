@@ -40,9 +40,24 @@ And you can share the script, data, docker images or whole job configuration on 
 
 ## How to use
 
-### Quick start: run a job from marketplace
+### Configure GitHub PAT
 
 1. At PAI home page, click the top right corner to **login**
+2. Click your username at the right corner, and then click "Change Github PAT"
+
+![github_pat_configure](images/github_pat_configure.png)
+
+
+
+3. Enter your github personal Access Token, and click update. If you don't know how to get it, click the "How to config Github PAT" to see details.
+
+![github_pat_configure2](images/github_pat_configure2.png)
+
+
+
+### Run a job from marketplace
+
+1. At PAI home page, click the top right corner to **login** (Ignore this step if you are already logged in).
 2. At the left sidebar, click "marketplace"
 
 ![pai-homepage-click-marketplace](./images/marketplace_import1.png)
