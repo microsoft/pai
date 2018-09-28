@@ -89,7 +89,7 @@ class git_storage:
 
 
     def __enter__(self):
-        self.open()
+        return self.open()
 
 
 
