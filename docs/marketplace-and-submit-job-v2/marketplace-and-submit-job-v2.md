@@ -43,7 +43,8 @@ And you can share the script, data, docker images or whole job configuration on 
 ### Configure GitHub PAT
 
 1. At PAI home page, click the top right corner to **login**
-2. Click your username at the right corner, and then click "Change Github PAT"
+
+2. Click your username at the top right corner, and then click "Change Github PAT"
 
 ![github_pat_configure](images/github_pat_configure.png)
 
