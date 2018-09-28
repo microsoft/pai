@@ -36,6 +36,8 @@ const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.comp
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
+const userTemplate = require('../../marketplace/job-submit/sub-components/user-template.js');
+const yaml = require('js-yaml')
 
 let table = null;
 let configInfo = null;
@@ -437,44 +439,6 @@ const showSshInfo = (containerId) => {
   }
 };
 
-const rerunJob = (namespace, jobName) => {
-  window.location.replace('/submit-v2.html');
-  userAuth.checkToken((token) => {
-  
-    $('#submit-job-loading').removeClass('no-submit').addClass('loading-submit');
-    $('#submit-job-loading').html(common.generateLoading());
-    let data = userTemplate.createSubmitData();
-    data.name += '_' + new Date().toISOString().replace(new RegExp('[-:TZ]', 'g'), '');
-    $.ajax({
-      url: `${webportalConfig.restServerUri}/api/v2/jobs/${data.name}`,
-      data: JSON.stringify(data),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      contentType: 'application/json; charset=utf-8',
-      type: 'PUT',
-      dataType: 'json',
-      success: (data) => {
-        // loading.hideLoading();
-        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
-        if (data.error) {
-          alert(data.message);
-          $('#submitHint').text(data.message);
-        } else {
-          alert('submit success');
-          $('#submitHint').text('submitted successfully!');
-        }
-        window.location.replace('/view.html');
-      },
-      error: (xhr, textStatus, error) => {
-        // loading.hideLoading();
-        $('#submit-job-loading').removeClass('loading-submit').addClass('no-submit');
-        const res = JSON.parse(xhr.responseText);
-        alert(res.message);
-      },
-    });
-  });
-};
 
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
@@ -482,7 +446,7 @@ window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 window.setJobRetryLink = setJobRetryLink;
-window.rerunJob = rerunJob;
+window.resubmitJob = resubmitJob;
 
 
 const resizeContentWrapper = () => {
@@ -509,6 +473,18 @@ $(document).ready(() => {
     loadJobs(query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
+  $(document).on('click', '#resubmitjob_btn', () => {
+    console.log(`************before\n ${configInfo} `);
+    let url;
+    let config_yaml = yaml.safeLoad(configInfo);
+    if ('protocol_version' in config_yaml ) { // is yaml
+      url = `/submit-v2.html?op=resubmit&type=job&user=${query['username']}&jobname=${query['jobName']}`
+      window.location.replace(url);
+      console.log("go to v2");  
+    } else{
+      url = `/submit.html?op=resubmit&type=job&user=${query['username']}&jobname=${query['jobName']}`;
+    }
+  });
 });
 
-module.exports = {loadJobs, stopJob, loadJobDetail, rerunJob};
+module.exports = {loadJobs, stopJob, loadJobDetail};

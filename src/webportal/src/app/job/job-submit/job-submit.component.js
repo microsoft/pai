@@ -156,6 +156,18 @@ $(document).ready(() => {
   window.onresize = function() {
     resize();
   };
+  const query = url.parse(window.location.href, true).query;
+  const type = query.type;
+  const username = query.user;
+  const jobname = query.jobname;
+  if (type != null && username != null && jobname != null) {
+    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+    console.log("JSON submit request job config");
+    $.getJSON(url, (data) => {
+      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+    });
+  }
+
 });
 
 module.exports = {submitJob};
