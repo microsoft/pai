@@ -17,6 +17,7 @@
 
 import time
 import argparse
+import os
 from datetime import timedelta
 from cleaner.scripts import clean_docker_cache, check_deleted_files
 from cleaner.worker import Worker
@@ -26,8 +27,9 @@ from cleaner.utils import common
 
 class Cleaner(LoggerMixin):
 
-    def __init__(self):
+    def __init__(self, liveness):
         self.workers = {}
+        self.liveness = liveness
 
     def add_worker(self, key, worker):
         if key not in self.workers:
@@ -49,24 +51,45 @@ class Cleaner(LoggerMixin):
                 self.logger.error("errors occur when terminating worker %s.", k)
                 self.logger.exception(e)
 
+    def update_liveness(self):
+        if self.liveness:
+            file_name = os.path.join("/tmp", self.liveness)
+            with open(file_name, "a"):
+                os.utime(file_name, None)
+
     def sync(self):
         try:
-            for w in self.workers.values():
-                w.join()
-        except:
-            self.logger.error("cleaner interrupted and will exit.")
+            while True:
+                stopped_workers = [(k, w) for k, w in self.workers.items() if not w.is_alive()]
+                if len(stopped_workers) > 0:
+                    for k, w in stopped_workers:
+                        self.logger.error("worker %s exit with code %s", k, w.exitcode)
+                        self.workers.pop(k)
+                if len(self.workers) == 0:
+                    self.logger.info("all workers are stopped and exit cleaner.")
+                    break
+                self.update_liveness()
+                time.sleep(2)
+        except Exception as e:
+            self.logger.exception("cleaner interrupted and will exit.")
             self.terminate()
             time.sleep(1)
 
 
 def get_worker(arg):
     if arg == "docker_cache":
-        worker = Worker(clean_docker_cache.check_and_clean, 50, timeout=timedelta(minutes=10))
+        worker = Worker(clean_docker_cache.check_and_clean, 50, timeout=timedelta(minutes=10), cool_down_time=1800)
     elif arg == "deleted_files":
-        worker = Worker(check_deleted_files.list_and_check_files, None, timeout=timedelta(minutes=10))
+        worker = Worker(check_deleted_files.list_and_check_files, None, timeout=timedelta(minutes=10), cool_down_time=1800)
     else:
         raise ValueError("arguments %s is not supported.", arg)
     return worker
+
+
+liveness_files = {
+    "docker_cache": "docker-cache-cleaner-healthy",
+    "deleted_files": "deleted-files-cleaner-healthy"
+}
 
 
 def main():
@@ -76,7 +99,7 @@ def main():
 
     common.setup_logging()
 
-    cleaner = Cleaner()
+    cleaner = Cleaner(liveness_files[args.option])
     cleaner.add_worker(args.option, get_worker(args.option))
     cleaner.start()
     cleaner.sync()
