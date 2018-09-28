@@ -61,6 +61,7 @@ class synchronization:
 
 
     def sync_data_from_source(self):
+
         self.external_storage_configuration = self.get_external_storage_conf()
         with get_external_storage(self.external_storage_configuration) as configuration_path:
             print configuration_path
