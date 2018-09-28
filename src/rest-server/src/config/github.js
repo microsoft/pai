@@ -15,11 +15,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-/**
- * Due to limitation described at https://developer.github.com/v3/search/#search-code,
- * the branch that Marketplace backend tracks must be 'master'.
- */
 const fse = require('fs-extra');
 const Joi = require('joi');
 const dotenv = require('dotenv');
@@ -44,7 +39,12 @@ const dataSourceSchema = Joi.object().keys({
   repository: Joi.string()
     .default('pai'),
   branch: Joi.string()
-    .default('master'),
+    .default('master')
+    /**
+    * Due to limitation described at https://developer.github.com/v3/search/#search-code,
+    * the branch that Marketplace backend tracks must be 'master'.
+    */
+    .allow(['master']),
   path: Joi.string()
     .default('marketplace'),
 }).required();
