@@ -244,7 +244,7 @@ class Job {
       null,
       (error, result) => {
         if (!error) {
-          next(null, yaml.safeDump(result.content));
+          next(null, result.content);
         } else {
           hdfs.readFile(
             `/Container/${userName}/${jobName}/JobConfig.json`,
