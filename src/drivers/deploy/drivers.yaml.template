@@ -66,8 +66,10 @@ spec:
             memory: "256Mi"
         command:
         - "./install-all-drivers"
+        {% if clusterinfo['drivers']['set-nvidia-runtime'] %}
         args:
         - "--config-runtime"
+        {% endif %}
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
