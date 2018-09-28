@@ -17,15 +17,15 @@
 
 
 // module dependencies
-const changePasswordComponent = require('./change-github-pat.component.ejs');
+const changeGitHubPATComponent = require('./change-github-pat.component.ejs');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 require('./change-github-pat.component.scss');
 
 
-const changePasswordHtml = changePasswordComponent();
+const changeGitHubPATHtml = changeGitHubPATComponent();
 
-$('#content-wrapper').html(changePasswordHtml);
+$('#content-wrapper').html(changeGitHubPATHtml);
 $(document).ready(() => {
   const username = cookies.get('user');
   if (!username) {

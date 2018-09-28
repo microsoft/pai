@@ -28,6 +28,7 @@ const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
 const yamlHelper = require('../job-submit/sub-components/yaml-json-editor-convert.js');
+const githubThrottled = require('../template-common/github-throttled');
 
 const slideContext = {
   parseType: function parseType(rawType) {
@@ -198,12 +199,7 @@ function search(query) {
         },
         error: function(jqxhr, _, error) {
           if (jqxhr.status == 500) {
-            if (window.confirm([
-              'Thank you for showing the interests to our preview feature, you are just one step away from it.',
-              'As we store all the cool examples in GitHub, it is required to set up your Personal Access Token to allow us to check out them on your behave.',
-            ].join('\n'))) {
-                location.href = '/change-github-pat.html';
-            }
+            githubThrottled();
           } else {
             alert(error);
           }

@@ -17,9 +17,9 @@
 
 
 // module dependencies
-const changePasswordComponent = require('./how-to-config-github-pat.component.ejs');
+const changeGithubPATComponent = require('./how-to-config-github-pat.component.ejs');
 
-$('#content-wrapper').html(changePasswordComponent);
+$('#content-wrapper').html(changeGithubPATComponent);
 
 $('#sidebar-menu--documents').addClass('active');
 $('#sidebar-menu--documents--how-to-config-github-pat').addClass('active');
