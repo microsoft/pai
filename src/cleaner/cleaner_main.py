@@ -71,8 +71,7 @@ class Cleaner(LoggerMixin):
                 self.update_liveness()
                 time.sleep(2)
         except Exception as e:
-            self.logger.error("cleaner interrupted and will exit.")
-            self.logger.exception(e)
+            self.logger.exception("cleaner interrupted and will exit.")
             self.terminate()
             time.sleep(1)
 

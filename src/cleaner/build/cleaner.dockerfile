@@ -22,16 +22,16 @@ RUN apt-get -y update && \
 
 RUN pip install psutil
 
-RUN mkdir -p /cleaner
-COPY scripts /cleaner/scripts
-COPY utils /cleaner/utils
-COPY ./*.py /cleaner/
-
 RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz \
     | tar -xzvC /usr/local \
     && mv /usr/local/docker/* /usr/bin
 
 ENV PYTHONPATH "${PYTHONPATH}:/"
+RUN mkdir -p /cleaner
 WORKDIR /cleaner
+
+COPY scripts /cleaner/scripts
+COPY utils /cleaner/utils
+COPY ./*.py /cleaner/
 
 ENTRYPOINT ["python", "/cleaner/cleaner_main.py"]
