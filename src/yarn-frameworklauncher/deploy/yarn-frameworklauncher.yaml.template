@@ -29,7 +29,7 @@ spec:
         app: yarn-frameworklauncher
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name: yarn-frameworklauncher
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-frameworklauncher:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -62,6 +62,15 @@ spec:
           value: {{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_vip' ] }}
         - name: FRAMEWORKLAUNCHER_PORT
           value: "{{ clusterinfo[ 'frameworklauncher' ][ 'frameworklauncher_port' ] }}"
+        # Notes: default config '-Xmx3072m, memory limits: "4Gi"' could support about 60k jobs.
+        #        You will need increase the resource in order to run more jobs.
+        - name: LAUNCHER_OPTS
+          value: "-server -Xmx3072m -Djute.maxbuffer=49107800"
+        resources:
+          limits:
+            memory: "4Gi"
+          requests:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

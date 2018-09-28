@@ -67,6 +67,7 @@ public class TaskStateDefinition {
   public static final Set<TaskState> QUEUE_CORRUPTED_AFTER_RESTART_STATES = Collections.unmodifiableSet(
       new HashSet<>(Arrays.asList(
           TaskState.TASK_WAITING,
-          TaskState.CONTAINER_COMPLETED
+          TaskState.CONTAINER_COMPLETED,
+          TaskState.TASK_COMPLETED
       )));
 }

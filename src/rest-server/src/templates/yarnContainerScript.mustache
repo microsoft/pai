@@ -20,7 +20,7 @@
 
 # Entrypoint script for yarn container.
 
-docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+docker_name="${FRAMEWORK_NAME//\~/-}-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
@@ -247,10 +247,15 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
   || { echo "Can not pull Docker image"; exit 1; }
+
+## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
+## network consumption
 docker run --name $docker_name \
+  --init \
   --rm \
   --tty \
   --privileged=false \
+  --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
@@ -272,6 +277,6 @@ docker run --name $docker_name \
   --label PAI_USER_NAME={{{ jobData.userName }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
-  --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '/pai/bootstrap/docker_bootstrap.sh'
+   {{{ jobData.image }}} \
+  /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 

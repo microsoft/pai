@@ -21,13 +21,13 @@
 
     HTTP POST the config file as json with access token in header to:
     ```
-    http://restserver/api/v1/jobs
+    http://restserver/api/v1/user/:username/jobs
     ```
     For example, you can execute below command line:
     ```sh
     curl -H "Content-Type: application/json" \
          -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-         -X POST http://restserver/api/v1/jobs \
+         -X POST http://restserver/api/v1/user/:username/jobs \
          -d @exampleJob.json
     ```
 
@@ -37,17 +37,21 @@
     ```
     http://restserver/api/v1/jobs
     ```
+    or
+    ```
+    http://restserver/api/v1/user/:username/jobs
+    ```
     Check your exampleJob status at:
     ```
-    http://restserver/api/v1/jobs/exampleJob
+    http://restserver/api/v1/user/:username/jobs/exampleJob
     ```
     Get the job config JSON content:
     ```
-    http://restserver/api/v1/jobs/exampleJob/config
+    http://restserver/api/v1/user/:username/jobs/exampleJob/config
     ```
     Get the job's SSH info:
     ```
-    http://restserver/api/v1/jobs/exampleJob/ssh
+    http://restserver/api/v1/user/:username/jobs/exampleJob/ssh
     ```
 
 # RestAPI
@@ -384,9 +388,37 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-6. `GET jobs/:jobName`
+6. `GET user/:username/jobs`
 
-    Get job status in the system.
+    Get the list of jobs of user.
+
+    *Request*
+    ```
+    GET /api/v1/user/:username/jobs
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      [ ... ]
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+7. `GET jobs/:jobName`
+
+    Get [legacy job](#About_legacy_jobs) status in the system.
 
     *Request*
     ```
@@ -432,13 +464,61 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-7. `POST jobs`
+8. `GET user/:username/jobs/:jobName`
+
+    Get job status in the system.
+
+    *Request*
+    ```
+    GET /api/v1/user/:username/jobs/:jobName
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      name: "jobName",
+      state: "jobState",
+      createdTime: "createdTimestamp",
+      completedTime: "completedTimestamp",
+      appId: "applicationId",
+      appProgress: "applicationProgress",
+      appTrackingUrl: "applicationTrackingUrl",
+      appLaunchedTime: "applicationLaunchedTimestamp",
+      appCompletedTime: "applicationCompletedTimestamp",
+      appExitCode: applicationExitCode,
+      appExitDiagnostics: "applicationExitDiagnostics"
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobError",
+      "message": "Job $jobname is not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+9. `POST user/:username/jobs`
 
     Submit a job in the system.
 
     *Request*
     ```
-    POST /api/v1/jobs
+    POST /api/v1/user/:username/jobs
     Authorization: Bearer <ACCESS_TOKEN>
     ```
 
@@ -495,9 +575,9 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-8. `GET jobs/:jobName/config`
+10. `GET jobs/:jobName/config`
 
-    Get job config JSON content.
+    Get [legacy job](#About_legacy_jobs) config JSON content.
 
     *Request*
     ```
@@ -545,9 +625,59 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-9. `GET jobs/:jobName/ssh`
+11. `GET user/:username/jobs/:jobName/config`
 
-    Get job SSH info.
+    Get job config JSON content.
+
+    *Request*
+    ```
+    GET /api/v1/user/:username/jobs/:jobName/config
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      "jobName": "test",
+      "image": "pai.run.tensorflow",
+      ...
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobError",
+      "message": "Job $jobname is not found."
+    }
+    ```
+
+    *Response if the job config does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobConfigError",
+      "message": "Config of job $jobname is not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+12. `GET jobs/:jobName/ssh`
+
+    Get [legacy job](#About_legacy_jobs) SSH info.
 
     *Request*
     ```
@@ -606,9 +736,70 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-10. `PUT jobs/:jobName/executionType`
+13. `GET user/:username/jobs/:jobName/ssh`
 
-    Start or stop a job.
+    Get job SSH info.
+
+    *Request*
+    ```
+    GET /api/v1/user/:username/jobs/:jobName/ssh
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      "containers": [
+        {
+          "id": "<container id>",
+          "sshIp": "<ip to access the container's ssh service>",
+          "sshPort": "<port to access the container's ssh service>"
+        },
+        ...
+      ],
+      "keyPair": {
+        "folderPath": "HDFS path to the job's ssh folder",
+        "publicKeyFileName": "file name of the public key file",
+        "privateKeyFileName": "file name of the private key file",
+        "privateKeyDirectDownloadLink": "HTTP URL to download the private key file"
+      }
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobError",
+      "message": "Job $jobname is not found."
+    }
+    ```
+
+    *Response if the job SSH info does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobSshInfoError",
+      "message": "SSH info of job $jobname is not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+14. `PUT jobs/:jobName/executionType`
+
+    Start or stop a [legacy job](#About_legacy_jobs).
 
     *Request*
     ```
@@ -652,7 +843,53 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-11. `GET virtual-clusters`
+15. `PUT user/:username/jobs/:jobName/executionType`
+
+    Start or stop a job.
+
+    *Request*
+    ```
+    PUT /api/v1/user/:username/jobs/:jobName/executionType
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "value": "START" | "STOP"
+    }
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 200
+
+    {
+      "message": "execute job $jobName successfully"
+    }
+    ```
+
+    *Response if the job does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoJobError",
+      "message": "Job $jobname is not found."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+16. `GET virtual-clusters`
 
     Get the list of virtual clusters.
 
@@ -683,7 +920,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-12. `GET virtual-clusters/:vcName`
+17. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
 
@@ -733,3 +970,13 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
       "message": "*Upstream error messages*"
     }
     ```
+
+## About legacy jobs
+
+Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,
+jobs will have a namespace with job-creater's username. However there were still some jobs created before
+the version upgrade, which has no namespaces. They are called "legacy jobs", which can be retrieved, stopped,
+but cannot be created. To figure out them, there is a "legacy: true" field of them in list apis.
+
+In the next versions, all operations of legacy jobs may be disabled, so please re-create them as namespaced
+job as soon as possible.

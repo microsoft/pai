@@ -33,7 +33,7 @@ spec:
         prometheus.io/port: '{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}'
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name: hadoop-resource-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -63,10 +63,15 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: TIMELINE_SERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: YARN_RESOURCEMANAGER_HEAPSIZE
+          value: "6144"
         - name: GENERATE_CONFIG
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
+        resources:
+          limits:
+            memory: "8Gi"
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
@@ -74,9 +79,6 @@ spec:
         - containerPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
           hostPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
           name: scrape
-        resources:
-          limits:
-            memory: "1Gi"
         command:
           - "python3"
           - "/usr/local/yarn_exporter.py"

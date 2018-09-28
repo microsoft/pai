@@ -339,7 +339,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$SINGLE_BOX_URL/rest-server/api/v1/jobs \
+$SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/ \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -358,7 +358,7 @@ $SINGLE_BOX_URL/rest-server/api/v1/jobs \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/jobs/$JOB_NAME \
+curl --silent --verbose $SINGLE_BOX_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi
@@ -445,7 +445,7 @@ $CLUSTER_URL/rest-server/api/v1/token \
 JOB_NAME="e2e-test-$RANDOM-$RANDOM"
 curl --silent --verbose \
 --request POST \
-$CLUSTER_URL/rest-server/api/v1/jobs \
+$CLUSTER_URL/rest-server/api/v1/user/admin/jobs \
 --header "Authorization: Bearer $TOKEN" \
 --header 'Content-Type: application/json' \
 --data "{
@@ -464,7 +464,7 @@ $CLUSTER_URL/rest-server/api/v1/jobs \
 while :; do
 sleep 10
 STATUS=$(
-curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/jobs/$JOB_NAME \
+curl --silent --verbose $CLUSTER_URL/rest-server/api/v1/user/admin/jobs/$JOB_NAME \
 | python -c "import sys,json;sys.stdout.write(json.loads(sys.stdin.read())['jobStatus']['state'])"
 )
 if [ "$STATUS" == 'SUCCEEDED' ]; then break; fi

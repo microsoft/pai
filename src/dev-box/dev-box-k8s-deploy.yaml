@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: dev-box
+  name: dev-box
+spec:
+  nodeSelector:
+    dev-box: "true"
+  containers:
+  - image: docker.io/openpai/dev-box
+    imagePullPolicy: Always
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-socket
+    name: dev-box
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 3000; done;" ]
+  volumes:
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
+  hostNetwork: true
+  restartPolicy: Always
+
