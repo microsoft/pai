@@ -90,6 +90,13 @@ http {
         \"appTrackingUrl\":\"http://([^/]*):8088/([^\"]*)\"
         \"appTrackingUrl\":\"$scheme://$http_host/yarn/$1:8088/$2\"
         r;
+
+      # Enable gzip after sub_filter
+      gzip             on;
+      gzip_comp_level  9;
+      gzip_proxied     any;
+      gzip_vary        on;
+      gzip_types       application/json;
     }
 
     # Kubernetes API server.
@@ -305,6 +312,13 @@ http {
       sub_filter
         '{{GRAFANA_URI}}'
         '/grafana';
+
+      # Enable gzip after sub_filter
+      gzip             on;
+      gzip_comp_level  9;
+      gzip_proxied     any;
+      gzip_vary        on;
+      gzip_types       application/json;
     }
   }
 }
