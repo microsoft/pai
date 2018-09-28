@@ -93,5 +93,5 @@ class git_storage:
 
 
 
-    def __exit__(self):
+    def __exit__(self, type, value, trace):
         self.close()
