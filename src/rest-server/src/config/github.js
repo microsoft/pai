@@ -28,7 +28,7 @@ dotenv.config();
 let dataSource = {
   owner: process.env.GITHUB_OWNER,
   repository: process.env.GITHUB_REPOSITORY,
-  branch: process.env.GITHUB_BRANCH,
+  branch: 'master', // Due to limitation at https://developer.github.com/v3/search/#search-code, the branch must be 'master'.
   path: process.env.GITHUB_PATH,
 };
 
@@ -40,10 +40,6 @@ const dataSourceSchema = Joi.object().keys({
     .default('pai'),
   branch: Joi.string()
     .default('master')
-    /**
-    * Due to limitation described at https://developer.github.com/v3/search/#search-code,
-    * the branch that Marketplace backend tracks must be 'master'.
-    */
     .allow(['master']),
   path: Joi.string()
     .default('marketplace'),
