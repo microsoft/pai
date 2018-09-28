@@ -43,7 +43,7 @@ class git_storage:
 
     def git_clone(self):
         try:
-            self.repo = git.Repo.clone_from(self.repo_url, self.local_store, branch=self.branch)
+            self.repo = git.Repo.clone_from(self.repo_url, self.local_store, branch=self.branch, depth=1)
         except:
             self.logger.error("Failed to clone the repo from [ url: {0},  branch: {1} ]".format(self.repo_url, self.branch))
             sys.exit(1)
@@ -85,3 +85,13 @@ class git_storage:
     def close(self):
         self.rm_conf()
         self.git_file_clean()
+
+
+
+    def __enter__(self):
+        self.open()
+
+
+
+    def __exit__(self):
+        self.close()

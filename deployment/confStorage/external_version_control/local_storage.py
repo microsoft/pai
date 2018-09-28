@@ -63,3 +63,13 @@ class local_storage:
 
     def close(self):
         self.rm_conf()
+
+
+
+    def __enter__(self):
+        self.open()
+
+
+
+    def __exit__(self):
+        self.close()
