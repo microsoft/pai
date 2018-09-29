@@ -71,7 +71,7 @@ class kubectl_install:
             self.logger.warning("Please enter the required infomation, when prompted.")
             user_input = raw_input("Please input the api-server (or the api servers' load-balancer) address in your cluster: ")
             dict_map = {
-                "clusterconfig": {"api-serviers-ip" : user_input}
+                "clusterconfig": {"api-servers-ip" : user_input}
             }
 
         file_path = "deployment/k8sPaiLibrary/template/config.template"
