@@ -15,16 +15,40 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const fse = require('fs-extra');
+const Joi = require('joi');
+const dotenv = require('dotenv');
 
-/**
- * Due to limitation described at https://developer.github.com/v3/search/#search-code,
- * the branch that Marketplace backend tracks must be 'master'.
- */
-let dataSource = {
-  owner: 'Microsoft',
-  repository: 'pai',
-  branch: 'master',
-  path: 'marketplace',
+require.extensions['.mustache'] = (module, filename) => {
+  module.exports = fse.readFileSync(filename, 'utf8');
 };
+
+dotenv.config();
+
+let dataSource = {
+  owner: process.env.GITHUB_OWNER,
+  repository: process.env.GITHUB_REPOSITORY,
+  branch: 'master', // Due to limitation at https://developer.github.com/v3/search/#search-code, the branch must be 'master'.
+  path: process.env.GITHUB_PATH,
+};
+
+// define dataSource schema
+const dataSourceSchema = Joi.object().keys({
+  owner: Joi.string().empty('')
+    .default('Microsoft'),
+  repository: Joi.string().empty('')
+    .default('pai'),
+  branch: Joi.string().empty('')
+    .default('master')
+    .allow(['master']),
+  path: Joi.string().empty('')
+    .default('marketplace'),
+}).required();
+
+const {error, value} = Joi.validate(dataSource, dataSourceSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
+dataSource = value;
 
 module.exports = dataSource;

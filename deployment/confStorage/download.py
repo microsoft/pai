@@ -34,12 +34,16 @@ package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 class download_configuration:
 
 
-    def __init__(self):
+    def __init__(self, config_output_path, kube_config_path):
 
         self.logger = logging.getLogger(__name__)
-        self.KUBE_CONFIG_DEFAULT_LOCATION = os.path.expanduser("~/.kube/config")
-        if os.environ.get('KUBECONFIG', None) != None:
-            self.KUBE_CONFIG_DEFAULT_LOCATION = os.environ.get('KUBECONFIG', None)
+
+        if kube_config_path != None:
+            self.KUBE_CONFIG_DEFAULT_LOCATION = kube_config_path
+        if config_output_path != None:
+            self.config_path = config_output_path
+        else:
+            self.config_path = "."
 
 
 
@@ -62,20 +66,20 @@ class download_configuration:
 
     def download_cluster_configuration(self, local_path):
 
-        cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
+        #cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
         configuration_dict = conf_storage_util.get_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
         if configuration_dict == None:
             self.logger.error("The configuration doesn't exists on your cluster. Please upload it first.")
             sys.exit(1)
 
-        conf_storage_util.create_path("{0}/{1}".format(local_path, cluster_id))
+        conf_storage_util.create_path("{0}".format(local_path))
         for key in configuration_dict:
-            conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}/{2}".format(local_path, cluster_id, key))
+            conf_storage_util.write_generated_file(configuration_dict[key], "{0}/{1}".format(local_path, key))
 
 
 
-    def run(self, local_path = "."):
+    def run(self):
 
         self.check_cluster_id()
-        self.download_cluster_configuration(local_path)
+        self.download_cluster_configuration(self.config_path)
