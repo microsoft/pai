@@ -384,6 +384,7 @@ const loadJobDetail = (namespace, jobName) => {
         }));
         //
         $('a[name=configInfoLink]').addClass('disabled');
+        $('#resubmitjob_btn').addClass('disabled');
         $.ajax({
           url: `${url}/config`,
           type: 'GET',
@@ -391,6 +392,7 @@ const loadJobDetail = (namespace, jobName) => {
             configInfo = data;
             $('a[name=configInfoLink]').removeClass('disabled');
             $('div[name=configInfoDiv]').attr('title', '');
+            $('#resubmitjob_btn').removeClass('disabled');
           },
           error: (xhr, textStatus, error) => {
             const res = JSON.parse(xhr.responseText);
@@ -423,7 +425,7 @@ const loadJobDetail = (namespace, jobName) => {
               }
             },
           });
-        }
+        }      
       }
     },
     error: (xhr, textStatus, error) => {
@@ -495,7 +497,6 @@ $(document).ready(() => {
   $(document).on('click', '#resubmitjob_btn', () => {
     let url;
     let configYaml = yaml.safeLoad(configInfo);
-    let username = $('#nav-username').text();
     let table = document.getElementById('user-job-table');
     let jobUser = table.rows[1].cells[1].innerHTML;
     if ('protocol_version' in configYaml ) { // is yaml
@@ -504,13 +505,6 @@ $(document).ready(() => {
       url = `/submit.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
     }
     window.location.href = url;
-    // let table = document.getElementById('user-job-table');
-    // let jobUser = table.rows[1].cells[1].innerHTML;
-    // if (jobUser == username){
-    //   window.location.href = url;
-    // } else {
-    //   alert("You don't have the authority to resubmit other user's jobs!");
-    // }
   });
 });
 

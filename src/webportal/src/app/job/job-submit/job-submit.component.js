@@ -162,22 +162,10 @@ $(document).ready(() => {
   const username = query.user;
   const jobname = query.jobname;
   if (type != null && username != null && jobname != null) {
-    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
-    $.ajax({
-      url: url,
-      type: 'Get',
-      contentType: 'application/json; charset=utf-8',
-      success: (data) => {
-        editor.setValue(Object.assign({}, jobDefaultConfig, data));
-      },
-      error: (xhr, textStatus, error) => {
-        const res = JSON.parse(xhr.responseText);
-        alert("You don't has the authority to resubmit other user's jobs! \n" + res.message);
-      },
+    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;    
+    $.getJSON(url, (data) => {
+      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
     });
-    // $.getJSON(url, (data) => {
-    //   editor.setValue(Object.assign({}, jobDefaultConfig, data));
-    // });
   }
 });
 
