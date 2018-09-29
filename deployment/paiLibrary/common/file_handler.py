@@ -22,8 +22,12 @@ import logging.config
 
 from . import linux_shell
 
-
 logger = logging.getLogger(__name__)
+
+
+def get_file_list_in_path(path):
+
+    return next(os.walk(path))[2]
 
 
 
@@ -70,6 +74,7 @@ def file_delete(file_path):
 def directory_exits(dir_path):
 
     return os.path.isdir(dir_path)
+
 
 
 

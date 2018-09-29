@@ -17,56 +17,26 @@
 
 
 import os
+import sys
+import yaml
 import logging
 import logging.config
-#
-from . import linux_shell
+
+from .external_config import getting_external_config
+from .git_storage import git_storage
+from .local_storage import local_storage
 
 
 logger = logging.getLogger(__name__)
 
 
-def get_subdirectory_list(path):
 
-    return next(os.walk(path))[1]
+def get_external_storage(storage_conf):
 
-
-
-def directory_create(path):
-
-    if os.path.exists(path) == False:
-        shell_cmd = "mkdir -p {0}".format(path)
-        error_msg = "failed to mkdir -p {0}".format(path)
-        linux_shell.execute_shell(shell_cmd, error_msg)
-
-
-
-def directory_copy(src_item, dst):
-
-    directory_create(dst)
-
-    shell_cmd = "cp -r {0} {1}".format(src_item, dst)
-    error_msg = "failed to copy {0}".format(src_item)
-    linux_shell.execute_shell(shell_cmd, error_msg)
-
-
-
-def directory_delete(path):
-
-    shell_cmd = "rm -rf {0}".format(path)
-    error_msg = "failed to delete {0}".format(path)
-    linux_shell.execute_shell(shell_cmd, error_msg)
-
-
-
-def directory_exist_or_not(path):
-
-    return os.path.isfile(path) != True and os.path.exists(path) == True
-
-
-
-
-
-
-
-
+    if storage_conf["type"] == "git":
+        return git_storage(storage_conf)
+    elif storage_conf["type"] == "local":
+        return local_storage(storage_conf)
+    else:
+        logger.error("External Storage Type [ {0} ] is not supported yet.".format(storage_conf["type"]))
+        sys.exit(1)
