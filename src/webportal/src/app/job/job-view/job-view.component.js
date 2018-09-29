@@ -461,6 +461,19 @@ const showSshInfo = (containerId) => {
   }
 };
 
+const cloneJob = () => {
+  const query = url.parse(window.location.href, true).query;
+  let targeturl;
+  let configYaml = yaml.safeLoad(configInfo);
+  let table = document.getElementById('user-job-table');
+  let jobUser = table.rows[1].cells[1].innerHTML;
+  if ('protocol_version' in configYaml ) { // is yaml
+    targeturl = `/submit-v2.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
+  } else {
+    targeturl = `/submit.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
+  }
+  window.location.href = targeturl;
+}
 
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
@@ -468,6 +481,7 @@ window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 window.setJobRetryLink = setJobRetryLink;
+window.cloneJob = cloneJob;
 
 
 const resizeContentWrapper = () => {
@@ -494,18 +508,6 @@ $(document).ready(() => {
     loadJobs(query['vcName']);
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
-  $(document).on('click', '#resubmitjob_btn', () => {
-    let url;
-    let configYaml = yaml.safeLoad(configInfo);
-    let table = document.getElementById('user-job-table');
-    let jobUser = table.rows[1].cells[1].innerHTML;
-    if ('protocol_version' in configYaml ) { // is yaml
-      url = `/submit-v2.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
-    } else {
-      url = `/submit.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
-    }
-    window.location.href = url;
-  });
 });
 
 module.exports = {loadJobs, stopJob, loadJobDetail};
