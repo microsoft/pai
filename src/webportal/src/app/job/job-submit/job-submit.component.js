@@ -26,6 +26,7 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
+const url = require('url');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -164,7 +165,7 @@ $(document).ready(() => {
     const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
     console.log("JSON submit request job config");
     $.getJSON(url, (data) => {
-      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+      editor.setValue(Object.assign({}, jobDefaultConfig, data));
     });
   }
 
