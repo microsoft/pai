@@ -425,7 +425,7 @@ const loadJobDetail = (namespace, jobName) => {
               }
             },
           });
-        }      
+        }
       }
     },
     error: (xhr, textStatus, error) => {
@@ -500,7 +500,7 @@ $(document).ready(() => {
     let table = document.getElementById('user-job-table');
     let jobUser = table.rows[1].cells[1].innerHTML;
     if ('protocol_version' in configYaml ) { // is yaml
-      url = `/submit-v2.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;    
+      url = `/submit-v2.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
     } else {
       url = `/submit.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
     }

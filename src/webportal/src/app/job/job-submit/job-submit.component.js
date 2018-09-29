@@ -162,7 +162,7 @@ $(document).ready(() => {
   const username = query.user;
   const jobname = query.jobname;
   if (type != null && username != null && jobname != null) {
-    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;    
+    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
     $.getJSON(url, (data) => {
       editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
     });
