@@ -251,9 +251,11 @@ docker pull {{{ jobData.image }}} \
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
 ## network consumption
 docker run --name $docker_name \
+  --init \
   --rm \
   --tty \
   --privileged=false \
+  --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
@@ -275,6 +277,6 @@ docker run --name $docker_name \
   --label PAI_USER_NAME={{{ jobData.userName }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
-  --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '/pai/bootstrap/docker_bootstrap.sh'
+   {{{ jobData.image }}} \
+  /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 
