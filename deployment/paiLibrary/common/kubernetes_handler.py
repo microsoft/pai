@@ -28,10 +28,19 @@ from kubernetes import client, config, watch
 logger = logging.getLogger(__name__)
 
 
-def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
+
+def get_kubernetes_corev1api(PAI_KUBE_CONFIG_PATH, **kwargs):
 
     config.load_kube_config(config_file=PAI_KUBE_CONFIG_PATH)
     api_instance = kubernetes.client.CoreV1Api()
+
+    return api_instance
+
+
+
+def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
+
+    api_instance = get_kubernetes_corev1api(PAI_KUBE_CONFIG_PATH = PAI_KUBE_CONFIG_PATH)
 
     try:
         api_response = api_instance.list_node(
