@@ -32,7 +32,7 @@ spec:
       name: node-exporter
     spec:
       containers:
-      - image: prom/node-exporter:v0.16.0
+      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prom/node-exporter:v0.16.0
         imagePullPolicy: Always
         readinessProbe:
           httpGet:

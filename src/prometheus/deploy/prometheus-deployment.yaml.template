@@ -36,7 +36,7 @@ spec:
       hostNetwork: true
       containers:
       - name: prometheus
-        image: prom/prometheus:v2.1.0
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prom/prometheus:v2.1.0
         resources:
           limits:
             memory: "256Mi"
