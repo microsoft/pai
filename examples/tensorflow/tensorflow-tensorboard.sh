@@ -20,5 +20,5 @@
 
 # Example script for TensorBoard job
 
-echo "TensorBoard starts at http://$PAI_CONTAINER_HOST_IP:$PAI_CONTAINER_HOST_PORT ..."
-tensorboard --logdir=$PAI_DATA_DIR --port=$PAI_CONTAINER_HOST_PORT
+echo "TensorBoard starts at http://$PAI_CONTAINER_HOST_IP:$PAI_CONTAINER_HOST_tensorboard_PORT_LIST ..."
+tensorboard --logdir=$PAI_DATA_DIR --port=$PAI_CONTAINER_HOST_tensorboard_PORT_LIST
