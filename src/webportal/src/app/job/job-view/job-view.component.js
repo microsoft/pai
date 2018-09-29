@@ -497,11 +497,16 @@ $(document).ready(() => {
     let configYaml = yaml.safeLoad(configInfo);
     let username = $('#nav-username').text();
     if ('protocol_version' in configYaml ) { // is yaml
-      url = `/submit-v2.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;
-      window.location.href = url;
+      url = `/submit-v2.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;    
     } else {
       url = `/submit.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;
+    }
+    let table = document.getElementById('user-job-table');
+    let jobUser = table.rows[1].cells[1].innerHTML;
+    if (jobUser == username){
       window.location.href = url;
+    } else {
+      alert("You don't have the authority to resubmit other user's jobs!");
     }
   });
 });
