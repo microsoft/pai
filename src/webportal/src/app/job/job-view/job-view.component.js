@@ -494,14 +494,12 @@ $(document).ready(() => {
     $('#content-wrapper').css({'overflow': 'hidden'});
   }
   $(document).on('click', '#resubmitjob_btn', () => {
-    console.log(`************before\n ${configInfo} `);
     let url;
     let config_yaml = yaml.safeLoad(configInfo);
     let username = $('#nav-username').text();
     if ('protocol_version' in config_yaml ) { // is yaml
       url = `/submit-v2.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`
-      window.location.href = url;
-      console.log("go to v2");  
+      window.location.href = url;  
     } else{
       url = `/submit.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;
       window.location.href = url;
