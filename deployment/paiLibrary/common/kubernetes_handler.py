@@ -16,6 +16,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import sys
 import logging
 import logging.config
 import kubernetes.client
@@ -37,8 +38,14 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
             include_uninitialized = include_uninitialized
         )
         node_list = api_response.items
+
     except ApiException as e:
-        logger.error("Exception when calling CoreV1Api->list_node: {0}".format(e))
+        logger.error("Exception when calling kubernetes CoreV1Api->list_node: {0}".format(e))
+        sys.exit(1)
+
+    except Exception as e:
+        logger.error("Error happend when calling kubernetes CoreV1Api->list_node: {0}".format(e))
+        sys.exit(1)
 
     return node_list
 
