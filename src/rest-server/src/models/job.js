@@ -27,7 +27,6 @@ const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 const createError = require('../util/error');
 const logger = require('../config/logger');
-const yaml = require('js-yaml');
 const Hdfs = require('../util/hdfs');
 
 class Job {
