@@ -461,16 +461,13 @@ const showSshInfo = (containerId) => {
   }
 };
 
-const cloneJob = () => {
-  const query = url.parse(window.location.href, true).query;
+const cloneJob = (user, jobName) => {
   let targeturl;
   let configYaml = yaml.safeLoad(configInfo);
-  let table = document.getElementById('user-job-table');
-  let jobUser = table.rows[1].cells[1].innerHTML;
-  if ('protocol_version' in configYaml ) { // is yaml
-    targeturl = `/submit-v2.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
+  if ('protocol_version' in configYaml) { // is yaml
+    targeturl = `/submit-v2.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
   } else {
-    targeturl = `/submit.html?op=resubmit&type=job&user=${jobUser}&jobname=${query['jobName']}`;
+    targeturl = `/submit.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
   }
   window.location.href = targeturl;
 }
