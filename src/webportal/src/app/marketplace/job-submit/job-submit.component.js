@@ -138,7 +138,7 @@ $(document).ready(() => {
     if (type != null && username != null && jobname != null) {
       const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
       console.log("request job config");
-      $.getJSON(url, (data) => {
+      $.get(url, (data) => {
         userTemplate.updatePageFromYaml(data);
         $('#submitJob').attr('disabled', false);
       });
