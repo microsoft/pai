@@ -34,14 +34,14 @@ let dataSource = {
 
 // define dataSource schema
 const dataSourceSchema = Joi.object().keys({
-  owner: Joi.string()
+  owner: Joi.string().empty('')
     .default('Microsoft'),
-  repository: Joi.string()
+  repository: Joi.string().empty('')
     .default('pai'),
-  branch: Joi.string()
+  branch: Joi.string().empty('')
     .default('master')
     .allow(['master']),
-  path: Joi.string()
+  path: Joi.string().empty('')
     .default('marketplace'),
 }).required();
 
