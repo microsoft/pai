@@ -36,8 +36,7 @@ const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.comp
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
-const userTemplate = require('../../marketplace/job-submit/sub-components/user-template.js');
-const yaml = require('js-yaml')
+const yaml = require('js-yaml');
 
 let table = null;
 let configInfo = null;
@@ -495,12 +494,12 @@ $(document).ready(() => {
   }
   $(document).on('click', '#resubmitjob_btn', () => {
     let url;
-    let config_yaml = yaml.safeLoad(configInfo);
+    let configYaml = yaml.safeLoad(configInfo);
     let username = $('#nav-username').text();
-    if ('protocol_version' in config_yaml ) { // is yaml
-      url = `/submit-v2.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`
-      window.location.href = url;  
-    } else{
+    if ('protocol_version' in configYaml ) { // is yaml
+      url = `/submit-v2.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;
+      window.location.href = url;
+    } else {
       url = `/submit.html?op=resubmit&type=job&user=${username}&jobname=${query['jobName']}`;
       window.location.href = url;
     }

@@ -163,12 +163,10 @@ $(document).ready(() => {
   const jobname = query.jobname;
   if (type != null && username != null && jobname != null) {
     const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
-    console.log("JSON submit request job config");
     $.getJSON(url, (data) => {
       editor.setValue(Object.assign({}, jobDefaultConfig, data));
     });
   }
-
 });
 
 module.exports = {submitJob};
