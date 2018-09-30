@@ -46,20 +46,15 @@ class update:
 
 
 
-    #def get_latest_configuration_from_pai(self):
-
+    def get_latest_configuration_from_pai(self):
+        None
 
 
 
     def run(self):
+        directory_handler.directory_create(self.tmp_path)
+
+        None
 
 
-
-
-
-
-
-
-
-
-
+        directory_handler.directory_delete(self.tmp_path)
