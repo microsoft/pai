@@ -36,6 +36,7 @@ const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.comp
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
+const yaml = require('js-yaml');
 
 let table = null;
 let configInfo = null;
@@ -383,6 +384,7 @@ const loadJobDetail = (namespace, jobName) => {
         }));
         //
         $('a[name=configInfoLink]').addClass('disabled');
+        $('#resubmitjob_btn').addClass('disabled');
         $.ajax({
           url: `${url}/config`,
           type: 'GET',
@@ -390,6 +392,7 @@ const loadJobDetail = (namespace, jobName) => {
             configInfo = data;
             $('a[name=configInfoLink]').removeClass('disabled');
             $('div[name=configInfoDiv]').attr('title', '');
+            $('#resubmitjob_btn').removeClass('disabled');
           },
           error: (xhr, textStatus, error) => {
             const res = JSON.parse(xhr.responseText);
@@ -458,12 +461,24 @@ const showSshInfo = (containerId) => {
   }
 };
 
+const cloneJob = (user, jobName) => {
+  let targeturl;
+  let configYaml = yaml.safeLoad(configInfo);
+  if ('protocol_version' in configYaml) { // is yaml
+    targeturl = `/submit-v2.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
+  } else {
+    targeturl = `/submit.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
+  }
+  window.location.href = targeturl;
+};
+
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 window.setJobRetryLink = setJobRetryLink;
+window.cloneJob = cloneJob;
 
 
 const resizeContentWrapper = () => {
