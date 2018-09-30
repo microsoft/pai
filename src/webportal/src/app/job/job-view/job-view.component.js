@@ -470,7 +470,7 @@ const cloneJob = (user, jobName) => {
     targeturl = `/submit.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
   }
   window.location.href = targeturl;
-}
+};
 
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
