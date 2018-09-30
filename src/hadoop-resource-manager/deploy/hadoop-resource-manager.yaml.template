@@ -87,7 +87,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"
+            port: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
             scheme: HTTPS
           initialDelaySeconds: 5
           timeoutSeconds: 1
