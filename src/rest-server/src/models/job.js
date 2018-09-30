@@ -27,7 +27,6 @@ const yarnContainerScriptTemplate = require('../templates/yarnContainerScript');
 const dockerContainerScriptTemplate = require('../templates/dockerContainerScript');
 const createError = require('../util/error');
 const logger = require('../config/logger');
-
 const Hdfs = require('../util/hdfs');
 
 class Job {
@@ -240,13 +239,23 @@ class Job {
     }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
-      `/Container/${userName}/${jobName}/JobConfig.json`,
+      `/Container/${userName}/${jobName}/JobConfig.yaml`,
       null,
       (error, result) => {
         if (!error) {
-          next(null, JSON.parse(result.content));
+          next(null, result.content);
         } else {
-          next(error);
+          hdfs.readFile(
+            `/Container/${userName}/${jobName}/JobConfig.json`,
+            null,
+            (error, result) => {
+              if (!error) {
+                next(null, JSON.stringify(JSON.parse(result.content), null, 2));
+              } else {
+                next(error);
+              }
+            }
+          );
         }
       }
     );
