@@ -29,7 +29,7 @@ spec:
         app: hadoop-data-node
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  hadoop-data-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -50,7 +50,12 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        resources:
+          limits:
+            memory: "1Gi"
         env:
+        - name: HADOOP_DATANODE_OPTS
+          value: "-Xmx512m"
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: GENERATE_CONFIG

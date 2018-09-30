@@ -31,9 +31,9 @@ const logger = require('../config/logger');
 const Hdfs = require('../util/hdfs');
 
 class Job {
-  constructor(name, next) {
+  constructor(name, namespace, next) {
     this.name = name;
-    this.getJob(name, (jobDetail, error) => {
+    this.getJob(name, namespace, (jobDetail, error) => {
       if (error === null) {
         for (let key of Object.keys(jobDetail)) {
           this[key] = jobDetail[key];
@@ -72,13 +72,15 @@ class Job {
     return jobState;
   }
 
-  getJobList(query, next) {
+  getJobList(query, namespace, next) {
     let reqPath = launcherConfig.frameworksPath();
-    if (query.username) {
+    if (namespace) {
+      reqPath = `${reqPath}?UserName=${namespace}`;
+    } else if (query.username) {
       reqPath = `${reqPath}?UserName=${query.username}`;
     }
     unirest.get(reqPath)
-      .headers(launcherConfig.webserviceRequestHeaders)
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((res) => {
         try {
           const resJson = typeof res.body === 'object' ?
@@ -86,13 +88,13 @@ class Job {
           if (res.status !== 200) {
             return next(null, createError(res.status, 'UnknownError', res.raw_body));
           }
-          const jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
+          let jobList = resJson.summarizedFrameworkInfos.map((frameworkInfo) => {
             let retries = 0;
             ['succeededRetriedCount', 'transientNormalRetriedCount', 'transientConflictRetriedCount',
               'nonTransientRetriedCount', 'unKnownRetriedCount'].forEach((retry) => {
                 retries += frameworkInfo.frameworkRetryPolicyState[retry];
               });
-            return {
+            const job = {
               name: frameworkInfo.frameworkName,
               username: frameworkInfo.userName,
               state: this.convertJobState(frameworkInfo.frameworkState, frameworkInfo.applicationExitCode),
@@ -104,6 +106,20 @@ class Job {
               appExitCode: frameworkInfo.applicationExitCode,
               virtualCluster: frameworkInfo.queue,
             };
+
+            const tildeIndex = job.name.indexOf('~');
+            if (tildeIndex > -1) {
+              const namespace = job.name.slice(0, tildeIndex);
+              if (namespace !== job.username) {
+                logger.warn('Found a job with different namespace and username: ', job.name, job.username);
+                job.namespace = namespace;
+              }
+              job.name = job.name.slice(tildeIndex + 1);
+            } else {
+              job.legacy = true;
+            }
+
+            return job;
           });
           jobList.sort((a, b) => b.createdTime - a.createdTime);
           next(jobList);
@@ -113,9 +129,10 @@ class Job {
       });
   }
 
-  getJob(name, next) {
-    unirest.get(launcherConfig.frameworkPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  getJob(name, namespace, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         try {
           const requestResJson =
@@ -135,7 +152,9 @@ class Job {
       });
   }
 
-  putJob(name, data, next) {
+  putJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    data.jobName = frameworkName;
     if (!data.originalData.outputDir) {
       data.outputDir = `${launcherConfig.hdfsUri}/Output/${data.userName}/${name}`;
     }
@@ -149,10 +168,10 @@ class Job {
       if (error) return next(error);
       this._initializeJobContextRootFolders((error, result) => {
         if (error) return next(error);
-        this._prepareJobContext(name, data, (error, result) => {
+        this._prepareJobContext(frameworkName, data, (error, result) => {
           if (error) return next(error);
-          unirest.put(launcherConfig.frameworkPath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.put(launcherConfig.frameworkPath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .send(this.generateFrameworkDescription(data))
             .end((res) => {
               if (res.status === 202) {
@@ -166,17 +185,18 @@ class Job {
     });
   }
 
-  deleteJob(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  deleteJob(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.delete(launcherConfig.frameworkPath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.delete(launcherConfig.frameworkPath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .end((requestRes) => {
               if (requestRes.status !== 202) {
                 return next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
@@ -189,17 +209,18 @@ class Job {
       });
   }
 
-  putJobExecutionType(name, data, next) {
-    unirest.get(launcherConfig.frameworkRequestPath(name))
-      .headers(launcherConfig.webserviceRequestHeaders)
+  putJobExecutionType(name, namespace, data, next) {
+    const frameworkName = namespace ? `${namespace}~${name}` : name;
+    unirest.get(launcherConfig.frameworkRequestPath(frameworkName))
+      .headers(launcherConfig.webserviceRequestHeaders(namespace))
       .end((requestRes) => {
         const requestResJson = typeof requestRes.body === 'object' ?
           requestRes.body : JSON.parse(requestRes.body);
         if (requestRes.status !== 200) {
           next(createError(requestRes.status, 'UnknownError', requestRes.raw_body));
         } else if (data.username === requestResJson.frameworkDescriptor.user.name || data.admin) {
-          unirest.put(launcherConfig.frameworkExecutionTypePath(name))
-            .headers(launcherConfig.webserviceRequestHeaders)
+          unirest.put(launcherConfig.frameworkExecutionTypePath(frameworkName))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace))
             .send({'executionType': data.value})
             .end((requestRes) => {
               if (requestRes.status !== 202) {
@@ -213,7 +234,10 @@ class Job {
       });
   }
 
-  getJobConfig(userName, jobName, next) {
+  getJobConfig(userName, namespace, jobName, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.readFile(
       `/Container/${userName}/${jobName}/JobConfig.json`,
@@ -228,7 +252,10 @@ class Job {
     );
   }
 
-  getJobSshInfo(userName, jobName, applicationId, next) {
+  getJobSshInfo(userName, namespace, jobName, applicationId, next) {
+    if (namespace) {
+      jobName = `${namespace}~${jobName}`;
+    }
     const folderPathPrefix = `/Container/${userName}/${jobName}/ssh/${applicationId}`;
     const hdfs = new Hdfs(launcherConfig.webhdfsUri);
     hdfs.list(
@@ -575,24 +602,31 @@ class Job {
         );
       },
       (parallelCallback) => {
-        this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
-          if (error) {
-            logger.error('Generated ssh key files failed');
-          } else {
-            async.each(sshKeyFiles, (file, eachCallback) => {
-              hdfs.createFile(
-                `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
-                file.content,
-                {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
-                (error, result) => {
-                  eachCallback(error);
-                }
-              );
-            }, (error) => {
-              parallelCallback(error);
-            });
-          }
-        });
+        // Add OS platform check
+        // Since ssh-keygen package only works for Linux
+        if (process.platform.toUpperCase() === 'LINUX') {
+          this.generateSshKeyFiles(name, (error, sshKeyFiles) => {
+            if (error) {
+              logger.warn('Generated ssh key files failed will skip generate ssh info');
+              parallelCallback(null);
+            } else {
+              async.each(sshKeyFiles, (file, eachCallback) => {
+                hdfs.createFile(
+                  `/Container/${data.userName}/${name}/ssh/keyFiles/${file.fileName}`,
+                  file.content,
+                  {'user.name': data.userName, 'permission': '775', 'overwrite': 'true'},
+                  (error, result) => {
+                    eachCallback(error);
+                  }
+                );
+              }, (error) => {
+                parallelCallback(error);
+              });
+            }
+          });
+        } else {
+          parallelCallback(null);
+        }
       },
     ], (parallelError) => {
       return next(parallelError);

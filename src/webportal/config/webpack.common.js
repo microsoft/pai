@@ -58,6 +58,17 @@ const config = (env, argv) => ({
     hardwareDetail: './src/app/cluster-view/hardware/hardware-detail.component.js',
     k8s: './src/app/cluster-view/k8s/k8s.component.js',
     docs: './src/app/job/job-docs/job-docs.component.js',
+    jobSubmit: './src/app/marketplace/job-submit/job-submit.component.js',
+    templateDetail: './src/app/marketplace/template-detail/template-detail.component.js',
+    templateView: './src/app/marketplace/template-view/template-view.component.js',
+    templateList: './src/app/marketplace/template-list/template-list.component.js',
+    changeGitHubPAT: './src/app/user/change-github-pat/change-github-pat.component.js',
+    howToConfigGitHubPAT: './src/app/user/how-to-config-github-pat/how-to-config-github-pat.component.js',
+    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker',
+    'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
+    'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
+    'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
+    'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker'
   },
   output: {
     path: helpers.root('dist'),
@@ -295,6 +306,60 @@ const config = (env, argv) => ({
       minify: htmlMinifierOptions,
       cache: true,
       chunks: ['layout', 'docs']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'submit-v2.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'jobSubmit']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'template.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateDetail']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'marketplace.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateView']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'template-list.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'templateList']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'change-github-pat.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'changeGitHubPAT']
+    }),
+    new HtmlWebpackPlugin({
+      title: title,
+      version: version,
+      filename: 'how-to-config-github-pat.html',
+      template: './src/app/layout/layout.component.ejs',
+      minify: htmlMinifierOptions,
+      cache: true,
+      chunks: ['layout', 'howToConfigGitHubPAT']
     })
   ].concat(argv.debug ? [] : [new UglifyJsPlugin({
     cache: true,

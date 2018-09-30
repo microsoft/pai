@@ -18,35 +18,35 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
+const token = require('../middlewares/token');
 const jobController = require('../controllers/job');
 const jobParam = require('../middlewares/job');
 const jobConfig = require('../config/job');
 const param = require('../middlewares/parameter');
 
 
-const router = new express.Router();
+const router = new express.Router({mergeParams: true});
 
 router.route('/')
     /** GET /api/v1/jobs - Get list of jobs */
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(tokenConfig.check, jobParam.submission, jobController.init, jobController.update);
+    .post(jobParam.checkReadonly, token.check, jobParam.submission, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(tokenConfig.check, jobParam.submission, jobController.update)
+    .put(jobParam.checkReadonly, token.check, jobParam.submission, jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
-    .delete(tokenConfig.check, jobController.remove);
+    .delete(jobParam.checkReadonly, token.check, jobController.remove);
 
 
 router.route('/:jobName/executionType')
-    .put(param.validate(jobConfig.executionSchema), tokenConfig.check, jobController.execute);
+    .put(param.validate(jobConfig.executionSchema), token.check, jobController.execute);
 
 router.route('/:jobName/config')
     .get(jobController.getConfig);

@@ -1,0 +1,15 @@
+{
+  "jobName": "test_all_examples",
+  "image": "openpai/pai.example.test",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "command": "git clone https://github.com/Microsoft/pai.git && mv pai pai_tmp && /bin/bash pai_tmp/examples/auto-test/start.sh parameters && rm -rf pai_tmp"
+    }
+  ]
+}
+

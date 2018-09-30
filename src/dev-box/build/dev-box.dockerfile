@@ -51,7 +51,7 @@ RUN apt-get -y update && \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
-    pip install python-etcd docker kubernetes
+    pip install python-etcd docker kubernetes GitPython
 
 WORKDIR /tmp
 
@@ -68,6 +68,16 @@ RUN mv docker/* /usr/local/bin/
 RUN wget https://github.com/prometheus/alertmanager/releases/download/v0.15.2/alertmanager-0.15.2.linux-amd64.tar.gz
 RUN tar xzvf alertmanager-0.15.2.linux-amd64.tar.gz
 RUN mv alertmanager-0.15.2.linux-amd64/amtool /usr/local/bin
+
+# install Azure CLI for deploy on  Azure AKS
+RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ xenial main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list
+
+RUN curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+
+RUN apt-get -y install apt-transport-https &&  \
+    apt-get -y update && \
+    apt-get -y install azure-cli
 
 RUN wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 RUN chmod +x kubectl

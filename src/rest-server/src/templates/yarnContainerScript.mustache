@@ -20,7 +20,7 @@
 
 # Entrypoint script for yarn container.
 
-docker_name="$FRAMEWORK_NAME-$CONTAINER_ID"
+docker_name="${FRAMEWORK_NAME//\~/-}-$CONTAINER_ID"
 export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
@@ -41,6 +41,9 @@ function exit_handler()
   local handler="Yarn container exit handler"
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
+  debug_log "$handler" "clean the container code"
+  rm -fr tmp/pai-root/code 2>/dev/null
+
   debug_log "$handler" "trying to kill docker container $docker_name"
   pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
   if [ $pid ]; then
@@ -50,7 +53,7 @@ function exit_handler()
   else
     debug_log "$handler" "docker container $docker_name has already exited"
   fi
-  
+
   debug_log "$handler" "write exit code to file"
   debug_log "$handler" "yarn container exit code: $rc"
   debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
@@ -219,13 +222,15 @@ if [[ -n $PAI_CODE_DIR ]]; then
   hdfs dfs -stat $PAI_CODE_DIR \
     || { echo "Can not stat $PAI_CODE_DIR"; exit 1; }
   code_dir_size="$(hdfs dfs -du -s $PAI_CODE_DIR | cut -d ' ' -f 1)"
+  printf "%s %s\n" "[INFO]" "User code_dir_size is ${code_dir_size}"
   # TODO: Make the threshold configurable
-  if [ $code_dir_size -gt 200000000 ]; then
+  if [ $code_dir_size -gt 0 ] && [ $code_dir_size -le 200000000 ]; then
+    hdfs dfs -get $PAI_CODE_DIR $code_dir \
+      || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
+  else
     echo "$PAI_CODE_DIR is larger than 200MB, exit."
     exit 1
   fi
-  hdfs dfs -get $PAI_CODE_DIR $code_dir \
-    || { echo "Can not get code from HDFS. HDFS may be down."; exit 1; }
 fi
 
 # Prepare docker debug log
@@ -242,10 +247,15 @@ container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}
 # Pull docker image and run
 docker pull {{{ jobData.image }}} \
   || { echo "Can not pull Docker image"; exit 1; }
+
+## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
+## network consumption
 docker run --name $docker_name \
+  --init \
   --rm \
   --tty \
   --privileged=false \
+  --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --network=host \
   --cpus={{{ taskData.cpuNumber }}} \
@@ -256,8 +266,8 @@ docker run --name $docker_name \
   --security-opt apparmor:unconfined \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
-  --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:rw \
-  --volume $container_local_dir/$code_dir:/pai/code:rw \
+  --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
+  --volume $container_local_dir/$code_dir:/pai/code:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop:ro \
   --label GPU_ID=$gpu_id \
@@ -267,6 +277,6 @@ docker run --name $docker_name \
   --label PAI_USER_NAME={{{ jobData.userName }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
-  --entrypoint '/bin/bash' {{{ jobData.image }}} \
-  '/pai/bootstrap/docker_bootstrap.sh'
+   {{{ jobData.image }}} \
+  /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 

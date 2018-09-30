@@ -29,7 +29,7 @@ spec:
         app: zookeeper
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name: zookeeper
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}zookeeper:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -46,6 +46,15 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        env:
+        - name: JAVA_OPTS
+          value: "-server -Xmx1536m"
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+          requests:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

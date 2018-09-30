@@ -35,8 +35,6 @@ spec:
       - name: rest-server
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
@@ -54,9 +52,18 @@ spec:
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
+        - name: GITHUB_OWNER
+          value: {{ clusterinfo['restserverinfo']['github_owner'] }}
+        - name: GITHUB_REPOSITORY
+          value: {{ clusterinfo['restserverinfo']['github_repository'] }}
+        - name: GITHUB_PATH
+          value: {{ clusterinfo['restserverinfo']['github_path'] }}
         ports:
         - name: rest-server
           containerPort: 8080
           hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
+        resources:
+          limits:
+            memory: "512Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

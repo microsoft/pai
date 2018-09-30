@@ -17,6 +17,8 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
+# Note
+Now(27th September, 2018), the mpi examples are still unready. Ignore them!
 
 # MPI on OpenPAI
 
@@ -31,9 +33,20 @@ The following contents show some basic Open MPI examples, other customized MPI c
 
 # Open MPI TensorFlow / CNTK CIFAR-10 example
 
-To run Open MPI examples in OpenPAI, you need to prepare a job configuration file and submit it through webportal.
+### Prepare work
+1. Prepare the data:
+* TensorFlow: Just go to the [official website](http://www.cs.toronto.edu/~kriz/cifar.html) and download the python version data by the [url](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz). `wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && tar zxvf cifar-10-python.tar.gz && rm cifar-10-python.tar.gz`
+After you downloading the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/mpi/tensorflow/data` or `hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/data`
+Note that we use the same data as tensorflow distributed cifar-10 example. So, if you have already run that example, just use that data path.
+* CNTK: Download all files in https://git.io/vbT5A `wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b` and put them up to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/cntk/data` or `hdfs dfs -put filename hdfs://ip:port/examples/mpi/cntk/data`.
+Note that we use the same data as cntk example. So, if you have already run that example, just use that data path.
+2. Prepare the execable code:
+* Tensorflow: We use the same code as tensorflow distributed cifar-10 example. You can follow [that document](https://github.com/Microsoft/pai/blob/master/examples/tensorflow/README.md).
+* cntk: Download the script example from [github](https://github.com/Microsoft/pai/blob/master/examples/mpi/cntk-mpi.sh)`wget https://github.com/Microsoft/pai/raw/master/examples/mpi/cntk-mpi.sh`. Then upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/mpi/cntk/code/`
+3. Prepare a docker image and upload it to docker hub.  OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image  `openpai/pai.example.tensorflow-mpi`, `openpai/pai.example.cntk-mp` with your own.
+4. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
-OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image  `openpai/pai.example.tensorflow-mpi`, `openpai/pai.example.cntk-mp` with your own. 
+**Note** that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
 
 Here're some configuration file examples:
 

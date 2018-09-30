@@ -78,7 +78,7 @@ class serivce_management_start:
         dependency_list = service_starter.get_dependency()
         if dependency_list != None:
             for fat_serv in dependency_list:
-                if fat_serv not in self.service_list:
+                if fat_serv not in self.service_list:	
                     continue
                 if fat_serv in self.done_dict and self.done_dict[fat_serv] == True:
                     continue

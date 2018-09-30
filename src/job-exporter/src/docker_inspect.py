@@ -19,7 +19,6 @@
 import subprocess
 import json
 import sys
-import datetime
 import logging
 
 import utils
@@ -29,44 +28,43 @@ logger = logging.getLogger(__name__)
 targetLabel = {"PAI_HOSTNAME", "PAI_JOB_NAME", "PAI_USER_NAME", "PAI_CURRENT_TASK_ROLE_NAME", "GPU_ID"}
 targetEnv = {"PAI_TASK_INDEX"}
 
-def parse_docker_inspect(jsonStr):
-    jsonObject = json.loads(jsonStr)
+
+def parse_docker_inspect(inspect_output):
+    obj = json.loads(inspect_output)
     labels = {}
     envs = {}
 
-    if jsonObject[0]["Config"]["Labels"]:
-        for key in jsonObject[0]["Config"]["Labels"]:
+    obj_labels = utils.walk_json_field_safe(obj, 0, "Config", "Labels")
+    if obj_labels is not None:
+        for key in obj_labels:
             if key in targetLabel:
                 labelKey = "container_label_{0}".format(key.replace(".", "_"))
-                labelVal = jsonObject[0]["Config"]["Labels"][key]
+                labelVal = obj_labels[key]
                 labels[labelKey] = labelVal
 
-    if jsonObject[0]["Config"]["Env"]:
-        for env in jsonObject[0]["Config"]["Env"]:
+    obj_env = utils.walk_json_field_safe(obj, 0, "Config", "Env")
+    if obj_env:
+        for env in obj_env:
             envItem = env.split("=")
             if envItem[0] in targetEnv:
                 envKey = "container_env_{0}".format(envItem[0].replace(".", "_"))
                 envVal = envItem[1]
                 envs[envKey] = envVal
 
-    return {"env": envs, "labels": labels}
+    pid = utils.walk_json_field_safe(obj, 0, "State", "Pid")
+
+    return {"env": envs, "labels": labels, "pid": pid}
 
 def inspect(containerId):
-    start = datetime.datetime.now()
     try:
-        logger.info("ready to run docker inspect")
+        logger.debug("ready to run docker inspect")
         dockerDockerInspect = utils.check_output(["docker", "inspect", containerId])
         inspectInfo = parse_docker_inspect(dockerDockerInspect)
-
-        logger.info(inspectInfo)
 
         return inspectInfo
     except subprocess.CalledProcessError as e:
         logger.exception("command '%s' return with error (code %d): %s",
                 e.cmd, e.returncode, e.output)
-    finally:
-        end = datetime.datetime.now()
-        logger.info("docker inspect spent %s", end - start)
 
 def main(argv):
     containerId = argv[0]

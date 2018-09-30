@@ -29,7 +29,7 @@ spec:
         app: hadoop-jobhistory-service
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  hadoop-jobhistory-service
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -45,6 +45,10 @@ spec:
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: TIMELINE_SERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: YARN_TIMELINESERVER_HEAPSIZE
+          value: "512"
+        - name: HADOOP_JOB_HISTORYSERVER_HEAPSIZE
+          value: "512"
         - name: GENERATE_CONFIG
           value: jobhistory-generate-script.sh
         - name: START_SERVICE
@@ -61,6 +65,11 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        resources:
+          limits:
+            memory: "2Gi"
+          requests:
+            memory: "1Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

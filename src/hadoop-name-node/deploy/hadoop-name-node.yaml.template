@@ -29,7 +29,7 @@ spec:
         app: hadoop-name-node
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
       - name:  hadoop-name-node
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -51,10 +51,15 @@ spec:
         env:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+        - name: HADOOP_NAMENODE_OPTS
+          value: "-Xmx6144m"
         - name: GENERATE_CONFIG
           value: namenode-generate-script.sh
         - name: START_SERVICE
           value: namenode-start-service.sh
+        resources:
+          limits:
+            memory: "8Gi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:

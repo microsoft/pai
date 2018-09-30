@@ -47,6 +47,24 @@ const jobViewHtml = jobViewComponent({
   jobTable: jobTableComponent,
 });
 
+const exportFile = (data, filename, type) => {
+  let file = new Blob([data], {type: type});
+  if (window.navigator.msSaveOrOpenBlob) { // IE10+
+    window.navigator.msSaveOrOpenBlob(file, filename);
+  } else { // Others
+    let a = document.createElement('a');
+    let url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 0);
+  }
+};
+
 const getDurationInSeconds = (startTime, endTime) => {
   if (startTime == null) {
     return 0;
@@ -213,13 +231,23 @@ const loadJobs = (specifiedVc) => {
         }
       },
     },
-    'rowId'(row) {
-      return row.name;
+    'rowId'({legacy, name, namespace, username}) {
+      if (legacy) {
+        return name;
+      }
+      if (namespace) {
+        return namespace + '-' + name;
+      }
+      return username + '-' + name;
     },
     'columns': [
-      {title: 'Job', data: 'name', render(name, type) {
+      {title: 'Job', data: null, render({legacy, name, namespace, username}, type) {
         if (type !== 'display') return name;
-        return '<a href="view.html?jobName=' + name + '">' + name + '</a>';
+        if (legacy) {
+          return '<span class="label label-warning">legacy</span> <a href="view.html?jobName=' + name + '">' + name + '</a>';
+        } else {
+          return '<a href="view.html?username=' + (namespace || username) + '&jobName=' + name + '">' + name + '</a>';
+        }
       }},
       {title: 'User', data: 'username'},
       {title: 'Virtual Cluster', data: 'virtualCluster', render(virtualCluster) {
@@ -243,7 +271,7 @@ const loadJobs = (specifiedVc) => {
       {title: 'Stop', data: null, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
         return (hjss === 'Waiting' || hjss === 'Running') ?
-          '<button class="btn btn-default btn-sm" onclick="stopJob(\'' +
+          '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + (job.legacy ? '' : job.namespace || job.username) + '\', \'' +
             job.name + '\')">Stop</button>':
           '<button class="btn btn-default btn-sm" disabled>Stop</button>';
       }},
@@ -260,12 +288,15 @@ const loadJobs = (specifiedVc) => {
   }).api();
 };
 
-const stopJob = (jobName) => {
+const stopJob = (namespace, jobName) => {
   const res = confirm('Are you sure to stop the job?');
   if (res) {
+    const url = namespace
+      ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
+      : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`;
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/executionType`,
+        url: url,
         type: 'PUT',
         data: {
           value: 'STOP',
@@ -279,12 +310,16 @@ const stopJob = (jobName) => {
             // Detail view: reload current page
             return window.location.reload(false);
           } else {
+            const url = namespace
+              ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+              : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
             // Table view: replace current row
             const api = $jobTable.dataTable().api();
-            const row = api.row('#' + jobName);
+            const rowId = namespace ? (namespace + '-' + jobName) : jobName;
+            const row = api.row('#' + rowId);
             const rowData = row.data();
             $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
+              url: url,
               type: 'GET',
               success: function(data) {
                 rowData.appExitCode = data.jobStatus.appExitCode;
@@ -311,12 +346,24 @@ const stopJob = (jobName) => {
   }
 };
 
-const loadJobDetail = (jobName) => {
+const setJobRetryLink = (namespace, jobName, retryCount) => {
+  const search = namespace ? namespace + '~' + jobName : jobName;
+  const jobSessionTemplate = JSON.stringify({'iCreate': 1, 'iStart': 0, 'iEnd': retryCount + 1, 'iLength': 20,
+    'aaSorting': [[0, 'desc', 1]], 'oSearch': {'bCaseInsensitive': true, 'sSearch': search, 'bRegex': false, 'bSmart': true},
+    'abVisCols': []});
+  sessionStorage.setItem('apps', jobSessionTemplate);
+  window.open(webportalConfig.yarnWebPortalUri);
+};
+
+const loadJobDetail = (namespace, jobName) => {
   loading.showLoading();
   configInfo = null;
   sshInfo = null;
+  const url = namespace
+    ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}`
+    : `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`;
   $.ajax({
-    url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}`,
+    url: url,
     type: 'GET',
     success: (data) => {
       loading.hideLoading();
@@ -325,6 +372,7 @@ const loadJobDetail = (jobName) => {
       } else {
         $('#view-table').html(jobDetailTableComponent({
           jobName: data.name,
+          namespace: namespace,
           jobStatus: data.jobStatus,
           taskRoles: data.taskRoles,
           grafanaUri: webportalConfig.grafanaUri,
@@ -336,7 +384,7 @@ const loadJobDetail = (jobName) => {
         //
         $('a[name=configInfoLink]').addClass('disabled');
         $.ajax({
-          url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/config`,
+          url: `${url}/config`,
           type: 'GET',
           success: (data) => {
             configInfo = data;
@@ -358,7 +406,7 @@ const loadJobDetail = (jobName) => {
           $('div[name^=sshInfoDiv]').attr('title', 'Job is not running.');
         } else {
           $.ajax({
-            url: `${webportalConfig.restServerUri}/api/v1/jobs/${jobName}/ssh`,
+            url: `${url}/ssh`,
             type: 'GET',
             success: (data) => {
               sshInfo = data;
@@ -390,6 +438,9 @@ const showConfigInfo = (jobName) => {
     'configInfo': configInfo,
   }));
   $('#configInfoModal').modal('show');
+  $(document).on('click', '#fileExport', () => {
+    exportFile(JSON.stringify(configInfo, null, 2), jobName, 'application/json');
+  });
 };
 
 const showSshInfo = (containerId) => {
@@ -412,6 +463,8 @@ window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
+window.setJobRetryLink = setJobRetryLink;
+
 
 const resizeContentWrapper = () => {
   $('#content-wrapper').css({'height': $(window).height() + 'px'});
@@ -431,7 +484,7 @@ $(document).ready(() => {
   $('#sidebar-menu--job-view').addClass('active');
   const query = url.parse(window.location.href, true).query;
   if (query['jobName']) {
-    loadJobDetail(query['jobName']);
+    loadJobDetail(query['username'], query['jobName']);
     $('#content-wrapper').css({'overflow': 'auto'});
   } else {
     loadJobs(query['vcName']);

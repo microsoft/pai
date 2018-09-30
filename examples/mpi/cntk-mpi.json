@@ -3,11 +3,11 @@
   "image": "openpai/pai.example.cntk-mpi",
 
   // prepare cmudict corpus in CNTK format https://git.io/vbT5A and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/cntk-mpi/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/cntk/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/cntk-mpi/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/cntk/output",
   // prepare g2p distributed training script cntk-mpi.sh and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/cntk-mpi/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/cntk/code",
   "virtualCluster": "default",
 
   "taskRoles": [

@@ -17,25 +17,31 @@
 
 // module dependencies
 const express = require('express');
-const tokenConfig = require('../config/token');
+const token = require('../middlewares/token');
 const userConfig = require('../config/user');
 const userController = require('../controllers/user');
 const param = require('../middlewares/parameter');
+const jobRouter = require('./job');
 
 const router = new express.Router();
 
 router.route('/')
     /** PUT /api/v1/user - Create or update a user */
-    .put(tokenConfig.check, param.validate(userConfig.userPutInputSchema), userController.update)
+    .put(token.check, param.validate(userConfig.userPutInputSchema), userController.update)
 
     /** DELETE /api/v1/user - Remove a user */
-    .delete(tokenConfig.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
+    .delete(token.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
 
     /** Get /api/v1/user - Get user info list */
-    .get(tokenConfig.check, userController.getUserList);
+    .get(token.check, userController.getUserList);
 
 router.route('/:username/virtualClusters')
-    .put(tokenConfig.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
+    .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
+
+router.route('/:username/githubPAT')
+    .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
+
+router.use('/:username/jobs', jobRouter);
 
 // module exports
 module.exports = router;

@@ -2,9 +2,9 @@
   "jobName": "cntk-g2p",
   "image": "openpai/pai.example.cntk",
 
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/cntk/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/cntk/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/cntk/code",
 
   "taskRoles": [
     {

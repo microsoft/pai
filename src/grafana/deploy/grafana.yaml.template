@@ -23,14 +23,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grafana            
+      app: grafana
   template:
     metadata:
       labels:
         app: grafana
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       volumes:
       - name: grafana-confg-volume
         configMap:
@@ -50,5 +50,8 @@ spec:
           value: {{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
+        resources:
+          limits:
+            memory: "256Mi"
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}

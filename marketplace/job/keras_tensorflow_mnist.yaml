@@ -1,0 +1,26 @@
+protocol_version: v2
+name : keras_tensorflow_mnist
+type : job
+version : 1.0.0
+contributor : Yanli
+description : keras, tensorflow, mnist
+retryCount: 0 
+
+tasks :
+  - role: main
+    dockerimage : keras_tf
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 4, memoryMB: 8192, gpu: 1 }
+    minSucceededTaskCount: 1
+    command:
+      - python mnist_cnn.py
+
+prerequisites : 
+  - protocol_version : v2
+    name : keras_tf
+    type : dockerimage
+    version : 1.0.0
+    contributor : Yanli
+    description: keras, tensorflow
+    uri : openpai/pai.example.keras.tensorflow
