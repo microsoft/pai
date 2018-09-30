@@ -64,13 +64,12 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
         node_name = node.metadata.name
 
         """
-        Example of address
+         Example of address
          [
             {'address': '10.240.0.10', 'type': 'InternalIP'},
             {'address': '10.240.0.10', 'type': 'Hostname'},
             {'address': 'x.x.x.x', 'type': 'ExternalIP'}
          ]
-         
          before using this list, please check whether it exists or not.
         """
         node_addresses = list()
