@@ -24,7 +24,7 @@ RUN apt-get -y update && \
       python-jinja2 \
       git \
       vim &&\
-    pip install python-etcd kubernetes
+    pip install python-etcd kubernetes paramiko
 
 WORKDIR /tmp
 

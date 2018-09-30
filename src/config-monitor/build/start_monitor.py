@@ -1,7 +1,5 @@
 
 import os
-
-
 import time
 import re
 import logging
@@ -9,12 +7,9 @@ import copy
 import shutil
 import json
 
-from deployment.paiLibrary.common import file_handler, template_handler, linux_shell
-
+from deployment.paiLibrary.common import file_handler, template_handler
 from deployment.paiLibrary.clusterObjectModel import objectModelFactory
-
-from deployment.confStorage.conf_storage_util import update_configmap, read_file_from_path
-
+from deployment.confStorage.conf_storage_util import update_configmap
 from deployment.k8sPaiLibrary.maintainlib import common
 
 logging.basicConfig(level=logging.DEBUG)
@@ -37,23 +32,24 @@ def touch_file(file_path):
     with open(file_path, 'a'):
         os.utime(file_path, None)
 
+
 def generate_k8s_config(api_servers_ip):
     file_path = "deployment/k8sPaiLibrary/template/config.template"
     template_data = common.read_template(file_path)
     dict_map = {
-        "clusterconfig": api_servers_ip,
+        "clusterconfig": {"api-servers-ip": api_servers_ip},
     }
     generated_data = common.generate_from_template_dict(template_data, dict_map)
 
     kube_config_path = os.path.expanduser("~/.kube")
+    os.mkdir(kube_config_path)
     common.write_generated_file(generated_data, "{0}/config".format(kube_config_path))
 
+
 def generate_vc_from_cluster(cluster_config_reader, vc_config_reader):
-    service_dict = cluster_config_reader.load_cluster_config
+    service_dict = cluster_config_reader.load_cluster_config()
     vc_dict = {"virtualClusters": service_dict["clusterinfo"]["virtualClusters"]}
     vc_config_reader.save_cluster_config(vc_dict)
-
-
 
 
 class ConfigReader(object):
@@ -93,17 +89,16 @@ class ClusterConfigReader(ConfigReader):
                              "kubernetes-configuration.yaml",
                              "services-configuration.yaml"]
 
-
     def load_cluster_config(self):
         object_model = objectModelFactory.objectModelFactory(self.conf_dir)
         ret = object_model.objectModelPipeLine()
         return ret["service"]
 
+
 class VcConfigReader(ConfigReader):
 
     configmap_name = "vc-configuration"
     k8s_config_path = os.path.expanduser("~/.kube/config")
-
 
     def __init__(self, conf_dir):
         super(VcConfigReader, self).__init__(conf_dir)
@@ -115,16 +110,10 @@ class VcConfigReader(ConfigReader):
         vc_config = {"clusterinfo": vc_config_raw}
         return vc_config
 
-
-
     def save_cluster_config(self, vc_dict):
         vc_dict_str = json.dumps(vc_dict)
         conf_dict = {self.config_files[0]: vc_dict_str}
         update_configmap(self.k8s_config_path, self.configmap_name, conf_dict)
-
-
-
-
 
 
 class YarnHandle(object):
@@ -256,7 +245,6 @@ class Monitor(object):
         self.new_config_object = copy.deepcopy(config_object)
         self.monitor_interval = monitor_interval
 
-
     def monitor(self):
         while True:
             # Wait config timestamp change
@@ -279,6 +267,7 @@ class Monitor(object):
                 if not self.current_config_object.update_service():
                     logger.error("Rollback failed, service may be down")
 
+
 if __name__ == "__main__":
 
     cluster_configuration_dir = "/cluster-configuration"
@@ -286,6 +275,7 @@ if __name__ == "__main__":
     service_template_dir = "/hadoop-configuration-template"
     service_dst_dir = "/hadoop-configuration"
 
+    # generate k8s config
     api_servers_ip = os.environ.get("API_SERVERS_IP")
     if api_servers_ip is None:
         logger.error("Can\'t find api servers ip.")
@@ -294,9 +284,12 @@ if __name__ == "__main__":
 
 
     vc_config_reader = VcConfigReader(conf_dir=vc_configuration_dir)
+    # First boot up, copy vc configuration from cluster configuration
     if not vc_config_reader.check_config_exists():
         cluster_config_reader = ClusterConfigReader(conf_dir=cluster_configuration_dir)
         generate_vc_from_cluster(cluster_config_reader, vc_config_reader)
+        while not vc_config_reader.check_config_exists():
+            time.sleep(5)
 
     yarn_handle = YarnHandle(template_dir=service_template_dir, dst_dir=service_dst_dir)
 

@@ -138,7 +138,7 @@ spec:
         emptyDir: {}
       - name: cluster-configuration
         configMap:
-          name: cluster-configuration
+          name: pai-configuration 
       - name: vc-configuration
         configMap:
           name: vc-configuration
