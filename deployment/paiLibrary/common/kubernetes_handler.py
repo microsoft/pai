@@ -61,7 +61,7 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
 
     resp = dict()
     for node in node_list:
-        node_name = node_list[0].metadata.name
+        node_name = node.metadata.name
 
         """
         Example of address
