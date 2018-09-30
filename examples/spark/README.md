@@ -155,3 +155,5 @@ Note: Replace the `YOUR_PAI_MASTER_IP` with your own, before submitting the job 
 ### 4. Visit Spark history server
 
 As previous section.
+
+Note: If you want to write your own pyspark code, you must set yarn-master as the master `setMaster("yarn-master")` instead of `"local[*]`. Then, you **must** upload your code to hdfs rather than build it in your docker. Finally, you should `spark-submit` the code on hdfs. You can refer to the [simple pyspark example](./simple_pyspark_example.py) and read the comment. 
