@@ -56,5 +56,30 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
         logger.error("Error happend when calling kubernetes CoreV1Api->list_node: {0}".format(e))
         sys.exit(1)
 
+    if len(node_list) == 0:
+        return None
+
+    resp = dict()
+    for node in node_list:
+        node_name = node_list[0].metadata.name
+
+        """
+        Example of address
+         [
+            {'address': '10.240.0.10', 'type': 'InternalIP'},
+            {'address': '10.240.0.10', 'type': 'Hostname'}
+         ]
+        """
+        node_addresses = list()
+        for node_address_instance in node.status.addresses:
+            node_addresses.append(
+                {
+                    "type": node_address_instance.type,
+                    "address": node_address_instance.address
+                }
+            )
+
+        resp[node_name] = node_addresses
+
     return node_list
 
