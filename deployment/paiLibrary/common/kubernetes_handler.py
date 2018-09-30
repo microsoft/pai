@@ -81,5 +81,5 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
 
         resp[node_name] = node_addresses
 
-    return node_list
+    return resp
 
