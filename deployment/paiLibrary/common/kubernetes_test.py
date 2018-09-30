@@ -1,4 +1,4 @@
-from . import kubernetes_handler
+import kubernetes_handler
 
 
 kube_config_path = "/root/.kube/config"
