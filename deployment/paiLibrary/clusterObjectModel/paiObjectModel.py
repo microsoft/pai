@@ -184,6 +184,8 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["hadoopinfo"]["custom-hadoop-binary-path"]
         serviceDict["clusterinfo"]["hadoopinfo"]["configmapname"] = "hadoop-configuration"
         serviceDict["clusterinfo"]["hadoopinfo"]["hadoop_vip"] = self.getMasterIP()
+        serviceDict["clusterinfo"]["hadoopinfo"]["api-server-ip"] = \
+            self.rawData["kubernetesConfiguration"]["kubernetes"]["load-balance-ip"]
 
 
         # section : virtualClusters

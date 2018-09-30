@@ -92,10 +92,15 @@ spec:
           name: hadoop-resource-manager-config-generated
         - mountPath: /jobstatus
           name: job-status
-        - mountPath: /hadoop-configuration-configmap
-          name: hadoop-resource-manager-config-volume
+        - mountPath: /hadoop-configuration-template
+          name: hadoop-resource-manager-config-template
         - mountPath: /cluster-configuration
-          name: cluster-configuration  
+          name: cluster-configuration
+        - mountPath: /vc-configuration
+          name: vc-configuration
+        env:
+        - name: API_SERVERS_IP
+          value: {{ clusterinfo[ 'hadoopinfo' ][ 'api-server-ip' ] }}
 
 
       - name: yarn-exporter
@@ -113,13 +118,14 @@ spec:
           - "/usr/local/yarn_exporter.py"
           - "http://127.0.0.1:8088"
           - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"
+
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
       - name: yarn-resourcemanager-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/yarn/resource
-      - name: hadoop-resource-manager-config-volume
+      - name: hadoop-resource-manager-config-template
         configMap:
           name: hadoop-resource-manager-configuration
       - name: hadoop-tmp-storage
@@ -131,4 +137,7 @@ spec:
         emptyDir: {}
       - name: cluster-configuration
         configMap:
-          name: service-configuration
+          name: cluster-configuration
+      - name: vc-configuration
+        configMap:
+          name: vc-configuration

@@ -22,6 +22,11 @@ pushd $(dirname "$0") > /dev/null
 echo "Call stop.sh to stop hadoop resource manager first"
 /bin/bash stop.sh || exit $?
 
+echo "Delete vc configuration"
+if kubectl get configmap vc-configuration 1>/dev/null 2>&1; then
+    kubectl delete configmap vc-configuration || exit $?
+fi
+
 echo "Create hadoop-delete configmap for deleting data on the host"
 kubectl create configmap hadoop-resource-manager-delete --from-file=hadoop-resource-manager-delete/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
 
