@@ -55,7 +55,7 @@ matrix:
         - mvn clean test jacoco:report coveralls:report
 
     - language: node_js
-      node_js: 6
+      node_js: lts/carbon
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
@@ -66,7 +66,7 @@ matrix:
         - npm run coveralls
 
     - language: node_js
-      node_js: 7
+      node_js: node
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
@@ -77,21 +77,21 @@ matrix:
         - npm run coveralls
 
     - language: node_js
-      node_js: 6
+      node_js: lts/carbon
       before_install:
         - cd src/webportal
       install:
-        - npm run yarn install
+        - yarn install
         - npm run build
       script:
         - npm test
 
     - language: node_js
-      node_js: 7
+      node_js: node
       before_install:
         - cd src/webportal
       install:
-        - npm run yarn install
+        - yarn install
         - npm run build
       script:
         - npm test

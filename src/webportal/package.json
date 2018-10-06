@@ -19,8 +19,7 @@
     "url": "https://github.com/Microsoft/pai/issues"
   },
   "engines": {
-    "node": ">=6.11.0 <=6.12.2",
-    "npm": "3.10.10"
+    "node": "^8.9.0"
   },
   "dependencies": {
     "admin-lte": "~2.4.2",
@@ -78,7 +77,6 @@
     "build": "webpack --config webpack.config.js --progress --profile",
     "build:dev": "npm run build -- --debug --devtool eval-cheap-module-source-map --output-pathinfo --watch",
     "prestart": "envsub --env-file .env --system src/app/env.js dist/scripts/env.js",
-    "start": "node server",
-    "yarn": "yarn --ignore-engines"
+    "start": "node server"
   }
 }
