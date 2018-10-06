@@ -91,7 +91,7 @@ matrix:
       before_install:
         - cd src/webportal
       install:
-        - yarn install
+        - yarn install --ignore-engines
         - npm run build
       script:
         - npm test
