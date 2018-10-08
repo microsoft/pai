@@ -67,4 +67,6 @@ docker run \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --system-reserved=memory=3Gi \
   --eviction-hard="memory.available<1Gi,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
+  --healthz-bind-address=0.0.0.0 \
+  --healthz-port=10248 \
   --v=2
