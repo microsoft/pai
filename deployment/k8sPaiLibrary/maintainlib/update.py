@@ -17,6 +17,7 @@
 
 import sys
 import time
+import requests
 import logging
 import logging.config
 
@@ -64,6 +65,14 @@ class update:
 
 
 
+    def check_node_healthz_check(self, address):
+        r = requests.get("http://{0}:10248/healthz".format(address))
+
+
+
+
+
+
     """
     Check all machine in the k8s configuration. 
     With the url to check the k8s node is setup or not.
@@ -78,7 +87,12 @@ class update:
 
 
 
-
+    """
+    Check all machine in the node list from k8s.
+    If the nodename not in the k8s configuration. 
+    Paictl will clean the node.
+    Or do nothing.
+    """
     def remove_machine(self):
         None
 
