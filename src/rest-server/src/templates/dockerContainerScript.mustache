@@ -27,7 +27,6 @@ function exit_handler()
 {
   printf "%s %s\n" \
     "[DEBUG]" "Docker container exit handler: EXIT signal received in docker container, exiting ..."
-  kill 0
 }
 
 set -x
@@ -36,11 +35,7 @@ trap exit_handler EXIT
 
 
 touch "/alive/docker_$PAI_CONTAINER_ID"
-while /bin/true; do
-  [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -gt 60 ] \
-    && pkill -9 --ns 1
-  sleep 20
-done &
+
 
 
 export PAI_WORK_DIR="$(pwd)"
@@ -183,8 +178,29 @@ fi
 # Write env to system-wide environment
 env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 
-printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
-{{{ taskData.command }}} || exit $?
-printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
+function run_user_command()
+{
+  printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
+  {{{ taskData.command }}} || exit $?
+  printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
+  exit 0
+}
 
-exit 0
+run_user_command &
+user_command_pid=$!
+
+while [ $(( $(date +%s) - $(stat -c %Y /alive/yarn_$PAI_CONTAINER_ID) )) -lt 60 ] && \
+        kill -0 $user_command_pid 2>/dev/null; do
+  sleep 20
+done
+
+if kill -0 $user_command_pid 2>/dev/null; then
+  echo "job has been killed, docker container exiting"
+  exit 0
+else
+  wait $user_command_pid
+  user_command_exitcode=$?
+  echo "job has finished with exit code $user_command_exitcode"
+  exit $user_command_exitcode
+fi
+
