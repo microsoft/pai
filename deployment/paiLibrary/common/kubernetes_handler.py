@@ -97,3 +97,67 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
 
     return resp
 
+
+
+def get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, name, namespace = "default"):
+
+    api_instance = get_kubernetes_corev1api(PAI_KUBE_CONFIG_PATH=PAI_KUBE_CONFIG_DEFAULT_LOCATION)
+    exact = True
+    export = True
+
+    target_configmap_data = None
+    target_configmap_metadata = None
+
+    try:
+        api_response = api_instance.read_namespaced_config_map(name, namespace, exact=exact, export=export)
+        target_configmap_data = api_response.data
+        target_configmap_metadata = api_response.metadata
+
+    except ApiException as e:
+        if e.status == 404:
+            logger.info("Couldn't find configmap named {0}".format(name))
+            return None
+        else:
+            logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
+            sys.exit(1)
+
+    ret = {
+        "metadata" : target_configmap_metadata,
+        "data"     : target_configmap_data
+    }
+
+    return ret
+
+
+
+def update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, name, data_dict, namespace = "default"):
+
+    api_instance = get_kubernetes_corev1api(PAI_KUBE_CONFIG_PATH=PAI_KUBE_CONFIG_DEFAULT_LOCATION)
+
+    meta_data = kubernetes.client.V1ObjectMeta()
+    meta_data.namespace = namespace
+    meta_data.name = name
+    body = kubernetes.client.V1ConfigMap(
+                            metadata = meta_data,
+                            data = data_dict)
+
+    try:
+        api_response = api_instance.replace_namespaced_config_map(name, namespace, body)
+        logger.info("configmap named {0} is updated.".format(name))
+
+    except ApiException as e:
+
+        if e.status == 404:
+
+            try:
+                logger.info("Couldn't find configmap named {0}. Create a new configmap".format(name))
+                api_response = api_instance.create_namespaced_config_map(namespace, body)
+                logger.info("Configmap named {0} is created".format(name))
+
+            except ApiException as ie:
+                logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(e)))
+                sys.exit(1)
+
+        else:
+            logger.error("Exception when calling CoreV1Api->replace_namespaced_config_map: {0}".format(str(e)))
+            sys.exit(1)

@@ -96,7 +96,7 @@ class update:
     Machine list from kubernetes configmap. 
     """
     def get_node_dict_from_k8s(self):
-        configmap_data = conf_storage_util.get_configmap(self.kube_config_path, "pai-node-list")
+        configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-list")
         pai_node_list = configmap_data["node-list"]
         return yaml.load(pai_node_list)
 
@@ -108,7 +108,7 @@ class update:
     def update_node_list(self):
         yaml_data = yaml.dump(self.node_dict, default_flow_style=False)
         pai_node_list = {"node-list": yaml_data}
-        conf_storage_util.update_configmap(self.kube_config_path, "pai-node-list", pai_node_list)
+        kubernetes_handler.update_configmap(self.kube_config_path, "pai-node-list", pai_node_list)
 
 
 
