@@ -21,9 +21,10 @@ import requests
 import logging
 import logging.config
 
-from . import add
-from . import clean
-from . import common
+from . import add as k8s_add
+from . import clean as k8s_clean
+from . import common as k8s_common
+from . import remove as k8s_remove
 from ...confStorage.download import download_configuration
 from ...paiLibrary.common import directory_handler
 from ...paiLibrary.common import kubernetes_handler
@@ -62,14 +63,57 @@ class update:
 
     def get_node_list_from_k8s(self):
         node_list = kubernetes_handler.list_all_nodes(PAI_KUBE_CONFIG_PATH=self.kube_config_path)
+        return node_list
 
 
 
-    def check_node_healthz_check(self, address):
+    def check_node_healthz(self, address):
         r = requests.get("http://{0}:10248/healthz".format(address))
+        if r.status_code == 200:
+            return True
+        rep_error = r.raise_for_status()
+        if rep_error != None:
+            self.logger.error(str(rep_error))
+        return False
 
 
 
+    def remove(self, node_config, cluster_config):
+        remove_worker = k8s_remove.remove(cluster_config, node_config, True)
+        remove_worker.run()
+
+        if node_config["k8s-role"] == "master":
+            self.logger.info("master node is removed, sleep 60s for etcd cluster's updating")
+            time.sleep(60)
+
+
+
+    def install(self, node_config, cluster_config):
+        add_worker = k8s_add.add(cluster_config, node_config, True)
+        add_worker.run()
+
+        if node_config["k8s-role"] == "master":
+            self.logger.info("Master Node is added, sleep 60s to wait it ready.")
+            time.sleep(60)
+
+
+
+    def node_status_check(self, node_config, node_list):
+        node_name = node_config["nodename"]
+        if node_name not in node_list:
+            return False
+
+        for condition_instance in node_list[node_name]:
+            if condition_instance["type"] != "Ready":
+                continue
+            if condition_instance["status"] != "True":
+                return False
+            break
+
+        if not self.check_node_healthz(node_config["hostip"]):
+            return False
+
+        return True
 
 
 
@@ -83,7 +127,21 @@ class update:
     Or paictl will first do a clean on the target node and then bootstrap corresponding service according to the role of the node.
     """
     def add_machine(self):
-        None
+
+        node_list = self.node_list
+        cluster_configuration = self.k8s_configuration
+
+        for role in cluster_configuration["remote_deployment"]:
+            listname = cluster_configuration["remote_deployment"][role]["listname"]
+            if listname not in cluster_configuration:
+                continue
+
+            for node_key in cluster_configuration[listname]:
+                node_config = cluster_configuration[listname][node_key]
+
+                if not self.node_status_check(node_config, node_list):
+                    self.remove(node_config, cluster_configuration)
+                    self.install(node_config, cluster_configuration)
 
 
 

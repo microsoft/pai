@@ -81,7 +81,19 @@ def list_all_nodes(PAI_KUBE_CONFIG_PATH, include_uninitialized = True):
                 }
             )
 
-        resp[node_name] = node_addresses
+        node_conditions = list()
+        for node_conditions_instance in node.status.conditions:
+            node_conditions.append(
+                {
+                    "type": node_conditions_instance.type,
+                    # type str, value True, False, Unknown
+                    "status": node_conditions_instance.status
+                }
+            )
+
+        resp[node_name] = dict()
+        resp[node_name]["address"] = node_addresses
+        resp[node_name]["condition"] = node_conditions
 
     return resp
 
