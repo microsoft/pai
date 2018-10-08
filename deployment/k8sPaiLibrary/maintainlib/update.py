@@ -17,6 +17,7 @@
 
 import sys
 import time
+import yaml
 import requests
 import logging
 import logging.config
@@ -25,6 +26,8 @@ from . import add as k8s_add
 from . import clean as k8s_clean
 from . import common as k8s_common
 from . import remove as k8s_remove
+
+from ...confStorage import conf_storage_util
 from ...confStorage.download import download_configuration
 from ...paiLibrary.common import directory_handler
 from ...paiLibrary.common import kubernetes_handler
@@ -47,6 +50,11 @@ class update:
         self.time = str(int(time.time()))
         self.tmp_path = "./tmp-machine-update-{0}"
 
+        self.k8s_configuration = None
+        self.node_list = None
+        self.node_dict = None
+        self.node_dict_from_k8s = None
+
 
 
     def get_latest_configuration_from_pai(self):
@@ -64,6 +72,43 @@ class update:
     def get_node_list_from_k8s(self):
         node_list = kubernetes_handler.list_all_nodes(PAI_KUBE_CONFIG_PATH=self.kube_config_path)
         return node_list
+
+
+
+    def get_node_dict_from_cluster_configuration(self):
+        cluster_config = self.k8s_configuration
+        node_dict = dict()
+
+        for role in cluster_config["remote_deployment"]:
+            listname = cluster_config["remote_deployment"][role]["listname"]
+            if listname not in cluster_config:
+                continue
+
+            for node_key in cluster_config[listname]:
+                node_config = cluster_config[listname][node_key]
+                node_dict[node_key] = node_config
+
+        return node_dict
+
+
+
+    """
+    Machine list from kubernetes configmap. 
+    """
+    def get_node_dict_from_k8s(self):
+        configmap_data = conf_storage_util.get_configmap(self.kube_config_path, "pai-node-list")
+        pai_node_list = configmap_data["node-list"]
+        return yaml.load(pai_node_list)
+
+
+
+    """
+    Machine list after updating. 
+    """
+    def update_node_list(self):
+        yaml_data = yaml.dump(self.node_dict, default_flow_style=False)
+        pai_node_list = {"node-list": yaml_data}
+        conf_storage_util.update_configmap(self.kube_config_path, "pai-node-list", pai_node_list)
 
 
 
@@ -152,14 +197,21 @@ class update:
     Or do nothing.
     """
     def remove_machine(self):
-        None
+        for node in self.node_dict_from_k8s:
+            if node not in self.node_dict:
+                self.remove(self.node_dict[node], self.k8s_configuration)
+
 
 
 
     def run(self):
         self.k8s_configuration = self.get_latest_configuration_from_pai()
         self.node_list = self.get_node_list_from_k8s()
+        self.node_dict = self.get_node_dict_from_cluster_configuration()
+        self.node_dict_from_k8s = self.get_node_dict_from_k8s()
+
         self.add_machine()
         self.remove_machine()
 
+        self.update_node_list()
         directory_handler.directory_delete(self.tmp_path)
