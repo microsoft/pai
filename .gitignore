@@ -15,9 +15,10 @@
 .settings
 .vscode
 target/
-build/
 out/
 tmp/
 dist/
 __pycache__
 *.pyc
+*.swp
+*.swo

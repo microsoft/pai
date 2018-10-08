@@ -1,0 +1,14 @@
+{
+  "jobName": "chainer-cifar",
+  "image": "openpai/pai.example.chainer",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "python ./chainer/examples/cifar/train_cifar.py"
+    }
+  ]
+}

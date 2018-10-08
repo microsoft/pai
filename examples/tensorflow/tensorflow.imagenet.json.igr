@@ -1,0 +1,19 @@
+{
+  "jobName": "tensorflow-imagenet",
+  "image": "openpai/pai.example.tensorflow",
+
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/code",
+
+  "taskRoles": [
+    {
+      "name": "imagenet_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "python code/train_image_classifier.py --batch_size=64 --model_name=inception_v3 --dataset_name=imagenet --dataset_split_name=train --dataset_dir=$PAI_DATA_DIR --train_dir=$PAI_OUTPUT_DIR"
+    }
+  ]
+}

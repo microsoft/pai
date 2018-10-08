@@ -1,0 +1,185 @@
+{
+    "apiVersion": "v1",
+    "kind": "PodList",
+    "items": [
+        {
+            "metadata": {
+                "name": "yarn-frameworklauncher-ds-2684q",
+                "generateName": "yarn-frameworklauncher-ds-",
+                "namespace": "default",
+                "selfLink": "/api/v1/namespaces/default/pods/yarn-frameworklauncher-ds-2684q",
+                "uid": "b492b284-8a77-11e8-a8fc-000d3ab25bb6",
+                "resourceVersion": "87290",
+                "creationTimestamp": "2018-07-18T10:45:37Z",
+                "labels": {
+                    "controller-revision-hash": "2698008918",
+                    "pod-template-generation": "1",
+                    "app": "frameworklauncher"
+                },
+                "ownerReferences": [
+                    {
+                        "apiVersion": "extensions/v1beta1",
+                        "kind": "DaemonSet",
+                        "name": "yarn-frameworklauncher-ds",
+                        "uid": "b4918fda-8a77-11e8-a8fc-000d3ab25bb6",
+                        "controller": true,
+                        "blockOwnerDeletion": true
+                    }
+                ]
+            },
+            "spec": {
+                "volumes": [
+                    {
+                        "name": "launcher-log",
+                        "hostPath": {
+                            "path": "/datastorage/launcherlogs",
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "hadoop-nm-config-volume",
+                        "configMap": {
+                            "name": "hadoop-node-manager-configuration",
+                            "defaultMode": 420
+                        }
+                    },
+                    {
+                        "name": "hadoop-dn-config-volume",
+                        "configMap": {
+                            "name": "hadoop-data-node-configuration",
+                            "defaultMode": 420
+                        }
+                    },
+                    {
+                        "name": "yarn-frameworklauncher-config-volume",
+                        "configMap": {
+                            "name": "yarn-frameworklauncher-configmap",
+                            "defaultMode": 420
+                        }
+                    },
+                    {
+                        "name": "gpu-confg-volume",
+                        "configMap": {
+                            "name": "gpu-configuration",
+                            "defaultMode": 420
+                        }
+                    }
+                ],
+                "containers": [
+                    {
+                        "name": "frameworklauncher",
+                        "image": "docker.io/xudifsd/frameworklauncher:latest",
+                        "env": [
+                            {
+                                "name": "RESOURCEMANAGER_ADDRESS",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "ZOOKEEPER_ADDRESS",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "HDFS_ADDRESS",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "LOGSERVER_ADDRESS",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "TIMELINE_SERVER_ADDRESS",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "GENERATE_CONFIG",
+                                "value": "frameworklauncher-generate-config.sh"
+                            },
+                            {
+                                "name": "FRAMEWORKLAUNCHER_VIP",
+                                "value": "10.151.40.4"
+                            },
+                            {
+                                "name": "FRAMEWORKLAUNCHER_PORT",
+                                "value": "9086"
+                            }
+                        ],
+                        "resources": {
+
+                        },
+                        "volumeMounts": [
+                            {
+                                "name": "hadoop-nm-config-volume",
+                                "mountPath": "/hadoop-nm-configuration"
+                            },
+                            {
+                                "name": "hadoop-dn-config-volume",
+                                "mountPath": "/hadoop-dn-configuration"
+                            },
+                            {
+                                "name": "yarn-frameworklauncher-config-volume",
+                                "mountPath": "/yarn-frameworklauncher-configuration"
+                            },
+                            {
+                                "name": "launcher-log",
+                                "mountPath": "/usr/local/launcher/logs"
+                            },
+                            {
+                                "name": "gpu-confg-volume",
+                                "mountPath": "/gpu-configuration"
+                            }
+                        ],
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "imagePullPolicy": "Always"
+                    }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+                "nodeSelector": {
+                    "launcher": "true"
+                },
+                "nodeName": "10.151.40.4",
+                "hostNetwork": true,
+                "hostPID": true,
+                "securityContext": {
+
+                },
+                "imagePullSecrets": [
+                    {
+                        "name": "pai-secret"
+                    }
+                ],
+                "schedulerName": "default-scheduler",
+                "tolerations": [
+                    {
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "effect": "NoExecute"
+                    },
+                    {
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "effect": "NoExecute"
+                    },
+                    {
+                        "key": "node.kubernetes.io/disk-pressure",
+                        "operator": "Exists",
+                        "effect": "NoSchedule"
+                    },
+                    {
+                        "key": "node.kubernetes.io/memory-pressure",
+                        "operator": "Exists",
+                        "effect": "NoSchedule"
+                    }
+                ]
+            },
+            "status": {
+                "message": "The node was low on resource: nodefs.",
+                "phase": "Failed",
+                "reason": "Evicted",
+                "startTime": "2018-07-19T02:48:45Z"
+            }
+        }
+    ]
+}

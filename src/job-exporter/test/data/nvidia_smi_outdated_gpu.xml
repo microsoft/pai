@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<!DOCTYPE nvidia_smi_log SYSTEM "nvsmi_device_v9.dtd">
+<nvidia_smi_log>
+	<timestamp>Tue Jul 24 09:43:28 2018</timestamp>
+	<driver_version>384.111</driver_version>
+	<attached_gpus>1</attached_gpus>
+	<gpu id="00000000:01:00.0">
+		<product_name>GeForce GT 730</product_name>
+		<product_brand>GeForce</product_brand>
+		<display_mode>N/A</display_mode>
+		<display_active>N/A</display_active>
+		<persistence_mode>Enabled</persistence_mode>
+		<accounting_mode>N/A</accounting_mode>
+		<accounting_mode_buffer_size>N/A</accounting_mode_buffer_size>
+		<driver_model>
+			<current_dm>N/A</current_dm>
+			<pending_dm>N/A</pending_dm>
+		</driver_model>
+		<serial>N/A</serial>
+		<uuid>GPU-09cb2925-9d01-5ca4-810b-6cdebe86b71a</uuid>
+		<minor_number>0</minor_number>
+		<utilization>
+			<gpu_util>N/A</gpu_util>
+			<memory_util>N/A</memory_util>
+			<encoder_util>N/A</encoder_util>
+			<decoder_util>N/A</decoder_util>
+		</utilization>
+	</gpu>
+
+</nvidia_smi_log>

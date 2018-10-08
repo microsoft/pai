@@ -2,8 +2,8 @@
   "jobName": "tensorflow-tensorboard",
   "image": "openpai/pai.example.tensorflow",
 
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/tensorboard/code",
 
   "taskRoles": [
     {
@@ -12,7 +12,14 @@
       "cpuNumber": 2,
       "memoryMB": 4096,
       "gpuNumber": 0,
-      "command": "/bin/bash code/tensorflow-tensorboard.sh"
+      "command": "/bin/bash code/tensorflow-tensorboard.sh",
+      "portList": [
+        {
+          "label": "tensorboard",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ]
     }
   ]
 }

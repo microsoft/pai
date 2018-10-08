@@ -1,0 +1,14 @@
+{
+  "jobName": "xgboost_gpu_hist",
+  "image": "openpai/pai.example.xgboost",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 1,
+      "command": "pip install -q sklearn && python demo/gpu_acceleration/cover_type.py"
+    }
+  ]
+}

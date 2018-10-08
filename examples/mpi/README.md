@@ -17,70 +17,43 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
+# Note
+Now(27th September, 2018), the mpi examples are still unready. Ignore them!
 
-# MPI on PAI
+# MPI on OpenPAI
 
-This guide introduces how to run [Open MPI](https://www.open-mpi.org/) workload on PAI.
+This guide introduces how to run [Open MPI](https://www.open-mpi.org/) workload on OpenPAI.
 The following contents show some basic Open MPI examples, other customized MPI code can be run similarly.
-
 
 ## Contents
 
-1. [Basic environment](#basic-environment)
-2. [Advanced environment](#advanced-environment)
-3. [Open MPI examples](#open-mpi-examples)
+1. [Open MPI TensorFlow CIFAR-10 example](#open-mpi-tensorflow-cifar-10-example)
+2. [Open MPI CNTK grapheme-to-phoneme conversion example](#open-mpi-cntk-grapheme-to-phoneme-conversion-example)
 
 
-## Basic environment
+# Open MPI TensorFlow / CNTK CIFAR-10 example
 
-First of all, PAI runs all jobs in Docker container.
+### Prepare work
+1. Prepare the data:
+* TensorFlow: Just go to the [official website](http://www.cs.toronto.edu/~kriz/cifar.html) and download the python version data by the [url](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz). `wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && tar zxvf cifar-10-python.tar.gz && rm cifar-10-python.tar.gz`
+After you downloading the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/mpi/tensorflow/data` or `hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/data`
+Note that we use the same data as tensorflow distributed cifar-10 example. So, if you have already run that example, just use that data path.
+* CNTK: Download all files in https://git.io/vbT5A `wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b` and put them up to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/cntk/data` or `hdfs dfs -put filename hdfs://ip:port/examples/mpi/cntk/data`.
+Note that we use the same data as cntk example. So, if you have already run that example, just use that data path.
+2. Prepare the execable code:
+* Tensorflow: We use the same code as tensorflow distributed cifar-10 example. You can follow [that document](https://github.com/Microsoft/pai/blob/master/examples/tensorflow/README.md).
+* cntk: Download the script example from [github](https://github.com/Microsoft/pai/blob/master/examples/mpi/cntk-mpi.sh)`wget https://github.com/Microsoft/pai/raw/master/examples/mpi/cntk-mpi.sh`. Then upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/mpi/cntk/code/`
+3. Prepare a docker image and upload it to docker hub.  OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image  `openpai/pai.example.tensorflow-mpi`, `openpai/pai.example.cntk-mp` with your own.
+4. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
-[Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
-
-We need to build a Open MPI base image with GPU support to run Open MPI workload on PAI, this can be done in two steps:
-
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
-
-    ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
-    $ sudo docker build -f Dockerfile.build.base \
-    >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-    $ cd -
-    ```
-
-2. Build an Open MPI Docker image for PAI. We prepared a [mpi Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.mpi) which can be built directly.
-
-    ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
-    $ sudo docker build -f Dockerfile.build.mpi \
-    >                   -t pai.build.mpi:openmpi1.10.4-hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-    $ cd -
-    ```
-
-
-## Advanced environment
-
-You can build runtime TensorFlow or CNTK Docker images based on the MPI base image,
-for example, we prepared [TensorFlow mpi Dockerfile](./Dockerfile.example.tensorflow-mpi) and [CNTK mpi Dockerfile](./Dockerfile.example.cntk-mpi) which can be refered to.
-
-Push the Docker image to a Docker registry, we use TensorFlow mpi Docker image as an example:
-
-```bash
-$ sudo docker tag pai.example.tensorflow-mpi USER/pai.example.tensorflow-mpi
-$ sudo docker push USER/pai.example.tensorflow-mpi
-```
-*Note: Replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.*
-
-
-# Open MPI examples
-
-To run Open MPI examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow-mpi` or `openpai/pai.example.cntk-mpi` with your own.
+**Note** that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
 
 Here're some configuration file examples:
 
+## Open MPI TensorFlow CIFAR-10 example
+
 ### [TensorFlow cifar10 benchmark](https://git.io/vF4wT)
+
 ```js
 {
   "jobName": "tensorflow-mpi",
@@ -108,15 +81,18 @@ Here're some configuration file examples:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi",
+      "minSucceededTaskCount": 2
     }
   ],
-  "killAllOnCompletedTaskNumber": 2,
   "retryCount": 0
 }
 ```
 
+## Open MPI CNTK grapheme-to-phoneme conversion example
+
 ### [CNTK G2P example](https://github.com/Microsoft/CNTK/tree/master/Examples/SequenceToSequence/CMUDict/BrainScript)
+
 ```js
 {
   "jobName": "cntk-mpi",
@@ -137,7 +113,8 @@ Here're some configuration file examples:
       "cpuNumber": 8,
       "memoryMB": 16384,
       "gpuNumber": 0,
-      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-mpi.sh"
+      "command": "cd code && mpirun --allow-run-as-root -np 2 --host worker-0,worker-1 /bin/bash cntk-mpi.sh",
+      "minSucceededTaskCount": 1
     },
     {
       "name": "worker",
@@ -148,9 +125,8 @@ Here're some configuration file examples:
       "command": "/bin/bash"
     }
   ],
-  "killAllOnCompletedTaskNumber": 1,
   "retryCount": 0
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).

@@ -1,0 +1,114 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "196784"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "drivers-one-shot-ndldh",
+        "generateName": "drivers-one-shot-",
+        "namespace": "default",
+        "creationTimestamp": "2018-07-18T06:27:22Z",
+        "labels": {
+            "app": "drivers-one-shot",
+            "controller-revision-hash": "2607302775",
+            "pod-template-generation": "1"
+        }
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T06:27:22Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T10:37:56Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T06:28:48Z"
+          }
+        ],
+        "hostIP": "10.151.40.4",
+        "podIP": "10.151.40.4",
+        "startTime": "2018-07-18T06:27:22Z",
+        "containerStatuses": [
+          {
+            "name": "nvidia-drivers",
+            "state": {
+              "running": {
+                "startedAt": "2018-07-18T10:36:16Z"
+              }
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "xudifsd/drivers:latest",
+            "imageID": "docker-pullable://xudifsd/drivers@sha256:24e359fe5b3811fbf7fa55534f8272481e62f53565aa44f8a6f6623f9cc3cd52",
+            "containerID": "docker://c1ad78c03611eb1ca835be0d169e2724f509f317ddf4431ffce8c0bb90665a19"
+          }
+        ],
+        "qosClass": "BestEffort"
+      }
+    },
+    {
+      "metadata": {
+        "name": "end-to-end-test-deployment-6d865cf95c-tm68r",
+        "generateName": "end-to-end-test-deployment-6d865cf95c-",
+        "namespace": "default",
+        "creationTimestamp": "2018-07-18T10:45:40Z"
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T10:45:40Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T10:50:33Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-07-18T10:45:40Z"
+          }
+        ],
+        "hostIP": "10.151.40.4",
+        "podIP": "172.17.0.5",
+        "startTime": "2018-07-18T10:45:40Z",
+        "containerStatuses": [
+          {
+            "name": "end-to-end-test",
+            "state": {
+              "running": {
+                "startedAt": "2018-07-18T10:50:32Z"
+              }
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "xudifsd/end-to-end-test:latest",
+            "imageID": "docker-pullable://xudifsd/end-to-end-test@sha256:40a0e6527814058f332fc72c661d4493f8de962a9431fd0f80428d6ce468c59a",
+            "containerID": "docker://ff2c3e2e75330e0d4ef87ab646bb353f79329cd2c17b27744efd7508bac1036f"
+          }
+        ],
+        "qosClass": "BestEffort"
+      }
+    }
+  ]
+}

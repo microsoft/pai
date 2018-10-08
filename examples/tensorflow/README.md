@@ -18,100 +18,43 @@
 -->
 
 
-# TensorFlow on PAI
+# TensorFlow on OpenPAI
 
-This guide introduces how to run [TensorFlow](https://www.tensorflow.org/) workload on PAI.
+This guide introduces how to run [TensorFlow](https://www.tensorflow.org/) job on OpenPAI.
 The following contents show some basic TensorFlow examples, other customized TensorFlow code can be run similarly.
 
 
 ## Contents
 
-1. [Basic environment](#basic-environment)
-2. [Advanced environment](#advanced-environment)
-3. [TensorFlow examples](#tensorflow-examples)
-
-
-## Basic environment
-
-First of all, PAI runs all jobs in Docker container.
-
-[Install Docker-CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) if you haven't. Register an account at public Docker registry [Docker Hub](https://hub.docker.com/) if you do not have a private Docker registry.
-
-You can also jump to [TensorFlow examples](#tensorflow-examples) using [pre-built images](https://hub.docker.com/r/openpai/pai.example.tensorflow/) on Docker Hub.
-
-We need to build a TensorFlow image with GPU support to run TensorFlow workload on PAI, this can be done in two steps:
-
-1. Build a base Docker image for PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
-
-    ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
-    $ sudo docker build -f Dockerfile.build.base \
-    >                   -t pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04 .
-    $ cd -
-    ```
-
-2. Prepare TensorFlow envoriment in a [Dockerfile](./Dockerfile.example.tensorflow) using the base image.
-
-    Write a TensorFlow Dockerfile and save it to `Dockerfile.example.tensorflow`:
-
-    ```dockerfile
-    FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
-
-    ENV TENSORFLOW_VERSION=1.4.0
-
-    # For how to run TensorFlow on Hadoop,
-    # please refer to https://www.tensorflow.org/deploy/hadoop
-    RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} && \
-        pip3 install tensorflow-gpu==${TENSORFLOW_VERSION}
-
-    WORKDIR /root
-    ```
-
-    Build the Docker image from `Dockerfile.example.tensorflow`:
-
-    ```bash
-    $ sudo docker build -f Dockerfile.example.tensorflow -t pai.example.tensorflow .
-    ```
-
-    Push the Docker image to a Docker registry:
-
-    ```bash
-    $ sudo docker tag pai.example.tensorflow USER/pai.example.tensorflow
-    $ sudo docker push USER/pai.example.tensorflow
-    ```
-    *Note: Replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.*
-
-
-## Advanced environment
-
-You can skip this section if you do not need to prepare other dependencies.
-
-You can customize runtime TensorFlow environment in [Dockerfile.example.tensorflow](./Dockerfile.example.tensorflow), for example, adding other dependeces in Dockerfile:
-
-```dockerfile
-FROM pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04
-
-ENV TENSORFLOW_VERSION=1.4.0
-
-# install other packages using apt-get
-RUN apt-get -y update && apt-get -y install git PACKAGE
-
-# install other packages using pip
-RUN pip install tensorflow-gpu==${TENSORFLOW_VERSION} PACKAGE
-
-WORKDIR /root
-```
-
+1. [TensorFlow CIFAR-10 image classification](#tensorflow-cifar-10-image-classification)
+2. [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
+3. [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification )
+4. [TensorFlow Tensorboard](#tensorflow-tensorboard)
 
 # TensorFlow examples
 
-To run TensorFlow examples in PAI, you need to prepare a job configuration file and submit it through webportal.
-
-If you have built your image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own.
+### Prepare work
+1. Prepare the data:
+* imageNet: Go to [imageNet official website](http://www.image-net.org/download-images), signup and download the data manually. Or, you can use tensorflow data loader to download the data automatically. Just clone [ensorflow/models](https://github.com/tensorflow/models) and run models/research/slim/datasets/download_and_convert_imagenet.sh:`git clone https://github.com/tensorflow/models.git && mv models/research/slim . && rm -rf models && sed -i "s/^WORK_DIR=.*$/WORK_DIR=.\/slim/g" slim/datasets/download_and_convert_imagenet.sh && chmod u+x slim/datasets/download_and_convert_imagenet.sh && abspath=`pwd`/data && echo -e "openpai\nopenpai\n" | ./slim/datasets/download_and_convert_imagenet.sh $abspath`
+Pay attention to your disk, because the data size is about 500GB.
+**Note** that the `prepare.sh` in this folder **close** the imageNet data preparation precess by default. If you want to reopen that, just remove the `#` of `#imageNet_prepare_code \$1` and `#imageNet_prepare_data \$1` in the shell script.
+After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/imageNet/data/`
+* cifar-10: Just go to the [official website](http://www.cs.toronto.edu/~kriz/cifar.html) and download the python version data by the [url](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz). `wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && tar zxvf cifar-10-python.tar.gz && rm cifar-10-python.tar.gz`
+After you downloading the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/data`
+2. Prepare the execable code:
+* imageNet: The *slim* folder you just downloaded contains the code. If you download the data manually, refer to the automatic method to get the code.  
+After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/code/`
+* cifar-10: We use the [tensorflow official benchmark code](https://github.com/tensorflow/benchmarks). Pay attention to the version. We use *tf_benchmark_stage* branch. `git clone -b tf_benchmark_stage https://github.com/tensorflow/benchmarks.git`
+* After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/code/`
+3. Prepare a docker image and upload it to docker hub. OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own.
+4. Prepare a job configuration file and submit it through webportal. Note that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
+Note that, the default operation of the prepare script has closed the data preparing of imageNet due to its size. If you want to open it, just remove the "#" in the line 52.
+5. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
 Here're some configuration file examples:
 
-### Image classification on CIFAR-10
+### TensorFlow CIFAR-10 image classification 
+
 ```js
 {
   "jobName": "tensorflow-cifar10",
@@ -133,18 +76,19 @@ Here're some configuration file examples:
 }
 ```
 
-### Image classification on ImageNet
+### TensorFlow ImageNet image classification 
+
 ```js
 {
   "jobName": "tensorflow-imagenet",
   "image": "openpai/pai.example.tensorflow",
 
   // prepare imagenet dataset in TFRecord format following https://git.io/vFxjh and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/output",
   // download code from tensorflow slim https://git.io/vFpef and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/code",
 
   "taskRoles": [
     {
@@ -159,18 +103,19 @@ Here're some configuration file examples:
 }
 ```
 
-### Distributed traning on CIFAR-10
+### Distributed TensorFlow CIFAR-10 image classification 
+
 ```js
 {
   "jobName": "tensorflow-distributed-cifar10",
   "image": "openpai/pai.example.tensorflow",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/code",
 
   "taskRoles": [
     {
@@ -187,24 +132,25 @@ Here're some configuration file examples:
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
+      "minSucceededTaskCount": 2
     }
   ],
-  "killAllOnCompletedTaskNumber": 2,
   "retryCount": 0
 }
 ```
 
-### Tensorboard
+### TensorFlow Tensorboard
+
 ```js
 {
   "jobName": "tensorflow-tensorboard",
   "image": "openpai/pai.example.tensorflow",
 
   // prepare checkpoint and log to be visualized and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/output",
   // prepare visualization script tensorboard-example.sh and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/tensorboard/code",
 
   "taskRoles": [
     {
@@ -219,4 +165,5 @@ Here're some configuration file examples:
 }
 ```
 
-For more details on how to write a job configuration file, please refer to [job tutorial](../../job-tutorial/README.md#json-config-file-for-job-submission).
+For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
+
