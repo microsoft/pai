@@ -126,12 +126,16 @@ class update:
 
 
     def check_node_healthz(self, address):
-        r = requests.get("http://{0}:10248/healthz".format(address))
-        if r.status_code == 200:
-            return True
-        rep_error = r.raise_for_status()
-        if rep_error != None:
-            self.logger.error(str(rep_error))
+
+        try:
+            r = requests.get("http://{0}:10248/healthz".format(address))
+            if r.status_code == 200:
+                return True
+        except Exception as e:
+            rep_error = r.raise_for_status()
+            if rep_error != None:
+                self.logger.error(str(rep_error))
+
         return False
 
 
