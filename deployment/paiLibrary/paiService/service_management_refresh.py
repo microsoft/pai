@@ -25,6 +25,7 @@ from . import service_template_clean
 
 from ..common import directory_handler
 from ..common import file_handler
+from ..common import linux_shell
 
 
 class service_management_refresh:
@@ -40,7 +41,7 @@ class service_management_refresh:
         else:
             self.service_list = service_list
 
-        self.role_map = dict()
+        self.label_map = dict()
 
     def get_service_list(self):
 
@@ -60,34 +61,31 @@ class service_management_refresh:
 
 
     def refresh_all_label(self):
-        service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
+        self.logger.info("Begin to refresh all the nodes' labels")
         machinelist = self.cluster_object_model['machinelist']
-        service_refresher = service_refresh.service_refresh(service_conf, serv, machinelist)
-
-        roles = ['pai-master', 'pai-worker']
-        err_msg_prefix = "Error refreshing service " + self.service_name + " when execute: "
-
-
-        for role in roles:
-            self.role_map[role] = list()
-
-        for host self.machinelist:
-            nodename = self.machinelist[host]['nodename']
-            for role in roles:
-                cmd_checklabel = "kubectl describe node " + nodename + " | grep -q " + role + "='true'"
+        
+        labels = ['pai-master', 'pai-worker', 'no-driver', 'no-nodeexporter']
+        for label in labels:
+            self.label_map[label] = list()
+            
+        err_msg_prefix = "Error refreshing all label when execute: "
+        for host in machinelist:
+            nodename = machinelist[host]['nodename']
+            for label in labels:
+                cmd_checklabel = "kubectl describe node " + nodename + " | grep -q " + label + "='true'"
                 has_label = linux_shell.execute_shell_return(cmd_checklabel, "")
                 # If machinelist config has defined the label, but the node did't have, label it
-                if role in self.machinelist[host]:  
-                    self.role_map[role].append(nodename)                    
+                if label in machinelist[host]:  
+                    self.label_map[label].append(nodename)                    
                     if not has_label:
-                        self.logger.info("Role defined in cluster-configuration machinelist, label the node " + str(nodename) + " of " + role)                 
-                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + role +"='true' || exit $?"
+                        self.logger.info("Label defined in cluster-configuration machinelist, label the node " + str(nodename) + " of " + label)                 
+                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + label +"='true' || exit $?"
                         linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
                 # If machinelist config has not define the label, but the node has the label, remove it
                 else:
                     if has_label:
-                        self.logger.info("Remove Node " + nodename + " label " + role + ", due to the cluster-configuration machinelist doesn't specify this label")
-                        cmd = "kubectl label nodes " + nodename + " " + role +"- || exit $?"
+                        self.logger.info("Remove Node " + nodename + " label " + label + ", due to the cluster-configuration machinelist doesn't specify this label")
+                        cmd = "kubectl label nodes " + nodename + " " + label +"- || exit $?"
                         linux_shell.execute_shell(cmd, err_msg_prefix + " when kubectl label nodes")
 
 
@@ -99,7 +97,7 @@ class service_management_refresh:
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
         machinelist = self.cluster_object_model['machinelist']
-        service_refresher = service_refresh.service_refresh(service_conf, serv, self.role_map)
+        service_refresher = service_refresh.service_refresh(service_conf, serv, self.label_map)
 
         dependency_list = service_refresher.get_dependency()
         if dependency_list != None:

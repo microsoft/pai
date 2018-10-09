@@ -25,13 +25,13 @@ from ..common import linux_shell
 class service_refresh:
 
 
-    def __init__(self, service_conf, service_name, role_map):
+    def __init__(self, service_conf, service_name, label_map):
 
         self.logger = logging.getLogger(__name__)
 
         self.service_conf = service_conf
         self.service_name = service_name
-        self.role_map = role_map
+        self.label_map = label_map
 
 
 
@@ -43,12 +43,14 @@ class service_refresh:
             for rule in self.service_conf['deploy-rules']:
                 if 'in' in rule:
                     # If service not runnning on labeled node, start the service
-                    nodes = self.role_map[rule['in']]
+                    if rule['in'] not in self.label_map:
+                        self.logger.error("Label defined error, " + rule['in'] + " isn't defined in cluster-configuration.yaml machinelist.")
+                    nodes = self.label_map[rule['in']]
                     for nodename in nodes:                        
                         cmd_checkservice = "kubectl get po -o wide | grep " + nodename + " | grep -q " + self.service_name
                         if not linux_shell.execute_shell_return(cmd_checkservice, ""):
                             self.logger.info("Start service " + self.service_name + " frome Node " + nodename + 
-                                " for its deploy role is labeled on this node according to the cluster-configuration machinelist but service isn't running.")
+                                " for its deployment label is labeled on this node according to the cluster-configuration machinelist but service isn't running.")
                             start_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["start-script"])
                             linux_shell.execute_shell("/bin/bash " + start_script, err_msg_prefix + " start service " + self.service_name)
                 
@@ -57,16 +59,24 @@ class service_refresh:
                     res = linux_shell.execute_shell_with_output(cmd, "")
                     items = res.split("\n")
                     nodes_has_service = dict()
-                    print(len(items) + "**********************\n")
+                    print(str(len(items)) + "**********************")
                     for item in items:
-                        print(item + "\n")
-                        nodes_has_service[item[-1]] = item[0]
+                        if len(item) > 10:
+                            #print(item)
+                            item = item.split()
+                            #print("***************" + item[0])
+                            nodes_has_service[item[-1]] = item[0]
                     for n in nodes_has_service:
-                        if n not in nodes:            
+                        if n not in nodes: 
+                            self.logger.info("Service " + self.service_name + " should not run on " + nodename + 
+                                " according to its deploy-rules of service.yaml config file. Deleting...")           
                             cmd = "kubectl delete pod " + nodes_has_service[n]
                             linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
                 
                 # for 'notin' rule, it's Daemonset, needn't do anything
+                if 'notin' in rule:
+                    if rule['notin'] not in self.label_map:
+                        self.logger.error("Label defined error, " + rule['notin'] + " isn't defined in cluster-configuration.yaml machinelist.")
 
         refresh_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["refresh-script"])
         cmd = "/bin/bash {0}".format(refresh_script)
