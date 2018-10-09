@@ -118,5 +118,5 @@ A: According to the default configuration, PAI supports 60k jobs, including wait
 
 The limitation is because we only reserve so much memory resource for `PAI services`, it may be enough in typical scenario.
 
-For example, user may has hundreds jobs running, thousands jobs waiting, and tens of thousands jobs finished.
+For example, user may have hundreds jobs running, thousands jobs waiting, and tens of thousands jobs finished.
 
