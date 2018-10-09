@@ -72,7 +72,7 @@ class remove:
         self.logger.info("{0} job begins !".format(self.jobname))
 
         commandline = "kubectl delete node {0}".format(self.node_config['nodename'])
-        common.execute_shell(
+        common.execute_shell_return(
             commandline,
             "Failed to delete  node {0}".format(self.node_config['nodename'])
         )
