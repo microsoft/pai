@@ -161,7 +161,7 @@ class update:
         if node_name not in node_list:
             return False
 
-        for condition_instance in node_list[node_name]["conditions"]:
+        for condition_instance in node_list[node_name]["condition"]:
             if condition_instance["type"] != "Ready":
                 continue
             if condition_instance["status"] != "True":
