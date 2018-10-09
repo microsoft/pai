@@ -149,7 +149,8 @@ const getConfig = (req, res, next) => {
     req.job.name,
     (error, result) => {
       if (!error) {
-        return res.status(200).json(result);
+        // result maybe json or yaml, depends on the job type user submitted.
+        return typeof(result) == 'string' ? res.status(200).json(result) : res.status(200).send(result).type('yaml');
       } else if (error.message.startsWith('[WebHDFS] 404')) {
         return next(createError('Not Found', 'NoJobConfigError', `Config of job ${req.job.name} is not found.`));
       } else {

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,15 +15,4 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
-
-if kubectl get daemonset | grep -q "pylon-ds"; then
-    kubectl delete ds pylon-ds || exit $?
-fi
-
-if kubectl get service | grep -q "pylon"; then
-    kubectl delete service pylon || exit $?
-fi
-
-
-popd > /dev/null
+FROM prom/node-exporter:v0.16.0

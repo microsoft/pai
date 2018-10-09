@@ -52,6 +52,12 @@ spec:
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
+        - name: GITHUB_OWNER
+          value: {{ clusterinfo['restserverinfo']['github_owner'] }}
+        - name: GITHUB_REPOSITORY
+          value: {{ clusterinfo['restserverinfo']['github_repository'] }}
+        - name: GITHUB_PATH
+          value: {{ clusterinfo['restserverinfo']['github_path'] }}
         ports:
         - name: rest-server
           containerPort: 8080
