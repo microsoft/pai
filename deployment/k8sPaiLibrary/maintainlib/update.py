@@ -51,9 +51,9 @@ class update:
         self.tmp_path = "./tmp-machine-update-{0}"
 
         self.k8s_configuration = None
-        self.node_list = None
-        self.node_dict = None
-        self.node_dict_from_k8s = None
+        self.node_list_from_k8s = None
+        self.node_config_from_cluster_conf = None
+        self.node_config_from_k8s = None
 
 
 
@@ -69,15 +69,15 @@ class update:
 
 
 
-    def get_node_list_from_k8s(self):
+    def get_node_list_from_k8s_api(self):
         node_list = kubernetes_handler.list_all_nodes(PAI_KUBE_CONFIG_PATH=self.kube_config_path)
         return node_list
 
 
 
-    def get_node_dict_from_cluster_configuration(self):
+    def get_node_config_from_cluster_configuration(self):
         cluster_config = self.k8s_configuration
-        node_dict = dict()
+        node_config_from_cluster_conf = dict()
 
         for role in cluster_config["remote_deployment"]:
             listname = cluster_config["remote_deployment"][role]["listname"]
@@ -86,17 +86,17 @@ class update:
 
             for node_key in cluster_config[listname]:
                 node_config = cluster_config[listname][node_key]
-                node_dict[node_key] = node_config
+                node_config_from_cluster_conf[node_key] = node_config
 
-        return node_dict
+        return node_config_from_cluster_conf
 
 
 
     """
     Machine list from kubernetes configmap. 
     """
-    def get_node_dict_from_k8s(self):
-        configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-list")
+    def get_node_config_from_k8s(self):
+        configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-config", "kube-system")
         pai_node_list = configmap_data["node-list"]
         return yaml.load(pai_node_list)
 
@@ -105,10 +105,10 @@ class update:
     """
     Machine list after updating. 
     """
-    def update_node_list(self):
-        yaml_data = yaml.dump(self.node_dict, default_flow_style=False)
+    def update_node_config(self):
+        yaml_data = yaml.dump(self.node_config_from_cluster_conf, default_flow_style=False)
         pai_node_list = {"node-list": yaml_data}
-        kubernetes_handler.update_configmap(self.kube_config_path, "pai-node-list", pai_node_list)
+        kubernetes_handler.update_configmap(self.kube_config_path, "pai-node-config", pai_node_list, "kube-system")
 
 
 
@@ -148,7 +148,7 @@ class update:
         if node_name not in node_list:
             return False
 
-        for condition_instance in node_list[node_name]:
+        for condition_instance in node_list[node_name]["conditions"]:
             if condition_instance["type"] != "Ready":
                 continue
             if condition_instance["status"] != "True":
@@ -173,7 +173,7 @@ class update:
     """
     def add_machine(self):
 
-        node_list = self.node_list
+        node_list = self.node_list_from_k8s
         cluster_configuration = self.k8s_configuration
 
         for role in cluster_configuration["remote_deployment"]:
@@ -197,21 +197,20 @@ class update:
     Or do nothing.
     """
     def remove_machine(self):
-        for node in self.node_dict_from_k8s:
-            if node not in self.node_dict:
-                self.remove(self.node_dict[node], self.k8s_configuration)
-
+        for node in self.node_config_from_k8s:
+            if node not in self.node_config_from_cluster_conf:
+                self.remove(self.node_config_from_k8s[node], self.k8s_configuration)
 
 
 
     def run(self):
         self.k8s_configuration = self.get_latest_configuration_from_pai()
-        self.node_list = self.get_node_list_from_k8s()
-        self.node_dict = self.get_node_dict_from_cluster_configuration()
-        self.node_dict_from_k8s = self.get_node_dict_from_k8s()
+        self.node_list_from_k8s = self.get_node_list_from_k8s_api()
+        self.node_config_from_cluster_conf = self.get_node_config_from_cluster_configuration()
+        self.node_config_from_k8s = self.get_node_config_from_k8s()
 
         self.add_machine()
         self.remove_machine()
 
-        self.update_node_list()
+        self.update_node_config()
         directory_handler.directory_delete(self.tmp_path)
