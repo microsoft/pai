@@ -18,7 +18,7 @@
 
 remove-node:
 
-    file-list:
+    template-list:
     - name: kubernetes-cleanup.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubernetes-cleanup.sh
       dst: remove-node
