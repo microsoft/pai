@@ -73,7 +73,7 @@ class upload_configuration:
         conf_dict["k8s-role-definition.yaml"] = conf_storage_util.read_file_from_path("{0}/k8s-role-definition.yaml".format(self.config_path))
         conf_dict["kubernetes-configuration.yaml"] = conf_storage_util.read_file_from_path(
             "{0}/kubernetes-configuration.yaml".format(self.config_path))
-        conf_dict["serivces-configuration.yaml"] = conf_storage_util.read_file_from_path(
+        conf_dict["services-configuration.yaml"] = conf_storage_util.read_file_from_path(
             "{0}/services-configuration.yaml".format(self.config_path))
 
         conf_storage_util.update_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION, conf_dict)

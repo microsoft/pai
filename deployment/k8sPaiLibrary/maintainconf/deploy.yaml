@@ -43,6 +43,10 @@ master-deployment:
       src: deployment/k8sPaiLibrary/template/config.template
       dst: master-deployment/etc/kubernetes
 
+    - name: docker-daemon.json
+      src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: master-deployment
+
 
     file-list:
     - name: docker-ce-install.sh
@@ -55,10 +59,6 @@ master-deployment:
 
     - name: kubelet-start.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh
-      dst: master-deployment
-
-    - name: docker-daemon.json
-      src: deployment/k8sPaiLibrary/maintaintool/docker-daemon.json
       dst: master-deployment
 
     - name: docker-config-update.py
@@ -76,6 +76,10 @@ worker-deployment:
       src: deployment/k8sPaiLibrary/template/config.template
       dst: worker-deployment/etc/kubernetes
 
+    - name: docker-daemon.json
+      src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: worker-deployment
+
 
     file-list:
     - name: docker-ce-install.sh
@@ -88,10 +92,6 @@ worker-deployment:
 
     - name: kubelet-start.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh
-      dst: worker-deployment
-
-    - name: docker-daemon.json
-      src: deployment/k8sPaiLibrary/maintaintool/docker-daemon.json
       dst: worker-deployment
 
     - name: docker-config-update.py
@@ -117,6 +117,10 @@ proxy-deployment:
       src: deployment/k8sPaiLibrary/template/haproxy.cfg.template
       dst: proxy-deployment/etc/kubernetes/haproxy
 
+    - name: docker-daemon.json
+      src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: proxy-deployment
+
 
     file-list:
     - name: docker-ce-install.sh
@@ -129,10 +133,6 @@ proxy-deployment:
 
     - name: kubelet-start.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh
-      dst: proxy-deployment
-
-    - name: docker-daemon.json
-      src: deployment/k8sPaiLibrary/maintaintool/docker-daemon.json
       dst: proxy-deployment
 
     - name: docker-config-update.py
