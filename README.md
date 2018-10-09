@@ -76,6 +76,7 @@ Before start, you need to meet the following requirements:
 
 - The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
 - Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today.
+- [FAQ](./docs/faq.md)
 
 ## Get Involved
 - [StackOverflow:](./docs/stackoverflow.md) If you have questions about OpenPAI, please submit question at Stackoverflow under tag: openpai
