@@ -107,7 +107,7 @@ class update:
     def get_node_config_from_k8s(self):
         self.logger.info("Try to get node configuration from kubernetes' configmap.")
         configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-config", "kube-system")
-        pai_node_list = configmap_data["node-list"]
+        pai_node_list = configmap_data["data"]["node-list"]
         self.logger.info("Successfully get node configuration from kubernetes' configmap.")
         return yaml.load(pai_node_list)
 
