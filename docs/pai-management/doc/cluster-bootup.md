@@ -172,7 +172,7 @@ cd /pai
 
 # cmd should be executed under pai directory in the dev-box.
 
-python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
+python paictl.py config generate -i /pai/deployment/quick-start/quick-start.yaml -o ~/pai-config -f
 
 ```
 
