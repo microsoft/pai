@@ -125,11 +125,20 @@ $(document).ready(() => {
     const query = url.parse(window.location.href, true).query;
     const type = query.type;
     const name = query.name;
+    const username = query.user;
+    const jobname = query.jobname;
 
     if (type != null && name != null) {
       const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
       $.getJSON(u, (data) => {
         userTemplate.updatePageFromJson(data);
+        $('#submitJob').attr('disabled', false);
+      });
+    }
+    if (type != null && username != null && jobname != null) {
+      const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+      $.get(url, (data) => {
+        userTemplate.updatePageFromYaml(data);
         $('#submitJob').attr('disabled', false);
       });
     }
