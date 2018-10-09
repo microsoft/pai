@@ -48,7 +48,7 @@ class update:
             sys.exit(1)
 
         self.time = str(int(time.time()))
-        self.tmp_path = "./tmp-machine-update-{0}"
+        self.tmp_path = "./tmp-machine-update-{0}".format(self.time)
 
         self.k8s_configuration = None
         self.node_list_from_k8s = None
