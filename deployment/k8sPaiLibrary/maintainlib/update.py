@@ -62,7 +62,8 @@ class update:
         self.logger.info("Try to get latest configuration from kubernetes.")
         directory_handler.directory_create(self.tmp_path)
 
-        download_configuration(config_output_path=self.tmp_path, kube_config_path=self.kube_config_path)
+        config_get = download_configuration(config_output_path=self.tmp_path, kube_config_path=self.kube_config_path)
+        config_get.run()
         objectModel = objectModelFactory.objectModelFactory(self.tmp_path)
         ret = objectModel.objectModelPipeLine()
 
