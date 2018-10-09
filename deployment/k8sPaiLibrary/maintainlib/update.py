@@ -126,7 +126,6 @@ class update:
 
 
     def check_node_healthz(self, address):
-
         try:
             r = requests.get("http://{0}:10248/healthz".format(address))
             if r.status_code == 200:
