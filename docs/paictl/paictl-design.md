@@ -44,7 +44,7 @@
 
 ## paictl service
 
-- paictl will iterate all folder in the path ```pai/pai-management/bootstrap```. If it contains the file ```service.yaml``` and corresponding operation script, paictl will call the script to handle the operator.
+- paictl will iterate all folder in the path ```pai/src```. If it contains the file ```service.yaml``` and corresponding operation script, paictl will call the script to handle the operator.
 
 
 <div  align="center">
