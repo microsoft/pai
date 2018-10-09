@@ -58,6 +58,8 @@ class update:
 
 
     def get_latest_configuration_from_pai(self):
+
+        self.logger.info("Try to get latest configuration from kubernetes.")
         directory_handler.directory_create(self.tmp_path)
 
         download_configuration(config_output_path=self.tmp_path, kube_config_path=self.kube_config_path)
@@ -65,17 +67,22 @@ class update:
         ret = objectModel.objectModelPipeLine()
 
         directory_handler.directory_delete(self.tmp_path)
+        self.logger.info("Successfully get latest configuration from Kubernetes.")
         return ret["k8s"]
 
 
 
     def get_node_list_from_k8s_api(self):
+        self.logger.info("Try to get node list from kubernetes api.")
         node_list = kubernetes_handler.list_all_nodes(PAI_KUBE_CONFIG_PATH=self.kube_config_path)
+        self.logger.info("Successfully get latest configuration from kubernetes.")
         return node_list
 
 
 
     def get_node_config_from_cluster_configuration(self):
+
+        self.logger.info("Try to get node confguration from cluster configuration.")
         cluster_config = self.k8s_configuration
         node_config_from_cluster_conf = dict()
 
@@ -88,6 +95,7 @@ class update:
                 node_config = cluster_config[listname][node_key]
                 node_config_from_cluster_conf[node_key] = node_config
 
+        self.logger.info("Successfully get latest configuration from cluster configuration.")
         return node_config_from_cluster_conf
 
 
@@ -96,8 +104,10 @@ class update:
     Machine list from kubernetes configmap. 
     """
     def get_node_config_from_k8s(self):
+        self.logger.info("Try to get node configuration from kubernetes' configmap.")
         configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-config", "kube-system")
         pai_node_list = configmap_data["node-list"]
+        self.logger.info("Successfully get node configuration from kubernetes' configmap.")
         return yaml.load(pai_node_list)
 
 
@@ -106,9 +116,11 @@ class update:
     Machine list after updating. 
     """
     def update_node_config(self):
+        self.logger.info("Try to update node configuration to kubernetes' configmap.")
         yaml_data = yaml.dump(self.node_config_from_cluster_conf, default_flow_style=False)
         pai_node_list = {"node-list": yaml_data}
         kubernetes_handler.update_configmap(self.kube_config_path, "pai-node-config", pai_node_list, "kube-system")
+        self.logger.info("Successfully update node configuration to kubernetes' configmap.")
 
 
 
@@ -185,8 +197,19 @@ class update:
                 node_config = cluster_configuration[listname][node_key]
 
                 if not self.node_status_check(node_config, node_list):
+                    self.logger.info("Begin to add new node into pai cluster.")
+                    self.logger.info("Target node name: {0}".format(node_config["nodename"]))
+                    self.logger.info("Target node address: {0}".format(node_config["hostip"]))
+
+                    self.logger.info("[ 0/2 ] Cleaning the target node. ")
                     self.remove(node_config, cluster_configuration)
+                    self.logger.info("[ 1/2 ] Cleaning Done!")
+
+                    self.logger.info("[ 1/2 ] Install kubelet on the target node.")
                     self.install(node_config, cluster_configuration)
+                    self.logger.info("[ 2/2 ] Install Done!")
+
+                    self.logger.info("Node [{0}] is added into the cluster as a new kubernetes node.".format(node_config["nodename"]))
 
 
 
@@ -199,11 +222,23 @@ class update:
     def remove_machine(self):
         for node in self.node_config_from_k8s:
             if node not in self.node_config_from_cluster_conf:
-                self.remove(self.node_config_from_k8s[node], self.k8s_configuration)
+
+                node_config = self.node_config_from_k8s[node]
+
+                self.logger.info("Begin to remove node from pai cluster.")
+                self.logger.info("Target node name: {0}".format(node_config["nodename"]))
+                self.logger.info("Target node address: {0}".format(node_config["hostip"]))
+
+                self.logger.info(" [ 0/1 ] Cleanning the target node, remove all service.")
+                self.remove(node_config, self.k8s_configuration)
+                self.logger.info(" [ 1/1 ] Cleanning Done.")
+
+                self.logger.info("Node [{0}] is removed from kubernetes.")
 
 
 
     def run(self):
+
         self.k8s_configuration = self.get_latest_configuration_from_pai()
         self.node_list_from_k8s = self.get_node_list_from_k8s_api()
         self.node_config_from_cluster_conf = self.get_node_config_from_cluster_configuration()

@@ -44,6 +44,7 @@ from deployment.k8sPaiLibrary.maintainlib import remove as k8s_remove
 from deployment.k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
 from deployment.k8sPaiLibrary.maintainlib import kubectl_conf_check
 from deployment.k8sPaiLibrary.maintainlib import kubectl_install
+from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
 
 
 logger = logging.getLogger(__name__)
@@ -317,10 +318,18 @@ class Machine(SubCmd):
         add_parser = SubCmd.add_handler(machine_parser, self.machine_add, "add")
         remove_parser = SubCmd.add_handler(machine_parser, self.machine_remove, "remove")
         etcd_parser = SubCmd.add_handler(machine_parser, self.etcd_fix, "etcd-fix")
+        update_parser = SubCmd.add_handler(machine_parser, self.machine_update, "update")
 
         add_arguments(add_parser)
         add_arguments(remove_parser)
         add_arguments(etcd_parser)
+
+        update_parser.add_argument("-p", "--config-path", dest="config_path", default=None,
+                                   help="the path of directory which stores the cluster configuration.")
+        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+
+
 
     def process_args(self, args):
         cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
@@ -335,6 +344,8 @@ class Machine(SubCmd):
 
         return cluster_object_model_k8s, node_list
 
+
+
     def machine_add(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
 
@@ -346,6 +357,8 @@ class Machine(SubCmd):
                 logger.info("Master Node is added, sleep 60s to wait it ready.")
                 time.sleep(60)
 
+
+
     def machine_remove(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
 
@@ -356,6 +369,17 @@ class Machine(SubCmd):
             if host["k8s-role"] == "master":
                 logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
+
+
+
+    def machine_update(self, args):
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
+
+        update_worker = k8s_update.update(kube_config_path = args.kube_config_path)
+        update_worker.run()
+        logger.info("Congratulations! Machine update is finished.")
+
 
     def etcd_fix(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
@@ -481,8 +505,7 @@ class Cluster(SubCmd):
         clean_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
         clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
 
-        install_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-            help="path of cluster configuration file")
+        install_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
 
     def k8s_bootup(self, args):
         cluster_config = cluster_object_model_generate_k8s(args.config_path)
