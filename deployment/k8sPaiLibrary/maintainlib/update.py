@@ -131,9 +131,7 @@ class update:
             if r.status_code == 200:
                 return True
         except Exception as e:
-            rep_error = r.raise_for_status()
-            if rep_error != None:
-                self.logger.error(str(rep_error))
+            pass
 
         return False
 
