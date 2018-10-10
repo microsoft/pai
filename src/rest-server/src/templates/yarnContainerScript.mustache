@@ -41,23 +41,14 @@ function exit_handler()
   local handler="Yarn container exit handler"
   debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
 
-  debug_log "$handler" "clean the container code"
-  rm -fr tmp/pai-root/code 2>/dev/null
-
-  debug_log "$handler" "trying to kill docker container $docker_name"
-  pid=$(docker inspect --format={{{ inspectFormat }}} $docker_name 2>/dev/null)
-  if [ $pid ]; then
-    kill -9 $pid &&\
-      debug_log "$handler" "docker caontainer $docker_name killed successfully." ||\
-      debug_log "$handler" "tries to kill the container $docker_name but failed. Maybe it has already exited."
-  else
-    debug_log "$handler" "docker container $docker_name has already exited"
-  fi
-
   debug_log "$handler" "write exit code to file"
   debug_log "$handler" "yarn container exit code: $rc"
   debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+
+  debug_log "$handler" "clean the container code"
+  rm -fr tmp/pai-root/code 2>/dev/null
+
   exit $rc
 }
 
@@ -265,6 +256,7 @@ docker run --name $docker_name \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
+  --volume /tmp/pai-root/alive/$APP_ID/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
