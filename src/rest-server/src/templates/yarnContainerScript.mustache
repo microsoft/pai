@@ -256,6 +256,7 @@ docker run --name $docker_name \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
   --volume /tmp/pai-root/alive/$APP_ID:/alive \
+  --volume /tmp/pai-root/alive/$APP_ID/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
