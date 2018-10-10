@@ -53,6 +53,10 @@ class download_configuration:
 
         if cluster_id == None:
             self.logger.error("No cluster_id found in your cluster, which should be done the first time you upload your configuration.")
+            self.logger.error("Please execute the command following!")
+            self.logger.error("paictl.py config update [-c /path/to/kubeconfig ] [-p /path/to/cluster/configuration | -e /path/to/external/storage/conf/path]")
+            self.logger.error("More detailed information, please refer to the following link.")
+            self.logger.error("https://github.com/Microsoft/pai/blob/master/docs/paictl/paictl-manual.md")
             sys.exit(1)
 
         user_input = raw_input("Please input the cluster-id which you wanna operate: ")
