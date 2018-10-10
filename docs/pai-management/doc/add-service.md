@@ -36,7 +36,7 @@ This module will coming soon. After that, you will be able to add your configura
 
 ## Add Service' Image <a name="Image"></a>
 
-This chapter will teach you how to add your customized image to pai. After everything is done, paictl image command will build and push your image to the target docker registry.
+This chapter will teach you how to add your customized image to pai. After everything is done, build command will build and push your image to the target docker registry.
 
 If your service image could be pulled from a public docker registry, you could skip this step.
 
@@ -48,7 +48,7 @@ It will not guide you to write a dockerfile. If you a new developer of docker, p
 
 In this tutorial, we have prepared the docker image in the path following. Note the file ```image.yaml``` isn't part of docker image. It's pai's configuration file.
 
-[Hbase docker image code](example/add-service/src/hbase)
+[Hbase docker image code](example/add-service/hbase/build)
 
 
 #### Write PAI's Image Configuration <a name="Image_Configuration"></a>
@@ -57,7 +57,7 @@ Everytime you wanna add a customized docker image into pai, you will have to pre
 
 Here is the examples of the configuration.
 
-[Hbase docker image's configuration](example/add-service/src/hbase/image.yaml)
+[Hbase docker image's configuration](example/add-service/hbase/build/image.yaml)
 
 
 Take hbase image's configuration here as an example to explain.
@@ -110,7 +110,7 @@ After hbase image is built, you need bootstrap it in pai. Now the service manage
 
 This is the configuration of your service bootstrap module. And paictl will call different script to handle different things. This file should be placed in your service bootstrap module. And its name should be ```service.yaml```
 
-[Hbase's bootstrap module's configuration](example/add-service/bootstrap/hbase/service.yaml)
+[Hbase's bootstrap module's configuration](example/add-service/hbase/deploy/service.yaml)
 
 Here is the service configuration of HBase.
 
