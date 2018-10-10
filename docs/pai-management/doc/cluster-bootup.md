@@ -5,14 +5,43 @@ This document introduces the detailed procedures to boot up PAI on a cluster. Pl
 ## Table of contents:
 <!-- TOC depthFrom:2 depthTo:3 -->
 
-- [OpenPAI deployment](#overview)
-  - [Customized deploy](#customizeddeploy)
-  - [Single Box deploy](#singlebox)
-- [Troubleshooting](#problem)
-  - [Troubleshooting OpenPAI services](#troubleshooting_1)
-  - [Troubleshooting Kubernetes Clusters](#troubleshooting_2)
-  - [Getting help](#troubleshooting_3)
-- [OpenPAI Maintenance](#maintenance)
+- [OpenPAI deployment](#openpai-deployment)
+  - [Table of contents:](#table-of-contents)
+  - [OpenPAI deploy <a name="overview"></a>](#openpai-deploy-a-nameoverviewa)
+  - [Table of contents](#table-of-contents)
+  - [Customized deploy <a name="customizeddeploy"></a>](#customized-deploy-a-namecustomizeddeploya)
+    - [Steps:](#steps)
+    - [Step 0. Prepare the dev-box <a name="c-step-0"></a>](#step-0-prepare-the-dev-box-a-namec-step-0a)
+      - [Use prebuild dev-box image](#use-prebuild-dev-box-image)
+        - [(1) Run your dev-box](#1-run-your-dev-box)
+        - [(2) Working in your dev-box](#2-working-in-your-dev-box)
+        - [(3) Go to pai working dir](#3-go-to-pai-working-dir)
+      - [How to check](#how-to-check)
+    - [Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>](#step-1-prepare-the-quick-startyaml-file-a-namec-step-1a)
+      - [How to check](#how-to-check)
+    - [Step 2. Generate OpenPAI configuration files <a name="c-step-2"></a>](#step-2-generate-openpai-configuration-files-a-namec-step-2a)
+        - [(1) generate configuration files](#1-generate-configuration-files)
+        - [(2) update docker tag to release version](#2-update-docker-tag-to-release-version)
+      - [How to check](#how-to-check)
+    - [Step 3(Optional). Customize configure OpenPAI <a name="c-step-3"></a>](#step-3optional-customize-configure-openpai-a-namec-step-3a)
+      - [How to check](#how-to-check)
+    - [Step 4. Boot up Kubernetes <a name="c-step-4"></a>](#step-4-boot-up-kubernetes-a-namec-step-4a)
+      - [How to check](#how-to-check)
+    - [Step 5. Start all PAI services <a name="c-step-5"></a>](#step-5-start-all-pai-services-a-namec-step-5a)
+      - [How to check](#how-to-check)
+  - [Singlebox deploy <a name="singlebox"></a>](#singlebox-deploy-a-namesingleboxa)
+    - [Steps:](#steps)
+  - [Troubleshooting <a name="problem"></a>](#troubleshooting-a-nameproblema)
+    - [Table of contents:](#table-of-contents)
+    - [1 Troubleshooting OpenPAI services <a name="troubleshooting_1"></a>](#1-troubleshooting-openpai-services-a-nametroubleshooting1a)
+      - [1.1 Diagnosing the problem  <a name="troubleshooting_1.1"></a>](#11-diagnosing-the-problem-a-nametroubleshooting11a)
+      - [1.2 Fix problem  <a name="troubleshooting_1.2"></a>](#12-fix-problem-a-nametroubleshooting12a)
+      - [1.3 Reboot service  <a name="troubleshooting_1.3"></a>](#13-reboot-service-a-nametroubleshooting13a)
+    - [2 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_2"></a>](#2-troubleshooting-kubernetes-clusters-a-nametroubleshooting2a)
+    - [3 Getting help  <a name="troubleshooting_3"></a>](#3-getting-help-a-nametroubleshooting3a)
+  - [Maintenance <a name="maintenance"></a>](#maintenance-a-namemaintenancea)
+      - [Service Upgrading](#service-upgrading)
+      - [Machine Add & Delete](#machine-add-delete)
 
 <!-- /TOC -->
 
@@ -78,28 +107,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Check out a latest release branch of OpenPAI
-
-```bash
-cd /pai
-
-# fetch tags
-git fetch --tags
-
-# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
-# checkout a release branch. For example: v0.x.y
-git checkout v0.x.y
-
-# check current branch
-git status
-```
-- sucessful result:
-```bash
-HEAD detached at v0.6.1
-nothing to commit, working directory clean
-```
-
-##### (4) Go to pai working dir
+##### (3) Go to pai working dir
 
 ```bash
 cd /pai
