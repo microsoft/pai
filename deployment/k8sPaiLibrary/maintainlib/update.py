@@ -102,7 +102,7 @@ class update:
 
 
     """
-    Machine list from kubernetes configmap. 
+    Get node configuration from kubernetes configmap. 
     """
     def get_node_config_from_k8s(self):
         self.logger.info("Try to get node configuration from kubernetes' configmap.")
@@ -114,7 +114,7 @@ class update:
 
 
     """
-    Machine list after updating. 
+    Update node configuration in kubernetes configmap based on cluster configuration  
     """
     def update_node_config(self):
         self.logger.info("Try to update node configuration to kubernetes' configmap.")
