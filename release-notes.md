@@ -4,7 +4,7 @@
 * A clone button is added for running or failed jobs on the job detail page so user can resubmit those jobs with same configuration - [PR 1448](https://github.com/Microsoft/pai/pull/1448)
 * [Marketplace and Submit job v2](./docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md) feature allows users to share job templates, images, data, code and etc. across teams.
 * [paictl](./docs/paictl/paictl-manual.md) is extended and it supports to retrieve cluster configuration from external storage like github.
-* The cleaner daemonset is added to remove the docker cache and check if there are dangling file handlers hold by live processes on the host.
+* A new service cleaner is added to remove the docker cache and check if there are dangling file handlers hold by live processes on the host.
 * RestServer's [API](./docs/rest-server/API.md) enables ACL when accessing jobs.
 * When logging in machines in the cluster, besides username and password, users can configure the ssh key file path for authentication. The details can be found in [deployment configuration](./docs/pai-management/doc/cluster-bootup.md).
 * Alerting service supports to mute alerts. The instructions can be found via [alert-manager](./docs/alerting/alert-manager.md#muting-firing-alert).
@@ -13,7 +13,7 @@
 * On job detail page, job configuration can be exported and stored locally - [PR 1429](https://github.com/Microsoft/pai/pull/1429).
 
 ## Improvements
-* Add [auto test](./examples/auto-test/readme.md) to run examples in a automatic or semi-automatic way.
+* Add [auto test](./examples/auto-test/readme.md) to run examples in an automatic or semi-automatic way.
 * Memory limits are added for all OpenPAI services. Please refer [Resource Requirement](https://github.com/Microsoft/pai/wiki/Resource-Requirement) for details.
 * When starting container to run user command, --init option is enabled to help avoiding zombie processes. - [PR 1435](https://github.com/Microsoft/pai/pull/1435)
 * In the container running user's command, the code directory is mounted as readonly - [PR 1422](https://github.com/Microsoft/pai/pull/1422).
