@@ -62,14 +62,14 @@ path: /a/b/c
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
-### Generate cluster configuratin from quick-start.yaml
+### Generate cluster configuratin from quick-start.yaml <a name="Config_Generate"></a>
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 - quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1).
 - More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-2). 
 
-### Update the cluster configuration in the k8s
+### Update the cluster configuration in the k8s <a name="Config_Update"></a>   
 
 ###### 1. Update cluster configuration from local path
 
@@ -90,7 +90,7 @@ python paictl config update [-c kubeconfig-path]
 - Note: Please ensure that you have upload the external storage configuration to k8s with the [command](#External_Set).
 
 
-### Get the cluster configuration from the k8s
+### Get the cluster configuration from the k8s <a name="Config_Get"></a>
 ```yaml
 paictl.py config get -o /path/to/output [-c kube-config]
 ```
