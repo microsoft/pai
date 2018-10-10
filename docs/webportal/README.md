@@ -66,7 +66,7 @@ And the following field could be configured optionally:
 
 ## Deployment
 
-The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md).
+The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/cluster-bootup.md).
 
 ---
 

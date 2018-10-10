@@ -20,7 +20,7 @@ A tool to manage your pai cluster.
 - [ Bootstrap your cluster ](#Cluster)
     - [ Bootstrap Kubernetes ](#Cluster_K8s_Boot)
     - [ Stop Kubernetes ](#Cluster_K8s_Stop)
-    - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
+    - [ Setup KUBECONFIG and install kubectl ](#Cluster_env_setup)
 - [ Appendix: An example of the `machine-list` file ](#Machine_Nodelist_Example)
 
 
@@ -68,6 +68,8 @@ python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quic
 ```
 - quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1).
 - More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-2). 
+- By default, in the generated configuration, a single-master Kubernetes is configured by default.
+- Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 
 ### Update the cluster configuration in the k8s <a name="Config_Update"></a>   
 
@@ -185,16 +187,17 @@ python paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir
 
 - Stop Kubernetes in the specified cluster.
 
-### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
+### Setup KUBECONFIG and install kubectl in the environment <a name="Cluster_env_setup"></a>
 
 ```
-python paictl.py config generate -p /path/to/machinelist.csv
+python paictl.py config k8s-set-env [ -p /path/to/cluster/configuration ]
 ```
 
-- The machine list should be provided in CSV format.
-- All configuration files of cluster-configuration will be generated to the local folder, and then be used for bootstrapping the whole cluster.
-- By default, in the generated configuration, a single-master Kubernetes is configured by default.
-- Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
+- Install kubectl in the deployment box.
+- Configure KUBECONFIG for kubectl or other kubernetes' client.
+- The args ```-p /path/to/cluster/configuration``` is optional. If admin don't pass this args, paictl will ask admin to input the necessary infomation to generate KUBECONFIG.
+- When in a clean dev-box, please run this command firstly.
+
 
 ## Appendix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
 

@@ -58,7 +58,7 @@ And before starting nginx, the `nginx.conf` file must be generated using `python
 
 ### For deploying with PAI
 
-The deployment of Pylon goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](https://github.com/Microsoft/pai/blob/master/pai-management/doc/cluster-bootup.md). To configure Pylon, change the following field(s) in the `pylon` section in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
+The deployment of Pylon goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/cluster-bootup.md). To configure Pylon, change the following field(s) in the `pylon` section in [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml) file:
 
 * `server-port`: Integer. The network port to access Pylon. The default value is 80.
 
