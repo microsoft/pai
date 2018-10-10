@@ -26,6 +26,7 @@ const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
 const jobSchema = require('./job-submit.schema.js');
+const url = require('url');
 
 const jobSubmitHtml = jobSubmitComponent({
   breadcrumb: breadcrumbComponent,
@@ -156,6 +157,16 @@ $(document).ready(() => {
   window.onresize = function() {
     resize();
   };
+  const query = url.parse(window.location.href, true).query;
+  const type = query.type;
+  const username = query.user;
+  const jobname = query.jobname;
+  if (type != null && username != null && jobname != null) {
+    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+    $.getJSON(url, (data) => {
+      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+    });
+  }
 });
 
 module.exports = {submitJob};

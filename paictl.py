@@ -473,7 +473,7 @@ class Cluster(SubCmd):
 
         bootup_parser = SubCmd.add_handler(cluster_parser, self.k8s_bootup, "k8s-bootup")
         clean_parser = SubCmd.add_handler(cluster_parser, self.k8s_clean, "k8s-clean")
-        install_parser = SubCmd.add_handler(cluster_parser, self.install_kubectl, "install-kubectl")
+        env_parser = SubCmd.add_handler(cluster_parser, self.k8s_set_environment, "k8s-set-env")
 
         bootup_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
             help="path of cluster configuration file")
@@ -481,8 +481,7 @@ class Cluster(SubCmd):
         clean_parser.add_argument("-p", "--config-path", dest="config_path", required=True, help="path of cluster configuration file")
         clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
 
-        install_parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-            help="path of cluster configuration file")
+        env_parser.add_argument("-p", "--config-path", dest="config_path", help="path of cluster configuration file")
 
     def k8s_bootup(self, args):
         cluster_config = cluster_object_model_generate_k8s(args.config_path)
@@ -533,8 +532,15 @@ class Cluster(SubCmd):
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
-    def install_kubectl(self, args):
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+
+
+    def k8s_set_environment(self, args):
+
+        if args.config_path != None:
+            args.config_path = os.path.expanduser(args.config_path)
+            cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        else:
+            cluster_object_model_k8s = None
         kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
         kubectl_install_worker.run()
 
