@@ -83,11 +83,6 @@ RUN wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s htt
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin
 
-# checkout OpenPAI lastest release version
-WORKDIR /pai
-RUN git fetch --tags
-RUN TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') && git checkout $TAG 
-
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
     echo y | pip install requests && \
@@ -96,5 +91,9 @@ RUN echo y | pip uninstall requests && \
 RUN rm -rf /tmp/*
 
 WORKDIR /
+# checkout OpenPAI release branch at start-script
+COPY build/start-script.sh /usr/local
+RUN chmod u+x /usr/local/start-script.sh
 
-CMD ["/bin/bash"]
+CMD ["/usr/local/start-script.sh"]
+
