@@ -33,7 +33,7 @@ sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HBASE_HOME/conf/hbase-site.xml
 
 # example 2
 # In our project, we provide a python tool, to fill the target value from the configmap-volume of cluster-configuration. And in this tool, we take advantage of jinja2. You could find more knowledge about jinja2 in this website. http://jinja.pocoo.org/docs/2.10/
-# You could find the tool in the code path: pai/pai-management/paiLibrary/imageTool/host-configure.py
+# You could find the tool in the code path: src/base-image/build/host-configure.py
 
 ## Note: This feature will be upgrade in the future.
 ## Upgrade reason: 1) To improve the management of service configuration.
