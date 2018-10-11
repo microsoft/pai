@@ -2,7 +2,7 @@ echo "Run with 6 parameters: ci/release/normal, rest_server_url, hdfs_url, webhd
 echo "During the runtime, you should select the jobs you want to run, you can also input the jobs' name you want to run."
 cd /tmp
 if [ ! -d "pai/" ]; then
-    git clone https://github.com/Microsoft/pai.git
+    git clone -b yuqian/unstable_example_fix https://github.com/Microsoft/pai.git
     mv pai/examples/ . && rm -rf pai/
     mv examples/ ~/
     cd ~/

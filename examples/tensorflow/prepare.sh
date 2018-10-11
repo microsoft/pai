@@ -116,3 +116,27 @@ fi
 rm -rf cifar-10-batches-py*/ benchmarks*/
 echo "Removed local cifar-10 code and data succeeded!"
 echo "Prepare tensorflow cifar-10 example done!"
+
+#Tensorboard prepare
+
+function tensorboard_prepare_code(){
+    #download the code
+    wget https://github.com/Microsoft/pai/raw/master/examples/tensorflow/tensorflow-tensorboard.sh
+
+    #upload the code to HDFS
+    echo "Uploading tensorboard code, waiting..."
+    hdfs dfs -put tensorflow-tensorboard.sh hdfs://$1/examples/tensorflow/tensorboard/code/
+}
+
+
+echo "Prepare tensorboard example!"
+echo "Make tensorboard directory, waiting..."
+hdfs dfs -test -e hdfs://$1/examples/tensorflow/tensorboard/code/tensorflow-tensorboard.sh
+if [ $? -eq 0 ] ;then
+    echo "Code exists on HDFS!"
+else
+    hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/tensorboard/code/
+    tensorboard_prepare_code $1
+    echo "Have prepared code!"
+fi
+
