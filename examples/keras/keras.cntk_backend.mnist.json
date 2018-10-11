@@ -1,6 +1,6 @@
 {
     "jobName": "keras_cntk_backend_mnist",
-    "image": "openpai/pai.example.keras.cntk",
+    "image": "openpai/pai.example.keras.cntk:stable",
     "taskRoles": [
         {
             "name": "mnist",

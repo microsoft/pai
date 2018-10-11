@@ -1,6 +1,6 @@
 {
   "jobName": "tensorflow-cifar10",
-  "image": "openpai/pai.example.tensorflow",
+  "image": "openpai/pai.example.tensorflow:stable",
 
   "dataDir": "/tmp/data",
   "outputDir": "/tmp/output",
