@@ -1,4 +1,4 @@
-# Release v0.8.1
+# Release v0.8.0
 
 ## New Features
 * A clone button is added for running or failed jobs on the job detail page so user can resubmit those jobs with same configuration - [PR 1448](https://github.com/Microsoft/pai/pull/1448)
@@ -36,6 +36,6 @@
 * Yarn resource manager abnormality can make the submitted jobs stuck on waiting state. This can be resolved by restarting the Yarn resource manager - [issue 1274](https://github.com/Microsoft/pai/issues/1274).
 
 ## Break Changes
-* In release 0.8.1 the Yarn container script will be run by docker executor. After a cluster is upgraded to release 0.8.1 from an earlier release.
+* In release v0.8.0 the Yarn container script will be run by docker executor. After a cluster is upgraded to release v0.8.0 from an earlier release.
 The jobs submitted before the upgrading cannot be retried on the new release. The retried jobs may end up with nonzero exit code even if they complete correctly.
 To run the retried jobs, users need to end them and submit new jobs with the same configuration.
