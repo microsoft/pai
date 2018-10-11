@@ -14,7 +14,7 @@ For advanced user. A guide for developer to add their own service into pai.
     - [ Prepare Service Docker Image ](#Image_Prepare)
     - [ Place the Image Directory into PAI ](#Image_Place)
     - [ Build and Push ](#Image_Build_Push)
-- [ Add Service's Bootstrap Module ](#Boot)
+- [ Add Service's Deployment Module ](#Boot)
     - [ Prepare Service Configuration ](#Service_Configuration)
     - [ Some Experience of Kubernetes ](#Experience)
     - [ Place the Module into PAI ](#Service_Place)
@@ -67,28 +67,26 @@ In this tutorial, we have prepared the docker image in the path following.
 
 - At first, according to the service name, you should create a directory under the path [pai/src/](../../../src). In this example, a directory named hbase will be created.
 - Secondly, a directory named ```build``` should be created under "src/hbase/"
-- Thirdly, just put all the source code from the path [example/add-service/hbase/build](example/add-service/hbase/build), and then paste them into the the path ```src/hbase/build```  
+- At last, just put all the source code from the path [example/add-service/hbase/build](example/add-service/hbase/build), and then paste them into the the path ```src/hbase/build```  
 
 
-#### Place the Image Directory into PAI <a name="Image_Build_Push"></a>
+#### Build and push image with pai-build <a name="Image_Build_Push"></a>
 
 ```
-./paictl.py image build -p /path/to/your/cluster-configuration/dir -n hbase
-
-
-./paictl.py image push -p /path/to/your/cluster-configuration/dir -n hbase
-
+cd build/
+./pai_build.py build -c /path/to/configuration-dir/  -s hbase
+./pai_build.py push -c /path/to/configuration-dir/ -i hbase
 ```
 
 
-## Add Service's Bootstrap Module <a name="Boot"></a>
+## Add Service's Deployment Module <a name="Boot"></a>
 
-After hbase image is built, you need bootstrap it in pai. Now the service management system is kubernetes.
+After hbase image is built, you need bootstrap it in openPai. Now the service management system is kubernetes.
 
 
 #### Prepare Service Configuration <a name="service_configuration"></a>
 
-This is the configuration of your service bootstrap module. And paictl will call different script to handle different things. This file should be placed in your service bootstrap module. And its name should be ```service.yaml```
+This is the configuration of your service deployment module. And paictl will call different script to handle different things. This file should be placed in your service deployment module. And its name should be ```service.yaml```
 
 [Hbase's bootstrap module's configuration](example/add-service/hbase/deploy/service.yaml)
 
@@ -98,7 +96,9 @@ Here is the service configuration of HBase.
 # Tell paictl which service should be ready, before starting hbase.
 prerequisite:
   - cluster-configuration
-  - hadoop-service
+  - hadoop-name-node
+  - hadoop-data-node
+  - zookeeper
 
 
 # paictl will generate the template file with the name "filename".template with jinja2.
@@ -203,12 +203,9 @@ This configuration consists of 7 parts.
 
 #### Place the Module into PAI <a name="Service_Place"></a>
 
- Note that the name of service's directory should be same with the service name.
-
-For example, now we wanna add a service module "XYZ" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/bootstrap/XYZ```. That is the service's directory named as the service's name.
-
-
-If you wanna paictl to start hbase image, you should move the director ```example/bootstrap/hbase``` to ```pai/pai-management/bootstrap```.
+- Firstly, create a directory named ```hbase``` in the path [pai/src/](../../../src).
+- Secondly, create a directory named ```deploy``` in the path ```pai/src/hbase/```
+- At last, Copy all the source code of service in the [path](example/add-service/hbase/deploy)
 
 
 #### Label the node and start service <a name="Service_Start"></a>
