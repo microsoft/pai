@@ -32,11 +32,11 @@ In this tutorial, you will be able to setup HBase on PAI.
 
 #### Image code structure
 
-- [The Tutorial Of pai-build](../../pai-build/pai-build.md)
+- [The tutorial of pai-build](../../pai-build/pai-build.md)
 
 #### Deployment code structure
 
-- [The Tutorial of deployment](../../paictl/deployment.md)
+- [The tutorial of deployment](../../paictl/deployment.md)
 
 
 ## Cluster Object Model <a name="Model"></a>
@@ -65,12 +65,9 @@ In this tutorial, we have prepared the docker image in the path following.
 
 #### Place the Image Directory into PAI <a name="Image_Place"></a>
 
- Note that the name of image's directory should be same with the image name.
-
-For example, now we wanna add a docker image "XYZ" into pai. You will first create a directory named "XYZ" in the path ```pai/pai-management/src/XYZ```. That is the image's directory named as the image's name.
-
-
-If you wanna paictl to build hbase image, you should move the director ```example/src/hbase``` to ```pai/pai-management/src```.
+- At first, according to the service name, you should create a directory under the path [pai/src/](../../../src). In this example, a directory named hbase will be created.
+- Secondly, a directory named ```build``` should be created under "src/hbase/"
+- Thirdly, just put all the source code from the path [example/add-service/hbase/build](example/add-service/hbase/build), and then paste them into the the path ```src/hbase/build```  
 
 
 #### Place the Image Directory into PAI <a name="Image_Build_Push"></a>
