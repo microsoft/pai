@@ -60,7 +60,7 @@ matrix:
       before_install:
         - cd src/rest-server
       install:
-        - npm install
+        - yarn install
       script:
         - npm test
         - npm run coveralls
@@ -71,7 +71,7 @@ matrix:
       before_install:
         - cd src/rest-server
       install:
-        - npm install
+        - yarn install --ignore-engines
       script:
         - npm test
         - npm run coveralls
