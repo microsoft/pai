@@ -29,7 +29,8 @@ spec:
         app: hadoop-node-manager
     spec:
       hostNetwork: true
-      # hostPID is design for monitor job resources, but it causes network traffic mistakes.
+      # TODO: Node manager mounts hostPID to monitor job processes in nvidia-smi,
+      # but it leads network monitor getting a excessive traffic.
       hostPID: true
       containers:
       - name: hadoop-node-manager
