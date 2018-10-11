@@ -59,7 +59,6 @@
     "lint": "eslint \"src/**/*.js\"",
     "mocha": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "start": "node index.js",
-    "test": "npm run lint && nyc npm run mocha",
-    "yarn": "yarn --ignore-engines"
+    "test": "npm run lint && nyc npm run mocha"
   }
 }

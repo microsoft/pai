@@ -35,7 +35,7 @@ ENV NODE_ENV=production \
 
 COPY package.json ./
 
-RUN npm run yarn install
+RUN yarn install
 
 COPY . .
 
