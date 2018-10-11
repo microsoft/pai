@@ -581,11 +581,11 @@ class Configuration(SubCmd):
         generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate",
                                              description="Generate configuration files based on a quick-start yaml file.",
                                              formatter_class=argparse.RawDescriptionHelpFormatter)
-        update_parser = SubCmd.add_handler(conf_parser, self.update_configuration, "update",
-                                           description="Update configuration to kubernetes cluster as configmap.",
+        push_parser = SubCmd.add_handler(conf_parser, self.push_configuration, "push",
+                                           description="Push configuration to kubernetes cluster as configmap.",
                                            formatter_class=argparse.RawDescriptionHelpFormatter)
-        get_parser = SubCmd.add_handler(conf_parser, self.get_configuration, "get",
-                                        description="Download the configuration stored in the k8s cluster.",
+        pull_parser = SubCmd.add_handler(conf_parser, self.pull_configuration, "pull",
+                                        description="Get the configuration stored in the k8s cluster.",
                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         external_config_update_parser = SubCmd.add_handler(conf_parser, self.update_external_config, "external-config-update",
                                                            description="Update configuration of external storage where you could configure the place to sync the latest cluster configuration",
@@ -598,17 +598,17 @@ class Configuration(SubCmd):
         generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
                                      help="overwrite existing files")
 
-        mutually_update_option = update_parser.add_mutually_exclusive_group()
+        mutually_update_option = push_parser.add_mutually_exclusive_group()
         mutually_update_option.add_argument("-p", "--cluster-conf-path", dest="cluster_conf_path", default=None,
                                             help="the path of directory which stores the cluster configuration.")
         mutually_update_option.add_argument("-e", "--external-storage-conf-path", dest="external_storage_conf_path",  default=None,
                                             help="the path of external storage configuration.")
-        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+        push_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
-        get_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
+        pull_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
                                 help="the path of the directory to store the configuration downloaded from k8s.")
-        get_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+        pull_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
         external_config_update_parser.add_argument("-e", "--extneral-storage-conf-path", dest="external_storage_conf_path", required=True,
@@ -627,7 +627,7 @@ class Configuration(SubCmd):
 
 
 
-    def update_configuration(self, args):
+    def push_configuration(self, args):
         if args.cluster_conf_path != None:
             args.cluster_conf_path = os.path.expanduser(args.cluster_conf_path)
         if args.external_storage_conf_path != None:
@@ -643,7 +643,7 @@ class Configuration(SubCmd):
 
 
 
-    def get_configuration(self, args):
+    def pull_configuration(self, args):
         if args.config_output_path != None:
             args.config_output_path = os.path.expanduser(args.config_output_path)
         if args.kube_config_path != None:

@@ -29,7 +29,7 @@
 ## paictl config
 
 - paictl config command is designed for cluster configuration management.
-- With ```paictl config```, you could sync the latest configuration from git or local to k8s-configmap.
+- With ```paictl config```, you could push the latest configuration from git or local to k8s-configmap.
 - With ```paictl config```, you could get the cluster configuration from k8s-configmap
 - With ```paictl config```, you could set the external storage type. And based on it, paictl could sync the latest data from the right place.  
 
