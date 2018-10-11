@@ -673,5 +673,8 @@ def main(args):
 
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(script_dir)
+
     setup_logging()
     main(sys.argv[1:])

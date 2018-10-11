@@ -293,6 +293,15 @@ class paiObjectModel:
 
             serviceDict["machinelist"][hostname] = host
 
+        # section: drivers
+
+        serviceDict["clusterinfo"]["drivers"] = {"set-nvidia-runtime": False}
+        if self.rawData["serviceConfiguration"].get("drivers") is not None:
+            driver_conf = self.rawData["serviceConfiguration"]["drivers"]
+            if driver_conf.get("set-nvidia-runtime") is not None:
+                serviceDict["clusterinfo"]["drivers"]["set-nvidia-runtime"] = \
+                        driver_conf["set-nvidia-runtime"]
+
         return serviceDict
 
 
