@@ -44,3 +44,5 @@ kubernetes:
   dashboard-version: v1.8.3
   # The path to storage etcd data.
   etcd-data-path: "/var/etcd"
+  # The path of data need to migrate
+  etcd-data-migrate-path: "/var/etcd"

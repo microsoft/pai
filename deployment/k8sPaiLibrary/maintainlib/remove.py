@@ -124,7 +124,7 @@ class remove:
         if common.sftp_paramiko(src_local, dst_remote, script_package, self.node_config) == False:
             sys.exit(1)
 
-        commandline = "tar -xvf {0}.tar && sudo /bin/bash {0}/stop-etcd-server.sh".format("stop-etcd-on-target-node")
+        commandline = "tar -xvf {0}.tar && sudo /bin/bash {0}/stop-etcd-server.sh {1}".format("stop-etcd-on-target-node", self.cluster_config["etcd-data-path"])
 
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             sys.exit(1)

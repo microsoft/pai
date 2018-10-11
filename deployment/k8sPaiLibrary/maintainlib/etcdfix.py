@@ -223,7 +223,7 @@ class etcdfix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             sys.exit(1)
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/stop-etcd-server.sh".format("etcd-reconfiguration-stop")
+        commandline = "tar -xvf {0}.tar && sudo ./{0}/stop-etcd-server.sh {1}".format("etcd-reconfiguration-stop", self.cluster_config["etcd-data-path"])
 
         if common.ssh_shell_with_password_input_paramiko(bad_node_config, commandline) == False:
             sys.exit(1)

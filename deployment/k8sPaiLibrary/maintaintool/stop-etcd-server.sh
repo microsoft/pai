@@ -17,6 +17,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# the data directory of etcd
+data_dir=$1
 
 # step1 : remove etcd.yaml
 rm /etc/kubernetes/manifests/etcd.yaml
@@ -33,9 +35,9 @@ docker rm $target_id
 
 
 # step3: delete etcd server data
-if [ -d "/var/etcd/data" ]; then
+if [ -d "$data_dir" ]; then
 
-    rm -rf /var/etcd/data
+    rm -rf "$data_dir"
 
 fi
 
