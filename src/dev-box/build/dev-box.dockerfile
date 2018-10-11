@@ -83,6 +83,12 @@ RUN wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s htt
 RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin
 
+# checkout OpenPAI lastest release version
+RUN cd /pai
+RUN git fetch --tags
+RUN TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+RUN git checkout $TAG 
+
 # reinstall requests otherwise will get error: `cannot import name DependencyWarning`
 RUN echo y | pip uninstall requests && \
     echo y | pip install requests && \
