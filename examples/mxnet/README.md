@@ -80,3 +80,5 @@ For more details on how to write a job configuration file, please refer to [job 
 ### Note:
 
 Since PAI runs MXNet jobs in Docker, the trainning speed on PAI should be similar to speed on host.
+
+We provide a stable docker image by adding the data to the image. If you want to use it, add `stable` tag to the image name: `openpai/pai.example.mxnet:stable`.
