@@ -84,7 +84,7 @@ RUN chmod +x kubectl
 RUN mv kubectl /usr/local/bin
 
 # checkout OpenPAI lastest release version
-RUN cd /pai
+WORKDIR /pai
 RUN git fetch --tags
 RUN TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 RUN git checkout $TAG 
