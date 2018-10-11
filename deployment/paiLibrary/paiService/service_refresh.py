@@ -25,13 +25,13 @@ from ..common import linux_shell
 class service_refresh:
 
 
-    def __init__(self, service_conf, serivce_name, machinelist):
+    def __init__(self, service_conf, service_name, label_map):
 
         self.logger = logging.getLogger(__name__)
 
         self.service_conf = service_conf
-        self.service_name = serivce_name
-        self.machinelist = machinelist
+        self.service_name = service_name
+        self.label_map = label_map
 
 
 
@@ -39,53 +39,41 @@ class service_refresh:
         # Check label definition in machinelist, keep nodes' labels consistent with configuration
         # Ensure pods sheduled correctly with labels
         err_msg_prefix = "Error refreshing service " + self.service_name + " when execute: "
-        for host in self.machinelist:
-            nodename = self.machinelist[host]['nodename']
+        if 'deploy-rules' in self.service_conf:
             for rule in self.service_conf['deploy-rules']:
                 if 'in' in rule:
-                    # If machinelist config has defined the label
-                    if rule['in'] in self.machinelist[host]:  
-                        self.logger.info("Role defined in cluster-configuration machinelist, label the node of this role...")                 
-                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + rule['in'] +"='true' || exit $?"
-                        linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
-
-                        # If machinelist config has defined label, but service not runnning, start the service
-                        cmd = "kubectl get po -o wide | grep " + nodename + " | grep -q " + self.service_name
-                        if not linux_shell.execute_shell_return(cmd, ""):
+                    # If service not runnning on labeled node, start the service
+                    if rule['in'] not in self.label_map:
+                        self.logger.error("Label defined error, " + rule['in'] + " isn't supported in cluster-configuration.yaml machinelist.")
+                    nodes = self.label_map[rule['in']]
+                    for nodename in nodes:                        
+                        cmd_checkservice = "kubectl get po -o wide | grep " + nodename + " | grep -q " + self.service_name
+                        if not linux_shell.execute_shell_return(cmd_checkservice, ""):
                             self.logger.info("Start service " + self.service_name + " frome Node " + nodename + 
-                                " for its deploy role is labeled on this node according to the cluster-configuration machinelist but service isn't running.")
+                                " for its deployment label is labeled on this node according to the cluster-configuration machinelist but service isn't running.")
                             start_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["start-script"])
-                            linux_shell.execute_shell("/bin/bash " + start_script, err_msg_prefix + cmd)
-                    
-                    else:
-                        cmd = "kubectl describe node " + nodename + " | grep -q " + rule['in'] + "='true'"
-                        if linux_shell.execute_shell_return(cmd, ""):
-                            self.logger.info("Remove Node " + nodename + " label " + rule['in'] + ", due to the cluster-configuration machinelist doesn't specify this label")
-                            cmd = "kubectl label nodes " + nodename + " " + rule['in'] +"- || exit $?"
-                            linux_shell.execute_shell(cmd, err_msg_prefix + " when kubectl label nodes")
-
-                        cmd = "kubectl get po -o wide | grep " + nodename + " | grep -q " + self.service_name
-                        if linux_shell.execute_shell_return(cmd, ""):          
-                            # Delete the specific single pod
-                            self.logger.info("Stop service " + self.service_name + " frome Node " +  nodename + 
-                                " for its deploy role isn't labeled on this node according to the cluster-configuration machinelist but service pod is still running on this node")
-                            cmd = "kubectl get po -o wide | grep " + nodename + " | grep " + self.service_name
-                            res = linux_shell.execute_shell_with_output(cmd, "")
-                            pod_name = res.split()[0]
-                            cmd = "kubectl delete pod " + pod_name
+                            linux_shell.execute_shell("/bin/bash " + start_script, err_msg_prefix + " start service " + self.service_name)
+                
+                    # If service run on not labeled node, delete it.
+                    cmd = "kubectl get po -o wide | grep " + self.service_name
+                    res = linux_shell.execute_shell_with_output(cmd, "")
+                    items = res.split("\n")
+                    nodes_has_service = dict()
+                    for item in items:
+                        if len(item) > 10:
+                            item = item.split()
+                            nodes_has_service[item[-1]] = item[0]
+                    for n in nodes_has_service:
+                        if n not in nodes: 
+                            self.logger.info("Service " + self.service_name + " should not run on " + n + 
+                                " according to its deploy-rules of service.yaml config file. Deleting...")           
+                            cmd = "kubectl delete pod " + nodes_has_service[n]
                             linux_shell.execute_shell(cmd, err_msg_prefix + cmd)
-
+                
+                # for 'notin' rule, it's Daemonset, needn't do anything
                 if 'notin' in rule:
-                    # If machinelist config has defined the label
-                    if rule['notin'] in self.machinelist[host]:
-                        self.logger.info("Role defined in cluster-configuration machinelist, label the node of this role...")
-                        cmd = "kubectl label --overwrite=true nodes " + nodename + " " + rule['notin'] + "='true' || exit $?"
-                        linux_shell.execute_shell(cmd, err_msg_prefix + cmd)     
-                    else:
-                        cmd = "kubectl describe node " + nodename + " | grep -q " + rule['notin'] + "='true'"
-                        if linux_shell.execute_shell_return(cmd, ""):
-                             self.logger.info("Remove Node " + nodename + " label " + rule['notin'] + ", due to the cluster-configuration machinelist doesn't specify this label")
-                             cmd = "kubectl label nodes " + nodename + " " + rule['notin'] +"- || exit $?"
+                    if rule['notin'] not in self.label_map:
+                        self.logger.error("Label defined error, " + rule['notin'] + " isn't defined in cluster-configuration.yaml machinelist.")
 
         refresh_script = "src/{0}/deploy/{1}".format(self.service_name, self.service_conf["refresh-script"])
         cmd = "/bin/bash {0}".format(refresh_script)
