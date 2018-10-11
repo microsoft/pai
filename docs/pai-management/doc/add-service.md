@@ -6,6 +6,9 @@ For advanced user. A guide for developer to add their own service into pai.
 ## Index
 
 - [ Overview ](#overview)
+- [ Code structure knowledge ](#structure)
+    - [ Image code structure ](#Structure_Image)
+    - [ Deployment code structure ](#Structure_Deploy)
 - [ Cluster Object Model ](#Model)
 - [ Add Service's Image ](#Image)
     - [ Prepare Service Docker Image ](#Image_Prepare)
@@ -24,6 +27,16 @@ This tutorial will guide you to add a service to PAI.
 An example of [Apache HBase](https://hbase.apache.org/)  will be here. And follow it step by step, you will know how to add your own service.
 
 In this tutorial, you will be able to setup HBase on PAI.
+
+## Code Structure Knowledge
+
+#### Image code structure
+
+- [The Tutorial Of pai-build](../../pai-build/pai-build.md)
+
+#### Deployment code structure
+
+- [The Tutorial of deployment](../../paictl/deployment.md)
 
 
 ## Cluster Object Model <a name="Model"></a>
