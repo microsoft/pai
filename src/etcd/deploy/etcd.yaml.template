@@ -17,11 +17,13 @@
 apiVersion: "etcd.database.coreos.com/v1beta2"
 kind: "EtcdCluster"
 metadata:
-  name: "example-etcd-cluster"
-  ## Adding this annotation make this cluster managed by clusterwide operators
-  ## namespaced operators ignore it
-  # annotations:
-  #   etcd.database.coreos.com/scope: clusterwide
+  name: "etcd-cluster"
 spec:
   size: 3
   version: "3.2.13"
+  pod:
+    etcdEnv:
+    - name: ETCD_LISTEN_CLIENT_URLS
+      value: "http://localhost:2381"
+    - name: ETCD_ADVERTISE_CLIENT_URLS
+      value: "http://etcd-cluster-client:2381"
