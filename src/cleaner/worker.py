@@ -60,7 +60,8 @@ class Worker(LoggerMixin, multiprocessing.Process):
 
         if self.long_run:
             while True:
-                self._exec()
+                # allow a delay before the cleaning
                 time.sleep(self.cool_down_time)
+                self._exec()
         else:
             self._exec()
