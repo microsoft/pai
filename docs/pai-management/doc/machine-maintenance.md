@@ -8,7 +8,7 @@
 
 ### Note:
 - You should guarantee that all the new node's os should be ubuntu 16.04 LTS.
-- You should prepare a configuration yaml file to describe the node you want to add. More information about the configuration file, please refer to this [link](https://github.com/Microsoft/pai/blob/master/pai-management/node-list-example.yaml).
+- You should prepare a configuration yaml file to describe the node you want to add. More information about the configuration file, please refer to this [link](../node-list-example.yaml).
 - Add master node can't achieve the goal that expend a No-HA cluster into HA. If you wanna add a master node, please deploy your cluster in HA mode first.
 
 ### Steps:
@@ -24,7 +24,7 @@
 
 
 ### Note:
-- You should prepare a configuration yaml file to describe the node you want to remove. More information about the configuration file, please refer to this [link](https://github.com/Microsoft/pai/blob/master/pai-management/node-list-example.yaml).
+- You should prepare a configuration yaml file to describe the node you want to remove. More information about the configuration file, please refer to this [link](../node-list-example.yaml).
 
 ### Steps:
 ```bash

@@ -29,7 +29,7 @@ ENV HBASE_HOME=/usr/local/hbase \
     HBASE_LOG_DIR=/var/lib/hbase-logs \
     HBASE_BIN_DIR=/usr/local/hbase/bin
 
-COPY start.sh /usr/local/
+COPY build/start.sh /usr/local/
 RUN chmod u+x /usr/local/start.sh
 
 
