@@ -6,8 +6,8 @@ A tool to manage your pai cluster.
 - [Manage cluster configuration](#Config)
     - [Set external storage configuration to k8s](#External_Set)
     - [Generate cluster configuration with machine list](#Config_Generate)
-    - [Update the cluster configuration in the k8s](#Config_Update)
-    - [Get the cluster configuration from the k8s](#Config_Get)
+    - [Push the cluster configuration in the k8s](#Config_Push)
+    - [Pull the cluster configuration from the k8s](#Config_Pull)
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
@@ -62,7 +62,7 @@ path: /a/b/c
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
-### Generate cluster configuratin from quick-start.yaml
+### Generate cluster configuratin from quick-start.yaml <a name="Config_Generate"></a>
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
@@ -71,30 +71,30 @@ python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quic
 - By default, in the generated configuration, a single-master Kubernetes is configured by default.
 - Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 
-### Update the cluster configuration in the k8s
+### Push the cluster configuration in the k8s <a name="Config_Push"></a>   
 
-###### 1. Update cluster configuration from local path
+###### 1. Push cluster configuration from local path
 
 ```
-python paictl config update -p /path/to/local/configuration [-c kubeconfig-path ]
+python paictl config push -p /path/to/local/configuration [-c kubeconfig-path ]
 ```
 - Same as local storage.
-###### 2. Update cluster configuration from the external storage (Get the external storage from local)
+###### 2. Push cluster configuration from the external storage (Get the external storage from local)
 ```
-python paictl config update -e external-storage-config [-c kubeconfig-path]
+python paictl config push -e external-storage-config [-c kubeconfig-path]
 ```
 - Configure the external storage configuration and pass the configuration file with the parameter ```-e```.
 
-###### 3. Update cluster configuration from the external storage (Get the external storage from k8s)
+###### 3. Push cluster configuration from the external storage (Get the external storage from k8s)
 ```
-python paictl config update [-c kubeconfig-path]
+python paictl config push [-c kubeconfig-path]
 ```
 - Note: Please ensure that you have upload the external storage configuration to k8s with the [command](#External_Set).
 
 
-### Get the cluster configuration from the k8s
+### Get the cluster configuration from the k8s <a name="Config_Pull"></a>
 ```yaml
-paictl.py config get -o /path/to/output [-c kube-config]
+paictl.py config pull -o /path/to/output [-c kube-config]
 ```
 
 ## Maintain machines <a name="Machine"></a>
