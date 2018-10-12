@@ -182,7 +182,7 @@ function run_user_command()
 {
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
   {{{ taskData.command }}} || exit $?
-  printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END"
+  printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END" # job_exporter relay on this exact output, if you are going to change this, remember to change job_exporter also
   exit 0
 }
 

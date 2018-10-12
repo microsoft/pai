@@ -20,6 +20,8 @@ import copy
 import sys
 import time
 import logging
+import re
+import datetime
 
 import docker_stats
 import docker_inspect
@@ -56,6 +58,12 @@ pai_services = map(lambda s: "k8s_" + s, [
     "nvidia-drivers"
 ])
 
+
+yarn_pattern = u"container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}"
+yarn_container_reg = re.compile(u"^" + yarn_pattern + "$")
+job_container_reg = re.compile(u"^.+(" + yarn_pattern + u")$")
+
+
 def parse_from_labels(labels):
     gpuIds = []
     otherLabels = {}
@@ -72,14 +80,99 @@ def parse_from_labels(labels):
     return gpuIds, otherLabels
 
 
-def collect_job_metrics(gpu_infos, all_conns):
-    stats = docker_stats.stats()
-    if stats is None:
+def generate_zombie_count_type1(zombie_containers, exited_containers, now):
+    """ this fn will generate zombie container count for the first type, exited_containers is container id set in which we believe existed """
+    logger.debug("before generate, zombie is %s, now is %s", zombie_containers, now)
+    # remove all id not in exited_container
+    for key in zombie_containers.keys():
+        if key not in exited_containers:
+            logger.debug("pop non-exist zombie %s", key)
+            zombie_containers.pop(key)
+
+    count = 0
+
+    # right now, we only need zombie container get reported, and help us find the root cause
+    delta = datetime.timedelta(minutes=1)
+
+    for current in exited_containers:
+        if current in zombie_containers:
+            enter_zombie_time = zombie_containers[current]
+            if now - enter_zombie_time > delta:
+                count += 1
+        else:
+            logger.debug("new zombie %s", current)
+            zombie_containers[current] = now
+
+    return count
+
+
+def generate_zombie_count_type2(stats):
+    """ this fn will generate zombie container count for the second type """
+    names = set([info["name"] for info in stats.values()])
+
+    job_containers = {} # key is original name, value is corresponding yarn_container name
+    yarn_containers = set()
+
+    for name in names:
+        if re.match(yarn_container_reg, name) is not None:
+            yarn_containers.add(name)
+        elif re.match(job_container_reg, name) is not None:
+            match = re.match(job_container_reg, name)
+            value = match.groups()[0]
+            job_containers[name] = value
+        else:
+            pass # ignore
+
+    count = 0
+
+    for job_name, yarn_name in job_containers.items():
+        if yarn_name not in yarn_containers:
+            count += 1
+        else:
+            yarn_containers.remove(yarn_name)
+
+    return count + len(yarn_containers)
+
+
+def docker_logs(container_id, tail="all"):
+    try:
+        return utils.check_output(["docker", "logs", "--tail", str(tail), str(container_id)])
+    except subprocess.CalledProcessError as e:
+        logger.exception("command '%s' return with error (code %d): %s",
+                e.cmd, e.returncode, e.output)
+
+
+def is_container_exited(container_id):
+    logs = docker_logs(container_id, tail=50)
+    if logs is not None and re.search(u"USER COMMAND END", logs):
+        return True
+    return False
+
+
+def generate_zombie_count(zombie_containers, stats):
+    """
+    There are two types of zombie:
+        1. container which outputed "USER COMMAND END" but did not exist for a long period of time
+        2. yarn container exited but job container didn't
+    """
+    exited_containers = set(filter(is_container_exited, stats.keys()))
+    logger.debug("exited_containers is %s", exited_containers)
+
+    zombie_count1 = generate_zombie_count_type1(zombie_containers,
+            exited_containers, datetime.datetime.now())
+    zombie_count2 = generate_zombie_count_type2(stats)
+
+    return [Metric("zombie_container_count", {}, zombie_count1 + zombie_count2)]
+
+
+def collect_job_metrics(gpu_infos, all_conns, zombie_containers):
+    stats_obj = docker_stats.stats()
+    if stats_obj is None:
         logger.warning("docker stats returns None")
         return None
 
     result = []
-    for container_id, stats in stats.items():
+    for container_id, stats in stats_obj.items():
         pai_service_name = None
 
         # TODO speed this up, since this is O(n^2)
@@ -137,6 +230,8 @@ def collect_job_metrics(gpu_infos, all_conns):
             result.append(Metric("service_block_in_byte", labels, stats["BlockIO"]["in"]))
             result.append(Metric("service_block_out_byte", labels, stats["BlockIO"]["out"]))
 
+    result.extend(generate_zombie_count(zombie_containers, stats_obj))
+
     return result
 
 def main(argv):
@@ -148,6 +243,10 @@ def main(argv):
     iter = 0
 
     singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
+
+    # This keeps track of zombie containers, key is container_id,
+    # value is the time we see it output "USER COMMAND END"
+    zombie_containers = {}
 
     while True:
         try:
@@ -162,7 +261,7 @@ def main(argv):
             logger.debug("iftop result is %s", all_conns)
 
             # join with docker stats metrics and docker inspect labels
-            job_metrics = collect_job_metrics(gpu_infos, all_conns)
+            job_metrics = collect_job_metrics(gpu_infos, all_conns, zombie_containers)
             utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
@@ -172,6 +271,6 @@ def main(argv):
 
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.DEBUG)
+            level=logging.INFO)
 
     main(sys.argv[1:])
