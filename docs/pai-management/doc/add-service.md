@@ -122,6 +122,10 @@ refresh-script: refresh.sh
 # A script about rolling-upgrade.
 # No example now.
 upgraded-script: upgraded.sh
+
+# Specify which role(label) of machine will run the service
+deploy-rules:
+  - in: pai-master
 ```
 
 This configuration consists of 7 parts.
@@ -149,17 +153,18 @@ This configuration consists of 7 parts.
 - ```upgraded-script``` parts:
     - Not supported yet.
 
+- ```deploy-rules``` parts:
+    - Specify which role(label) of machine will run the service. The role definition of machines is in [cluster-configuration.yaml](https://github.com/Microsoft/pai/blob/7ffc1df7ecd495ec6b476e50fac9f543da2a5c31/examples/cluster-configuration/cluster-configuration.yaml#L93), machines will labeled when you deploy PAI for the first time.  Currently support the following rules:
+        "in: pai-master"; "in: pai-worker"; "notin: no-driver" only for driver services; "notin: no-nodeexporter" only for node-exporter services
+
 #### Some Experience of Kubernetes <a name="Experience"></a>
 
-[Node Label](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/)
+[Assigning Pods to Nodes](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/)
 - Benefits
-    - With node label and node selector, it is possible to assign a service pod to a specific node. For example, hadoop-name-node should be assigned to the node with the label master. And hadoop-data-node should be assigned to the node with the label worker.
-    - With node label, we are able to management a service on a specific node, but do not affect the same service on other nodes.
-- Example
-    - Specify which label of roles you want to deploy your service in [services-configuration.yaml](https://github.com/Microsoft/pai/blob/master/cluster-configuration/services-configuration.yaml)
-    - Use NodeAffinity to schedule pods onto the right machines, such as:
-        - [Hadoop name node](../../../src/hadoop-name-node/deploy/hadoop-name-node.yaml.template)
-        - [Hadoop data node](../../../src/hadoop-data-node/deploy/hadoop-data-node.yaml.template)
+    - With node label and NodeAffinity, it is possible to constrain a pod to only be able to run on particular nodes or to prefer to run on particular nodes. For example, hadoop-name-node should be assigned to the node with the label `pai-master`. And hadoop-data-node should be assigned to the node with the label `pai-worker`.
+- Steps
+    - What you only need to do is specifying which label of roles you want to deploy your service in [service.yaml "deploy-rules" field](https://github.com/Microsoft/pai/blob/2daa240be4930c835956c3de3cb9a4680b481b5a/docs/pai-management/doc/example/add-service/hbase/deploy/service.yaml)
+    - Then use NodeAffinity to schedule pods onto the right machines, PAI will complete it when you start the service, you don't need to do anything.
 
 [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
 - Benefits
@@ -208,19 +213,7 @@ This configuration consists of 7 parts.
 - At last, Copy all the source code of service in the [path](example/add-service/hbase/deploy)
 
 
-#### Label the node and start service <a name="Service_Start"></a>
-
-In this example, an single master node hbase is deployed.
-
-Before starting the hbase, you should label the node with corresponding label.
-
-```
-#For master, add this property
-hbase-master: "true"
-
-#For regionserver, add this property
-hbase-regionserver: "true"
-```
+#### Start service <a name="Service_Start"></a>
 
 Starting service.
 ```

@@ -47,3 +47,7 @@ refresh-script: refresh.sh
 # A script about rolling-upgrade.
 # No example now.
 upgraded-script: upgraded.sh
+
+# Specify which role(label) of machine will run the service
+deploy-rules:
+  - in: pai-master
