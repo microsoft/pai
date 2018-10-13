@@ -1,27 +1,27 @@
-# Open Platform for AI (OpenPAI) ![alt text][logo]
 
-[logo]: ./pailogo.jpg "OpenPAI"
+# एआई के लिए ओपन प्लेटफार्म (ओपनपीआईआई)! [Alt text] [logo]
 
-[![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai)
-[![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master)
+[लोगो]: ./pailogo.jpg "ओपनपीआई"
 
-OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+[! [बिल्ड स्टेटस] (https://travis-ci.org/Microsoft/pai.svg?branch=master)] (https://travis-ci.org/Microsoft/pai)
+[! [कवरेज स्थिति] (https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)] (https://coveralls.io/github/Microsoft/pai?branch=master )
 
-# Table of Contents
-1. [When to consider OpenPAI](#when-to-consider-openpai)
-2. [Why choose OpenPAI](#why-choose-openpai)
-3. [How to deploy](#how-to-deploy)
-4. [How to use](#how-to-use)
-5. [Resources](#resources)
-6. [Get Involved](#get-involved)
-7. [How to contribute](#how-to-contribute)
+ओपनपीआई एक ओपन सोर्स प्लेटफ़ॉर्म है जो पूर्ण एआई मॉडल प्रशिक्षण और संसाधन प्रबंधन क्षमताओं को प्रदान करता है, विभिन्न स्तरों पर ऑन-प्रिमाइज़, क्लाउड और हाइब्रिड वातावरण का विस्तार और समर्थन करना आसान है।
 
-## When to consider OpenPAI
-1. When your organization needs to share powerful AI computing resources (GPU/FPGA farm, etc.) among teams.
-2. When your organization needs to share and reuse common AI assets like Model, Data, Environment, etc.
-3. When your organization needs an easy IT ops platform for AI.
-4. When you want to run a complete training pipeline in one place.
+# विषय - सूची
+1. [ओपनपीआई पर विचार कब करें] (# कब-विचार-ओपनपाई)
+2. [ओपनपीआई क्यों चुनें] (# क्यों-चयन-ओपनपाई)
+3. [तैनात कैसे करें] (# कैसे-तैनाती)
+4. [कैसे उपयोग करें] (# कैसे उपयोग करें)
+5. [संसाधन] (# संसाधन)
+6. [शामिल हो जाओ] (# शामिल हो)
+7. [योगदान कैसे करें] (# कैसे-योगदान करें)
 
+## ओपनपीआई पर विचार कब करें
+1. जब आपके संगठन को टीमों के बीच शक्तिशाली एआई कंप्यूटिंग संसाधन (जीपीयू / एफपीजीए फार्म, आदि) साझा करने की आवश्यकता होती है।
+2. जब आपके संगठन को मॉडल, डेटा, पर्यावरण इत्यादि जैसी आम एआई संपत्तियों को साझा और पुन: उपयोग करने की आवश्यकता होती है।
+3. जब आपके संगठन को एआई के लिए एक आसान आईटी ओप मंच की आवश्यकता होती है।
+4. जब आप एक ही स्थान पर एक पूर्ण प्रशिक्षण पाइपलाइन चलाने के लिए चाहते हैं।
 
 ## Why choose OpenPAI
 The platform incorporates the mature design that has a proven track record in Microsoft's large-scale production environment.
