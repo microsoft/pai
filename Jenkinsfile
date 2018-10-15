@@ -169,7 +169,7 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # ! TODO wait for cluster ready
 sleep 6s
 
-# Step 3. Upload cluster-configuration to kubernetes cluster
+# Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config update -p /cluster-configuration << EOF
 openpai-test
 EOF
@@ -269,7 +269,7 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # ! TODO wait for cluster ready
 sleep 6s
 
-# Step 3. Upload cluster configuration into kubernetes cluster.
+# Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl config update -p /cluster-configuration << EOF
 openpai-test
 EOF
