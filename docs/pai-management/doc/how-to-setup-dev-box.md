@@ -36,7 +36,7 @@ sudo docker run -itd \
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
-cd /pai/pai-management
+cd /pai
 
 # Now you are free to configure your cluster and run PAI commands...
 
@@ -52,10 +52,10 @@ cd /pai/pai-management
 git clone https://github.com/Microsoft/pai.git
 
 # Go into the workdir.
-cd pai/pai-management/
+cd pai/src/dev-box/build
 
 # Build your dev-box.
-sudo docker build -t dev-box .
+sudo docker build -t dev-box . --file=dev-box.dockerfile
 
 ```
 
@@ -80,7 +80,7 @@ sudo docker run -itd \
 
 # Working in your dev-box
 sudo docker exec -it dev-box /bin/bash
-cd /pai/pai-management
+cd /pai
 
 # Now you are free to configure your cluster and run PAI commands...
 

@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
-    ./install-nvidia-drivers || exit $?
+    ./install-nvidia-drivers "$@" || exit $?
     echo NVIDIA gpu detected, drivers installed
 
     ./enable-nvidia-persistenced-mode.sh || exit $?

@@ -8,3 +8,6 @@ RUN pip install mxnet-cu80
 
 # clone MXNet examples
 RUN git clone https://github.com/apache/incubator-mxnet.git
+
+#if you want to build the docker image with data, please prepare the data first and remove the '#' in next line
+#ADD ./mnist-original.mat /root/incubator-mxnet/data/mldata/

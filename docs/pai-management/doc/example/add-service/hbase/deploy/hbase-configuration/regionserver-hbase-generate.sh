@@ -21,7 +21,7 @@
 # Get the configuration from configmap-volume, and cover the original file in the path of hbase's conf
 # With this solution, you will be able to use one image to run different role.
 cp /hbase-configuration/hbase-env.sh $HBASE_HOME/conf/hbase-env.sh
-cp /hbase-configuration/master-hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
+cp /hbase-configuration/regionserver-hbase-site.xml $HBASE_HOME/conf/hbase-site.xml
 
 
 # You could process the un-complete file copied to hbase in your own way.
@@ -33,7 +33,7 @@ sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HBASE_HOME/conf/hbase-site.xml
 
 # example 2
 # In our project, we provide a python tool, to fill the target value from the configmap-volume of cluster-configuration. And in this tool, we take advantage of jinja2. You could find more knowledge about jinja2 in this website. http://jinja.pocoo.org/docs/2.10/
-# You could find the tool in the code path: pai/pai-management/paiLibrary/imageTool/host-configure.py
+# You could find the tool in the code path: src/base-image/build/host-configure.py
 
 ## Note: This feature will be upgrade in the future.
 ## Upgrade reason: 1) To improve the management of service configuration.

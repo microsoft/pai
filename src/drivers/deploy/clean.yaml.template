@@ -15,26 +15,44 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-### the image is based on hadoop-run. You should tell paictl to build hadoop-run first.
-### Because hadoop-run is our customized image, you will have to set value here.
-### If the based image is on public registry, you could comment this field.
-
-prerequisite: hadoop-run
-
-
-
-### If some template should be generated here, please add file list here.
-
-#template-list:
-#  - dockerfile
-
-
-
-### the file is the relative path which is set in the value of the key src.
-### the copy will be placed in the relative path copied_file
-### cp -r src dst
-
-#copy-list:
-#  - src: ../xxxxxx
-#    dst: src/hbase/copied_file
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rollback-nvidia-runtime
+spec:
+  selector:
+    matchLabels:
+      app: rollback-nvidia-runtime
+  template:
+    metadata:
+      labels:
+        app: rollback-nvidia-runtime
+    spec:
+      hostNetwork: false
+      hostPID: true # this is required by pkill dockerd
+      containers:
+      - name:  rollback-nvidia-runtime
+        image: {{ clusterinfo["dockerregistryinfo"]["prefix"] }}drivers:{{ clusterinfo["dockerregistryinfo"]["docker_tag"] }}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true # this is required by pkill dockerd
+        command:
+        - sh
+        - -x
+        - clean.sh
+        volumeMounts:
+        - mountPath: /etc/docker
+          name: docker-config
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /finished
+          initialDelaySeconds: 5
+          periodSeconds: 3
+      imagePullSecrets:
+      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      volumes:
+      - name: docker-config
+        hostPath:
+          path: /etc/docker

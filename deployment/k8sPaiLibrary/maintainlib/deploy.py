@@ -27,6 +27,7 @@ import kubectl_install
 import logging
 import logging.config
 
+from ...paiLibrary.common import kubernetes_handler
 
 
 package_directory_deploy = os.path.dirname(os.path.abspath(__file__))
@@ -106,6 +107,26 @@ class deploy:
 
 
 
+    def update_node_config(self):
+        cluster_config = self.cluster_config
+        node_config_from_cluster_conf = dict()
+
+        for role in cluster_config["remote_deployment"]:
+            listname = cluster_config["remote_deployment"][role]["listname"]
+            if listname not in cluster_config:
+                continue
+
+            for node_key in cluster_config[listname]:
+                node_config = cluster_config[listname][node_key]
+                node_config_from_cluster_conf[node_key] = node_config
+
+        kube_config_path = os.path.expanduser("~/.kube/config")
+        yaml_data = yaml.dump(node_config_from_cluster_conf, default_flow_style=False)
+        pai_node_list = {"node-list": yaml_data}
+        kubernetes_handler.update_configmap(kube_config_path, "pai-node-config", pai_node_list, "kube-system")
+
+
+
     def create_kube_proxy(self):
 
         self.logger.info("Create kube-proxy daemon for kuberentes cluster.")
@@ -133,7 +154,6 @@ class deploy:
     def create_k8s_dashboard(self):
 
         self.logger.info("Create kubernetes dashboard deployment for kuberentes cluster.")
-
 
         self.logger.info("Create dashboard service.")
         file_path = "deployment/k8sPaiLibrary/template/dashboard-service.yaml.template"
@@ -172,7 +192,6 @@ class deploy:
 
 
 
-
     def run(self):
 
         self.logger.warning("Begin to deploy a new cluster to your machine or vm.")
@@ -199,7 +218,6 @@ class deploy:
                     self.remote_host_cleaner(node_config, "{0}-deployment".format(role))
                     self.logger.info(" remote host cleaning job finished! ")
 
-
         kubectl_install_instance = kubectl_install.kubectl_install(self.cluster_config)
         kubectl_install_instance.run()
 
@@ -212,9 +230,8 @@ class deploy:
         self.create_kube_proxy()
         self.create_k8s_dashboard()
 
+        self.logger.info("Update node configuration into configmap in the namespace [ kube-system ] as the name [ pai-node-config ] ")
+        self.update_node_config()
+
         self.logger.info("The kubernetes deployment is finished!")
-
-
-
-
 

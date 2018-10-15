@@ -30,6 +30,7 @@ The following contents show some basic TensorFlow examples, other customized Ten
 2. [TensorFlow ImageNet image classification](#tensorflow-imagenet-image-classification)
 3. [Distributed TensorFlow CIFAR-10 image classification](#distributed-tensorflow-cifar-10-image-classification )
 4. [TensorFlow Tensorboard](#tensorflow-tensorboard)
+5. [Note](#Note)
 
 # TensorFlow examples
 
@@ -167,3 +168,6 @@ Here're some configuration file examples:
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
 
+### Note
+
+We provide a stable docker image by adding the cifar-10 data to the image. If you want to use it, add `stable` tag to the image name: `openpai/pai.example.tensorflow:stable`.

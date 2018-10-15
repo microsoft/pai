@@ -16,13 +16,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-echo y | pip uninstall requests
-echo y | pip install requests
-echo y | pip uninstall docopt
-echo y | pip install docopt
+# Tell paictl which service should be ready, before starting hbase.
+prerequisite:
+  - cluster-configuration
+  - hadoop-service
 
-cp -r /docker/* /usr/bin/
 
-docker run hello-world  || exit $?
+# paictl will generate the template file with the name "filename".template with jinja2.
+template-list:
+  - hbase-master.yaml
+  - hbase-regionserver.yaml
+  - delete.yaml
+  - stop.sh
+  - refresh.sh
 
-bash
+# The script about how to starting a service
+start-script: start.sh
+
+# The script about how to stop a service
+stop-script: stop.sh
+
+# The script about how to stop a service and delete the data on the cluster
+delete-script: delete.sh
+
+# The script about refresh the status of the service.
+# Usually it will update the configmap and re-label the node.
+refresh-script: refresh.sh
+
+
+# A script about rolling-upgrade.
+# No example now.
+upgraded-script: upgraded.sh
+
+# Specify which role(label) of machine will run the service
+deploy-rules:
+  - in: pai-master

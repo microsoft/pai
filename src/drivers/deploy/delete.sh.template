@@ -19,6 +19,19 @@
 
 pushd $(dirname "$0") > /dev/null
 
+{% if clusterinfo['drivers']['set-nvidia-runtime'] %}
+kubectl apply --overwrite=true -f clean.yaml || exit $?
+
+export PYTHONPATH="../../../deployment"
+
+# wait until all clean finished
+python -m k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v rollback-nvidia-runtime
+
+sleep 30 # SIGHUP in clean container may restart dockerd which will leads to restart of all docker containers include api server
+
+kubectl delete -f clean.yaml
+{% endif %}
+
 /bin/bash stop.sh || exit $?
 
 popd > /dev/null
