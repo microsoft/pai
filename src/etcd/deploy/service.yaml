@@ -20,6 +20,7 @@ prerequisite:
 
 template-list:
   - etcd.yaml
+  - start.sh
 
 start-script: start.sh
 stop-script: stop.sh

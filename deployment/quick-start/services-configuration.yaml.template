@@ -136,4 +136,5 @@ pylon:
   port: 80
 
 etcd-for-service:
+  use_etcd: false
   cluster-name: "etcd-cluster"
