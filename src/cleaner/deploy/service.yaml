@@ -15,8 +15,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+# to avoid possible race condition, start cleaner after all services are ready
 prerequisite:
   - cluster-configuration
+  - alert-manager
+  - drivers
+  - end-to-end-test
+  - grafana
+  - hadoop-batch-job
+  - hadoop-data-node
+  - hadoop-jobhistory
+  - hadoop-name-node
+  - hadoop-node-manager
+  - hadoop-resource-manager
+  - node-exporter
+  - prometheus
+  - pylon
+  - rest-server
+  - watchdog
+  - webportal
+  - yarn-exporter
+  - yarn-fremeworklauncher
+  - zookeeper
 
 template-list:
   - cleaner.yaml
