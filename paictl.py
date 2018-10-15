@@ -79,147 +79,9 @@ def load_cluster_objectModel_k8s(config_path):
 
 
 
-def login_docker_registry(docker_registry, docker_username, docker_password):
-
-    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
-    error_msg = "docker registry login error"
-    linux_shell.execute_shell(shell_cmd, error_msg)
-    logger.info("docker registry login successfully")
-
-
-
-def generate_secret_base64code(docker_info):
-
-    domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if domain == "public":
-        domain = ""
-
-    if username and passwd:
-        login_docker_registry( domain, username, passwd )
-
-        base64code = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json | base64",
-            "Failed to base64 the docker's config.json"
-        )
-    else:
-        logger.info("docker registry authentication not provided")
-
-        base64code = "{}".encode("base64")
-
-    docker_info["base64code"] = base64code.replace("\n", "")
-
-
-
-def generate_docker_credential(docker_info):
-
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if username and passwd:
-        credential = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json",
-            "Failed to get the docker's config.json"
-        )
-    else:
-        credential = "{}"
-
-    docker_info["credential"] = credential
-
-
-
-def generate_image_url_prefix(docker_info):
-
-    domain = str(docker_info["docker_registry_domain"])
-    namespace = str(docker_info["docker_namespace"])
-
-    if domain != "public":
-        prefix = "{0}/{1}/".format(domain, namespace)
-    else:
-        prefix = "{0}/".format(namespace)
-
-    docker_info["prefix"] = prefix
-
-
-
-def generate_etcd_ip_list(master_list):
-
-    etcd_cluster_ips_peer = ""
-    etcd_cluster_ips_server = ""
-    separated = ""
-    for infra in master_list:
-        ip = master_list[ infra ][ 'hostip' ]
-        etcdid = master_list[ infra ][ 'etcdid' ]
-        ip_peer = "{0}=http://{1}:2380".format(etcdid, ip)
-        ip_server = "http://{0}:4001".format(ip)
-
-        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
-        etcd_cluster_ips_server = etcd_cluster_ips_server + separated + ip_server
-
-        separated = ","
-
-    return etcd_cluster_ips_peer, etcd_cluster_ips_server
-
-
-
-def generate_configuration_of_hadoop_queues(cluster_config):
-    """The method to configure VCs:
-      - Each VC correspoonds to a Hadoop queue.
-      - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
-      - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
-        been explicitly specified in the configuration file.
-      - If all capacities are 0, resources will be split evenly to each VC.
-    """
-    hadoop_queues_config = {}
-    #
-    virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
-    if "default" not in virtual_clusters_config:
-        logger.warn("VC 'default' has not been explicitly specified. " +
-            "Auto-recoverd by adding it with 0 capacity.")
-        virtual_clusters_config["default"] = {
-            "description": "Default VC.",
-            "capacity": 0
-        }
-    total_capacity = 0
-    for vc_name in virtual_clusters_config:
-        if virtual_clusters_config[vc_name]["capacity"] < 0:
-            logger.warn("Capacity of VC '%s' (=%f) should be a positive number. " \
-                % (vc_name, virtual_clusters_config[vc_name]["capacity"]) +
-                "Auto-recoverd by setting it to 0.")
-            virtual_clusters_config[vc_name]["capacity"] = 0
-        total_capacity += virtual_clusters_config[vc_name]["capacity"]
-    if float(total_capacity).is_integer() and total_capacity == 0:
-        logger.warn("Total capacity (=%d) should be a positive number. " \
-            % (total_capacity) +
-            "Auto-recoverd by splitting resources to each VC evenly.")
-        for vc_name in virtual_clusters_config:
-            virtual_clusters_config[vc_name]["capacity"] = 1
-            total_capacity += 1
-    for vc_name in virtual_clusters_config:
-        hadoop_queues_config[vc_name] = {
-            "description": virtual_clusters_config[vc_name]["description"],
-            "weight": float(virtual_clusters_config[vc_name]["capacity"]) / float(total_capacity) * 100
-        }
-    #
-    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
-
-
-
 def cluster_object_model_generate_service(config_path):
 
     cluster_config = load_cluster_objectModel_service(config_path)
-
-    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-
-    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
-        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
-
-    generate_configuration_of_hadoop_queues(cluster_config)
-
     return cluster_config
 
 
@@ -227,16 +89,6 @@ def cluster_object_model_generate_service(config_path):
 def cluster_object_model_generate_k8s(config_path):
 
     cluster_config = load_cluster_objectModel_k8s(config_path)
-
-    master_list = cluster_config['mastermachinelist']
-    etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
-
-    # ETCD will communicate with each other through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
-    # Other service will write and read data through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
-    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
-
     return cluster_config
 
 
