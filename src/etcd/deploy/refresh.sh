@@ -20,4 +20,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
+kubectl apply -f etcd.yaml
+
 popd > /dev/null
