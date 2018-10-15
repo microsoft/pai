@@ -134,3 +134,6 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
+
+etcd-for-service:
+  cluster-name: "etcd-cluster"
