@@ -400,8 +400,8 @@ class Service(SubCmd):
         service_parser = parser.add_subparsers(help="service operations")
 
         def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                                help="The path of your configuration directory.")
+            parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             parser.add_argument("-n", "--service-name", dest="service_name", default="all",
                                 help="Build and push the target image to the registry")
 
@@ -409,9 +409,6 @@ class Service(SubCmd):
         stop_parser = SubCmd.add_handler(service_parser, self.service_stop, "stop")
         delete_parser = SubCmd.add_handler(service_parser, self.service_delete, "delete")
         refresh_parser = SubCmd.add_handler(service_parser, self.service_refresh, "refresh")
-        # TODO: Two feature.
-        # Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
-        # Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
