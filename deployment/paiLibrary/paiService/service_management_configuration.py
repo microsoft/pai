@@ -18,7 +18,8 @@
 
 import time
 
-from ...confStorage.download import  download_configuration
+from ...confStorage.download import download_configuration
+from ..clusterObjectModel.objectModelFactory import objectModelFactory
 
 
 
@@ -39,10 +40,17 @@ class service_management_configuration:
 
     def get_latest_cluster_configuration_from_pai(self):
         config_get_handler = download_configuration(config_output_path = self.tmp_path, kube_config_path = self.KUBE_CONFIG_LOCATION)
-        download_configuration.run()
+        config_get_handler.run()
 
 
 
     def get_cluster_object_model_service(self):
+        objectModelFactoryHandler = objectModelFactory(configurationPath = self.tmp_path)
+        self.cluster_object_service = objectModelFactoryHandler.objectModelPipeLine()["service"]
 
 
+
+    def run(self):
+        self.get_latest_cluster_configuration_from_pai()
+        self.get_cluster_object_model_service()
+        return self.cluster_object_service
