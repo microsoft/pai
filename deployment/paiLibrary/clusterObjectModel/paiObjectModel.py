@@ -65,8 +65,6 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
         if "etcd-data-path" not in k8sDict["clusterinfo"]:
             k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
-        if "etcd-data-migrate-path" not in k8sDict["clusterinfo"]:
-            k8sDict["clusterinfo"]["init-etcd-data-path"] = ""
 
         # section : component_list
 

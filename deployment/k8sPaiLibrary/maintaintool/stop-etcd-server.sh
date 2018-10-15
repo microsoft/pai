@@ -37,7 +37,7 @@ docker rm $target_id
 # step3: delete etcd server data
 if [ -d "$data_dir" ]; then
 
-    rm -rf "$data_dir"
+    rm -rf "$data_dir/data"
 
 fi
 
