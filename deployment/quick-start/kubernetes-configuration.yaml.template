@@ -44,5 +44,3 @@ kubernetes:
   dashboard-version: v1.8.3
   # The path to storage etcd data.
   etcd-data-path: "/var/etcd"
-  # The path of data used to initialize etcd cluster if there is no data under etcd-data-path
-  init-etcd-data-path: "/var/etcd"
