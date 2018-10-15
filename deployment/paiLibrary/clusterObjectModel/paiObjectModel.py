@@ -274,7 +274,10 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
-
+        
+        serviceDict["clusterinfo"]["etcd-for-serviceinfo"] = \
+            self.rawData["serviceConfiguration"]["etcd-for-service"]
+        serviceDict["clusterinfo"]["etcd-for-serviceinfo"]["cluster-name"] = self.getECTDClusterName()
 
         # section: machineinfo
 
@@ -385,7 +388,8 @@ class paiObjectModel:
 
         return ret
 
-
+    def getECTDClusterName(self):
+        return self.rawData["serviceConfiguration"]["etcd-for-service"]["cluster-name"]
 
     def getWebServiceUri(self):
 
