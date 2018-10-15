@@ -31,6 +31,8 @@ import kubernetes.client
 from kubernetes.client.rest import ApiException
 from kubernetes import client, config, watch
 
+from ..paiLibrary.common import kubernetes_handler
+
 
 logger = logging.getLogger(__name__)
 
@@ -72,76 +74,9 @@ def write_generated_file(generated_file, file_path):
 
 
 
-def get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, name, namespace = "default"):
-
-    config.load_kube_config(config_file=PAI_KUBE_CONFIG_DEFAULT_LOCATION)
-    api_instance = kubernetes.client.CoreV1Api()
-    exact = True
-    export = True
-
-    target_configmap_data = None
-    target_configmap_metadata = None
-
-    try:
-        api_response = api_instance.read_namespaced_config_map(name, namespace, exact=exact, export=export)
-        target_configmap_data = api_response.data
-        target_configmap_metadata = api_response.metadata
-
-    except ApiException as e:
-        if e.status == 404:
-            logger.info("Couldn't find configmap named {0}".format(name))
-            return None
-        else:
-            logger.error("Exception when calling CoreV1Api->read_namespaced_config_map: {0}".format(str(e)))
-            sys.exit(1)
-
-    ret = {
-        "metadata" : target_configmap_metadata,
-        "data"     : target_configmap_data
-    }
-
-    return ret
-
-
-
-def update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, name, data_dict, namespace = "default"):
-
-    config.load_kube_config(config_file=PAI_KUBE_CONFIG_DEFAULT_LOCATION)
-    api_instance = kubernetes.client.CoreV1Api()
-
-    meta_data = kubernetes.client.V1ObjectMeta()
-    meta_data.namespace = namespace
-    meta_data.name = name
-    body = kubernetes.client.V1ConfigMap(
-                            metadata = meta_data,
-                            data = data_dict)
-
-    try:
-        api_response = api_instance.replace_namespaced_config_map(name, namespace, body)
-        logger.info("configmap named {0} is updated.".format(name))
-
-    except ApiException as e:
-
-        if e.status == 404:
-
-            try:
-                logger.info("Couldn't find configmap named {0}. Create a new configmap".format(name))
-                api_response = api_instance.create_namespaced_config_map(namespace, body)
-                logger.info("Configmap named {0} is created".format(name))
-
-            except ApiException as ie:
-                logger.error("Exception when calling CoreV1Api->create_namespaced_config_map: {0}".format(str(e)))
-                sys.exit(1)
-
-        else:
-            logger.error("Exception when calling CoreV1Api->replace_namespaced_config_map: {0}".format(str(e)))
-            sys.exit(1)
-
-
-
 def get_cluster_id(PAI_KUBE_CONFIG_DEFAULT_LOCATION):
 
-    resp = get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-cluster-id")
+    resp = kubernetes_handler.get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-cluster-id")
     if resp == None:
         return None
 
@@ -154,13 +89,13 @@ def update_cluster_id(PAI_KUBE_CONFIG_DEFAULT_LOCATION, cluster_id):
 
     data_dict = dict()
     data_dict["cluster-id"] = cluster_id
-    update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-cluster-id", data_dict)
+    kubernetes_handler.update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-cluster-id", data_dict)
 
 
 
 def get_conf_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION):
 
-    resp = get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-configuration")
+    resp = kubernetes_handler.get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-configuration")
     if resp == None:
         return None
 
@@ -171,7 +106,4 @@ def get_conf_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION):
 
 def update_conf_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, conf_data_dict):
 
-    update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-configuration", conf_data_dict)
-
-
-
+    kubernetes_handler.update_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-configuration", conf_data_dict)

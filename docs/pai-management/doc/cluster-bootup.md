@@ -78,28 +78,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Check out a latest release branch of OpenPAI
-
-```bash
-cd /pai
-
-# fetch tags
-git fetch --tags
-
-# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
-# checkout a release branch. For example: v0.x.y
-git checkout v0.x.y
-
-# check current branch
-git status
-```
-- sucessful result:
-```bash
-HEAD detached at v0.6.1
-nothing to commit, working directory clean
-```
-
-##### (4) Go to pai working dir
+##### (3) Go to pai working dir
 
 ```bash
 cd /pai

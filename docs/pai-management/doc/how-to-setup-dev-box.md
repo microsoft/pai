@@ -52,10 +52,10 @@ cd /pai
 git clone https://github.com/Microsoft/pai.git
 
 # Go into the workdir.
-cd pai
+cd pai/src/dev-box/build
 
 # Build your dev-box.
-sudo docker build -t dev-box .
+sudo docker build -t dev-box . --file=dev-box.dockerfile
 
 ```
 

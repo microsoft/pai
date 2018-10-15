@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,26 +17,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
 
-### the image is based on hadoop-run. You should tell paictl to build hadoop-run first.
-### Because hadoop-run is our customized image, you will have to set value here.
-### If the based image is on public registry, you could comment this field.
+cd  /pai
+git fetch --tags
+TAG=$(curl --silent "https://api.github.com/repos/microsoft/pai/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') && git checkout $TAG
+/bin/bash
 
-prerequisite: hadoop-run
-
-
-
-### If some template should be generated here, please add file list here.
-
-#template-list:
-#  - dockerfile
-
-
-
-### the file is the relative path which is set in the value of the key src.
-### the copy will be placed in the relative path copied_file
-### cp -r src dst
-
-#copy-list:
-#  - src: ../xxxxxx
-#    dst: src/hbase/copied_file
+popd > /dev/null
