@@ -49,7 +49,16 @@ const getToken = (req) => {
   throw new Error('Could not find JWT token in the request.');
 };
 
+const ensure = (req, res, next) => {
+  if (!(config.userProperty in req)) {
+    return next(createError('Unauthorized', 'UnauthorizedUserError',
+      'Guest is not allowed to do this operation.'));
+  }
+  return next();
+};
+
 module.exports = {
-  check: createMiddleware(true),
+  // check: createMiddleware(true),
   tryCheck: createMiddleware(false),
+  ensure,
 };

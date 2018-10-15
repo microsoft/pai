@@ -28,6 +28,8 @@ const logger = require('./logger');
 const router = require('../routes/index');
 const routerV2 = require('../routes/indexV2');
 const createError = require('../util/error');
+const token = require('../middlewares/token');
+const throttle = require('../middlewares/throttle');
 
 const app = express();
 
@@ -43,10 +45,10 @@ app.use(cookieParser());
 app.use(morgan('dev', {'stream': logger.stream}));
 
 // mount all v1 APIs to /api/v1
-app.use('/api/v1', router);
+app.use('/api/v1', token.tryCheck, throttle, router);
 
 // mount all v2 APIs to /api/v2
-app.use('/api/v2', routerV2);
+app.use('/api/v2', token.tryCheck, throttle, routerV2);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -27,9 +27,9 @@ const router = new express.Router();
 
 router.route('/')
   /** GET /api/v2/template?query=XXX[&type=YYY][&pageno=ZZZ] - Search templates by keywords */
-  .get(token.tryCheck, template.filter)
+  .get(template.filter)
   /** POST /api/v2/template - Share the job and its resources as template */
-  .post(token.check, param.validate(config.schema), template.share);
+  .post(token.ensure, param.validate(config.schema), template.share);
 
 router.route('/:type')
   /** GET /api/v2/template/:type[?pageno=XXX] - Get list of templates */

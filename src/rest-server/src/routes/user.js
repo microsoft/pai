@@ -27,19 +27,19 @@ const router = new express.Router();
 
 router.route('/')
     /** PUT /api/v1/user - Create or update a user */
-    .put(token.check, param.validate(userConfig.userPutInputSchema), userController.update)
+    .put(token.ensure, param.validate(userConfig.userPutInputSchema), userController.update)
 
     /** DELETE /api/v1/user - Remove a user */
-    .delete(token.check, param.validate(userConfig.userDeleteInputSchema), userController.remove)
+    .delete(token.ensure, param.validate(userConfig.userDeleteInputSchema), userController.remove)
 
     /** Get /api/v1/user - Get user info list */
-    .get(token.check, userController.getUserList);
+    .get(token.ensure, userController.getUserList);
 
 router.route('/:username/virtualClusters')
-    .put(token.check, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
+    .put(token.ensure, param.validate(userConfig.userVcUpdateInputSchema), userController.updateUserVc);
 
 router.route('/:username/githubPAT')
-    .put(token.check, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
+    .put(token.ensure, param.validate(userConfig.userGithubPATUpdateInputSchema), userController.updateUserGithubPAT);
 
 router.use('/:username/jobs', jobRouter);
 

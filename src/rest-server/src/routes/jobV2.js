@@ -29,17 +29,17 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v2/jobs - Update job */
-    .post(token.check, jobParam.submission, jobController.init, jobController.update);
+    .post(token.ensure, jobParam.submission, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v2/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v2/jobs/:jobName - Update job */
-    .put(token.check, jobParam.submission, jobController.update)
+    .put(token.ensure, jobParam.submission, jobController.update)
 
     /** DELETE /api/v2/jobs/:jobName - Remove job */
-    .delete(token.check, jobController.remove);
+    .delete(token.ensure, jobController.remove);
 
 /** Load job when API with jobName route parameter is hit */
 router.param('jobName', jobController.load);

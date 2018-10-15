@@ -32,21 +32,21 @@ router.route('/')
     .get(jobParam.query, jobController.list)
 
     /** POST /api/v1/jobs - Update job */
-    .post(jobParam.checkReadonly, token.check, jobParam.submission, jobController.init, jobController.update);
+    .post(jobParam.checkReadonly, token.ensure, jobParam.submission, jobController.init, jobController.update);
 
 router.route('/:jobName')
     /** GET /api/v1/jobs/:jobName - Get job status */
     .get(jobController.get)
 
     /** PUT /api/v1/jobs/:jobName - Update job */
-    .put(jobParam.checkReadonly, token.check, jobParam.submission, jobController.update)
+    .put(jobParam.checkReadonly, token.ensure, jobParam.submission, jobController.update)
 
     /** DELETE /api/v1/jobs/:jobName - Remove job */
-    .delete(jobParam.checkReadonly, token.check, jobController.remove);
+    .delete(jobParam.checkReadonly, token.ensure, jobController.remove);
 
 
 router.route('/:jobName/executionType')
-    .put(param.validate(jobConfig.executionSchema), token.check, jobController.execute);
+    .put(param.validate(jobConfig.executionSchema), token.ensure, jobController.execute);
 
 router.route('/:jobName/config')
     .get(jobController.getConfig);
