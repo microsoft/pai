@@ -18,9 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-echo "Clean the prometheus's data on the disk"
-
-
-# TODO: Service owner should write script to clean all etcd data on host.
-
+echo "Clean the etcd's data on the disk"
+# Note: etcd data is stored at EmptyDir volume, when pods is deleted, the dir will be empty.
 # Note: Please clean etcd in its individual directory

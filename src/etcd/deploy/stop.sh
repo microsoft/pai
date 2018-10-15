@@ -18,9 +18,12 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+pushd $(dirname "$0") > /dev/null
 
-kubectl delete -f etcd-operator.yaml 
-kubectl delete rs --selector=name=etcd-operator
-kubectl delete pods --selector=name=etcd-operator
-kubectl delete -f etcd.yaml
-kubectl  delete pods -l app=etcd
+kubectl delete -f etcd-operator.yaml || exit $?
+kubectl delete rs --selector=name=etcd-operator || exit $?
+kubectl delete pods --selector=name=etcd-operator || exit $?
+kubectl delete -f etcd.yaml || exit $?
+kubectl  delete pods -l app=etcd || exit $?
+
+popd > /dev/null
