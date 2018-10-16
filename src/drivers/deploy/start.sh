@@ -22,6 +22,8 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl apply --overwrite=true -f drivers.yaml || exit $?
 
+sleep 30
+
 # wait until all drivers are ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
 

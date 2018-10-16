@@ -28,6 +28,8 @@ pushd $(dirname "$0") > /dev/null
 # Hadoop node manager
 kubectl apply --overwrite=true -f hadoop-node-manager.yaml || exit $?
 
+
+sleep 30
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-node-manager || exit $?
 
