@@ -64,6 +64,7 @@ Before start, you need to meet the following requirements:
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md)
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
+    - [Submit a job in Neural Network Intelligence](https://github.com/Microsoft/nni/blob/master/docs/PAIMode.md)
 - How to request on-demand resource for in place training
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
 
