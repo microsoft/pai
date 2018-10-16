@@ -97,20 +97,27 @@
       <th>IP</th>
       <th>Ports</th>
       <th>GPUs</th>
+      <th>Exit Code</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% for (let taskRole of Object.keys(taskRoles)) { %>
-      <% for (let i = 0; i < taskRoles[taskRole].taskStatuses.length; i ++) { %>
+      <% for (let i = 0; i < taskRoles[taskRole].taskStatuses.length; i ++) {
+        var cellClass = taskRoles[taskRole].taskStatuses[i].containerExitCode === 0
+          ? 'success' : (
+            typeof taskRoles[taskRole].taskStatuses[i].containerExitCode == 'number'
+              ? 'danger' : ''
+          )
+      %>
         <tr>
           <% if (i == 0) { %>
             <td rowspan="<%= taskRoles[taskRole].taskStatuses.length %>"><%= taskRole %></td>
           <% } %>
-          <td><%= taskRoles[taskRole].taskStatuses[i].taskIndex %></td>
-          <td><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
-          <td><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
-          <td>
+          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].taskIndex %></td>
+          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].containerId %></td>
+          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].containerIp %></td>
+          <td class="<%= cellClass %>">
             <% if (taskRoles[taskRole].taskStatuses[i].containerPorts) { %>
               <% for (let portLabel of Object.keys(taskRoles[taskRole].taskStatuses[i].containerPorts)) { %>
                 <p><%= portLabel %>: <%= taskRoles[taskRole].taskStatuses[i].containerPorts[portLabel] %></p>
@@ -119,8 +126,9 @@
               N/A
             <% } %>
           </td>
-          <td><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
-          <td>
+          <td class="<%= cellClass %>"><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
+          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].containerExitCode %></td>
+          <td class="<%= cellClass %>">
             <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
               <a name='sshInfoLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
                 onclick='showSshInfo("<%= taskRoles[taskRole].taskStatuses[i].containerId %>")'
