@@ -164,7 +164,10 @@ $(document).ready(() => {
   if (type != null && username != null && jobname != null) {
     const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
     $.getJSON(url, (data) => {
-      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+      jobConfigObj = JSON.parse(data);
+      var timestamp = (new Date()).valueOf();
+      jobConfigObj.jobName += `_${timestamp}`;
+      editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
     });
   }
 });
