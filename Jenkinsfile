@@ -576,6 +576,7 @@ openpai-test
 EOF
 
 ./paictl.py service delete << EOF
+Y
 openpai-test
 EOF
 
@@ -619,6 +620,7 @@ openpai-test
 EOF
 
 ./paictl.py service delete << EOF
+Y
 openpai-test
 EOF
 
