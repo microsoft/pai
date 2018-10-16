@@ -303,7 +303,7 @@ Default value of ```-c``` is: ```~/.kube/config```
 
 ###### More detail of paictl config
 
-[pacitl manual](../../paictl/paictl-manual.md)
+- [pacitl manual](../../paictl/paictl-manual.md)
 
 ### Step 6. Start all PAI services <a name="c-step-6"></a>
 
