@@ -247,13 +247,14 @@ class Machine(SubCmd):
         logger.info("Etcd has been fixed.")
 
 
+
 class Service(SubCmd):
     def register(self, parser):
         service_parser = parser.add_subparsers(help="service operations")
 
         def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                                help="The path of your configuration directory.")
+            parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             parser.add_argument("-n", "--service-name", dest="service_name", default="all",
                                 help="Build and push the target image to the registry")
 
@@ -261,45 +262,44 @@ class Service(SubCmd):
         stop_parser = SubCmd.add_handler(service_parser, self.service_stop, "stop")
         delete_parser = SubCmd.add_handler(service_parser, self.service_delete, "delete")
         refresh_parser = SubCmd.add_handler(service_parser, self.service_refresh, "refresh")
-        # TODO: Two feature.
-        # Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
-        # Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
         add_arguments(delete_parser)
         add_arguments(refresh_parser)
 
+
+
     def process_args(self, args):
-        cluster_object_model = cluster_object_model_generate_service(args.config_path)
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
 
         service_list = None
         if args.service_name != "all":
             service_list = [args.service_name]
 
-        # Tricky, re-install kubectl first.
-        # TODO: install kubectl-install here.
-        if not kubectl_env_checking(cluster_object_model_k8s):
-            raise RuntimeError("failed to do kubectl checking")
+        return service_list
 
-        return cluster_object_model, service_list
+
 
     def service_start(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
+        service_management_starter = service_management_start.serivce_management_start(args.kube_config_path, service_list)
         service_management_starter.run()
 
 
-    def service_stop(self, args):
-        cluster_object_model, service_list = self.process_args(args)
 
-        service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
+    def service_stop(self, args):
+        service_list = self.process_args(args)
+
+        service_management_stopper = service_management_stop.service_management_stop(args.kube_config_path, service_list)
         service_management_stopper.run()
 
+
+
     def service_delete(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
@@ -333,14 +333,17 @@ class Service(SubCmd):
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 return
 
-        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter = service_management_delete.service_management_delete(args.kube_config_path, service_list)
         service_management_deleter.run()
 
-    def service_refresh(self, args):
-        cluster_object_model, service_list = self.process_args(args)
 
-        service_management_refresher = service_management_refresh.service_management_refresh(cluster_object_model, service_list)
+
+    def service_refresh(self, args):
+        service_list = self.process_args(args)
+
+        service_management_refresher = service_management_refresh.service_management_refresh(args.kube_config_path, service_list)
         service_management_refresher.run()
+
 
 
 class Cluster(SubCmd):
