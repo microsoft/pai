@@ -32,7 +32,7 @@ A tool to manage your pai cluster.
 ### Set external storage configuration to k8s <a name="External_Set"></a>
 
 ```
-python paictl.py config -e external-config-update [ -c kube-config ] 
+python paictl.py config external-config-update -e external-config [ -c kube-config ] 
 ```
 
 - External storage is responsible for storing your cluster configuration. And it is not a part of OpenPai's service. Now OpenPai supports 2 method to integrate.
