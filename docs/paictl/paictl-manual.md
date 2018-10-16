@@ -11,6 +11,7 @@ A tool to manage your pai cluster.
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
+    - [ Add new machine, remove old machine ](#Machine_Update)
     - [ Fix crashed etcd node](#etcd_fix)
 - [ Maintain your service ](#Service)
     - [ Start service(s) ](#Service_Start)
@@ -117,6 +118,19 @@ python paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine
 - See an example of the machine list [here](#Machine_Nodelist_Example).
 
 
+### Add new machine, remove old machine <a name=#Machine_Update></a>
+
+
+- Step1: update your machinelist in the cluster configuration
+    - Remove the machine you wanna remove in the list.
+    - Add the machine into the machine list.
+    - Update cluster configuration with the this [command](#Config_Push).
+- Step2: Execute the machine update command following.
+```
+python paictl.py machine update [-c /path/to/kubeconfig]
+```
+
+
 ### Fix crashed etcd node <a name="etcd_fix"></a>
 
 
@@ -133,7 +147,7 @@ python paictl.py machine etcd-fix -p /path/to/cluster-configuration/dir -l machi
 ### Start service(s) <a name="Service_Start"></a>
 
 ```
-python paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service start [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 1) Start all services by default.
@@ -142,7 +156,7 @@ python paictl.py service start -p /path/to/cluster-configuration/dir [ -n servic
 ### Stop service(s) <a name="Service_Stop"></a>
 
 ```
-python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service stop [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - Stop all services by default.
@@ -151,7 +165,7 @@ python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service
 ### Delete service(s) <a name="Service_Delete"></a>
 
 ```
-python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service delete [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc.
@@ -161,7 +175,7 @@ python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n servi
 ### Refresh service(s) <a name="Service_Refresh"></a>
 
 ```
-python paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service refresh [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - Refresh all the labels on each node.
