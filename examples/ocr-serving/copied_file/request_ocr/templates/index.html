@@ -1,0 +1,60 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Demo</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+
+<body>
+    <h1 style="text-align:center"> OCR </h1>
+    <form action="{{ url_for('uploadiamge') }}" method="POST" enctype="multipart/form-data" id='formBox'>
+        <div align="center">
+            <input type="submit" value="Upload" onclick="return typeCheck('chooseImage')">
+                        <br />
+            <p style="color:red;font-size:16px;"> {{ info }} <p>
+        </div>
+        <div align="center">
+            <input type="file" id="chooseImage" name="filechoose" accept="image/jpg,image/jpeg,image/png"
+                   style="display:none" onchange="imgChange(event,'img')">
+            <img id="img"  width="500px" height="500px" src={{ imgPath }}
+                 onclick="F_Open_dialog('chooseImage')" style="margin-top:5px">
+
+        </div>
+    </form>
+</body>
+
+<script type="text/javascript">
+    function F_Open_dialog(id) {
+            document.getElementById(id).click();
+    }
+    function imgChange(e, imageid) {
+
+
+            var reader = new FileReader();
+            reader.onload = (function (file) {
+                return function (e) {
+                    // console.info(this.result); //这个就是base64的数据了
+                    document.getElementById(imageid).src = this.result;
+                };
+            })(e.target.files[0]);
+            reader.readAsDataURL(e.target.files[0]);
+    }
+    function typeCheck(imageid) {
+        var image = document.getElementById(imageid).value
+        var filePath = image,
+                fileFormat = filePath.substring(filePath.lastIndexOf(".")).toLowerCase()
+
+        if( !fileFormat.match(/.png|.jpg|.jpeg/) ) {
+            alert('上传错误,文件格式必须为：png/jpg/jpeg');
+            return false
+        }
+        // alert('success')
+        return true
+    }
+</script>
+
+
+</html>
