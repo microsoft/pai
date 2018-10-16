@@ -507,7 +507,7 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
 
 ## Maintenance <a name="maintenance"></a>
-####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)
-####  [Machine Add & Delete](./service-maintain.md#machine-maintenance.md)
+####  [Service Upgrading](../../paictl/paictl-manual.md#Service)
+####  [Machine Add & Delete](../../paictl/paictl-manual.md#Machine)
 
 
