@@ -18,10 +18,6 @@
   "bugs": {
     "url": "https://github.com/Microsoft/pai/issues"
   },
-  "engines": {
-    "node": ">=6.11.0 <=6.12.2",
-    "npm": "3.10.10"
-  },
   "dependencies": {
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
@@ -32,6 +28,7 @@
     "copy-webpack-plugin": "~4.2.3",
     "css-loader": "~0.28.7",
     "datatables.net-plugins": "~1.10.15",
+    "datatables.net-responsive-bs": "^2.2.3",
     "dotenv": "~4.0.0",
     "ejs-loader": "~0.3.0",
     "envsub": "~3.1.0",

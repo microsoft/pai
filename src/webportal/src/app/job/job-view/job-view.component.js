@@ -23,6 +23,8 @@ require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-responsive-bs/js/responsive.bootstrap.js');
+require('datatables.net-responsive-bs/css/responsive.bootstrap.css');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
@@ -242,34 +244,34 @@ const loadJobs = (specifiedVc) => {
       return username + '-' + name;
     },
     'columns': [
-      {title: 'Job', data: null, render({legacy, name, namespace, username}, type) {
-        if (type !== 'display') return name;
+      {title: 'Job', data: null, responsivePriority: 1, render({legacy, name, namespace, username}, type) {
+        if (type !== 'display') return ellipsis(name);
         if (legacy) {
-          return '<span class="label label-warning">legacy</span> <a href="view.html?jobName=' + name + '">' + name + '</a>';
+          return '<span class="label label-warning">legacy</span> <a href="view.html?jobName=' + name + '">' + ellipsis(name) + '</a>';
         } else {
-          return '<a href="view.html?username=' + (namespace || username) + '&jobName=' + name + '">' + name + '</a>';
+          return '<a href="view.html?username=' + (namespace || username) + '&jobName=' + name + '">' + ellipsis(name) + '</a>';
         }
       }},
-      {title: 'User', data: 'username'},
-      {title: 'Virtual Cluster', data: 'virtualCluster', render(virtualCluster) {
+      {title: 'User', data: 'username', responsivePriority: 2},
+      {title: 'Virtual Cluster', data: 'virtualCluster', responsivePriority: 3, render(virtualCluster) {
         let vcName = virtualCluster || 'default';
         return '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>';
       }},
-      {title: 'Start Time', data: 'createdTime', render(createdTime, type) {
+      {title: 'Start Time', data: 'createdTime', responsivePriority: 3, render(createdTime, type) {
         if (type !== 'display') return Math.round(createdTime / 1000);
         return convertTime(false, createdTime);
       }},
-      {title: 'Duration', data: null, render({createdTime, completedTime}, type) {
+      {title: 'Duration', data: null, responsivePriority: 2, render({createdTime, completedTime}, type) {
         if (type !== 'display') return getDurationInSeconds(createdTime, completedTime);
         return convertTime(true, createdTime, completedTime);
       }},
-      {title: 'Retries', data: 'retries'},
-      {title: 'Status', data: null, render(data, type) {
+      {title: 'Retries', responsivePriority: 3, data: 'retries'},
+      {title: 'Status', data: null, responsivePriority: 1, render(data, type) {
         if (type === 'display') return convertState(getHumanizedJobStateString(data));
         if (type === 'sort') return getStateOrder(data);
         return getHumanizedJobStateString(data);
       }},
-      {title: 'Stop', data: null, render(job, type) {
+      {title: 'Stop', data: null, responsivePriority: 1, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
         return (hjss === 'Waiting' || hjss === 'Running') ?
           '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + (job.legacy ? '' : job.namespace || job.username) + '\', \'' +
@@ -286,7 +288,16 @@ const loadJobs = (specifiedVc) => {
     ],
     'deferRender': true,
     'autoWidth': false,
+    'responsive': true,
   }).api();
+};
+
+const ellipsis = (name, maxLength = 25) => {
+  if (name.length < maxLength) {
+    return name;
+  } else {
+    return name.substr(0, maxLength) + '...';
+  }
 };
 
 const stopJob = (namespace, jobName) => {

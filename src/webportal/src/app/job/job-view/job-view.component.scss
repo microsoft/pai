@@ -21,3 +21,11 @@
   color: silver;
   cursor: default;
 }
+
+table.dataTable > tbody > tr.child span.dtr-data {
+  display: inline-block;
+}
+
+table.dataTable > tbody > tr.child span.dtr-title {
+  min-width: 110px;
+}
