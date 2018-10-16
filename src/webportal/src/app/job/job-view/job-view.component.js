@@ -302,10 +302,10 @@ const loadJobs = (specifiedVc) => {
       },
       'selectNone',
       {
-        text: 'Batch stop',
+        text: 'Stop',
         action: function ( e, dt, node, config ) {
           const rows = dt.rows({ selected: true });
-          const res = confirm(`Are you sure to batch stop ${rows.count()} jobs?`);
+          const res = confirm(`Are you sure to stop ${rows.count()} jobs?`);
           if (res) {
             rows.every(function() {
               const job = this.data();
