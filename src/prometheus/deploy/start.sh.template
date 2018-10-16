@@ -30,7 +30,7 @@ kubectl apply --overwrite=true -f prometheus-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f prometheus-deployment.yaml || exit $?
 
 
-sleep 30
+sleep 10
 # Wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v prometheus || exit $?
 

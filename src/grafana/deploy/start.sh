@@ -39,7 +39,7 @@ done
 
 kubectl apply --overwrite=true -f grafana.yaml || exit $?
 
-sleep 30
+sleep 10
 # wait until the service is ready.
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v grafana || exit $?
 
