@@ -290,38 +290,38 @@ const loadJobs = (specifiedVc) => {
     ],
     'deferRender': true,
     'autoWidth': false,
-    dom: "<'row'<'col-sm-6'B><'col-sm-6'f>>" +
-		"<'row'<'col-sm-12'tr>>" +
-		"<'row'<'col-sm-5'i><'col-sm-7'p>>",
-    buttons: [
-      { 
+    'dom': '<\'row\'<\'col-sm-6\'B><\'col-sm-6\'f>>' +
+      '<\'row\'<\'col-sm-12\'tr>>' +
+      '<\'row\'<\'col-sm-5\'i><\'col-sm-7\'p>>',
+    'buttons': [
+      {
         text: 'Select all',
-        action: function (e, dt) {
-          dt.rows({ page: 'current' }).select();
-        }
+        action: function(e, dt) {
+          dt.rows({page: 'current'}).select();
+        },
       },
       'selectNone',
       {
         text: 'Stop',
-        action: function ( e, dt, node, config ) {
-          const rows = dt.rows({ selected: true });
+        action: function( e, dt, node, config ) {
+          const rows = dt.rows({selected: true});
           const res = confirm(`Are you sure to stop ${rows.count()} jobs?`);
           if (res) {
-            rows.every(function() {
-              const job = this.data();
+            rows.every(function(idx) {
+              const job = dt.row(idx).data();
               const state = getHumanizedJobStateString(job);
               if (state === 'Waiting' || state === 'Running') {
                 stopJob(job.legacy ? '' : job.namespace || job.username, job.name, true);
               }
-            })
+            });
           }
-        }
+        },
       },
-      'pageLength'
+      'pageLength',
     ],
-    select: {
-      style: 'multi'
-    }
+    'select': {
+      style: 'multi',
+    },
   }).api();
 };
 
