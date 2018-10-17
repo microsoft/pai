@@ -24,4 +24,9 @@ pushd $(dirname "$0") > /dev/null
 kubectl apply --overwrite=true -f watchdog-configmap.yaml || exit $?
 kubectl apply --overwrite=true -f watchdog.yaml || exit $?
 
+sleep 10
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v watchdog || exit $?
+
+
 popd > /dev/null
