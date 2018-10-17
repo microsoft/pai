@@ -708,7 +708,7 @@ Notes:
     </tr>
     <tr>
       <td rowspan="1"><b>Batch Job without Task Fault Tolerance</td>
-      <td rowspan="1">FancyRetryPolicy = true<br>MaxRetryCount = 3</td>
+      <td rowspan="1">FancyRetryPolicy = false<br>MaxRetryCount = 0</td>
       <td>TaskRole1</td>
       <td><i>FancyRetryPolicy = false<br>MaxRetryCount = 0</i></td>
       <td rowspan="1">For Framework RetryPolicy, same as "Batch Job with Task Fault Tolerance".<br>For Task RetryPolicy, because the Task cannot tolerate any failed Container, such as it cannot recover from previous failed Container, so Never Retry Task for any failure or success.</td>
