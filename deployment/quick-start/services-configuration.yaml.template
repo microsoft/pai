@@ -41,6 +41,10 @@ cluster:
     # Must be lower case, e.g., regsecret.
     secret-name: pai-secret
 
+  api-server:
+    # use tls for prometheus access
+    tls_access: false
+
 
 hadoop:
   # When needed, hadoop-ai would be downloaded and built under 'custom-hadoop-binary-path'.
@@ -110,8 +114,7 @@ prometheus:
 
   # port for yarn exporter
   yarn_exporter_port: 9459
-  # use tls for prometheus access
-  use_tls: false
+
   # if you want to enable alert manager to send alert email, uncomment following lines and fill
   # right values.
   #  alerting:

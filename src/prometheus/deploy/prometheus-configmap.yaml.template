@@ -36,7 +36,7 @@ data:
     scrape_configs:
     - job_name: 'node_exporter'
       scrape_interval: {{ prom_info['scrape_interval']|default(30) }}s
-      {% if clusterinfo['prometheusinfo']['use_tls'] -%}
+      {% if clusterinfo['api-server']['tls_access'] -%}
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
@@ -55,7 +55,7 @@ data:
         target_label: __address__
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
-      {% if clusterinfo['prometheusinfo']['use_tls'] -%}
+      {% if clusterinfo['api-server']['tls_access'] -%}
       tls_config:
         ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
