@@ -33,7 +33,5 @@ fi
 echo etcd bad member hash code: $bad_member_hash
 
 
-
-
 docker exec -it $target_id etcdctl member remove $bad_member_hash
 echo etcd bad member $bad_member_hash is removed from cluster
