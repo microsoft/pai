@@ -23,7 +23,17 @@ bad_member_etcd_id=$2
 target_id=`docker ps --filter "name=container_etcd-server" -q`
 
 bad_member_hash=`docker exec -it $target_id etcdctl member list | grep $bad_member_ip | cut -d: -f1`
+
+if [ "$bad_member_hash" == "" ];then
+   echo Unable to find the member hash code in the list.
+   echo Task remove-member-from-etcd will quit.
+   exit 0
+fi
+
 echo etcd bad member hash code: $bad_member_hash
+
+
+
 
 docker exec -it $target_id etcdctl member remove $bad_member_hash
 echo etcd bad member $bad_member_hash is removed from cluster
