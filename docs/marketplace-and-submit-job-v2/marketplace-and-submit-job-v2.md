@@ -1,6 +1,6 @@
 # Marketplace and Submit job v2
 
-Marketplace and Submit job v2 are designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
+`Marketplace` and `Submit job v2` are designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
 
 
 
@@ -15,13 +15,13 @@ Marketplace and Submit job v2 are designed to reproducible AI. It helps to reuse
 
 
 ## Marketplace and Submit job V2 Overview
-In fact, OpenPAI's job configuration can be composed by tasks, docker images, script and data.
+In V2, job configuration is specified in a yaml file. The configuration consists of four components: tasks, docker images, script, and data.
 
-When writing a job configuration, you can create new components(tasks, data, script and docker images) or use existing ones.
+User can compose a job configuration by creating new components or using existing ones.
 
 ![Paishare_reuse_data](./images/marketplace_reuse_data.png)
 
-And you can share the script, data, docker images or whole job configuration on the marketplace, and other people can reuse it easily.
+User can publish some components or the entire job configurations to the marketplace for other people to reuse.
 
 ![paishare_marketplace](./images/marketplace.png)
 
@@ -63,7 +63,7 @@ And you can share the script, data, docker images or whole job configuration on 
 
 ![pai-homepage-click-marketplace](./images/marketplace_import1.png)
 
-3. Then choose a job template, for example: tensorflow_cifar10
+3. Choose a job template, for example: tensorflow_cifar10
 
 ![marketplace-click-tensorflow-cifar10](./images/marketplace_import2.png)
 
@@ -79,9 +79,12 @@ And you can share the script, data, docker images or whole job configuration on 
 
 
 
-### Introduction to yaml file
+### Introduction to the yaml file for job configuration
 
 In submit job v2,  we use **yaml** to describe the job configuration. The detailed format is shown as below :
+
+> `job`
+
 ```yaml
 protocol_version: String
 name: String
@@ -94,44 +97,93 @@ virtualCluster: String
 gpuType: String
 
 parameters:
-  param1: valType1
-  param2: valType2
+  userParam1: valType1
+  userParam2: valType2
+  ...
 
 tasks:
-  - role: String
-    data: String
-    script: String
-    dockerimage: String
-    resource: 
-      instances: Integer
-      resourcePerInstance: 
-        cpu: Integer
-        memoryMB: Integer
-        shmMB: Integer
-        gpu: Integer
-      portList:
-        - label: String
-          beginAt: Integer
-          portNumber: Integer
-    minFailedTaskCount: Integer
-    minSucceededTaskCount: Integer
-    parameters:
-      taskParam1: taskValType1
-      taskParam2: taskValType2
-    command: 
-      - String
+  - task
+  - task
+  ...
 
 prerequisites: 
-  - protocol_version: String
-    name: String
-    type: String
-    version: String
-    contributor: String
-    description: String
-    uri: String
+  - dockerimage
+  - script
+  - data
+  ...
 ```
 
-The detailed explanation for each of the parameters in each session of the config file is as follows:
+> `data`
+
+```yaml
+protocol_version: String
+name: String
+type: data
+version: String
+contributor: String
+description: String
+uri: String
+```
+
+> `script`
+
+```yaml
+protocol_version: String
+name: String
+type: script
+version: String
+contributor: String
+description: String
+uri: String
+```
+
+> `dockerimage`
+
+```yaml
+protocol_version: String
+name: String
+type: dockerimage
+version: String
+contributor: String
+description: String
+uri: String
+```
+
+> `task`
+
+```yaml
+role: String
+data: String
+script: String
+dockerimage: String
+resource: 
+  instances: Integer
+  resourcePerInstance: 
+    cpu: Integer
+    memoryMB: Integer
+    shmMB: Integer
+    gpu: Integer
+  portList:
+    - label: String
+      beginAt: Integer
+      portNumber: Integer
+    - label: String
+      beginAt: Integer
+      portNumber: Integer
+    ...
+minFailedTaskCount: Integer
+minSucceededTaskCount: Integer
+parameters:
+  userTaskParam1: taskValType1
+  userTaskParam2: taskValType2
+  ...
+command: 
+  - String
+  - String
+  ...
+```
+
+The detailed explanation for each of the parameters in each section of the config file is as follows:
 
 > job
  
@@ -146,9 +198,9 @@ The detailed explanation for each of the parameters in each session of the confi
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on **_default_** virtual cluster    |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the job template. They can be referenced by **_$$paramName$$_**.  |
-| `prerequisites`                  | List, required             | List of `prerequisite`, specify docker image at least |
-| `tasks`                          | List, required             | List of `taskRole`, one task role at least |
+| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by **_$$paramName$$_**.  |
+| `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script or dockerimage. Specify dockerimage at least |
+| `tasks`                          | List, required             | List of `task`, one task at least |
 
 > prerequisite
 
@@ -163,30 +215,30 @@ The detailed explanation for each of the parameters in each session of the confi
 | `uri`                            | String, required           | Reference URL                            |
 
 
-> taskRole
+> task
 
 | Field Name                       | Schema                     | Description                              |
 | :------------------------------- | :------------------------- | :--------------------------------------- |
-| `role`                           | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
-| `data`                           | String, optional           | Data that will be used in the task role, name reference of a prerequisite |
-| `script`                         | String, optional           | Script to be executed in the task role, name reference of a prerequisite |
-| `dockerimage`                    | String, optional           | Docker image to be used for the task role, name reference of a prerequisite |
-| `resource`                       | Object, required           | Resource required for the task role |
+| `role`                           | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task, need to be unique with other roles |
+| `data`                           | String, optional           | Data that will be used in the task, name reference of a prerequisite |
+| `script`                         | String, optional           | Script to be executed in the task, name reference of a prerequisite |
+| `dockerimage`                    | String, optional           | Docker image to be used for the task, name reference of a prerequisite |
+| `resource`                       | Object, required           | Resource required for the task |
 | `minFailedTaskCount`             | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1 |
 | `minSucceededTaskCount`          | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1 |
-| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the task role. They can be referenced by **_$$paramName$$_**. |
-| `command`                        | List, required             | List of executable commands of the task role, can not be empty |
+| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used only in this task. If the name of a parameter also appears in the job parameters section, it will overwrite the same parameter in the job parameters section. They can also be referenced by **_$$paramName$$_**. |
+| `command`                        | List, required             | List of executable commands of the task, can not be empty |
 
 > resource
 
 | Field Name                       | Schema                     | Description                              |
 | :------------------------------- | :------------------------- | :--------------------------------------- |
-| `instances`                      | Integer, optional          | Number of instances for the task role, default is 1 |
+| `instances`                      | Integer, optional          | Number of instances for the task, default is 1 |
 | `resourcePerInstance`            | Object, required           | resource required to run each instance, including cpu, memoryMB, shmMB, and gpu |
-| `resourcePerInstance.cpu`        | Integer, required          | CPU number for one instance in the task role, no less than 1 |
-| `resourcePerInstance.memoryMB`   | Integer, required          | Memory for one instance in the task role, no less than 100 |
-| `resourcePerInstance.shmMB`      | Integer, optional          | Shared memory for one instance in the task role, no more than memory size, default is 64 |
-| `resourcePerInstance.gpu`        | Integer, required          | GPU number for one instance in the task role, no less than 0 | 
+| `resourcePerInstance.cpu`        | Integer, required          | CPU number for one instance in the task, no less than 1 |
+| `resourcePerInstance.memoryMB`   | Integer, required          | Memory for one instance in the task, no less than 100 |
+| `resourcePerInstance.shmMB`      | Integer, optional          | Shared memory for one instance in the task, no more than memory size, default is 64 |
+| `resourcePerInstance.gpu`        | Integer, required          | GPU number for one instance in the task, no less than 0 | 
 | `portList`                       | List, optional             | List of `portType` to use, portType object includes label, beginAt, and portNumber parameters |
 | `portType.label`        | String in `^[A-Za-z0-9._~]+$` format, required | Label name for the port type |
 | `portType.beginAt`      | Integer, required          | The port to begin with in the port type, 0 for random selection |
