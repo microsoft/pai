@@ -42,6 +42,10 @@ spec:
               value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
             - name: WEBHDFS_URI
               value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
+{% if clusterinfo['pyloninfo']['webhdfs_legacy_port'] %}
+            - name: WEBHDFS_LEGACY_PORT
+              value: {{ clusterinfo['pyloninfo']['webhdfs_legacy_port'] }}
+{% endif %}
             - name: PROMETHEUS_URI
               value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
             - name: K8S_DASHBOARD_URI
