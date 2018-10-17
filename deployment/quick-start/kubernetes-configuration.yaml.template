@@ -16,6 +16,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubernetes:
+  # api-server url config
+  api-server-port: 8080
+  api-server-scheme: http
   # Find the namesever in  /etc/resolv.conf
   cluster-dns: {{ env["dns"] }}
   # To support k8s ha, you should set an lb address here.

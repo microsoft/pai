@@ -56,6 +56,9 @@ class paiObjectModel:
 
         k8sDict["clusterinfo"] = self.rawData["kubernetesConfiguration"]["kubernetes"]
         k8sDict["clusterinfo"]["api-servers-ip"] = k8sDict["clusterinfo"]["load-balance-ip"]
+        k8sDict["clusterinfo"]["api-server-scheme"] = k8sDict["clusterinfo"]["api-server-scheme"]
+        k8sDict["clusterinfo"]["api-server-port"] = k8sDict["clusterinfo"]["api-server-port"]
+
         k8sDict["clusterinfo"]["dockerregistry"] = k8sDict["clusterinfo"]["docker-registry"]
         k8sDict["clusterinfo"]["hyperkubeversion"] = k8sDict["clusterinfo"]["hyperkube-version"]
         k8sDict["clusterinfo"]["etcdversion"] = k8sDict["clusterinfo"]["etcd-version"]
@@ -292,7 +295,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
-
+        print(serviceDict["clusterinfo"])
 
         # section: machineinfo
 
@@ -351,27 +354,23 @@ class paiObjectModel:
 
 
     def getK8sApiServerUri(self):
-
+        
+        scheme = self.rawData["kubernetesConfiguration"]["kubernetes"]["api-server-scheme"]
         ip = self.rawData["kubernetesConfiguration"]["kubernetes"]["load-balance-ip"]
-        ret = "http://{0}:{1}".format(ip, 8080)
+        port = self.rawData["kubernetesConfiguration"]["kubernetes"]["api-server-port"]
+        ret = "{0}://{1}:{2}".format(scheme, ip, port)
         return ret
 
 
 
     def getK8sDashboardUri(self):
 
-        vip = ""
+        vip = linux_shell.execute_shell_with_output(
+                "kubectl describe  pods -l k8s-app=kubernetes-dashboard --namespace=kube-system  | grep IP | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr '\n' ' '",
+                "Failed to get k8s dashboard pod ip"
+            )
 
-        for host in self.rawData["clusterConfiguration"]["machine-list"]:
-            if "dashboard" in host and host["dashboard"] == "true":
-                vip = host["hostip"]
-                break
-
-        if vip == "":
-            print("no machine labeled with dashboard = true")
-            sys.exit(1)
-
-        ret = "http://{0}:9090".format(vip)
+        ret = "http://{0}:9090".format(str.strip(vip))
         return ret
 
 
