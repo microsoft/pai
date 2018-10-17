@@ -170,7 +170,7 @@ class Job {
         this._prepareJobContext(frameworkName, data, (error, result) => {
           if (error) return next(error);
           unirest.put(launcherConfig.frameworkPath(frameworkName))
-            .headers(launcherConfig.webserviceRequestHeaders(namespace))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace || data.userName))
             .send(this.generateFrameworkDescription(data))
             .end((res) => {
               if (res.status === 202) {
