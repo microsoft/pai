@@ -11,9 +11,10 @@ import matplotlib.image as mpimg
 from PIL import Image
 import numpy as np
 from tesserocr import PyTessBaseAPI, RIL
-
-
 import random
+import logging
+import argparse
+
 
 def getRandomStr(length = 8):
     seed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -23,12 +24,27 @@ def getRandomStr(length = 8):
 app = Flask(__name__)
 
 
+def setLoggerFormat(logFile="flask.log", logLevel="INFO"):
+
+    fh = logging.FileHandler(logFile, 'w')
+    fh.setLevel(logLevel)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logLevel)
+
+    formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    app.logger.addHandler(fh)
+    app.logger.addHandler(ch)
+
+
 @app.route("/", methods=["GET"])
 def index():
     context = {"imgPath": "../static/upload.png",
                "info": "Click for select, only support English"
                }
-    # context = {'imgPath': '../static/test_BlhnyHNR_result.jpeg'}
     return render_template("index.html", **context)
 
 
@@ -52,7 +68,8 @@ def uploadimage():
             context["info"] = "Success"
         else:
             context["info"] = "No words detected"
-    except:
+    except Exception as e:
+        app.logger.exception(e)
         context = {"imgPath": "../static/error.png",
                    "info": "Service error"
                    }
@@ -76,6 +93,9 @@ def useOcrLocal(imgPath):
         for i, (im, box, _, _) in enumerate(boxes):
             api.SetRectangle(box['x'], box['y'], box['w'], box['h'])
             ocrResult = api.GetUTF8Text()
+            app.logger.debug(("image path: {imgPath}, "
+                              "Box[{0}]: x={x}, y={y}, w={w}, h={h}, "
+                              "text: {1}").format(i, ocrResult, imgPath=imgPath, **box))
             result = {"boundingBox": {"tl_x": box['x'],
                                       "tl_y": box['y'],
                                       "br_x": box['x'] + box['w'],
@@ -137,7 +157,17 @@ def drawResults(imgPath, resultPath, results):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-p", "--port", dest="port", required=True, default=5000, help="Listen port, default is 5000")
+    parser.add_argument("--debug", dest="debug", required=False, action="store_true", default=False, help="Open debug mode")
+
+    args = parser.parse_args()
+
     host = "0.0.0.0"
-    port = os.getenv("APP_LISTEN_PORT", 5000)
-    debug = True
+    port = args.port
+    debug = args.debug
+
+    setLoggerFormat(logLevel="DEBUG" if args.debug else "INFO")
     app.run(host=host, port=port, debug=debug)
