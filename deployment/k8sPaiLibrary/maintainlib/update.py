@@ -278,3 +278,4 @@ class update:
 
         self.update_node_config()
         directory_handler.directory_delete(self.tmp_path)
+
