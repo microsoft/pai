@@ -69,5 +69,5 @@ Use "release" as the first parameter of start.sh to enter this mode.
 3. **normal mode**: If the job can run correctly within 30 minutes, the project will regards it succeeded.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
-it may due to the official data downloading source being unstable. Just try again!
+If the parameters contains special characters like '&', please use single qutations to mark that parameter.
 Now(27th September, 2018), the mpi examples are still unready. Ignore them!
