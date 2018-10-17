@@ -107,6 +107,10 @@ class update:
     def get_node_config_from_k8s(self):
         self.logger.info("Try to get node configuration from kubernetes' configmap.")
         configmap_data = kubernetes_handler.get_configmap(self.kube_config_path, "pai-node-config", "kube-system")
+
+        if configmap_data == None:
+            return None
+
         pai_node_list = configmap_data["data"]["node-list"]
         self.logger.info("Successfully get node configuration from kubernetes' configmap.")
         return yaml.load(pai_node_list)
@@ -245,6 +249,29 @@ class update:
         self.node_list_from_k8s = self.get_node_list_from_k8s_api()
         self.node_config_from_cluster_conf = self.get_node_config_from_cluster_configuration()
         self.node_config_from_k8s = self.get_node_config_from_k8s()
+        if self.node_config_from_k8s == None:
+            self.logger.warning("No node configuration is found in your kubernetes cluster.")
+            self.logger.warning("Paictl will replace it with the node configuration from cluster-configuration.")
+            self.logger.warning("Suggestion: Due to the first you execute this command.")
+            self.logger.warning("Suggestion: This time please don't change (Remove or add) the machine list in your configuration.")
+            self.logger.warning("Suggestion: With the old configuration which don't have any change on the machine list, execute the machine update command.")
+            self.logger.warning("Suggestion: Then, with the latest configuration, re-execute the command")
+
+            count_input = 0
+            while True:
+                user_input = raw_input("Do you want to continue the operation this time? (Y/N) ")
+                if user_input == "N":
+                    return
+                elif user_input == "Y":
+                    break
+                else:
+                    print(" Please type Y or N.")
+                count_input = count_input + 1
+                if count_input == 3:
+                    self.logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
+                    return
+
+            self.node_config_from_k8s = self.node_config_from_cluster_conf
 
         self.add_machine()
         self.remove_machine()
