@@ -295,7 +295,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
-
+        print(serviceDict["clusterinfo"])
 
         # section: machineinfo
 
@@ -365,12 +365,12 @@ class paiObjectModel:
 
     def getK8sDashboardUri(self):
 
-        vip  = linux_shell.execute_shell_with_output(
-                "kubectl describe  pods -l k8s-app=kubernetes-dashboard --namespace=kube-system  | grep IP | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'",
+        vip = linux_shell.execute_shell_with_output(
+                "kubectl describe  pods -l k8s-app=kubernetes-dashboard --namespace=kube-system  | grep IP | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr '\n' ' '",
                 "Failed to get k8s dashboard pod ip"
             )
 
-        ret = "http://{0}:9090".format(vip)
+        ret = "http://{0}:9090".format(str.strip(vip))
         return ret
 
 
