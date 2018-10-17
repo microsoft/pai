@@ -44,6 +44,11 @@ Any feedback and suggestions are appreciated.
 ## Known Issues
 * Yarn resource manager abnormality can make the submitted jobs stuck on waiting state. This can be resolved by restarting the Yarn resource manager - [issue 1274](https://github.com/Microsoft/pai/issues/1274).
 * Scheduling jobs by GpuType cannot work now since the missing of cluster configuration file in FrameworkLauncher - [Issue 1416](https://github.com/Microsoft/pai/issues/1416).
+A work around is to manually update the configuration file to the cluster. This can be done in following steps:
+  1. build the source code with cluster configuration by running command *sudo python ./build/pai_build.py -c your_configuration_dir*
+  2. the gpu configuration file can be generated under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json in source code folder. Use the file content to
+  run command *curl -X PUT -H "Content-Type: application/json" -d 'gpu_configuration_content' "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"*
+  3. run command *curl -X GET "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"* to check the configuration is correct.
 
 ## Break Changes
 * In release v0.8.0 the Yarn container script will be run by docker executor. After a cluster is upgraded to release v0.8.0 from an earlier release.
