@@ -29,15 +29,12 @@ def setLoggerFormat(logFile="flask.log", logLevel="INFO"):
     fh = logging.FileHandler(logFile, 'w')
     fh.setLevel(logLevel)
 
-    ch = logging.StreamHandler()
-    ch.setLevel(logLevel)
 
     formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
     fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
 
     app.logger.addHandler(fh)
-    app.logger.addHandler(ch)
+    app.logger.setLevel(logLevel)
 
 
 @app.route("/", methods=["GET"])
@@ -59,7 +56,8 @@ def uploadimage():
         imgPath = os.path.join("originImg", imgName)
         resultPath = os.path.join("resultImg", resultName)
         img.save(imgPath)
-
+        
+        app.logger.info("start detect image: {}".format(imgPath))
         results = useOcrLocal(imgPath)
         drawResults(imgPath, resultPath, results)
 
@@ -92,16 +90,17 @@ def useOcrLocal(imgPath):
         boxes = api.GetComponentImages(RIL.TEXTLINE, True)
         for i, (im, box, _, _) in enumerate(boxes):
             api.SetRectangle(box['x'], box['y'], box['w'], box['h'])
-            ocrResult = api.GetUTF8Text()
-            app.logger.debug(("image path: {imgPath}, "
-                              "Box[{0}]: x={x}, y={y}, w={w}, h={h}, "
-                              "text: {1}").format(i, ocrResult, imgPath=imgPath, **box))
-            result = {"boundingBox": {"tl_x": box['x'],
-                                      "tl_y": box['y'],
-                                      "br_x": box['x'] + box['w'],
-                                      "br_y": box['y'] + box['h']},
-                      "text": ocrResult}
-            results.append(result)
+            ocrResult = api.GetUTF8Text().strip()
+            if ocrResult != "":
+                app.logger.debug(("image path: {imgPath}, "
+                                  "Box[{0}]: x={x}, y={y}, w={w}, h={h}, "
+                                  "text: {1}").format(i, ocrResult, imgPath=imgPath, **box))
+                result = {"boundingBox": {"tl_x": box['x'],
+                                          "tl_y": box['y'],
+                                          "br_x": box['x'] + box['w'],
+                                          "br_y": box['y'] + box['h']},
+                          "text": ocrResult}
+                results.append(result)
     return results
 
 
@@ -160,7 +159,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-p", "--port", dest="port", required=True, default=5000, help="Listen port, default is 5000")
+    parser.add_argument("-p", "--port", dest="port", default=5000, help="Listen port, default is 5000")
     parser.add_argument("--debug", dest="debug", required=False, action="store_true", default=False, help="Open debug mode")
 
     args = parser.parse_args()
@@ -170,4 +169,5 @@ if __name__ == "__main__":
     debug = args.debug
 
     setLoggerFormat(logLevel="DEBUG" if args.debug else "INFO")
+    app.logger.info("start ocr service")
     app.run(host=host, port=port, debug=debug)
