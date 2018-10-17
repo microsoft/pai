@@ -165,7 +165,7 @@ $(document).ready(() => {
     const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
     $.getJSON(url, (data) => {
       let jobConfigObj = JSON.parse(data);
-      let timestamp = (new Date()).valueOf();
+      let timestamp = Date.now();
       jobConfigObj.jobName += `_${timestamp}`;
       editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
     });
