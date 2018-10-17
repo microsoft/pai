@@ -197,6 +197,12 @@ ENV
 
 echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
 
+{{# each jobData.jobEnvs }}
+cat <<ENV >> $ENV_LIST
+{{{ @key }}}='{{{ this }}}'
+ENV
+{{/ each jobData.jobEnvs }}
+
 export $(grep -v '^#' $ENV_LIST | xargs)
 
 
