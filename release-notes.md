@@ -46,9 +46,11 @@ Any feedback and suggestions are appreciated.
 * Scheduling jobs by GpuType cannot work now since the missing of cluster configuration file in FrameworkLauncher - [Issue 1416](https://github.com/Microsoft/pai/issues/1416).
 A work around is to manually update the configuration file to the cluster. This can be done in following steps:
 ```bash
-  # in the OpenPAI source code folder, build the source code with cluster configuration by running command
-  sudo python ./build/pai_build.py -c your_configuration_dir
-  # a gpu configuration file will be created as src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json. Get its contents
+  # In the OpenPAI source code folder where you do the deployment, 
+  # there should be a gpu configuration file under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json.
+  # Or you can generate it by running 
+  sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
+  # Get the gpu configuration file contents
   config=$(cat src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json | jq -c ".")
   # put the contents to cluster
   curl -X PUT -H "Content-Type: application/json" -H "UserName: root" -d "$config" "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
