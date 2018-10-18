@@ -13,10 +13,10 @@ First of all, PAI runs all jobs in Docker container.
 
 We need a docker image to run it on PAI, this can be done under following instructions:
 
-1. Build a base Docker image to run jobs on PAI. We prepared a [base Dockerfile](../../job-tutorial/Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
+1. Build a base Docker image to run jobs on PAI. We prepared a [base Dockerfile](../Dockerfiles/cuda8.0-cudnn6/Dockerfile.build.base) which can be built directly.
 
     ```bash
-    $ cd ../job-tutorial/Dockerfiles/cuda8.0-cudnn6
+    $ cd ../Dockerfiles/cuda8.0-cudnn6
     $ sudo docker build -f Dockerfile.build.base \
     >                   -t pai.example.jupyter .
     $ cd -

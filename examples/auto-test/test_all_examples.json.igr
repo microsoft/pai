@@ -1,0 +1,15 @@
+{
+  "jobName": "test_all_examples",
+  "image": "openpai/pai.example.test",
+  "taskRoles": [
+    {
+      "name": "main",
+      "taskNumber": 1,
+      "cpuNumber": 2,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "command": "git clone https://github.com/Microsoft/pai.git && mv pai pai_tmp && echo \"S\" | /bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/user/your_username/ 10.20.30.40:9000 http://10.20.30.40:50070 username password && rm -rf pai_tmp"
+    }
+  ]
+}
+

@@ -113,12 +113,12 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.portType.beginAt`      | Integer, required          | The port to begin with in the port type, 0 for random selection |
 | `taskRole.portType.portNumber`   | Integer, required          | Number of ports for the specific type    |
 | `taskRole.command`               | String, required           | Executable command for tasks in the task role, can not be empty |
-| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
-| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `taskRole.minFailedTaskCount`    | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
+| `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 
-For more details on explanation, please refer to [frameworklauncher usermanual](../frameworklauncher/doc/USERMANUAL.md).
+For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 
 If you're using a private Docker registry which needs authentication for image pull and is different from the registry used during deployment,
 please create an authentication file in the following format, upload it to HDFS and specify the path in `authFile` parameter in config file.
@@ -241,9 +241,10 @@ A distributed TensorFlow job is listed below as an example:
 
 ### Job submission steps <a name="submission"></a>
 
-1. Put the code and data on HDFS
+1. Put the code and data on [HDFS](../docs/hadoop/hdfs.md)
 
-    Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
+- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system. 
+- Option-2: Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
     Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details. 
 
 2. Prepare a job config file

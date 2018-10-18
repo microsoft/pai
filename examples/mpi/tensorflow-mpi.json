@@ -3,11 +3,11 @@
   "image": "openpai/pai.example.tensorflow-mpi",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-mpi/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-mpi/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/examples/mpi/tensorflow/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/path/tensorflow-mpi/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/code",
 
   "taskRoles": [
     {
@@ -16,7 +16,7 @@
       "cpuNumber": 2,
       "memoryMB": 8192,
       "gpuNumber": 0,
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi"
+      "command": "pip --quiet install scipy absl-py && python code/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi"
     },
     {
       "name": "worker",
@@ -24,7 +24,7 @@
       "cpuNumber": 2,
       "memoryMB": 16384,
       "gpuNumber": 4,
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi",
+      "command": "pip --quiet install scipy absl-py && python code/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --server_protocol=grpc+mpi",
       "minSucceededTaskCount": 2
     }
   ],
