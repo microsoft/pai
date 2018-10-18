@@ -59,8 +59,9 @@ hdfs dfs -mkdir -p hdfs://$1/examples/
 hdfs dfs -mkdir -p hdfs://$1/examples/mpi
 hdfs dfs -mkdir -p hdfs://$1/examples/mpi/cntk
 hdfs dfs -mkdir -p hdfs://$1/examples/mpi/cntk/code
-hdfs dfs -mkdir -p hdfs://$1/examples/mpi/cntk/data
 hdfs dfs -mkdir -p hdfs://$1/examples/mpi/cntk/output
+hdfs dfs -mkdir -p hdfs://$1/examples/cntk
+hdfs dfs -mkdir -p hdfs://$1/examples/cntk/data
 
 hdfs dfs -test -e hdfs://$1/examples/mpi/cntk/code/*
 if [ $? -eq 0 ] ;then
