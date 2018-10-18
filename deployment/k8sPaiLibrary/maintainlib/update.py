@@ -250,14 +250,11 @@ class update:
         self.node_config_from_cluster_conf = self.get_node_config_from_cluster_configuration()
         self.node_config_from_k8s = self.get_node_config_from_k8s()
         if self.node_config_from_k8s == None:
-            self.logger.warning("No node configuration is found in your kubernetes cluster.")
-            self.logger.warning("Knowledge: Node configuration from kubernetes, that's current node list in your cluster.")
-            self.logger.warning("Knowledge: Node configuration from configuration, that's the future node list in your cluster.")
 
             self.logger.warning("Suggestion: Due to the first time you execute this command.")
-            self.logger.warning("Suggestion: This time please don't change (Remove or add) the machine list in your configuration.")
-            self.logger.warning("Suggestion: With the old configuration which don't have any change on the machine list, execute the machine update command.")
-            self.logger.warning("Suggestion: Then, with the latest configuration, re-execute the command")
+            self.logger.warning("Suggestion: Please roll back your configuration in the cluster first.")
+            self.logger.warning("Suggestion: And then, with the old configuration which don't have any change on the machine list, execute the machine update command.")
+            self.logger.warning("Suggestion: Then, update the latest configuration, re-execute the command")
 
             count_input = 0
             while True:
