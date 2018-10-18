@@ -122,14 +122,14 @@ def useOcrLocal2(imgPath):
         box, text = line.position, line.content.strip()
         if text != "":
             tl_x, tl_y = box[0]
-            w, h = box[1]
+            br_x, br_y = box[1]
             app.logger.debug(("image path: {imgPath}, "
                               "Box: x={x}, y={y}, w={w}, h={h}, "
-                              "text: {text}").format(imgPath=imgPath, x=tl_x, y=tl_y, w=w, h=h, text=text))
+                              "text: {text}").format(imgPath=imgPath, x=tl_x, y=tl_y, w=br_x-tl_x, h=br_y-tl_y, text=text))
             result = {"boundingBox": {"tl_x": tl_x,
                                       "tl_y": tl_y,
-                                      "br_x": tl_x + w,
-                                      "br_y": tl_y + h},
+                                      "br_x": br_x,
+                                      "br_y": br_y},
                       "text": text}
             results.append(result)
     return results
