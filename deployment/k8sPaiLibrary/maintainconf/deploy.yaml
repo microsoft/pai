@@ -125,16 +125,13 @@ proxy-deployment:
       src: deployment/k8sPaiLibrary/template/haproxy.cfg.template
       dst: proxy-deployment/etc/kubernetes/haproxy
 
-<<<<<<< HEAD:pai-management/k8sPaiLibrary/maintainconf/deploy.yaml
     - name: certs.sh
       src: k8sPaiLibrary/template/certs.sh.template
       dst: proxy-deployment
-=======
     - name: docker-daemon.json
       src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
       dst: proxy-deployment
 
->>>>>>> 0b9f0083bdfe0433581cbf6cf213d07d85616b74:deployment/k8sPaiLibrary/maintainconf/deploy.yaml
 
     file-list:
     - name: docker-ce-install.sh
