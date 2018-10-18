@@ -14,6 +14,8 @@ from tesserocr import PyTessBaseAPI, RIL
 import random
 import logging
 import argparse
+import pyocr
+import pyocr.builders
 
 
 def getRandomStr(length = 8):
@@ -57,7 +59,7 @@ def uploadimage():
         img.save(imgPath)
         
         app.logger.info("start detect image: {}".format(imgPath))
-        results = useOcrLocal(imgPath)
+        results = useOcrLocal2(imgPath)
         drawResults(imgPath, resultPath, results)
 
         context = {"imgPath": "../" + resultPath}
@@ -102,6 +104,35 @@ def useOcrLocal(imgPath):
                 results.append(result)
     return results
 
+def useOcrLocal2(imgPath):
+    tools = pyocr.get_available_tools()
+    if len(tools) == 0:
+        app.logger.warn("No available ocr library")
+        return []
+    tool = tools[0]
+
+    image = Image.open(imgPath)
+    line_and_word_boxes = tool.image_to_string(
+        image,
+        lang="eng",
+        builder=pyocr.builders.LineBoxBuilder()
+    )
+    results = []
+    for line in line_and_word_boxes:
+        box, text = line.position, line.content.strip()
+        if text != "":
+            tl_x, tl_y = box[0]
+            w, h = box[1]
+            app.logger.debug(("image path: {imgPath}, "
+                              "Box: x={x}, y={y}, w={w}, h={h}, "
+                              "text: {text}").format(imgPath=imgPath, x=tl_x, y=tl_y, w=w, h=h, text=text))
+            result = {"boundingBox": {"tl_x": tl_x,
+                                      "tl_y": tl_y,
+                                      "br_x": tl_x + w,
+                                      "br_y": tl_y + h},
+                      "text": text}
+            results.append(result)
+    return results
 
 def getOcrUri():
     ocrIpport = os.getenv("OCR_IP_PORT", None)

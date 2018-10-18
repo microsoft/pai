@@ -19,10 +19,11 @@ RUN pip3 --no-cache-dir install \
         requests \
         matplotlib==2.2.2 \
         pillow \
-        tesserocr
+        tesserocr \
+        pyocr
     
 
 
 WORKDIR /root/request_ocr
 
-CMD ["python", "app.py"]
+CMD ["python3", "app.py"]
