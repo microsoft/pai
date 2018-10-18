@@ -1,4 +1,4 @@
-# FROM mzmssg/pai_job_base
+
 FROM pai.build.base:hadoop2.7.2-cuda9.0-cudnn7-devel-ubuntu16.04 as base_build
 
 COPY copied_file/ /root/

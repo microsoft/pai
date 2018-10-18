@@ -29,7 +29,6 @@ def setLoggerFormat(logFile="flask.log", logLevel="INFO"):
     fh = logging.FileHandler(logFile, 'w')
     fh.setLevel(logLevel)
 
-
     formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
     fh.setFormatter(formatter)
 
@@ -105,19 +104,23 @@ def useOcrLocal(imgPath):
 
 
 def getOcrUri():
-    ocrUri = "http://" + os.getenv("OCR_IP_PORT", "127.0.0.1:5000") + "/vision/v2.0/recognizeTextDirect"
-    return ocrUri
+    ocrIpport = os.getenv("OCR_IP_PORT", None)
+    return "http://" + ocrIpport + "/vision/v2.0/recognizeTextDirect" if ocrIpport else None
 
 
-def useOcrApi(imgPath):
+def useOcrApi(imgPath, timeout=10):
     ocrUri = getOcrUri()
+    if ocrUri is None:
+        app.logger.warn("Can't get API address, please pass it by env OCR_IP_PORT")
+        return []
     filename = os.path.basename(imgPath)
     _, ext = os.path.splitext(filename)
     with open(imgPath, "rb") as f:
         files = {"file": (filename, f, "image/" + ext.strip('.'))}
         try:
-            res = requests.post(ocrUri, files=files, timeout=10)
+            res = requests.post(ocrUri, files=files, timeout=timeout)
         except requests.exceptions.Timeout:
+            app.logger.warn("API request timeout.")
             return []
 
     results = []

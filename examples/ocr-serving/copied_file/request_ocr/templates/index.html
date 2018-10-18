@@ -36,7 +36,6 @@
             var reader = new FileReader();
             reader.onload = (function (file) {
                 return function (e) {
-                    // console.info(this.result); //这个就是base64的数据了
                     document.getElementById(imageid).src = this.result;
                 };
             })(e.target.files[0]);
@@ -51,7 +50,6 @@
             alert('上传错误,文件格式必须为：png/jpg/jpeg');
             return false
         }
-        // alert('success')
         return true
     }
 </script>
