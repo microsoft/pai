@@ -252,9 +252,17 @@ class update:
         if self.node_config_from_k8s == None:
 
             self.logger.warning("Suggestion: Due to the first time you execute this command.")
-            self.logger.warning("Suggestion: Please roll back your configuration in the cluster first.")
-            self.logger.warning("Suggestion: And then, with the old configuration which don't have any change on the machine list, execute the machine update command.")
-            self.logger.warning("Suggestion: Then, update the latest configuration, re-execute the command")
+            self.logger.warning("Step1: Please roll back your configuration in the cluster first.")
+            self.logger.warning("Step1: ./paictl.py config push")
+            self.logger.warning(" ")
+            self.logger.warning("Step2: Please re-execute the machine update command again, to generate the node configuration.")
+            self.logger.warning("Step2: ./paictl.py machine update")
+            self.logger.warning(" ")
+            self.logger.warning("Step3: Update the configuration to the latest version.")
+            self.logger.warning("Step3: ./paictl.py config push")
+            self.logger.warning(" ")
+            self.logger.warning("Step4: Update the machine list.")
+            self.logger.warning("Step4: ./paictl.py machine update")
 
             count_input = 0
             while True:
