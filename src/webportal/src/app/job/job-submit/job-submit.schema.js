@@ -238,6 +238,10 @@ const jobSchema = {
     },
     jobEnvs: {
       type: 'object',
+      format: 'grid',
+      propertyOrder: 200,
+      additionalProperties: true,
+      description: 'Job env parameters, which are available in job containers',
     },
   },
   required: [
