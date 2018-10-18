@@ -307,4 +307,35 @@ http {
         '/grafana';
     }
   }
+
+  {% if WEBHDFS_LEGACY_PORT %}
+  # Proxy 50070 to webhdfs for backward compatibility
+  server {
+    listen       {{WEBHDFS_LEGACY_PORT}};
+    server_name  localhost;
+
+    client_header_buffer_size 1m;
+    client_header_timeout 1m;
+
+    client_body_buffer_size 256m;
+    client_max_body_size 262144m;
+    client_body_timeout 1h;
+
+    location / {
+      proxy_pass  {{WEBHDFS_URI}};
+      proxy_http_version 1.1;
+
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+      proxy_pass_header Date;
+
+      proxy_buffer_size 256m;
+      proxy_buffers 8 256m;
+
+      proxy_connect_timeout 1m;
+      proxy_send_timeout 1h;
+    }
+  }
+  {% endif %}
 }
