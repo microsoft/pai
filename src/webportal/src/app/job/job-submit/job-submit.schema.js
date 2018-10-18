@@ -236,6 +236,9 @@ const jobSchema = {
       propertyOrder: 1000,
       description: 'List of taskRole, one task role at least',
     },
+    jobEnvs: {
+      type: 'object',
+    },
   },
   required: [
     'jobName',
