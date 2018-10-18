@@ -18,6 +18,10 @@
   "bugs": {
     "url": "https://github.com/Microsoft/pai/issues"
   },
+  "engines": {
+    "node": ">=6.11.0 <=6.12.2",
+    "npm": "3.10.10"
+  },
   "dependencies": {
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
