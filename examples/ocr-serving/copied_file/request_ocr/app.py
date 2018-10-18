@@ -105,7 +105,7 @@ def useOcrLocal(imgPath):
 
 
 def getOcrUri():
-    ocrUri = "http://" + os.getenv("OCR_IP_PORT", "10.151.40.233:19242") + "/vision/v2.0/recognizeTextDirect"
+    ocrUri = "http://" + os.getenv("OCR_IP_PORT", "127.0.0.1:5000") + "/vision/v2.0/recognizeTextDirect"
     return ocrUri
 
 
