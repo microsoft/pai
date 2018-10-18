@@ -91,7 +91,7 @@ const setUserAdmin = (admin, username, callback) => {
   let isAdmin = (typeof admin === 'undefined') ? false : admin;
   db.set(etcdConfig.userAdminPath(username), isAdmin, null, (err, res) => {
     if (err) {
-      callback(err);
+      return callback(err);
     } else if (isAdmin) {
       // update admin-user virtual cluster
       VirtualCluster.prototype.getVcList((vcList, err) => {
