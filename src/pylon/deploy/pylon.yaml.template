@@ -41,6 +41,10 @@ spec:
               value: {{ clusterinfo['pyloninfo']['k8s_api_server_uri'] }}
             - name: WEBHDFS_URI
               value: {{ clusterinfo['pyloninfo']['webhdfs_uri'] }}
+{% if clusterinfo['pyloninfo']['webhdfs_legacy_port'] %}
+            - name: WEBHDFS_LEGACY_PORT
+              value: '{{ clusterinfo['pyloninfo']['webhdfs_legacy_port'] }}'
+{% endif %}
             - name: PROMETHEUS_URI
               value: {{ clusterinfo['pyloninfo']['prometheus_uri'] }}
             - name: K8S_DASHBOARD_URI
@@ -55,6 +59,11 @@ spec:
             - name: pylon
               containerPort: 80
               hostPort: {{ clusterinfo['pyloninfo']['port'] }}
+{% if clusterinfo['pyloninfo']['webhdfs_legacy_port'] %}
+            - name: pylon-webhdfs
+              containerPort: {{ clusterinfo['pyloninfo']['webhdfs_legacy_port'] }}
+              hostPort: {{ clusterinfo['pyloninfo']['webhdfs_legacy_port'] }}
+{% endif %}
           livenessProbe:
             httpGet:
               path: /healthz
