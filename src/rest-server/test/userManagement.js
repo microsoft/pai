@@ -642,14 +642,9 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
               'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
               'modifiedIndex': 7,
               'createdIndex': 7
-            }, {
-              'key': '/users/test_non_admin_user/virtualClusters',
-              'value': 'default,vc1,vc2',
-              'modifiedIndex': 8,
-              'createdIndex': 8
             }],
-          'modifiedIndex': 9,
-          'createdIndex': 9
+          'modifiedIndex': 8,
+          'createdIndex': 8
         }
       });
 

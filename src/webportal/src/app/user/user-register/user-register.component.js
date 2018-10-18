@@ -58,45 +58,52 @@ $(document).ready(() => {
             alert(data.message);
           } else {
             $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
+              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
               data: {
-                virtualClusters: virtualClusters,
+                githubPAT: githubPAT,
               },
               type: 'PUT',
               headers: {
                 Authorization: `Bearer ${token}`,
               },
               dataType: 'json',
-              success: (updateVcData) => {
-                if (updateVcData.error) {
-                  alert(updateVcData.message);
+              success: (updateGithubPATData) => {
+                if (updateGithubPATData.error) {
+                  alert(updateGithubPATData.message);
                 } else {
-                  $.ajax({
-                    url: `${webportalConfig.restServerUri}/api/v1/user/${username}/githubPAT`,
-                    data: {
-                      githubPAT: githubPAT,
-                    },
-                    type: 'PUT',
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                    dataType: 'json',
-                    success: (updateGithubPATData) => {
-                      $('#form-register').trigger('reset');
-                      if (updateGithubPATData.error) {
-                        alert(updateGithubPATData.message);
-                      } else {
-                        alert('Add new user successfully');
-                      }
-                    },
-                    error: (xhr, textStatus, error) => {
-                      $('#form-register').trigger('reset');
-                      const res = JSON.parse(xhr.responseText);
-                      alert(res.message);
-                    },
-                  });
+                  if (admin) {
+                    // Admin user VC update will be executed in rest-server
+                    $('#form-register').trigger('reset');
+                    alert('Add new user successfully');
+                    window.location.href = '/user-view.html';
+                  } else {
+                    $.ajax({
+                      url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
+                      data: {
+                        virtualClusters: virtualClusters,
+                      },
+                      type: 'PUT',
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                      dataType: 'json',
+                      success: (updateVcData) => {
+                        $('#form-register').trigger('reset');
+                        if (updateVcData.error) {
+                          alert(updateVcData.message);
+                        } else {
+                          alert('Add new user successfully');
+                          window.location.href = '/user-view.html';
+                        }
+                      },
+                      error: (xhr, textStatus, error) => {
+                        $('#form-register').trigger('reset');
+                        const res = JSON.parse(xhr.responseText);
+                        alert(res.message);
+                      },
+                    });
+                  }
                 }
-                window.location.href = '/user-view.html';
               },
               error: (xhr, textStatus, error) => {
                 $('#form-register').trigger('reset');

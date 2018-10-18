@@ -23,12 +23,14 @@ const userPutInputSchema = Joi.object().keys({
   username: Joi.string()
     .token()
     .required(),
-  password: Joi.string()
-    .min(6)
-    .required(),
   admin: Joi.boolean(),
   modify: Joi.boolean()
     .required(),
+  password: Joi.when('modify', {
+    is: true,
+    then: Joi.string().min(6).allow(''),
+    otherwise: Joi.string().min(6).required(),
+  }),
 }).required();
 
 // define the input schema for the 'remove user' api
