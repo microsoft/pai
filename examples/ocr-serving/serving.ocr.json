@@ -15,7 +15,7 @@
           "portNumber": 1
         }
       ],
-      "command": "python app.py -p $PAI_CONTAINER_HOST_model_server_PORT_LIST"
+      "command": "python3 app.py -p $PAI_CONTAINER_HOST_model_server_PORT_LIST"
     }
   ],
   "retryCount": -2
