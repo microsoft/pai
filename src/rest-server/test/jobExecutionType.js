@@ -228,7 +228,7 @@ describe('Job execution type API /api/v1/jobs/:jobName/executionType', () => {
   });
 
   // PUT /api/v1/jobs/:jobName/executionType
-  it('cannot stop job without namespace', (done) => {
+  it('can stop job without namespace', (done) => {
     chai.request(server)
       .put('/api/v1/jobs/test1/executionType')
       .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImlhbWFkbWluIiwiYWRtaW4iOnRydWUsImlhdCI6MTUyMDU3OTg5OSwiZXhwIjoxNTUxNjgzODk5fQ.GniwMY_1L5n3crjV3u6G54KmaUv_OW5dHLwHlIt6IxE')
