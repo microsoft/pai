@@ -322,9 +322,6 @@ const loadJobs = (specifiedVc) => {
     'select': {
       style: 'multi',
     },
-    'search': {
-      regex: true,
-    },
   }).api();
 
   // deselect all when page changed
