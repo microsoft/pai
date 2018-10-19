@@ -245,11 +245,11 @@ const loadJobs = (specifiedVc) => {
     },
     'columns': [
       {title: 'Job', data: null, responsivePriority: 1, render({legacy, name, namespace, username}, type) {
-        if (type !== 'display') return ellipsis(name);
+        if (type !== 'display') return name;
         if (legacy) {
-          return '<span class="label label-warning">legacy</span> <a href="view.html?jobName=' + name + '">' + ellipsis(name) + '</a>';
+          return `<span class="label label-warning">legacy</span><a href="view.html?jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         } else {
-          return '<a href="view.html?username=' + (namespace || username) + '&jobName=' + name + '">' + ellipsis(name) + '</a>';
+          return `<a class="table-job-name" href="view.html?username=${namespace || username}&jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         }
       }},
       {title: 'User', data: 'username', responsivePriority: 2},
@@ -290,14 +290,6 @@ const loadJobs = (specifiedVc) => {
     'autoWidth': false,
     'responsive': true,
   }).api();
-};
-
-const ellipsis = (name, maxLength = 25) => {
-  if (name.length < maxLength) {
-    return name;
-  } else {
-    return name.substr(0, maxLength) + '...';
-  }
 };
 
 const stopJob = (namespace, jobName) => {
