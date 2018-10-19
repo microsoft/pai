@@ -19,6 +19,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl delete --ignore-not-found --now daemonset/cleaner-ds
+# kubectl delete --ignore-not-found --now daemonset/cleaner-ds
 
 popd > /dev/null
