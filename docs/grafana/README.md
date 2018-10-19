@@ -42,7 +42,7 @@ Then redeploy Grafana only:
 ```sh
 python paictl.py service start -p /path/to/cluster-configuration/dir -n grafana
 ```
-For more details, please refer to [Maintain your service](../pai-management/doc/service-maintain.md).
+For more details, please refer to [Maintain your service](../paictl/paictl-manual.md#Service).
 # Upgrading
 
 System will automatically pull the latest Grafana image, there is no need to upgrade. If you want to use the specific version of Grafana, you can change the version configuration at the [grafana.yaml.template](../../src/grafana/deploy/grafana.yaml.template#L44) and then redeploy it.

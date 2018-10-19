@@ -33,9 +33,9 @@ docker rm $target_id
 
 
 # step3: delete etcd server data
-if [ -d "/var/etcd/data" ]; then
+if [ -d "{{ clusterconfig['etcd-data-path'] }}" ]; then
 
-    rm -rf /var/etcd/data
+    rm -rf {{ clusterconfig['etcd-data-path'] }}
 
 fi
 

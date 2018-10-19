@@ -56,14 +56,15 @@ Before start, you need to meet the following requirements:
 
 ## How to use
 ### How to train jobs
-- How to write PAI jobs
+- How to write OpenPAI jobs
     - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart)
     - [Write job from scratch in deepth](./docs/job_tutorial.md)
     - [Learn more example jobs](./examples/#offtheshelf)
-- How to submit PAI jobs
+- How to submit OpenPAI jobs
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
     - [Submit a job in Visual Studio](https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/pai.md)
     - [Submit a job in Visual Studio Code](https://github.com/Microsoft/vscode-tools-for-ai/blob/master/docs/quickstart-05-pai.md)
+- How to run AutoML jobs on OpenPAI
     - [Submit a job in Neural Network Intelligence](https://github.com/Microsoft/nni/blob/master/docs/PAIMode.md)
 - How to request on-demand resource for in place training
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)

@@ -1,4 +1,5 @@
 echo "Run with 6 parameters: ci/release/normal, rest_server_url, hdfs_url, webhdfs_url, PAI_username, PAI_password."
+echo "If the parameters contains special characters like '&', you must use single quotations to mark that parameter!"
 echo "During the runtime, you should select the jobs you want to run, you can also input the jobs' name you want to run."
 cd /tmp
 if [ ! -d "pai/" ]; then

@@ -30,8 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hbaseregionserver: "true"
       containers:
       - name:  hbase-regionserver
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hbase:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}

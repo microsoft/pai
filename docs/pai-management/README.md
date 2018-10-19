@@ -41,7 +41,7 @@ Note: Please working on dev-box when managing your cluster.
 
 - Please maintain the PAI cluster from within a dev-box described.
 
-- [A Guide For PAI Machine Maintenance](doc/machine-maintenance.md)
+- [A Guide For PAI Machine Maintenance](../paictl/paictl-manual.md#Machine)
 
 #### Service Maintenance
 
@@ -50,7 +50,7 @@ Note: Please working on dev-box when managing your cluster.
 
 
 
-- [A Guide For Service Maintenance](doc/service-maintain.md)
+- [A Guide For Service Maintenance](../paictl/paictl-manual.md#Service)
 
 - [A Guide For Pulling Image From the Public Registry](doc/how-to-write-pai-configuration.md#serivices-configurationyaml)
 

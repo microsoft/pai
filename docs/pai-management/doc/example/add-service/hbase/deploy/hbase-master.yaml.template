@@ -30,8 +30,6 @@ spec:
     spec:
       hostNetwork: true
       hostPID: true
-      nodeSelector:
-        hbasemaster: "true"
       containers:
       - name:  hbase-master
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hbase:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
