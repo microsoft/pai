@@ -36,7 +36,7 @@ get_auth_token() {
 while true; do
   printf "\nStarting end to end tests:\n"
 
-  if [ ! -f $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
+  if [ ! -f $token_file ] || [ ! -s $token_file ] || [ $(( $(date +%s) - $(stat -c %Y $token_file) )) -gt $expiration ]; then
     get_auth_token
   fi
 
