@@ -295,7 +295,7 @@ const loadJobs = (specifiedVc) => {
       '<\'row\'<\'col-sm-5\'i><\'col-sm-7\'p>>',
     'buttons': [
       {
-        text: 'Select all',
+        text: 'Select displayed jobs',
         action: function(e, dt) {
           dt.rows({page: 'current'}).select();
         },
@@ -322,7 +322,14 @@ const loadJobs = (specifiedVc) => {
     'select': {
       style: 'multi',
     },
+    'search': {
+      regex: true,
+    },
   }).api();
+
+  // deselect all when page changed
+  $table.on('page.dt', () => table.rows().deselect());
+  $table.on('search.dt', () => table.rows().deselect());
 };
 
 const stopJob = (namespace, jobName, force = false) => {
