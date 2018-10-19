@@ -125,32 +125,33 @@ const replaceParameters = (str, param) => {
 
 const parseParameters = (req, res, next) => {
   saveYamlToHDFS(req);
-  let queue = [[req.body, req.body['parameters']]];
+  let jobParam = req.body['parameters'];
+  let queue = [req.body];
   while (queue.length > 0) {
-    let item = queue.shift();
-    let obj = item[0];
-    let param = item[1];
+    let obj = queue.shift();
     if (obj instanceof Array) {
       for (let i = 0; i < obj.length; i++) {
         if (typeof obj[i] == 'object') {
-          queue.push([obj[i], param]);
+          queue.push(obj[i]);
         } else {
-          obj[i] = replaceParameters(obj[i], param);
+          obj[i] = replaceParameters(obj[i], jobParam);
         }
       }
     } else if (obj instanceof Object) {
-      if ('parameters' in obj) {
-        Object.keys(obj['parameters']).forEach((key) => {
-          obj['parameters'][key] = replaceParameters(obj['parameters'][key], param);
+      if ('commandParameters' in obj) {
+        Object.keys(obj['commandParameters']).forEach((key) => {
+          obj['commandParameters'][key] = replaceParameters(obj['commandParameters'][key], jobParam);
         });
-        param = obj['parameters'];
+        for (let i = 0; i < obj['command'].length; i++) {
+          obj['command'][i] = replaceParameters(obj['command'][i], obj['commandParameters']);
+        }
       }
       Object.keys(obj).forEach((key) => {
         if (key != 'prerequisites') {
           if (typeof obj[key] == 'object') {
-            queue.push([obj[key], param]);
+            queue.push(obj[key]);
           } else {
-            obj[key] = replaceParameters(obj[key], param);
+            obj[key] = replaceParameters(obj[key], jobParam);
           }
         }
       });

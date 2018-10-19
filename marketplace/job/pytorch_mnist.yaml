@@ -17,7 +17,7 @@ tasks :
     resource: 
       instances : 1
       resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
-    parameters:
+    commandParameters:
       epochs: $$epochs$$
       batchsize: $$batchsize$$
       lr: $$lr$$

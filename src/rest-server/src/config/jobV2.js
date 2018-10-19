@@ -111,7 +111,7 @@ const jobConfigSchema = Joi.object().keys({
         .min(1)
         .allow(null)
         .default(null),
-      parameters: Joi.object()
+      commandParameters: Joi.object()
         .optional()
         .default({}),
       command: Joi.array()

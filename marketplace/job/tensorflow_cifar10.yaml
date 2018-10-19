@@ -19,7 +19,7 @@ tasks :
       instances : 1
       resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
     minSucceededTaskCount: 1
-    parameters:
+    commandParameters:
       data: cifar10
       model: $$model$$
       batchsize: $$batchsize$$
@@ -34,7 +34,7 @@ tasks :
     resource :
       instances : 1
       resourcePerInstance : { cpu: 2, memoryMB: 8192, gpu: 0 }
-    parameters:
+    commandParameters:
       data: cifar10
       model: $$model$$
       batchsize: $$batchsize$$

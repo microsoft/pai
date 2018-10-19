@@ -1,6 +1,6 @@
 # Marketplace and Submit job v2
 
-`Marketplace` and `Submit job v2` are designed to reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
+`Marketplace` and `Submit job v2` are designed for reproducible AI. It helps to reuse machine learning asset across projects or teams: job template sharing and reuse for docker images, data, code, job configuration and etc.
 
 
 
@@ -115,6 +115,7 @@ prerequisites:
 
 > `data`
 
+Data is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
 ```yaml
 protocol_version: String
 name: String
@@ -127,6 +128,7 @@ uri: String
 
 > `script`
 
+Script is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
 ```yaml
 protocol_version: String
 name: String
@@ -139,6 +141,7 @@ uri: String
 
 > `dockerimage`
 
+Dockerimage is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
 ```yaml
 protocol_version: String
 name: String
@@ -151,6 +154,7 @@ uri: String
 
 > `task`
 
+Task is not an independent component, it is the element type of the tasks. A job may consists of multiple types of tasks (at least one), denoted by the role of a task, such as **_parameter_server_**, **_training_worker_**, etc. Each task can start one or more container instances to run the user defined commands. 
 ```yaml
 role: String
 data: String
@@ -173,9 +177,9 @@ resource:
     ...
 minFailedTaskCount: Integer
 minSucceededTaskCount: Integer
-parameters:
-  userTaskParam1: taskValType1
-  userTaskParam2: taskValType2
+commandParameters:
+  commandParam1: commandValType1
+  commandParam2: commandValType2
   ...
 command: 
   - String
@@ -198,7 +202,7 @@ The detailed explanation for each of the parameters in each section of the confi
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on **_default_** virtual cluster    |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by **_$$paramName$$_**.  |
+| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template except in the commands. They can be referenced by **_$$paramName$$_**.  |
 | `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script or dockerimage. Specify dockerimage at least |
 | `tasks`                          | List, required             | List of `task`, one task at least |
 
@@ -226,7 +230,7 @@ The detailed explanation for each of the parameters in each section of the confi
 | `resource`                       | Object, required           | Resource required for the task |
 | `minFailedTaskCount`             | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1 |
 | `minSucceededTaskCount`          | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1 |
-| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used only in this task. If the name of a parameter also appears in the job parameters section, it will overwrite the same parameter in the job parameters section. They can also be referenced by **_$$paramName$$_**. |
+| `commandParameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used only in the commands of this task. Commands can only contain the parameters defined in the `commandParameters` of this task. They can also be referenced by **_$$paramName$$_**. |
 | `command`                        | List, required             | List of executable commands of the task, can not be empty |
 
 > resource
@@ -307,7 +311,7 @@ tasks:
       instances: 1                    # number of instances for the task
       resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
     minSucceededTaskCount: 1          # number of succeeded tasks to kill the entire job
-    parameters:
+    commandParameters:
       data: cifar10
       model: $$model$$
       batchsize: $$batchsize$$
@@ -322,7 +326,7 @@ tasks:
     resource:
       instances: 1
       resourcePerInstance: { cpu: 2, memoryMB: 8192, gpu: 0 }
-    parameters:
+    commandParameters:
       data: cifar10
       model: $$model$$
       batchsize: $$batchsize$$
