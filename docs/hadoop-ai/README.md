@@ -269,7 +269,7 @@ Usually there will have multiple patch files, the newest one is the last known g
      sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
      # Make sure launcher is configured to logged in with admin user and get the admin user name. Those can be retrieved by running following command. The default user name is root.
      curl "http://master_address:9086/v1/LauncherStatus"
-     # put the contents to cluster
+     # put the configuration to cluster
      curl -X PUT -H "Content-Type: application/json" -H "UserName: cluster_admin_user" \
       -d @src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
      # check the configuration
