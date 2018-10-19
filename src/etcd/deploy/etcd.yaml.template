@@ -17,7 +17,7 @@
 apiVersion: "etcd.database.coreos.com/v1beta2"
 kind: "EtcdCluster"
 metadata:
-  name: {{ clusterinfo['etcd-for-serviceinfo']['cluster-name'] }}
+  name: {{ clusterinfo['etcdinfo']['cluster-name'] }}
 spec:
   size: 3
   version: "3.2.13"

@@ -293,9 +293,9 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["grafana_uri"] = self.getGrafanaUri()
         serviceDict["clusterinfo"]["pyloninfo"]["pai_web_portal_uri"] = self.getPaiWebPortalUri()
         
-        serviceDict["clusterinfo"]["etcd-for-serviceinfo"] = \
+        serviceDict["clusterinfo"]["etcdinfo"] = \
             self.rawData["serviceConfiguration"]["etcd-for-service"]
-        serviceDict["clusterinfo"]["etcd-for-serviceinfo"]["cluster-name"] = self.getECTDClusterName()
+        serviceDict["clusterinfo"]["etcdinfo"]["cluster-name"] = self.getECTDClusterName()
 
         # section: machineinfo
 

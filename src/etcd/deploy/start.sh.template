@@ -21,7 +21,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-{% if clusterinfo['etcd-for-serviceinfo']['use_etcd'] -%}
+{% if clusterinfo['etcdinfo']['use_etcd'] -%}
 kubectl create -f etcd-operator.yaml || exit $?
 kubectl apply --overwrite=true -f etcd.yaml || exit $?
 {% endif -%}

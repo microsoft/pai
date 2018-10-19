@@ -51,8 +51,8 @@ spec:
         - name: DEFAULT_PAI_ADMIN_PASSWORD
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
-{% if clusterinfo['etcd-for-serviceinfo']['use_etcd'] -%}
-          value: http://{{ clusterinfo['etcd-for-serviceinfo']['cluster-name'] }}:2379
+{% if clusterinfo['etcdinfo']['use_etcd'] -%}
+          value: http://{{ clusterinfo['etcdinfo']['cluster-name'] }}:2379
 {% else %}
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
 {% endif -%}
