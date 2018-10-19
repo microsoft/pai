@@ -162,8 +162,8 @@ $(document).ready(() => {
   const username = query.user;
   const jobname = query.jobname;
   if (type != null && username != null && jobname != null) {
-    const url = username=='' 
-      ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config` 
+    const url = username==''
+      ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
       : `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
     $.ajax({
       url: url,
