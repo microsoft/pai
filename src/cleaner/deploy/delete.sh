@@ -23,4 +23,4 @@ echo "stop the cleaner service."
 
 # /bin/bash stop.sh || exit $?
 
-popd > /dev/null
+# popd > /dev/null
