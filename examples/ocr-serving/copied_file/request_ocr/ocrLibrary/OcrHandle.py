@@ -13,7 +13,7 @@ def getOcrMethod(methodName):
     if methodName == "tesserocr":
         return useOcrTesserocr
     elif methodName == "pyocr":
-        return useOcrLocalPyocr
+        return useOcrPyocr
     elif methodName == "api":
         return useOcrApi
     else:
@@ -42,7 +42,8 @@ def useOcrTesserocr(imgPath):
                 results.append(result)
     return results
 
-def useOcrLocalPyocr(imgPath):
+
+def useOcrPyocr(imgPath):
     tools = pyocr.get_available_tools()
     if len(tools) == 0:
         logger.warn("No available ocr library")
@@ -71,6 +72,7 @@ def useOcrLocalPyocr(imgPath):
                       "text": text}
             results.append(result)
     return results
+
 
 def getOcrUri():
     ocrIpport = os.getenv("OCR_IP_PORT", None)
