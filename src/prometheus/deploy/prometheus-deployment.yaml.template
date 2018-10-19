@@ -39,6 +39,8 @@ spec:
         image: prom/prometheus:v2.1.0
         resources:
           limits:
+            memory: "10Gi"
+          requests:
             memory: "256Mi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
