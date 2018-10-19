@@ -1,7 +1,7 @@
 # Release v0.8.0
 
 ## New Features
-* Failed or Running Job can be cloned and resubmitted in Job detail page - [PR 1448](https://github.com/Microsoft/pai/pull/1448).
+* All user submitted jobs can be cloned and resubmitted in Job detail page - [PR 1448](https://github.com/Microsoft/pai/pull/1448).
 * The new designed Marketplace and Submit Job V2 are under public review. 
 Please refer to the instruction for more information [Marketplace and Submit job v2](./docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md).
 Any feedback and suggestions are appreciated.
@@ -48,12 +48,11 @@ A work around is to manually update the configuration file to the cluster. This 
 ```bash
   # In the OpenPAI source code folder where you do the deployment, 
   # there should be a gpu configuration file under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json.
-  # Or you can generate it by running 
+  # Or you can start cluster-configuration to generate it.
   sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
-  # Get the gpu configuration file contents
-  config=$(cat src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json | jq -c ".")
   # put the contents to cluster
-  curl -X PUT -H "Content-Type: application/json" -H "UserName: root" -d "$config" "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
+  curl -X PUT -H "Content-Type: application/json" -H "UserName: root" \
+   -d @src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
   # check the configuration
   curl -X GET "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
   ```
