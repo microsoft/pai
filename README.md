@@ -3,7 +3,10 @@
 [logo]: ./pailogo.jpg "OpenPAI"
 
 [![Build Status](https://travis-ci.org/Microsoft/pai.svg?branch=master)](https://travis-ci.org/Microsoft/pai)
+[![Issues](https://img.shields.io/github/issues-raw/Microsoft/pai.svg)](https://github.com/Microsoft/pai/issues?q=is%3Aissue+is%3Aopen)
+[![Pull Requests](https://img.shields.io/github/issues-pr-raw/Microsoft/pai.svg)](https://github.com/Microsoft/pai/pulls?q=is%3Apr+is%3Aopen)
 [![Coverage Status](https://coveralls.io/repos/github/Microsoft/pai/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/pai?branch=master)
+[![Version](https://img.shields.io/github/release/Microsoft/pai.svg)](https://github.com/Microsoft/pai/releases/latest)
 
 OpenPAI is an open source platform that provides complete AI model training and resource management capabilities, it is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
 
