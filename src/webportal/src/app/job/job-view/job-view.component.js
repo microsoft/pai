@@ -23,6 +23,10 @@ require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-buttons-bs/js/buttons.bootstrap.js');
+require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
+require('datatables.net-select-bs/js/select.bootstrap.js');
+require('datatables.net-select-bs/css/select.bootstrap.css');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
@@ -286,11 +290,47 @@ const loadJobs = (specifiedVc) => {
     ],
     'deferRender': true,
     'autoWidth': false,
+    'dom': '<\'row\'<\'col-sm-6\'B><\'col-sm-6\'f>>' +
+      '<\'row\'<\'col-sm-12\'tr>>' +
+      '<\'row\'<\'col-sm-5\'i><\'col-sm-7\'p>>',
+    'buttons': [
+      {
+        text: 'Select displayed jobs',
+        action: function(e, dt) {
+          dt.rows({page: 'current'}).select();
+        },
+      },
+      'selectNone',
+      {
+        text: 'Stop',
+        action: function( e, dt, node, config ) {
+          const rows = dt.rows({selected: true});
+          const res = confirm(`Are you sure to stop ${rows.count()} jobs?`);
+          if (res) {
+            rows.every(function(idx) {
+              const job = dt.row(idx).data();
+              const state = getHumanizedJobStateString(job);
+              if (state === 'Waiting' || state === 'Running') {
+                stopJob(job.legacy ? '' : job.namespace || job.username, job.name, true);
+              }
+            });
+          }
+        },
+      },
+      'pageLength',
+    ],
+    'select': {
+      style: 'multi',
+    },
   }).api();
+
+  // deselect all when page changed
+  $table.on('page.dt', () => table.rows().deselect());
+  $table.on('search.dt', () => table.rows().deselect());
 };
 
-const stopJob = (namespace, jobName) => {
-  const res = confirm('Are you sure to stop the job?');
+const stopJob = (namespace, jobName, force = false) => {
+  const res = force || confirm('Are you sure to stop the job?');
   if (res) {
     const url = namespace
       ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
