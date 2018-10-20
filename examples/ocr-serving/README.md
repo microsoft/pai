@@ -22,13 +22,17 @@
 # OCR serving on PAI
 
 This example introduces how to run an OCR serving job on OpenPAI, 
-in which [tesseract](https://github.com/tesseract-ocr/tesseract) is used as an OCR backend.
+
 
 Please note that it's a simple demo, don't use it directly in production environments.
 
 
 
 ## Prepare Docker image
+
+To provide a more simple experience, we have prepared an image of `openpai/pai.example.ocr-serving`, 
+you could also prepare your own image with following steps.
+
 1. Build a base Docker image to pack necessary basic libraries for OpenPAI.
     We prepared a [base Dockerfile](../Dockerfiles/cuda9.0-cudnn7/Dockerfile.build.base) which can be built directly.
 
@@ -54,8 +58,6 @@ Please note that it's a simple demo, don't use it directly in production environ
     ```
     Please replace USER with the Docker Hub username you registered, you will be required to login before pushing Docker image.
 
-To provide a more simple experience, we have prepared an image of `openpai/pai.example.ocr-serving`, 
-thus you could skip above steps and go forward.
 
 
 ## Submit job

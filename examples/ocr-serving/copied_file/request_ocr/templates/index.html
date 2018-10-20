@@ -20,20 +20,18 @@
             <input type="file" id="chooseImage" name="filechoose" accept="image/jpg,image/jpeg,image/png"
                    style="display:none" onchange="imgChange(event,'img')">
             <img id="img"  width="500px" height="500px" src={{ imgPath }}
-                 onclick="F_Open_dialog('chooseImage')" style="margin-top:5px">
+                 onclick="openDialog('chooseImage')" style="margin-top:5px">
 
         </div>
     </form>
 </body>
 
 <script type="text/javascript">
-    function F_Open_dialog(id) {
+    function openDialog(id) {
             document.getElementById(id).click();
     }
     function imgChange(e, imageid) {
-
-
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = (function (file) {
                 return function (e) {
                     document.getElementById(imageid).src = this.result;
@@ -42,9 +40,9 @@
             reader.readAsDataURL(e.target.files[0]);
     }
     function typeCheck(imageid) {
-        var image = document.getElementById(imageid).value
-        var filePath = image,
-                fileFormat = filePath.substring(filePath.lastIndexOf(".")).toLowerCase()
+        let image = document.getElementById(imageid).value;
+        let filePath = image,
+                fileFormat = filePath.substring(filePath.lastIndexOf(".")).toLowerCase();
 
         if( !fileFormat.match(/.png|.jpg|.jpeg/) ) {
             alert('上传错误,文件格式必须为：png/jpg/jpeg');
@@ -53,6 +51,4 @@
         return true
     }
 </script>
-
-
 </html>

@@ -46,7 +46,7 @@ def useOcrTesserocr(imgPath):
 def useOcrPyocr(imgPath):
     tools = pyocr.get_available_tools()
     if len(tools) == 0:
-        logger.warn("No available ocr library")
+        logger.error("No available ocr library")
         return []
     tool = tools[0]
 
@@ -75,14 +75,20 @@ def useOcrPyocr(imgPath):
 
 
 def getOcrUri():
-    ocrIpport = os.getenv("OCR_IP_PORT", None)
-    return "http://" + ocrIpport + "/vision/v2.0/recognizeTextDirect" if ocrIpport else None
+    # For microsoft cognitive-services
+    ocrUri = os.getenv("OCR_URI", None)
+    if ocrUri is not None:
+        return ocrUri
+    else:
+        # For internal version
+        ocrIpport = os.getenv("OCR_IP_PORT", None)
+        return "http://" + ocrIpport + "/vision/v2.0/recognizeTextDirect" if ocrIpport else None
 
 
 def useOcrApi(imgPath, timeout=10):
     ocrUri = getOcrUri()
     if ocrUri is None:
-        logger.warn("Can't get API address, please pass it by env OCR_IP_PORT")
+        logger.error("Can't get API address, please pass it by env OCR_URI or OCR_IP_PORT")
         return []
     filename = os.path.basename(imgPath)
     _, ext = os.path.splitext(filename)
@@ -91,11 +97,19 @@ def useOcrApi(imgPath, timeout=10):
         try:
             res = requests.post(ocrUri, files=files, timeout=timeout)
         except requests.exceptions.Timeout:
-            logger.warn("API request timeout.")
+            logger.error("API request timeout.")
+            return []
+
+    ocrResponse = res.json()
+    if "status" in ocrResponse:
+        if ocrResponse["status"] == "Succeeded":
+            ocrResponse = ocrResponse["recognitionResult"]
+        else:
+            logger.error("Remote API return failure")
             return []
 
     results = []
-    for line in res.json()["lines"]:
+    for line in ocrResponse["lines"]:
         box, text = line["boundingBox"], line["text"]
         tl_x = min(box[0::2])
         tl_y = min(box[1::2])
