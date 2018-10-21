@@ -1459,6 +1459,23 @@ datatables.net-bs@^1.10.15:
     datatables.net "1.10.16"
     jquery ">=1.7"
 
+datatables.net-buttons-bs@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons-bs/-/datatables.net-buttons-bs-1.5.4.tgz#03d428732f551d06f5f6d58ba4a98f973c72f563"
+  integrity sha512-NUKPMmc/5RPeQP3aq+ey7DYNmy516OjAPo6Mv3qQis5ZNItms/y8d+nIYQ16QKv+fRO1NVgsjOxB7OpYSbH2ug==
+  dependencies:
+    datatables.net-bs "^1.10.15"
+    datatables.net-buttons "1.5.4"
+    jquery ">=1.7"
+
+datatables.net-buttons@1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons/-/datatables.net-buttons-1.5.4.tgz#806c249e0858ea6cafccad433f4dd7736c0b1464"
+  integrity sha512-xfo/23sGVXQW0kj2jLH6PzkhnXv+yGPrUXh7/ZT7xvCL1sNt8MLLf0tPLyrWynyeaew+Qvx5NBZer4MLxmisyw==
+  dependencies:
+    datatables.net "^1.10.15"
+    jquery ">=1.7"
+
 datatables.net-plugins@~1.10.15:
   version "1.10.18"
   resolved "https://registry.yarnpkg.com/datatables.net-plugins/-/datatables.net-plugins-1.10.18.tgz#4f15dbac27117aeb5b9bf904e36a41a998f54960"
@@ -1477,6 +1494,19 @@ datatables.net-responsive@2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/datatables.net-responsive/-/datatables.net-responsive-2.2.3.tgz#50a2b1b4955b16b32f573a3f00f473b0bfbee913"
   integrity sha512-8D6VtZcyuH3FG0Hn5A4LPZQEOX3+HrRFM7HjpmsQc/nQDBbdeBLkJX4Sh/o1nzFTSneuT1Wh/lYZHVPpjcN+Sw==
+datatables.net-select-bs@^1.2.7:
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/datatables.net-select-bs/-/datatables.net-select-bs-1.2.7.tgz#0fa812fb73ce8d0bae8356ea4d9601399d805ab5"
+  integrity sha512-4gG+nlbfyQ1lKQUHfO7Z09BOztw9dI7kgRXMe4N0s3bJiS4cbqf2L/hOMXLiEIHsa8fecrVCLtUkVVG+IamDrQ==
+  dependencies:
+    datatables.net-bs "^1.10.15"
+    datatables.net-select "1.2.7"
+    jquery ">=1.7"
+
+datatables.net-select@1.2.7:
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/datatables.net-select/-/datatables.net-select-1.2.7.tgz#7d5badfca49c438f8b51df04483d8d77857e917c"
+  integrity sha512-C3XDi7wpruGjDXV36dc9hN/FrAX9GOFvBZ7+KfKJTBNkGFbbhdzHS91SMeGiwRXPYivAyxfPTcVVndVaO83uBQ==
   dependencies:
     datatables.net "^1.10.15"
     jquery ">=1.7"

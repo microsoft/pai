@@ -27,9 +27,9 @@ remove-node:
 
 stop-etcd-on-target-node:
 
-    file-list:
+    template-list:
     - name: stop-etcd-server.sh
-      src: deployment/k8sPaiLibrary/maintaintool/stop-etcd-server.sh
+      src: deployment/k8sPaiLibrary/template/stop-etcd-server.sh.template
       dst: stop-etcd-on-target-node
 
 
