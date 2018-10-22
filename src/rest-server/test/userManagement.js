@@ -89,6 +89,48 @@ describe('Add new user: put /api/v1/user', () => {
         }
       });
 
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
+
+    nock(etcdHosts)
+      .put('/v2/keys/users/new_user/virtualClusters', { 'value': 'default,vc1,vc2' })
+      .reply(200, {
+        'action': 'update',
+        'node': {
+          'key': '/users/new_user/virtualClusters',
+          'value': 'default,vc1',
+          'modifiedIndex': 5,
+          'createdIndex': 5
+        }
+      });
+
     nock(etcdHosts)
       .put('/v2/keys/users/new_user/admin', { 'value': 'false' })
       .reply(200, {
