@@ -104,11 +104,9 @@
   <tbody>
     <% for (let taskRole of Object.keys(taskRoles)) { %>
       <% for (let i = 0; i < taskRoles[taskRole].taskStatuses.length; i ++) {
-        var cellClass = taskRoles[taskRole].taskStatuses[i].containerExitCode === 0
-          ? 'success' : (
-            typeof taskRoles[taskRole].taskStatuses[i].containerExitCode == 'number'
-              ? 'danger' : ''
-          )
+        var containerExitCode = taskRoles[taskRole].taskStatuses[i].containerExitCode
+        var isContainerFailed = typeof containerExitCode == 'number' && containerExitCode !== 0
+        var cellClass = isContainerFailed ? 'danger' : ''
       %>
         <tr>
           <% if (i == 0) { %>
@@ -127,7 +125,8 @@
             <% } %>
           </td>
           <td class="<%= cellClass %>"><%= convertGpu(taskRoles[taskRole].taskStatuses[i].containerGpus) %></td>
-          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].containerExitCode %></td>
+          <td class="<%= cellClass %>"><%= taskRoles[taskRole].taskStatuses[i].containerExitCode == null
+            ? '?' : taskRoles[taskRole].taskStatuses[i].containerExitCode %></td>
           <td class="<%= cellClass %>">
             <div name='sshInfoDiv-<%= taskRoles[taskRole].taskStatuses[i].containerId %>' style='float:left'>
               <a name='sshInfoLink-<%= taskRoles[taskRole].taskStatuses[i].containerId %>'
