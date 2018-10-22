@@ -20,6 +20,6 @@
 
 pushd $(dirname "$0") > /dev/null
 
-kubectl apply --overwrite=true -f cleaner.yaml || exit $?
+# kubectl apply --overwrite=true -f cleaner.yaml || exit $?
 
 popd > /dev/null

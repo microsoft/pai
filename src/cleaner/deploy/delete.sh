@@ -19,8 +19,8 @@
 
 echo "stop the cleaner service."
 
-pushd $(dirname "$0") > /dev/null
+# pushd $(dirname "$0") > /dev/null
 
-/bin/bash stop.sh || exit $?
+# /bin/bash stop.sh || exit $?
 
-popd > /dev/null
+# popd > /dev/null
