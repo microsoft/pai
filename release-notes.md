@@ -52,8 +52,8 @@ A work around is to manually update the configuration file to the cluster. This 
   # Make sure launcher is configured to login with admin user and get the admin user name.
   # The admin user name can be found in launcher status which can be retrieved by running following command. The default user name is root.
   curl "http://master_address:9086/v1/LauncherStatus"
-  # put the configuration to cluster with
-  curl -X PUT -H "Content-Type: application/json" -H "UserName: root" \
+  # put the configuration to cluster with admin user name
+  curl -X PUT -H "Content-Type: application/json" -H "UserName: admin_user_name" \
    -d @src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
   # check the configuration
   curl -X GET "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
