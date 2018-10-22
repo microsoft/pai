@@ -5,7 +5,6 @@
 * The new designed Marketplace and Submit Job V2 are under public review. 
 Please refer to the instruction for more information [Marketplace and Submit job v2](./docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md).
 Any feedback and suggestions are appreciated.
-* A new service cleaner is added to remove the docker cache and check if there are dangling file handlers hold by live processes on the host.
 * Alerting service supports to mute alerts. The instructions can be found via [alert-manager](./docs/alerting/alert-manager.md#muting-firing-alert).
 * New Feedback Button: users are allowed to submit GitHub Issues with appended OpenPAI version directly from WebUI - [PR 1289](https://github.com/Microsoft/pai/pull/1289).
 
@@ -50,7 +49,10 @@ A work around is to manually update the configuration file to the cluster. This 
   # there should be a gpu configuration file under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json.
   # Or you can start cluster-configuration to generate it.
   sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
-  # put the contents to cluster
+  # Make sure launcher is configured to login with admin user and get the admin user name.
+  # The admin user name can be found in launcher status which can be retrieved by running following command. The default user name is root.
+  curl "http://master_address:9086/v1/LauncherStatus"
+  # put the configuration to cluster with
   curl -X PUT -H "Content-Type: application/json" -H "UserName: root" \
    -d @src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
   # check the configuration
