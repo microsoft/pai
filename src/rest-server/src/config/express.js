@@ -31,6 +31,7 @@ const createError = require('../util/error');
 
 const app = express();
 
+app.disable('etag');
 app.set('json spaces', config.env === 'development' ? 4 : 0);
 
 app.use(cors());
