@@ -91,6 +91,7 @@ docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
 
 
 # Get container host list from framework launcher webservice
+ssh_config_file="tmp/pai-root/ssh_config"
 function get_host_list()
 {
   delay_time=20
@@ -127,9 +128,22 @@ function get_host_list()
   done
   for taskrole in $(echo $taskrole_statuses |  jq -r ".|keys[]"); do
     host_list=''
-    while read container_ip && read container_ports; do
+    while read container_ip && read container_ports && read task_index; do
       host_list+=${container_ip}:$(echo $container_ports | grep -o "http:[^,;]*" | cut -f 2 -d":"),
-    done < <(echo $taskrole_statuses | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts")
+      ssh_port=$(echo $container_ports | grep -o "ssh:[^,;]*" | cut -f 2 -d":")
+      echo "[CAN-TEST] containerIp ${container_ip}"
+      echo "[CAN-TEST] ssh_port ${ssh_port}"
+      echo "[CAN-TEST] taskrole ${taskrole}"
+      echo "[CAN-TEST] task_index ${task_index}"
+      printf "%s\n  %s\n  %s\n  %s\n  %s\n  %s\n  %s\n" \
+        "Host ${taskrole}-${task_index}" \
+        "HostName ${container_ip}" \
+        "Port ${ssh_port}" \
+        "User root" \
+        "StrictHostKeyChecking no" \
+        "UserKnownHostsFile /dev/null" \
+        "IdentityFile /root/.ssh/{{{ jobData.jobName }}}" >> ${ssh_config_file}
+    done < <(echo $taskrole_statuses | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts, .taskIndex")
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
   done
@@ -262,6 +276,7 @@ docker run --name $docker_name \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop:ro \
+  --volume $container_local_dir/$ssh_config_file:/pai/ssh_config \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \
