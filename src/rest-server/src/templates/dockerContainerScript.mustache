@@ -111,6 +111,7 @@ function get_ssh_key_files()
     webhdfs_download_file $webHdfsKeyPath $localKeyPath
     webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/ssh/keyFiles/{{{ jobData.jobName }}}
     webhdfs_download_file $webHdfsPrivateKeyPath $localPrivateKeyPath
+    chmod 400 ${localPrivateKeyPath}
   else
     printf "%s %s\n" \
       "[WARNING]" "Get another key store way"
