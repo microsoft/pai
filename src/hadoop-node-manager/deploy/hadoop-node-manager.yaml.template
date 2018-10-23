@@ -43,6 +43,8 @@ spec:
           name: device-mount
         - mountPath: /var/run/docker.sock
           name: docker-socket
+        - mountPath: /root/.docker 
+          name: docker-cred-volume
         - mountPath: /var/drivers
           name: driver-path
         - mountPath: /var/lib/yarn
@@ -99,6 +101,9 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
+      - name: docker-cred-volume
+        configMap:
+          name: docker-credentials
       - name: driver-path
         hostPath:
           path: /var/drivers
