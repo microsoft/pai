@@ -162,9 +162,23 @@ $(document).ready(() => {
   const username = query.user;
   const jobname = query.jobname;
   if (type != null && username != null && jobname != null) {
-    const url = `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
-    $.getJSON(url, (data) => {
-      editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+    const url = username==''
+      ? `${webportalConfig.restServerUri}/api/v1/jobs/${jobname}/config`
+      : `${webportalConfig.restServerUri}/api/v1/user/${username}/jobs/${jobname}/config`;
+    $.ajax({
+      url: url,
+      type: 'GET',
+      success: (data) => {
+        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+      },
+      error: (xhr, textStatus, error) => {
+        const res = JSON.parse(xhr.responseText);
+        if (res.message === 'ConfigFileNotFound') {
+          alert('This job\'s config file has not been stored.');
+        } else {
+          alert('Error: ' + res.message);
+        }
+      },
     });
   }
 });
