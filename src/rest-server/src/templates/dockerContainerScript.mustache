@@ -178,7 +178,8 @@ if service --status-all 2>&1 | grep -q ssh; then
   #   done
   # fi
   # Move ssh config file to /root/.ssh/config
-  mv /pai/ssh_config /root/.ssh/config
+  echo "[CAT-TEST] MOVE config to /root/.ssh/"
+  mv /pai/ssh_config/config /root/.ssh/
   # Start ssh service
   start_ssh_service
 fi

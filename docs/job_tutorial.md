@@ -20,9 +20,9 @@
 
 # How to Run a Deep Learning Job
 
-OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
-It also supports other type of job through a customized docker image. 
-Users need to prepare a config file and submit it for a job submission. 
+OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc.
+It also supports other type of job through a customized docker image.
+Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
 ## Table of Contents:
@@ -46,7 +46,7 @@ Please refer to this [document](../examples/README.md#quickstart) for how to wri
 
 ### Prerequisites <a name="prerequisites"></a>
 
-This guide assumes the system has already been deployed properly and a docker registry is available to store docker images. 
+This guide assumes the system has already been deployed properly and a docker registry is available to store docker images.
 
 ### Use docker to package the job environment dependencies <a name="docker"></a>
 
@@ -243,9 +243,9 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on [HDFS](../docs/hadoop/hdfs.md)
 
-- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system. 
+- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system.
 - Option-2: Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
-    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details. 
+    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
 
 2. Prepare a job config file
 
@@ -268,15 +268,15 @@ You can ssh connect to a specified container either from outside or inside conta
 3. Download the corresponding private key from HDFS.
    For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
    ```sh
-   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/jobName?op=OPEN -O jobName
    ```
 4. Use `chmod` command to set correct permission for the key file.
    ```sh
-   chmod 400 application_id
+   chmod 400 jobName
    ```
 5. Use `ssh` command to connect into container. for example
    ```sh
-   ssh -i application_id -p ssh_port root@container_ip
+   ssh -i jobName -p ssh_port root@container_ip
    ```
 ### SSH connect inside containers
 
