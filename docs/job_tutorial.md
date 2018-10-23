@@ -268,15 +268,15 @@ You can ssh connect to a specified container either from outside or inside conta
 3. Download the corresponding private key from HDFS.
    For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
    ```sh
-   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/jobName?op=OPEN -O jobName 
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/userName~jobName?op=OPEN -O jobName 
    ```
 4. Use `chmod` command to set correct permission for the key file.
    ```sh
-   chmod 400 jobName 
+   chmod 400 userName~jobName 
    ```
 5. Use `ssh` command to connect into container. for example
    ```sh
-   ssh -i jobName -p ssh_port root@container_ip
+   ssh -i userName~jobName -p ssh_port root@container_ip
    ```
 ### SSH connect inside containers
 
