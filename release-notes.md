@@ -58,6 +58,10 @@ A work around is to manually update the configuration file to the cluster. This 
   # check the configuration
   curl -X GET "http://master_address:9086/v1/LauncherRequest/ClusterConfiguration"
   ```
+* If a running container's "View SSH Info" popup is opened in Chrome browser. By clicking the "private key" link the private key file will downloaded
+  and stored to local host. The key file's name consists of the user name and job name, jointed by a ~ character. Chrome will replace the ~ with
+  - character. So users need to change the key file name accordingly when SSH to the container by following step 3 and 4 in the "View SSH Info" popup.
+  Please follow [Issue 1574](https://github.com/Microsoft/pai/issues/1574) to track this problem.
 
 ## Break Changes
 * In release v0.8.0 the Yarn container script will be run by docker executor. After a cluster is upgraded to release v0.8.0 from an earlier release.
