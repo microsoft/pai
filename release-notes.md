@@ -60,7 +60,7 @@ A work around is to manually update the configuration file to the cluster. This 
   ```
 * If a running container's "View SSH Info" popup is opened in Chrome browser. By clicking the "private key" link the private key file will downloaded
   and stored to local host. The key file's name consists of the user name and job name, jointed by a ~ character. Chrome will replace the ~ with
-  - character. So users need to change the key file name accordingly when SSH to the container by following step 3 and 4 in the "View SSH Info" popup.
+  \- character. So users need to change the key file name accordingly when SSH to the container by following step 3 and 4 in the "View SSH Info" popup.
   Please follow [Issue 1574](https://github.com/Microsoft/pai/issues/1574) to track this problem.
 
 ## Break Changes
