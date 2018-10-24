@@ -1,0 +1,22 @@
+{
+  "jobName": "tensorflow-embedding",
+  "image": "openpai/pai.example.tensorflow",
+  "codeDir": "$PAI_DEFAULT_FS_URI/tutorial/embedding/code",
+  "authFile": "",
+  "dataDir": "$PAI_DEFAULT_FS_URI/tutorial/embedding/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/tutorial/embedding/output",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "embedding_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 0,
+      "command": "python code/word2vec_basic.py --input_dir=$PAI_DATA_DIR --output_dir=$PAI_OUTPUT_DIR",
+      "minSucceededTaskCount": 1,
+      "minFailedTaskCount": 1
+    }
+  ]
+}

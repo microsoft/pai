@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "imagenet", "imagenet\imagenet.pyproj", "{82D9546F-5924-4A16-8F9C-F3B853B883F1}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "embedding", "embedding\embedding.pyproj", "{1C92D843-248D-49B2-A149-A129F8DA0CBE}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MNIST", "MNIST\MNIST.pyproj", "{1A8C8511-61BB-4F82-BC27-C82CBC6ACA3A}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "cifar10", "cifar10\cifar10.pyproj", "{16A0ED44-98A5-4DCB-B8DB-58ADB8D25AAE}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MemN2N", "MemN2N\MemN2N.pyproj", "{9F10CDDC-8B86-4F1E-BE76-2B15B5CCBCBF}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NTM", "NTM\NTM.pyproj", "{03DD61EA-936F-4A70-95D8-30101B22A62C}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "yolo_tensorflow", "yolo_tensorflow\yolo_tensorflow.pyproj", "{BF2EDCF7-997E-4770-BC53-CFDEB579874D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82D9546F-5924-4A16-8F9C-F3B853B883F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82D9546F-5924-4A16-8F9C-F3B853B883F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C92D843-248D-49B2-A149-A129F8DA0CBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C92D843-248D-49B2-A149-A129F8DA0CBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A8C8511-61BB-4F82-BC27-C82CBC6ACA3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A8C8511-61BB-4F82-BC27-C82CBC6ACA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16A0ED44-98A5-4DCB-B8DB-58ADB8D25AAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16A0ED44-98A5-4DCB-B8DB-58ADB8D25AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F10CDDC-8B86-4F1E-BE76-2B15B5CCBCBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F10CDDC-8B86-4F1E-BE76-2B15B5CCBCBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03DD61EA-936F-4A70-95D8-30101B22A62C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03DD61EA-936F-4A70-95D8-30101B22A62C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF2EDCF7-997E-4770-BC53-CFDEB579874D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF2EDCF7-997E-4770-BC53-CFDEB579874D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2DA67F13-B232-433E-A38C-CB4A6975548D}
+	EndGlobalSection
+EndGlobal

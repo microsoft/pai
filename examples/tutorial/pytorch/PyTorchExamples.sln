@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ScreenerNet", "ScreenerNet\ScreenerNet.pyproj", "{CAE6595F-7D7A-4822-9BFD-345B97A9E60E}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "mnist", "mnist\mnist.pyproj", "{A4824EB8-0EF2-4018-B8F6-CEACAFD26EE8}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "cifar10", "cifar10\cifar10.pyproj", "{773740F5-45FA-4A22-9687-3B0A6F04A8B4}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "transfer_learning", "transfer_learning\transfer_learning.pyproj", "{C48C53E8-35E8-4357-97E2-F4797BA3023B}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "sentiment_analysis", "sentiment_analysis\sentiment_analysis.pyproj", "{DECEEBBD-0352-4AF6-BD2D-682274A6AFEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAE6595F-7D7A-4822-9BFD-345B97A9E60E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAE6595F-7D7A-4822-9BFD-345B97A9E60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4824EB8-0EF2-4018-B8F6-CEACAFD26EE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4824EB8-0EF2-4018-B8F6-CEACAFD26EE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{773740F5-45FA-4A22-9687-3B0A6F04A8B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{773740F5-45FA-4A22-9687-3B0A6F04A8B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C48C53E8-35E8-4357-97E2-F4797BA3023B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C48C53E8-35E8-4357-97E2-F4797BA3023B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DECEEBBD-0352-4AF6-BD2D-682274A6AFEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DECEEBBD-0352-4AF6-BD2D-682274A6AFEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C5F2E7A-2344-40B6-BBE3-EC47DE72470B}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,20 @@
+{
+  "jobName": "tensorflow-dcgan",
+  "image": "openpai/pai.example.tensorflow",
+  "codeDir": "$PAI_DEFAULT_FS_URI/tutorial/dcgan/code",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "$PAI_DEFAULT_FS_URI/tutorial/dcgan/output",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "dcgan_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "python code/dcgan.py"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "jobName": "pytorch-mnist",
+  "image": "openpai/pai.example.pytorch",
+  "codeDir": "$PAI_DEFAULT_FS_URI/tutorial/mnist/code",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "train_mnist",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "command": "pip3 --quiet install torch torchvision && python3 code/mnist.py",
+      "minSucceededTaskCount": 1,
+      "minFailedTaskCount": 1
+    }
+  ]
+}

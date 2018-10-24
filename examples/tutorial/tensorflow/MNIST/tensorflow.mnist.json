@@ -1,0 +1,20 @@
+{
+  "jobName": "tensorflow-mnist",
+  "image": "openpai/pai.example.tensorflow",
+  "codeDir": "$PAI_DEFAULT_FS_URI/tutorial/mnist/code",
+  "authFile": "",
+  "dataDir": "",
+  "outputDir": "$PAI_DEFAULT_FS_URI/tutorial/mnist/output",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "mnist_train",
+      "taskNumber": 1,
+      "cpuNumber": 8,
+      "memoryMB": 32768,
+      "gpuNumber": 1,
+      "command": "python code/mnist.py"
+    }
+  ]
+}

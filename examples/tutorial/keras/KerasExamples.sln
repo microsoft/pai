@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "cifar10_tf", "cifar10_tf\cifar10_tf.pyproj", "{F7130CC2-FAB7-45AA-97B8-7C6F372AC51F}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "cifar10_th", "cifar10_th\cifar10_th.pyproj", "{B7C0B0A0-49DD-4D9E-AD08-7EA9030C9482}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "dcgan_tf", "dcgan_tf\dcgan_tf.pyproj", "{3BF122A1-1FE9-4C9F-9A0C-84AB32D3D8B1}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "capsnet_tf", "capsnet_tf\capsnet_tf.pyproj", "{0D453F38-0222-4321-80B1-AB2585558A57}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DenseNet", "DenseNet\DenseNet.pyproj", "{5B91D130-03B2-415C-8EC3-92D224EE7C34}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "acgan_tf", "acgan_tf\acgan_tf.pyproj", "{11DC1594-FA9D-446B-8262-63F1048B55CD}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "wgan_tf", "wgan_tf\wgan_tf.pyproj", "{95821350-188B-44B2-BDE2-B7256B330B66}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "infogan_tf", "infogan_tf\infogan_tf.pyproj", "{EE68784F-A500-433A-9806-E7202E6A9DE8}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Image_Captioning", "Image_Captioning\Image_Captioning.pyproj", "{4961F807-50D9-4BD3-8974-C7752C3B3C9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7130CC2-FAB7-45AA-97B8-7C6F372AC51F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7130CC2-FAB7-45AA-97B8-7C6F372AC51F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7C0B0A0-49DD-4D9E-AD08-7EA9030C9482}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7C0B0A0-49DD-4D9E-AD08-7EA9030C9482}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BF122A1-1FE9-4C9F-9A0C-84AB32D3D8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BF122A1-1FE9-4C9F-9A0C-84AB32D3D8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D453F38-0222-4321-80B1-AB2585558A57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D453F38-0222-4321-80B1-AB2585558A57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B91D130-03B2-415C-8EC3-92D224EE7C34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B91D130-03B2-415C-8EC3-92D224EE7C34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11DC1594-FA9D-446B-8262-63F1048B55CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11DC1594-FA9D-446B-8262-63F1048B55CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95821350-188B-44B2-BDE2-B7256B330B66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95821350-188B-44B2-BDE2-B7256B330B66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE68784F-A500-433A-9806-E7202E6A9DE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE68784F-A500-433A-9806-E7202E6A9DE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4961F807-50D9-4BD3-8974-C7752C3B3C9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4961F807-50D9-4BD3-8974-C7752C3B3C9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0DD5AF9F-5353-460A-8323-9B440290C065}
+	EndGlobalSection
+EndGlobal

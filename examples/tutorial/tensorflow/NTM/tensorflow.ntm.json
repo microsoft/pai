@@ -1,0 +1,22 @@
+{
+  "jobName": "tensorflow-ntm",
+  "image": "openpai/pai.example.tensorflow",
+  "codeDir": "$PAI_DEFAULT_FS_URI/tutorial/ntm/code",
+  "authFile": "",
+  "dataDir": "$PAI_DEFAULT_FS_URI/tutorial/ntm/data",
+  "outputDir": "",
+  "gpuType": "",
+  "retryCount": 0,
+  "taskRoles": [
+    {
+      "name": "taskRole_1",
+      "taskNumber": 1,
+      "cpuNumber": 1,
+      "memoryMB": 32768,
+      "gpuNumber": 0,
+      "command": "hdfs dfs -copyToLocal $PAI_DATA_DIR/* code/ && cd code && python main.py",
+      "minSucceededTaskCount": 1,
+      "minFailedTaskCount": 1
+    }
+  ]
+}
