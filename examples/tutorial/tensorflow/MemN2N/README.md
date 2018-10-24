@@ -1,8 +1,6 @@
 End-To-End Memory Networks in Tensorflow
 ========================================
 
-[简体中文](/zh-hans/examples/tensorflow/MemN2N/README.md)
-
 Tensorflow implementation of [End-To-End Memory Networks](http://arxiv.org/abs/1503.08895v4) for language modeling (see Section 5). The original torch code from Facebook can be found [here](https://github.com/facebook/MemNN/tree/master/MemN2N-lang-model).
 
 ![alt tag](http://i.imgur.com/nv89JLc.png)

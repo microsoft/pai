@@ -1,7 +1,5 @@
 # Dense Net in Keras
 
-[简体中文](/zh-hans/examples/keras/DenseNet/README.md)
-
 DenseNet implementation of the paper [Densely Connected Convolutional Networks](https://arxiv.org/pdf/1608.06993v3.pdf) in Keras
 
 Now supports the more efficient DenseNet-BC (DenseNet-Bottleneck-Compressed) networks. Using the DenseNet-BC-190-40 model, 

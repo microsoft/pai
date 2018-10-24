@@ -1,8 +1,6 @@
 Neural Turing Machine in Tensorflow
 ===================================
 
-[简体中文](/zh-hans/examples/tensorflow/NTM/README.md)
-
 Tensorflow implementation of [Neural Turing Machine](http://arxiv.org/abs/1410.5401). This implementation uses an LSTM controller. NTM models with multiple read/write heads are supported.
 
 ![alt_tag](etc/NTM.gif)
