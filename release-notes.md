@@ -68,3 +68,23 @@ A work around is to manually update the configuration file to the cluster. This 
 The jobs submitted before the upgrading cannot be retried on the new release. The retried jobs may end up with nonzero exit code even if they complete correctly.
 To run the retried jobs, users need to end them and submit new jobs with the same configuration.
 
+## Upgrading from Earlier Release
+* Download the code package of release v0.8.0 from [release page](https://github.com/Microsoft/pai/releases).
+Or you can clone the code by running
+  ```bash
+  git clone --branch v0.8.0 git@github.com:Microsoft/pai.git
+  ```
+* prepare your cluster configuration by instructions in [OpenPAI Configuration](./docs/pai-management/doc/how-to-write-pai-configuration.md).
+  In the *service-configuration.yaml* file, configure the docker info as following:
+  ```yaml
+  docker-namespace: openpai
+  docker-registry-domain: docker.io
+  docker-tag: v0.8.0
+  ```
+* In the code source directory, upgrade by following steps:
+  ```bash
+  # stop the services
+  python paictl.py service stop -p cluster_configuration_file_path
+  # after the service is stopped. start the services with new images
+  python paictl.py service start -p cluster_configuration_file_path
+  ```
