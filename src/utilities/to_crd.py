@@ -385,7 +385,7 @@ class Job(object):
         restart_policy = "Never"
 
         result = {
-                "apiVersion": "launcher.microsoft.com/v1",
+                "apiVersion": "frameworkcontroller.microsoft.com/v1",
                 "kind": "Framework",
                 "metadata": {"name": self.name},
                 "spec": {
