@@ -71,9 +71,11 @@ def uploadimage():
 
 @app.route("/resultImg/<string:filename>", methods=["GET"])
 def download(filename):
-    if request.method == "GET" and os.path.isfile(os.path.join("resultImg", filename)):
+    if os.path.isfile(os.path.join("resultImg", filename)):
         return send_from_directory("resultImg", filename, as_attachment=True)
-    return None
+    else:
+        app.logger.warn("File doesn't exist: {}".format(filename))
+        return None
 
 
 if __name__ == "__main__":
@@ -91,6 +93,8 @@ if __name__ == "__main__":
     port = args.port
     debug = args.debug
     getOcrResult = getOcrMethod(args.method)
+    if getOcrResult is None:
+        exit(1)
 
     setLoggerFormat(logLevel="DEBUG" if args.debug else "INFO")
     app.logger.info("start ocr service")
