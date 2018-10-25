@@ -66,6 +66,7 @@ class paiObjectModel:
         if "etcd-data-path" not in k8sDict["clusterinfo"]:
             k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd/data"
 
+
         # section : component_list
 
         k8sDict["component_list"] = self.rawData["k8sRoleDefinition"]["component-list"]
