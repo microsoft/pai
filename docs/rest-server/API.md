@@ -431,16 +431,48 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
     {
       name: "jobName",
-      state: "jobState",
-      createdTime: "createdTimestamp",
-      completedTime: "completedTimestamp",
-      appId: "applicationId",
-      appProgress: "applicationProgress",
-      appTrackingUrl: "applicationTrackingUrl",
-      appLaunchedTime: "applicationLaunchedTimestamp",
-      appCompletedTime: "applicationCompletedTimestamp",
-      appExitCode: applicationExitCode,
-      appExitDiagnostics: "applicationExitDiagnostics"
+      jobStatus: {
+        username: "username",
+        virtualCluster: "virtualCluster",
+        state: "jobState",
+        // raw frameworkState from frameworklauncher
+        subState: "frameworkState",
+        createdTime: "createdTimestamp",
+        completedTime: "completedTimestamp",
+        executionType: "executionType",
+        // Sum of succeededRetriedCount, transientNormalRetriedCount,
+        // transientConflictRetriedCount, nonTransientRetriedCount,
+        // and unKnownRetriedCount
+        retries: retriedCount,
+        appId: "applicationId",
+        appProgress: "applicationProgress",
+        appTrackingUrl: "applicationTrackingUrl",
+        appLaunchedTime: "applicationLaunchedTimestamp",
+        appCompletedTime: "applicationCompletedTimestamp",
+        appExitCode: applicationExitCode,
+        appExitDiagnostics: "applicationExitDiagnostics"
+        appExitType: "applicationExitType"
+      },
+      taskRoles: {
+        // Name-details map
+        "taskRoleName": {
+          taskRoleStatus: {
+            name: "taskRoleName"
+          },
+          taskStatuses: {
+            taskIndex: taskIndex,
+            containerId: "containerId",
+            containerIp: "containerIp",
+            containerPorts: {
+              // Protocol-port map
+              "protocol": "portNumber"
+            },
+            containerGpus: containerGpus,
+            containerLog: containerLogHttpAddress,
+          }
+        },
+        ...
+      }
     }
     ```
 
@@ -479,16 +511,48 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
     {
       name: "jobName",
-      state: "jobState",
-      createdTime: "createdTimestamp",
-      completedTime: "completedTimestamp",
-      appId: "applicationId",
-      appProgress: "applicationProgress",
-      appTrackingUrl: "applicationTrackingUrl",
-      appLaunchedTime: "applicationLaunchedTimestamp",
-      appCompletedTime: "applicationCompletedTimestamp",
-      appExitCode: applicationExitCode,
-      appExitDiagnostics: "applicationExitDiagnostics"
+      jobStatus: {
+        username: "username",
+        virtualCluster: "virtualCluster",
+        state: "jobState",
+        // raw frameworkState from frameworklauncher
+        subState: "frameworkState",
+        createdTime: "createdTimestamp",
+        completedTime: "completedTimestamp",
+        executionType: "executionType",
+        // Sum of succeededRetriedCount, transientNormalRetriedCount,
+        // transientConflictRetriedCount, nonTransientRetriedCount,
+        // and unKnownRetriedCount
+        retries: retriedCount,
+        appId: "applicationId",
+        appProgress: "applicationProgress",
+        appTrackingUrl: "applicationTrackingUrl",
+        appLaunchedTime: "applicationLaunchedTimestamp",
+        appCompletedTime: "applicationCompletedTimestamp",
+        appExitCode: applicationExitCode,
+        appExitDiagnostics: "applicationExitDiagnostics"
+        appExitType: "applicationExitType"
+      },
+      taskRoles: {
+        // Name-details map
+        "taskRoleName": {
+          taskRoleStatus: {
+            name: "taskRoleName"
+          },
+          taskStatuses: {
+            taskIndex: taskIndex,
+            containerId: "containerId",
+            containerIp: "containerIp",
+            containerPorts: {
+              // Protocol-port map
+              "protocol": "portNumber"
+            },
+            containerGpus: containerGpus,
+            containerLog: containerLogHttpAddress,
+          }
+        },
+        ...
+      }
     }
     ```
 

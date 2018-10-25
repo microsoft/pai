@@ -7,11 +7,11 @@
       </div>
       <div class="modal-body">
         <div class="box-header with-border user-edit-border">
-          <h3 class="box-title">Change Password</h3>
+          <h3 class="box-title">Change Userinfo</h3>
         </div>
         <form id="form-update-account" class="form-register">
           <label for="inputPassword" class="sr-only">Password</label>
-          <input type="password" name="password" id="update-account-input-password" class="form-control" placeholder="******" required>
+          <input type="password" name="password" id="update-account-input-password" class="form-control" placeholder="******">
           <div class="checkbox">
             <label>
               <% if (isAdmin === 'true') { %>
@@ -20,7 +20,7 @@
                 <input type="checkbox" name="admin">Admin user</label>
               <% } %>
           </div>
-          <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserAccount('<%= username %>')">Change Password</button>
+          <button class="btn btn-lg btn-primary btn-block" type="button" onclick="updateUserAccount('<%= username %>')">Change Userinfo</button>
         </form>
         <% if (isAdmin !== 'true') { %>
           <div class="box-header with-border user-edit-border">

@@ -99,5 +99,32 @@ global.frameworkDetailTemplate = JSON.stringify({
       'frameworkState': 'APPLICATION_RUNNING',
       'applicationId': '{{applicationId}}',
     },
+    'aggregatedTaskRoleStatuses': {
+      'role1': {
+        'taskRoleStatus': {
+          'taskRoleName': 'role1',
+        },
+        'taskStatuses': {
+          'taskRoleName': 'role1',
+          'taskStatusArray': [{
+            'taskIndex': 0,
+            'taskRoleName': 'role1',
+            'taskState': 'TASK_COMPLETED',
+            'taskRetryPolicyState': {
+              'retriedCount': 0,
+              'succeededRetriedCount': 0,
+              'transientNormalRetriedCount': 0,
+              'transientConflictRetriedCount': 0,
+              'nonTransientRetriedCount': 0,
+              'unKnownRetriedCount': 0,
+            },
+            'containerId': 'container1',
+            'containerExitCode': 1,
+            'containerExitDiagnostics': '',
+            'containerExitType': 'UNKNOWN',
+          }],
+        },
+      },
+    },
   },
 });
