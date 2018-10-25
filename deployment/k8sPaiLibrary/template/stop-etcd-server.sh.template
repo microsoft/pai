@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -19,17 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-pushd $(dirname "$0") > /dev/null
 
-{% if 'alerting' in clusterinfo['prometheusinfo'] %}
-kubectl create configmap alert-templates --from-file=alert-templates --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
-kubectl apply --overwrite=true -f alert-configmap.yaml || exit $?
-kubectl apply --overwrite=true -f alert-manager.yaml || exit $?
-
-sleep 10
-# wait until the service is ready.
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v alertmanager || exit $?
-{% endif %}
+# step1 : remove etcd.yaml
+rm /etc/kubernetes/manifests/etcd.yaml
 
 
-popd > /dev/null
+# step2: stop container
+target_id=`docker ps --filter "name=POD_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+target_id=`docker ps --filter "name=container_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+
+# step3: delete etcd server data
+if [ -d "{{ clusterconfig['etcd-data-path'] }}" ]; then
+
+    rm -rf {{ clusterconfig['etcd-data-path'] }}
+
+fi
+

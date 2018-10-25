@@ -37,31 +37,17 @@ pushd $(dirname "$0") > /dev/null
 # hbase master
 kubectl create -f hbase-master.yaml
 
-# A tool to check whether a node was labeled with hbasemaster="true"
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hbasemaster -v "true"
-ret=$?
 
-if [ $ret -ne 0 ]; then
-    echo "No hbase-master Pod in your cluster"
-else
-    # A tool to wait all pod which as label app=hbase-master to be ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-master
-fi
+# A tool to wait until the service is ready.
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-master
+
 
 # hbase master
 kubectl create -f hbase-regionserver.yaml
 
-# A tool to check whether a node was labeled with hbasemaster="true"
-PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hbaseregionserver -v "true"
-ret=$?
 
-if [ $ret -ne 0 ]; then
-    echo "No hbase-regionserver Pod in your cluster"
-else
-    # A tool to wait all pod which as label app=hbase-master to be ready.
-    PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver
-fi
-
+# A tool to wait until the service is ready.
+PYTHONPATH="../.." python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hbase-regionserver
 
 
 popd > /dev/null
