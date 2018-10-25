@@ -19,6 +19,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+pushd $(dirname "$0") > /dev/null
+
 INSTANCES="
 deployment/prometheus-deployment
 configmap/prometheus-configmap
@@ -26,6 +28,15 @@ configmap/prometheus-alert
 "
 
 for instance in ${INSTANCES}; do
-  kubectl delete --ignore-not-found --now ${instance}
+  kubectl delete --ignore-not-found --now ${instance} || exit $?
 done
 
+if kubectl get rs | grep -q "prometheus-deployment"; then
+    kubectl delete rs -l app=prometheus || exit $?
+fi
+
+if kubectl get pods | grep -q "prometheus-deployment"; then
+    kubectl delete pods -l app=prometheus || exit $?
+fi
+
+popd > /dev/null

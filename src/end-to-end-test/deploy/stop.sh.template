@@ -23,4 +23,12 @@ if kubectl get deployments | grep -q "end-to-end-test-deployment"; then
     kubectl delete deployment end-to-end-test-deployment || exit $?
 fi
 
+if kubectl get rs | grep -q "end-to-end-test-deployment"; then
+    kubectl delete rs -l app=end-to-end-test || exit $?
+fi
+
+if kubectl get pods | grep -q "end-to-end-test-deployment"; then
+    kubectl delete pods -l app=end-to-end-test || exit $?
+fi
+
 popd > /dev/null

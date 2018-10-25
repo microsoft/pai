@@ -23,10 +23,16 @@ if kubectl get deployments | grep -q "grafana"; then
     kubectl delete deployment grafana || exit $?
 fi
 
+if kubectl get rs | grep -q "grafana"; then
+    kubectl delete rs -l app=grafana || exit $?
+fi
+
+if kubectl get pods | grep -q "grafana"; then
+    kubectl delete pods -l app=grafana || exit $?
+fi
 
 if kubectl get configmap | grep -q "grafana-configuration"; then
     kubectl delete configmap grafana-configuration || exit $?
 fi
-
 
 popd > /dev/null

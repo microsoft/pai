@@ -19,6 +19,18 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-kubectl delete --ignore-not-found --now daemonset/watchdog
-kubectl delete --ignore-not-found --now deployment/watchdog
-kubectl delete --ignore-not-found --now configmap/watchdog
+pushd $(dirname "$0") > /dev/null
+
+kubectl delete --ignore-not-found --now daemonset/watchdog || exit $?
+kubectl delete --ignore-not-found --now deployment/watchdog || exit $?
+kubectl delete --ignore-not-found --now configmap/watchdog || exit $?
+
+if kubectl get rs | grep -q "watchdog"; then
+    kubectl delete rs -l app=watchdog || exit $?
+fi
+
+if kubectl get pods | grep -q "watchdog"; then
+    kubectl delete pods -l app=watchdog || exit $?
+fi
+
+popd > /dev/null
