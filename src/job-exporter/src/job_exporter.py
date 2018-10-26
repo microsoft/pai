@@ -20,6 +20,8 @@ import copy
 import sys
 import time
 import logging
+import re
+import datetime
 
 import docker_stats
 import docker_inspect
@@ -56,6 +58,46 @@ pai_services = map(lambda s: "k8s_" + s, [
     "nvidia-drivers"
 ])
 
+
+class ZombieRecorder(object):
+    def __init__(self):
+        self.zombies = {} # key is container id, value is enter zombie time
+
+        # When we first meet zombie container, we only record time of that meet,
+        # we wait extra decay_time to report it as zombie. Because at the time
+        # of our recording, zombie just produced, and haven't been recycled, we
+        # wait 5 minutes to avoid possible cases of normal zombie.
+        self.decay_time = datetime.timedelta(minutes=5)
+
+    def update(self, zombie_ids, now):
+        """ feed in new zombie ids and get count of decayed zombie """
+        # remove all records not exist anymore
+        for z_id in self.zombies.keys():
+            if z_id not in zombie_ids:
+                logger.debug("pop zombie %s that not exist anymore", z_id)
+                self.zombies.pop(z_id)
+
+        count = 0
+        for current in zombie_ids:
+            if current in self.zombies:
+                enter_zombie_time = self.zombies[current]
+                if now - enter_zombie_time > self.decay_time:
+                    count += 1
+            else:
+                logger.debug("new zombie %s", current)
+                self.zombies[current] = now
+
+        return count
+
+    def __len__(self):
+        return len(self.zombies)
+
+
+yarn_pattern = u"container_\w{3}_[0-9]{13}_[0-9]{4}_[0-9]{2}_[0-9]{6}"
+yarn_container_reg = re.compile(u"^" + yarn_pattern + "$")
+job_container_reg = re.compile(u"^.+(" + yarn_pattern + u")$")
+
+
 def parse_from_labels(labels):
     gpuIds = []
     otherLabels = {}
@@ -72,14 +114,77 @@ def parse_from_labels(labels):
     return gpuIds, otherLabels
 
 
-def collect_job_metrics(gpu_infos, all_conns):
-    stats = docker_stats.stats()
-    if stats is None:
+def generate_zombie_count_type1(type1_zombies, exited_containers, now):
+    """ this fn will generate zombie container count for the first type,
+    exited_containers is container id set of which we believe exited """
+    return type1_zombies.update(exited_containers, now)
+
+
+def generate_zombie_count_type2(type2_zombies, stats, now):
+    """ this fn will generate zombie container count for the second type """
+    names = set([info["name"] for info in stats.values()])
+
+    job_containers = {} # key is original name, value is corresponding yarn_container name
+    yarn_containers = set()
+
+    zombie_ids = set()
+
+    for name in names:
+        if re.match(yarn_container_reg, name) is not None:
+            yarn_containers.add(name)
+        elif re.match(job_container_reg, name) is not None:
+            match = re.match(job_container_reg, name)
+            value = match.groups()[0]
+            job_containers[name] = value
+        else:
+            pass # ignore
+
+    for job_name, yarn_name in job_containers.items():
+        if yarn_name not in yarn_containers:
+            zombie_ids.add(job_name)
+
+    return type2_zombies.update(zombie_ids, now)
+
+
+def docker_logs(container_id, tail="all"):
+    try:
+        return utils.check_output(["docker", "logs", "--tail", str(tail), str(container_id)])
+    except subprocess.CalledProcessError as e:
+        logger.exception("command '%s' return with error (code %d): %s",
+                e.cmd, e.returncode, e.output)
+
+
+def is_container_exited(container_id):
+    logs = docker_logs(container_id, tail=50)
+    if logs is not None and re.search(u"USER COMMAND END", logs):
+        return True
+    return False
+
+
+def generate_zombie_count(stats, type1_zombies, type2_zombies):
+    """
+    There are two types of zombie:
+        1. container which outputed "USER COMMAND END" but did not exist for a long period of time
+        2. yarn container exited but job container didn't
+    """
+    exited_containers = set(filter(is_container_exited, stats.keys()))
+    logger.debug("exited_containers is %s", exited_containers)
+
+    now = datetime.datetime.now()
+    zombie_count1 = generate_zombie_count_type1(type1_zombies, exited_containers, now)
+    zombie_count2 = generate_zombie_count_type2(type2_zombies, stats, now)
+
+    return [Metric("zombie_container_count", {}, zombie_count1 + zombie_count2)]
+
+
+def collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies):
+    stats_obj = docker_stats.stats()
+    if stats_obj is None:
         logger.warning("docker stats returns None")
         return None
 
     result = []
-    for container_id, stats in stats.items():
+    for container_id, stats in stats_obj.items():
         pai_service_name = None
 
         # TODO speed this up, since this is O(n^2)
@@ -137,6 +242,8 @@ def collect_job_metrics(gpu_infos, all_conns):
             result.append(Metric("service_block_in_byte", labels, stats["BlockIO"]["in"]))
             result.append(Metric("service_block_out_byte", labels, stats["BlockIO"]["out"]))
 
+    result.extend(generate_zombie_count(stats_obj, type1_zombies, type2_zombies))
+
     return result
 
 def main(argv):
@@ -148,6 +255,9 @@ def main(argv):
     iter = 0
 
     singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
+
+    type1_zombies = ZombieRecorder()
+    type2_zombies = ZombieRecorder()
 
     while True:
         try:
@@ -162,7 +272,7 @@ def main(argv):
             logger.debug("iftop result is %s", all_conns)
 
             # join with docker stats metrics and docker inspect labels
-            job_metrics = collect_job_metrics(gpu_infos, all_conns)
+            job_metrics = collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies)
             utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
@@ -172,6 +282,6 @@ def main(argv):
 
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.DEBUG)
+            level=logging.INFO)
 
     main(sys.argv[1:])

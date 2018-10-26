@@ -55,7 +55,7 @@ Here're some configuration file examples:
 ### [mnist_cntk_backend](https://github.com/keras-team/keras/blob/master/examples/mnist_cnn.py)
 ```json
 {
-    "jobName": "keras_tensorflow_backend_mnist",
+    "jobName": "keras_cntk_backend_mnist",
     "image": "openpai/pai.example.keras.cntk",
     "taskRoles": [
         {
@@ -76,3 +76,4 @@ For more details on how to write a job configuration file, please refer to [job 
 
 Since PAI runs Keras jobs in Docker, the trainning speed on PAI should be similar to speed on host.
 
+We provide two stable docker images by adding the data to the images. If you want to use them, add `stable` tag to the image name: `openpai/pai.example.keras.cntk:stable` or `openpai/pai.example.keras.tensorflow:stable`.

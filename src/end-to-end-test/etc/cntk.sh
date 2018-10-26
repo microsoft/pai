@@ -28,4 +28,10 @@ export OUTPUT_DIR=$(sed -e "s@hdfs://\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}:[0-9]\{
 
 sed -i "/stderr/s/^/# /" G2P.cntk
 sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
+
+# replace train set to accelerate test
+sed -i "s/cmudict-0.7b.train-dev-20-21.ctf/cmudict-0.7b.train-dev-1-21.ctf/g" G2P.cntk
+
 cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
+
+rm -rf $OUTPUT_DIR

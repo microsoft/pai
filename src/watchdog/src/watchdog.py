@@ -122,10 +122,9 @@ def ssh_exec(host_config, command, histogram=ssh_histogram):
         hostip = str(host_config["hostip"])
         username = str(host_config["username"])
         password = str(host_config["password"])
-        port = 22
-        if "sshport" in host_config:
-            port = int(host_config["sshport"])
+        port = int(host_config.get("sshport", 22))
         key_filename = None
+
         if 'keyfile-path' in host_config:
             if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
                 key_filename = str(host_config['keyfile-path'])

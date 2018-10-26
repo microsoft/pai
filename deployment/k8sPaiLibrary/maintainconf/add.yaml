@@ -30,6 +30,10 @@ add-worker-node:
       src: deployment/k8sPaiLibrary/template/config.template
       dst: add-worker-node/etc/kubernetes
 
+    - name: docker-daemon.json
+      src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: add-worker-node
+
 
     # List of the file
     file-list:
@@ -46,10 +50,6 @@ add-worker-node:
 
     - name: kubelet-start.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh
-      dst: add-worker-node
-
-    - name: docker-daemon.json
-      src: deployment/k8sPaiLibrary/maintaintool/docker-daemon.json
       dst: add-worker-node
 
     - name: docker-config-update.py
@@ -99,6 +99,10 @@ add-master-node-task-two:
       src: deployment/k8sPaiLibrary/template/config.template
       dst: add-master-node-task-two/etc/kubernetes
 
+    - name: docker-daemon.json
+      src: deployment/k8sPaiLibrary/template/docker-daemon.json.template
+      dst: add-master-node-task-two
+
 
     file-list:
     - name: docker-ce-install.sh
@@ -111,10 +115,6 @@ add-master-node-task-two:
 
     - name: kubelet-start.sh
       src: deployment/k8sPaiLibrary/maintaintool/kubelet-start.sh
-      dst: add-master-node-task-two
-
-    - name: docker-daemon.json
-      src: deployment/k8sPaiLibrary/maintaintool/docker-daemon.json
       dst: add-master-node-task-two
 
     - name: docker-config-update.py

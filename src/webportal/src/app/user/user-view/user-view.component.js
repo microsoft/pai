@@ -207,36 +207,8 @@ const updateUserAccount = (username) => {
         if (data.error) {
           alert(data.message);
         } else {
-          if (admin) {
-            $.ajax({
-              url: `${webportalConfig.restServerUri}/api/v1/user/${username}/virtualClusters`,
-              data: {
-                virtualClusters: '',
-              },
-              type: 'PUT',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              dataType: 'json',
-              success: (updateVcData) => {
-                if (updateVcData.error) {
-                  alert(updateVcData.message);
-                } else {
-                  alert('Update user basic information successfully');
-                }
-                window.location.href = '/user-view.html';
-              },
-              error: (xhr, textStatus, error) => {
-                $('#form-update-account').trigger('reset');
-                const res = JSON.parse(xhr.responseText);
-                alert(res.message);
-                window.location.href = '/user-view.html';
-              },
-            });
-          } else {
             alert('Update user basic information successfully');
             window.location.href = '/user-view.html';
-          }
         }
       },
       error: (xhr, textStatus, error) => {

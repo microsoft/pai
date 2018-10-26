@@ -23,5 +23,9 @@ if kubectl get daemonset | grep -q "pylon-ds"; then
     kubectl delete ds pylon-ds || exit $?
 fi
 
+if kubectl get service | grep -q "pylon"; then
+    kubectl delete service pylon || exit $?
+fi
+
 
 popd > /dev/null

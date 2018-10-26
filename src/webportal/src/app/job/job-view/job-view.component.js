@@ -23,6 +23,12 @@ require('datatables.net/js/jquery.dataTables.js');
 require('datatables.net-bs/js/dataTables.bootstrap.js');
 require('datatables.net-bs/css/dataTables.bootstrap.css');
 require('datatables.net-plugins/sorting/natural.js');
+require('datatables.net-responsive-bs/js/responsive.bootstrap.js');
+require('datatables.net-responsive-bs/css/responsive.bootstrap.css');
+require('datatables.net-buttons-bs/js/buttons.bootstrap.js');
+require('datatables.net-buttons-bs/css/buttons.bootstrap.css');
+require('datatables.net-select-bs/js/select.bootstrap.js');
+require('datatables.net-select-bs/css/select.bootstrap.css');
 require('./job-view.component.scss');
 const url = require('url');
 // const moment = require('moment/moment.js');
@@ -36,6 +42,7 @@ const jobDetailSshInfoModalComponent = require('./job-detail-ssh-info-modal.comp
 const loading = require('../loading/loading.component');
 const webportalConfig = require('../../config/webportal.config.js');
 const userAuth = require('../../user/user-auth/user-auth.component');
+const yaml = require('js-yaml');
 
 let table = null;
 let configInfo = null;
@@ -241,34 +248,34 @@ const loadJobs = (specifiedVc) => {
       return username + '-' + name;
     },
     'columns': [
-      {title: 'Job', data: null, render({legacy, name, namespace, username}, type) {
+      {title: 'Job', data: null, responsivePriority: 1, render({legacy, name, namespace, username}, type) {
         if (type !== 'display') return name;
         if (legacy) {
-          return '<span class="label label-warning">legacy</span> <a href="view.html?jobName=' + name + '">' + name + '</a>';
+          return `<span class="label label-warning">legacy</span> <a href="view.html?jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         } else {
-          return '<a href="view.html?username=' + (namespace || username) + '&jobName=' + name + '">' + name + '</a>';
+          return `<a class="table-job-name" href="view.html?username=${namespace || username}&jobName=${name}"><div class="table-job-name">${name}</div></a>`;
         }
       }},
-      {title: 'User', data: 'username'},
-      {title: 'Virtual Cluster', data: 'virtualCluster', render(virtualCluster) {
+      {title: 'User', data: 'username', responsivePriority: 2},
+      {title: 'Virtual Cluster', data: 'virtualCluster', responsivePriority: 3, render(virtualCluster) {
         let vcName = virtualCluster || 'default';
         return '<a href="virtual-clusters.html?vcName=' + vcName + '">' + vcName + '</a>';
       }},
-      {title: 'Start Time', data: 'createdTime', render(createdTime, type) {
+      {title: 'Start Time', data: 'createdTime', responsivePriority: 3, render(createdTime, type) {
         if (type !== 'display') return Math.round(createdTime / 1000);
         return convertTime(false, createdTime);
       }},
-      {title: 'Duration', data: null, render({createdTime, completedTime}, type) {
+      {title: 'Duration', data: null, responsivePriority: 2, render({createdTime, completedTime}, type) {
         if (type !== 'display') return getDurationInSeconds(createdTime, completedTime);
         return convertTime(true, createdTime, completedTime);
       }},
-      {title: 'Retries', data: 'retries'},
-      {title: 'Status', data: null, render(data, type) {
+      {title: 'Retries', responsivePriority: 3, data: 'retries'},
+      {title: 'Status', data: null, responsivePriority: 1, render(data, type) {
         if (type === 'display') return convertState(getHumanizedJobStateString(data));
         if (type === 'sort') return getStateOrder(data);
         return getHumanizedJobStateString(data);
       }},
-      {title: 'Stop', data: null, render(job, type) {
+      {title: 'Stop', data: null, responsivePriority: 1, render(job, type) {
         let hjss = getHumanizedJobStateString(job);
         return (hjss === 'Waiting' || hjss === 'Running') ?
           '<button class="btn btn-default btn-sm" onclick="stopJob(\'' + (job.legacy ? '' : job.namespace || job.username) + '\', \'' +
@@ -285,11 +292,48 @@ const loadJobs = (specifiedVc) => {
     ],
     'deferRender': true,
     'autoWidth': false,
+    'responsive': true,
+    'dom': '<\'row\'<\'col-sm-6\'B><\'col-sm-6\'f>>' +
+      '<\'row\'<\'col-sm-12\'tr>>' +
+      '<\'row\'<\'col-sm-5\'i><\'col-sm-7\'p>>',
+    'buttons': [
+      {
+        text: 'Select displayed jobs',
+        action: function(e, dt) {
+          dt.rows({page: 'current'}).select();
+        },
+      },
+      'selectNone',
+      {
+        text: 'Stop',
+        action: function( e, dt, node, config ) {
+          const rows = dt.rows({selected: true});
+          const res = confirm(`Are you sure to stop ${rows.count()} jobs?`);
+          if (res) {
+            rows.every(function(idx) {
+              const job = dt.row(idx).data();
+              const state = getHumanizedJobStateString(job);
+              if (state === 'Waiting' || state === 'Running') {
+                stopJob(job.legacy ? '' : job.namespace || job.username, job.name, true);
+              }
+            });
+          }
+        },
+      },
+      'pageLength',
+    ],
+    'select': {
+      style: 'multi',
+    },
   }).api();
+
+  // deselect all when page changed
+  $table.on('page.dt', () => table.rows().deselect());
+  $table.on('search.dt', () => table.rows().deselect());
 };
 
-const stopJob = (namespace, jobName) => {
-  const res = confirm('Are you sure to stop the job?');
+const stopJob = (namespace, jobName, force = false) => {
+  const res = force || confirm('Are you sure to stop the job?');
   if (res) {
     const url = namespace
       ? `${webportalConfig.restServerUri}/api/v1/user/${namespace}/jobs/${jobName}/executionType`
@@ -383,6 +427,7 @@ const loadJobDetail = (namespace, jobName) => {
         }));
         //
         $('a[name=configInfoLink]').addClass('disabled');
+        $('#resubmitjob_btn').addClass('disabled');
         $.ajax({
           url: `${url}/config`,
           type: 'GET',
@@ -390,6 +435,7 @@ const loadJobDetail = (namespace, jobName) => {
             configInfo = data;
             $('a[name=configInfoLink]').removeClass('disabled');
             $('div[name=configInfoDiv]').attr('title', '');
+            $('#resubmitjob_btn').removeClass('disabled');
           },
           error: (xhr, textStatus, error) => {
             const res = JSON.parse(xhr.responseText);
@@ -458,12 +504,24 @@ const showSshInfo = (containerId) => {
   }
 };
 
+const cloneJob = (user, jobName) => {
+  let targeturl;
+  let configYaml = yaml.safeLoad(configInfo);
+  if ('protocol_version' in configYaml) { // is yaml
+    targeturl = `/submit-v2.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
+  } else {
+    targeturl = `/submit.html?op=resubmit&type=job&user=${user}&jobname=${jobName}`;
+  }
+  window.location.href = targeturl;
+};
+
 window.loadJobs = loadJobs;
 window.stopJob = stopJob;
 window.loadJobDetail = loadJobDetail;
 window.showConfigInfo = showConfigInfo;
 window.showSshInfo = showSshInfo;
 window.setJobRetryLink = setJobRetryLink;
+window.cloneJob = cloneJob;
 
 
 const resizeContentWrapper = () => {

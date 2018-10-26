@@ -41,7 +41,7 @@ To start a REST Server service, the following services should be ready and corre
 
 ## Build
 
-Run `npm install` to install dependencies.
+Run `npm run yarn install` to install dependencies.
 
 ## Configuration
 

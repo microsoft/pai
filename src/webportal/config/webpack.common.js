@@ -141,7 +141,7 @@ const config = (env, argv) => ({
             loader: 'file-loader',
             options: {
               name: '[name].[ext]',
-              publicPath: '/',
+              publicPath: '/assets/img/',
               outputPath: 'assets/img/'
             }
           }
@@ -154,7 +154,7 @@ const config = (env, argv) => ({
             loader: 'file-loader',
             options: {
               name: '[name].[ext]',
-              publicPath: '/',
+              publicPath: '/assets/font/',
               outputPath: 'assets/font/'
             }
           }

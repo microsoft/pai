@@ -32,7 +32,7 @@ Copy the project into the container.
 4. Execute the container. `sudo docker exec -it my-autotest /bin/bash`
 5. Run the start.sh script file and use your own parameters of mode, hdfs_socket, webhdfs_socket, PAI_username,PAI_password and rest_server_socket.
 Pay attention to the order, you must give the 6 parameters in the above order. Refer to [Parameters of the start.sh](#Parameters_of_the_start.sh).
-`/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/ 10.20.30.40:50070 test test`
+`/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/user/your_username 10.20.30.40:50070 test test`
 6. When you run the script, you should choice the examples you want to test.
 See [Parameters of the start.sh](#Parameters_of_the_start.sh) to get the reference.
 7. Wait until all jobs are finished.
@@ -69,6 +69,5 @@ Use "release" as the first parameter of start.sh to enter this mode.
 3. **normal mode**: If the job can run correctly within 30 minutes, the project will regards it succeeded.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
-If the **sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10** job failed,
-it may due to the official data downloading source being unstable. Just try again!
+If the parameters contains special characters like '&', please use single qutations to mark that parameter.
 Now(27th September, 2018), the mpi examples are still unready. Ignore them!

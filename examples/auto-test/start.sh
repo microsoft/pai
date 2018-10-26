@@ -1,4 +1,5 @@
 echo "Run with 6 parameters: ci/release/normal, rest_server_url, hdfs_url, webhdfs_url, PAI_username, PAI_password."
+echo "If the parameters contains special characters like '&', you must use single quotations to mark that parameter!"
 echo "During the runtime, you should select the jobs you want to run, you can also input the jobs' name you want to run."
 cd /tmp
 if [ ! -d "pai/" ]; then
@@ -14,8 +15,8 @@ if [ ! -d "pai/" ]; then
         threshold=30
     fi
     full="cntk-mpi,tensorflow-mpi,sklearn-mnist,sklearn-text-vectorizers,tensorflow-cifar10,tensorflow-tensorboard,tensorflow-distributed-cifar10,kafka,mxnet-image-classification,mxnet-autoencoder,jupyter_example,tensorflow-serving,xgboost_gpu_hist,cntk-g2p,keras_cntk_backend_mnist,keras_tensorflow_backend_mnist,caffe-mnist,pytorch-regression,pytorch-mnist,chainer-cifar,caffe2-resnet50"
-    stable="sklearn-text-vectorizers,tensorflow-tensorboard,tensorflow-distributed-cifar10,kafka,mxnet-image-classification,jupyter_example,tensorflow-serving,xgboost_gpu_hist,cntk-g2p,keras_tensorflow_backend_mnist,caffe-mnist,pytorch-regression,pytorch-mnist,caffe2-resnet50"
-    echo "If the sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10 job failed, it may due to the official data downloading source being unstable. Just try again!"
+    stable="sklearn-mnist,sklearn-text-vectorizers,tensorflow-cifar10,tensorflow-tensorboard,tensorflow-distributed-cifar10,kafka,mxnet-image-classification,mxnet-autoencoder,jupyter_example,tensorflow-serving,xgboost_gpu_hist,cntk-g2p,keras_cntk_backend_mnist,keras_tensorflow_backend_mnist,caffe-mnist,pytorch-regression,pytorch-mnist,chainer-cifar,caffe2-resnet50"
+    echo "There are some error within the mpi example, so, just ignore them!"
     read -p "Please input name of the examples you want to run with ',' between two names, or you can just input F/S to run full jobs or only stable jobs:" mode
     if [[ $mode =~ ^[a-zA-Z0-9_,]+$ ]]; then
         echo "Run the job of "$mode

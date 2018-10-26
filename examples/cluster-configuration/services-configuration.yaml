@@ -98,6 +98,8 @@ grafana:
   # port for grafana
   grafana-port: 3000
 
+drivers:
+  set-nvidia-runtime: false
 
 prometheus:
   # port for prometheus port

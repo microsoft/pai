@@ -44,7 +44,7 @@ currently we support two hadoop versions: 2.7.2 and 2.9.0, If you want to switch
 
            custom-hadoop-binary-path: /hadoop-binary/hadoop-2.9.0.tar.gz
 
-4. Change the done file ID in pai-management/paiLibrary/managementTool/ubuntu16.04/hadoop-ai-build.sh
+4. Change the done file ID in ```src/hadoop-ai/build/build-pre.sh ``` and ```src/hadoop-ai/build/build.sh```
 
 5. Use paictl to build, push the image.
 

@@ -36,9 +36,11 @@ spec:
       hostNetwork: true
       containers:
       - name: prometheus
-        image: prom/prometheus:v2.1.0
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prometheus:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         resources:
           limits:
+            memory: "10Gi"
+          requests:
             memory: "256Mi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'

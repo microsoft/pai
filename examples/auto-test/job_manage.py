@@ -14,6 +14,7 @@ class JobManager(object):
             # output: token
             # Get the token from rest server API
             ###
+            rest_server_url_without_namespace = '/'.join(self.rest_server_url.split('/')[:-3]) + '/'
             token_ready = False
             loop_count = 0
             while not token_ready:
@@ -21,11 +22,11 @@ class JobManager(object):
                 loop_count += 1
                 http_object = self.http.request(
                     'POST',
-                    self.rest_server_url + 'token',
+                    rest_server_url_without_namespace + 'token',
                     headers={
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                     },
-                    body='username=' + username + '&password=' + password + '&expiration=' + str(expiration)
+                    body=json.dumps({'username':username, 'password':password, 'expiration':str(expiration)})
                 )
                 if http_object.status == 200:
                     token_ready = True
