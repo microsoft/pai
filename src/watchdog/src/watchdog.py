@@ -413,8 +413,8 @@ def main(args):
             process_nodes_status(pai_node_gauge, nodesStatus)
 
             # 3. check docker deamon status
-           #collect_docker_daemon_status(docker_daemon_gauge, hosts)
-
+            collect_docker_daemon_status(docker_daemon_gauge, hosts)
+            
             # 4. check k8s level status
             collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus, tls, ca_path, bearer_path)
         except Exception as e:
