@@ -242,16 +242,14 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
     map(_map_fn, podsJsonObject["items"])
 
 
-def collect_healthz(gauge, histogram, service_name, address, port, url, tls):
+def collect_healthz(gauge, histogram, service_name, address, port, url, tls, ca_path, bearer_path):
     with histogram.time():
         error = "ok"
         try:
             if tls:
-                bearer_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
                 with open(bearer_path, 'r') as bearer_file:
                     bearer = bearer_file.read()
                     headers = {'Authorization': "Bearer {}".format(bearer)}
-                    ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
                     error = requests.get("https://{}:{}{}".format(address, port, url), headers = headers, verify = ca_path).text
             else:
                 error = requests.get("http://{}:{}{}".format(address, port, url)).text
@@ -263,11 +261,11 @@ def collect_healthz(gauge, histogram, service_name, address, port, url, tls):
         gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJsonObject):
+def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJsonObject, tls, ca_path, bearer_path):
     collect_healthz(k8s_gauge, api_healthz_histogram,
-            "k8s_api_server", api_server_ip, api_server_port, "/healthz", tls)
+            "k8s_api_server", api_server_ip, api_server_port, "/healthz", tls, ca_path, bearer_path)
     collect_healthz(k8s_gauge, etcd_healthz_histogram,
-            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd", tls)
+            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd", tls, ca_path, bearer_path)
 
     # check kubelet
     nodeItems = nodesJsonObject["items"]
@@ -276,7 +274,7 @@ def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJ
         ip = name["metadata"]["name"]
 
         collect_healthz(k8s_gauge, kubelet_healthz_histogram,
-            "k8s_kubelet", ip, 10255, "/healthz", tls)
+            "k8s_kubelet", ip, 10255, "/healthz", tls, ca_path, bearer_path)
 
 
 def parse_node_item(pai_node_gauge, node):
@@ -349,15 +347,13 @@ def load_machine_list(configFilePath):
         return yaml.load(f)["hosts"]
 
 
-def request_with_histogram(url, histogram, tls):
+def request_with_histogram(url, histogram, tls, ca_path, bearer_path):
     with histogram.time():
         if tls:
-           bearer_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-               with open(bearer_path, 'r') as bearer_file:
-                   bearer = bearer_file.read()
-                   headers = {'Authorization': "Bearer {}".format(bearer)}
-                   ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-                   error = requests.get(url, headers = headers, verify = ca_path).text
+            with open(bearer_path, 'r') as bearer_file:
+                bearer = bearer_file.read()
+                headers = {'Authorization': "Bearer {}".format(bearer)}
+                error = requests.get(url, headers = headers, verify = ca_path).text
         else:
             return requests.get(url).json()
 
@@ -381,6 +377,8 @@ def main(args):
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
     tls = args.tls
+    ca_path = args.ca
+    bearer_path = args.bearer
 
     hosts = load_machine_list(args.hosts)
 
@@ -407,18 +405,19 @@ def main(args):
 
         try:
             # 1. check service level status
-            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram, tls)
+            podsStatus = request_with_histogram(list_pods_url, list_pods_histogram, tls, ca_path, bearer_path)
             process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram, tls) 
+            nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram, tls, ca_path, bearer_path) 
             process_nodes_status(pai_node_gauge, nodesStatus)
+/tls
 
             # 3. check docker deamon status
             collect_docker_daemon_status(docker_daemon_gauge, hosts)
 
             # 4. check k8s level status
-            collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus)
+            collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus, tls, ca_path, bearer_path)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
@@ -437,7 +436,8 @@ if __name__ == "__main__":
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
     parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
     parser.add_argument("--tls", "-t", help="access api-server auth or not", default="False")
-    
+    parser.add_argument("--ca", "-c", help="ca file path", default="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+    parser.add_argument("--bearer", "-c", help="bearer token file path", default="/var/run/secrets/kubernetes.io/serviceaccount/token")    
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
