@@ -10,8 +10,6 @@
 
 ## paictl cluster
 
-- Besides generation the cluster-configuration from the machine-list, the main responsibilities are boot and clean kubernetes-cluster.
-
 - k8s-bootup:
     - According to the different role of the node in kubernetes-cluster, paictl will prepare different package for remote working. The package content of different role is defined in the [deploy.yaml](../../deployment/k8sPaiLibrary/maintainconf/deploy.yaml)
     - paictl will send the package to each machine through paramiko, and execute corresponding script on the remote machine.
@@ -24,12 +22,18 @@
 
 - k8s-clean:
     - The same process as k8s-bootup.
-
+    
+    
+- k8s-set-env
+    - Install kubectl on the environment
+    - Set kubeconfig to access to kubernetes deployed by OpenPai. 
+    - If the kubernetes isn't deployed by OpenPai, you should do these 2 steps by yourself. 
 
 ## paictl config
 
 - paictl config command is designed for cluster configuration management.
-- With ```paictl config```, you could sync the latest configuration from git or local to k8s-configmap.
+- With ```paictl config```, you could generate a simple cluster configuration with a machinelist
+- With ```paictl config```, you could push the latest configuration from git or local to k8s-configmap.
 - With ```paictl config```, you could get the cluster configuration from k8s-configmap
 - With ```paictl config```, you could set the external storage type. And based on it, paictl could sync the latest data from the right place.  
 
@@ -44,7 +48,7 @@
 
 ## paictl service
 
-- paictl will iterate all folder in the path ```pai/pai-management/bootstrap```. If it contains the file ```service.yaml``` and corresponding operation script, paictl will call the script to handle the operator.
+- paictl will iterate all folder in the path ```pai/src```. If it contains the file ```service.yaml``` and corresponding operation script, paictl will call the script to handle the operator.
 
 
 <div  align="center">

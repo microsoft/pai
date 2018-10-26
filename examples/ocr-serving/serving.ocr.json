@@ -1,0 +1,22 @@
+{
+  "jobName": "ocr-serving",
+  "image": "openpai/pai.example.ocr-serving",
+  "taskRoles": [
+    {
+      "name": "serving",
+      "taskNumber": 1,
+      "cpuNumber": 4,
+      "memoryMB": 8192,
+      "gpuNumber": 0,
+      "portList": [
+        {
+          "label": "model_server",
+          "beginAt": 0,
+          "portNumber": 1
+        }
+      ],
+      "command": "python3 app.py -p $PAI_CONTAINER_HOST_model_server_PORT_LIST"
+    }
+  ],
+  "retryCount": -2
+}

@@ -29,7 +29,9 @@ spec:
         app: hadoop-node-manager
     spec:
       hostNetwork: true
-      hostPID: false
+      # TODO: Node manager mounts hostPID to monitor job processes in nvidia-smi,
+      # but it leads network monitor getting a excessive traffic.
+      hostPID: true
       containers:
       - name: hadoop-node-manager
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -41,6 +43,8 @@ spec:
           name: device-mount
         - mountPath: /var/run/docker.sock
           name: docker-socket
+        - mountPath: /root/.docker 
+          name: docker-cred-volume
         - mountPath: /var/drivers
           name: driver-path
         - mountPath: /var/lib/yarn
@@ -97,6 +101,9 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
+      - name: docker-cred-volume
+        configMap:
+          name: docker-credentials
       - name: driver-path
         hostPath:
           path: /var/drivers

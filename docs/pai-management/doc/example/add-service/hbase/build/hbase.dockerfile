@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,25 +15,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-# step1 : remove etcd.yaml
-rm /etc/kubernetes/manifests/etcd.yaml
+FROM hadoop-run
 
 
-# step2: stop container
-target_id=`docker ps --filter "name=POD_etcd-server" -q`
-docker kill $target_id
-docker rm $target_id
+RUN mkdir -p /usr/local/ && \
+    wget --no-verbose http://www-eu.apache.org/dist/hbase/stable/hbase-1.2.6-bin.tar.gz -P /usr/local && \
+    tar -xzf /usr/local/hbase-1.2.6-bin.tar.gz -C /usr/local/ && \
+    cd /usr/local && \
+    ln -s ./hbase-1.2.6 hbase && \
+    rm /usr/local/hbase-1.2.6-bin.tar.gz
 
-target_id=`docker ps --filter "name=container_etcd-server" -q`
-docker kill $target_id
-docker rm $target_id
+ENV HBASE_HOME=/usr/local/hbase \
+    HBASE_LOG_DIR=/var/lib/hbase-logs \
+    HBASE_BIN_DIR=/usr/local/hbase/bin
+
+COPY build/start.sh /usr/local/
+RUN chmod u+x /usr/local/start.sh
 
 
-# step3: delete etcd server data
-if [ -d "/var/etcd/data" ]; then
+# You could hardcode your configuration in the image. But it's highly recommended to take advantage of k8s to mount your configuration and start script. To make all image stateless, we'd better separate all configuration from the image.
 
-    rm -rf /var/etcd/data
-
-fi
+CMD ["/usr/local/start.sh"]
 

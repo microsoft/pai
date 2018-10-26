@@ -391,6 +391,7 @@ class Job {
             containerPorts,
             containerGpus: task.containerGpus,
             containerLog: task.containerLogHttpAddress,
+            containerExitCode: task.containerExitCode,
           });
         }
       }

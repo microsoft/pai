@@ -60,7 +60,7 @@
           "maxDataPoints": 100,
           "nullPointMode": "connected",
           "nullText": null,
-          "postfix": "",
+          "postfix": "%",
           "postfixFontSize": "50%",
           "prefix": "",
           "prefixFontSize": "50%",
@@ -477,7 +477,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(nvidiasmi_attached_gpus)-yarn_total_gpu_num",
+              "expr": "sum(nvidiasmi_attached_gpus)-sum(yarn_total_gpu_num)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,

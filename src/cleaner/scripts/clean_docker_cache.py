@@ -37,7 +37,8 @@ def get_cache_size():
 
 def check_and_clean(threshold):
     if get_cache_size() > threshold:
-        common.run_cmd("docker system prune -af", logger)
+        # to avoid possible race condition, only clean the containers, images and networks created 1h ago
+        common.run_cmd("docker system prune -af --filter until=1h", logger)
 
 
 if __name__ == "__main__":

@@ -39,6 +39,8 @@ spec:
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prometheus:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         resources:
           limits:
+            memory: "10Gi"
+          requests:
             memory: "256Mi"
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'

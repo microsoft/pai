@@ -18,6 +18,11 @@
 from __future__ import print_function
 #
 import sys
+import logging
+import logging.config
+
+from ..common import linux_shell
+
 
 
 class paiObjectModel:
@@ -28,6 +33,8 @@ class paiObjectModel:
 
         self.rawData = configurationMap
         self.objectModel = dict()
+
+        self.logger = logging.getLogger(__name__)
 
 
 
@@ -57,7 +64,8 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
         if "etcd-data-path" not in k8sDict["clusterinfo"]:
-            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
+            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd/data"
+
 
         # section : component_list
 
@@ -141,7 +149,18 @@ class paiObjectModel:
         if len(proxyDict) != 0:
             k8sDict["proxymachinelist"] = proxyDict
 
+
+        master_list = k8sDict['mastermachinelist']
+        etcd_cluster_ips_peer, etcd_cluster_ips_server = self.generate_etcd_ip_list(master_list)
+
+        # ETCD will communicate with each other through this address.
+        k8sDict['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
+        # Other service will write and read data through this address.
+        k8sDict['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+        k8sDict['clusterinfo']['etcd-initial-cluster-state'] = 'new'
+
         return k8sDict
+
 
 
     def serviceParse(self):
@@ -295,6 +314,24 @@ class paiObjectModel:
 
             serviceDict["machinelist"][hostname] = host
 
+        # section: drivers
+
+        serviceDict["clusterinfo"]["drivers"] = {"set-nvidia-runtime": False}
+        if self.rawData["serviceConfiguration"].get("drivers") is not None:
+            driver_conf = self.rawData["serviceConfiguration"]["drivers"]
+            if driver_conf.get("set-nvidia-runtime") is not None:
+                serviceDict["clusterinfo"]["drivers"]["set-nvidia-runtime"] = \
+                        driver_conf["set-nvidia-runtime"]
+
+        self.generate_secret_base64code(serviceDict["clusterinfo"]["dockerregistryinfo"])
+        self.generate_docker_credential(serviceDict["clusterinfo"]["dockerregistryinfo"])
+        self.generate_image_url_prefix(serviceDict["clusterinfo"]["dockerregistryinfo"])
+
+        if 'docker_tag' not in serviceDict['clusterinfo']['dockerregistryinfo']:
+            serviceDict['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
+
+        self.generate_configuration_of_hadoop_queues(serviceDict)
+
         return serviceDict
 
 
@@ -434,6 +471,134 @@ class paiObjectModel:
 
         self.objectModel["k8s"] = self.k8sParse()
         self.objectModel["service"] = self.serviceParse()
+
+
+
+    def generate_etcd_ip_list(self, master_list):
+
+        etcd_cluster_ips_peer = ""
+        etcd_cluster_ips_server = ""
+        separated = ""
+        for infra in master_list:
+            ip = master_list[infra]['hostip']
+            etcdid = master_list[infra]['etcdid']
+            ip_peer = "{0}=http://{1}:2380".format(etcdid, ip)
+            ip_server = "http://{0}:4001".format(ip)
+
+            etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+            etcd_cluster_ips_server = etcd_cluster_ips_server + separated + ip_server
+
+            separated = ","
+
+        return etcd_cluster_ips_peer, etcd_cluster_ips_server
+
+
+
+    def generate_configuration_of_hadoop_queues(self, cluster_config):
+        """The method to configure VCs:
+          - Each VC correspoonds to a Hadoop queue.
+          - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
+          - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
+            been explicitly specified in the configuration file.
+          - If all capacities are 0, resources will be split evenly to each VC.
+        """
+        hadoop_queues_config = {}
+        #
+        virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
+        if "default" not in virtual_clusters_config:
+            self.logger.warn("VC 'default' has not been explicitly specified. " +
+                        "Auto-recoverd by adding it with 0 capacity.")
+            virtual_clusters_config["default"] = {
+                "description": "Default VC.",
+                "capacity": 0
+            }
+        total_capacity = 0
+        for vc_name in virtual_clusters_config:
+            if virtual_clusters_config[vc_name]["capacity"] < 0:
+                self.logger.warn("Capacity of VC '%s' (=%f) should be a positive number. " \
+                            % (vc_name, virtual_clusters_config[vc_name]["capacity"]) +
+                            "Auto-recoverd by setting it to 0.")
+                virtual_clusters_config[vc_name]["capacity"] = 0
+            total_capacity += virtual_clusters_config[vc_name]["capacity"]
+        if float(total_capacity).is_integer() and total_capacity == 0:
+            self.logger.warn("Total capacity (=%d) should be a positive number. " \
+                        % (total_capacity) +
+                        "Auto-recoverd by splitting resources to each VC evenly.")
+            for vc_name in virtual_clusters_config:
+                virtual_clusters_config[vc_name]["capacity"] = 1
+                total_capacity += 1
+        for vc_name in virtual_clusters_config:
+            hadoop_queues_config[vc_name] = {
+                "description": virtual_clusters_config[vc_name]["description"],
+                "weight": float(virtual_clusters_config[vc_name]["capacity"]) / float(total_capacity) * 100
+            }
+        #
+        cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
+
+
+
+    def login_docker_registry(self, docker_registry, docker_username, docker_password):
+
+        shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
+        error_msg = "docker registry login error"
+        linux_shell.execute_shell(shell_cmd, error_msg)
+        self.logger.info("docker registry login successfully")
+
+
+
+    def generate_secret_base64code(self, docker_info):
+
+        domain = docker_info["docker_registry_domain"] and str(docker_info["docker_registry_domain"])
+        username = docker_info["docker_username"] and str(docker_info["docker_username"])
+        passwd = docker_info["docker_password"] and str(docker_info["docker_password"])
+
+        if domain == "public":
+            domain = ""
+
+        if username and passwd:
+            self.login_docker_registry(domain, username, passwd)
+
+            base64code = linux_shell.execute_shell_with_output(
+                "cat ~/.docker/config.json | base64",
+                "Failed to base64 the docker's config.json"
+            )
+        else:
+            self.logger.info("docker registry authentication not provided")
+
+            base64code = "{}".encode("base64")
+
+        docker_info["base64code"] = base64code.replace("\n", "")
+
+
+
+    def generate_docker_credential(self, docker_info):
+
+        username = docker_info["docker_username"] and str(docker_info["docker_username"])
+        passwd = docker_info["docker_password"] and str(docker_info["docker_password"])
+
+        if username and passwd:
+            credential = linux_shell.execute_shell_with_output(
+                "cat ~/.docker/config.json",
+                "Failed to get the docker's config.json"
+            )
+        else:
+            credential = "{}"
+
+        docker_info["credential"] = credential
+
+
+
+    def generate_image_url_prefix(self, docker_info):
+
+        domain = str(docker_info["docker_registry_domain"])
+        namespace = str(docker_info["docker_namespace"])
+
+        if domain != "public":
+            prefix = "{0}/{1}/".format(domain, namespace)
+        else:
+            prefix = "{0}/".format(namespace)
+
+        docker_info["prefix"] = prefix
 
 
 

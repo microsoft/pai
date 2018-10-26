@@ -28,15 +28,9 @@ pushd $(dirname "$0") > /dev/null
 # Hadoop data node
 kubectl apply --overwrite=true -f hadoop-data-node.yaml || exit $?
 
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k hadoop-data-node -v "true"
-ret=$?
-
-if [ $ret -ne 0 ]; then
-    echo "No hadoop-data-node Pod in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-data-node || exit $?
-fi
+sleep 10
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v hadoop-data-node || exit $?
 
 
 popd > /dev/null

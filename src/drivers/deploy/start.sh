@@ -22,14 +22,9 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl apply --overwrite=true -f drivers.yaml || exit $?
 
-PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_node_label_exist -k machinetype -v gpu
-ret=$?
+sleep 10
 
-if [ $ret -ne 0 ]; then
-    echo "No GPU machine in your cluster"
-else
-    # wait until all drivers are ready.
-    PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
-fi
+# wait until all drivers are ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
 
 popd > /dev/null
