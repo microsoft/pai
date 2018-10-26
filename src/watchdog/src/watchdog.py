@@ -353,7 +353,7 @@ def request_with_histogram(url, histogram, tls, ca_path, bearer_path):
             with open(bearer_path, 'r') as bearer_file:
                 bearer = bearer_file.read()
                 headers = {'Authorization': "Bearer {}".format(bearer)}
-                error = requests.get(url, headers = headers, verify = ca_path).text
+                return requests.get(url, headers = headers, verify = ca_path).json()
         else:
             return requests.get(url).json()
 
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
     parser.add_argument("--tls", "-t", help="access api-server auth or not", default="False")
     parser.add_argument("--ca", "-c", help="ca file path", default="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
-    parser.add_argument("--bearer", "-c", help="bearer token file path", default="/var/run/secrets/kubernetes.io/serviceaccount/token")    
+    parser.add_argument("--bearer", "-b", help="bearer token file path", default="/var/run/secrets/kubernetes.io/serviceaccount/token")    
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
