@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,26 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+pushd $(dirname "$0") > /dev/null
 
-RUN apt-get -y update && \
-    apt-get -y install \
-      python-pip \
-      python-yaml \
-      python-jinja2 \
-      git \
-      vim &&\
-    pip install python-etcd kubernetes paramiko
+paictlDestDir="../dependency/"
 
-WORKDIR /tmp
+rm -rf ${paictlDestDir}
 
-
-COPY dependency /
-
-RUN rm -rf /tmp/*
-
-WORKDIR /
-
-COPY src /
-
-CMD ["/bin/bash"]
+popd > /dev/null
