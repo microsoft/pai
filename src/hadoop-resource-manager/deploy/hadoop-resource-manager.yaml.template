@@ -83,8 +83,8 @@ spec:
           limits:
             memory: "8Gi"
 
-      - name: config-monitor
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}config-monitor:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - name: vc-monitor
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}vc-monitor:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         resources:
           limits:
