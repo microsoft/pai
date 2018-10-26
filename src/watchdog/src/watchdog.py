@@ -274,7 +274,7 @@ def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJ
         ip = name["metadata"]["name"]
 
         collect_healthz(k8s_gauge, kubelet_healthz_histogram,
-            "k8s_kubelet", ip, 10255, "/healthz", tls, ca_path, bearer_path)
+            "k8s_kubelet", ip, 10255, "/healthz", False, ca_path, bearer_path)
 
 
 def parse_node_item(pai_node_gauge, node):
@@ -413,7 +413,7 @@ def main(args):
             process_nodes_status(pai_node_gauge, nodesStatus)
 
             # 3. check docker deamon status
-            collect_docker_daemon_status(docker_daemon_gauge, hosts)
+           #collect_docker_daemon_status(docker_daemon_gauge, hosts)
 
             # 4. check k8s level status
             collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus, tls, ca_path, bearer_path)
