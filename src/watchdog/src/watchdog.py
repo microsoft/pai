@@ -411,7 +411,6 @@ def main(args):
             # 2. check nodes level status
             nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram, tls, ca_path, bearer_path) 
             process_nodes_status(pai_node_gauge, nodesStatus)
-/tls
 
             # 3. check docker deamon status
             collect_docker_daemon_status(docker_daemon_gauge, hosts)
