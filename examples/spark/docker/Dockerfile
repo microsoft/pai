@@ -9,8 +9,8 @@ RUN python3 get-pip.py
 
 WORKDIR /spark-example
 
-# Yarn config mounted on /etc/hadoop
-ENV HADOOP_CONF_DIR /etc/hadoop
+# Yarn config mounted on /etc/hadoop-configuration-for-jobs
+ENV HADOOP_CONF_DIR /etc/hadoop-configuration-for-jobs
 
 # install spark
 ADD http://www-us.apache.org/dist/spark/spark-2.3.1/spark-2.3.1-bin-hadoop2.7.tgz /spark-example
