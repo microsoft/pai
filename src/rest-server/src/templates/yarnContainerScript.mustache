@@ -243,6 +243,11 @@ fi
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
+# copy the hadoop configuration file
+hadoop_config_dir="hadoop_config"
+mkdir -p $hadoop_config_dir
+cp -r /hadoop-configuration-for-jobs/* $hadoop_config_dir
+
 # retrieve the yarn local dir
 hadoop_tmp_dir="/var/lib/hadoopdata"
 container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
@@ -276,7 +281,7 @@ docker run --name $docker_name \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
-  --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop-configuration-for-jobs:ro \
+  --volume $container_local_dir/$hadoop_config_dir:/etc/hadoop \
   --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/ \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
