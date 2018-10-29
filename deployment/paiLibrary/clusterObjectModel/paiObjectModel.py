@@ -195,7 +195,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["dockerregistryinfo"]["secretname"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["secret-name"]
         serviceDict["clusterinfo"]["api-server"]["tls_access"] = False
-        if ("api-server" in serviceDict["clusterinfo"]) and ("tls_access" in serviceDic["clusterinfo"]p"tls_access"]):
+        if ("api-server" in serviceDict["clusterinfo"]) and ("tls_access" in serviceDic["clusterinfo"]["api-server"]):
             serviceDict["clusterinfo"]["apiserver"] = serviceDic["clusterinfo"]["api-server"]
             
         # section : hadoop
