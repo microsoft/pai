@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM ubuntu:16.04
+FROM base-image
 
 RUN apt-get -y update && \
     apt-get -y install \
@@ -28,6 +28,10 @@ RUN apt-get -y update && \
 
 WORKDIR /tmp
 
+RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz && \
+    tar xzvf docker-17.06.2-ce.tgz && \
+    mv docker/* /usr/bin/ && \
+    rm docker-17.06.2-ce.tgz
 
 COPY dependency /
 

@@ -29,7 +29,7 @@ def init_vc_config(cluster_configuration_dir, vc_configuration_dir):
 
     # first boot up, copy vc configuration from cluster configuration
     service_dict = cluster_config_reader.load_config()
-    vc_dict = {"virtualClusters": service_dict["clusterinfo"]["virtualClusters"]}
+    vc_dict = {"hadoopQueues": service_dict["clusterinfo"]["hadoopQueues"]}
     vc_config_reader.save_config(vc_dict)
     while not vc_config_reader.check_config_exists():
         time.sleep(5)

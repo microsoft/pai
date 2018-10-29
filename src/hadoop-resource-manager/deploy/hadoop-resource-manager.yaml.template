@@ -103,6 +103,8 @@ spec:
           name: cluster-configuration
         - mountPath: /vc-configuration
           name: vc-configuration
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
         env:
         - name: API_SERVERS_IP
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'api-server-ip' ] }}
@@ -148,3 +150,6 @@ spec:
       - name: vc-configuration
         configMap:
           name: vc-configuration
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
