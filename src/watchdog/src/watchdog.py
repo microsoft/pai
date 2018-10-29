@@ -245,10 +245,7 @@ def collect_healthz(gauge, histogram, service_name, address, port, url, ca_path,
     with histogram.time():
         error = "ok"
         try:
-            if (ca_path is not None) and (headers is not None):
-                error = requests.get("https://{}:{}{}".format(address, port, url), headers = headers, verify = ca_path).text
-            else:
-                error = requests.get("http://{}:{}{}".format(address, port, url)).text
+            error = requests.get("https://{}:{}{}".format(address, port, url), headers = headers, verify = ca_path).text
         except Exception as e:
             error_counter.labels(type="healthz").inc()
             error = str(e)
@@ -345,10 +342,7 @@ def load_machine_list(configFilePath):
 
 def request_with_histogram(url, histogram, ca_path, headers):
     with histogram.time():
-        if (ca_path is not None) and (headers is not None):
-            return requests.get(url, headers = headers, verify = ca_path).json()
-        else:
-            return requests.get(url).json()
+        requests.get(url, headers = headers, verify = ca_path).json()
 
 
 def try_remove_old_prom_file(path):
@@ -371,6 +365,8 @@ def main(args):
     api_server_port = parse_result.port or 80
     ca_path = args.ca
     bearer_path = args.bearer
+    if (ca_path is None and bearer_path is not None) and (ca_path is not None and bearer_path is None):
+        log.warning("please probide bearer_path and ca_path at the same time or not")        
     headers = None
     if bearer_path is not None:
         with open(bearer_path, 'r') as bearer_file:

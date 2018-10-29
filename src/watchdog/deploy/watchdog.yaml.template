@@ -60,8 +60,6 @@ spec:
         command:
           - "python"
           - "/watchdog.py"
-          - "--tls"
-          - "{{ clusterinfo['api-server']['tls_access'] }}"
           - "--interval"
           - "30"
           - "--port"
