@@ -70,6 +70,10 @@ global.jobConfigTemplate = JSON.stringify({
     },
   ],
   'retryCount': 0,
+  'jobEnvs': {
+    'job_parameter1': 'value1',
+    'job_parameter2': 'value2',
+  }
 });
 
 global.frameworkDetailTemplate = JSON.stringify({

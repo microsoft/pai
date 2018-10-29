@@ -404,6 +404,14 @@ class Job {
     for (let i = 0; i < data.taskRoles.length; i ++) {
       tasksNumber += data.taskRoles[i].taskNumber;
     }
+    let jobEnvs = '';
+    if (data.jobEnvs) {
+        for (let key in data.jobEnvs) {
+            if (data.jobEnvs.hasOwnProperty(key)) {
+                jobEnvs = jobEnvs.concat(key, '=', data.jobEnvs[key], '\n');
+            }
+        }
+    }
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
           'idx': idx,
@@ -416,6 +424,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectFormat': '{{.State.Pid}}',
+          'jobEnvs': jobEnvs,
         });
     return yarnContainerScript;
   }
