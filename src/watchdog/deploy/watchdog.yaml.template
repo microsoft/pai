@@ -65,12 +65,12 @@ spec:
           - "--port"
           - "9101"
           - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
-        {% if clusterinfo['api-server']['tls_access'] %}
+        {% if clusterinfo['apiserver']['tls_access'] %}
           - "--ca"
           - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
           - "--bearer"
           - "/var/run/secrets/kubernetes.io/serviceaccount/token"
-        {% endif %}  
+        {% endif %} 
       volumes:
         - name: collector-mount
           hostPath:
