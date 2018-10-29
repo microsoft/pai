@@ -3,7 +3,7 @@ import re
 import json
 
 from deployment.paiLibrary.clusterObjectModel import objectModelFactory
-from deployment.confStorage.conf_storage_util import update_configmap
+from deployment.paiLibrary.common.kubernetes_handler import update_configmap
 
 
 class ConfigReader(object):

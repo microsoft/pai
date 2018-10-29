@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-
 def init_vc_config(cluster_configuration_dir, vc_configuration_dir):
     cluster_config_reader = ClusterConfigReader(conf_dir=cluster_configuration_dir)
     vc_config_reader = VcConfigReader(conf_dir=vc_configuration_dir)
