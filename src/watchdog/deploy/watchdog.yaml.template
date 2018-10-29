@@ -65,7 +65,7 @@ spec:
           - "--port"
           - "9101"
           - "{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}"
-        {% if clusterinfo['apiserver']['tls_access'] %}
+        {% if clusterinfo['api-server']['tls_access'] %}
           - "--ca"
           - "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
           - "--bearer"

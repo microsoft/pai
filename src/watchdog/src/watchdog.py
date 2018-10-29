@@ -366,7 +366,7 @@ def main(args):
     ca_path = args.ca
     bearer_path = args.bearer
     if (ca_path is None and bearer_path is not None) or (ca_path is not None and bearer_path is None):
-        log.warning("please probide bearer_path and ca_path at the same time or not")        
+        log.warning("please provide bearer_path and ca_path at the same time or not")        
     headers = None
     if bearer_path is not None:
         with open(bearer_path, 'r') as bearer_file:
