@@ -15,13 +15,14 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM base-image
+FROM ubuntu:16.04
 
 RUN apt-get -y update && \
     apt-get -y install \
       python-pip \
       python-yaml \
       python-jinja2 \
+      wget \
       git \
       vim &&\
     pip install python-etcd kubernetes paramiko
