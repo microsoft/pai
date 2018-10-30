@@ -267,6 +267,18 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["grafanainfo"]["grafana_port"] = \
             serviceDict["clusterinfo"]["grafanainfo"]["grafana-port"]
 
+        # section: drivers
+        if "drivers" in self.rawData["serviceConfiguration"]:
+            serviceDict["clusterinfo"]["driversinfo"] = \
+                self.rawData["serviceConfiguration"]["driversinfo"]
+            serviceDict["clusterinfo"]["driversinfo"]["version"] = \
+                self.rawData["serviceConfiguration"]["driversinfo"]["version"]
+        else:
+            serviceDict["clusterinfo"]["driversinfo"] = dict()
+
+        if "version" not in serviceDict["clusterinfo"]["driversinfo"]:
+            serviceDict["clusterinfo"]["driversinfo"]["version"] = "384.111"
+
         # section: prometheus
 
         serviceDict["clusterinfo"]["prometheusinfo"] = \
