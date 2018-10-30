@@ -48,10 +48,10 @@ spec:
           periodSeconds: 3
         env:
         - name: JAVA_OPTS
-          value: "-server -Xmx1536m"
+          value: "-server -Xmx8192m"
         resources:
           limits:
-            memory: "2Gi"
+            memory: "10Gi"
             cpu: "1000m"
           requests:
             memory: "1Gi"
