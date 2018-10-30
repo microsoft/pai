@@ -342,7 +342,7 @@ def load_machine_list(configFilePath):
 
 def request_with_histogram(url, histogram, ca_path, headers):
     with histogram.time():
-        requests.get(url, headers = headers, verify = ca_path).json()
+        return requests.get(url, headers = headers, verify = ca_path).json()
 
 
 def try_remove_old_prom_file(path):
