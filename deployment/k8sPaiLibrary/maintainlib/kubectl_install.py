@@ -52,6 +52,7 @@ class kubectl_install:
             commandline,
             "Failed to install kubectl on your dev-box"
         )
+        self.logger.info("Successfully install kubectl on the dev-box.")
 
 
 
@@ -59,15 +60,28 @@ class kubectl_install:
 
         self.logger.info("Generate the configuation file of kubectl.")
 
+        if self.cluster_config != None:
+            self.logger.info("Cluster configuration is detected.")
+            self.logger.info("Generate the KUBECONIFG based on the cluster configuration.")
+            dict_map = {
+                "clusterconfig": self.cluster_config['clusterinfo'],
+            }
+        else:
+            self.logger.warning("Unable to find the cluster configuration.")
+            self.logger.warning("Please enter the required infomation, when prompted.")
+            user_input = raw_input("Please input the api-server (or the api servers' load-balancer) address in your cluster: ")
+            dict_map = {
+                "clusterconfig": {"api-servers-ip" : user_input}
+            }
+
         file_path = "deployment/k8sPaiLibrary/template/config.template"
         template_data = common.read_template(file_path)
-        dict_map = {
-            "clusterconfig": self.cluster_config['clusterinfo'],
-        }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
         kube_config_path = os.path.expanduser("~/.kube")
         common.write_generated_file(generated_data, "{0}/config".format(kube_config_path))
+        self.logger.info("Successfully configure kubeconfig in the dev-box.")
+
 
 
 

@@ -100,6 +100,11 @@ const jobConfigSchema = Joi.object().keys({
     .integer()
     .min(-2)
     .default(0),
+  jobEnvs: Joi.object()
+    .pattern(
+        /\w+/,
+        Joi.required()
+    ),
 }).required();
 
 const jobExecutionSchema = Joi.object().keys({

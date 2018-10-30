@@ -22,6 +22,7 @@ import unittest
 import yaml
 import logging
 import logging.config
+import datetime
 
 sys.path.append(os.path.abspath("../src/"))
 
@@ -62,6 +63,71 @@ class TestJobExporter(unittest.TestCase):
         copied.pop("container_label_GPU_ID")
         self.assertEqual(copied, otherLabels)
 
+    def test_generate_zombie_count_type1(self):
+        zombies = job_exporter.ZombieRecorder()
+
+        start = datetime.datetime.now()
+
+        one_sec = datetime.timedelta(seconds=1)
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type1(zombies, {"a", "b"}, start))
+        self.assertEqual(2, len(zombies))
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type1(zombies, {"a", "b"},
+                    start + zombies.decay_time - one_sec))
+        self.assertEqual(2, len(zombies))
+
+        self.assertEqual(2,
+                job_exporter.generate_zombie_count_type1(zombies, {"a", "b"},
+                    start + zombies.decay_time + one_sec))
+        self.assertEqual(2, len(zombies))
+
+        self.assertEqual(1,
+                job_exporter.generate_zombie_count_type1(zombies, {"a"},
+                    start + zombies.decay_time + 2 *one_sec))
+        self.assertEqual(1, len(zombies))
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type1(zombies, {},
+                    start + zombies.decay_time + 3 * one_sec))
+        self.assertEqual(0, len(zombies))
+
+
+    def test_generate_zombie_count_type2(self):
+        zombies = job_exporter.ZombieRecorder()
+
+        start = datetime.datetime.now()
+
+        one_sec = datetime.timedelta(seconds=1)
+
+        stats = {"43ffe701d883":
+                    {"name": "core-caffe2_resnet50_20181012040921.586-container_e03_1539312078880_0780_01_000002"},
+                "8de2f53e64cb":
+                    {"name": "container_e03_1539312078880_0780_01_000002"}}
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type2(zombies, stats, start))
+
+        stats.pop("8de2f53e64cb")
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type2(zombies, stats, start + one_sec))
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type2(zombies, stats,
+                    start + zombies.decay_time))
+
+        self.assertEqual(1,
+                job_exporter.generate_zombie_count_type2(zombies, stats,
+                    start + zombies.decay_time + 2 * one_sec))
+
+        stats.pop("43ffe701d883")
+
+        self.assertEqual(0,
+                job_exporter.generate_zombie_count_type2(zombies, stats,
+                    start + zombies.decay_time + 3 * one_sec))
 
 if __name__ == '__main__':
     unittest.main()

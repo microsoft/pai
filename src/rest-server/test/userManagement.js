@@ -89,6 +89,48 @@ describe('Add new user: put /api/v1/user', () => {
         }
       });
 
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, {
+        'scheduler': {
+          'schedulerInfo': {
+            'queues': {
+              'queue': [
+                {
+                  'queueName': 'default',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc1',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                },
+                {
+                  'queueName': 'vc2',
+                  'state': 'RUNNING',
+                  'type': 'capacitySchedulerLeafQueueInfo',
+                }
+              ]
+            },
+            'type': 'capacityScheduler',
+            'usedCapacity': 0.0
+          }
+        }
+      });
+
+    nock(etcdHosts)
+      .put('/v2/keys/users/new_user/virtualClusters', { 'value': 'default,vc1,vc2' })
+      .reply(200, {
+        'action': 'update',
+        'node': {
+          'key': '/users/new_user/virtualClusters',
+          'value': 'default,vc1',
+          'modifiedIndex': 5,
+          'createdIndex': 5
+        }
+      });
+
     nock(etcdHosts)
       .put('/v2/keys/users/new_user/admin', { 'value': 'false' })
       .reply(200, {
@@ -642,9 +684,14 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
               'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
               'modifiedIndex': 7,
               'createdIndex': 7
+            }, {
+              'key': '/users/test_non_admin_user/virtualClusters',
+              'value': 'default,vc1,vc2',
+              'modifiedIndex': 8,
+              'createdIndex': 8
             }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
+          'modifiedIndex': 9,
+          'createdIndex': 9
         }
       });
 

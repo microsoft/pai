@@ -1,6 +1,6 @@
 {
   "jobName": "mxnet-autoencoder",
-  "image": "openpai/pai.example.mxnet",
+  "image": "openpai/pai.example.mxnet:stable",
   "taskRoles": [
     {
       "name": "main",

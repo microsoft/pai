@@ -6,11 +6,12 @@ A tool to manage your pai cluster.
 - [Manage cluster configuration](#Config)
     - [Set external storage configuration to k8s](#External_Set)
     - [Generate cluster configuration with machine list](#Config_Generate)
-    - [Update the cluster configuration in the k8s](#Config_Update)
-    - [Get the cluster configuration from the k8s](#Config_Get)
+    - [Push the cluster configuration in the k8s](#Config_Push)
+    - [Pull the cluster configuration from the k8s](#Config_Pull)
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
+    - [ Add new machine, remove old machine ](#Machine_Update)
     - [ Fix crashed etcd node](#etcd_fix)
 - [ Maintain your service ](#Service)
     - [ Start service(s) ](#Service_Start)
@@ -20,7 +21,7 @@ A tool to manage your pai cluster.
 - [ Bootstrap your cluster ](#Cluster)
     - [ Bootstrap Kubernetes ](#Cluster_K8s_Boot)
     - [ Stop Kubernetes ](#Cluster_K8s_Stop)
-    - [ Generate the cluster-configuration template from a machine list ](#Cluster_Conf_Generate)
+    - [ Setup KUBECONFIG and install kubectl ](#Cluster_env_setup)
 - [ Appendix: An example of the `machine-list` file ](#Machine_Nodelist_Example)
 
 
@@ -31,7 +32,7 @@ A tool to manage your pai cluster.
 ### Set external storage configuration to k8s <a name="External_Set"></a>
 
 ```
-python paictl.py config -e external-config-update [ -c kube-config ] 
+python paictl.py config external-config-update -e external-config [ -c kube-config ] 
 ```
 
 - External storage is responsible for storing your cluster configuration. And it is not a part of OpenPai's service. Now OpenPai supports 2 method to integrate.
@@ -62,37 +63,39 @@ path: /a/b/c
 
 - kube-config: The configuration for kubectl and other kubernetes client to access to the server. The default value is ```~/.kube/config```. For more detail information, please refer to the [link](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable)
 
-### Generate cluster configuratin from quick-start.yaml
+### Generate cluster configuratin from quick-start.yaml <a name="Config_Generate"></a>
 ```yaml
 python paictl.py config generate -i /pai/deployment/quick-start/quick-start/quick-start.yaml -o ~/pai-config -f
 ```
 - quick-start.yaml: Admin could generate a complete cluster configuration with quick-start.yaml. More detailed about this file please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-1).
 - More infomation about this command please refer to this [link](../pai-management/doc/cluster-bootup.md#c-step-2). 
+- By default, in the generated configuration, a single-master Kubernetes is configured by default.
+- Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
 
-### Update the cluster configuration in the k8s
+### Push the cluster configuration in the k8s <a name="Config_Push"></a>   
 
-###### 1. Update cluster configuration from local path
+###### 1. Push cluster configuration from local path
 
 ```
-python paictl config update -p /path/to/local/configuration [-c kubeconfig-path ]
+python paictl config push -p /path/to/local/configuration [-c kubeconfig-path ]
 ```
 - Same as local storage.
-###### 2. Update cluster configuration from the external storage (Get the external storage from local)
+###### 2. Push cluster configuration from the external storage (Get the external storage from local)
 ```
-python paictl config update -e external-storage-config [-c kubeconfig-path]
+python paictl config push -e external-storage-config [-c kubeconfig-path]
 ```
 - Configure the external storage configuration and pass the configuration file with the parameter ```-e```.
 
-###### 3. Update cluster configuration from the external storage (Get the external storage from k8s)
+###### 3. Push cluster configuration from the external storage (Get the external storage from k8s)
 ```
-python paictl config update [-c kubeconfig-path]
+python paictl config push [-c kubeconfig-path]
 ```
 - Note: Please ensure that you have upload the external storage configuration to k8s with the [command](#External_Set).
 
 
-### Get the cluster configuration from the k8s
+### Get the cluster configuration from the k8s <a name="Config_Pull"></a>
 ```yaml
-paictl.py config get -o /path/to/output [-c kube-config]
+paictl.py config pull -o /path/to/output [-c kube-config]
 ```
 
 ## Maintain machines <a name="Machine"></a>
@@ -115,6 +118,19 @@ python paictl.py machine remove -p /path/to/cluster-configuration/dir -l machine
 - See an example of the machine list [here](#Machine_Nodelist_Example).
 
 
+### Add new machine, remove old machine <a name=#Machine_Update></a>
+
+
+- Step1: update your machinelist in the cluster configuration
+    - Remove the machine you wanna remove in the list.
+    - Add the machine into the machine list.
+    - Update cluster configuration with the this [command](#Config_Push).
+- Step2: Execute the machine update command following.
+```
+python paictl.py machine update [-c /path/to/kubeconfig]
+```
+
+
 ### Fix crashed etcd node <a name="etcd_fix"></a>
 
 
@@ -131,7 +147,7 @@ python paictl.py machine etcd-fix -p /path/to/cluster-configuration/dir -l machi
 ### Start service(s) <a name="Service_Start"></a>
 
 ```
-python paictl.py service start -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service start [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 1) Start all services by default.
@@ -140,7 +156,7 @@ python paictl.py service start -p /path/to/cluster-configuration/dir [ -n servic
 ### Stop service(s) <a name="Service_Stop"></a>
 
 ```
-python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service stop [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - Stop all services by default.
@@ -149,7 +165,7 @@ python paictl.py service stop -p /path/to/cluster-configuration/dir [ -n service
 ### Delete service(s) <a name="Service_Delete"></a>
 
 ```
-python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service delete [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - 'Delete' a service means to stop that service and then delete all of its persisted data in HDFS, Yarn, ZooKeeper, etc.
@@ -159,7 +175,7 @@ python paictl.py service delete -p /path/to/cluster-configuration/dir [ -n servi
 ### Refresh service(s) <a name="Service_Refresh"></a>
 
 ```
-python paictl.py service refresh -p /path/to/cluster-configuration/dir [ -n service-name ]
+python paictl.py service refresh [-c /path/to/kubeconfig] [ -n service-name ]
 ```
 
 - Refresh all the labels on each node.
@@ -185,16 +201,17 @@ python paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir
 
 - Stop Kubernetes in the specified cluster.
 
-### Generate cluster-configuration template files from a machine list <a name="Cluster_Conf_Generate"></a>
+### Setup KUBECONFIG and install kubectl in the environment <a name="Cluster_env_setup"></a>
 
 ```
-python paictl.py config generate -p /path/to/machinelist.csv
+python paictl.py config k8s-set-env [ -p /path/to/cluster/configuration ]
 ```
 
-- The machine list should be provided in CSV format.
-- All configuration files of cluster-configuration will be generated to the local folder, and then be used for bootstrapping the whole cluster.
-- By default, in the generated configuration, a single-master Kubernetes is configured by default.
-- Advanced users or developers can fine-tune the content of the generated configuration files according to specific environments.
+- Install kubectl in the deployment box.
+- Configure KUBECONFIG for kubectl or other kubernetes' client.
+- The args ```-p /path/to/cluster/configuration``` is optional. If admin don't pass this args, paictl will ask admin to input the necessary infomation to generate KUBECONFIG.
+- When in a clean dev-box, please run this command firstly.
+
 
 ## Appendix: An example of the `machine-list.yaml` file <a name="Machine_Nodelist_Example"></a>
 
