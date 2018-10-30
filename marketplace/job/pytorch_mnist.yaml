@@ -5,6 +5,7 @@ version : 1.0.0
 contributor : Qi Chen
 description : image classification, mnist dataset, pytorch
 retryCount: 0
+
 parameters :
   epochs : 10
   batchsize: 32
@@ -17,12 +18,8 @@ tasks :
     resource: 
       instances : 1
       resourcePerInstance: {cpu: 4, memoryMB: 8192, gpu: 1}
-    commandParameters:
-      epochs: $$epochs$$
-      batchsize: $$batchsize$$
-      lr: $$lr$$
     command:
-      - python pytorch_examples/mnist/main.py --epochs $$epochs$$ --lr $$lr$$ --batch-size $$batchsize$$
+      - python $$script$$/mnist/main.py --epochs $$epochs$$ --lr $$lr$$ --batch-size $$batchsize$$
 
 prerequisites : 
   - protocol_version : v2
@@ -31,16 +28,8 @@ prerequisites :
     version : 1.0.0
     contributor : Qi Chen
     description: pytorch examples
-    uri : https://github.com/pytorch/examples
-    usage:
-      parameters:
-        epochs: 10
-        batchsize: 32
-        lr: 0.01
-      roles:
-        - name : worker
-          command : 
-            - python pytorch_examples/mnist/main.py --epochs $$epochs$$ --lr $$lr$$ --batch-size $$batchsize$$
+    uri : 
+      - https://github.com/pytorch/examples
   - protocol_version : v2
     name : pytorch_example
     type : dockerimage

@@ -90,7 +90,7 @@ const taskSchema = {
       propertyOrder: 2,
       enum: [],
       options: {
-        grid_columns: 4,
+        grid_columns: 3,
       },
     },
     script: {
@@ -98,7 +98,7 @@ const taskSchema = {
       propertyOrder: 3,
       enum: [],
       options: {
-        grid_columns: 4,
+        grid_columns: 3,
       },
     },
     dockerimage: {
@@ -106,19 +106,18 @@ const taskSchema = {
       propertyOrder: 4,
       enum: [],
       options: {
-        grid_columns: 4,
+        grid_columns: 3,
       },
     },
-    instances: {
-      type: 'number',
-      minimum: 0,
-      multipleOf: 1,
+    storage: {
+      type: 'string',
       propertyOrder: 5,
+      enum: [],
       options: {
         grid_columns: 3,
       },
     },
-    cpu: {
+    instances: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
@@ -127,7 +126,7 @@ const taskSchema = {
         grid_columns: 3,
       },
     },
-    memoryMB: {
+    cpu: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
@@ -136,7 +135,7 @@ const taskSchema = {
         grid_columns: 3,
       },
     },
-    gpu: {
+    memoryMB: {
       type: 'number',
       minimum: 0,
       multipleOf: 1,
@@ -145,19 +144,27 @@ const taskSchema = {
         grid_columns: 3,
       },
     },
-    minFailedTaskCount: {
+    gpu: {
       type: 'number',
-      minimum: 1,
+      minimum: 0,
       multipleOf: 1,
       propertyOrder: 9,
+      options: {
+        grid_columns: 3,
+      },
     },
-    minSucceededTaskCount: {
+    minFailedTaskCount: {
       type: 'number',
       minimum: 1,
       multipleOf: 1,
       propertyOrder: 10,
     },
-    parameters: parametersSchema,
+    minSucceededTaskCount: {
+      type: 'number',
+      minimum: 1,
+      multipleOf: 1,
+      propertyOrder: 11,
+    },
     command: {
       type: 'array',
       format: 'tabs',
@@ -189,12 +196,12 @@ const taskSchema = {
     'role',
     'data',
     'script',
+    'storage',
     'dockerimage',
     'instances',
     'cpu',
     'gpu',
     'memoryMB',
-    'parameters',
     'command',
     'portList',
   ],
@@ -227,7 +234,19 @@ const dataSchema = {
       multipleOf: 1,
     },
     uri: {
-      type: 'string',
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
+        headerTemplate: `command {{i}}`,
+      },
     },
     description: {
       type: 'string',
@@ -270,8 +289,74 @@ const scriptSchema = {
       multipleOf: 1,
     },
     uri: {
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
+        headerTemplate: `command {{i}}`,
+      },
+    },
+    description: {
+      type: 'string',
+      format: 'textarea',
+    },
+  },
+  required: [
+    'name',
+    'version',
+    'contributor',
+    'protocol_version',
+    'uri',
+    'description',
+  ],
+};
+
+// submit_job [storage]
+const storageSchema = {
+  type: 'object',
+  format: 'grid',
+  headerTemplate: '{{ self.name }}',
+  options: {
+    disable_edit_json: true,
+    disable_collapse: true,
+  },
+  properties: {
+    name: {
+      type: 'string',
+      pattern: '^[A-Za-z0-9._~]+$',
+    },
+    version: {
       type: 'string',
       multipleOf: 1,
+    },
+    contributor: {
+      type: 'string',
+    },
+    protocol_version: {
+      type: 'string',
+      multipleOf: 1,
+    },
+    uri: {
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
+        headerTemplate: `uri {{i}}`,
+      },
     },
     description: {
       type: 'string',
@@ -400,6 +485,7 @@ const jobSchema = {
 module.exports = {
   dataSchema,
   scriptSchema,
+  storageSchema,
   dockerimageSchema,
   taskSchema,
   jobSchema,

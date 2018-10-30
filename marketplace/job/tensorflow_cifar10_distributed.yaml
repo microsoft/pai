@@ -1,0 +1,73 @@
+protocol_version: v2
+name : tensorflow_cifar10
+type : job
+version : 1.0.0
+contributor : Alice
+description : image classification, cifar10 dataset, tensorflow, distributed training
+retryCount : 0 
+
+parameters :
+  model : resnet20
+  batchsize: 32
+
+tasks :
+  - role: worker
+    data : cifar10
+    storage : mycifar10
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
+    command:
+      - pip --quiet install scipy
+      - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
+      - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
+  - role : ps_server
+    data : cifar10
+    storage : mycifar10
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource :
+      instances : 1
+      resourcePerInstance : { cpu: 2, memoryMB: 8192, gpu: 0 }
+    command:
+      - pip --quiet install scipy
+      - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
+      - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
+
+prerequisites : 
+  - protocol_version : v2
+    name : tf_example
+    type : dockerimage
+    version : 1.0.0
+    contributor : Alice
+    description: python3.5, tensorflow
+    uri : openpai/pai.example.tensorflow
+  - protocol_version : v2
+    name : mycifar10
+    type : storage
+    version : 1.0.0
+    contributor : Alice
+    description: cifar10 data storage
+    uri : 
+      - hdfs://10.151.40.179:9000/core/cifar10_model
+  - protocol_version : v2
+    name : cifar10
+    type : data
+    version : 1.0.0
+    contributor : Alice
+    description: cifar10 dataset, image classification
+    uri : 
+      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+  - protocol_version : v2
+    name : tensorflow_cnnbenchmarks
+    type : script
+    version : 1.0.0
+    contributor : MaggieQi
+    description: tensorflow benchmarks
+    uri : 
+      - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d
+

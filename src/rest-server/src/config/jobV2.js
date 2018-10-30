@@ -65,6 +65,9 @@ const jobConfigSchema = Joi.object().keys({
       script: Joi.string()
         .allow('')
         .default(''),
+      storage: Joi.string()
+        .allow('')
+        .default(''),
       dockerimage: Joi.string()
         .required(),
       resource: Joi.object().keys({
@@ -111,9 +114,6 @@ const jobConfigSchema = Joi.object().keys({
         .min(1)
         .allow(null)
         .default(null),
-      commandParameters: Joi.object()
-        .optional()
-        .default({}),
       command: Joi.array()
         .items(Joi.string())
         .required(),
@@ -128,7 +128,7 @@ const jobConfigSchema = Joi.object().keys({
         .allow('')
         .default(''),
       type: Joi.string()
-        .regex(/data|script|dockerimage/)
+        .regex(/data|script|dockerimage|storage/)
         .required(),
       version: Joi.string()
         .allow('')
@@ -139,10 +139,11 @@ const jobConfigSchema = Joi.object().keys({
       description: Joi.string()
         .allow('')
         .default(''),
-      uri: Joi.string()
-        .allow('')
-        .default(''),
-      usage: Joi.object(),
+      uri: Joi.alternatives()
+        .when('type', {is: 'dockerimage', then: Joi.string()})
+        .when('type', {is: 'data', then: Joi.array().items(Joi.string())})
+        .when('type', {is: 'script', then: Joi.array().items(Joi.string())})
+        .when('type', {is: 'storage', then: Joi.array().items(Joi.string())}),
     })),
 }).required();
 

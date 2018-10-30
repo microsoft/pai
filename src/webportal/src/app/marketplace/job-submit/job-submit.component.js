@@ -54,6 +54,10 @@ $(document).on('click', '#add-data-btn', () => {
   userTemplate.showAddModal('data');
 });
 
+$(document).on('click', '#add-storage-btn', () => {
+  userTemplate.showAddModal('storage');
+});
+
 $(document).on('click', '#EditYamlBtn', () => {
   $('#submitJob').attr('disabled', false);
   userTemplate.editYaml();

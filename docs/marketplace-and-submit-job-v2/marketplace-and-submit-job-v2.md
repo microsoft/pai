@@ -94,7 +94,6 @@ contributor: String
 description: String
 retryCount: Integer
 virtualCluster: String
-gpuType: String
 
 parameters:
   userParam1: valType1
@@ -110,12 +109,13 @@ prerequisites:
   - dockerimage
   - script
   - data
+  - storage
   ...
 ```
 
 > `data`
 
-Data is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
+Data is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the data urls that will be used in one task, which will be downloaded to the directory specified by `name` (`name`/`uri_name`). 
 ```yaml
 protocol_version: String
 name: String
@@ -123,12 +123,15 @@ type: data
 version: String
 contributor: String
 description: String
-uri: String
+uri:
+  - String
+  - String
+  ...
 ```
 
 > `script`
 
-Script is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
+Script is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the script repos that will be used in one task, which will be cloned into the directory specified by `name` (`name`/`script_name`). 
 ```yaml
 protocol_version: String
 name: String
@@ -136,7 +139,26 @@ type: script
 version: String
 contributor: String
 description: String
-uri: String
+uri:
+  - String
+  - String
+  ...
+```
+
+> `storage`
+
+Storage is one of the element type in prerequisites section. It is not an independent component which should be specified by users. It contains all the output storage resources that will be used in one task, which will be mounted into the directory specified by `name` (`name`/`storage_name`).
+```yaml
+protocol_version: String
+name: String
+type: storage
+version: String
+contributor: String
+description: String
+uri:
+  - String
+  - String
+  ...
 ```
 
 > `dockerimage`
@@ -159,6 +181,7 @@ Task is not an independent component, it is the element type of the tasks. A job
 role: String
 data: String
 script: String
+storage: String
 dockerimage: String
 resource: 
   instances: Integer
@@ -177,10 +200,6 @@ resource:
     ...
 minFailedTaskCount: Integer
 minSucceededTaskCount: Integer
-commandParameters:
-  commandParam1: commandValType1
-  commandParam2: commandValType2
-  ...
 command: 
   - String
   - String
@@ -201,9 +220,8 @@ The detailed explanation for each of the parameters in each section of the confi
 | `description`                    | String, optional           | Description of the job template          |
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on **_default_** virtual cluster    |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
-| `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
-| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template except in the commands. They can be referenced by **_$$paramName$$_**.  |
-| `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script or dockerimage. Specify dockerimage at least |
+| `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by **_$$paramName$$_**.  |
+| `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script, storage, or dockerimage. Specify dockerimage at least |
 | `tasks`                          | List, required             | List of `task`, one task at least |
 
 > prerequisite
@@ -212,12 +230,11 @@ The detailed explanation for each of the parameters in each section of the confi
 | :------------------------------- | :------------------------- | :--------------------------------------- |
 | `protocol_version`               | String, optional           | Protocol version, If omitted, it will be **_v2_**|
 | `name`                           | String, in `^[A-Za-z0-9\-._~]+$` format, required | Name of the prerequisite |
-| `type`                           | String, required           | Type of the prerequisite, must be **_data_**, **_script_**, or **_dockerimage_** |
+| `type`                           | String, required           | Type of the prerequisite, must be **_data_**, **_script_**, **_storage_**, or **_dockerimage_** |
 | `version`                        | String, optional           | Version of the prerequisite              |
 | `contributor`                    | String, optional           | Contributor of the prerequisite          |
 | `description`                    | String, optional           | Description of the prerequisite          |
-| `uri`                            | String, required           | Reference URL                            |
-
+| `uri`                            | List or String, required   | Reference URLs, Only in dockerimage, it is String type.                           |
 
 > task
 
@@ -226,12 +243,12 @@ The detailed explanation for each of the parameters in each section of the confi
 | `role`                           | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task, need to be unique with other roles |
 | `data`                           | String, optional           | Data that will be used in the task, name reference of a prerequisite |
 | `script`                         | String, optional           | Script to be executed in the task, name reference of a prerequisite |
+| `storage`                         | String, optional           | Storage that will be used in the task, name reference of a prerequisite |
 | `dockerimage`                    | String, optional           | Docker image to be used for the task, name reference of a prerequisite |
 | `resource`                       | Object, required           | Resource required for the task |
 | `minFailedTaskCount`             | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1 |
 | `minSucceededTaskCount`          | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1 |
-| `commandParameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used only in the commands of this task. Commands can only contain the parameters defined in the `commandParameters` of this task. They can also be referenced by **_$$paramName$$_**. |
-| `command`                        | List, required             | List of executable commands of the task, can not be empty |
+| `command`                        | List, required             | List of executable commands of the task, can not be empty. Commands can reference not only the parameters defined in the `job` `parameters` session but also the properties of the current task |
 
 > resource
 
@@ -263,20 +280,17 @@ Below we show a complete list of environment variables accessible in a Docker co
 | :--------------------------------- | :--------------------------------------- |
 | PAI_WORK_DIR                       | Working directory in Docker container    |
 | PAI_DEFAULT_FS_URI                 | Default file system uri in PAI           |
-| PAI_JOB_NAME                       | `jobName` in config file                 |
+| PAI_JOB_NAME                       | `job.name` in config file                 |
 | PAI_JOB_VC_NAME                    | The virtual cluster in which the job is running     |
 | PAI_USER_NAME                      | User who submit the job                  |
-| PAI_DATA_DIR                       | `dataDir` in config file                 |
-| PAI_OUTPUT_DIR                     | `outputDir`in config file or the generated path if `outputDir` is not specified |
-| PAI_CODE_DIR                       | `codeDir` in config file                 |
-| PAI_CURRENT_TASK_ROLE_NAME         | `taskRole.name` of current task role     |
-| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `taskRole.taskNumber` of current task role |
-| PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `taskRole.cpuNumber` of current task role  |
-| PAI_CURRENT_TASK_ROLE_MEM_MB       | `taskRole.memoryMB` of current task role   |
-| PAI_CURRENT_TASK_ROLE_SHM_MB       | `taskRole.shmMB` of current task role      |
-| PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `taskRole.gpuNumber` of current task role  |
-| PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT    | `taskRole.minFailedTaskCount` of current task role    |
-| PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT | `taskRole.minSucceededTaskCount` of current task role |
+| PAI_CURRENT_TASK_ROLE_NAME         | `task.role` of current task role     |
+| PAI_CURRENT_TASK_ROLE_TASK_COUNT   | `task.resource.instances` of current task role |
+| PAI_CURRENT_TASK_ROLE_CPU_COUNT    | `task.resource.cpu` of current task role  |
+| PAI_CURRENT_TASK_ROLE_MEM_MB       | `task.resource.memoryMB` of current task role   |
+| PAI_CURRENT_TASK_ROLE_SHM_MB       | `task.resource.shmMB` of current task role      |
+| PAI_CURRENT_TASK_ROLE_GPU_COUNT    | `task.resource.gpu` of current task role  |
+| PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT    | `task.minFailedTaskCount` of current task role    |
+| PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT | `task.minSucceededTaskCount` of current task role |
 | PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX | Index of current task in current task role, starting from 0 |
 | PAI_JOB_TASK_COUNT                 | Total tasks' number in config file       |
 | PAI_JOB_TASK_ROLE_COUNT            | Total task roles' number in config file  |
@@ -284,7 +298,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CONTAINER_HOST_IP              | Allocated ip for current docker container |
 | PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
 | PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
-| PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
+| PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
 
 Below is an example for a distributed tensorflow image classification training job :
 
@@ -306,50 +320,32 @@ tasks:
   - role: worker                      # task role name
     data: cifar10                     # task input data
     script: tensorflow_cnnbenchmarks  # script executed in task
+    storage: mycifar10               # storage that will store the output model
     dockerimage: tf_example           # docker image used in task
     resource:                         # resource required in task 
       instances: 1                    # number of instances for the task
       resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
-    minSucceededTaskCount: 1          # number of succeeded tasks to kill the entire job
-    commandParameters:
-      data: cifar10
-      model: $$model$$
-      batchsize: $$batchsize$$
     command:                          # executable commands in the task 
-      - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
       - pip --quiet install scipy
-      - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+      - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
+      - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
   - role: ps_server
     data: cifar10
+    storage: mycifar10
     script: tensorflow_cnnbenchmarks
     dockerimage: tf_example
     resource:
       instances: 1
       resourcePerInstance: { cpu: 2, memoryMB: 8192, gpu: 0 }
-    commandParameters:
-      data: cifar10
-      model: $$model$$
-      batchsize: $$batchsize$$
     command:
-      - export PYTHONPATH=$PAI_CURRENT_DIR/tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
       - pip --quiet install scipy
-      - python tensorflow_cnnbenchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --data_name=$$data$$ --train_dir=$PAI_OUTPUT_DIR/cifar10_output --model=$$model$$ --batch_size=$$batchsize$$
+      - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
+      - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
+
 
 prerequisites: 
-  - protocol_version: v2
-    name: cifar10
-    type: data
-    version: 1.0.0
-    contributor: Alice
-    description: cifar10 dataset, image classification
-    uri: https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz # data download url
-  - protocol_version: v2
-    name: tensorflow_cnnbenchmarks
-    type: script
-    version: 1.0.0
-    contributor: Alice
-    description: tensorflow benchmarks
-    uri: https://github.com/tensorflow/benchmarks@6a33b4a4b5bda950bb7e45faf13120115cbfdb2f # script checkout repo
   - protocol_version: v2
     name: tf_example
     type: dockerimage
@@ -357,6 +353,30 @@ prerequisites:
     contributor: Alice
     description: python3.5, tensorflow
     uri: openpai/pai.example.tensorflow # url pointing to the docker image used in the job
+  - protocol_version: v2
+    name: cifar10
+    type: data
+    version: 1.0.0
+    contributor: Alice
+    description: cifar10 dataset, image classification
+    uri: 
+      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz # data download url
+  - protocol_version: v2
+    name: tensorflow_cnnbenchmarks
+    type: script
+    version: 1.0.0
+    contributor: Alice
+    description: tensorflow benchmarks
+    uri: 
+      - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d # script checkout repo
+  - protocol_version: v2
+    name: mycifar10
+    type: storage
+    version: 1.0.0
+    contributor: Alice
+    description: cifar10 data storage
+    uri: 
+      - hdfs://10.151.40.179:9000/core/cifar10_model  # storage to be mounted
 ```
 
 For more examples, please refer to [marketplace directory](https://github.com/Microsoft/pai/tree/master/marketplace).

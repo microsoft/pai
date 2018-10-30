@@ -47,38 +47,29 @@ const checkMinTaskNumber = (req, res, next) => {
   next();
 };
 
-const getCommands = (element) => {
-  let items = element.uri.split(',');
+const getCommands = (element, type='pre') => {
   let res = [];
-  if (items.length > 1) {
-    res.push('mkdir ' + element.name);
-  }
-  for (let i = 0; i < items.length; i++) {
-    let uriname = items[i].substring(items[i].lastIndexOf('/') + 1);
-    if (items[i].indexOf('github') >= 0) {
-      let uris = items[i].split('@');
+  if (type == 'pre') res.push('mkdir ' + element.name);
+  for (let i = 0; i < element.uri.length; i++) {
+    let uriname = element.uri[i].substring(element.uri[i].lastIndexOf('/') + 1);
+    if (element.uri[i].startsWith('https://github.com')) {
+      let uris = element.uri[i].split('@');
       res.push('git clone ' + uris[0]);
       if (uris.length > 1) {
         uriname = uriname.substring(0, uriname.length - uris[1].length - 1);
         res.push('cd ' + uriname + '; git checkout ' + uris[1] + '; cd ..');
       }
       res.push('mv ' + uriname + ' ' + element.name);
-    } else if (element.uri.indexOf('http') == 0) {
-      res.push('wget ' + items[i]);
-      if (uriname.indexOf('.gz') >= 0) {
-        res.push('gunzip ' + uriname);
-        uriname = uriname.substring(0, uriname.length - 3);
-      }
-      if (uriname.indexOf('.tar') >= 0) {
-        res.push('mkdir ' + element.name);
-        res.push('tar xvf ' + uriname + ' -C ' + element.name + ' --strip-components 1');
-        uriname = element.name;
-      }
-      if (uriname.indexOf('.zip') >= 0) {
-        res.push('unzip ' + uriname);
-        uriname = uriname.substring(0, uriname.elgnth - 4);
-      }
+    } else if (element.uri[i].startsWith('http')) {
+      res.push('wget ' + element.uri[i]);
       res.push('mv ' + uriname + ' ' + element.name);
+    } else if (element.uri[i].startsWith('hdfs')) {
+      // TODO hdfs mount, currently use copy
+      if (type == 'pre') {
+        res.push('hdfs dfs -stat "%F" ' + element.uri[i] + ' &> statout; statout=`cat statout | grep "No such"`; if [ ${#statout} -eq 0 ]; then hdfs dfs -cp ' + element.uri[i] + ' ' + element.name + '; else mkdir ' + element.name + '/' + uriname + '; fi');
+      } else {
+        res.push('hdfs dfs -stat "%F" ' + element.uri[i] + ' &> statout; statout=`cat statout | grep "No such"`; if [ ${#statout} -gt 0 ] && [ -d ' + element.name + '/' + uriname + ' ]; then hdfs dfs -cp ' + element.name + '/' + uriname + ' ' + element.uri[i] + '; else echo "Remote directory exists or Local directory not exists!"; fi');
+      }
     }
   }
   return res;
@@ -110,12 +101,21 @@ const replaceParameters = (str, param) => {
   let reg = new RegExp('\\$\\$[A-Za-z0-9\\.\\_]+\\$\\$', 'g');
   let result = reg.exec(str);
   while (result != null) {
-    let variable = result[0].substring(2, result[0].length - 2);
-    if (variable in param) {
-      if (newstr == result[0]) {
-        newstr = param[variable];
+    let variable = result[0].substring(2, result[0].length - 2).split('.');
+    let subparam = param;
+    for (let i = 0; i < variable.length; i++) {
+      if (variable[i] in subparam) {
+        subparam = subparam[variable[i]];
       } else {
-        newstr = newstr.replace(result[0], param[variable].toString());
+        subparam = null;
+        break;
+      }
+    }
+    if (subparam != null) {
+      if (newstr == result[0]) {
+        newstr = subparam;
+      } else {
+        newstr = newstr.replace(result[0], subparam.toString());
       }
     }
     result = reg.exec(str);
@@ -138,12 +138,9 @@ const parseParameters = (req, res, next) => {
         }
       }
     } else if (obj instanceof Object) {
-      if ('commandParameters' in obj) {
-        Object.keys(obj['commandParameters']).forEach((key) => {
-          obj['commandParameters'][key] = replaceParameters(obj['commandParameters'][key], jobParam);
-        });
+      if ('command' in obj) {
         for (let i = 0; i < obj['command'].length; i++) {
-          obj['command'][i] = replaceParameters(obj['command'][i], obj['commandParameters']);
+          obj['command'][i] = replaceParameters(obj['command'][i], obj);
         }
       }
       Object.keys(obj).forEach((key) => {
@@ -176,21 +173,28 @@ const convert = (req, res, next) => {
   let newbody = {};
   newbody.jobName = value.name;
   newbody.image = prerequisitesMap.dockerimage[Object.keys(prerequisitesMap.dockerimage)[0]].uri;
-  newbody.outputDir = '$PAI_DEFAULT_FS_URI/marketplace/' + req.user.username;
   newbody.gpuType = value.gpuType;
   newbody.virtualCluster = value.virtualCluster;
   newbody.retryCount = value.retryCount;
   newbody.taskRoles = [];
 
   value.tasks.forEach((task) => {
-    let commands = ['export PAI_CURRENT_DIR=`pwd`'];
+    let commands = [];
     if (task.data != '') {
       commands = commands.concat(getCommands(prerequisitesMap['data'][task.data]));
     }
     if (task.script != '') {
       commands = commands.concat(getCommands(prerequisitesMap['script'][task.script]));
     }
-    commands = commands.concat(task.command).join(';');
+    if (task.storage != '') {
+      commands = commands.concat(getCommands(prerequisitesMap['storage'][task.storage]));
+    }
+    commands = commands.concat(task.command);
+    // TODO hdfs mount, currently use copy
+    if (task.storage != '') {
+      commands = commands.concat(getCommands(prerequisitesMap['storage'][task.storage], 'post'));
+    }
+    commands = commands.join(';');
     let taskRole = {name: task.role,
                     minFailedTaskCount: task.minFailedTaskCount,
                     minSucceededTaskCount: task.minSucceededTaskCount,

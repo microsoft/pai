@@ -1,0 +1,61 @@
+protocol_version: v2
+name : tensorflow_mnist
+type : job
+version : 1.0.0
+contributor : Alice
+description : image classification, mnist dataset, tensorflow, distributed training
+retryCount : 0 
+
+parameters :
+  batchsize: 32
+
+tasks :
+  - role: worker
+    data : mnist
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource: 
+      instances : 1
+      resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
+    command:
+      - pip --quiet install scipy
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/distributed_mnist.py --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --batch_size=$$batchsize$$
+  - role : ps_server
+    data : mnist
+    script : tensorflow_cnnbenchmarks
+    dockerimage : tf_example
+    resource :
+      instances : 1
+      resourcePerInstance : { cpu: 2, memoryMB: 8192, gpu: 0 }
+    command:
+      - pip --quiet install scipy
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/distributed_mnist.py --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=$$data$$ --batch_size=$$batchsize$$
+
+prerequisites : 
+  - protocol_version : v2
+    name : tf_example
+    type : dockerimage
+    version : 1.0.0
+    contributor : Alice
+    description: python3.5, tensorflow
+    uri : openpai/pai.example.tensorflow
+  - protocol_version : v2
+    name : mnist
+    type : data
+    version : 1.0.0
+    contributor : Alice
+    description: mnist dataset, image classification
+    uri : 
+      - http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
+      - http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz
+      - http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz
+      - http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz
+  - protocol_version : v2
+    name : tensorflow_cnnbenchmarks
+    type : script
+    version : 1.0.0
+    contributor : MaggieQi
+    description: tensorflow benchmarks
+    uri : 
+      - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d
+
