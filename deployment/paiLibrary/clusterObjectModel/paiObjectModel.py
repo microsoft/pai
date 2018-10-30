@@ -272,7 +272,7 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["driversinfo"] = \
                 self.rawData["serviceConfiguration"]["driversinfo"]
             serviceDict["clusterinfo"]["driversinfo"]["version"] = \
-                self.rawData["serviceConfiguration"]["driversinfo"]["version"]
+                str(self.rawData["serviceConfiguration"]["driversinfo"]["version"])
         else:
             serviceDict["clusterinfo"]["driversinfo"] = dict()
 
