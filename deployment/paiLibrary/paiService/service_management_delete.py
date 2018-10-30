@@ -44,7 +44,7 @@ class service_management_delete:
         if kube_config_path != None:
             self.kube_config_path = kube_config_path
 
-        if service_list == None:
+        if service_list is None:
             self.service_list = self.get_service_list()
         else:
             self.service_list = service_list
