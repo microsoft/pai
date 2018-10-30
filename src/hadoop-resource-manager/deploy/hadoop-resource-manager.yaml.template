@@ -88,7 +88,7 @@ spec:
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "1Gi"
+            memory: "0.5Gi"
         command:
           - python
           - start_monitor.py
