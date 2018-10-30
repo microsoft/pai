@@ -72,6 +72,8 @@ spec:
         resources:
           limits:
             memory: "36Gi"
+          request:
+            memory: "8Gi"
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
