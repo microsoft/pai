@@ -270,9 +270,9 @@ class paiObjectModel:
         # section: drivers
         if "drivers" in self.rawData["serviceConfiguration"]:
             serviceDict["clusterinfo"]["driversinfo"] = \
-                self.rawData["serviceConfiguration"]["driversinfo"]
+                self.rawData["serviceConfiguration"]["drivers"]
             serviceDict["clusterinfo"]["driversinfo"]["version"] = \
-                str(self.rawData["serviceConfiguration"]["driversinfo"]["version"])
+                str(self.rawData["serviceConfiguration"]["drivers"]["version"])
         else:
             serviceDict["clusterinfo"]["driversinfo"] = dict()
 
