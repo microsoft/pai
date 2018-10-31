@@ -261,7 +261,7 @@ You can ssh connect to a specified container either from outside or inside conta
 
 ### SSH connect from outside
 
-1. Get job ssh connect info by invoking [`GET user/:username/jobs/:jobName/ssh`](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
+1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
 
 2. Open a Bash shell terminal.
 
