@@ -100,6 +100,7 @@ grafana:
 
 drivers:
   set-nvidia-runtime: false
+  version: "384.111"
 
 prometheus:
   # port for prometheus port
@@ -126,6 +127,3 @@ pylon:
   # port of pylon
   port: 80
 
-
-drivers:
-  version: "384.111"
