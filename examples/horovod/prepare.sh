@@ -14,10 +14,12 @@ function horovod_prepare_data(){
 function horovod_prepare_code(){
     #download the code
     git clone -b cnn_tf_v1.10_compatible https://github.com/tensorflow/benchmarks.git
-
+    wget https://github.com/Microsoft/pai/raw/master/examples/horovod/start.sh
+    
     #upload the code to HDFS
     echo "Uploading benchmarks code, waiting..."
     hdfs dfs -put benchmarks/ hdfs://$1/examples/horovod/code
+    hdfs dfs -put start.sh hdfs://$1/examples/horovod/code
 }
 
 echo "Make horovod directory, waiting..."
@@ -41,6 +43,6 @@ else
     echo "Have prepared data"
 fi
 
-rm -rf cifar-10-batches-py*/ benchmarks*/
+rm -rf cifar-10-batches-py*/ benchmarks*/ start.sh
 echo "Removed local cifar-10 code and data succeeded!"
 echo "Prepare horovod example based on horovod and tensorflow done!"
