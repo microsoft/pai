@@ -85,6 +85,10 @@ Or you can clone the code by running
   ```bash
   # stop the services
   python paictl.py service stop -p cluster_configuration_file_path
-  # after the service is stopped. start the services with new images
+  # after the services are stopped, stop the kubernetes cluster
+  python paictl.py cluster k8s-clean -p cluster_configuration_file_path
+  # reboot the kubernetes cluster
+  python paictl.py cluster k8s-bootup -p cluster_configuration_file_path
+  # start the services
   python paictl.py service start -p cluster_configuration_file_path
   ```
