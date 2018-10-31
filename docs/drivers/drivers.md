@@ -18,8 +18,8 @@
 
 ###### Stop corresponding service
 
-- Delete hadoop-node-manager and delete all jobs
-    - Note: all jobs will be killed
+- Delete hadoop-node-manager
+    - Note: all running jobs will be killed and retry after upgrading
        
 ```
 ./paictl service delete -n hadoop-node-manager
