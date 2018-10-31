@@ -14,13 +14,13 @@ In the [path](../../src/drivers/build), you can find the available version in th
 drivers-${version}.dockerfile
 ``` 
 
-###### Cluster Configuration
+###### 1 Cluster Configuration
 
 - Choose an available version in Openpai, and change the ```drivers``` section in ```service-configuration.yaml```.  
 
 - Update the configuration in your cluster with the command ```paictl config push```. If you wanna investigate more detail about this command, please refer to this [link](../paictl/paictl-manual.md#Config_Push) 
 
-###### Stop corresponding service
+###### 2 Stop corresponding service
 
 - Delete hadoop-node-manager
     - Note: all running jobs will be killed and retry after upgrading
@@ -48,13 +48,13 @@ drivers-${version}.dockerfile
 ./paictl service delete -n end-to-end-test
 ```
 
-###### Starting drivers with the latest configuration
+###### 3 Starting drivers with the latest configuration
 
 ```
 ./paictl service start -n drivers
 ```
 
-###### Starting other service
+###### 4 Starting other service
 ```
 ./paictl service start -n hadoop-node-manager
 ./paictl service start -n node-exporter
