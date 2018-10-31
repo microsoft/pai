@@ -86,9 +86,6 @@ spec:
       - name: vc-monitor
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}vc-monitor:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "0.5Gi"
         command:
           - python
           - start_monitor.py
