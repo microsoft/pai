@@ -315,7 +315,8 @@ class paiObjectModel:
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             hostname = host["hostname"]
             self.labelExpend(host)
-            host["nodename"] = host["hostip"]
+            #host["nodename"] = host["hostip"]
+            host["nodename"] = host["hostname"]
             host["machinetype"] = host["machine-type"]
             host["ip"] = host["hostip"]
 

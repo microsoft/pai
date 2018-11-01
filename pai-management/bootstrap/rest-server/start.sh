@@ -25,4 +25,6 @@ pushd $(dirname "$0") > /dev/null
 
 kubectl apply --overwrite=true -f rest-server.yaml || exit $?
 
+#kubectl apply --overwrite=true -f etcd.yaml || exit $?
+./stop-etcd.sh
 popd > /dev/null
