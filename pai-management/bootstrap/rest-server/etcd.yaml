@@ -18,8 +18,8 @@ kind: Pod
 metadata:
   labels:
     app: etcd
-    etcd_node: etcd1
-  name: etcd1
+    etcd_node: etcd0
+  name: etcd0
 spec:
   hostNetwork: True
   hostPID: True
