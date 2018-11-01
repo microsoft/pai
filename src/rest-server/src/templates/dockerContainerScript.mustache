@@ -147,6 +147,9 @@ if service --status-all 2>&1 | grep -q ssh; then
   mv /pai/ssh_config/config /root/.ssh/
   # Start ssh service
   start_ssh_service
+else
+  printf "%s %s\n" \
+    "[WARNING]" "Open-ssh server not found in image will skip prepare ssh info."
 fi
 
 # Write env to system-wide environment
