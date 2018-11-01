@@ -403,7 +403,7 @@ class paiObjectModel:
         deli = ""
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             if "k8s-role" in host and host["k8s-role"] == "master":
-                tmp = "http://{0}:4001".format(host["hostip"])
+                tmp = "http://{0}:2379".format(host["hostip"])
                 ret = ret + deli
                 ret = ret + tmp
                 deli = ","
