@@ -178,7 +178,7 @@ def parse_pod_item(pai_pod_gauge, pai_container_gauge, pod):
     else:
         phase = "unknown"
 
-    host_ip = None
+    host_ip = "unscheduled" # can not specify None here, None will cause None exception
     if status.get("hostIP") is not None:
         host_ip = status["hostIP"]
 
