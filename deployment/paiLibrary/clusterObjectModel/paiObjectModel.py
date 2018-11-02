@@ -323,7 +323,7 @@ class paiObjectModel:
             serviceDict["clusterinfo"]["driversinfo"] = dict()
 
         if "version" not in serviceDict["clusterinfo"]["driversinfo"]:
-            serviceDict["clusterinfo"]["driversinfo"]["version"] = "390.25"
+            serviceDict["clusterinfo"]["driversinfo"]["version"] = "384.111"
 
 
         serviceDict["clusterinfo"]["drivers"] = {"set-nvidia-runtime": False}

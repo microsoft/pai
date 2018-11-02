@@ -105,7 +105,7 @@ drivers:
   # 384.111
   # 390.25
   # 410.73
-  version: "390.25"
+  version: "384.111"
 
 prometheus:
   # port for prometheus port
