@@ -21,6 +21,7 @@ prerequisite:
 
 template-list:
   - node-label.sh
+  - etcd.yaml
   - rest-server.yaml
   - stop.sh
   - refresh.sh

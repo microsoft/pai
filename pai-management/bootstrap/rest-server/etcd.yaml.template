@@ -12,7 +12,6 @@ apiVersion: v1
 #    app: etcd
 #
 #---
-#
 apiVersion: v1
 kind: Pod
 metadata:
@@ -24,7 +23,7 @@ spec:
   hostNetwork: True
   hostPID: True
   nodeSelector:
-    rest-server: "true"
+    restserver: "true"
   containers:
   - command:
     - /usr/local/bin/etcd
