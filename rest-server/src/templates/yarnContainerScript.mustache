@@ -249,7 +249,7 @@ docker run --name $docker_name \
   --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
   --volume /tmp/pai-root/bootstrap/$APP_ID/$CONTAINER_ID:/pai/bootstrap \
   --volume /tmp/pai-root/code/$APP_ID/$CONTAINER_ID:/pai/code \
-  --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
+  --volume /usr/local/nvidia:/usr/local/nvidia:ro \
   --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop:ro \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
