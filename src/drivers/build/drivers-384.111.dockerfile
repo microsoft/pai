@@ -64,10 +64,12 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
     ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run --extract-only && \
     rm ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
 
+COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
+
 ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
 ENV PATH=$PATH:$NV_DRIVER/bin
 
-COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
+
 
 CMD /bin/bash install-all-drivers
