@@ -70,4 +70,13 @@ Use "release" as the first parameter of start.sh to enter this mode.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
 If the parameters contains special characters like '&', please use single qutations to mark that parameter.
-Now(27th September, 2018), the mpi examples are still unready. Ignore them!
+
+If you want to add or delete an example, please follow these steps:
+For adding:
+1. Prepare your example, include the json file. If you should prepare data and code before submit the job, you should also write a prepare shell script named "prepare.sh". You can refer to [prepare.sh](https://github.com/Microsoft/pai/blob/master/examples/tensorflow/prepare.sh).
+2. Add the job name in your json file to the [start.sh](./start.sh), you can see the comment in line 17. Just add your job name to "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.
+For deleting:
+1. Delete your example.
+2. Delete the job name in your json file from the [start.sh](./start.sh), you can see the comment in line 17. Just delete your job name from "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.
