@@ -17,13 +17,14 @@
 
 cluster:
 
-  clusterid: pai-example
+  common:
+    clusterid: pai
 
-  # HDFS, zookeeper data path on your cluster machine.
-  data-path: "/datastorage"
+    # HDFS, zookeeper data path on your cluster machine.
+    data-path: "/datastorage"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
-  docker-registry-info:
+  docker-registry:
 
     # If public, please fill it the same as your username
     docker-namespace: openpai

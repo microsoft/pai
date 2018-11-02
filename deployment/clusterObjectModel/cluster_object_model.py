@@ -16,22 +16,48 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
+import importlib
 
 from ..paiLibrary.common import file_handler
 
-package_directory_clean = os.path.dirname(os.path.abspath(__file__))
+
+package_directory_com = os.path.dirname(os.path.abspath(__file__))
+
+
 
 class cluster_object_model:
 
-    def __init__(self, configurationPath):
-        self.configurationPath = configurationPath
-        self.sub_model_list = ['kubernetes', 'machine']
+    def __init__(self, configuration_path):
+        self.configuration_path = configuration_path
+        self.cluster_object_model = dict()
 
 
 
-    def get_sub_model_list(self):
+    def get_service_model_list(self):
+        sub_model_list = []
 
-        sub_model_list = file_handler.get_file_list_in_path()
+        sub_dir_list = file_handler.get_file_list_in_path("{0}/../../src/".format(package_directory_com))
+        for sub_dir_name in sub_dir_list:
+            parser_path = "{0}/../../src/{1}/config/{1}.py".format(sub_dir_name)
+            if file_handler.file_exist_or_not(parser_path):
+                sub_model_list.append(sub_dir_name)
+
+        return sub_model_list
 
 
 
+    def call_service_parser(self, service_name):
+        sys.path.insert(0, '{0}/../../src/{1}/config'.format(package_directory_com, service_name))
+        default_path = "{0}/../../src/{1}/config/{1}.yaml".format(service_name)
+        parser_module = importlib.import_module(service_name)
+
+
+
+    def call_main_parser(self):
+        None
+
+
+
+    def run(self):
+        service_model_list = self.get_service_model_list()
