@@ -34,7 +34,8 @@ Note that we use the same data as [tensorflow distributed cifar-10 example](http
 2. Prepare the execable code:
 * Tensorflow: We use [tensorflow benchmark](https://github.com/tensorflow/benchmarks/tree/cnn_tf_v1.10_compatible) as the example code. Pay attention to the version, the example here uses v1.10 code.
 3. Prepare a docker image and upload it to docker hub. We use the [horovod official image](https://hub.docker.com/r/uber/horovod/tags/), tag `0.14.1-tf1.10.0-torch0.4.0-py2.7`. If you want to use a customized image, just refer to the [official Docker file](https://github.com/uber/horovod/blob/master/Dockerfile) and make your own. Then, build it and push the image onto docker hub.
-4. Prepare a job configuration file and submit it through webportal. The config examples are following.
+4. Prepare a script in order to detest whether the containers are ready before run the mpi job. [Here](./start.sh) is an example.
+5. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
 **Note** that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
 
@@ -62,8 +63,8 @@ Here is a configuration file example:
       "shmMB": 64,
       "gpuNumber": 2,
       "minFailedTaskCount": 1,
-      "minSucceededTaskCount": null,
-      "command": "mpirun -np 4 -H worker-0:2,main-0:2 -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_IB_DISABLE=1 -mca pml ob1 -mca btl ^openib -mca btl_tcp_if_exclude docker0,lo,eth1  python benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model resnet20 --batch_size 32 --data_dir=$PAI_DATA_DIR  --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --variable_update horovod"
+      "minSucceededTaskCount": 1,
+      "command": "/bin/bash code/start.sh"
     },
     {
       "name": "worker",
@@ -74,11 +75,10 @@ Here is a configuration file example:
       "gpuNumber": 2,
       "minFailedTaskCount": 1,
       "minSucceededTaskCount": null,
-      "command": "/bin/bash"
+      "command": "sleep infinity"
     }
   ]
 }
-
 ```
 
 For more details on how to write a job configuration file, please refer to [job tutorial](../../docs/job_tutorial.md#json-config-file-for-job-submission).
