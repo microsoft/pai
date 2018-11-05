@@ -74,7 +74,6 @@ Here is a configuration file example:
       "shmMB": 64,
       "gpuNumber": 2,
       "minFailedTaskCount": 1,
-      "minSucceededTaskCount": null,
       "command": "sleep infinity"
     }
   ]
