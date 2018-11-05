@@ -103,10 +103,10 @@ These user could customize and run these jobs over OpenPAI.
 
 The example in the folder could be failed due to the following reasons:
 
-  1. The key in json file is removed. You should refer to the latest version of webportal.
+  1. The key in json file is removed. You may get error when you copy the json file to the webportal. You should refer to the latest version of webportal.
   2. The docker image is removed. You will find this error in your job tracking page. Rebuild the image and push it to solve this problem.
-  3. If the example you submit contains a prepare.sh script shell, it may fail due to the source of the data or code changed or been unstable. Check and try to fix it.
-  4. The version of the code, tools or library. Some example doesn't fix the version of its dependency, so, you should check the version.
+  3. If the example you submit contains a prepare.sh script shell, it may fail due to the source of the data or code changed or been unstable. You may get error in your job tracking page. Check and try to fix it.
+  4. The version of the code, tools or library. You may get this error if you rebuild the docker image. Some example doesn't fix the version of its dependency, so, you should check the version.
 
 ## Contributing <a name="contributing"></a>
 
