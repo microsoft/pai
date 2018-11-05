@@ -44,7 +44,7 @@ Pylon starts a [nginx](http://nginx.org/) instance in a Docker container to prov
 
 ### For deploying as a standalone service (debugging)
 
-If the nginx in Pylon is to be deployed as a stand alone service (usually for debugging purpose), the following envirionment variables must be set in advance:
+If the nginx in Pylon is to be deployed as a stand alone service (usually for debugging purpose), the following environment variables must be set in advance:
   - `REST_SERVER_URI`: String. The root url of the REST server.
   - `K8S_API_SERVER_URI`: String. The root url of Kubernetes's API server.
   - `WEBHDFS_URI`: String. The root url of WebHDFS's API server.
