@@ -4,17 +4,13 @@
   "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
   "outputDir": "$PAI_DEFAULT_FS_URI/examples/horovod/output",
   "codeDir": "$PAI_DEFAULT_FS_URI/examples/horovod/code",
-  "virtualCluster": "default",
-  "retryCount": 0,
   "taskRoles": [
     {
       "name": "main",
       "taskNumber": 1,
       "cpuNumber": 4,
       "memoryMB": 16384,
-      "shmMB": 64,
       "gpuNumber": 2,
-      "minFailedTaskCount": 1,
       "minSucceededTaskCount": 1,
       "command": "/bin/bash code/start.sh"
     },
@@ -23,9 +19,7 @@
       "taskNumber": 1,
       "cpuNumber": 4,
       "memoryMB": 16384,
-      "shmMB": 64,
       "gpuNumber": 2,
-      "minFailedTaskCount": 1,
       "command": "sleep infinity"
     }
   ]

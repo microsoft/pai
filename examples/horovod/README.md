@@ -31,7 +31,7 @@ Other customized MPI code can be run similarly.
 * TensorFlow: Just go to the [official website](http://www.cs.toronto.edu/~kriz/cifar.html) and download the python version data by the [url](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz). `wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && tar zxvf cifar-10-python.tar.gz && rm cifar-10-python.tar.gz`
 After you downloading the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/mpi/tensorflow/data` or `hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/data`
 Note that we use the same data as [tensorflow distributed cifar-10 example](https://github.com/Microsoft/pai/tree/master/examples/tensorflow). So, if you have already run that example, just use that data path.
-2. Prepare the execable code:
+2. Prepare the executable code:
 * Tensorflow: We use [tensorflow benchmark](https://github.com/tensorflow/benchmarks/tree/cnn_tf_v1.10_compatible) as the example code. Pay attention to the version, the example here uses v1.10 code.
 3. Prepare a docker image and upload it to docker hub. We use the [horovod official image](https://hub.docker.com/r/uber/horovod/tags/), tag `0.14.1-tf1.10.0-torch0.4.0-py2.7`. If you want to use a customized image, just refer to the [official Docker file](https://github.com/uber/horovod/blob/master/Dockerfile) and make your own. Then, build it and push the image onto docker hub.
 4. Prepare a script in order to detest whether the containers are ready before run the mpi job. [Here](./start.sh) is an example.
