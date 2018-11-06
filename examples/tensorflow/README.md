@@ -42,13 +42,13 @@ Pay attention to your disk, because the data size is about 500GB.
 After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/imageNet/data/`
 * cifar-10: Just go to the [official website](http://www.cs.toronto.edu/~kriz/cifar.html) and download the python version data by the [url](http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz). `wget http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && tar zxvf cifar-10-python.tar.gz && rm cifar-10-python.tar.gz`
 After you downloading the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/data`
-2. Prepare the execable code:
+2. Prepare the executable code:
 * imageNet: The *slim* folder you just downloaded contains the code. If you download the data manually, refer to the automatic method to get the code.  
 After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/code/`
 * cifar-10: We use the [tensorflow official benchmark code](https://github.com/tensorflow/benchmarks). Pay attention to the version. We use *tf_benchmark_stage* branch. `git clone -b tf_benchmark_stage https://github.com/tensorflow/benchmarks.git`
 * After you download the data, upload them to HDFS:`hdfs dfs -put filename hdfs://ip:port/examples/tensorflow/distributed-cifar-10/code/`
 3. Prepare a docker image and upload it to docker hub. OpenPAI packaged the docker env required by the job for user to use. User could refer to [DOCKER.md](./DOCKER.md) to customize this example docker env. If user have built a customized image and pushed it to Docker Hub, replace our pre-built image `openpai/pai.example.tensorflow` with your own.
-4. Prepare a job configuration file and submit it through webportal. Note that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
+4. Prepare a job configuration file and submit it through webportal. Note that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local machine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
 Note that, the default operation of the prepare script has closed the data preparing of imageNet due to its size. If you want to open it, just remove the "#" in the line 52.
 5. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
