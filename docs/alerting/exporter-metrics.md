@@ -30,3 +30,4 @@ Some important metrics are listed below.
 | `service_net_out_byte`| `gpu_exporter` | Network out traffic by pai service detectived by docker stats (byte) |
 | `service_block_in_byte`| `gpu_exporter` | Block io in traffic by pai service detectived by docker stats (byte) |
 | `service_block_out_byte`| `gpu_exporter` | Block io out traffic by pai service detectived by docker stats (byte) |
+| `docker_daemon_count` | `gpu_exporter` | Count of docker daemon, count is always 1, but error label indicate what type of error this docker daemon has |
