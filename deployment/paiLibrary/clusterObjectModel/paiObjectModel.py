@@ -238,11 +238,11 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["restserverinfo"]["default_pai_admin_username"] = \
             serviceDict["clusterinfo"]["restserverinfo"]["default-pai-admin-username"]
         serviceDict["clusterinfo"]["restserverinfo"]["github_owner"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-owner"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-owner")
         serviceDict["clusterinfo"]["restserverinfo"]["github_repository"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-repository"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-repository")
         serviceDict["clusterinfo"]["restserverinfo"]["github_path"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-path"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-path")
         serviceDict["clusterinfo"]["restserverinfo"]["etcd_uri"] = self.getEtcdUri()
         serviceDict["clusterinfo"]["restserverinfo"]["yarn_uri"] = self.getYarnWebPortalUri()
 
