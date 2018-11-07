@@ -127,7 +127,7 @@ function generate_ssh_connect_info()
     webHdfsRequestPath=$destFileName
     webhdfs_create_file $webHdfsRequestPath
   else
-    printf "%s %s\n %s %s\n" \
+    printf "%s %s\n" \
       "[WARNING]" "Get another key store way"
   fi
 }
