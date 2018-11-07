@@ -44,7 +44,7 @@ If web portal is deployed within PAI cluster, the following config field could b
 
 ---
 
-If web portal is deployed as a standalone service, the following envioronment variables must be configured:
+If web portal is deployed as a standalone service, the following environment variables must be configured:
 
 * `REST_SERVER_URI`: URI of [REST Server](../rest-server)
 * `PROMETHEUS_URI`: URI of [Prometheus](../../src/prometheus)
@@ -70,7 +70,7 @@ The deployment of web portal goes with the bootstrapping process of the whole PA
 
 ---
 
-If web portal is need to be deplyed as a standalone service, follow these steps:
+If web portal is need to be deployed as a standalone service, follow these steps:
 
 1. Go into the `webportal` directory.
 2. Make sure the environment variables is fully configured.
