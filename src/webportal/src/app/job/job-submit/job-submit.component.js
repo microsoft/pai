@@ -169,7 +169,10 @@ $(document).ready(() => {
       url: url,
       type: 'GET',
       success: (data) => {
-        editor.setValue(Object.assign({}, jobDefaultConfig, JSON.parse(data)));
+        let jobConfigObj = JSON.parse(data);
+        let timestamp = Date.now();
+        jobConfigObj.jobName += `_${timestamp}`;
+        editor.setValue(Object.assign({}, jobDefaultConfig, jobConfigObj));
       },
       error: (xhr, textStatus, error) => {
         const res = JSON.parse(xhr.responseText);
