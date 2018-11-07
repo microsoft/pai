@@ -150,7 +150,7 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
     }
   });
 
-  it('[N] should firbid delete job without namespace', (done) => {
+  it('[P] should firbid delete job without namespace', (done) => {
     nock(launcherWebserviceUri)
       .get('/v1/Frameworks/job')
       .reply(200, 
@@ -160,12 +160,22 @@ describe('Delete job: DELETE /api/v1/jobs/:jobName', () => {
           'applicationId': 'app1',
         }
       ))
+      .get('/v1/Frameworks/job/FrameworkRequest')
+      .reply(200, {
+        'frameworkDescriptor': {
+          'user': {
+            'name': 'test_user',
+          },
+        },
+      })
+      .delete(`/v1/Frameworks/job`)
+      .reply(202);
+
     chai.request(server)
       .delete('/api/v1/jobs/job')
       .set('Authorization', `Bearer ${adminToken}`)
       .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res.body.code).to.equal('ReadOnlyJobError');
+        expect(res).to.have.status(202);
         done();
       });
   });

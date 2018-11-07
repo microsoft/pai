@@ -61,7 +61,7 @@ Before start, you need to meet the following requirements:
 ### How to train jobs
 - How to write OpenPAI jobs
     - [Quick start: how to write and submit a CIFAR-10 job](./examples/README.md#quickstart)
-    - [Write job from scratch in deepth](./docs/job_tutorial.md)
+    - [Write job from scratch in depth](./docs/job_tutorial.md)
     - [Learn more example jobs](./examples/#offtheshelf)
 - How to submit OpenPAI jobs
     - [Submit a job in Web Portal](./docs/submit_from_webportal.md)
@@ -79,7 +79,7 @@ Before start, you need to meet the following requirements:
 
 ## Resources
 
-- The OpenPAI user [documentations](./docs/documentation.md) provides in-depth instructions for using OpenPAI
+- The OpenPAI user [documentation](./docs/documentation.md) provides in-depth instructions for using OpenPAI
 - Visit the [release notes](https://github.com/Microsoft/pai/releases) to read about the new features, or download the release today.
 - [FAQ](./docs/faq.md)
 
