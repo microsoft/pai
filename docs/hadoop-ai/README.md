@@ -34,7 +34,7 @@ Usually there will have multiple patch files, the newest one is the last known g
 
    Below are step-by-step build for advance user:
 
- 1. Prepare linux enviroment
+ 1. Prepare linux environment
  
        Ubuntu 16.04 is the default system. This dependencies must be installed:
 

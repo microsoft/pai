@@ -250,6 +250,7 @@ def main(argv):
     log_dir = argv[0]
     gpu_metrics_path = log_dir + "/gpu_exporter.prom"
     job_metrics_path = log_dir + "/job_exporter.prom"
+    time_metrics_path = log_dir + "/time.prom"
     time_sleep_s = int(argv[1])
 
     iter = 0
@@ -260,6 +261,7 @@ def main(argv):
     type2_zombies = ZombieRecorder()
 
     while True:
+        start = datetime.datetime.now()
         try:
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
@@ -276,6 +278,11 @@ def main(argv):
             utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
+        finally:
+            end = datetime.datetime.now()
+
+            time_metrics = [Metric("job_exporter_iteration_seconds", {}, (end - start).seconds)]
+            utils.export_metrics_to_file(time_metrics_path, time_metrics)
 
         time.sleep(time_sleep_s)
 

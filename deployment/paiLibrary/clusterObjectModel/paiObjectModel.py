@@ -64,7 +64,8 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
         if "etcd-data-path" not in k8sDict["clusterinfo"]:
-            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
+            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd/data"
+
 
         # section : component_list
 
@@ -312,6 +313,18 @@ class paiObjectModel:
             serviceDict["machinelist"][hostname] = host
 
         # section: drivers
+        if "drivers" in self.rawData["serviceConfiguration"]:
+            serviceDict["clusterinfo"]["driversinfo"] = \
+                self.rawData["serviceConfiguration"]["drivers"]
+            if "version" in self.rawData["serviceConfiguration"]["drivers"]:
+                serviceDict["clusterinfo"]["driversinfo"]["version"] = \
+                    str(self.rawData["serviceConfiguration"]["drivers"]["version"])
+        else:
+            serviceDict["clusterinfo"]["driversinfo"] = dict()
+
+        if "version" not in serviceDict["clusterinfo"]["driversinfo"]:
+            serviceDict["clusterinfo"]["driversinfo"]["version"] = "384.111"
+
 
         serviceDict["clusterinfo"]["drivers"] = {"set-nvidia-runtime": False}
         if self.rawData["serviceConfiguration"].get("drivers") is not None:

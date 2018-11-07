@@ -100,6 +100,10 @@ grafana:
 
 drivers:
   set-nvidia-runtime: false
+  # You can set drivers version here. If this value is miss, default value will be 384.111
+  # Current supported version list
+  # 384.111
+  version: "384.111"
 
 prometheus:
   # port for prometheus port
@@ -125,3 +129,4 @@ prometheus:
 pylon:
   # port of pylon
   port: 80
+

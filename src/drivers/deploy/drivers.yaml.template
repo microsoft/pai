@@ -32,7 +32,7 @@ spec:
       hostPID: true
       containers:
       - name: nvidia-drivers
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}drivers-{{ clusterinfo[ 'driversinfo' ][ 'version' ] }}:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
         securityContext:
           privileged: true
