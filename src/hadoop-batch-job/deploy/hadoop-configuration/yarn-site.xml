@@ -108,7 +108,7 @@
 
     <property>
         <name>yarn.nodemanager.delete.debug-delay-sec</name>
-        <value>86400</value>
+        <value>604800</value>
     </property>
 
     <property>
