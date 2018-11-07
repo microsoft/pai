@@ -127,7 +127,7 @@ function generate_ssh_connect_info()
     webHdfsRequestPath=$destFileName
     webhdfs_create_file $webHdfsRequestPath
   else
-    printf "%s %s\n" \
+    printf "%s %s\n %s %s\n" \
       "[WARNING]" "Get another key store way"
   fi
 }
@@ -148,8 +148,9 @@ if service --status-all 2>&1 | grep -q ssh; then
   # Start ssh service
   start_ssh_service
 else
-  printf "%s %s\n" \
-    "[WARNING]" "Open-ssh server not found in image will skip prepare ssh info."
+  printf "%s %s\n %s %s \n" \
+    "[WARNING]" "Open-ssh server not found in image will skip prepare ssh info." \
+    "[INFO]" "You can refer to PAI dockerfile example to get full support: https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
 
 # Write env to system-wide environment
