@@ -18,8 +18,9 @@
 import os
 import sys
 import importlib
+import logging
+import logging.config
 
-import mainParser
 
 from ..paiLibrary.common import file_handler
 
@@ -32,6 +33,7 @@ package_directory_com = os.path.dirname(os.path.abspath(__file__))
 class cluster_object_model:
 
     def __init__(self, configuration_path):
+        self.logger = logging.getLogger(__name__)
         self.configuration_path = configuration_path
         self.cluster_configuration = file_handler.load_yaml_config("{0}/cluster-configuration.yaml".format(configuration_path))
         self.overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
@@ -79,12 +81,6 @@ class cluster_object_model:
 
 
 
-    def init_main_parser(self):
-        None
-
-
-
-
     def init_all_parser(self):
 
         parser_dict = []
@@ -94,13 +90,25 @@ class cluster_object_model:
             parser_dict[service_name] = self.init_service_parser(service_name)
 
 
-        main_model_list = self.
-        for main_name in
+        # TODO: Init main parser here.
+
+        return parser_dict
 
 
 
     def run(self):
 
         parser_dict = self.init_all_parser()
+
+        # Pre Validation
+        for key, value in parser_dict:
+
+            ok, msg = value.validation_pre()
+            if ok is False:
+                self.logger.error("msg")
+                sys.exit(1)
+
+
+        # Generate object model
 
 
