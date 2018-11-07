@@ -65,14 +65,7 @@ class cluster:
             if "secret-name" not in docker_reg_configuration:
                 return False, "secret-name in the service-configuration -> cluster -> docker-registry is missing!"
 
-            if "docker-username" not in docker_reg_configuration:
-
-
-
-
-
-
-
+            #if "docker-username" not in docker_reg_configuration:
 
 
         return True, None
