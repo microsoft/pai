@@ -12,36 +12,39 @@ apiVersion: v1
 #    app: etcd
 #
 #---
-#
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
     app: etcd
-    etcd_node: etcd1
-  name: etcd1
+    etcd_node: etcd0
+  name: etcd0
 spec:
   hostNetwork: True
   hostPID: True
-  #nodeSelector:
-  #  restserver: "true"
+  nodeSelector:
+    restserver: "true"
   containers:
   - command:
     - /usr/local/bin/etcd
     - --name
     - etcd0
+{% for host in machinelist %}
+    {% if 'restserver' in machinelist[ host ] and machinelist[ host ][ 'restserver' ] == 'true' %}
     - --initial-advertise-peer-urls
-    - http://10.240.0.5:2380
+    - http://{{ machinelist[ host ][ 'hostip' ] }}:2380
     - --listen-peer-urls
     - http://0.0.0.0:2380
     - --listen-client-urls
     - http://0.0.0.0:2379
     - --advertise-client-urls
-    - http://10.240.0.5:2379
+    - http://{{ machinelist[ host ][ 'hostip' ] }}:2379
     - --initial-cluster
-    - etcd0=http://10.240.0.5:2380
+    - etcd0=http://{{ machinelist[ host ][ 'hostip' ] }}:2380
     - --initial-cluster-state
     - new
+    {% endif %}
+{% endfor %}
     image: quay.io/coreos/etcd:latest
     name: etcd0
     ports:

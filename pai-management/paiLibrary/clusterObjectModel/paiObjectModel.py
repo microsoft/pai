@@ -81,8 +81,8 @@ class paiObjectModel:
             if host["k8s-role"] == "master":
 
                 masterDict[host["hostname"]] = host
-                if "nodename" not in masterDict[host["hostname"]]:
-                    masterDict[host["hostname"]]["nodename"] = host["hostip"]
+                #if "nodename" not in masterDict[host["hostname"]]:
+                masterDict[host["hostname"]]["nodename"] = host["hostname"]
 
                 if "sshport" not in host:
                     masterDict[host["hostname"]]["sshport"] = \
@@ -99,8 +99,8 @@ class paiObjectModel:
             if host["k8s-role"] == "worker":
 
                 workerDict[host["hostname"]] = host
-                if "nodename" not in workerDict[host["hostname"]]:
-                    workerDict[host["hostname"]]["nodename"] = host["hostip"]
+                #if "nodename" not in workerDict[host["hostname"]]:
+                workerDict[host["hostname"]]["nodename"] = host["hostname"]
 
                 if "sshport" not in host:
                     workerDict[host["hostname"]]["sshport"] = \
@@ -117,8 +117,8 @@ class paiObjectModel:
             if host["k8s-role"] == "proxy":
 
                 proxyDict[host["hostname"]] = host
-                if "nodename" not in proxyDict[host["hostname"]]:
-                    proxyDict[host["hostname"]]["nodename"] = host["hostip"]
+                #if "nodename" not in proxyDict[host["hostname"]]:
+                proxyDict[host["hostname"]]["nodename"] = host["hostname"]
 
                 if "sshport" not in host:
                     proxyDict[host["hostname"]]["sshport"] = \
@@ -315,7 +315,8 @@ class paiObjectModel:
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             hostname = host["hostname"]
             self.labelExpend(host)
-            host["nodename"] = host["hostip"]
+            #host["nodename"] = host["hostip"]
+            host["nodename"] = host["hostname"]
             host["machinetype"] = host["machine-type"]
             host["ip"] = host["hostip"]
 
@@ -402,7 +403,7 @@ class paiObjectModel:
         deli = ""
         for host in self.rawData["clusterConfiguration"]["machine-list"]:
             if "k8s-role" in host and host["k8s-role"] == "master":
-                tmp = "http://{0}:4001".format(host["hostip"])
+                tmp = "http://{0}:2379".format(host["hostip"])
                 ret = ret + deli
                 ret = ret + tmp
                 deli = ","
