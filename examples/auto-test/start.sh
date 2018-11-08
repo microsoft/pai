@@ -3,7 +3,7 @@ echo "If the parameters contains special characters like '&', you must use singl
 echo "During the runtime, you should select the jobs you want to run, you can also input the jobs' name you want to run."
 cd /tmp
 if [ ! -d "pai/" ]; then
-    git clone -b yuqian/auto-test_revise https://github.com/Microsoft/pai.git
+    git clone https://github.com/Microsoft/pai.git
     mv pai/examples/ . && rm -rf pai/
     mv examples/ ~/
     cd ~/
