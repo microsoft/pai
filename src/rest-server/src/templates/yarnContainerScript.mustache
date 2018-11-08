@@ -282,7 +282,7 @@ docker run --name $docker_name \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume $container_local_dir/$hadoop_config_dir:/etc/hadoop \
-  --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/ \
+  --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/:ro \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \

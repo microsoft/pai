@@ -416,87 +416,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-7. `GET jobs/:jobName`
-
-    Get [legacy job](#About_legacy_jobs) status in the system.
-
-    *Request*
-    ```
-    GET /api/v1/jobs/:jobName
-    ```
-
-    *Response if succeeded*
-    ```
-    Status: 200
-
-    {
-      name: "jobName",
-      jobStatus: {
-        username: "username",
-        virtualCluster: "virtualCluster",
-        state: "jobState",
-        // raw frameworkState from frameworklauncher
-        subState: "frameworkState",
-        createdTime: "createdTimestamp",
-        completedTime: "completedTimestamp",
-        executionType: "executionType",
-        // Sum of succeededRetriedCount, transientNormalRetriedCount,
-        // transientConflictRetriedCount, nonTransientRetriedCount,
-        // and unKnownRetriedCount
-        retries: retriedCount,
-        appId: "applicationId",
-        appProgress: "applicationProgress",
-        appTrackingUrl: "applicationTrackingUrl",
-        appLaunchedTime: "applicationLaunchedTimestamp",
-        appCompletedTime: "applicationCompletedTimestamp",
-        appExitCode: applicationExitCode,
-        appExitDiagnostics: "applicationExitDiagnostics"
-        appExitType: "applicationExitType"
-      },
-      taskRoles: {
-        // Name-details map
-        "taskRoleName": {
-          taskRoleStatus: {
-            name: "taskRoleName"
-          },
-          taskStatuses: {
-            taskIndex: taskIndex,
-            containerId: "containerId",
-            containerIp: "containerIp",
-            containerPorts: {
-              // Protocol-port map
-              "protocol": "portNumber"
-            },
-            containerGpus: containerGpus,
-            containerLog: containerLogHttpAddress,
-          }
-        },
-        ...
-      }
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobError",
-      "message": "Job $jobname is not found."
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "code": "UnknownError",
-      "message": "*Upstream error messages*"
-    }
-    ```
-
-8. `GET user/:username/jobs/:jobName`
+7. `GET user/:username/jobs/:jobName`
 
     Get job status in the system.
 
@@ -576,7 +496,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-9. `POST user/:username/jobs`
+8. `POST user/:username/jobs`
 
     Submit a job in the system.
 
@@ -639,57 +559,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-10. `GET jobs/:jobName/config`
-
-    Get [legacy job](#About_legacy_jobs) config JSON content.
-
-    *Request*
-    ```
-    GET /api/v1/jobs/:jobName/config
-    ```
-
-    *Response if succeeded*
-    ```
-    Status: 200
-
-    {
-      "jobName": "test",
-      "image": "pai.run.tensorflow",
-      ...
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobError",
-      "message": "Job $jobname is not found."
-    }
-    ```
-
-    *Response if the job config does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobConfigError",
-      "message": "Config of job $jobname is not found."
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "code": "UnknownError",
-      "message": "*Upstream error messages*"
-    }
-    ```
-
-11. `GET user/:username/jobs/:jobName/config`
+9. `GET user/:username/jobs/:jobName/config`
 
     Get job config JSON content.
 
@@ -739,68 +609,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-12. `GET jobs/:jobName/ssh`
-
-    Get [legacy job](#About_legacy_jobs) SSH info.
-
-    *Request*
-    ```
-    GET /api/v1/jobs/:jobName/ssh
-    ```
-
-    *Response if succeeded*
-    ```
-    Status: 200
-
-    {
-      "containers": [
-        {
-          "id": "<container id>",
-          "sshIp": "<ip to access the container's ssh service>",
-          "sshPort": "<port to access the container's ssh service>"
-        },
-        ...
-      ],
-      "keyPair": {
-        "folderPath": "HDFS path to the job's ssh folder",
-        "publicKeyFileName": "file name of the public key file",
-        "privateKeyFileName": "file name of the private key file",
-        "privateKeyDirectDownloadLink": "HTTP URL to download the private key file"
-      }
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobError",
-      "message": "Job $jobname is not found."
-    }
-    ```
-
-    *Response if the job SSH info does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobSshInfoError",
-      "message": "SSH info of job $jobname is not found."
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "code": "UnknownError",
-      "message": "*Upstream error messages*"
-    }
-    ```
-
-13. `GET user/:username/jobs/:jobName/ssh`
+10. `GET user/:username/jobs/:jobName/ssh`
 
     Get job SSH info.
 
@@ -861,53 +670,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-14. `PUT jobs/:jobName/executionType`
-
-    Start or stop a [legacy job](#About_legacy_jobs).
-
-    *Request*
-    ```
-    PUT /api/v1/jobs/:jobName/executionType
-    Authorization: Bearer <ACCESS_TOKEN>
-    ```
-
-    *Parameters*
-    ```
-    {
-      "value": "START" | "STOP"
-    }
-    ```
-
-    *Response if succeeded*
-    ```
-    Status: 200
-
-    {
-      "message": "execute job $jobName successfully"
-    }
-    ```
-
-    *Response if the job does not exist*
-    ```
-    Status: 404
-
-    {
-      "code": "NoJobError",
-      "message": "Job $jobname is not found."
-    }
-    ```
-
-    *Response if a server error occured*
-    ```
-    Status: 500
-
-    {
-      "code": "UnknownError",
-      "message": "*Upstream error messages*"
-    }
-    ```
-
-15. `PUT user/:username/jobs/:jobName/executionType`
+11. `PUT user/:username/jobs/:jobName/executionType`
 
     Start or stop a job.
 
@@ -953,7 +716,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-16. `GET virtual-clusters`
+12. `GET virtual-clusters`
 
     Get the list of virtual clusters.
 
@@ -984,7 +747,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-17. `GET virtual-clusters/:vcName`
+13. `GET virtual-clusters/:vcName`
 
     Get virtual cluster status in the system.
 

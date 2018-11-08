@@ -437,8 +437,8 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
 describe('Submit job: POST /api/v1/jobs', () => {
   afterEach(function() {
     if (!nock.isDone()) {
-      this.test.error(new Error('Not all nock interceptors were used!'));
       nock.cleanAll();
+      throw new Error('Not all nock interceptors were used!');
     }
   });
 
@@ -461,42 +461,76 @@ describe('Submit job: POST /api/v1/jobs', () => {
   // Define functions to prepare nock interceptors
   //
 
-  const prepareNockForCaseN02 = (jobName) => {
+  const prepareNockForCaseP01 = (jobName) => {
     global.nock(global.launcherWebserviceUri)
       .get(`/v1/Frameworks/${jobName}`)
       .reply(
         404,
         {}
       );
+    global.nock(global.launcherWebserviceUri)
+      .put(`/v1/Frameworks/${jobName}`)
+      .reply(
+        202,
+        {}
+      );
+    global.nock(global.webhdfsUri)
+      .put(/op=MKDIR/)
+      .times(5)
+      .reply(
+        200,
+        {}
+      );
+
+    // Add OS platform check
+    // Since ssh-keygen package only works for Linux
+    if (process.platform.toUpperCase() === 'LINUX') {
+      global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(6)
+      .reply(
+        201,
+        {}
+      );
+    } else {
+      global.nock(global.webhdfsUri)
+      .put(/op=CREATE/)
+      .times(4)
+      .reply(
+        201,
+        {}
+      );
+    }
   };
 
+  const prepareNockForCaseP02 = prepareNockForCaseP01;
+
   //
-  // Negative cases
+  // Positive cases
   //
 
-  it('[N-01] POST without namespace', (done) => {
+  it('[P-01] POST without namespace', (done) => {
+    prepareNockForCaseP01('job1');
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'job1'});
     global.chai.request(global.server)
       .post('/api/v1/jobs')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(403);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body.code, 'response code').equal('ReadOnlyJobError');
+        global.chai.expect(res, 'status code').to.have.status(202);
         done();
       });
   });
 
-  it('[N-02] PUT without namespace', (done) => {
-    prepareNockForCaseN02('job1');
+  it('[P-02] PUT without namespace', (done) => {
+    prepareNockForCaseP02('job2');
+    let jobConfig = global.mustache.render(global.jobConfigTemplate, {'jobName': 'job2'});
     global.chai.request(global.server)
-      .put('/api/v1/jobs/job1')
+      .put('/api/v1/jobs/job2')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({})
+      .send(JSON.parse(jobConfig))
       .end((err, res) => {
-        global.chai.expect(res, 'status code').to.have.status(403);
-        global.chai.expect(res, 'response format').be.json;
-        global.chai.expect(res.body, 'response body content').include({ code: 'ReadOnlyJobError' });
+        global.chai.expect(res, 'status code').to.have.status(202);
         done();
       });
   });

@@ -28,3 +28,4 @@ sleep 10
 PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v drivers-one-shot || exit $?
 
 popd > /dev/null
+

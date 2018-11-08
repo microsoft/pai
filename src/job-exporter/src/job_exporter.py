@@ -22,6 +22,7 @@ import time
 import logging
 import re
 import datetime
+import subprocess
 
 import docker_stats
 import docker_inspect
@@ -246,24 +247,57 @@ def collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies):
 
     return result
 
+
+def collect_docker_daemon_status():
+    """ check docker daemon status in current host """
+    cmd = "systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
+    error = "ok"
+
+    try:
+        logger.info("call systemctl to get docker status")
+
+        out = utils.check_output(cmd, shell=True)
+
+        if "active" not in out:
+            error = "inactive"
+    except subprocess.CalledProcessError as e:
+        logger.exception("command '%s' return with error (code %d): %s",
+                cmd, e.returncode, e.output)
+        error = e.strerror()
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            logger.warning("systemctl not found")
+        error = e.strerror()
+
+    return Metric("docker_daemon_count", {"error": error}, 1)
+
+
 def main(argv):
     log_dir = argv[0]
     gpu_metrics_path = log_dir + "/gpu_exporter.prom"
     job_metrics_path = log_dir + "/job_exporter.prom"
+    docker_metrics_path = log_dir + "/docker.prom"
+    time_metrics_path = log_dir + "/time.prom"
     time_sleep_s = int(argv[1])
 
     iter = 0
 
-    singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
+    gpu_singleton = utils.Singleton(gpu_exporter.collect_gpu_info, name="gpu_singleton")
+    docker_status_singleton = utils.Singleton(collect_docker_daemon_status, name="docker_singleton")
 
     type1_zombies = ZombieRecorder()
     type2_zombies = ZombieRecorder()
 
     while True:
+        start = datetime.datetime.now()
         try:
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
-            gpu_infos = singleton.try_get()
+            gpu_infos = gpu_singleton.try_get()
+
+            docker_status = docker_status_singleton.try_get()
+            if docker_status is not None:
+                utils.export_metrics_to_file(docker_metrics_path, [docker_status])
 
             gpu_metrics = gpu_exporter.convert_gpu_info_to_metrics(gpu_infos)
             utils.export_metrics_to_file(gpu_metrics_path, gpu_metrics)
@@ -276,6 +310,11 @@ def main(argv):
             utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
+        finally:
+            end = datetime.datetime.now()
+
+            time_metrics = [Metric("job_exporter_iteration_seconds", {}, (end - start).seconds)]
+            utils.export_metrics_to_file(time_metrics_path, time_metrics)
 
         time.sleep(time_sleep_s)
 
