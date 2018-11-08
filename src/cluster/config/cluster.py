@@ -17,6 +17,10 @@
 
 
 import os
+import sys
+import subprocess
+import logging
+import logging.config
 
 
 
@@ -24,72 +28,162 @@ class cluster:
 
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+        self.logger = logging.getLogger(__name__)
+
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = service_configuration
-        self.default_service_configuration = default_service_configuraiton
+        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuraiton)
+
+
+
+    def merge_service_configuration(self, overwrite_srv_cfg, default_srv_cfg):
+        srv_cfg = default_srv_cfg.copy()
+        for k, v in overwrite_srv_cfg:
+            if (k in srv_cfg and isinstance(overwrite_srv_cfg[k], dict) and isinstance(srv_cfg[k], dict)):
+                srv_cfg["k"] = self.merge_service_configuration(overwrite_srv_cfg["k"], srv_cfg["k"])
+            else:
+                srv_cfg["k"] = overwrite_srv_cfg["k"]
+        return srv_cfg
+
+
+
+    def validation_common(self, common_configuration):
+        if "cluster-id" not in common_configuration:
+            return False, "cluster-id is miss in service-configuration.yaml -> cluster -> common -> cluster-id"
+        if "data-path" not in common_configuration:
+            return False, "data-path is miss in service-configuration.yaml -> cluster -> common -> data-path"
+        return True, None
+
+
+
+    def validation_docker_resgitry(self, docker_reg_configuration):
+        if "namespace" not in docker_reg_configuration:
+            return False, "namespace is miss in service-configuration.yaml -> cluster -> docker-registry -> namespace"
+        if "domain" not in docker_reg_configuration:
+            return False, "domain is miss in service-configuration.yaml -> cluster -> docker-registry -> domain"
+        if "tag" not in docker_reg_configuration:
+            return False, "tag is miss in service-configuration.yaml -> cluster -> docker-registry -> tag"
+        if "secret-name" not in docker_reg_configuration:
+            return False, "secret-name is miss in service-configuration.yaml -> cluster -> docker-registry -> secret-name"
+        if ("username" in docker_reg_configuration) is not ("password" in docker_reg_configuration):
+            return False, "username and password should be coexist, or please comment all of them."
+        return True, None
+
+
+
+    def validation_pre(self):
+        if "common" not in self.service_configuration:
+            return False, "common is miss in service-configuration.yaml -> cluster -> common"
+        if "docker-registry" not in self.service_configuration:
+            return False, "docker-registry is miss in service-configuration.yaml -> cluster -> docker-registry"
+
+        ok, msg = self.validation_common(self.service_configuration["common"])
+        if ok is False:
+            return False, msg
+        ok, msg = self.validation_docker_resgitry(self.service_configuration["docker-registry"])
+        if ok is False:
+            return False, msg
+
+        return True, None
+
+
+
+    def execute_shell(self, shell_cmd, error_msg):
+        try:
+            subprocess.check_call(shell_cmd, shell=True)
+
+        except subprocess.CalledProcessError:
+            self.logger.error(error_msg)
+            sys.exit(1)
+
+
+
+    def execute_shell_with_output(self, shell_cmd, error_msg):
+        try:
+            res = subprocess.check_output(shell_cmd, shell=True)
+
+        except subprocess.CalledProcessError:
+            self.logger.error(error_msg)
+            sys.exit(1)
+
+        return res
+
+
+
+    def login_docker_registry(self, docker_registry, docker_username, docker_password):
+
+        shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
+        error_msg = "docker registry login error"
+        self.execute_shell(shell_cmd, error_msg)
+        self.logger.info("docker registry login successfully")
+
+
+
+    def generate_secret_base64code(self, docker_registry_configuration):
+
+        domain = docker_registry_configuration["domain"] and str(docker_registry_configuration["domain"])
+        username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
+        passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
+
+        if domain == "public":
+            domain = ""
+
+        if username and passwd:
+            self.login_docker_registry(domain, username, passwd)
+
+            base64code = self.execute_shell_with_output(
+                "cat ~/.docker/config.json | base64",
+                "Failed to base64 the docker's config.json"
+            )
+        else:
+            self.logger.info("docker registry authentication not provided")
+
+            base64code = "{}".encode("base64")
+
+        docker_registry_configuration["base64code"] = base64code.replace("\n", "")
+
+
+
+    def generate_docker_credential(self, docker_registry_configuration):
+
+        username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
+        passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
+
+        if username and passwd:
+            credential = self.execute_shell_with_output(
+                "cat ~/.docker/config.json",
+                "Failed to get the docker's config.json"
+            )
+        else:
+            credential = "{}"
+
+        docker_registry_configuration["credential"] = credential
+
+
+
+    def generate_image_url_prefix(self, docker_registry_configuration):
+
+        domain = str(docker_registry_configuration["domain"])
+        namespace = str(docker_registry_configuration["namespace"])
+
+        if domain != "public":
+            prefix = "{0}/{1}/".format(domain, namespace)
+        else:
+            prefix = "{0}/".format(namespace)
+
+        docker_registry_configuration["prefix"] = prefix
 
 
 
     def run(self):
         cls_conf = self.cluster_configuration
         srv_conf = self.service_configuration
-        def_srv_conf = self.default_service_configuration
 
-        cluster_com = dict()
+        cluster_com = self.service_configuration
+        self.generate_secret_base64code(cluster_com["docker-registry"])
+        self.generate_docker_credential(cluster_com["clusterinfo"]["dockerregistryinfo"])
+        self.generate_image_url_prefix(cluster_com["clusterinfo"]["dockerregistryinfo"])
 
-
-
-
-    def validation_common(self, common_configuration, type):
-
-        if "data-path" in common_configuration:
-            if os.path.isabs(common_configuration["data-path"]) is False:
-                return False, "data-path in service-configuration->cluster->data-path should be an absolute path"
-        elif type == "default":
-            return False, "src/cluster/config/cluster.yaml should contains the configuration common.data-path!!"
-
-        if "cluster-id" not in common_configuration and type == "default":
-            return False, "src/cluster/config/cluster.yaml should contains the configuration common.cluster-id!!"
-
-        return True, None
-
-
-
-    def validation_docker_resgitry(self, docker_reg_configuration, stage):
-
-        if "docker-registry" in docker_reg_configuration and stage is "overwirte":
-            if "namespace" not in docker_reg_configuration:
-                return False, "namespace in the service-configuration -> cluster -> docker-registry is missing!"
-            if "domain" not in docker_reg_configuration:
-                return False, "domain in the service-configuration -> cluster -> docker-registry is missing!"
-            if "tag" not in docker_reg_configuration:
-                return False, "tag in the service-configuration -> cluster -> docker-registry is missing!"
-            if "secret-name" not in docker_reg_configuration:
-                return False, "secret-name in the service-configuration -> cluster -> docker-registry is missing!"
-
-            if ("username" in docker_reg_configuration) is not ("password" in docker_reg_configuration):
-                return False, "username and password should be coexist, or please comment all of them."
-
-        return True, None
-
-
-
-    def validation_pre(self):
-        cls_conf = self.cluster_configuration
-        srv_conf = self.service_configuration
-        def_srv_conf = self.default_service_configuration
-
-        if "common" in srv_conf:
-            ok, msg = self.validation_common(srv_conf["common"], "pre")
-            if ok is False:
-                return False, msg
-
-        if "docker-registry" in srv_conf:
-            ok, msg = self.validation_docker_resgitry(srv_conf["docker-registry"], "pre")
-            if ok is False:
-                return False, msg
-
-        return True, None
+        return cluster_com
 
 
 

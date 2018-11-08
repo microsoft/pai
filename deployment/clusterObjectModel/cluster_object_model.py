@@ -21,7 +21,6 @@ import importlib
 import logging
 import logging.config
 
-
 from ..paiLibrary.common import file_handler
 
 
@@ -104,11 +103,19 @@ class cluster_object_model:
         for key, value in parser_dict:
             ok, msg = value.validation_pre()
             if ok is False:
-                self.logger.error("msg")
+                self.logger.error(msg)
                 sys.exit(1)
 
         # Generate object model
         for key, value in parser_dict:
+            self.cluster_object_model[key] = value.run()
 
+        # Post Validation
+        for key, value in parser_dict:
+            ok, msg = value.validation_post(cluster_object_model)
+            if ok is False:
+                self.logger.error(msg)
+                sys.exit(1)
 
+        return self.cluster_object_model
 
