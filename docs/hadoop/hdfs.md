@@ -131,9 +131,9 @@ Data on HDFS can be accessed by various ways. Users can choose the proper way ac
 
 WebHDFS provides a set of REST APIs and this is our recommended way to access data.
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
-The rest server URI is http://hdfs-name-node-address:5070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
-in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
 In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node.
+So the rest server URI will be http://master-node-address/webhdfs. The *master-node-address* is the address of the machine with *pai-master* label *true*
+in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
