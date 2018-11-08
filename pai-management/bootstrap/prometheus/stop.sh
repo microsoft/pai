@@ -36,17 +36,24 @@ done
 
 
     
-kubectl label nodes aks-agentpool-24740563-0 prometheus- || exit $?
+kubectl label nodes aks-agentpool-33953428-2 prometheus- || exit $?
     
     
-kubectl label nodes aks-agentpool-24740563-0 node-exporter- || exit $?
+kubectl label nodes aks-agentpool-33953428-2 node-exporter- || exit $?
     
     
     
 
     
     
-kubectl label nodes aks-agentpool-24740563-1 node-exporter- || exit $?
+kubectl label nodes aks-agentpool-33953428-3 node-exporter- || exit $?
+    
+    
+    
+
+    
+    
+kubectl label nodes aks-agentpool-33953428-1 node-exporter- || exit $?
     
     
     

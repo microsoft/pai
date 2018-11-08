@@ -30,21 +30,25 @@ data:
     rule_files:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
-    #- job_name: "node_exporter_from_host"
-    #  scrape_interval: "30s"
-    #  static_configs:
-    #  - targets: 
+    - job_name: "node_exporter_from_host"
+      scrape_interval: "30s"
+      static_configs:
+      - targets: 
         
-    #    - aks-agentpool-24740563-0:9100
+        - 10.240.0.6:9100
         
-    #    - aks-agentpool-24740563-1:9100
+        - 10.240.0.7:9100
+        
+        - 10.240.0.5:9100
         
     - job_name: 'node_exporter'
       scrape_interval: 30s
       kubernetes_sd_configs:
-      - api_server: 'https://default-08b016ab.hcp.eastus.azmk8s.io'
+      - api_server: 'http://10.240.0.6:8080'
         role: node
       # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
+      # Prometheus will fetch data from target address.
+            # Extract label __address__ inner ip address and replace the port to exporter's port to build target address.
       # Prometheus will fetch data from target address.
       scheme: http
 
@@ -67,8 +71,9 @@ data:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: 30s
       kubernetes_sd_configs:
-      - api_server: 'https://default-08b016ab.hcp.eastus.azmk8s.io'
+      - api_server: 'http://10.240.0.6:8080'
         role: pod
+
       scheme: http
 
       # This TLS & bearer token file config is used to connect to the actual scrape
@@ -82,6 +87,7 @@ data:
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
       kubernetes_sd_configs:
       - role: pod
+
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
           regex: true
