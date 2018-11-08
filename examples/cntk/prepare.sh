@@ -57,8 +57,6 @@ fi
 
 #make directory on HDFS
 echo "Make cntk directory, waiting..."
-hdfs dfs -mkdir -p hdfs://$1/examples/
-hdfs dfs -mkdir -p hdfs://$1/examples/cntk
 hdfs dfs -mkdir -p hdfs://$1/examples/cntk/code
 hdfs dfs -mkdir -p hdfs://$1/examples/cntk/data
 hdfs dfs -mkdir -p hdfs://$1/examples/cntk/output

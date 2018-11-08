@@ -36,9 +36,6 @@ echo "You must input hdfs socket as the only parameter! Or you cannot run this s
 
 #make directory on HDFS
 echo "Make imageNet directory, waiting..."
-hdfs dfs -mkdir -p hdfs://$1/examples/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/data/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/code/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/imageNet/output/
@@ -92,7 +89,6 @@ function distributed_prepare_code(){
 
 #make directory on HDFS
 echo "Make distributed cifar-10 directory, waiting..."
-hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/code/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/data/
 hdfs dfs -mkdir -p hdfs://$1/examples/tensorflow/distributed-cifar-10/output/

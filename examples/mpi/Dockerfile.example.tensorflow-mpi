@@ -51,11 +51,7 @@ RUN mkdir /bazel && \
 # Download and build TensorFlow.
 WORKDIR /tensorflow
 RUN git clone -b r1.4 https://github.com/tensorflow/tensorflow.git . && \
-	git cherry-pick -n f73d7c && \
-	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/mpi_ops.cc && \
-	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.cc && \
-	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.cu.cc && \
-	sed -i '1 i\#define TENSORFLOW_USE_MPI' tensorflow/contrib/mpi_collectives/ring.h
+	git cherry-pick -n f73d7c
 ENV TF_NEED_CUDA=1 \
     TF_CUDA_COMPUTE_CAPABILITIES=3.0,3.5,5.2,6.0,6.1 \
     TF_CUDA_VERSION=8.0 \
@@ -84,4 +80,3 @@ RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/lib
     rm -rf /root/.cache
 
 WORKDIR /root
-ADD tf-mpi.py tf-mpi.py
