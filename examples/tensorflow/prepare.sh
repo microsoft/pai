@@ -32,7 +32,7 @@ function imageNet_prepare_code(){
     done
 }
 
-echo "You must input hdfs socket as the only parameter! Or you cannot run this script correctly!"
+echo "You must input hdfs socket and username as the only two parameters! Or you cannot run this script correctly!"
 
 #make directory on HDFS
 echo "Make imageNet directory, waiting..."
