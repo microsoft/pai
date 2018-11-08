@@ -20,7 +20,6 @@ import os
 
 
 
-
 class cluster:
 
 
@@ -35,6 +34,9 @@ class cluster:
         cls_conf = self.cluster_configuration
         srv_conf = self.service_configuration
         def_srv_conf = self.default_service_configuration
+
+        cluster_com = dict()
+
 
 
 
@@ -56,17 +58,17 @@ class cluster:
     def validation_docker_resgitry(self, docker_reg_configuration, stage):
 
         if "docker-registry" in docker_reg_configuration and stage is "overwirte":
-            if "docker-namespace" not in docker_reg_configuration:
-                return False, "docker-namespace in the service-configuration -> cluster -> docker-registry is missing!"
-            if "docker-registry-domain" not in docker_reg_configuration:
-                return False, "docker-registry-domain in the service-configuration -> cluster -> docker-registry is missing!"
-            if "docker-tag" not in docker_reg_configuration:
-                return False, "docker-tag in the service-configuration -> cluster -> docker-registry is missing!"
+            if "namespace" not in docker_reg_configuration:
+                return False, "namespace in the service-configuration -> cluster -> docker-registry is missing!"
+            if "domain" not in docker_reg_configuration:
+                return False, "domain in the service-configuration -> cluster -> docker-registry is missing!"
+            if "tag" not in docker_reg_configuration:
+                return False, "tag in the service-configuration -> cluster -> docker-registry is missing!"
             if "secret-name" not in docker_reg_configuration:
                 return False, "secret-name in the service-configuration -> cluster -> docker-registry is missing!"
 
-            #if "docker-username" not in docker_reg_configuration:
-
+            if ("username" in docker_reg_configuration) is not ("password" in docker_reg_configuration):
+                return False, "username and password should be coexist, or please comment all of them."
 
         return True, None
 

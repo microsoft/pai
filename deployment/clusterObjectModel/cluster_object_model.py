@@ -102,13 +102,13 @@ class cluster_object_model:
 
         # Pre Validation
         for key, value in parser_dict:
-
             ok, msg = value.validation_pre()
             if ok is False:
                 self.logger.error("msg")
                 sys.exit(1)
 
-
         # Generate object model
+        for key, value in parser_dict:
+
 
 
