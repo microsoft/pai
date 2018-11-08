@@ -19,7 +19,6 @@ prerequisite:
   - cluster-configuration
 
 template-list:
-  - watchdog-configmap.yaml
   - watchdog.yaml
 
 start-script: start.sh

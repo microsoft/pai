@@ -80,14 +80,15 @@ def check_output(*args, **kwargs):
 
 
 class Singleton(object):
-    """ wrapper around gpu metrics getter, because getter may block
+    """ wrapper around metrics getter, because getter may block
         indefinitely, so we wrap call in thread.
         Also, to avoid having too much threads, use semaphore to ensure only 1
         thread is running """
-    def __init__(self, getter, get_timeout_s=3, old_data_timeout_s=60):
+    def __init__(self, getter, get_timeout_s=3, old_data_timeout_s=60, name="singleton"):
         self.getter = getter
         self.get_timeout_s = get_timeout_s
         self.old_data_timeout_s = datetime.timedelta(seconds=old_data_timeout_s)
+        self.name = name
 
         self.semaphore = threading.Semaphore(1)
         self.queue = Queue(1)
@@ -110,18 +111,18 @@ class Singleton(object):
                     start = datetime.datetime.now()
                     result = self.getter()
                 except Exception as e:
-                    logger.warn("get gpu metrics failed")
+                    logger.warn("%s get metrics failed", self.name)
                     logger.exception(e)
                 finally:
-                    logger.info("get gpu metrics spent %s", datetime.datetime.now() - start)
+                    logger.info("%s get metrics spent %s", self.name, datetime.datetime.now() - start)
                     semaphore.release()
                     queue.put(result)
 
-            t = threading.Thread(target=wrapper, name="gpu-metrices-getter",
+            t = threading.Thread(target=wrapper, name=self.name + "-getter",
                     args=(self.semaphore, self.queue))
             t.start()
         else:
-            logger.warn("gpu-metrics-getter is still running")
+            logger.warn("%s is still running", self.name + "-getter")
 
         try:
             self.old_metrics = self.queue.get(block=True, timeout=self.get_timeout_s)
@@ -134,7 +135,7 @@ class Singleton(object):
         if now - self.old_metrics_time < self.old_data_timeout_s:
             return self.old_metrics
 
-        logger.info("gpu info is too old")
+        logger.info("%s's info is too old", self.name)
         return None
 
 
