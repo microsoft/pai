@@ -133,25 +133,26 @@ WebHDFS provides a set of REST APIs and this is our recommended way to access da
 [WebHDFS REST API](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/WebHDFS.html) contains the detailed instructions of the APIs.
 The rest server URI is http://hdfs-name-node-address:5070. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true*
 in configuration file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+In OpenPAI all the WebHDFS requests will be redirected by Pylon. We needn't directly access the name node or data node.
 Following are two simple examples to show how the APIs can be used to create and delete a file.
 
 1. Create a File<br>
 Suppose to create file *test_file* under directory */test*. First step is submit a request without redirection and data with command:
 ```bash
-curl -i -X PUT "http://hdfs-name-node-address:5070/webhdfs/v1/test/test_file?op=CREATE"
+curl -i -X PUT "http://master-node-address/webhdfs/api/v1/test/test_file?op=CREATE"
 ```
 This command will return the data node where the file should be written. The location URI would be like
->http://hdfs-name-node-address:5075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-data-node-address:9000&createflag=&createparent=true&overwrite=false
+>http://master-node-address/a/data-node-address:5075/webhdfs/v1/test/test_file?op=CREATE&namenoderpcaddress=hdfs-name-node-address:9000&createflag=&createparent=true&overwrite=false
 
 Then run following command with this URI to write file data:
 ```bash
-curl -i -X PUT -T file-data-to-write returned-location-uri
+curl -i -X PUT -T file-data-to-write "returned-location-uri"
 ```
 
 2. Delete a File<br>
 If we want to delete the file created by above example, run following command:
 ```bash
-curl -i -X DELETE "http://hdfs-name-node-address:5070/webhdfs/v1/test/test_file?op=DELETE"
+curl -i -X DELETE "http://master-node-address/webhdfs/api/v1/test/test_file?op=DELETE"
 ```
 
 ## HDFS Command <a name="HDFS_Command"></a>
