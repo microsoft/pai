@@ -14,7 +14,7 @@ function horovod_prepare_data(){
 function horovod_prepare_code(){
     #download the code
     git clone -b cnn_tf_v1.10_compatible https://github.com/tensorflow/benchmarks.git
-    wget https://github.com/Microsoft/pai/raw/master/examples/horovod/start.sh
+    wget https://github.com/Microsoft/pai/raw/yuqian/auto-test_revise/examples/horovod/start.sh
     
     #upload the code to HDFS
     echo "Uploading benchmarks code, waiting..."
