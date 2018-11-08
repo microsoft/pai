@@ -54,13 +54,5 @@ const query = (req, res, next) => {
   req._query = query;
   next();
 };
-
-const checkReadonly = (req, res, next) => {
-  if (!('username' in req.params)) {
-    return next(createError('Forbidden', 'ReadOnlyJobError', 'Job without user namespace is readonly.'));
-  }
-  next();
-};
-
 // module exports
-module.exports = {submission, query, checkReadonly};
+module.exports = {submission, query};
