@@ -149,7 +149,7 @@ if service --status-all 2>&1 | grep -q ssh; then
   start_ssh_service
 else
   printf "%s %s\n %s %s \n" \
-    "[WARNING]" "Open-ssh server not found will not enable ssh service." \
+    "[WARNING]" "Open-ssh server not found, will not enable ssh service." \
     "[INFO]" "Please refer to PAI dockerfile example to get ssh service enabled. https://github.com/Microsoft/pai/tree/master/examples/Dockerfiles"
 fi
 
