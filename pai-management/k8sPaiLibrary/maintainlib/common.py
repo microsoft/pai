@@ -113,16 +113,6 @@ def write_generated_file(generated_file, file_path):
 
 def ipv4_address_validation(ipv4_addr):
     return True
-    #try:
-    #    socket.inet_aton(ipv4_addr)
-    #    ret = True
-    #except socket.error:
-    #    ret = False
-    #    logger.error("{0} is not a correct ipv4 address!".format(ipv4_addr))
-
-    #return ret
-
-
 
 def port_validation(port):
 

@@ -63,10 +63,6 @@ class kubectl_conf_check:
 
             api_server_address_pai_conf = "http://{0}:8080".format(self.cluster_config['clusterinfo']['api-servers-ip'])
 
-            #if api_server_address != api_server_address_pai_conf:
-            #   self.logger.warning("CHECKING FAILED: The api_server_address in local configuration is different from the one in pai's configuration.".format(self.kube_conf_path))
-            #    return False
-
         except Exception as e:
 
             self.logger.error("CHECK FAILED:  Unable to compare api_server_address in the configuration.")
