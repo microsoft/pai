@@ -35,7 +35,7 @@ spec:
         restserver: "true"
       containers:
       - name: rest-server
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: docker.io/openpai/rest-server:aks-test 
         imagePullPolicy: Always
         securityContext:
           privileged: true
