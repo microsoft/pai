@@ -2,9 +2,9 @@
   "jobName": "tensorflow-imagenet",
   "image": "openpai/pai.example.tensorflow",
 
-  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/data",
-  "outputDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/output",
-  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/imageNet/code",
+  "dataDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/imageNet/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/imageNet/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/imageNet/code",
 
   "taskRoles": [
     {
