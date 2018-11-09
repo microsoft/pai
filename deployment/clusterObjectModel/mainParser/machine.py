@@ -30,13 +30,17 @@ class machine:
 
 
 
-    def run(self):
-        None
-
-
-
-    def validation_default_machine_properties:
-        None
+    def validation_default_machine_properties(self):
+        cluster_cfg = self.cluster_configuration
+        if "default-machine-properties" in cluster_cfg:
+            return False, "default-machine-properties is miss in cluster-configuration.yaml"
+        if "username" not in cluster_cfg["default-machine-properties"]:
+            return False, "username is miss in cluster-configuration -> default-machine-properties."
+        if "sshport" not in cluster_cfg["default-machine-properties"]:
+            return False, "sshport is miss in cluster-configuration -> default-machine-properties."
+        if ("keyfile-path" in cluster_cfg["default-machine-properties"]) is not ("password" in cluster_cfg["default-machine-properties"]):
+            return False, "Please set one and only one property between keyfile-path and password in cluster-configuration -> default-machine-properties."
+        return True, None
 
 
 
@@ -94,8 +98,17 @@ class machine:
 
 
     def validation_pre(self):
+        ok, msg = self.validation_default_machine_properties()
+        if ok is False:
+            return False, msg
 
+        ok, msg = self.validation_machine_sku()
+        if ok is False:
+            return False, msg
 
+        ok, msg = self.validation_host_properties()
+        if ok is False:
+            return False, msg
 
         return True, None
 
@@ -103,3 +116,27 @@ class machine:
 
     def validation_post(self):
         return True, None
+
+
+
+    def run(self):
+        com_machine = dict()
+        com_machine["machine-sku"] = self.cluster_configuration["machine-sku"]
+        com_machine["default-machine-properties"] = self.cluster_configuration["default-machine-properties"]
+        com_machine["machine-list"] = dict()
+
+        for host in self.cluster_configuration["machine-list"]:
+            if "sshport" not in host:
+                host["sshport"] = com_machine["default-machine-properties"]["sshport"]
+            if "username" not in host:
+                host["username"] = com_machine["default-machine-properties"]["username"]
+            if "password" not in host and "keyfile-path" not in host:
+                if "password" in com_machine["default-machine-properties"]:
+                    host["password"] = com_machine["default-machine-properties"]["password"]
+                else:
+                    host["keyfile-path"] = com_machine["default-machine-properties"]["keyfile-path"]
+            host["nodename"] = host["hostip"]
+            com_machine["machine-list"][host["hostname"]] = host
+
+
+        return com_machine
