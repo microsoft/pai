@@ -220,11 +220,15 @@ Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the detail
 # FAQ <a name="FAQ"></a>
 
 1. Why cannot upload data to OpenPAI cluster deployed on Azure?
+
+
 This can be caused by reason that the data node on Azure cannot be accessed directly by client since they only have internal IPs.
 When uploading data to OpenPAI's HDFS, we recommend to use the WebHDFS restful API as described in [WebHDFS](#WebHDFS).
 The restful API requests are redirected by Pylon so client don't need to access the data node directly. 
 
 2. Why HDFS enters safemode?
+
+
 When cluster is starting up, name node will enter safemode to wait for data nodes to report the blocks and locations.
 If the validation is finished, it will leave safemode automatically. HDFS will enter safemode under unusual status.
 If the disk is full or the under replicated blocks is below the predefined percentage. The percentage threshold is configured
