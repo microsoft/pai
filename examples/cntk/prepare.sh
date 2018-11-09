@@ -4,6 +4,7 @@ function prepare_data(){
     
     #download data
 	echo "Downloading cntk data, waiting..."
+    mkdir cntk_data && cd cntk_data
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b.mapping
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b.test
@@ -17,22 +18,14 @@ function prepare_data(){
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b.train-dev-20-21.ctf
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/cmudict-0.7b.train-dev-20-21.txt
     wget https://github.com/Microsoft/CNTK/raw/master/Examples/SequenceToSequence/CMUDict/Data/tiny.ctf
-    
+	cd ..    
+
     #upload data to HDFS
 	echo "Uploading cntk data, waiting..."
-    hdfs dfs -put cmudict-0.7b hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.mapping hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.test hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.test.ctf hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.test.txt hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-1-21 hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-1-21.ctf hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-1-21.txt hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-20-21 hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-20-21.ctf hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put cmudict-0.7b.train-dev-20-21.txt hdfs://$1/$2/examples/cntk/data
-    hdfs dfs -put tiny.ctf hdfs://$1/$2/examples/cntk/data
+	for i in `ls cntk_data`
+	do
+		hdfs dfs -put cntk_data/$i hdfs://$1/$2/examples/cntk/data
+	done
 }
 
 function prepare_code(){
@@ -78,5 +71,5 @@ else
 fi
 
 #delete the files
-rm cntk-g2p.sh* G2P.cntk* cmudict* tiny.ctf*
+rm -rf cntk-g2p.sh* G2P.cntk* cntk_data/
 echo "Prepare for the cntk example done!"
