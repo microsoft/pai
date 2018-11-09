@@ -219,7 +219,7 @@ Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the detail
 
 # FAQ <a name="FAQ"></a>
 
-1. Why cannot upload data to OpenPAI cluster deployed on Azure? <br>
+1. Why cannot upload data to OpenPAI cluster deployed on Azure? -- [Issue 1664](https://github.com/Microsoft/pai/issues/1664) <br>
 This can be caused by reason that the data node on Azure cannot be accessed directly by client since they only have internal IPs.
 When uploading data to OpenPAI's HDFS, we recommend to use the WebHDFS restful API as described in [WebHDFS](#WebHDFS).
 The restful API requests are redirected by Pylon so client don't need to access the data node directly. 
