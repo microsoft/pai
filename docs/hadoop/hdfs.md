@@ -29,6 +29,7 @@ This guidance provides users instructions to operate the HDFS cluster in OpenPAI
         - [ C API ](#C_API)
         - [ Python API](#Python_API)
 - [ Reference ](#Reference)
+- [FAQ](#FAQ)
 
 # Goal <a name="Goal"></a>
 
@@ -148,6 +149,7 @@ Then run following command with this URI to write file data:
 ```bash
 curl -i -X PUT -T file-data-to-write "returned-location-uri"
 ```
+Here the *returned-location-uri* is the location URI mentioned in the first command.
 
 2. Delete a File<br>
 If we want to delete the file created by above example, run following command:
@@ -214,3 +216,19 @@ Please refer [HdfsCLI](https://hdfscli.readthedocs.io/en/latest/) for the detail
 # Reference <a name="Reference"></a>
 
 1. [Hadoop reference doc](https://hadoop.apache.org/docs/r2.9.0/)
+
+# FAQ <a name="FAQ"></a>
+
+1. Why cannot upload data to OpenPAI cluster deployed on Azure?
+This can be caused by reason that the data node on Azure cannot be accessed directly by client since they only have internal IPs.
+When uploading data to OpenPAI's HDFS, we recommend to use the WebHDFS restful API as described in [WebHDFS](#WebHDFS).
+The restful API requests are redirected by Pylon so client don't need to access the data node directly. 
+
+2. Why HDFS enters safemode?
+When cluster is starting up, name node will enter safemode to wait for data nodes to report the blocks and locations.
+If the validation is finished, it will leave safemode automatically. HDFS will enter safemode under unusual status.
+If the disk is full or the under replicated blocks is below the predefined percentage. The percentage threshold is configured
+by *dfs.safemode.threshold.pct* in *hdfs-site.xml* file. You can run following command to leave safemode.
+```bash
+hadoop dfsadmin -safemode leave
+```
