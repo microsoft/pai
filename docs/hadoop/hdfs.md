@@ -228,5 +228,5 @@ The restful API requests are redirected by Pylon so client don't need to access 
 When cluster is starting up, name node will enter safemode to wait for data nodes to report the blocks and locations.
 If the validation is finished, it will leave safemode automatically. HDFS can also enter safemode under unusual status.
 If the disk is full or the blocks satisfying the minimum replication requirement is below the predefined percentage. 
-The percentage threshold is configured by *dfs.safemode.threshold.pct* in *hdfs-site.xml* file. 
+The percentage threshold is configured by *dfs.namenode.safemode.threshold-pct* in *hdfs-site.xml* file. 
 You can run following command ```hadoop dfsadmin -safemode leave``` to quit safemode forcefully.
