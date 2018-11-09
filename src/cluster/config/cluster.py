@@ -16,12 +16,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import os
 import sys
 import subprocess
 import logging
 import logging.config
-
 
 
 class cluster:
@@ -110,7 +108,6 @@ class cluster:
 
 
     def login_docker_registry(self, docker_registry, docker_username, docker_password):
-
         shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
         error_msg = "docker registry login error"
         self.execute_shell(shell_cmd, error_msg)
@@ -119,7 +116,6 @@ class cluster:
 
 
     def generate_secret_base64code(self, docker_registry_configuration):
-
         domain = docker_registry_configuration["domain"] and str(docker_registry_configuration["domain"])
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
@@ -144,7 +140,6 @@ class cluster:
 
 
     def generate_docker_credential(self, docker_registry_configuration):
-
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
 
@@ -161,7 +156,6 @@ class cluster:
 
 
     def generate_image_url_prefix(self, docker_registry_configuration):
-
         domain = str(docker_registry_configuration["domain"])
         namespace = str(docker_registry_configuration["namespace"])
 
@@ -175,14 +169,10 @@ class cluster:
 
 
     def run(self):
-        cls_conf = self.cluster_configuration
-        srv_conf = self.service_configuration
-
         cluster_com = self.service_configuration
         self.generate_secret_base64code(cluster_com["docker-registry"])
         self.generate_docker_credential(cluster_com["clusterinfo"]["dockerregistryinfo"])
         self.generate_image_url_prefix(cluster_com["clusterinfo"]["dockerregistryinfo"])
-
         return cluster_com
 
 

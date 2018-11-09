@@ -22,6 +22,9 @@ import logging
 import logging.config
 
 from ..paiLibrary.common import file_handler
+from .mainParser import kubernetes as pai_com_kubernetes
+from .mainParser import machine as pai_com_machine
+
 
 
 
@@ -88,8 +91,11 @@ class cluster_object_model:
         for service_name in service_model_list:
             parser_dict[service_name] = self.init_service_parser(service_name)
 
-
-        # TODO: Init main parser here.
+        # init main parser
+        kubernetes_parser = pai_com_kubernetes.kubernetes(self.cluster_configuration, self.kubernetes_configuration)
+        parser_dict["kubernetes"] = kubernetes_parser
+        machine_parser = pai_com_machine.machine(self.cluster_configuration)
+        parser_dict["machine"] = machine_parser
 
         return parser_dict
 
@@ -118,4 +124,3 @@ class cluster_object_model:
                 sys.exit(1)
 
         return self.cluster_object_model
-
