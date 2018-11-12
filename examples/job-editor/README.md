@@ -19,6 +19,7 @@ Correct the ENVs according to your cluster, then launcher the job-editor as belo
 
 ```bash
 sudo docker run \
+  --env "PAI_URL=your_pai_cluster_url" \
   --env "PAI_USER_NAME=your_pai_user" \
   --env "HDFS_FS_DEFAULT=hdfs://your_hdfs_name_node_ip:9000/" \
   --env "WEBHDFS_FS_DEFAULT=http://your_hdfs_name_node_ip:5070/" \
@@ -37,6 +38,7 @@ Using the config template below, change the `jobEnvs` according to your PAI conf
   "image": "docker.io/openpai/job-editor",
   "retryCount": 0,
   "jobEnvs": {
+      "PAI_URL": "your_pai_cluster_url",
       "PAI_USER_NAME": "your_pai_user",
       "HDFS_FS_DEFAULT": "hdfs://your_hdfs_name_node_ip:9000/",
       "WEBHDFS_FS_DEFAULT": "http://your_hdfs_name_node_ip:5070/"
