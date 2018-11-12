@@ -5,7 +5,6 @@ nodeResourceGroup=""
 vmUsername=""
 vmPassword=""
 inAKS=false
-
 az login
 az account set --subscription "$subscriptionName"
 az aks get-credentials --resource-group "$resourceGroup" --name "$name"
@@ -21,7 +20,6 @@ echo "enter in AKS config"
     fi
     done
     # 2. config k8s dashboard
-    az aks browse --resource-group $resourceGroup --name $name
     kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
     # 3. give auth for api-server 
     
