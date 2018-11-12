@@ -18,10 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 if command -v cc >/dev/null 2>&1; then
+    echo "cc is detected"
+else
     export PATH=/usr/bin/cc:$PATH
 fi
 
 if command -v gcc >/dev/null 2>&1; then
+    echo "gcc is detected"
+else
     export PATH=/usr/bin/gcc:$PATH
 fi
 
