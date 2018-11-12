@@ -8,7 +8,7 @@ spec:
   nodeSelector:
     dev-box: "true"
   containers:
-  - image: docker.io/openpai/dev-box:v0.8.0
+  - image: prom11/dev-box-aks
     imagePullPolicy: Always
     securityContext:
       privileged: true
