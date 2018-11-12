@@ -34,8 +34,10 @@ ENV JUPYTER_HOST_IP 0.0.0.0
 
 # mnist example
 COPY mnist_pytorch.ipynb work
+RUN fix-permissions $HOME
 
 # user will need to passing ENVs below to container:
+#PAI_URL
 #PAI_USER_NAME
 #PAI_CONTAINER_HOST_jupyter_PORT_LIST
 #HDFS_FS_DEFAULT(optional)
