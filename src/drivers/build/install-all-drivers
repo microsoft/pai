@@ -20,14 +20,9 @@
 if command -v cc >/dev/null 2>&1; then
     echo "cc is detected"
 else
-    export PATH=/usr/bin/cc:$PATH
+    apt-get -y install gcc
 fi
 
-if command -v gcc >/dev/null 2>&1; then
-    echo "gcc is detected"
-else
-    export PATH=/usr/bin/gcc:$PATH
-fi
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
     /bin/bash install-nvidia-drivers "$@" || exit $?
