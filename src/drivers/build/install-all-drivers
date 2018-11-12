@@ -21,7 +21,7 @@ if command -v cc >/dev/null 2>&1; then
     echo "cc is detected"
 else
     apt-get -y remove gcc
-    apt-get -y install gcc
+    apt-get -y install gcc g++ build-essential
 fi
 
 
