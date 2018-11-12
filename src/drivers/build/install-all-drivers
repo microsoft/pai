@@ -19,7 +19,7 @@
 
 
 echo $PATH
-ls -al | grep cc
+ls -al /usr/bin | grep cc
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
     /bin/bash install-nvidia-drivers "$@" || exit $?

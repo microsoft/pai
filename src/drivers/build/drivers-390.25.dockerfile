@@ -70,6 +70,6 @@ ENV PATH=$PATH:$NV_DRIVER/bin
 
 COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 
-RUN ls -al | grep cc
+RUN ls -al /usr/bin | grep cc
 
 CMD /bin/bash install-all-drivers
