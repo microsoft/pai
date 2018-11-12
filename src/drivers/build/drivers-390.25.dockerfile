@@ -53,8 +53,6 @@ RUN apt-get -y update && \
         module-init-tools && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    apt-get -y update && \
-    apt-get -y install g++-4.9 && \
     mkdir -p $STAGE_DIR
 
 WORKDIR $STAGE_DIR
