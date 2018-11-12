@@ -24,6 +24,8 @@ RUN apt-get -y update && \
     apt-get -y install \
         build-essential \
         gcc \
+        g++ \
+        binutils \
         pciutils \
         bind9-host \
         bc \
