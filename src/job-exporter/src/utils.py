@@ -84,59 +84,53 @@ class Singleton(object):
         indefinitely, so we wrap call in thread.
         Also, to avoid having too much threads, use semaphore to ensure only 1
         thread is running """
-    def __init__(self, getter, get_timeout_s=3, old_data_timeout_s=60, name="singleton"):
+    def __init__(self, getter, get_timeout_s=3, name="singleton"):
         self.getter = getter
         self.get_timeout_s = get_timeout_s
-        self.old_data_timeout_s = datetime.timedelta(seconds=old_data_timeout_s)
         self.name = name
 
         self.semaphore = threading.Semaphore(1)
         self.queue = Queue(1)
         self.old_metrics = None
-        self.old_metrics_time = datetime.datetime.now()
+
+    def wrapper(self, semaphore, queue):
+        """ wrapper assume semaphore already acquired, will release semaphore on exit """
+        result = None
+
+        try:
+            try:
+                # remove result put by previous thread but didn't get by main thread
+                queue.get(block=False)
+            except Empty:
+                pass
+
+            start = datetime.datetime.now()
+            result = self.getter()
+        except Exception as e:
+            logger.warn("%s get metrics failed", self.name)
+            logger.exception(e)
+        finally:
+            logger.info("%s get metrics spent %s", self.name, datetime.datetime.now() - start)
+            semaphore.release()
+            queue.put(result)
 
     def try_get(self):
+        """ return value, is_old tuple, if value is not newly getted, return value we get last time,
+        and set is_old to True, otherwise return newly getted value and False """
         if self.semaphore.acquire(False):
-            def wrapper(semaphore, queue):
-                """ wrapper assume semaphore already acquired, will release semaphore on exit """
-                result = None
-
-                try:
-                    try:
-                        # remove result put by previous thread but didn't get by main thread
-                        queue.get(block=False)
-                    except Empty:
-                        pass
-
-                    start = datetime.datetime.now()
-                    result = self.getter()
-                except Exception as e:
-                    logger.warn("%s get metrics failed", self.name)
-                    logger.exception(e)
-                finally:
-                    logger.info("%s get metrics spent %s", self.name, datetime.datetime.now() - start)
-                    semaphore.release()
-                    queue.put(result)
-
-            t = threading.Thread(target=wrapper, name=self.name + "-getter",
-                    args=(self.semaphore, self.queue))
+            t = threading.Thread(target=Singleton.wrapper, name=self.name + "-getter",
+                    args=(self, self.semaphore, self.queue))
             t.start()
         else:
             logger.warn("%s is still running", self.name + "-getter")
 
         try:
             self.old_metrics = self.queue.get(block=True, timeout=self.get_timeout_s)
-            self.old_metrics_time = datetime.datetime.now()
-            return self.old_metrics
+            return self.old_metrics, False
         except Empty:
             pass
 
-        now = datetime.datetime.now()
-        if now - self.old_metrics_time < self.old_data_timeout_s:
-            return self.old_metrics
-
-        logger.info("%s's info is too old", self.name)
-        return None
+        return self.old_metrics, True
 
 
 def camel_to_underscore(label):
