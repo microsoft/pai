@@ -17,13 +17,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-[[ which cc ]] || {
+if command -v cc >/dev/null 2>&1; then
     export PATH=/usr/bin/cc:$PATH
-}
+fi
 
-[[ which gcc ]] || {
+if command -v gcc >/dev/null 2>&1; then
     export PATH=/usr/bin/gcc:$PATH
-}
+fi
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
     /bin/bash install-nvidia-drivers "$@" || exit $?
