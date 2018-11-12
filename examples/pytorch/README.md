@@ -79,4 +79,4 @@ For more details on how to write a job configuration file, please refer to [job 
 
 ## Note:
 
-Since PAI runs PyTorch jobs in Docker, the trainning speed on PAI should be similar to speed on host.
+Since PAI runs PyTorch jobs in Docker, the training speed on PAI should be similar to speed on host.

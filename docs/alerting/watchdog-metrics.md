@@ -52,11 +52,6 @@ vi watchdog-xx.log
 | ---------- |  ----------- |
 | pai_node_count | describe count of node in open pai, lable describe state of node like ready="true" and condition like disk_pressure="false" |
 
-## Docker Daemon Health Metrics
-| Metric name| Description |
-| ---------- |  ----------- |
-| docker_daemon_count | has error key in label, if error != "ok", means docker daemon is not functioning correctly |
-
 ## K8s Health Metrics
 | Metric name| Description |
 | ---------- |  ----------- |
@@ -69,7 +64,6 @@ vi watchdog-xx.log
 | ---------- |  ----------- |
 | process_error_log_total | count of error/exception log |
 | k8s_api_healthz_resp_latency_seconds | response latency from k8s api healthz page |
-| ssh_resp_latency_seconds | response latency from ssh into worker node and execute docker daemon check cmd |
 | k8s_etcd_resp_latency_seconds | response latency from etcd healthz page |
 | k8s_kubelet_resp_latency_seconds | response latency from kubelet healthz page |
 | k8s_api_list_pods_latency_seconds | response latency from listing pods from k8s api |

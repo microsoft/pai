@@ -17,6 +17,8 @@
 
 
 import time
+import os
+import tempfile
 
 from ...confStorage.download import download_configuration
 from ..clusterObjectModel.objectModelFactory import objectModelFactory
@@ -32,7 +34,8 @@ class service_management_configuration:
             self.KUBE_CONFIG_LOCATION = kwargs["kube_config_path"]
 
         self.time = str(int(time.time()))
-        self.tmp_path = "./tmp-service-config-{0}".format(self.time)
+        self.tmp_path = "tmp-service-config-{0}".format(self.time)
+        self.tmp_path = os.path.join(tempfile.gettempdir(), self.tmp_path)
 
         self.cluster_object_service = None
 

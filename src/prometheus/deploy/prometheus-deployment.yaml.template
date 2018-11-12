@@ -54,6 +54,8 @@ spec:
           mountPath: /etc/prometheus
         - name: rules-volume
           mountPath: /etc/prometheus-alert
+      imagePullSecrets:
+      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
       volumes:
       - name: config-volume
         configMap:

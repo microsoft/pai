@@ -2,8 +2,8 @@
   "jobName": "tensorflow-tensorboard",
   "image": "openpai/pai.example.tensorflow",
 
-  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/output",
-  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/tensorboard/code",
+  "dataDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/tensorboard/code",
 
   "taskRoles": [
     {

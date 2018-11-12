@@ -44,11 +44,8 @@ error_counter = Counter("process_error_log_total", "total count of error log", [
 api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
         "Response latency for requesting k8s api healthz (seconds)")
 
-# use `histogram_quantile(0.95, sum(rate(ssh_resp_latency_seconds_bucket[5m])) by (le))`
+# use `histogram_quantile(0.95, sum(rate(k8s_etcd_resp_latency_seconds_bucket[5m])) by (le))`
 # to get 95 percentile latency in past 5 miniute.
-ssh_histogram = Histogram("ssh_resp_latency_seconds",
-        "Response latency for ssh (seconds)")
-
 etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
         "Response latency for requesting etcd healthz (seconds)")
 
@@ -73,10 +70,6 @@ def gen_pai_container_gauge():
 def gen_pai_node_gauge():
     return GaugeMetricFamily("pai_node_count", "count of pai node",
             labels=["name", "disk_pressure", "memory_pressure", "out_of_disk", "ready"])
-
-def gen_docker_daemon_gauge():
-    return GaugeMetricFamily("docker_daemon_count", "count of docker daemon",
-            labels=["host_ip", "error"])
 
 def gen_k8s_component_gauge():
     return GaugeMetricFamily("k8s_component_count", "count of k8s component",
@@ -116,36 +109,6 @@ class CustomCollector(object):
             # yield nothing
             return
             yield
-
-def ssh_exec(host_config, command, histogram=ssh_histogram):
-    with ssh_histogram.time():
-        hostip = str(host_config["hostip"])
-        username = str(host_config["username"])
-        password = str(host_config["password"])
-        port = int(host_config.get("sshport", 22))
-        key_filename = None
-
-        if 'keyfile-path' in host_config:
-            if os.path.isfile(str(host_config['keyfile-path'])) and host_config['keyfile-path'] is not None:
-                key_filename = str(host_config['keyfile-path'])
-            else:
-                logger.warn("The key file: {0} specified doesn't exist".format(host_config['keyfile-path']))
-
-        ssh = paramiko.SSHClient()
-
-        try:
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(hostname=hostip, port=port, key_filename=key_filename, username=username, password=password)
-
-            logger.info("Executing the command on host [{0}]: {1}".format(hostip, command))
-
-            stdin, stdout, stderr = ssh.exec_command(command, get_pty=True)
-
-            out = "".join(map(lambda x: x.encode("utf-8"), stdout))
-            err = "".join(map(lambda x: x.encode("utf-8"), stderr))
-            return out, err
-        finally:
-            ssh.close()
 
 
 def catch_exception(fn, msg, default, *args, **kwargs):
@@ -314,27 +277,6 @@ def process_nodes_status(pai_node_gauge, nodesJsonObject):
     map(_map_fn, nodesJsonObject["items"])
 
 
-def collect_docker_daemon_status(docker_daemon_gauge, hosts):
-    cmd = "sudo systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
-
-    for host in hosts:
-        host_ip = host["hostip"]
-        error = "ok"
-
-        try:
-            out, err = ssh_exec(host, cmd)
-            if "active" not in out:
-                error = "inactive"
-        except Exception as e:
-            error_counter.labels(type="docker").inc()
-            error = str(e)
-            logger.exception("ssh to %s failed", host_ip)
-
-        docker_daemon_gauge.add_metric([host_ip, error], 1)
-
-    return docker_daemon_gauge
-
-
 def load_machine_list(configFilePath):
     with open(configFilePath, "r") as f:
         return yaml.load(f)["hosts"]
@@ -364,8 +306,6 @@ def main(args):
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
 
-    hosts = load_machine_list(args.hosts)
-
     list_pods_url = "{}/api/v1/namespaces/default/pods/".format(address)
     list_nodes_url = "{}/api/v1/nodes/".format(address)
 
@@ -384,7 +324,6 @@ def main(args):
         pai_pod_gauge = gen_pai_pod_gauge()
         pai_container_gauge = gen_pai_container_gauge()
         pai_node_gauge = gen_pai_node_gauge()
-        docker_daemon_gauge = gen_docker_daemon_gauge()
         k8s_gauge = gen_k8s_component_gauge()
 
         try:
@@ -396,17 +335,14 @@ def main(args):
             nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram)
             process_nodes_status(pai_node_gauge, nodesStatus)
 
-            # 3. check docker deamon status
-            collect_docker_daemon_status(docker_daemon_gauge, hosts)
-
-            # 4. check k8s level status
+            # 3. check k8s level status
             collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
 
         atomic_ref.get_and_set([pai_pod_gauge, pai_container_gauge, pai_node_gauge,
-            docker_daemon_gauge, k8s_gauge])
+            k8s_gauge])
 
         time.sleep(float(args.interval))
 
@@ -417,7 +353,6 @@ if __name__ == "__main__":
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
-    parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
