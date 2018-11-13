@@ -140,6 +140,24 @@ def ipv4_address_validation(ipv4_addr):
 
 
 
+def cidr_validation(cidr):
+    str_list = cidr.split("/")
+
+    if len(str_list) != 2:
+        logger.error("{0} is not a correct CIDR.".format(cidr))
+        return False
+
+    if ipv4_address_validation(str_list[0]) is not True:
+        return False
+
+    if int(str_list[1]) > 32 or int(str_list[1]) < 0:
+        logger.error("{0} is not a correct CIDR.".format(cidr))
+        return False
+
+    return True
+
+
+
 def port_validation(port):
 
     if str(port).isdigit() == True and int(port) >= 0 and int(port) <= 65535 :
