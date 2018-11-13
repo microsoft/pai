@@ -9,7 +9,7 @@
 
 #### Default configuration <a name="D_Config"></a>
 
-[cluster default configuration](cluster.md)
+[cluster default configuration](cluster.yaml)
 
 #### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
 
