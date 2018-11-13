@@ -179,6 +179,8 @@ class paiObjectModel:
 
         serviceDict["clusterinfo"] = self.rawData["serviceConfiguration"]["cluster"]
         serviceDict["clusterinfo"]["dataPath"] = serviceDict["clusterinfo"]["data-path"]
+        print(serviceDict["clusterinfo"]["dataPath"])
+        print("data-path")
         serviceDict["clusterinfo"]["dockerregistryinfo"] = serviceDict["clusterinfo"]["docker-registry-info"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_namespace"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-namespace"]
