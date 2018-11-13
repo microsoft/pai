@@ -26,7 +26,7 @@ common:
 # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 docker-registry:
 
-  # domain/namespace/image-name:tag
+  # domain/namespace/
 
   # If public, please fill it the same as your username
   namespace: openpai

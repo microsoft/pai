@@ -24,7 +24,26 @@ cluster:
 
 #### Generated Configuration <a name="G_Config"></a>
 
-Generated configuration means the object model after parsing. 
+Generated configuration means the object model after parsing. The parsed data will be presented by a yaml format.
+```yaml
+cluster:
+    common:
+      cluster-id: pai
+      data-path: "/datastorage"
+    docker-registry:
+      namespace: openpai
+      domain: docker.io
+      #username: your_registry_username (optional, depend on whether you configure it or not)
+      #password: your_registry_password (optional, depend on whether you configure it or not)
+      tag: latest
+      secret-name: regsecret
+      base64code: output of "cat ~/.docker/config.json | base64"
+      credential: output of "cat ~/.docker/config.json"
+      prefix: ${cluster.docker-registry.domain}/${cluster.docker-registry.namespace}/
+```
+
+
+
 
 #### Table <a name="T_Config"></a>
 
@@ -96,10 +115,22 @@ Generated configuration means the object model after parsing.
     <td>string</td>
 </tr>
 <tr>
-    <td>cluster.docker-registry.secret-name</td>
-    <td>com["cluster"]["docker-registry"]["secret-name"]</td>
-    <td>com["cluster"]["docker-registry"]["secret-name"]</td>
+    <td>None</td>
+    <td>com["cluster"]["docker-registry"]["base64code"]</td>
+    <td>com["cluster"]["docker-registry"]["base64code"]</td>
     <td>string</td>
+</tr>
+<tr>
+    <td>None</td>
+    <td>com["cluster"]["docker-registry"]["credential"]</td>
+    <td>com["cluster"]["docker-registry"]["credential"]</td>
+    <td>string</td>
+</tr>
+<tr>
+    <td>None</td>
+    <td>com["cluster"]["docker-registry"]["prefix"]</td>
+    <td>com["cluster"]["docker-registry"]["prefix"]</td>
+    <td>string, "domain/namespace/"</td>
 </tr>
 </table>
 
