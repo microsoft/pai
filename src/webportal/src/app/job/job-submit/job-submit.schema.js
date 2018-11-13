@@ -243,6 +243,12 @@ const jobSchema = {
       additionalProperties: true,
       description: 'Job env parameters, which are available in job containers',
     },
+    dockerOptions: {
+      type: 'string',
+      format: 'grid',
+      propertyOrder: 201,
+      description: 'Docker options',
+    },
   },
   required: [
     'jobName',

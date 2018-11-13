@@ -406,11 +406,11 @@ class Job {
     }
     let jobEnvs = '';
     if (data.jobEnvs) {
-        for (let key in data.jobEnvs) {
-            if (data.jobEnvs.hasOwnProperty(key)) {
-                jobEnvs = jobEnvs.concat(key, '=', data.jobEnvs[key], '\n');
-            }
-        }
+      for (let key in data.jobEnvs) {
+          if (data.jobEnvs.hasOwnProperty(key)) {
+              jobEnvs = jobEnvs.concat(key, '=', data.jobEnvs[key], '\n');
+          }
+      }
     }
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
@@ -425,6 +425,7 @@ class Job {
           'jobData': data,
           'inspectFormat': '{{.State.Pid}}',
           'jobEnvs': jobEnvs,
+          'dockerOptions': data.dockerOptions,
         });
     return yarnContainerScript;
   }

@@ -105,6 +105,9 @@ const jobConfigSchema = Joi.object().keys({
         /\w+/,
         Joi.required()
     ),
+  dockerOptions: Joi.string()
+    .allow('')
+    .default(''),
 }).required();
 
 const jobExecutionSchema = Joi.object().keys({
