@@ -110,8 +110,6 @@ class kubernetes:
 
 
 
-
-
     def validation_pre(self):
         k8s_cfg = self.kubernetes_configuration["kubernetes"]
 
