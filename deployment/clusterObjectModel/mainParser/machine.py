@@ -62,14 +62,17 @@ class machine:
     def validation_host_properties(self):
         cluster_cfg = self.cluster_configuration
         etcd_id_visited = dict()
+        ip_visited = dict()
         dashboard_count = 0
 
         for host in cluster_cfg["machine-list"]:
-
             if "hostip" not in host:
                 return False, "hostip is miss in the host [{0}]".format(str(host))
             if pai_k8s_common.ipv4_address_validation(host["hostip"]) is False:
                 return False, "Please ensure the hostip is right, in the host [{0}]".format(str(host))
+            if host["hostip"] in ip_visited:
+                return False, "Duplicated IP address in machine-list. IP adress is [{0}]".format(str(host["hostip"]))
+            ip_visited[host["hostip"]] = True
 
             if "machine-type" not in host:
                 return False, "machine-type is miss in the host [{0}]".format(str(host))
