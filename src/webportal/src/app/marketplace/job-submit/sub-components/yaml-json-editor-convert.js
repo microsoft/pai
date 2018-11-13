@@ -87,7 +87,7 @@ const jsonEditorToJobJson = (editors) => {
   res['prerequisites'] = [];
   res['tasks'] = [];
 
-  ['data', 'script', 'storage', 'dockerimage', 'task'].forEach((type) => {
+  ['data', 'script', 'output', 'dockerimage', 'task'].forEach((type) => {
     editors[type].forEach((editor) => {
       if (editor != null) {
         let temp = JSON.parse(JSON.stringify(editor.getValue()));

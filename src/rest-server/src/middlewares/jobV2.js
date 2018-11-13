@@ -186,13 +186,13 @@ const convert = (req, res, next) => {
     if (task.script != '') {
       commands = commands.concat(getCommands(prerequisitesMap['script'][task.script]));
     }
-    if (task.storage != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['storage'][task.storage]));
+    if (task.output != '') {
+      commands = commands.concat(getCommands(prerequisitesMap['output'][task.output]));
     }
     commands = commands.concat(task.command);
     // TODO hdfs mount, currently use copy
-    if (task.storage != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['storage'][task.storage], 'post'));
+    if (task.output != '') {
+      commands = commands.concat(getCommands(prerequisitesMap['output'][task.output], 'post'));
     }
     commands = commands.join(';');
     let taskRole = {name: task.role,

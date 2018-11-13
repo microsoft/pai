@@ -109,7 +109,7 @@ prerequisites:
   - dockerimage
   - script
   - data
-  - storage
+  - output
   ...
 ```
 
@@ -145,13 +145,13 @@ uri:
   ...
 ```
 
-> `storage`
+> `output`
 
-Storage is one of the element type in prerequisites section. It is not an independent component which should be specified by users. It contains all the output storage resources that will be used in one task, which will be mounted into the directory specified by `name` (`name`/`storage_name`).
+Output is one of the element type in prerequisites section. It is not an independent component which should be specified by users. It contains all the output storage resources that will be used in one task, which will be mounted into the directory specified by `name` (`name`/`output_name`).
 ```yaml
 protocol_version: String
 name: String
-type: storage
+type: output
 version: String
 contributor: String
 description: String
@@ -181,7 +181,7 @@ Task is not an independent component, it is the element type of the tasks. A job
 role: String
 data: String
 script: String
-storage: String
+output: String
 dockerimage: String
 resource: 
   instances: Integer
@@ -221,7 +221,7 @@ The detailed explanation for each of the parameters in each section of the confi
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on **_default_** virtual cluster    |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
 | `parameters`                     | Object, optional           | Specify name and value of all the referencable parameters that will be used in the whole job template. They can be referenced by **_$$paramName$$_**.  |
-| `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script, storage, or dockerimage. Specify dockerimage at least |
+| `prerequisites`                  | List, required             | List of `prerequisite`. `prerequisite` could be data, script, output, or dockerimage. Specify dockerimage at least |
 | `tasks`                          | List, required             | List of `task`, one task at least |
 
 > prerequisite
@@ -230,7 +230,7 @@ The detailed explanation for each of the parameters in each section of the confi
 | :------------------------------- | :------------------------- | :--------------------------------------- |
 | `protocol_version`               | String, optional           | Protocol version, If omitted, it will be **_v2_**|
 | `name`                           | String, in `^[A-Za-z0-9\-._~]+$` format, required | Name of the prerequisite |
-| `type`                           | String, required           | Type of the prerequisite, must be **_data_**, **_script_**, **_storage_**, or **_dockerimage_** |
+| `type`                           | String, required           | Type of the prerequisite, must be **_data_**, **_script_**, **_output_**, or **_dockerimage_** |
 | `version`                        | String, optional           | Version of the prerequisite              |
 | `contributor`                    | String, optional           | Contributor of the prerequisite          |
 | `description`                    | String, optional           | Description of the prerequisite          |
@@ -243,7 +243,7 @@ The detailed explanation for each of the parameters in each section of the confi
 | `role`                           | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task, need to be unique with other roles |
 | `data`                           | String, optional           | Data that will be used in the task, name reference of a prerequisite |
 | `script`                         | String, optional           | Script to be executed in the task, name reference of a prerequisite |
-| `storage`                         | String, optional           | Storage that will be used in the task, name reference of a prerequisite |
+| `output`                         | String, optional           | Output that will be used in the task, name reference of a prerequisite |
 | `dockerimage`                    | String, optional           | Docker image to be used for the task, name reference of a prerequisite |
 | `resource`                       | Object, required           | Resource required for the task |
 | `minFailedTaskCount`             | Integer, optional          | Number of failed tasks to kill the entire job, null or no less than 1 |
@@ -320,7 +320,7 @@ tasks:
   - role: worker                      # task role name
     data: cifar10                     # task input data
     script: tensorflow_cnnbenchmarks  # script executed in task
-    storage: mycifar10               # storage that will store the output model
+    output: mycifar10               # output that will store the output model
     dockerimage: tf_example           # docker image used in task
     resource:                         # resource required in task 
       instances: 1                    # number of instances for the task
@@ -329,10 +329,10 @@ tasks:
       - pip --quiet install scipy
       - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
       - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
-      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$output$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
   - role: ps_server
     data: cifar10
-    storage: mycifar10
+    output: mycifar10
     script: tensorflow_cnnbenchmarks
     dockerimage: tf_example
     resource:
@@ -342,7 +342,7 @@ tasks:
       - pip --quiet install scipy
       - mkdir inputdata && tar xzvf $$data$$/cifar-10-python.tar.gz -C inputdata --strip-components 1
       - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
-      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$storage$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
+      - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=cpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$output$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
 
 
 prerequisites: 
@@ -371,12 +371,12 @@ prerequisites:
       - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d # script checkout repo
   - protocol_version: v2
     name: mycifar10
-    type: storage
+    type: output
     version: 1.0.0
     contributor: Alice
-    description: cifar10 data storage
+    description: cifar10 data output
     uri: 
-      - hdfs://10.151.40.179:9000/core/cifar10_model  # storage to be mounted
+      - hdfs://10.151.40.179:9000/core/cifar10_model  # output to be mounted
 ```
 
 For more examples, please refer to [marketplace directory](https://github.com/Microsoft/pai/tree/master/marketplace).

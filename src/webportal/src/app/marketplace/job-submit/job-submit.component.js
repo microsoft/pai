@@ -54,8 +54,8 @@ $(document).on('click', '#add-data-btn', () => {
   userTemplate.showAddModal('data');
 });
 
-$(document).on('click', '#add-storage-btn', () => {
-  userTemplate.showAddModal('storage');
+$(document).on('click', '#add-output-btn', () => {
+  userTemplate.showAddModal('output');
 });
 
 $(document).on('click', '#EditYamlBtn', () => {

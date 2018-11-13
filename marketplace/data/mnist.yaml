@@ -1,0 +1,11 @@
+protocol_version : v2
+name : mnist
+type : data
+version : 1.0.0
+contributor : Alice
+description: mnist dataset, image classification
+uri : 
+  - http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
+  - http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz
+  - http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz
+  - http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz

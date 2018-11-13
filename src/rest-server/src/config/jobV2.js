@@ -65,7 +65,7 @@ const jobConfigSchema = Joi.object().keys({
       script: Joi.string()
         .allow('')
         .default(''),
-      storage: Joi.string()
+      output: Joi.string()
         .allow('')
         .default(''),
       dockerimage: Joi.string()
@@ -128,7 +128,7 @@ const jobConfigSchema = Joi.object().keys({
         .allow('')
         .default(''),
       type: Joi.string()
-        .regex(/data|script|dockerimage|storage/)
+        .regex(/data|script|dockerimage|output/)
         .required(),
       version: Joi.string()
         .allow('')
@@ -143,7 +143,7 @@ const jobConfigSchema = Joi.object().keys({
         .when('type', {is: 'dockerimage', then: Joi.string()})
         .when('type', {is: 'data', then: Joi.array().items(Joi.string())})
         .when('type', {is: 'script', then: Joi.array().items(Joi.string())})
-        .when('type', {is: 'storage', then: Joi.array().items(Joi.string())}),
+        .when('type', {is: 'output', then: Joi.array().items(Joi.string())}),
     })),
 }).required();
 

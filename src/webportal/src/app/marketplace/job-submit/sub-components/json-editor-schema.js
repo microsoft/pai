@@ -109,7 +109,7 @@ const taskSchema = {
         grid_columns: 3,
       },
     },
-    storage: {
+    output: {
       type: 'string',
       propertyOrder: 5,
       enum: [],
@@ -196,7 +196,7 @@ const taskSchema = {
     'role',
     'data',
     'script',
-    'storage',
+    'output',
     'dockerimage',
     'instances',
     'cpu',
@@ -318,8 +318,8 @@ const scriptSchema = {
   ],
 };
 
-// submit_job [storage]
-const storageSchema = {
+// submit_job [output]
+const outputSchema = {
   type: 'object',
   format: 'grid',
   headerTemplate: '{{ self.name }}',
@@ -485,7 +485,7 @@ const jobSchema = {
 module.exports = {
   dataSchema,
   scriptSchema,
-  storageSchema,
+  outputSchema,
   dockerimageSchema,
   taskSchema,
   jobSchema,

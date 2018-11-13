@@ -4,4 +4,5 @@ type : data
 version : 1.0
 contributor : Alice
 description: cifar10 dataset, image classification
-uri : https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+uri : 
+  - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz

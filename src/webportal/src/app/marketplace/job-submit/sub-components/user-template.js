@@ -50,7 +50,7 @@ const initArray = () => {
   return {
     'data': [],
     'script': [],
-    'storage': [],
+    'output': [],
     'dockerimage': [],
     'task': [],
     'job': [],
@@ -61,7 +61,7 @@ const initCandidateList = () =>{
   return {
     'data': new Set(['']),
     'script': new Set(['']),
-    'storage': new Set(['']),
+    'output': new Set(['']),
      'dockerimage': new Set(['']),
   };
 };
@@ -79,7 +79,7 @@ let addModalVariables = {
 
 const emptyPage = () => {
   // clear grid item
-  ['data', 'script', 'dockerimage', 'storage', 'task'].forEach((type) => {
+  ['data', 'script', 'dockerimage', 'output', 'task'].forEach((type) => {
     $(`#${type}-container`).empty();
     if (type != 'task') {
       jobSchema['taskSchema']['properties'][type]['enum'] = [];
@@ -94,7 +94,7 @@ const emptyPage = () => {
 };
 
 const updateTaskSchema = ()=>{
-  ['data', 'script', 'storage', 'dockerimage'].forEach((type) => {
+  ['data', 'script', 'output', 'dockerimage'].forEach((type) => {
     jobSchema['taskSchema']['properties'][type]['enum'] = Array.from(candidateList[type]);
   });
 };
@@ -149,7 +149,7 @@ const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-ed
       $(`#${type}${id}-edit-save-button`).prop('disabled', (error.length != 0));
       if (error.length == 0) {
         let val = editor.getValue();
-        ['role', 'dockerimage', 'data', 'script', 'storage', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
+        ['role', 'dockerimage', 'data', 'script', 'output', 'instances', 'cpu', 'gpu', 'memoryMB'].forEach((cur) => {
           $(`#${type}${id}-${cur}`).text(val[cur]);
         });
         $(`#${type}${id}-command`).text(commandHelper(val));
@@ -162,7 +162,7 @@ const loadEditor = (d, type, id, insertEditors = true, containerName = '#json-ed
 const addNewJsonEditor = (d, id, type) => {
   loadEditor(d, type, id); // load json editor
 
-  if (['dockerimage', 'data', 'script', 'storage'].indexOf(type) != -1 && d) {
+  if (['dockerimage', 'data', 'script', 'output'].indexOf(type) != -1 && d) {
     candidateList[type].add(d['name']);
   }
 
@@ -221,7 +221,7 @@ const insertNewTask = (task) => {
     dockerimage: task['dockerimage'],
     data: task['data'],
     script: task['script'],
-    storage: task['storage'],
+    output: task['output'],
     instances: task['instances'],
     cpu: task['cpu'],
     memoryMB: task['memoryMB'],
