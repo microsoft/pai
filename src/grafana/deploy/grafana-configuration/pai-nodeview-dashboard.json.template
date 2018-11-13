@@ -725,7 +725,7 @@
           ],
           "targets": [
             {
-              "expr": "nvidiasmi_attached_gpus{instance=~\"$node\"}",
+              "expr": "configured_gpu_count{instance=~\"$node\"}",
               "format": "table",
               "instant": true,
               "interval": "",
