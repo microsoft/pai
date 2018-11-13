@@ -25,11 +25,38 @@ from ...k8sPaiLibrary.maintainlib import common as pai_k8s_common
 class kubernetes:
 
     def __init__(self, cluster_configuration, kubernetes_configuration):
-
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
         self.kubernetes_configuration = kubernetes_configuration
+
+
+
+    def get_k8s_master_machine(self):
+        k8s_master_list = []
+        for host in self.cluster_configuration["machine-list"]:
+            if host["k8s-role"] == "master":
+                k8s_master_list.append(host)
+        return k8s_master_list
+
+
+
+    def generate_etcd_ip_list(self, master_list):
+        etcd_cluster_ips_peer = ""
+        etcd_cluster_ips_server = ""
+        separated = ""
+        for infra in master_list:
+            ip = infra['hostip']
+            etcdid = infra['etcdid']
+            ip_peer = "{0}=http://{1}:2380".format(etcdid, ip)
+            ip_server = "http://{0}:4001".format(ip)
+
+            etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
+            etcd_cluster_ips_server = etcd_cluster_ips_server + separated + ip_server
+
+            separated = ","
+
+        return etcd_cluster_ips_peer, etcd_cluster_ips_server
 
 
 
@@ -51,8 +78,35 @@ class kubernetes:
         else:
             com_kubernetes["etcd-data-path"] = k8s_cfg["etcd-data-path"]
 
+        k8s_master_list = self.get_k8s_master_machine()
+        etcd_cluster_ips_peer, etcd_cluster_ips_server = self.generate_etcd_ip_list(k8s_master_list)
 
+        # ETCD will communicate with each other through this address.
+        com_kubernetes['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
+        # Other service will write and read data through this address.
+        com_kubernetes['etcd_cluster_ips_server'] = etcd_cluster_ips_server
+        com_kubernetes['etcd-initial-cluster-state'] = 'new'
 
+        master_list = []
+        worker_list = []
+        proxy_list = []
+
+        for host in self.cluster_configuration["machine-list"]:
+            if host["k8s-role"] == "master":
+                master_list.append(host["hostip"])
+            elif host["k8s-role"] == "worker":
+                worker_list.append(host["hostip"])
+            elif host["k8s-role"] == "proxy":
+                proxy_list.append(host["hostip"])
+
+        if len(master_list) != 0:
+            com_kubernetes["master-list"] = master_list
+        if len(worker_list) != 0:
+            com_kubernetes["worker-list"] = worker_list
+        if len(proxy_list) != 0:
+            com_kubernetes["proxy-list"] = proxy_list
+
+        return com_kubernetes
 
 
 
