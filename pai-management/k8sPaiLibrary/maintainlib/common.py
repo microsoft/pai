@@ -194,7 +194,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname=hostip, port=port, username=username, password=password)
     #stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    command = "sshpass -p '" + password + "' ssh -tt " + username + "@" + hostip + " \"" + command + "\""
+    command = "sshpass -p '" + password + "' ssh -tt " + username + "@" + hostip + " \"" + commandline + "\""
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
