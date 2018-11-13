@@ -304,4 +304,20 @@
     </description>
 </property>
 
+<property>
+  <name>dfs.namenode.safemode.threshold-pct</name>
+  <value>0.99f</value>
+  <description>
+        By default safemode threshold is 0.999, reduce to 0.99.
+  </description>
+</property>
+
+<property>
+  <name>dfs.namenode.safemode.min.datanodes</name>
+  <value>1</value>
+  <description>
+        At least 1 datanode needed to leave safemode, default value is 0.
+  </description>
+</property>
+
 </configuration>
