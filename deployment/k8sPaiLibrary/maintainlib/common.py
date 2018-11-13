@@ -281,7 +281,7 @@ def ssh_shell_with_password_input_paramiko(host_config, commandline):
     stdin.flush()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     for response_msg in stdout:
-        print (response_msg.encode('utf-8').strip('\n'))
+        print (response_msg.encode('utf-8', errors='ignore').strip('\n'))
 
     exit_code_ssh = stdout.channel.recv_exit_status()
     if exit_code_ssh != 0:
