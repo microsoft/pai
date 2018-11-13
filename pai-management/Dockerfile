@@ -47,6 +47,7 @@ RUN apt-get -y update && \
       inotify-tools \
       rsync \
       realpath \
+      sshpass \
       net-tools && \
     mkdir -p /cluster-configuration &&\
     git clone https://github.com/Microsoft/pai.git &&\
