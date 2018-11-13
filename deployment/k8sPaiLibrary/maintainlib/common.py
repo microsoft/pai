@@ -182,7 +182,7 @@ def sftp_paramiko(src, dst, filename, host_config):
     stdin.write(password + '\n')
     stdin.flush()
     for response_msg in stdout:
-        print(response_msg.encode('utf-8').strip('\n'))
+        print(response_msg.encode('utf-8', errors='ignore').strip('\n'))
 
     ssh.close()
 
@@ -238,7 +238,7 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     result_stdout = ""
     for response_msg in stdout:
         result_stdout += response_msg
-        print(response_msg.encode('utf-8').strip('\n'))
+        print(response_msg.encode('utf-8', errors='ignore').strip('\n'))
     result_stderr = ""
     for response_msg in stderr:
         result_stderr += response_msg
