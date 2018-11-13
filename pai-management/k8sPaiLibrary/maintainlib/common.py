@@ -190,19 +190,24 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
         if port_validation(host_config['sshport']) == False:
             return (None, None)
         port = int(host_config['sshport'])
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=hostip, port=port, username=username, password=password)
-    stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
+    #ssh = paramiko.SSHClient()
+    #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #ssh.connect(hostname=hostip, port=port, username=username, password=password)
+    #stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
+    command = "sshpass -p '" + password + "' ssh -tt " + username + "@" + hostip + " \"" + command + "\""
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    stdout, stderr = process.communicate()
     logger.info("Executing the command on host [{0}]: {1}".format(hostip, commandline))
     result_stdout = ""
-    for response_msg in stdout:
-        result_stdout += response_msg
-        print(response_msg.encode('utf-8').strip('\n'))
+    if stdout is not None: 
+        for response_msg in stdout:
+            result_stdout += response_msg
+            print(response_msg.encode('utf-8').strip('\n'))
     result_stderr = ""
-    for response_msg in stderr:
-        result_stderr += response_msg
-    ssh.close()
+    if stderr is not None:
+        for response_msg in stderr:
+            result_stderr += response_msg
+    #ssh.close()
     return (result_stdout, result_stderr)
 
 
