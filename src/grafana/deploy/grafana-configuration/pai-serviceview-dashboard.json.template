@@ -39,7 +39,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": false,
+            "show": true,
             "total": false,
             "values": false
           },
@@ -58,10 +58,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (name)(service_cpu_percent{name=\"$service_name\"})",
+              "expr": "service_cpu_percent{name=\"$service_name\"}",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{name}}",
+              "legendFormat": "{{'{{'}}instance{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -134,10 +134,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (name)(service_mem_usage_byte{name=\"$service_name\"})",
+              "expr": "service_mem_usage_byte{name=\"$service_name\"}",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{name}}",
+              "legendFormat": "{{'{{'}}instance{{'}}'}}",
               "refId": "A"
             }
           ],
@@ -222,18 +222,18 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (name)(irate(service_net_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "irate(service_net_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Inbound",
+              "legendFormat": "{{'{{'}}instance{{'}}'}} Inbound",
               "refId": "A"
             },
             {
-              "expr": "avg by (name)(irate(service_net_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "irate(service_net_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Outbound",
+              "legendFormat": "{{'{{'}}instance{{'}}'}} Outbound",
               "refId": "B"
             }
           ],
@@ -306,18 +306,18 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (name)(irate(service_block_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "irate(service_block_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Read",
+              "legendFormat": "{{'{{'}}instance{{'}}'}} Read",
               "refId": "A"
             },
             {
-              "expr": "avg by (name)(irate(service_block_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "irate(service_block_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Write",
+              "legendFormat": "{{'{{'}}instance{{'}}'}} Write",
               "refId": "B"
             }
           ],
