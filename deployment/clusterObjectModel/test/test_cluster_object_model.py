@@ -24,9 +24,9 @@ import logging
 import logging.config
 
 package_directory_com_test = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, package_directory_com_test)
+sys.path.insert(0, "{0}/../..".format(package_directory_com_test))
 
-from .. import cluster_object_model
+from .clusterObjectModel import cluster_object_model
 
 
 class TestClusterObjectModel(unittest.TestCase):
