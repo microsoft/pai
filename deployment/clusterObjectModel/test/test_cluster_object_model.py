@@ -51,6 +51,7 @@ class TestClusterObjectModel(unittest.TestCase):
         self.assertEqual(cm.exception.code, 0)
 
 
+
     def test_cluster_object_model_cfg_no_overwrite(self):
 
         overwrite_path = "data/configuration-overwrite/"
