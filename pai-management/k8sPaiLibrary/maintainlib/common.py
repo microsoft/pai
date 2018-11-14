@@ -194,7 +194,9 @@ def ssh_shell_paramiko_with_result(host_config, commandline):
     #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #ssh.connect(hostname=hostip, port=port, username=username, password=password)
     #stdin, stdout, stderr = ssh.exec_command(commandline, get_pty=True)
-    command = "sshpass -p '" + password + "' ssh -tt -o StrictHostKeychecking=no " + username + "@" + hostip + " \"" + commandline + "\""
+    command = "sshpass -p '" + password + "' ssh -tt -o StrictHostKeychecking=no -o LogLevel=QUIET " + username + "@" + hostip + " \\\"" + commandline + "\\\""
+    print(command)
+    command = "kubectl exec -it dev-box-aks -- bash -c \"" + command + "\""
     print(command)
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()

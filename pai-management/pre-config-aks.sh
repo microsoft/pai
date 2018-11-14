@@ -5,6 +5,7 @@ nodeResourceGroup=""
 vmUsername=""
 vmPassword=""
 inAKS=false
+
 az login
 az account set --subscription "$subscriptionName"
 az aks get-credentials --resource-group "$resourceGroup" --name "$name"
