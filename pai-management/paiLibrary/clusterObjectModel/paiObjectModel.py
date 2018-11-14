@@ -18,7 +18,7 @@
 from __future__ import print_function
 #
 import sys
-
+from ..common import linux_shell
 
 class paiObjectModel:
 
