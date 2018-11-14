@@ -118,7 +118,7 @@ class machine:
 
 
 
-    def validation_post(self):
+    def validation_post(self, cluster_object_model):
         return True, None
 
 
