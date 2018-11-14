@@ -106,6 +106,7 @@ class cluster_object_model:
         parser_dict = self.init_all_parser()
 
         # Pre Validation
+        self.logger.info("Begin to do pre-validation for each service parser.")
         for value in parser_dict.itervalues():
             ok, msg = value.validation_pre()
             if ok is False:
@@ -113,11 +114,13 @@ class cluster_object_model:
                 sys.exit(1)
 
         # Generate object model
+        self.logger.info("Begin to do generate cluster object model.")
         for key in parser_dict.iterkeys():
             value = parser_dict[key]
             self.cluster_object_model[key] = value.run()
 
         # Post Validation
+        self.logger.info("Begin to do post-validation.")
         for value in parser_dict.itervalues():
             ok, msg = value.validation_post(cluster_object_model)
             if ok is False:
