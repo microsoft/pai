@@ -106,7 +106,7 @@ class cluster_object_model:
         parser_dict = self.init_all_parser()
 
         # Pre Validation
-        for value in parser_dict.itervalues()
+        for value in parser_dict.itervalues():
             ok, msg = value.validation_pre()
             if ok is False:
                 self.logger.error(msg)
