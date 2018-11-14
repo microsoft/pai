@@ -354,19 +354,8 @@ class paiObjectModel:
 
 
     def getK8sDashboardUri(self):
-
-        vip = ""
-
-        for host in self.rawData["clusterConfiguration"]["machine-list"]:
-            if "dashboard" in host and host["dashboard"] == "true":
-                vip = host["hostip"]
-                break
-
-        if vip == "":
-            print("no machine labeled with dashboard = true")
-            sys.exit(1)
-
-        ret = "http://{0}:9090".format(vip)
+        vip = linux_shell.execute_shell_with_output("kubectl describe  pods -l k8s-app=kubernetes-dashboard --namespace=kube-system  | grep IP | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr '\n' ' '","Failed to get k8s dashboard pod ip")
+        ret = "http://{0}:9090".format(str.strip(vip))
         return ret
 
 
