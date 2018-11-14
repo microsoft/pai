@@ -130,7 +130,7 @@ class kubernetes:
 
         if "storage-backend" not in k8s_cfg:
             return False, "storage-backend is miss in kubernetes-configuration -> kubernetes."
-        if k8s_cfg["storage-backend"] is not "etcd3" and k8s_cfg["storage-backend"] is not "etcd2":
+        if k8s_cfg["storage-backend"] != "etcd3" and k8s_cfg["storage-backend"] != "etcd2":
             return False, "storage-backend in kubernetes-configuration is not valid, please set corresponding value [etcd2 or etcd3] according to your etcd version."
 
         if "docker-registry" not in k8s_cfg:

@@ -67,7 +67,6 @@ class machine:
         dashboard_count = 0
 
         for host in cluster_cfg["machine-list"]:
-            print host
             if "hostip" not in host:
                 return False, "hostip is miss in the host [{0}]".format(str(host))
             if pai_k8s_common.ipv4_address_validation(host["hostip"]) is False:
@@ -94,7 +93,6 @@ class machine:
 
             if "dashboard" in host and host["dashboard"] == "true":
                 dashboard_count = dashboard_count + 1
-            print dashboard_count
 
         if dashboard_count == 0:
             return False, "dashboard label is miss."
