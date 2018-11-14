@@ -99,7 +99,7 @@ python paictl config push [-c kubeconfig-path]
 paictl.py config pull -o /path/to/output [-c kube-config]
 ```
 
-### Get the cluster ID from the k8s <a name="Config_Pull"></a>
+### Get the cluster ID from the k8s <a name="Config_Id"></a>
 
 ```yaml
 paictl.py config get-id [-c kube-config]
