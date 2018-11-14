@@ -55,7 +55,7 @@ class cluster_object_model:
             parser_path = "{0}/../../src/{1}/config/{1}.py".format(sub_dir_name)
             if file_handler.file_exist_or_not(parser_path):
                 sub_model_list.append(sub_dir_name)
-
+        print sub_model_list
         return sub_model_list
 
 
