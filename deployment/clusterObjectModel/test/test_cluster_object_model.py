@@ -61,7 +61,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
 
 
-    def test_cluster_object_model_cfg_no_overwrite(self):
+    def test_cluster_object_model_cfg_overwrite(self):
 
         overwrite_path = "data/configuration-overwrite/"
         com_handler = cluster_object_model.cluster_object_model(overwrite_path)
