@@ -92,7 +92,7 @@ class cluster:
 
         except subprocess.CalledProcessError:
             self.logger.error(error_msg)
-            sys.exit(1)
+            raise Exception("Failed to execute the command [{0}]".format(shell_cmd))
 
 
 
@@ -102,7 +102,7 @@ class cluster:
 
         except subprocess.CalledProcessError:
             self.logger.error(error_msg)
-            sys.exit(1)
+            raise Exception("Failed to execute the command [{0}]".format(shell_cmd))
 
         return res
 
@@ -171,9 +171,14 @@ class cluster:
 
     def run(self):
         cluster_com = self.service_configuration
-        self.generate_secret_base64code(cluster_com["docker-registry"])
-        self.generate_docker_credential(cluster_com["docker-registry"])
         self.generate_image_url_prefix(cluster_com["docker-registry"])
+        try:
+            self.generate_secret_base64code(cluster_com["docker-registry"])
+            self.generate_docker_credential(cluster_com["docker-registry"])
+        except Exception as e:
+            self.logger.warning("Failed to generate docker credential and base64code.")
+            self.logger.warning("Please confirm docker is installed in your host.")
+
         return cluster_com
 
 
