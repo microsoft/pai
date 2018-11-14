@@ -70,8 +70,8 @@ class cluster_object_model:
         if file_handler.file_exist_or_not(default_path):
             default_service_cfg = file_handler.load_yaml_config(default_path)
 
-        overwrite_service_cfg = []
-        if service_name in self.overwirte_service_configuration:
+        overwrite_service_cfg = None
+        if self.overwirte_service_configuration is not None and service_name in self.overwirte_service_configuration:
             overwrite_service_cfg = self.overwirte_service_configuration[service_name]
 
         # Init parser instance

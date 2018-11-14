@@ -34,6 +34,8 @@ class cluster:
 
 
     def merge_service_configuration(self, overwrite_srv_cfg, default_srv_cfg):
+        if overwrite_srv_cfg == None:
+            return default_srv_cfg
         srv_cfg = default_srv_cfg.copy()
         for k in overwrite_srv_cfg:
             v = overwrite_srv_cfg[k]
