@@ -86,13 +86,13 @@ spec:
           name: scrape
       - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}gpu-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         imagePullPolicy: Always
-        readinessProbe:
-          exec:
-            command:
-            - python
-            - /usr/local/healthy_check.py
-          initialDelaySeconds: 30
-          periodSeconds: 30
+        #readinessProbe:
+        #  exec:
+        #    command:
+        #    - python
+        #    - /usr/local/healthy_check.py
+        #  initialDelaySeconds: 30
+        #  periodSeconds: 30
         resources:
           limits:
             memory: "1Gi"
