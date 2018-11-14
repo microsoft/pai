@@ -53,18 +53,6 @@ class TestClusterObjectModel(unittest.TestCase):
 
 
 
-    def tearDown(self):
-
-        try:
-
-            os.chdir(os.path.abspath(".."))
-
-        except:
-
-            pass
-
-
-
     def test_cluster_object_model_cfg_no_overwrite(self):
 
         no_overwrite_path = "data/configuration-none-overwrite/"
