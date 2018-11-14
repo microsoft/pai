@@ -48,6 +48,7 @@ class cluster_object_model:
         sub_model_list = []
 
         sub_dir_list = file_handler.get_file_list_in_path("{0}/../../src/".format(package_directory_com))
+        print "{0}/../../src/".format(package_directory_com)
         print sub_dir_list
         for sub_dir_name in sub_dir_list:
             parser_path = "{0}/../../src/{1}/config/{1}.py".format(sub_dir_name)
