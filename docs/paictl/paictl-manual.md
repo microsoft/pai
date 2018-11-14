@@ -8,6 +8,7 @@ A tool to manage your pai cluster.
     - [Generate cluster configuration with machine list](#Config_Generate)
     - [Push the cluster configuration in the k8s](#Config_Push)
     - [Pull the cluster configuration from the k8s](#Config_Pull)
+    - [Get cluster id](#Config_Id)
 - [ Maintain machines ](#Machine)
     - [ Add machines to the cluster ](#Machine_Add)
     - [ Remove machines from the cluster ](#Machine_Remove)
@@ -96,6 +97,12 @@ python paictl config push [-c kubeconfig-path]
 ### Get the cluster configuration from the k8s <a name="Config_Pull"></a>
 ```yaml
 paictl.py config pull -o /path/to/output [-c kube-config]
+```
+
+### Get the cluster ID from the k8s <a name="Config_Pull"></a>
+
+```yaml
+paictl.py config get-id [-c kube-config]
 ```
 
 ## Maintain machines <a name="Machine"></a>
@@ -204,7 +211,7 @@ python paictl.py cluster k8s-clean -p /path/to/cluster-configuration/dir
 ### Setup KUBECONFIG and install kubectl in the environment <a name="Cluster_env_setup"></a>
 
 ```
-python paictl.py config k8s-set-env [ -p /path/to/cluster/configuration ]
+python paictl.py cluster k8s-set-env [ -p /path/to/cluster/configuration ]
 ```
 
 - Install kubectl in the deployment box.
