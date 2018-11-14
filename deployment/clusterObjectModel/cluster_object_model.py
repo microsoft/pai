@@ -85,7 +85,7 @@ class cluster_object_model:
 
     def init_all_parser(self):
 
-        parser_dict = []
+        parser_dict = dict()
         service_model_list = self.get_service_model_list()
 
         for service_name in service_model_list:
