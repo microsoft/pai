@@ -136,6 +136,6 @@ class cluster_object_model:
                 self.logger.error(msg)
                 sys.exit(1)
             self.logger.info("Post-validation of {0} is passed.".format(key))
-        self.logger.info("Post-validation is successful！")
+        self.logger.info("Post-validation is successful!")
 
         return self.cluster_object_model
