@@ -57,11 +57,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         no_overwrite_path = "data/configuration-none-overwrite/"
         com_handler = cluster_object_model.cluster_object_model(no_overwrite_path)
-
-        with self.assertRaises(SystemExit) as cm:
-            output = com_handler.run()
-            print output
-        self.assertEqual(cm.exception.code, 0)
+        com_handler.run()
 
 
 
@@ -69,11 +65,8 @@ class TestClusterObjectModel(unittest.TestCase):
 
         overwrite_path = "data/configuration-overwrite/"
         com_handler = cluster_object_model.cluster_object_model(overwrite_path)
+        com_handler.run()
 
-        with self.assertRaises(SystemExit) as cm:
-            output = com_handler.run()
-            print output
-        self.assertEqual(cm.exception.code, 0)
 
 
 
