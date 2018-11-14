@@ -26,9 +26,21 @@ import logging.config
 from ...clusterObjectModel import cluster_object_model
 
 
+package_directory_com = os.path.dirname(os.path.abspath(__file__))
+
+
 class TestClusterObjectModel(unittest.TestCase):
 
     def setUp(self):
+
+        try:
+
+            os.chdir(package_directory_com)
+
+        except:
+
+            pass
+
         configuration_path = "data/test_logging.yaml"
 
         if os.path.exists(configuration_path):
@@ -38,6 +50,18 @@ class TestClusterObjectModel(unittest.TestCase):
             logging.config.dictConfig(logging_configuration)
 
             logging.getLogger()
+
+
+
+    def tearDown(self):
+
+        try:
+
+            os.chdir(os.path.abspath(".."))
+
+        except:
+
+            pass
 
 
 
