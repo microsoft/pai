@@ -60,7 +60,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             output = com_handler.run()
-        print output
+            print output
         self.assertEqual(cm.exception.code, 0)
 
 
@@ -72,7 +72,7 @@ class TestClusterObjectModel(unittest.TestCase):
 
         with self.assertRaises(SystemExit) as cm:
             output = com_handler.run()
-        print output
+            print output
         self.assertEqual(cm.exception.code, 0)
 
 
