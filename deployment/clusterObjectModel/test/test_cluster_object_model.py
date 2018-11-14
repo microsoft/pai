@@ -22,22 +22,12 @@ import yaml
 import logging
 import logging.config
 
-import cluster_object_model
+from ...clusterObjectModel import cluster_object_model
 
 
 class TestClusterObjectModel(unittest.TestCase):
 
     def setUp(self):
-
-        try:
-
-            os.chdir(os.path.abspath("test"))
-
-        except:
-
-            pass
-
-
         configuration_path = "data/test_logging.yaml"
 
         if os.path.exists(configuration_path):
@@ -47,18 +37,6 @@ class TestClusterObjectModel(unittest.TestCase):
             logging.config.dictConfig(logging_configuration)
 
             logging.getLogger()
-
-
-
-    def tearDown(self):
-
-        try:
-
-            os.chdir(os.path.abspath(".."))
-
-        except:
-
-            pass
 
 
 
