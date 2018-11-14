@@ -22,6 +22,7 @@ import logging
 import logging.config
 
 from ..paiLibrary.common import file_handler
+from ..paiLibrary.common import directory_handler
 from .mainParser import kubernetes as pai_com_kubernetes
 from .mainParser import machine as pai_com_machine
 
@@ -47,7 +48,7 @@ class cluster_object_model:
     def get_service_model_list(self):
         sub_model_list = []
 
-        sub_dir_list = file_handler.get_file_list_in_path("{0}/../../src/".format(package_directory_com))
+        sub_dir_list = directory_handler.get_subdirectory_list("{0}/../../src/".format(package_directory_com))
         print "{0}/../../src/".format(package_directory_com)
         print sub_dir_list
         for sub_dir_name in sub_dir_list:
