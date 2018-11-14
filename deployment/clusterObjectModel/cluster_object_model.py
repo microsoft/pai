@@ -52,7 +52,7 @@ class cluster_object_model:
         print "{0}/../../src/".format(package_directory_com)
         print sub_dir_list
         for sub_dir_name in sub_dir_list:
-            parser_path = "{0}/../../src/{1}/config/{1}.py".format(sub_dir_name)
+            parser_path = "{0}/../../src/{1}/config/{0}.py".format(sub_dir_name)
             if file_handler.file_exist_or_not(parser_path):
                 sub_model_list.append(sub_dir_name)
         print sub_model_list
