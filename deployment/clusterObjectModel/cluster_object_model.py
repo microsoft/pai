@@ -62,7 +62,7 @@ class cluster_object_model:
 
     def init_service_parser(self, service_name):
         sys.path.insert(0, '{0}/../../src/{1}/config'.format(package_directory_com, service_name))
-        default_path = "{0}/../../src/{1}/config/{1}.yaml".format(service_name)
+        default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
 
         # Prepare Service Configuration
         cluster_cfg = self.cluster_configuration
