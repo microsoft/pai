@@ -38,7 +38,7 @@ class machine:
             return False, "username is miss in cluster-configuration -> default-machine-properties."
         if "sshport" not in cluster_cfg["default-machine-properties"]:
             return False, "sshport is miss in cluster-configuration -> default-machine-properties."
-        if ("keyfile-path" in cluster_cfg["default-machine-properties"]) is not ("password" in cluster_cfg["default-machine-properties"]):
+        if ("keyfile-path" in cluster_cfg["default-machine-properties"]) is ("password" in cluster_cfg["default-machine-properties"]):
             return False, "Please set one and only one property between keyfile-path and password in cluster-configuration -> default-machine-properties."
         return True, None
 
