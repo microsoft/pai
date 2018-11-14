@@ -94,6 +94,7 @@ class machine:
 
             if "dashboard" in host and host["dashboard"] is "true":
                 dashboard_count = dashboard_count + 1
+            print dashboard_count
 
         if dashboard_count == 0:
             return False, "dashboard label is miss."
