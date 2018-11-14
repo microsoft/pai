@@ -6,3 +6,7 @@ contributor : Qi Chen
 description: pytorch examples
 uri : 
   - https://github.com/pytorch/examples
+command :
+  - cd pytorch_examples
+  - git clone https://github.com/pytorch/examples
+  - cd ..

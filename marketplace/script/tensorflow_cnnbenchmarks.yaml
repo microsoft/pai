@@ -1,8 +1,13 @@
 protocol_version : v2
 name : tensorflow_cnnbenchmarks
 type : script
-version : 1.0
-contributor : Alice
+version : 1.0.0
+contributor : MaggieQi
 description: tensorflow benchmarks
 uri : 
-  - https://github.com/tensorflow/benchmarks@6a33b4a4b5bda950bb7e45faf13120115cbfdb2f
+  - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d
+command :
+  - cd tensorflow_cnnbenchmarks
+  - git clone https://github.com/MaggieQi/benchmarks
+  - cd benchmarks && git checkout 84820935288cab696c9c2ac409cbd46a1f24723d && cd ..
+  - cd ..

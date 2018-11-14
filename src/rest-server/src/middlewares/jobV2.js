@@ -47,34 +47,6 @@ const checkMinTaskNumber = (req, res, next) => {
   next();
 };
 
-const getCommands = (element, type='pre') => {
-  let res = [];
-  if (type == 'pre') res.push('mkdir ' + element.name);
-  for (let i = 0; i < element.uri.length; i++) {
-    let uriname = element.uri[i].substring(element.uri[i].lastIndexOf('/') + 1);
-    if (element.uri[i].startsWith('https://github.com')) {
-      let uris = element.uri[i].split('@');
-      res.push('git clone ' + uris[0]);
-      if (uris.length > 1) {
-        uriname = uriname.substring(0, uriname.length - uris[1].length - 1);
-        res.push('cd ' + uriname + '; git checkout ' + uris[1] + '; cd ..');
-      }
-      res.push('mv ' + uriname + ' ' + element.name);
-    } else if (element.uri[i].startsWith('http')) {
-      res.push('wget ' + element.uri[i]);
-      res.push('mv ' + uriname + ' ' + element.name);
-    } else if (element.uri[i].startsWith('hdfs')) {
-      // TODO hdfs mount, currently use copy
-      if (type == 'pre') {
-        res.push('hdfs dfs -stat "%F" ' + element.uri[i] + ' &> statout; statout=`cat statout | grep "No such"`; if [ ${#statout} -eq 0 ]; then hdfs dfs -cp ' + element.uri[i] + ' ' + element.name + '; else mkdir ' + element.name + '/' + uriname + '; fi');
-      } else {
-        res.push('hdfs dfs -stat "%F" ' + element.uri[i] + ' &> statout; statout=`cat statout | grep "No such"`; if [ ${#statout} -gt 0 ] && [ -d ' + element.name + '/' + uriname + ' ]; then hdfs dfs -cp ' + element.name + '/' + uriname + ' ' + element.uri[i] + '; else echo "Remote directory exists or Local directory not exists!"; fi');
-      }
-    }
-  }
-  return res;
-};
-
 const saveYamlToHDFS = (req) => {
   let namespace = req.user.username;
   let jobname = req.body.name;
@@ -180,19 +152,18 @@ const convert = (req, res, next) => {
 
   value.tasks.forEach((task) => {
     let commands = [];
-    if (task.data != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['data'][task.data]));
-    }
-    if (task.script != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['script'][task.script]));
-    }
-    if (task.output != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['output'][task.output]));
-    }
+    ['data', 'script', 'output'].forEach((type) => {
+      if (task[type] != '') {
+        commands.push('mkdir ' + task[type]);
+        if (type != 'output') {
+          commands = commands.concat(prerequisitesMap[type][task[type]].command);
+        }
+      }
+    });
     commands = commands.concat(task.command);
-    // TODO hdfs mount, currently use copy
+
     if (task.output != '') {
-      commands = commands.concat(getCommands(prerequisitesMap['output'][task.output], 'post'));
+      commands = commands.concat(prerequisitesMap['output'][task.output].command);
     }
     commands = commands.join(';');
     let taskRole = {name: task.role,

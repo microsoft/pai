@@ -144,6 +144,11 @@ const jobConfigSchema = Joi.object().keys({
         .when('type', {is: 'data', then: Joi.array().items(Joi.string())})
         .when('type', {is: 'script', then: Joi.array().items(Joi.string())})
         .when('type', {is: 'output', then: Joi.array().items(Joi.string())}),
+      command: Joi.alternatives()
+        .when('type', {is: 'dockerimage', then: Joi.string().default('')})
+        .when('type', {is: 'data', then: Joi.array().items(Joi.string())})
+        .when('type', {is: 'script', then: Joi.array().items(Joi.string())})
+        .when('type', {is: 'output', then: Joi.array().items(Joi.string())}),
     })),
 }).required();
 

@@ -245,6 +245,21 @@ const dataSchema = {
       items: {
         type: 'string',
         format: 'textarea',
+        headerTemplate: `uri {{i}}`,
+      },
+    },
+    command: {
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
         headerTemplate: `command {{i}}`,
       },
     },
@@ -259,6 +274,7 @@ const dataSchema = {
     'contributor',
     'protocol_version',
     'uri',
+    'command',
     'description',
   ],
 };
@@ -300,6 +316,21 @@ const scriptSchema = {
       items: {
         type: 'string',
         format: 'textarea',
+        headerTemplate: `uri {{i}}`,
+      },
+    },
+    command: {
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
         headerTemplate: `command {{i}}`,
       },
     },
@@ -314,6 +345,7 @@ const scriptSchema = {
     'contributor',
     'protocol_version',
     'uri',
+    'command',
     'description',
   ],
 };
@@ -358,6 +390,21 @@ const outputSchema = {
         headerTemplate: `uri {{i}}`,
       },
     },
+    command: {
+      type: 'array',
+      format: 'tabs',
+      options: {
+        disable_collapse: true,
+        disable_array_delete_last_row: true,
+        disable_array_delete_all_rows: true,
+        grid_columns: 12,
+      },
+      items: {
+        type: 'string',
+        format: 'textarea',
+        headerTemplate: `command {{i}}`,
+      },
+    },
     description: {
       type: 'string',
       format: 'textarea',
@@ -369,6 +416,7 @@ const outputSchema = {
     'contributor',
     'protocol_version',
     'uri',
+    'command',
     'description',
   ],
 };

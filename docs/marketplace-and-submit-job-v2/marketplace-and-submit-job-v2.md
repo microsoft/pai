@@ -115,7 +115,7 @@ prerequisites:
 
 > `data`
 
-Data is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the data urls that will be used in one task, which will be downloaded to the directory specified by `name` (`name`/`uri_name`). 
+Data is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the data urls and preprocess commands that will be used in one task. Its local directory in the docker is specified by `name` (`name`/`uri`). 
 ```yaml
 protocol_version: String
 name: String
@@ -127,11 +127,15 @@ uri:
   - String
   - String
   ...
+command:
+  - String
+  - String
+  ...
 ```
 
 > `script`
 
-Script is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the script repos that will be used in one task, which will be cloned into the directory specified by `name` (`name`/`script_name`). 
+Script is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains all the script repos and preprocess commands that will be used in one task. Its local directory in the docker is specified by `name` (`name`/`uri`). 
 ```yaml
 protocol_version: String
 name: String
@@ -143,11 +147,15 @@ uri:
   - String
   - String
   ...
+command:
+  - String
+  - String
+  ...
 ```
 
 > `output`
 
-Output is one of the element type in prerequisites section. It is not an independent component which should be specified by users. It contains all the output storage resources that will be used in one task, which will be mounted into the directory specified by `name` (`name`/`output_name`).
+Output is one of the element type in prerequisites section. It is not an independent component which should be specified by users. It contains all the output storage resources and postprocess commands that will be used in one task. Its local directory in the docker is specified by `name` (`name`/`uri`).
 ```yaml
 protocol_version: String
 name: String
@@ -159,11 +167,15 @@ uri:
   - String
   - String
   ...
+command:
+  - String
+  - String
+  ...
 ```
 
 > `dockerimage`
 
-Dockerimage is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs.
+Dockerimage is one of the element type in prerequisites section. It is an independent component that can be shared with other jobs. It contains the docker image that will be used in one task.
 ```yaml
 protocol_version: String
 name: String
@@ -234,7 +246,8 @@ The detailed explanation for each of the parameters in each section of the confi
 | `version`                        | String, optional           | Version of the prerequisite              |
 | `contributor`                    | String, optional           | Contributor of the prerequisite          |
 | `description`                    | String, optional           | Description of the prerequisite          |
-| `uri`                            | List or String, required   | Reference URLs, Only in dockerimage, it is String type.                           |
+| `uri`                            | List or String, required   | Reference URLs, Only in dockerimage, it is String type. It could be any type of url, such as http, hdfs, github, ... |
+| `command`                        | List of String, required   | Preprocess or postprocess commands of this prerequisite. It should contain the commands to deal with uris, either copy to local, remote mount or directly process in the script.
 
 > task
 
@@ -318,10 +331,10 @@ parameters:
 
 tasks:
   - role: worker                      # task role name
-    data: cifar10                     # task input data
-    script: tensorflow_cnnbenchmarks  # script executed in task
-    output: mycifar10               # output that will store the output model
-    dockerimage: tf_example           # docker image used in task
+    data: cifar10                     # task input data, name reference of data in the prerequisites
+    script: tensorflow_cnnbenchmarks  # script executed in task, name reference of script in the prerequisites
+    output: mycifar10                 # output that will store the output model, name reference of output in the prerequisites
+    dockerimage: tf_example           # docker image used in task, name reference of dockerimage in the prerequisites
     resource:                         # resource required in task 
       instances: 1                    # number of instances for the task
       resourcePerInstance: { cpu: 2, memoryMB: 16384, gpu: 4 }
@@ -331,7 +344,7 @@ tasks:
       - export PYTHONPATH=$PAI_WORK_DIR/$$script$$/benchmarks/scripts/tf_cnn_benchmarks:$PYTHONPATH
       - python $$script$$/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --local_parameter_device=gpu --variable_update=parameter_server --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX --data_dir=inputdata --data_name=$$data$$ --train_dir=$$output$$/cifar10_model --model=$$model$$ --batch_size=$$batchsize$$
   - role: ps_server
-    data: cifar10
+    data: cifar10 
     output: mycifar10
     script: tensorflow_cnnbenchmarks
     dockerimage: tf_example
@@ -360,15 +373,22 @@ prerequisites:
     contributor: Alice
     description: cifar10 dataset, image classification
     uri: 
-      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz # data download url
+      - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz # data url
+    command:
+      - cd cifar10 && wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz && cd .. # preprocess command
   - protocol_version: v2
     name: tensorflow_cnnbenchmarks
     type: script
     version: 1.0.0
-    contributor: Alice
+    contributor: MaggieQi
     description: tensorflow benchmarks
     uri: 
-      - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d # script checkout repo
+      - https://github.com/MaggieQi/benchmarks@84820935288cab696c9c2ac409cbd46a1f24723d # script repo, after @ is the specific version 
+    command:                                                                           # perprocess command
+      - cd tensorflow_cnnbenchmarks
+      - git clone https://github.com/MaggieQi/benchmarks
+      - cd benchmarks && git checkout 84820935288cab696c9c2ac409cbd46a1f24723d && cd ..
+      - cd ..
   - protocol_version: v2
     name: mycifar10
     type: output
@@ -376,7 +396,9 @@ prerequisites:
     contributor: Alice
     description: cifar10 data output
     uri: 
-      - hdfs://10.151.40.179:9000/core/cifar10_model  # output to be mounted
+      - hdfs://10.151.40.179:9000/core/cifar10_model      # output storage url
+    command:
+      - hdfs dfs -cp mycifar10 hdfs://10.151.40.179:9000/core/cifar10_model  # postprocess commands
 ```
 
 For more examples, please refer to [marketplace directory](https://github.com/Microsoft/pai/tree/master/marketplace).
