@@ -48,7 +48,8 @@ class machine:
         cluster_cfg = self.cluster_configuration
         if "machine-sku" not in cluster_cfg:
             return False, "mahince-sku is miss."
-        for sku_name, sku in cluster_cfg["machine-sku"]:
+        for sku_name in cluster_cfg["machine-sku"]:
+            sku = cluster_cfg["machine-sku"][sku_name]
             if "cpu" not in sku:
                 return False, "cpu is miss in the sku named [{0}]".format(sku_name)
             if "mem" not in sku:
