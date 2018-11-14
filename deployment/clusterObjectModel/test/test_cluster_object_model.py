@@ -22,7 +22,7 @@ import yaml
 import logging
 import logging.config
 
-from .import cluster_object_model
+from . import cluster_object_model
 
 
 class TestClusterObjectModel(unittest.TestCase):
