@@ -15,30 +15,25 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+require('@webcomponents/custom-elements');
 
-// module dependencies
-require('bootstrap');
-require('admin-lte');
-require('bootstrap/dist/css/bootstrap.min.css');
-require('admin-lte/dist/css/AdminLTE.min.css');
-require('admin-lte/dist/css/skins/_all-skins.min.css');
-require('font-awesome/css/font-awesome.min.css');
-require('./layout.component.scss');
-const userAuthComponent = require('../user/user-auth/user-auth.component.js');
-const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
-const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
-const pluginComponent = require('./plugins.component.ejs');
+const url = require('url');
 
+$(document).ready(function() {
+  const query = url.parse(window.location.href, true).query;
+  const index = Number(query['index']);
+  const plugin = window.PAI_PLUGINS[index];
 
-const userLoginNavHtml = userLoginNavComponent({cookies});
+  if (plugin == null) {
+    alert('Plugin Not Found');
+    location.href = '/';
+  }
 
-window.userLogout = userLogoutComponent.userLogout;
+  $('.sidebar-menu .plugin-' + index).addClass('active');
 
-$('#navbar').html(userLoginNavHtml);
-if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--cluster-view').hide();
-}
-
-if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
-}
+  $.getScript(plugin.uri).then(function() {
+    const $plugin = $('<pai-plugin>')
+      .attr('pai-rest-server-uri', window.ENV.restServerUri);
+    $('#content-wrapper').empty().append($plugin);
+  });
+});

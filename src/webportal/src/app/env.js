@@ -9,3 +9,5 @@ window.ENV = {
   exporterPort: '${EXPORTER_PORT}',
   promScrapeTime: '${PROM_SCRAPE_TIME}'
 };
+
+window.PAI_PLUGINS = [${WEBPORTAL_PLUGINS}][0] || [];

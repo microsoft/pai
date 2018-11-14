@@ -20,6 +20,7 @@ from __future__ import print_function
 import sys
 import logging
 import logging.config
+import json
 
 from ..common import linux_shell
 
@@ -258,6 +259,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["webportalinfo"]["server_port"] = \
             self.rawData["serviceConfiguration"]["webportal"]["server-port"]
         serviceDict["clusterinfo"]["webportalinfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
+        serviceDict["clusterinfo"]["webportalinfo"]["plugins"] = json.dumps(self.getPaiWebportalPlugins())
 
         # section: grafana
 
@@ -463,6 +465,20 @@ class paiObjectModel:
         return ret
 
 
+
+    def getPaiWebportalPlugins(self):
+
+        builtinPlugins = [{
+            'title': 'Marketplace',
+            'uri': '/scripts/plugins/marketplace.bundle.js'
+        }]
+        configuredPlugins = self.rawData["serviceConfiguration"]["webportal"].get("plugins", [])
+
+        plugins = []
+        plugins.extend(builtinPlugins)
+        plugins.extend(configuredPlugins)
+
+        return plugins
 
 
     def getMasterIP(self):
