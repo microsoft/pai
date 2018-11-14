@@ -92,7 +92,7 @@ class machine:
             if "pai-master" in host and "zkid" not in host:
                 return False, "zkid is miss in one of the host with the [pai-master: true]"
 
-            if "dashboard" in host and host["dashboard"] is "true":
+            if "dashboard" in host and host["dashboard"] == "true":
                 dashboard_count = dashboard_count + 1
             print dashboard_count
 
