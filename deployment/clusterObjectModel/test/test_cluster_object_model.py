@@ -52,8 +52,8 @@ class TestClusterObjectModel(unittest.TestCase):
 
     def test_cluster_object_model_cfg_no_overwrite(self):
 
-        no_overwrite_path = "data/configuration-overwrite/"
-        com_handler = cluster_object_model.cluster_object_model(no_overwrite_path)
+        overwrite_path = "data/configuration-overwrite/"
+        com_handler = cluster_object_model.cluster_object_model(overwrite_path)
 
         with self.assertRaises(SystemExit) as cm:
             com_handler.run()
