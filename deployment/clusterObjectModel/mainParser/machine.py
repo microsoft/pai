@@ -32,7 +32,7 @@ class machine:
 
     def validation_default_machine_properties(self):
         cluster_cfg = self.cluster_configuration
-        if "default-machine-properties" in cluster_cfg:
+        if "default-machine-properties" not in cluster_cfg:
             return False, "default-machine-properties is miss in cluster-configuration.yaml"
         if "username" not in cluster_cfg["default-machine-properties"]:
             return False, "username is miss in cluster-configuration -> default-machine-properties."
