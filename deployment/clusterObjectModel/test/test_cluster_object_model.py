@@ -47,7 +47,8 @@ class TestClusterObjectModel(unittest.TestCase):
         com_handler = cluster_object_model.cluster_object_model(no_overwrite_path)
 
         with self.assertRaises(SystemExit) as cm:
-            com_handler.run()
+            output = com_handler.run()
+        print output
         self.assertEqual(cm.exception.code, 0)
 
 
@@ -58,7 +59,8 @@ class TestClusterObjectModel(unittest.TestCase):
         com_handler = cluster_object_model.cluster_object_model(overwrite_path)
 
         with self.assertRaises(SystemExit) as cm:
-            com_handler.run()
+            output = com_handler.run()
+        print output
         self.assertEqual(cm.exception.code, 0)
 
 
