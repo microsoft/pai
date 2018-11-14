@@ -29,6 +29,7 @@ import logging.config
 from deployment.confStorage.download import  download_configuration
 from deployment.confStorage.synchronization import synchronization
 from deployment.confStorage.external_version_control.external_config import uploading_external_config
+from deployment.confStorage.get_cluster_id import get_cluster_id
 
 from deployment.paiLibrary.common import linux_shell
 from deployment.paiLibrary.common import file_handler
@@ -412,6 +413,9 @@ class Configuration(SubCmd):
         pull_parser = SubCmd.add_handler(conf_parser, self.pull_configuration, "pull",
                                         description="Get the configuration stored in the k8s cluster.",
                                         formatter_class=argparse.RawDescriptionHelpFormatter)
+        get_id_parser = SubCmd.add_handler(conf_parser, self.get_cluster_id, "get-id",
+                                        description="Get the configuration stored in the k8s cluster.",
+                                        formatter_class=argparse.RawDescriptionHelpFormatter)
         external_config_update_parser = SubCmd.add_handler(conf_parser, self.update_external_config, "external-config-update",
                                                            description="Update configuration of external storage where you could configure the place to sync the latest cluster configuration",
                                                            formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -434,6 +438,9 @@ class Configuration(SubCmd):
         pull_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
                                 help="the path of the directory to store the configuration downloaded from k8s.")
         pull_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+
+        get_id_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
         external_config_update_parser.add_argument("-e", "--extneral-storage-conf-path", dest="external_storage_conf_path", required=True,
@@ -471,6 +478,12 @@ class Configuration(SubCmd):
             kube_config_path = args.kube_config_path
         )
         get_handler.run()
+
+    def get_cluster_id(self,args):
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
+        get_id_handler = get_cluster_id(kube_config_path=args.kube_config_path)
+        get_id_handler.run()
 
     def update_external_config(self, args):
         if args.kube_config_path != None:
