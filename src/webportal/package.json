@@ -80,7 +80,7 @@
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --config webpack.config.js --progress --profile",
     "build:dev": "npm run build -- --debug --devtool eval-cheap-module-source-map --output-pathinfo --watch",
-    "prestart": "envsub --env-file .env --system src/app/env.js dist/scripts/env.js",
+    "prestart": "envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
   }
 }
