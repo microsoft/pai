@@ -6,8 +6,8 @@
 - [ Default Configuration ](#Default)
 - [ overwrite Configuration ](#Overwrite)
 - [ Service Parser ](#Service)
-- [ Document ](#Document)
-- [ How to write your template with cluster object model ](#use)
+- [ Document ](#Document_link)
+- [ How to write your template with cluster object model ](#use_link)
 
 
 #### Overview <a name="Over"></a>
@@ -158,7 +158,7 @@ service-a-key4:
 
 ```
 
-#### Document <a name="#Document"></a>
+#### Document <a name="#Document_link"></a>
 
 Please write a document to guide others to use the generated data of your service. The document should containers following information.
 
@@ -193,7 +193,7 @@ A table contain following content. Here I will take cluster section as an exampl
 </tr>
 </table>
 
-#### How to write your template with cluster object model <a name="#use"></a>
+#### How to write your template with cluster object model <a name="#use_link"></a>
 
 
 - You could find all service configuration in corresponding services' document in the path ```src/${service_name}/config/${service_name}.md```.
