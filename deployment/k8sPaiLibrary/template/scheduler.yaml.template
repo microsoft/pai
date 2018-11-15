@@ -23,12 +23,12 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/kube-scheduler:{{ clusterconfig['kubeschedulerversion'] }}
+  - image: {{ com['kubernetes']['docker-registry'] }}/kube-scheduler:{{ com['kubernetes']['kube-scheduler-version'] }}
     name: kube-scheduler
     command:
     - /usr/local/bin/kube-scheduler
     - --master
-    - {{ clusterconfig['api-servers-ip'] }}:8080
+    - {{ com['kubernetes']['api-servers-ip'] }}:8080
     - --leader-elect=true
     livenessProbe:
       httpGet:
