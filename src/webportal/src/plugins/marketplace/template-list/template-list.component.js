@@ -17,13 +17,10 @@
 
 const template = require('./template-list.component.ejs');
 const itemTemplate = require('./template-list.item.component.ejs');
-const webportalConfig = require('../../config/webportal.config.js');
-const githubThrottled = require('../template-common/github-throttled');
+const githubThrottled = require('../github-throttled');
 require('./template-list.component.css');
-const url = require('url');
 
-$('#sidebar-menu--template-view').addClass('active');
-
+module.exports = function(element, restServerUri, query) {
 const context = {
   parseType: function(raw) {
     return {
@@ -33,13 +30,14 @@ const context = {
       'data': 'data',
     }[raw];
   },
+  pluginIndex: query.index,
 };
 
 function request(type, query) {
   if (type === 'docker') type = 'dockerimage';
   const uri = query
-    ? `${webportalConfig.restServerUri}/api/v2/template?query=${encodeURIComponent(query)}&type=${type}`
-    : `${webportalConfig.restServerUri}/api/v2/template/${type}`;
+    ? `${restServerUri}/api/v2/template?query=${encodeURIComponent(query)}&type=${type}`
+    : `${restServerUri}/api/v2/template/${type}`;
 
   return req(1);
 
@@ -65,13 +63,12 @@ function render(data) {
 }
 
 $(function() {
-  const query = url.parse(window.location.href, true).query;
-
   if (!(query.type in {job: true, docker: true, script: true, data: true})) {
     return window.location.href = '/';
   }
 
-  $('#content-wrapper').html(template({type: query.type, query: query.query}));
+  $(element).html(template.call({pluginIndex: query.index}, {type: query.type, query: query.query}));
 
   request(query.type, query.query);
 });
+};

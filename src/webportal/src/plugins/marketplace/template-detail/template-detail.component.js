@@ -16,22 +16,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const template = require('./template-detail.component.ejs');
-const webportalConfig = require('../../config/webportal.config.js');
 require('./template-detail.component.css');
-const url = require('url');
 
-$('#sidebar-menu--template-view').addClass('active');
-
+module.exports = function(element, restServerUri, query) {
 const context = {
     compileUri: function(uri) {
         if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
         if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
         return uri;
     },
+    pluginIndex: query.index,
 };
 
 $(function() {
-    const query = url.parse(window.location.href, true).query;
     const type = {
         'job': 'job',
         'docker': 'dockerimage',
@@ -41,9 +38,9 @@ $(function() {
     const name = query.name;
     if (type == null || name == null) return location.href = '/';
 
-    const u = `${webportalConfig.restServerUri}/api/v2/template/${type}/${name}`;
+    const u = `${restServerUri}/api/v2/template/${type}/${name}`;
     $.getJSON(u).then(template.bind(context)).then(function(html) {
-        $('#content-wrapper').html(html);
+        $(element).html(html);
     });
 });
-
+};
