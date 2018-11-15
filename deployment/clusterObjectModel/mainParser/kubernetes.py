@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import sys
 import logging
 import logging.config
 
@@ -59,20 +59,36 @@ class kubernetes:
         return etcd_cluster_ips_peer, etcd_cluster_ips_server
 
 
+    def get_k8s_dashboard_node_ip(self):
+        hostip = ""
+        for host in self.cluster_configuration["machine-list"]:
+            if "dashboard" in host and host["dashboard"] == "true":
+                hostip = host["hostip"]
+                break
+        if hostip == "":
+            print("no machine labeled with dashboard = true")
+            sys.exit(1)
+
+        return hostip
+
+
 
     def run(self):
         k8s_cfg = self.kubernetes_configuration["kubernetes"]
         com_kubernetes = dict()
 
+        com_kubernetes["cluster-dns"] = k8s_cfg["cluster-dns"]
         com_kubernetes["api-servers-ip"] = k8s_cfg["load-balance-ip"]
         com_kubernetes["docker-registry"] = k8s_cfg["docker-registry"]
         com_kubernetes["hyperkube-version"] = k8s_cfg["hyperkube-version"]
         com_kubernetes["etcd-version"] = k8s_cfg["etcd-version"]
+        com_kubernetes["service-cluster-ip-range"]  = k8s_cfg["service-cluster-ip-range"]
         com_kubernetes["apiserver-version"] = k8s_cfg["apiserver-version"]
+        com_kubernetes["storage-backend"] = k8s_cfg["storage-backend"]
         com_kubernetes["kube-scheduler-version"] = k8s_cfg["kube-scheduler-version"]
         com_kubernetes["kube-controller-manager-version"] = k8s_cfg["kube-controller-manager-version"]
         com_kubernetes["dashboard-version"] = k8s_cfg["dashboard-version"]
-        com_kubernetes["dashboard-version"] = k8s_cfg["dashboard-version"]
+        com_kubernetes["dashboard-host"] = self.get_k8s_dashboard_node_ip()
         if "etcd-data-path" not in k8s_cfg:
             com_kubernetes["etcd-data-path"] = "/var/etcd/data"
         else:

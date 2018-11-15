@@ -46,6 +46,8 @@ from deployment.k8sPaiLibrary.maintainlib import kubectl_conf_check
 from deployment.k8sPaiLibrary.maintainlib import kubectl_install
 from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
 
+from deployment.clusterObjectModel.cluster_object_model import cluster_object_model
+
 
 logger = logging.getLogger(__name__)
 
@@ -339,9 +341,9 @@ class Cluster(SubCmd):
         env_parser.add_argument("-p", "--config-path", dest="config_path", help="path of cluster configuration file")
 
     def k8s_bootup(self, args):
-        cluster_config = cluster_object_model_generate_k8s(args.config_path)
+        cluster_object_model_instance = cluster_object_model(args.config_path)
         logger.info("Begin to initialize PAI k8s cluster.")
-        cluster_util.maintain_cluster_k8s(cluster_config, option_name="deploy", clean=True)
+        cluster_util.maintain_cluster_k8s(cluster_object_model_instance, option_name="deploy", clean=True)
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):

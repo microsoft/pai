@@ -23,14 +23,14 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/kube-controller-manager:{{ clusterconfig['kubecontrollermanagerversion'] }}
+  - image: {{ com['kubernetes']['docker-registry'] }}/kube-controller-manager:{{ com['kubernetes']['kube-controller-manager-version'] }}
     name: kube-controller-manager
     command:
     - /usr/local/bin/kube-controller-manager
     - --master
-    - {{ clusterconfig['api-servers-ip'] }}:8080
+    - {{ com['kubernetes']['api-servers-ip'] }}:8080
     - --service-cluster-ip-range
-    - {{ clusterconfig['service-cluster-ip-range'] }}
+    - {{ com['kubernetes']['service-cluster-ip-range'] }}
     - --leader-elect=true
     livenessProbe:
       httpGet:

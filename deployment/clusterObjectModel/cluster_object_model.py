@@ -27,8 +27,6 @@ from .mainParser import kubernetes as pai_com_kubernetes
 from .mainParser import machine as pai_com_machine
 
 
-
-
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
 
 
