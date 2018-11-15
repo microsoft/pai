@@ -414,7 +414,7 @@ class Configuration(SubCmd):
                                         description="Get the configuration stored in the k8s cluster.",
                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         get_id_parser = SubCmd.add_handler(conf_parser, self.get_cluster_id, "get-id",
-                                        description="Get the configuration stored in the k8s cluster.",
+                                        description="Get the cluster-id stored in the k8s cluster.",
                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         external_config_update_parser = SubCmd.add_handler(conf_parser, self.update_external_config, "external-config-update",
                                                            description="Update configuration of external storage where you could configure the place to sync the latest cluster configuration",
