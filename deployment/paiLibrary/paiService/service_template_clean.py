@@ -44,7 +44,7 @@ class service_template_clean:
 
         self.logger.info("Begin to delete the generated template of {0}'s service.".format(self.service_name))
 
-        if self.template_list == None:
+        if self.template_list is None:
             self.logger.info("There is no generated template of {0}'s service to be deleted.".format(self.service_name))
             return
 

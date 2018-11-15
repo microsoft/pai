@@ -50,7 +50,7 @@ class etcdfix_conf_validation:
 
     def node_conf_validation(self, node_cfg = None):
 
-        if node_cfg == None:
+        if node_cfg is None:
             node_cfg = self.node_config
 
         if 'nodename' not in node_cfg:
@@ -389,7 +389,7 @@ class etcdfix:
         while True:
             good_node_config = self.get_etcd_leader_node()
 
-            if good_node_config == None:
+            if good_node_config is None:
                 sys.exit(1)
 
             if good_node_config['nodename'] != self.bad_node_config['nodename']:
