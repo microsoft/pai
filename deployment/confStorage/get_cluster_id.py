@@ -42,8 +42,3 @@ class get_cluster_id:
             self.logger.info("Cluster-id hasn't been set. You could set it when push the cluster configuration into cluster.")
         else:
             self.logger.info("Cluster-id is: {0}".format(cluster_id))
-
-
-
-
-
