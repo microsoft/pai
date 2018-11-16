@@ -15,30 +15,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: kube-controller-manager
-  namespace: kube-system
-spec:
-  hostNetwork: true
-  containers:
-  - image: {{ com['kubernetes']['docker-registry'] }}/kube-controller-manager:{{ com['kubernetes']['kube-controller-manager-version'] }}
-    name: kube-controller-manager
-    command:
-    - /usr/local/bin/kube-controller-manager
-    - --master
-    - {{ com['kubernetes']['api-servers-ip'] }}:8080
-    - --service-cluster-ip-range
-    - {{ com['kubernetes']['service-cluster-ip-range'] }}
-    - --leader-elect=true
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 10252
-      initialDelaySeconds: 15
-      timeoutSeconds: 1
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "1000m"
+import yaml
+import os
+import sys
+import subprocess
+import jinja2
+import argparse
+import logging
+import logging.config
+
+from . import conf_storage_util
+
+
+class get_cluster_id:
+
+    def __init__(self, kube_config_path):
+        self.logger = logging.getLogger(__name__)
+        self.kube_config_path = kube_config_path
+
+
+    def run(self):
+
+        cluster_id = conf_storage_util.get_cluster_id(self.kube_config_path)
+
+        if cluster_id is None:
+            self.logger.info("Cluster-id hasn't been set. You could set it when push the cluster configuration into cluster.")
+        else:
+            self.logger.info("Cluster-id is: {0}".format(cluster_id))

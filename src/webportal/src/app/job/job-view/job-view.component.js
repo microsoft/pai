@@ -485,7 +485,7 @@ const showConfigInfo = (jobName) => {
   }));
   $('#configInfoModal').modal('show');
   $(document).on('click', '#fileExport', () => {
-    exportFile(JSON.stringify(configInfo, null, 2), jobName, 'application/json');
+    exportFile(configInfo, jobName, 'application/json');
   });
 };
 

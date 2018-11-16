@@ -350,8 +350,26 @@ def main(argv):
         time.sleep(time_sleep_s)
 
 
+def get_logging_level():
+    mapping = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING
+            }
+
+    result = logging.INFO
+
+    if os.environ.get("LOGGING_LEVEL") is not None:
+        level = os.environ["LOGGING_LEVEL"]
+        result = mapping.get(level.upper())
+        if result is None:
+            sys.stderr.write("unknown logging level " + level + ", default to INFO\n")
+            result = logging.INFO
+
+    return result
+
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.INFO)
+            level=get_logging_level())
 
     main(sys.argv[1:])
