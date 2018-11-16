@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+FROM nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 
 ENV STAGE_DIR=/root/drivers \
     PYTHONPATH=/modules
@@ -24,6 +24,8 @@ RUN apt-get -y update && \
     apt-get -y install \
         build-essential \
         gcc \
+        g++ \
+        binutils \
         pciutils \
         bind9-host \
         bc \
@@ -51,13 +53,11 @@ RUN apt-get -y update && \
         module-init-tools && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    apt-get -y update && \
-    apt-get -y install g++-4.9 && \
     mkdir -p $STAGE_DIR
 
 WORKDIR $STAGE_DIR
 
-ENV NVIDIA_VERSION=384.111
+ENV NVIDIA_VERSION=390.25
 
 RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA_VERSION/NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
     chmod 750 ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
@@ -70,4 +70,4 @@ ENV PATH=$PATH:$NV_DRIVER/bin
 
 COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 
-CMD ./install-all-drivers
+CMD /bin/bash install-all-drivers

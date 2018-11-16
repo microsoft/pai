@@ -29,30 +29,28 @@ logger = logging.getLogger(__name__)
 
 def parse_smi_xml_result(smi):
     xmldoc = minidom.parseString(smi)
-    gpuList = xmldoc.getElementsByTagName('gpu')
-
-    logger.info("gpu numbers %d", len(gpuList))
+    gpus = xmldoc.getElementsByTagName('gpu')
 
     result = {}
 
-    for gpu in gpuList:
-        minorNumber = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
+    for gpu in gpus:
+        minor = gpu.getElementsByTagName('minor_number')[0].childNodes[0].data
         utilization = gpu.getElementsByTagName("utilization")[0]
 
-        gpuUtil = utilization.getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
-        gpuMemUtil = utilization.getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
+        gpu_util = utilization.getElementsByTagName('gpu_util')[0].childNodes[0].data.replace("%", "").strip()
+        gpu_mem_util = utilization.getElementsByTagName('memory_util')[0].childNodes[0].data.replace("%", "").strip()
 
-        if gpuUtil == "N/A" or gpuMemUtil == "N/A":
+        if gpu_util == "N/A" or gpu_mem_util == "N/A":
             continue
 
-        result[str(minorNumber)] = {"gpuUtil": gpuUtil, "gpuMemUtil": gpuMemUtil}
+        result[str(minor)] = {"gpu_util": gpu_util, "gpu_mem_util": gpu_mem_util}
 
     return result
 
 def collect_gpu_info():
     """ in some cases, nvidia-smi may block indefinitely, caller should be aware of this """
     try:
-        logger.info("call nvidia-smi to get gpu metrics")
+        logger.info("call nvidia-smi to get gpu metrics") # used to check if nvidia-smi hangs
 
         smi_output = utils.check_output(["nvidia-smi", "-q", "-x"])
 
@@ -68,20 +66,19 @@ def collect_gpu_info():
         if e.errno == os.errno.ENOENT:
             logger.warning("nvidia-smi not found")
 
+    return None
+
+
+def convert_gpu_info_to_metrics(gpu_infos):
+    if gpu_infos is None:
         return None
 
+    result = [Metric("nvidiasmi_attached_gpus", {}, len(gpu_infos))]
 
-
-def convert_gpu_info_to_metrics(gpuInfos):
-    if gpuInfos is None:
-        return None
-
-    result = [Metric("nvidiasmi_attached_gpus", {}, len(gpuInfos))]
-
-    for minorNumber, info in gpuInfos.items():
-        label = {"minor_number": minorNumber}
-        result.append(Metric("nvidiasmi_utilization_gpu", label, info["gpuUtil"]))
-        result.append(Metric("nvidiasmi_utilization_memory", label, info["gpuMemUtil"]))
+    for minor, info in gpu_infos.items():
+        label = {"minor_number": minor}
+        result.append(Metric("nvidiasmi_utilization_gpu", label, info["gpu_util"]))
+        result.append(Metric("nvidiasmi_utilization_memory", label, info["gpu_mem_util"]))
 
     return result
 

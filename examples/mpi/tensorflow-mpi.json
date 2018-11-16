@@ -3,11 +3,11 @@
   "image": "openpai/pai.example.tensorflow-mpi",
 
   // download cifar10 dataset from http://www.cs.toronto.edu/~kriz/cifar.html and upload to hdfs
-  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
+  "dataDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/data",
   // make a new dir for output on hdfs
-  "outputDir": "$PAI_DEFAULT_FS_URI/examples/mpi/tensorflow/output",
+  "outputDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/mpi/tensorflow/output",
   // download code from tensorflow benchmark https://git.io/vF4wT and upload to hdfs
-  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/code",
+  "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/code",
 
   "taskRoles": [
     {

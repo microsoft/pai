@@ -236,6 +236,13 @@ const jobSchema = {
       propertyOrder: 1000,
       description: 'List of taskRole, one task role at least',
     },
+    jobEnvs: {
+      type: 'object',
+      format: 'grid',
+      propertyOrder: 200,
+      additionalProperties: true,
+      description: 'Job env parameters, which are available in job containers',
+    },
   },
   required: [
     'jobName',

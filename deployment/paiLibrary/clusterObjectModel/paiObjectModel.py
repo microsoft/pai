@@ -64,7 +64,8 @@ class paiObjectModel:
         k8sDict["clusterinfo"]["kubecontrollermanagerversion"] = k8sDict["clusterinfo"]["kube-controller-manager-version"]
         k8sDict["clusterinfo"]["dashboard_version"] = k8sDict["clusterinfo"]["dashboard-version"]
         if "etcd-data-path" not in k8sDict["clusterinfo"]:
-            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd"
+            k8sDict["clusterinfo"]["etcd-data-path"] = "/var/etcd/data"
+
 
         # section : component_list
 
@@ -237,11 +238,11 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["restserverinfo"]["default_pai_admin_username"] = \
             serviceDict["clusterinfo"]["restserverinfo"]["default-pai-admin-username"]
         serviceDict["clusterinfo"]["restserverinfo"]["github_owner"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-owner"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-owner")
         serviceDict["clusterinfo"]["restserverinfo"]["github_repository"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-repository"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-repository")
         serviceDict["clusterinfo"]["restserverinfo"]["github_path"] = \
-            serviceDict["clusterinfo"]["restserverinfo"]["github-path"]
+            serviceDict["clusterinfo"]["restserverinfo"].get("github-path")
         serviceDict["clusterinfo"]["restserverinfo"]["etcd_uri"] = self.getEtcdUri()
         serviceDict["clusterinfo"]["restserverinfo"]["yarn_uri"] = self.getYarnWebPortalUri()
 
@@ -287,6 +288,7 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["pyloninfo"]["rest_server_uri"] = self.getRestServerUri()
         serviceDict["clusterinfo"]["pyloninfo"]["k8s_api_server_uri"] = self.getK8sApiServerUri()
         serviceDict["clusterinfo"]["pyloninfo"]["webhdfs_uri"] = self.getWebhdfsUri()
+        serviceDict["clusterinfo"]["pyloninfo"]["webhdfs_legacy_port"] = 50070
         serviceDict["clusterinfo"]["pyloninfo"]["prometheus_uri"] = self.getPrometheusUri()
         serviceDict["clusterinfo"]["pyloninfo"]["k8s_dashboard_uri"] = self.getK8sDashboardUri()
         serviceDict["clusterinfo"]["pyloninfo"]["yarn_web_portal_uri"] = self.getYarnWebPortalUri()
@@ -315,6 +317,18 @@ class paiObjectModel:
             serviceDict["machinelist"][hostname] = host
 
         # section: drivers
+        if "drivers" in self.rawData["serviceConfiguration"]:
+            serviceDict["clusterinfo"]["driversinfo"] = \
+                self.rawData["serviceConfiguration"]["drivers"]
+            if "version" in self.rawData["serviceConfiguration"]["drivers"]:
+                serviceDict["clusterinfo"]["driversinfo"]["version"] = \
+                    str(self.rawData["serviceConfiguration"]["drivers"]["version"])
+        else:
+            serviceDict["clusterinfo"]["driversinfo"] = dict()
+
+        if "version" not in serviceDict["clusterinfo"]["driversinfo"]:
+            serviceDict["clusterinfo"]["driversinfo"]["version"] = "384.111"
+
 
         serviceDict["clusterinfo"]["drivers"] = {"set-nvidia-runtime": False}
         if self.rawData["serviceConfiguration"].get("drivers") is not None:

@@ -51,7 +51,7 @@ class download_configuration:
 
         cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
-        if cluster_id == None:
+        if cluster_id is None:
             self.logger.error("No cluster_id found in your cluster, which should be done the first time you upload your configuration.")
             self.logger.error("Please execute the command following!")
             self.logger.error("paictl.py config push [-c /path/to/kubeconfig ] [-p /path/to/cluster/configuration | -e /path/to/external/storage/conf/path]")
@@ -73,7 +73,7 @@ class download_configuration:
         #cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
         configuration_dict = conf_storage_util.get_conf_configmap(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
-        if configuration_dict == None:
+        if configuration_dict is None:
             self.logger.error("The configuration doesn't exists on your cluster. Please upload it first.")
             sys.exit(1)
 

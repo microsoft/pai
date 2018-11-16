@@ -78,19 +78,16 @@ def load_cluster_objectModel_k8s(config_path):
     return ret["k8s"]
 
 
-
 def cluster_object_model_generate_service(config_path):
 
     cluster_config = load_cluster_objectModel_service(config_path)
     return cluster_config
 
 
-
 def cluster_object_model_generate_k8s(config_path):
 
     cluster_config = load_cluster_objectModel_k8s(config_path)
     return cluster_config
-
 
 
 ## TODO: Please remove all function above, after cluster_object_model is finsied.
@@ -130,7 +127,6 @@ def kubectl_env_checking(cluster_object_mode):
             else:
                 print(" Please type Y or N.")
 
-
             count_input = count_input + 1
             if count_input == 3:
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
@@ -149,13 +145,14 @@ class SubCmd(object):
     def add_handler(parser, handler, *args, **kwargs):
         """ helper function for adding sub-command handler """
         sub_parser = parser.add_parser(*args, **kwargs)
-        sub_parser.set_defaults(handler=handler) # let handler handle this subcmd
+        sub_parser.set_defaults(handler=handler)  # let handler handle this subcmd
         return sub_parser
 
     def run(self, args):
         """ will call run with expected args, subclass do not have to override this method
         if subclass use `add_handler` to register handler. """
         args.handler(args)
+
 
 class Machine(SubCmd):
     def register(self, parser):
@@ -181,8 +178,6 @@ class Machine(SubCmd):
         update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
-
-
     def process_args(self, args):
         cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
         node_list = file_handler.load_yaml_config(args.node_list)
@@ -196,8 +191,6 @@ class Machine(SubCmd):
 
         return cluster_object_model_k8s, node_list
 
-
-
     def machine_add(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
 
@@ -208,8 +201,6 @@ class Machine(SubCmd):
             if host["k8s-role"] == "master":
                 logger.info("Master Node is added, sleep 60s to wait it ready.")
                 time.sleep(60)
-
-
 
     def machine_remove(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
@@ -222,8 +213,6 @@ class Machine(SubCmd):
                 logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
 
-
-
     def machine_update(self, args):
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
@@ -231,7 +220,6 @@ class Machine(SubCmd):
         update_worker = k8s_update.update(kube_config_path = args.kube_config_path)
         update_worker.run()
         logger.info("Congratulations! Machine update is finished.")
-
 
     def etcd_fix(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
@@ -252,8 +240,8 @@ class Service(SubCmd):
         service_parser = parser.add_subparsers(help="service operations")
 
         def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                                help="The path of your configuration directory.")
+            parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             parser.add_argument("-n", "--service-name", dest="service_name", default="all",
                                 help="Build and push the target image to the registry")
 
@@ -261,9 +249,6 @@ class Service(SubCmd):
         stop_parser = SubCmd.add_handler(service_parser, self.service_stop, "stop")
         delete_parser = SubCmd.add_handler(service_parser, self.service_delete, "delete")
         refresh_parser = SubCmd.add_handler(service_parser, self.service_refresh, "refresh")
-        # TODO: Two feature.
-        # Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
-        # Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
@@ -271,35 +256,29 @@ class Service(SubCmd):
         add_arguments(refresh_parser)
 
     def process_args(self, args):
-        cluster_object_model = cluster_object_model_generate_service(args.config_path)
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
 
         service_list = None
         if args.service_name != "all":
             service_list = [args.service_name]
 
-        # Tricky, re-install kubectl first.
-        # TODO: install kubectl-install here.
-        if not kubectl_env_checking(cluster_object_model_k8s):
-            raise RuntimeError("failed to do kubectl checking")
-
-        return cluster_object_model, service_list
+        return service_list
 
     def service_start(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
+        service_management_starter = service_management_start.serivce_management_start(args.kube_config_path, service_list)
         service_management_starter.run()
 
-
     def service_stop(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
+        service_management_stopper = service_management_stop.service_management_stop(args.kube_config_path, service_list)
         service_management_stopper.run()
 
     def service_delete(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
@@ -333,13 +312,13 @@ class Service(SubCmd):
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 return
 
-        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter = service_management_delete.service_management_delete(args.kube_config_path, service_list)
         service_management_deleter.run()
 
     def service_refresh(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_refresher = service_management_refresh.service_management_refresh(cluster_object_model, service_list)
+        service_management_refresher = service_management_refresh.service_management_refresh(args.kube_config_path, service_list)
         service_management_refresher.run()
 
 
@@ -358,8 +337,6 @@ class Cluster(SubCmd):
         clean_parser.add_argument("-f", "--force", dest="force", required=False, action="store_true", help="clean all the data forcefully")
 
         env_parser.add_argument("-p", "--config-path", dest="config_path", help="path of cluster configuration file")
-
-
 
     def k8s_bootup(self, args):
         cluster_config = cluster_object_model_generate_k8s(args.config_path)
@@ -410,8 +387,6 @@ class Cluster(SubCmd):
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
-
-
     def k8s_set_environment(self, args):
 
         if args.config_path != None:
@@ -423,9 +398,7 @@ class Cluster(SubCmd):
         kubectl_install_worker.run()
 
 
-
 class Configuration(SubCmd):
-
 
     def register(self, parser):
         conf_parser = parser.add_subparsers(help="configuration operations")
@@ -468,16 +441,11 @@ class Configuration(SubCmd):
         external_config_update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                                    help="The path to KUBE_CONFIG gile. Default value: ~/.kube/config")
 
-
-
-
     def generate_configuration(self, args):
         cluster_util.generate_configuration(
                 args.quick_start_config_file,
                 args.configuration_directory,
                 args.force)
-
-
 
     def push_configuration(self, args):
         if args.cluster_conf_path != None:
@@ -493,8 +461,6 @@ class Configuration(SubCmd):
         )
         sync_handler.sync_data_from_source()
 
-
-
     def pull_configuration(self, args):
         if args.config_output_path != None:
             args.config_output_path = os.path.expanduser(args.config_output_path)
@@ -506,8 +472,6 @@ class Configuration(SubCmd):
         )
         get_handler.run()
 
-
-
     def update_external_config(self, args):
         if args.kube_config_path != None:
             args.kube_config_path = os.path.expanduser(args.kube_config_path)
@@ -518,7 +482,6 @@ class Configuration(SubCmd):
             kube_config_path=args.kube_config_path
         )
         external_conf_update.update_latest_external_configuration()
-
 
 
 class Main(SubCmd):

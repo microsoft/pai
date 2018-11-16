@@ -17,12 +17,25 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-mkdir -p /usr/local/grafana/datasources/
-mkdir -p /usr/local/grafana/dashboards/
-cp /grafana-configuration/*-datasource.json /usr/local/grafana/datasources/
-cp /grafana-configuration/*-dashboard.json /usr/local/grafana/dashboards/
+
+# step1 : remove etcd.yaml
+rm /etc/kubernetes/manifests/etcd.yaml
 
 
-/usr/local/grafana_config.sh &
-/usr/local/start_server.sh
-exit 0
+# step2: stop container
+target_id=`docker ps --filter "name=POD_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+target_id=`docker ps --filter "name=container_etcd-server" -q`
+docker kill $target_id
+docker rm $target_id
+
+
+# step3: delete etcd server data
+if [ -d "{{ clusterconfig['etcd-data-path'] }}" ]; then
+
+    rm -rf {{ clusterconfig['etcd-data-path'] }}
+
+fi
+

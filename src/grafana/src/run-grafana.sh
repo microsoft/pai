@@ -17,20 +17,16 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 # Variables illustrate:
-# ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, passed from K8s deployment yaml files or "docker run" parameters, 
-# if not, they are set as default values defined in this file.
-
-
-# Script to configure grafana datasources and dashboards.
-# Intended to be run before grafana entrypoint...
+# ${DATASOURCES_PATH}, ${DASHBOARDS_PATH}, ${USER} & ${PASSWORD}, passed from K8s
+# deployment yaml files or "docker run" parameters, if not, they are set as default
+# values defined in this file.
+# ${UPGRADEALL}, ${GF_PLUGIN_DIR}, ${GF_PATHS_DATA} & ${GF_PATHS_LOGS}, defined in dockerfile.
 
 DATASOURCES_PATH=${DATASOURCES_PATH:-/usr/local/grafana/datasources}
 DASHBOARDS_PATH=${DASHBOARDS_PATH:-/usr/local/grafana/dashboards}
 USER=${USER:-admin}
 PASSWORD=${PASSWORD:-admin}
-
 
 # Generic function to call the Vault API
 grafana_api() {
@@ -98,6 +94,23 @@ configure_grafana() {
   install_dashboards
 }
 
-echo "Running configure_grafana in the background..."
-configure_grafana
+mkdir -p /usr/local/grafana/datasources/
+mkdir -p /usr/local/grafana/dashboards/
+cp /grafana-configuration/*-datasource.json /usr/local/grafana/datasources/
+cp /grafana-configuration/*-dashboard.json /usr/local/grafana/dashboards/
 
+echo "Running configure_grafana in background..."
+configure_grafana &
+
+# upgrade all installed plugins
+if [ "$UPGRADEALL" = true ] ; then
+    grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins upgrade-all || true
+fi
+
+exec /usr/sbin/grafana-server   \
+  --homepath=/usr/share/grafana              \
+  --config=/etc/grafana/grafana.ini          \
+  cfg:default.paths.data=${GF_PATHS_DATA}    \
+  cfg:default.paths.logs=${GF_PATHS_LOGS}    \
+  cfg:default.paths.plugins=${GF_PLUGIN_DIR} \
+  "$@"

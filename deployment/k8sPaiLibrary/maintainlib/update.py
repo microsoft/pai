@@ -43,7 +43,7 @@ class update:
         if "kube_config_path" in kwargs and kwargs[ "kube_config_path" ] != None:
             self.kube_config_path = kwargs[ "kube_config_path" ]
 
-        if self.kube_config_path == None:
+        if self.kube_config_path is None:
             self.logger.error("Unable to find KUBECONFIG. Please ensure that you have passed the correct path.")
             sys.exit(1)
 

@@ -77,8 +77,8 @@ User could customize [Alerting rules](https://prometheus.io/docs/prometheus/late
 
 ## Configure Grafana <a name="grafana"></a>
 
-User could customize [grafana](http://docs.grafana.org/installation/configuration/) config file at OpenPAI's [folder / file](../../../src/grafana/src/grafana_config.sh)
+User could customize [grafana](http://docs.grafana.org/installation/configuration/) config file at OpenPAI's [folder / file](../../../src/grafana/deploy/grafana-configuration)
 
-User could customize [grafana](http://docs.grafana.org/installation/configuration/) startup configuration at OpenPAI's [folder / file](../../../src/grafana/src/start_server.sh)
+User could customize [grafana](http://docs.grafana.org/installation/configuration/) startup configuration at OpenPAI's [folder / file](../../../src/grafana/src/run-grafana.sh)
 
 

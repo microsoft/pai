@@ -101,7 +101,7 @@ class Scanner(object):  # relate to the files
             if os.path.isdir(rootpath + '/' + item):
                 files = os.listdir(rootpath + '/' + item)
                 if "prepare.sh" in files:  # run the prepare shell script to download the data and code, then upload them to hdfs
-                    os.system("/bin/bash " + rootpath + '/' + item + '/' + "prepare.sh " + self.config.hdfs_url)
+                    os.system("/bin/bash " + rootpath + '/' + item + '/' + "prepare.sh " + self.config.hdfs_url + " " + self.config.PAI_username)
                 for file in files:
                     if file.endswith(".json"):
                         filepath = rootpath + '/' + item + '/' + file

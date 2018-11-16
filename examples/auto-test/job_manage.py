@@ -24,9 +24,9 @@ class JobManager(object):
                     'POST',
                     rest_server_url_without_namespace + 'token',
                     headers={
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                     },
-                    body='username=' + username + '&password=' + password + '&expiration=' + str(expiration)
+                    body=json.dumps({'username':username, 'password':password, 'expiration':str(expiration)})
                 )
                 if http_object.status == 200:
                     token_ready = True
