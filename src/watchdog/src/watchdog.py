@@ -346,7 +346,26 @@ def main(args):
 
         time.sleep(float(args.interval))
 
-# python watchdog.py http://10.151.40.133:8080
+
+def get_logging_level():
+    mapping = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING
+            }
+
+    result = logging.INFO
+
+    if os.environ.get("LOGGING_LEVEL") is not None:
+        level = os.environ["LOGGING_LEVEL"]
+        result = mapping.get(level.upper())
+        if result is None:
+            sys.stderr.write("unknown logging level " + level + ", default to INFO\n")
+            result = logging.INFO
+
+    return result
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("k8s_api", help="kubernetes api uri eg. http://10.151.40.133:8080")
@@ -356,6 +375,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.INFO)
+            level=get_logging_level())
 
     main(args)
