@@ -1,8 +1,13 @@
+# Release v0.8.1
+
+## Bug Fixes
+* [issue 1658](https://github.com/Microsoft/pai/issues/1658) Fix the datanode out-of-memory problem - [PR 1689]
+
 # Release v0.8.0
 
 ## New Features
 * All user submitted jobs can be cloned and resubmitted in Job detail page - [PR 1448](https://github.com/Microsoft/pai/pull/1448).
-* The new designed Marketplace and Submit Job V2 are under public review. 
+* The new designed Marketplace and Submit Job V2 are under public review.
 Please refer to the instruction for more information [Marketplace and Submit job v2](./docs/marketplace-and-submit-job-v2/marketplace-and-submit-job-v2.md).
 Any feedback and suggestions are appreciated.
 * Alerting service supports to mute alerts. The instructions can be found via [alert-manager](./docs/alerting/alert-manager.md#muting-firing-alert).
@@ -45,7 +50,7 @@ Any feedback and suggestions are appreciated.
 * Scheduling jobs by GpuType cannot work now since the missing of cluster configuration file in FrameworkLauncher - [Issue 1416](https://github.com/Microsoft/pai/issues/1416).
 A work around is to manually update the configuration file to the cluster. This can be done in following steps:
 ```bash
-  # In the OpenPAI source code folder where you do the deployment, 
+  # In the OpenPAI source code folder where you do the deployment,
   # there should be a gpu configuration file under path src/cluster-configuration/deploy/gpu-configuration/gpu-configuration.json.
   # Or you can start cluster-configuration to generate it.
   sudo python paictl.py service start -p your_configuration_dir -n cluster-configuration
