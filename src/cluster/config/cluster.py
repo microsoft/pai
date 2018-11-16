@@ -175,6 +175,7 @@ class cluster:
 
     def run(self):
         cluster_com = self.service_configuration
+        print cluster_com
         self.generate_image_url_prefix(cluster_com["docker-registry"])
         try:
             self.generate_secret_base64code(cluster_com["docker-registry"])
