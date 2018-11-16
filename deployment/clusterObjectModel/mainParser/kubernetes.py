@@ -109,11 +109,11 @@ class kubernetes:
 
         for host in self.cluster_configuration["machine-list"]:
             if host["k8s-role"] == "master":
-                master_list.append(host["hostip"])
+                master_list.append(host["hostname"])
             elif host["k8s-role"] == "worker":
-                worker_list.append(host["hostip"])
+                worker_list.append(host["hostname"])
             elif host["k8s-role"] == "proxy":
-                proxy_list.append(host["hostip"])
+                proxy_list.append(host["hostname"])
 
         if len(master_list) != 0:
             com_kubernetes["master-list"] = master_list
