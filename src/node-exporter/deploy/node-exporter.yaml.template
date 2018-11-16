@@ -105,6 +105,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.hostIP
+        - name: LOGGING_LEVEL
+          value: INFO
         volumeMounts:
         - mountPath: /root/.docker
           name: docker-cred-volume

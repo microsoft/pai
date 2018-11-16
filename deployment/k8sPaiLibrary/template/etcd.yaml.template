@@ -53,7 +53,7 @@ spec:
     - mountPath: /var/etcd
       name: varetcd
     resources:
-      limits:
+      requests:
         memory: "1Gi"
         cpu: "1000m"
   volumes:

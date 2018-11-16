@@ -15,48 +15,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import yaml
+import os
+import sys
+import subprocess
+import jinja2
+import argparse
 import logging
 import logging.config
 
-from ..common import file_handler
+from . import conf_storage_util
 
 
+class get_cluster_id:
 
-
-class service_template_clean:
-
-
-    def __init__(self, service_name, service_conf):
-
+    def __init__(self, kube_config_path):
         self.logger = logging.getLogger(__name__)
-
-        self.service_name = service_name
-        self.service_conf = service_conf
-
-        self.template_list = None
-        if "template-list" in self.service_conf:
-            self.template_list = self.service_conf["template-list"]
-
-
-
-    def template_cleaner(self):
-
-        self.logger.info("Begin to delete the generated template of {0}'s service.".format(self.service_name))
-
-        if self.template_list is None:
-            self.logger.info("There is no generated template of {0}'s service to be deleted.".format(self.service_name))
-            return
-
-        for template_file in self.template_list:
-            file_path = "src/{0}/deploy/{1}".format(self.service_name, template_file)
-            if file_handler.file_exist_or_not(file_path) == True:
-                file_handler.file_delete(file_path)
-
-        self.logger.info("The generated template files of {0}'s  service have been cleaned up.".format(self.service_name))
-
+        self.kube_config_path = kube_config_path
 
 
     def run(self):
 
-        self.template_cleaner()
+        cluster_id = conf_storage_util.get_cluster_id(self.kube_config_path)
+
+        if cluster_id is None:
+            self.logger.info("Cluster-id hasn't been set. You could set it when push the cluster configuration into cluster.")
+        else:
+            self.logger.info("Cluster-id is: {0}".format(cluster_id))

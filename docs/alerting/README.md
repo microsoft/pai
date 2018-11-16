@@ -50,7 +50,7 @@ Other pai component also used some metrics for display, they are:
             <li>node_uname_info</li>
             <li>nvidiasmi_utilization_gpu</li>
             <li>nvidiasmi_utilization_memory</li>
-            <li>nvidiasmi_attached_gpus</li>
+            <li>configured_gpu_count</li>
             <li>node_cpu_seconds_total</li>
             <li>node_memory_MemTotal_bytes</li>
             <li>node_memory_MemFree_bytes</li>
