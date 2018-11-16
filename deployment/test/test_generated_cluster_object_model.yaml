@@ -1,0 +1,61 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+kubernetes:
+  cluster-dns: 168.63.129.16
+
+  api-servers-ip: 10.0.3.7
+
+  service-cluster-ip-range: 10.254.0.0/16
+
+  storage-backend: etcd3
+
+  docker-registry: gcr.io/google_containers
+
+  hyperkube-version: v1.7.3
+
+  etcd-version: 2.2.5
+
+  apiserver-version: v1.7.3
+
+  kube-scheduler-version: v1.7.3
+
+  kube-controller-manager-version:  v1.7.3
+
+  dashboard-version: v1.6.1
+
+  dashboard-host: 10.0.3.11
+
+  etcd-data-path: "/var/etcd/data"
+
+  etcd_cluster_ips_peer: etcdid1=http://1.2.3.1:2380
+
+  etcd_cluster_ips_server: http://1.2.3.1:4001
+
+  etcd-initial-cluster-state: "new"
+
+  master-list:
+    - infra-01
+
+  worker-list:
+    - worker-01
+    - worker-02
+
+
+
+
