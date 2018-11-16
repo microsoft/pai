@@ -50,7 +50,7 @@ class upload_configuration:
 
         cluster_id = conf_storage_util.get_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION)
 
-        if cluster_id == None:
+        if cluster_id is None:
             self.logger.warning("No cluster_id found in your cluster.")
             user_input = raw_input("Please input the cluster-id for your cluster: ")
             conf_storage_util.update_cluster_id(self.KUBE_CONFIG_DEFAULT_LOCATION, user_input)

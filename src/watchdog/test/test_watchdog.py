@@ -23,6 +23,8 @@ import json
 import logging
 import logging.config
 
+import prometheus_client
+
 sys.path.append(os.path.abspath("../src/"))
 
 import watchdog
@@ -80,13 +82,31 @@ class TestJobExporter(unittest.TestCase):
     def test_process_pods_with_no_condition(self):
         obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
 
-        pod_gauge = watchdog.gen_pai_node_gauge()
+        pod_gauge = watchdog.gen_pai_pod_gauge()
         container_gauge = watchdog.gen_pai_container_gauge()
 
         watchdog.process_pods_status(pod_gauge, container_gauge, obj)
 
         self.assertTrue(len(pod_gauge.samples) > 0)
         self.assertEquals(0, len(container_gauge.samples))
+
+    def test_process_pod_with_no_host_ip(self):
+        obj = json.loads(self.get_data_test_input("data/no_condtion_pod.json"))
+
+        class CustomCollector(object):
+            def collect(self):
+                pod_gauge = watchdog.gen_pai_pod_gauge()
+                container_gauge = watchdog.gen_pai_container_gauge()
+
+                watchdog.process_pods_status(pod_gauge, container_gauge, obj)
+
+                yield pod_gauge
+                yield container_gauge
+
+        registry = CustomCollector()
+
+        # expect no exception
+        prometheus_client.write_to_textfile("/tmp/test_watchdog.prom", registry)
 
 if __name__ == '__main__':
     unittest.main()

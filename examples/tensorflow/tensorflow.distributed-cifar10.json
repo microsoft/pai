@@ -2,9 +2,9 @@
   "jobName": "tensorflow-distributed-cifar10",
   "image": "openpai/pai.example.tensorflow",
 
-  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
-  "outputDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/output",
-  "codeDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/code",
+  "dataDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/code",
 
   "taskRoles": [
     {

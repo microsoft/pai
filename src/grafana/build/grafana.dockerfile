@@ -26,22 +26,19 @@ ENV \
   UPGRADEALL=true
 
 
-COPY src/run.sh src/grafana_config.sh src/start_server.sh /usr/local/
-COPY src/dashboards/* /usr/local/grafana/dashboards/
-
 RUN \
   apt-get update && \
-  apt-get -y --force-yes --no-install-recommends install libfontconfig curl ca-certificates git jq && \
+  apt-get -y --force-yes --no-install-recommends install libfontconfig curl ca-certificates && \
   curl https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_${GRAFANA_VERSION}_amd64.deb > /tmp/grafana.deb && \
   dpkg -i /tmp/grafana.deb && \
   rm -f /tmp/grafana.deb && \
-  for plugin in $(curl -s https://grafana.net/api/plugins?orderBy=name | jq '.items[] | select(.internal=='false') | .slug' | tr -d '"'); do grafana-cli --pluginsDir "${GF_PLUGIN_DIR}" plugins install $plugin; done && \
   ### branding && \
-  chmod 777 /usr/local/run.sh /usr/local/grafana_config.sh /usr/local/start_server.sh && \
-  apt-get remove -y --force-yes git jq && \
   apt-get autoremove -y --force-yes && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+COPY src/run-grafana.sh /usr/local/bin
+COPY src/dashboards/* /usr/local/grafana/dashboards/
 
-ENTRYPOINT ["/usr/local/run.sh"]
+
+ENTRYPOINT ["/usr/local/bin/run-grafana.sh"]

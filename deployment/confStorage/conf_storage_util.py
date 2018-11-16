@@ -77,7 +77,7 @@ def write_generated_file(generated_file, file_path):
 def get_cluster_id(PAI_KUBE_CONFIG_DEFAULT_LOCATION):
 
     resp = kubernetes_handler.get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-cluster-id")
-    if resp == None:
+    if resp is None:
         return None
 
     # return a string
@@ -96,7 +96,7 @@ def update_cluster_id(PAI_KUBE_CONFIG_DEFAULT_LOCATION, cluster_id):
 def get_conf_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION):
 
     resp = kubernetes_handler.get_configmap(PAI_KUBE_CONFIG_DEFAULT_LOCATION, "pai-configuration")
-    if resp == None:
+    if resp is None:
         return None
 
     # return a dict

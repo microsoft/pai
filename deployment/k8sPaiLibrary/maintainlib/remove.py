@@ -149,7 +149,7 @@ class remove:
 
             leader_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
 
-            if leader_node_config == None:
+            if leader_node_config is None:
                 self.logger.error("Failed to find the leader node in the etcd cluster")
                 sys.exit(1)
 

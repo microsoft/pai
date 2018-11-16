@@ -2,7 +2,8 @@
   "nodes" : {
 {% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
     "{{machinelist[ host ]['nodename']}}" : {
-        "gpuType" : "{{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}"
+        "gpuType" : "{{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}",
+        "gpuCount" : {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['count'] }}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
   }

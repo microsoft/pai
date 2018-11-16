@@ -22,6 +22,9 @@ import time
 import logging
 import re
 import datetime
+import subprocess
+import os
+import json
 
 import docker_stats
 import docker_inspect
@@ -99,19 +102,19 @@ job_container_reg = re.compile(u"^.+(" + yarn_pattern + u")$")
 
 
 def parse_from_labels(labels):
-    gpuIds = []
-    otherLabels = {}
+    gpu_ids = []
+    other_labels = {}
 
     for key, val in labels.items():
         if "container_label_GPU_ID" == key:
             s2 = val.replace("\"", "").split(",")
             for id in s2:
                 if id:
-                    gpuIds.append(id)
+                    gpu_ids.append(id)
         else:
-            otherLabels[key] = val
+            other_labels[key] = val
 
-    return gpuIds, otherLabels
+    return gpu_ids, other_labels
 
 
 def generate_zombie_count_type1(type1_zombies, exited_containers, now):
@@ -212,25 +215,25 @@ def collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies):
                     pid, debug_info, lsof_result, net_in, net_out)
 
         if pai_service_name is None:
-            gpuIds, otherLabels = parse_from_labels(inspect_info["labels"])
-            otherLabels.update(inspect_info["env"])
+            gpu_ids, container_labels = parse_from_labels(inspect_info["labels"])
+            container_labels.update(inspect_info["env"])
 
-            for id in gpuIds:
+            for id in gpu_ids:
                 if gpu_infos:
-                    labels = copy.deepcopy(otherLabels)
+                    labels = copy.deepcopy(container_labels)
                     labels["minor_number"] = id
 
-                    result.append(Metric("container_GPUPerc", labels, gpu_infos[id]["gpuUtil"]))
-                    result.append(Metric("container_GPUMemPerc", labels, gpu_infos[id]["gpuMemUtil"]))
+                    result.append(Metric("container_GPUPerc", labels, gpu_infos[id]["gpu_util"]))
+                    result.append(Metric("container_GPUMemPerc", labels, gpu_infos[id]["gpu_mem_util"]))
 
-            result.append(Metric("container_CPUPerc", otherLabels, stats["CPUPerc"]))
-            result.append(Metric("container_MemUsage", otherLabels, stats["MemUsage_Limit"]["usage"]))
-            result.append(Metric("container_MemLimit", otherLabels, stats["MemUsage_Limit"]["limit"]))
-            result.append(Metric("container_NetIn", otherLabels, net_in))
-            result.append(Metric("container_NetOut", otherLabels, net_out))
-            result.append(Metric("container_BlockIn", otherLabels, stats["BlockIO"]["in"]))
-            result.append(Metric("container_BlockOut", otherLabels, stats["BlockIO"]["out"]))
-            result.append(Metric("container_MemPerc", otherLabels, stats["MemPerc"]))
+            result.append(Metric("container_CPUPerc", container_labels, stats["CPUPerc"]))
+            result.append(Metric("container_MemUsage", container_labels, stats["MemUsage_Limit"]["usage"]))
+            result.append(Metric("container_MemLimit", container_labels, stats["MemUsage_Limit"]["limit"]))
+            result.append(Metric("container_NetIn", container_labels, net_in))
+            result.append(Metric("container_NetOut", container_labels, net_out))
+            result.append(Metric("container_BlockIn", container_labels, stats["BlockIO"]["in"]))
+            result.append(Metric("container_BlockOut", container_labels, stats["BlockIO"]["out"]))
+            result.append(Metric("container_MemPerc", container_labels, stats["MemPerc"]))
         else:
             labels = {"name": pai_service_name}
             result.append(Metric("service_cpu_percent", labels, stats["CPUPerc"]))
@@ -246,36 +249,103 @@ def collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies):
 
     return result
 
+
+def collect_docker_daemon_status():
+    """ check docker daemon status in current host """
+    cmd = "systemctl is-active docker | if [ $? -eq 0 ]; then echo \"active\"; else exit 1 ; fi"
+    error = "ok"
+
+    try:
+        logger.info("call systemctl to get docker status")
+
+        out = utils.check_output(cmd, shell=True)
+
+        if "active" not in out:
+            error = "inactive"
+    except subprocess.CalledProcessError as e:
+        logger.exception("command '%s' return with error (code %d): %s",
+                cmd, e.returncode, e.output)
+        error = e.strerror()
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            logger.warning("systemctl not found")
+        error = e.strerror()
+
+    return [Metric("docker_daemon_count", {"error": error}, 1)]
+
+
+def get_gpu_count(path):
+    hostname = os.environ.get("HOSTNAME")
+    ip = os.environ.get("HOST_IP")
+
+    logger.info("hostname is %s, ip is %s", hostname, ip)
+
+    with open(path) as f:
+        gpu_config = json.load(f)
+
+    if hostname is not None and gpu_config["nodes"].get(hostname) is not None:
+        return gpu_config["nodes"][hostname]["gpuCount"]
+    elif ip is not None and gpu_config["nodes"].get(ip) is not None:
+        return gpu_config["nodes"][ip]["gpuCount"]
+    else:
+        logger.warning("failed to find gpu count from config %s", gpu_config)
+        return 0
+
 def main(argv):
     log_dir = argv[0]
     gpu_metrics_path = log_dir + "/gpu_exporter.prom"
     job_metrics_path = log_dir + "/job_exporter.prom"
+    docker_metrics_path = log_dir + "/docker.prom"
+    time_metrics_path = log_dir + "/time.prom"
+    configured_gpu_path = log_dir + "/cofigured_gpu.prom"
     time_sleep_s = int(argv[1])
 
     iter = 0
 
-    singleton = utils.Singleton(gpu_exporter.collect_gpu_info)
+    gpu_singleton = utils.Singleton(gpu_exporter.collect_gpu_info, name="gpu_singleton")
+    docker_status_singleton = utils.Singleton(collect_docker_daemon_status, name="docker_singleton")
 
     type1_zombies = ZombieRecorder()
     type2_zombies = ZombieRecorder()
 
+    configured_gpu_count = get_gpu_count("/gpu-config/gpu-configuration.json")
+    logger.info("configured_gpu_count is %s", configured_gpu_count)
+    utils.export_metrics_to_file(configured_gpu_path, [Metric("configured_gpu_count", {},
+        configured_gpu_count)])
+
     while True:
+        start = datetime.datetime.now()
         try:
             logger.info("job exporter running {0} iteration".format(str(iter)))
             iter += 1
-            gpu_infos = singleton.try_get()
 
-            gpu_metrics = gpu_exporter.convert_gpu_info_to_metrics(gpu_infos)
-            utils.export_metrics_to_file(gpu_metrics_path, gpu_metrics)
+            docker_status, is_old = docker_status_singleton.try_get()
+            if not is_old:
+                utils.export_metrics_to_file(docker_metrics_path, docker_status)
+            else:
+                utils.export_metrics_to_file(docker_metrics_path, None)
 
             all_conns = network.iftop()
             logger.debug("iftop result is %s", all_conns)
+
+            gpu_infos, is_old = gpu_singleton.try_get()
+
+            if is_old:
+                gpu_infos = None # ignore old gpu_infos
+
+            gpu_metrics = gpu_exporter.convert_gpu_info_to_metrics(gpu_infos)
+            utils.export_metrics_to_file(gpu_metrics_path, gpu_metrics)
 
             # join with docker stats metrics and docker inspect labels
             job_metrics = collect_job_metrics(gpu_infos, all_conns, type1_zombies, type2_zombies)
             utils.export_metrics_to_file(job_metrics_path, job_metrics)
         except Exception as e:
             logger.exception("exception in job exporter loop")
+        finally:
+            end = datetime.datetime.now()
+
+            time_metrics = [Metric("job_exporter_iteration_seconds", {}, (end - start).seconds)]
+            utils.export_metrics_to_file(time_metrics_path, time_metrics)
 
         time.sleep(time_sleep_s)
 

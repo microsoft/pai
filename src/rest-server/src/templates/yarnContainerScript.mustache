@@ -207,7 +207,13 @@ ENV
 echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
 
 export $(grep -v '^#' $ENV_LIST | xargs)
-
+# put it after the 'export', so we won't source it into yarn container.
+# we want job environment parameters to be available only in job contianer.
+{{# jobEnvs }}
+cat <<ENV >> $ENV_LIST
+{{{ jobEnvs }}}
+ENV
+{{/ jobEnvs }}
 
 # Prepare docker bootstrap script
 bootstrap_dir="tmp/pai-root/bootstrap"
@@ -236,6 +242,11 @@ fi
 # Prepare docker debug log
 mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
 ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
+
+# copy the hadoop configuration file
+hadoop_config_dir="hadoop_config"
+mkdir -p $hadoop_config_dir
+cp -r /hadoop-configuration-for-jobs/* $hadoop_config_dir
 
 # retrieve the yarn local dir
 hadoop_tmp_dir="/var/lib/hadoopdata"
@@ -270,8 +281,8 @@ docker run --name $docker_name \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
   --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
-  --volume /etc/hadoop-configuration-for-jobs:/etc/hadoop:ro \
-  --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/ \
+  --volume $container_local_dir/$hadoop_config_dir:/etc/hadoop \
+  --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/:ro \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
   --label PAI_JOB_NAME={{{ jobData.jobName }}} \
@@ -279,6 +290,7 @@ docker run --name $docker_name \
   --label PAI_USER_NAME={{{ jobData.userName }}} \
   --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
   --env-file $ENV_LIST \
+  --entrypoint="" \
    {{{ jobData.image }}} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 
