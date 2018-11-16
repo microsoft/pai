@@ -44,6 +44,12 @@
         <value>1048576</value>
         <description>default is 8GB, here we set 1024G</description>
     </property>
+
+    <property>
+        <name>yarn.scheduler.configuration.store.class</name>
+        <value>zk</value>
+        <description>default is file, change it to zk to enable config by rest api</description>
+    </property>
     
     <property>
       <name>yarn.resourcemanager.scheduler.class</name>
