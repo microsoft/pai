@@ -34,11 +34,11 @@ class clean:
 
     """
 
-    def __init__(self, cluster_config, **kwargs):
+    def __init__(self, cluster_object_model, **kwargs):
 
         self.logger = logging.getLogger(__name__)
 
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         maintain_configuration_path = os.path.join(package_directory_clean, "../maintainconf/clean.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
         self.clean_flag = kwargs["clean"]
@@ -47,10 +47,9 @@ class clean:
 
 
 
-
     def prepare_package(self, node_config):
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, self.jobname)
+        common.maintain_package_wrapper(self.cluster_object_model, self.maintain_config, node_config, self.jobname)
 
 
 
@@ -98,19 +97,15 @@ class clean:
 
     def run(self):
 
+        com = self.cluster_object_model
 
         self.logger.warning("Begin to destroy whole cluster.")
         self.logger.warning("After destorying, all kubenretes's metadata will be deleted and etcd will be cleaned too.")
-
-
-        for role in self.cluster_config["remote_deployment"]:
-            listname = self.cluster_config["remote_deployment"][role]["listname"]
-
-            if listname not in self.cluster_config:
+        for role in ["proxy", "master", "worker"]:
+            if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
-
-            for node_key in self.cluster_config[listname]:
-                node_config = self.cluster_config[listname][node_key]
+            for hostname in com["kubernetes"]["{0}-list".format(role)]:
+                node_config = com["machine"]["machine-list"][hostname]
                 self.logger.info("Begin to clean data on host {0}".format(node_config["hostip"]))
                 self.prepare_package(node_config)
                 self.job_executer(node_config)
@@ -123,6 +118,5 @@ class clean:
                     self.logger.info(" remote host cleaner is working on the host of {0}!".format(node_config["hostip"]))
                     self.remote_host_cleaner(node_config)
                     self.logger.info(" remote host cleaning job finished! ")
-
 
         self.logger.info("The kubernetes has been destroyed, and metadata has been removed")

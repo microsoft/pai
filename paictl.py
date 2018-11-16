@@ -342,14 +342,15 @@ class Cluster(SubCmd):
 
     def k8s_bootup(self, args):
         cluster_object_model_instance = cluster_object_model(args.config_path)
+        com = cluster_object_model_instance.run()
         logger.info("Begin to initialize PAI k8s cluster.")
-        cluster_util.maintain_cluster_k8s(cluster_object_model_instance, option_name="deploy", clean=True)
+        cluster_util.maintain_cluster_k8s(com, option_name="deploy", clean=True)
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):
         # just use 'k8s-clean' for testing temporarily  .
-        cluster_config = cluster_object_model_generate_k8s(args.config_path)
-
+        cluster_object_model_instance = cluster_object_model(args.config_path)
+        com = cluster_object_model_instance.run()
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
         logger.warning("----------     Dangerous Operation!!!    ---------------")
@@ -386,17 +387,18 @@ class Cluster(SubCmd):
                 return
 
         logger.info("Begin to clean up whole cluster.")
-        cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
+        cluster_util.maintain_cluster_k8s(com, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
     def k8s_set_environment(self, args):
 
         if args.config_path != None:
             args.config_path = os.path.expanduser(args.config_path)
-            cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+            cluster_object_model_instance = cluster_object_model(args.config_path)
+            com = cluster_object_model_instance.run()
         else:
-            cluster_object_model_k8s = None
-        kubectl_install_worker = kubectl_install.kubectl_install(cluster_object_model_k8s)
+            com = None
+        kubectl_install_worker = kubectl_install.kubectl_install(com)
         kubectl_install_worker.run()
 
 
