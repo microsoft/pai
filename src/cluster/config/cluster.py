@@ -178,8 +178,11 @@ class cluster:
         print cluster_com
         self.generate_image_url_prefix(cluster_com["docker-registry"])
         try:
+            print 1
             self.generate_secret_base64code(cluster_com["docker-registry"])
+            print 2
             self.generate_docker_credential(cluster_com["docker-registry"])
+            print 3
         except Exception as e:
             self.logger.warning("Failed to generate docker credential and base64code.")
             self.logger.warning("Please confirm docker is installed in your host.")
