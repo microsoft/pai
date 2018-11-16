@@ -33,9 +33,9 @@ docker rm $target_id
 
 
 # step3: delete etcd server data
-if [ -d "{{ com['kubernetes']['etcd-data-path'] }}" ]; then
+if [ -d "{{ cluster_cfg['kubernetes']['etcd-data-path'] }}" ]; then
 
-    rm -rf {{ com['kubernetes']['etcd-data-path'] }}
+    rm -rf {{ cluster_cfg['kubernetes']['etcd-data-path'] }}
 
 fi
 

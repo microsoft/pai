@@ -51,18 +51,18 @@ docker run \
     --pid=host \
     --privileged=true \
     -d \
-    {{ com['kubernetes']['docker-registry'] }}/hyperkube:{{ com['kubernetes']['hyperkube-version'] }} \
+    {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }} \
     /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
   --register-node=true \
   --kubeconfig=/etc/kubernetes/config \
   --require-kubeconfig \
   --hostname-override={{ hostcofig['nodename'] }} \
-  --cluster-dns={{ com['kubernetes']['cluster-dns'] }} \
+  --cluster-dns={{ cluster_cfg['kubernetes']['cluster-dns'] }} \
   --cluster-domain=cluster.local  \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
-  --pod-infra-container-image {{ com['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
+  --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
   --image-pull-progress-deadline=10m \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --system-reserved=memory=3Gi \

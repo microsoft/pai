@@ -101,7 +101,7 @@ def generate_from_template(template_data, cluster_object_model, host_config):
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "com": cluster_object_model
+            "cluster_cfg": cluster_object_model
         }
     )
 

@@ -33,15 +33,15 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - image: {{ com['kubernetes']['docker-registry'] }}/hyperkube:{{ com['kubernetes']['hyperkube-version'] }}
+      - image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }}
         name: kube-proxy-container
         command:
         - /hyperkube
         - proxy
         - --master
-        - {{ com['kubernetes']['api-servers-ip'] }}:8080
+        - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
         - --cluster-cidr
-        - {{ com['kubernetes']['service-cluster-ip-range'] }}
+        - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
         securityContext:
           privileged: true
         volumeMounts:

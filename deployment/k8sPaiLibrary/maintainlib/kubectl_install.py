@@ -64,14 +64,14 @@ class kubectl_install:
             self.logger.info("Cluster configuration is detected.")
             self.logger.info("Generate the KUBECONIFG based on the cluster configuration.")
             dict_map = {
-                "com": com
+                "cluster_cfg": com
             }
         else:
             self.logger.warning("Unable to find the cluster configuration.")
             self.logger.warning("Please enter the required infomation, when prompted.")
             user_input = raw_input("Please input the api-server (or the api servers' load-balancer) address in your cluster: ")
             dict_map = {
-                "com": { "kubernetes": {"api-servers-ip" : user_input} }
+                "cluster_cfg": { "kubernetes": {"api-servers-ip" : user_input} }
             }
 
         file_path = "deployment/k8sPaiLibrary/template/config.template"

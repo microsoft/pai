@@ -22,7 +22,7 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-  - image: {{ com['kubernetes']['docker-registry'] }}/etcd:{{ com['kubernetes']['etcd-version'] }}
+  - image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/etcd:{{ cluster_cfg['kubernetes']['etcd-version'] }}
     name: etcd-container
     command:
     - /usr/local/bin/etcd
@@ -31,7 +31,7 @@ spec:
     - --initial-advertise-peer-urls
     - http://{{ hostcofig['hostip'] }}:2380
     - --initial-cluster-state
-    - {{ com['kubernetes']['etcd-initial-cluster-state'] }}
+    - {{ cluster_cfg['kubernetes']['etcd-initial-cluster-state'] }}
     - --listen-peer-urls
     - http://0.0.0.0:2380
     - --advertise-client-urls
@@ -39,7 +39,7 @@ spec:
     - --listen-client-urls
     - http://0.0.0.0:4001
     - --initial-cluster
-    - {{ com['kubernetes']['etcd_cluster_ips_peer'] }}
+    - {{ cluster_cfg['kubernetes']['etcd_cluster_ips_peer'] }}
     - --data-dir
     - /var/etcd/data
     ports:
@@ -58,5 +58,5 @@ spec:
         cpu: "1000m"
   volumes:
   - hostPath:
-      path: {{ com['kubernetes']['etcd-data-path'] }}
+      path: {{ cluster_cfg['kubernetes']['etcd-data-path'] }}
     name: varetcd

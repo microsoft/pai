@@ -133,7 +133,7 @@ class deploy:
         file_path = "deployment/k8sPaiLibrary/template/kube-proxy.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "com": com
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -158,7 +158,7 @@ class deploy:
         file_path = "deployment/k8sPaiLibrary/template/dashboard-service.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "com": com
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
@@ -177,7 +177,7 @@ class deploy:
         file_path = "deployment/k8sPaiLibrary/template/dashboard-deployment.yaml.template"
         template_data = common.read_template(file_path)
         dict_map = {
-            "com": com
+            "cluster_cfg": com
         }
         generated_data = common.generate_from_template_dict(template_data, dict_map)
 
