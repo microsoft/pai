@@ -23,7 +23,7 @@
   "rows": [
     {
       "collapse": false,
-      "height": 63,
+      "height": "30px",
       "panels": [
         {
           "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics?var-job=$job)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics?var-job=$job)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics?var-job=$job)",
@@ -45,7 +45,7 @@
     },
     {
       "collapse": false,
-      "height": 221,
+      "height": "250px",
       "panels": [
         {
           "aliasColors": {},
@@ -347,7 +347,7 @@
     },
     {
       "collapse": false,
-      "height": 250,
+      "height": "250px",
       "panels": [
         {
           "aliasColors": {},
@@ -627,14 +627,14 @@
           ]
         },
         "datasource": "PM",
-        "hide": 2,
+        "hide": 0,
         "includeAll": false,
         "label": "",
         "multi": false,
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
-        "query": "label_values(container_label_PAI_JOB_NAME)",
+        "query": "label_values(container_CPUPerc, container_label_PAI_JOB_NAME)",
         "refresh": 1,
         "regex": "^(?!\\s*$).+",
         "sort": 1,
