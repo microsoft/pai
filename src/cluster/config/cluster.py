@@ -122,7 +122,8 @@ class cluster:
         domain = docker_registry_configuration["domain"] and str(docker_registry_configuration["domain"])
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
-
+        print username
+        print passwd
         if domain == "public":
             domain = ""
 
@@ -145,7 +146,8 @@ class cluster:
     def generate_docker_credential(self, docker_registry_configuration):
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
-
+        print username
+        print passwd
         if username and passwd:
             credential = self.execute_shell_with_output(
                 "cat ~/.docker/config.json",
