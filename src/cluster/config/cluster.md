@@ -57,79 +57,79 @@ cluster:
 <tr>
     <td>cluster.common.cluster-id</td>
     <td>com["cluster"]["common"]["cluster-id"]</td>
-    <td>com["cluster"]["common"]["cluster-id"]</td>
+    <td>cluster_cfg["cluster"]["common"]["cluster-id"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.common.data-path</td>
     <td>com["cluster"]["common"]["data-path"]</td>
-    <td>com["cluster"]["common"]["data-path"]</td>
+    <td>cluster_cfg["cluster"]["common"]["data-path"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.namespace</td>
     <td>com["cluster"]["docker-registry"]["namespace"]</td>
-    <td>com["cluster"]["docker-registry"]["namespace"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["namespace"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.namespace</td>
     <td>com["cluster"]["docker-registry"]["namespace"]</td>
-    <td>com["cluster"]["docker-registry"]["namespace"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["namespace"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.namespace</td>
     <td>com["cluster"]["docker-registry"]["namespace"]</td>
-    <td>com["cluster"]["docker-registry"]["namespace"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["namespace"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.domain</td>
     <td>com["cluster"]["docker-registry"]["domain"]</td>
-    <td>com["cluster"]["docker-registry"]["domain"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["domain"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.username</td>
     <td>com["cluster"]["docker-registry"]["username"]</td>
-    <td>com["cluster"]["docker-registry"]["username"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["username"]</td>
     <td>string, optional</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.password</td>
     <td>com["cluster"]["docker-registry"]["password"]</td>
-    <td>com["cluster"]["docker-registry"]["password"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["password"]</td>
     <td>string, optional</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.tag</td>
     <td>com["cluster"]["docker-registry"]["tag"]</td>
-    <td>com["cluster"]["docker-registry"]["tag"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["tag"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>cluster.docker-registry.secret-name</td>
     <td>com["cluster"]["docker-registry"]["secret-name"]</td>
-    <td>com["cluster"]["docker-registry"]["secret-name"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["secret-name"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>None</td>
     <td>com["cluster"]["docker-registry"]["base64code"]</td>
-    <td>com["cluster"]["docker-registry"]["base64code"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["base64code"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>None</td>
     <td>com["cluster"]["docker-registry"]["credential"]</td>
-    <td>com["cluster"]["docker-registry"]["credential"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["credential"]</td>
     <td>string</td>
 </tr>
 <tr>
     <td>None</td>
     <td>com["cluster"]["docker-registry"]["prefix"]</td>
-    <td>com["cluster"]["docker-registry"]["prefix"]</td>
+    <td>cluster_cfg["cluster"]["docker-registry"]["prefix"]</td>
     <td>string, "domain/namespace/"</td>
 </tr>
 </table>

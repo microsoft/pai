@@ -173,7 +173,13 @@ class cluster:
 
     def run(self):
         cluster_com = self.service_configuration
+
         self.generate_image_url_prefix(cluster_com["docker-registry"])
+        if "username" not in cluster_com["docker-registry"]:
+            cluster_com["docker-registry"]["username"] = None
+        if "password" not in cluster_com["docker-registry"]:
+            cluster_com["docker-registry"]["password"] = None
+
         try:
             self.generate_secret_base64code(cluster_com["docker-registry"])
             self.generate_docker_credential(cluster_com["docker-registry"])

@@ -139,7 +139,10 @@ class machine:
                     host["password"] = com_machine["default-machine-properties"]["password"]
                 else:
                     host["keyfile-path"] = com_machine["default-machine-properties"]["keyfile-path"]
-            host["nodename"] = host["hostip"]
+            if "nodename" not in host:
+                host["nodename"] = host["hostip"]
+            if "docker-data" not in host:
+                host["docker-data"] = "/var/lib/docker"
             com_machine["machine-list"][host["hostname"]] = host
 
 

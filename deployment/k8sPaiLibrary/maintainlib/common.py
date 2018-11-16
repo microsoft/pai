@@ -96,13 +96,12 @@ def read_template(template_path):
 
 
 
-def generate_from_template(template_data, cluster_config, host_config):
+def generate_from_template(template_data, cluster_object_model, host_config):
 
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "clusterconfig": cluster_config['clusterinfo'],
-            "cluster": cluster_config
+            "cluster_cfg": cluster_object_model
         }
     )
 
@@ -354,7 +353,7 @@ def archive_tar(target, path):
 
 
 
-def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
+def maintain_package_wrapper(cluster_object_model, maintain_config, node_config, jobname):
 
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
@@ -366,7 +365,7 @@ def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobna
             dst = template_info['dst']
 
             template_data = read_template("{0}".format(src))
-            template_file = generate_from_template(template_data, cluster_config, node_config)
+            template_file = generate_from_template(template_data, cluster_object_model, node_config)
             create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
             write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], dst, name))
 
