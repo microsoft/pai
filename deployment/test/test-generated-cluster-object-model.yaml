@@ -16,6 +16,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+cluster:
+  common:
+    clusterid: pai
+    data-path: "/datastroage"
+
+  docker-registry:
+    namespace: openpai
+    domain: docker.io
+    tag: latest
+    secret-name: regsecret
+
+
+
 kubernetes:
   cluster-dns: 168.63.129.16
 
@@ -27,17 +40,17 @@ kubernetes:
 
   docker-registry: gcr.io/google_containers
 
-  hyperkube-version: v1.7.3
+  hyperkube-version: v1.9.9
 
-  etcd-version: 2.2.5
+  etcd-version: 3.2.17
 
-  apiserver-version: v1.7.3
+  apiserver-version: v1.9.9
 
-  kube-scheduler-version: v1.7.3
+  kube-scheduler-version: v1.9.9
 
-  kube-controller-manager-version:  v1.7.3
+  kube-controller-manager-version:  v1.9.9
 
-  dashboard-version: v1.6.1
+  dashboard-version: v1.8.3
 
   dashboard-host: 10.0.3.11
 
@@ -55,6 +68,62 @@ kubernetes:
   worker-list:
     - worker-01
     - worker-02
+
+
+
+machine:
+
+  machine-sku:
+    NC24R:
+      mem: 224
+      gpu:
+        type: teslak80
+        count: 4
+      cpu:
+        vcore: 24
+      os: ubuntu16.04
+
+    D8SV3:
+      mem: 32
+      cpu:
+        vcore: 8
+      os: ubuntu16.04
+
+
+  default-machine-properties:
+    username: username_ut
+    password: password_ut
+    sshport: 2
+
+
+  machine-lists:
+    infra-01:
+      hostname: infra-01
+      nodename: 1.2.3.1
+      hostip: 1.2.3.1
+      etcdid: etcdid1
+      machine-type: D8SV3
+      k8s-role: master
+      dashboard: "true"
+      zkid: "1"
+      pai-master: "true"
+
+    worker-01:
+      hostname: worker-01
+      nodename: 1.2.3.2
+      hostip: 1.2.3.2
+      machine-type: D8SV3
+      k8s-role: worker
+      pai-worker: "true"
+
+    worker-02:
+      hostname: worker-02
+      nodename: 1.2.3.3
+      hostip: 1.2.3.3
+      machine-type: D8SV3
+      k8s-role: worker
+      pai-worker: "true"
+
 
 
 
