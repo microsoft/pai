@@ -122,8 +122,7 @@ class cluster:
         domain = docker_registry_configuration["domain"] and str(docker_registry_configuration["domain"])
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
-        print username
-        print passwd
+
         if domain == "public":
             domain = ""
 
@@ -146,8 +145,7 @@ class cluster:
     def generate_docker_credential(self, docker_registry_configuration):
         username = docker_registry_configuration["username"] and str(docker_registry_configuration["username"])
         passwd = docker_registry_configuration["password"] and str(docker_registry_configuration["password"])
-        print username
-        print passwd
+
         if username and passwd:
             credential = self.execute_shell_with_output(
                 "cat ~/.docker/config.json",
@@ -175,14 +173,16 @@ class cluster:
 
     def run(self):
         cluster_com = self.service_configuration
-        print cluster_com
+
         self.generate_image_url_prefix(cluster_com["docker-registry"])
+        if "username" not in cluster_com["docker-registry"]:
+            cluster_com["docker-registry"]["username"] = None
+        if "password" not in cluster_com["docker-registry"]:
+            cluster_com["docker-registry"]["password"] = None
+
         try:
-            print 1
             self.generate_secret_base64code(cluster_com["docker-registry"])
-            print 2
             self.generate_docker_credential(cluster_com["docker-registry"])
-            print 3
         except Exception as e:
             self.logger.warning("Failed to generate docker credential and base64code.")
             self.logger.warning("Please confirm docker is installed in your host.")
