@@ -199,7 +199,7 @@ A table contain following content. Here I will take cluster section as an exampl
 <tr>
     <td>cluster.common.cluster-id</td>
     <td>com["cluster"]["common"]["cluster-id"]</td>
-    <td>com["cluster"]["common"]["cluster-id"]</td>
+    <td>cluster_cfg["cluster"]["common"]["cluster-id"]</td>
     <td>string</td>
 </tr>
 </table>
