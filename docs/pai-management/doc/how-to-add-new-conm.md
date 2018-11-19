@@ -104,12 +104,23 @@ Please create the service.parser in the following path.
 ```bash
 src/${service_name}/config/${service_name}.py
 ```
+
+###### Class Name
+
+- Example 1
+    - Service name: xxxxx
+    - parse class name: Xxxxx
+- Example 2
+    - Service name: xxx-yyy-zzz
+    - parse class name: XxxYyyZzz
+
+
 ###### Specification
 
 You should implement the parse class like following.
 
 ```python
-class cluster:
+class Cluster:
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
         None
