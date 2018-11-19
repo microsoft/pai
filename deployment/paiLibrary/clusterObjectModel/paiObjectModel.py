@@ -374,18 +374,23 @@ class paiObjectModel:
 
     def getK8sDashboardUri(self):
 
-        vip = ""
-
-        for host in self.rawData["clusterConfiguration"]["machine-list"]:
-            if "dashboard" in host and host["dashboard"] == "true":
-                vip = host["hostip"]
-                break
-
+        podname = self.rawData["kubernetesConfiguration"]["kubernetes"]["dashboard-pod-name"]
+        namespace = self.rawData["kubernetesConfiguration"]["kubernetes"]["dashboard-pod-namespace"]
+        vip = linux_shell.execute_shell_with_output("kubectl describe pods {0} --namespace={1}  | grep IP | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tr '\n' ' '".format(podname, namespace), "Failed to get k8s dashboard pod ip")
+        
         if vip == "":
-            print("no machine labeled with dashboard = true")
+            print("no machine ip found for k8s dashboard")
             sys.exit(1)
 
-        ret = "http://{0}:9090".format(vip)
+        port = self.rawData["kubernetesConfiguration"]["kubernetes"]["dashboard-port"]
+        ret = "http://{0}:{1}".format(vip, port)
+        
+        rbac = self.rawData["kubernetesConfiguration"]["kubernetes"]["rbac"]
+        if rbac:
+            # set dashboard role binding
+            serviceaccount = linux_shell.execute_shell_with_output("kubectl create clusterrolebinding {0} --clusterrole={1} --serviceaccount={2}", "Failed to get k8s dashboard service account")
+            out = linux_shell.execute_shell_with_output("kubectl create clusterrolebinding {0} --clusterrole={1} --serviceaccount={2}".format(podname, clusterrole, serviceaccount), "Failed to set k8s dashboard role binding")
+            print(out)
         return ret
 
 
