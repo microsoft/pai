@@ -56,7 +56,7 @@ else
 
     apt-get -y install docker-ce
 
-    sudo docker run hello-world
+    docker run hello-world
 
     if command -v docker >/dev/null 2>&1; then
         echo Successfully install docker
@@ -64,6 +64,12 @@ else
         echo Failed install docker
         exit 1
     fi
+fi
+
+if command -v nvidia-container-runtime >/dev/null 2>&1; then
+    echo nvidia container runtime has been installed. Skip this.
+else
+    apt-get -y install nvidia-container-runtime
 fi
 
 [[ ! -d "/etc/docker" ]] &&

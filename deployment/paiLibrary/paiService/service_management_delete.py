@@ -24,6 +24,7 @@ from deployment.paiLibrary.common import file_handler
 from . import service_delete
 from . import service_template_generate
 from . import service_template_clean
+from . import service_management_configuration
 #
 from ..common import directory_handler
 from ..common import file_handler
@@ -34,12 +35,16 @@ class service_management_delete:
 
 
 
-    def __init__(self, cluster_object_model, service_list = None, **kwargs):
+    def __init__(self, kube_config_path = None, service_list = None, **kwargs):
         self.logger = logging.getLogger(__name__)
 
-        self.cluster_object_model = cluster_object_model
+        self.cluster_object_model = None
 
-        if service_list == None:
+        self.kube_config_path = None
+        if kube_config_path != None:
+            self.kube_config_path = kube_config_path
+
+        if service_list is None:
             self.service_list = self.get_service_list()
         else:
             self.service_list = service_list
@@ -89,6 +94,9 @@ class service_management_delete:
 
 
     def run(self):
+
+        config_handler = service_management_configuration.service_management_configuration(kube_config_path=self.kube_config_path)
+        self.cluster_object_model = config_handler.run()
 
         for serv in self.service_list:
             if serv == "cluster-configuration":

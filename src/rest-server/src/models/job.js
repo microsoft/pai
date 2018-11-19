@@ -170,7 +170,7 @@ class Job {
         this._prepareJobContext(frameworkName, data, (error, result) => {
           if (error) return next(error);
           unirest.put(launcherConfig.frameworkPath(frameworkName))
-            .headers(launcherConfig.webserviceRequestHeaders(namespace))
+            .headers(launcherConfig.webserviceRequestHeaders(namespace || data.userName))
             .send(this.generateFrameworkDescription(data))
             .end((res) => {
               if (res.status === 202) {
@@ -391,6 +391,7 @@ class Job {
             containerPorts,
             containerGpus: task.containerGpus,
             containerLog: task.containerLogHttpAddress,
+            containerExitCode: task.containerExitCode,
           });
         }
       }
@@ -402,6 +403,14 @@ class Job {
     let tasksNumber = 0;
     for (let i = 0; i < data.taskRoles.length; i ++) {
       tasksNumber += data.taskRoles[i].taskNumber;
+    }
+    let jobEnvs = '';
+    if (data.jobEnvs) {
+        for (let key in data.jobEnvs) {
+            if (data.jobEnvs.hasOwnProperty(key)) {
+                jobEnvs = jobEnvs.concat(key, '=', data.jobEnvs[key], '\n');
+            }
+        }
     }
     const yarnContainerScript = mustache.render(
         yarnContainerScriptTemplate, {
@@ -415,6 +424,7 @@ class Job {
           'taskData': data.taskRoles[idx],
           'jobData': data,
           'inspectFormat': '{{.State.Pid}}',
+          'jobEnvs': jobEnvs,
         });
     return yarnContainerScript;
   }

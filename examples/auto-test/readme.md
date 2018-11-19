@@ -6,6 +6,8 @@
   - [Parameters of the project](#Parameters_of_the_start.sh)
   - [The mode of the project](#mode)
 - [Note](#Note)
+  - [Add new example](#Add)
+  - [Delete example](#Delete)
 
 ## Introduction <a name="Introduction"></a>
 This python project can help you test all the examples in this folder. 
@@ -32,7 +34,7 @@ Copy the project into the container.
 4. Execute the container. `sudo docker exec -it my-autotest /bin/bash`
 5. Run the start.sh script file and use your own parameters of mode, hdfs_socket, webhdfs_socket, PAI_username,PAI_password and rest_server_socket.
 Pay attention to the order, you must give the 6 parameters in the above order. Refer to [Parameters of the start.sh](#Parameters_of_the_start.sh).
-`/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/ 10.20.30.40:50070 test test`
+`/bin/bash auto-test/start.sh normal 10.20.30.40:9000 http://10.20.30.40:9186/api/v1/user/your_username 10.20.30.40:50070 test test`
 6. When you run the script, you should choice the examples you want to test.
 See [Parameters of the start.sh](#Parameters_of_the_start.sh) to get the reference.
 7. Wait until all jobs are finished.
@@ -59,7 +61,7 @@ And during the runtime of this shell script, it will require you input F/S or jo
 
 - Enter job names like `cntk-mpi,tensorflow-mpi,sklearn-mnist` means you want to run just the three examples.
 
-Here is an example to start the script: `/bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/ 10.20.30.40:9000 http://10.20.30.40:50070 test test`
+Here is an example to start the script: `echo "S" | /bin/bash pai_tmp/examples/auto-test/start.sh normal http://10.20.30.40:9186/api/v1/ 10.20.30.40:9000 http://10.20.30.40:50070 test test`
 ### mode <a name="mode"></a>
 The project offers 3 different modes.
 1. **ci mode**: If the job can run correctly within 10 minutes, the project will regards it succeeded.
@@ -69,6 +71,14 @@ Use "release" as the first parameter of start.sh to enter this mode.
 3. **normal mode**: If the job can run correctly within 30 minutes, the project will regards it succeeded.
 Use "normal" as the first parameter of start.sh to enter this mode.
 ## Note <a name="Note"></a>
-If the **sklearn-mnist, keras_cntk_backend_mnist, keras_tensorflow_backend_mnist, mxnet-autoencoder or tensorflow-cifar10** job failed,
-it may due to the official data downloading source being unstable. Just try again!
-Now(27th September, 2018), the mpi examples are still unready. Ignore them!
+If the parameters contains special characters like '&', please use single qutations to mark that parameter.
+
+If you want to add or delete an example, please follow these steps:
+### For adding <a name="Add"></a>
+1. Prepare your example, include the json file. If you should prepare data and code before submit the job, you should also write a prepare shell script named "prepare.sh". You can refer to [prepare.sh](https://github.com/Microsoft/pai/blob/master/examples/tensorflow/prepare.sh).
+2. Add the job name in your json file to the [start.sh](./start.sh), you can see the comment in line 17. Just add your job name to "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.
+### For deleting <a name="Delete"></a>
+1. Delete your example.
+2. Delete the job name in your json file from the [start.sh](./start.sh), you can see the comment in line 17. Just delete your job name from "full" line and "stable" line if the job is stable(Can run correctly in anytime).
+3. Put forward your pull request.

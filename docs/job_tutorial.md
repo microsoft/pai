@@ -20,9 +20,9 @@
 
 # How to Run a Deep Learning Job
 
-OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc. 
-It also supports other type of job through a customized docker image. 
-Users need to prepare a config file and submit it for a job submission. 
+OpenPAI supports major deep learning frameworks, including CNTK and TensorFlow, etc.
+It also supports other type of job through a customized docker image.
+Users need to prepare a config file and submit it for a job submission.
 This guide introduces the details of job submission.
 
 ## Table of Contents:
@@ -46,7 +46,7 @@ Please refer to this [document](../examples/README.md#quickstart) for how to wri
 
 ### Prerequisites <a name="prerequisites"></a>
 
-This guide assumes the system has already been deployed properly and a docker registry is available to store docker images. 
+This guide assumes the system has already been deployed properly and a docker registry is available to store docker images.
 
 ### Use docker to package the job environment dependencies <a name="docker"></a>
 
@@ -86,7 +86,12 @@ A json file describe detailed configuration required for a job submission. The d
     }
   ],
   "gpuType": String,
-  "retryCount": Integer
+  "retryCount": Integer,
+  "jobEnvs": {
+    "foo", Integer,
+    "key", String,
+    ...
+  }
 }
 ```
 
@@ -117,6 +122,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `taskRole.minSucceededTaskCount` | Integer, optional          | Number of succeeded tasks to kill the entire job, null or no less than 1, refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#ApplicationCompletionPolicy) for details |
 | `gpuType`                        | String, optional           | Specify the GPU type to be used in the tasks. If omitted, the job will run on any gpu type |
 | `retryCount`                     | Integer, optional          | Job retry count, no less than 0          |
+| `jobEnvs`                        | Object, optional           | Job env parameters, key-value pairs, available in job container and **no substitution allowed** |
 
 For more details on explanation, please refer to [frameworklauncher usermanual](../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md).
 
@@ -209,7 +215,7 @@ A distributed TensorFlow job is listed below as an example:
       // run tf_cnn_benchmarks.py in code directory
       // please refer to https://www.tensorflow.org/performance/performance_models#executing_the_script for arguments' detail
       // if there's no `scipy` in the docker image, need to install it first
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=$batch_size --model=$job_model --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=ps --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX"
     },
     {
       "name": "worker",
@@ -230,12 +236,16 @@ A distributed TensorFlow job is listed below as an example:
           "portNumber": 1
         }
       ],
-      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=32 --model=resnet20 --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
+      "command": "pip --quiet install scipy && python code/tf_cnn_benchmarks.py --local_parameter_device=cpu --batch_size=$batch_size --model=$job_model --variable_update=parameter_server --data_dir=$PAI_DATA_DIR --data_name=cifar10 --train_dir=$PAI_OUTPUT_DIR --ps_hosts=$PAI_TASK_ROLE_ps_server_HOST_LIST --worker_hosts=$PAI_TASK_ROLE_worker_HOST_LIST --job_name=worker --task_index=$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX",
       // kill the entire job when 2 worker tasks completed
       "minSucceededTaskCount": 2
     }
   ],
-  "retryCount": 0
+  "retryCount": 0,
+  "jobEnvs": {
+    "batch_size": 32,
+    "job_model": "resnet20"
+  }
 }
 ```
 
@@ -243,9 +253,9 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on [HDFS](../docs/hadoop/hdfs.md)
 
-- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system. 
+- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system.
 - Option-2: Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
-    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details. 
+    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
 
 2. Prepare a job config file
 
@@ -268,15 +278,15 @@ You can ssh connect to a specified container either from outside or inside conta
 3. Download the corresponding private key from HDFS.
    For example, with [wget](http://www.gnu.org/software/wget/), you can execute below command line:
    ```sh
-   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/application_id/.ssh/application_id?op=OPEN -O application_id
+   wget http://host:port/webhdfs/v1/Container/userName/jobName/ssh/keyFiles/userName~jobName?op=OPEN -O userName~jobName
    ```
 4. Use `chmod` command to set correct permission for the key file.
    ```sh
-   chmod 400 application_id
+   chmod 400 userName~jobName
    ```
 5. Use `ssh` command to connect into container. for example
    ```sh
-   ssh -i application_id -p ssh_port root@container_ip
+   ssh -i userName~jobName -p ssh_port root@container_ip
    ```
 ### SSH connect inside containers
 

@@ -64,13 +64,15 @@ spec:
         - name: TIMELINE_SERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: YARN_RESOURCEMANAGER_HEAPSIZE
-          value: "6144"
+          value: "32768"
         - name: GENERATE_CONFIG
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
         resources:
           limits:
+            memory: "36Gi"
+          requests:
             memory: "8Gi"
       - name: yarn-exporter
         image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}yarn-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
@@ -88,7 +90,6 @@ spec:
           httpGet:
             path: /
             port: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
-            scheme: HTTPS
           initialDelaySeconds: 5
           timeoutSeconds: 1
       imagePullSecrets:

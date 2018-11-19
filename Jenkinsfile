@@ -169,9 +169,17 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # ! TODO wait for cluster ready
 sleep 6s
 
-# Step 3. Start all PAI services
+# Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
+./paictl.py config push -p /cluster-configuration << EOF
+openpai-test
+EOF
+
+
+# Step 4. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+./paictl.py service start << EOF
+openpai-test
+EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
@@ -261,9 +269,16 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # ! TODO wait for cluster ready
 sleep 6s
 
-# Step 3. Start all PAI services
+# Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
+./paictl.py config push -p /cluster-configuration << EOF
+openpai-test
+EOF
+
+# Step 4. Start all PAI services
 # start pai services
-./paictl.py service start -p /cluster-configuration
+./paictl.py service start << EOF
+openpai-test
+EOF
 EOF_DEV_BOX
 sudo chown core:core -R $JENKINS_HOME
 sudo chown core:core -R /pathHadoop/
@@ -556,12 +571,13 @@ else
     git reset --hard origin/${GIT_BRANCH}
 fi
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
-Y
+./paictl.py service start -n cluster-configuration << EOF
+openpai-test
 EOF
 
-./paictl.py service delete -p /cluster-configuration << EOF
+./paictl.py service delete << EOF
 Y
+openpai-test
 EOF
 
 # clean k8s
@@ -599,12 +615,13 @@ else
     git reset --hard origin/${GIT_BRANCH}
 fi
 # delete service for next install
-./paictl.py service start -p /cluster-configuration -n cluster-configuration << EOF
-Y
+./paictl.py service start -n cluster-configuration << EOF
+openpai-test
 EOF
 
-./paictl.py service delete -p /cluster-configuration << EOF
+./paictl.py service delete << EOF
 Y
+openpai-test
 EOF
 
 # clean k8s
@@ -646,7 +663,8 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
-            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
+            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]),
+            to: 'paialert@microsoft.com'
       ])
     }
 

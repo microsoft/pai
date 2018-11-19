@@ -36,7 +36,8 @@ With the cluster being set up, the steps to bring PAI up on it are as follows:
 - [Step 2. Generate OpenPAI configuration files](#c-step-2)
 - [Step 3(Optional). Customize configure OpenPAI](#c-step-3)
 - [Step 4. Boot up Kubernetes](#c-step-4)
-- [Step 5. Start all PAI services](#c-step-5)
+- [Step 5. Push cluster configuration into kubernetes, and set cluster-id](#c-step-5)
+- [Step 6. Start all PAI services](#c-step-6)
 
 ### Step 0. Prepare the dev-box <a name="c-step-0"></a>
 
@@ -78,28 +79,7 @@ sudo docker run -itd \
 sudo docker exec -it dev-box /bin/bash
 ```
 
-##### (3) Check out a latest release branch of OpenPAI
-
-```bash
-cd /pai
-
-# fetch tags
-git fetch --tags
-
-# please go to https://github.com/Microsoft/pai/releases to checkout a latest release.
-# checkout a release branch. For example: v0.x.y
-git checkout v0.x.y
-
-# check current branch
-git status
-```
-- sucessful result:
-```bash
-HEAD detached at v0.6.1
-nothing to commit, working directory clean
-```
-
-##### (4) Go to pai working dir
+##### (3) Go to pai working dir
 
 ```bash
 cd /pai
@@ -287,7 +267,45 @@ http://<master>:9090
 
 Where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
 
-### Step 5. Start all PAI services <a name="c-step-5"></a>
+### Step 5. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-5"></a>
+
+After the kubernetes cluster is setup, and before managing your cluster and service, you should upload the cluster configuration into the kubernetes cluster with the following command.
+###### From local disk
+```
+python paictl.py config push -p /path/to/config/dir [-c /path/to/kubeconfig]
+```
+Default value of ```-c``` is: ```~/.kube/config```
+
+###### From an external git REPO.
+
+- First please set an external storage configuration.
+```yaml
+#################
+#     Git       #
+#################
+
+type: git
+url: https://github.com/microsoft/pai.git
+branch: branch_name
+path: path
+``` 
+- Then, update this external storage configuration into kubernetes cluster with the following command.
+```bash
+python paictl.py config external-config-update -e external-config-path [ -c kubeconfig ]
+```
+Default value of ```-c``` is: ```~/.kube/config```
+- At last, execute the update command following
+```bash
+python paictl.py config update [-c kubeconfig]
+```
+Default value of ```-c``` is: ```~/.kube/config```
+- If this the first time, you upload configuration, a cluster-id will be asked to type.
+
+###### More detail of paictl config
+
+- [pacitl manual](../../paictl/paictl-manual.md)
+
+### Step 6. Start all PAI services <a name="c-step-6"></a>
 
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
@@ -297,9 +315,11 @@ cd /pai
 # cmd should be executed under /pai directory in the dev-box.
 
 python paictl.py service start \
-  -p ~/pai-config \
+  [ -c /path/to/kubeconfig] \
   [ -n service-name ]
 ```
+Default value of ```-c``` is: ```~/.kube/config```
+
 
 If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
 
@@ -359,7 +379,8 @@ ssh-key-filename: key-filename
 
 - [Step 2. Generate OpenPAI configuration files](#c-step-2)
 - [Step 4. Boot up Kubernetes](#c-step-4)
-- [Step 5. Start all PAI services](#c-step-5)
+- [Step 5. Push cluster configuration into kubernetes, and set cluster-id](#c-step-5)
+- [Step 6. Start all PAI services](#c-step-6)
 
 ## Troubleshooting <a name="problem"></a>
 
@@ -466,7 +487,7 @@ If the `-n` parameter is specified, only the given image, e.g. `rest-server`, `w
 
 ```bash
 python paictl.py service stop \
-  -p /path/to/cluster-configuration/dir \
+  [ -c /path/to/kubeconfig ] \
   [ -n service-name ]
 ```
 
@@ -486,7 +507,7 @@ Please refer [Kubernetes Troubleshoot Clusters](https://kubernetes.io/docs/tasks
 - [Report an issue:](https://github.com/Microsoft/pai/wiki/Issue-tracking) If you have issue/ bug/ new feature, please submit it at Github
 
 ## Maintenance <a name="maintenance"></a>
-####  [Service Upgrading](./machine-maintenance.md#service-maintain.md)
-####  [Machine Add & Delete](./service-maintain.md#machine-maintenance.md)
+####  [Service Upgrading](../../paictl/paictl-manual.md#Service)
+####  [Machine Add & Delete](../../paictl/paictl-manual.md#Machine)
 
 

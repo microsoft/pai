@@ -25,6 +25,7 @@ import logging.config
 from .. import conf_storage_util
 from ...paiLibrary.common import template_handler
 from ...paiLibrary.common import file_handler
+from ...paiLibrary.common import kubernetes_handler
 
 package_directory_kubeinstall = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,10 +70,10 @@ class getting_external_config:
 
 
     def load_from_k8s_configmap(self, KUBE_CONFIG_PATH = None):
-        if KUBE_CONFIG_PATH == None:
+        if KUBE_CONFIG_PATH is None:
             KUBE_CONFIG_PATH = self.kube_config_path
-        configmap_data_dict = conf_storage_util.get_configmap(KUBE_CONFIG_PATH, "pai-external-storage-conf")
-        if configmap_data_dict == None:
+        configmap_data_dict = kubernetes_handler.get_configmap(KUBE_CONFIG_PATH, "pai-external-storage-conf")
+        if configmap_data_dict is None:
             self.logger.error("Unable to get the external storage configuration from k8s cluster.")
             self.logger.error("Please check the configmap named [pai-external-storage] in the namespace [default].")
             sys.exit(1)
@@ -143,7 +144,7 @@ class uploading_external_config:
 
         cluster_id = conf_storage_util.get_cluster_id(self.kube_config_path)
 
-        if cluster_id == None:
+        if cluster_id is None:
             self.logger.warning("No cluster_id found in your cluster.")
             user_input = raw_input("Please input the cluster-id for your cluster: ")
             conf_storage_util.update_cluster_id(self.kube_config_path, user_input)
@@ -177,5 +178,5 @@ class uploading_external_config:
 
         self.check_cluster_id()
 
-        conf_storage_util.update_configmap(KUBE_CONFIG_PATH, "pai-external-storage-conf", external_storage_conf_dict)
+        kubernetes_handler.update_configmap(KUBE_CONFIG_PATH, "pai-external-storage-conf", external_storage_conf_dict)
         self.logger.info("Successfully update the external storage configuration.")

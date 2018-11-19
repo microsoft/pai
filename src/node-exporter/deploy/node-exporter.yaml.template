@@ -100,6 +100,13 @@ spec:
             memory: "128Mi"
         securityContext:
           privileged: true # this is required by job-exporter
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: LOGGING_LEVEL
+          value: INFO
         volumeMounts:
         - mountPath: /root/.docker
           name: docker-cred-volume
@@ -113,6 +120,8 @@ spec:
           name: driver-path
         - mountPath: /datastorage/prometheus
           name: collector-mount
+        - mountPath: /gpu-config
+          name: gpu-config
         name: job-exporter
       volumes:
         - name: docker-bin
@@ -142,6 +151,9 @@ spec:
         - name: sys
           hostPath:
             path: /sys
+        - name: gpu-config
+          configMap:
+            name: gpu-configuration
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       hostNetwork: true

@@ -29,6 +29,7 @@ import logging.config
 from deployment.confStorage.download import  download_configuration
 from deployment.confStorage.synchronization import synchronization
 from deployment.confStorage.external_version_control.external_config import uploading_external_config
+from deployment.confStorage.get_cluster_id import get_cluster_id
 
 from deployment.paiLibrary.common import linux_shell
 from deployment.paiLibrary.common import file_handler
@@ -44,6 +45,7 @@ from deployment.k8sPaiLibrary.maintainlib import remove as k8s_remove
 from deployment.k8sPaiLibrary.maintainlib import etcdfix as k8s_etcd_fix
 from deployment.k8sPaiLibrary.maintainlib import kubectl_conf_check
 from deployment.k8sPaiLibrary.maintainlib import kubectl_install
+from deployment.k8sPaiLibrary.maintainlib import update as k8s_update
 
 
 logger = logging.getLogger(__name__)
@@ -77,167 +79,16 @@ def load_cluster_objectModel_k8s(config_path):
     return ret["k8s"]
 
 
-
-def login_docker_registry(docker_registry, docker_username, docker_password):
-
-    shell_cmd = "docker login -u {0} -p {1} {2}".format(docker_username, docker_password, docker_registry)
-    error_msg = "docker registry login error"
-    linux_shell.execute_shell(shell_cmd, error_msg)
-    logger.info("docker registry login successfully")
-
-
-
-def generate_secret_base64code(docker_info):
-
-    domain = docker_info[ "docker_registry_domain" ] and str(docker_info[ "docker_registry_domain" ])
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if domain == "public":
-        domain = ""
-
-    if username and passwd:
-        login_docker_registry( domain, username, passwd )
-
-        base64code = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json | base64",
-            "Failed to base64 the docker's config.json"
-        )
-    else:
-        logger.info("docker registry authentication not provided")
-
-        base64code = "{}".encode("base64")
-
-    docker_info["base64code"] = base64code.replace("\n", "")
-
-
-
-def generate_docker_credential(docker_info):
-
-    username = docker_info[ "docker_username" ] and str(docker_info[ "docker_username" ])
-    passwd = docker_info[ "docker_password" ] and str(docker_info[ "docker_password" ])
-
-    if username and passwd:
-        credential = linux_shell.execute_shell_with_output(
-            "cat ~/.docker/config.json",
-            "Failed to get the docker's config.json"
-        )
-    else:
-        credential = "{}"
-
-    docker_info["credential"] = credential
-
-
-
-def generate_image_url_prefix(docker_info):
-
-    domain = str(docker_info["docker_registry_domain"])
-    namespace = str(docker_info["docker_namespace"])
-
-    if domain != "public":
-        prefix = "{0}/{1}/".format(domain, namespace)
-    else:
-        prefix = "{0}/".format(namespace)
-
-    docker_info["prefix"] = prefix
-
-
-
-def generate_etcd_ip_list(master_list):
-
-    etcd_cluster_ips_peer = ""
-    etcd_cluster_ips_server = ""
-    separated = ""
-    for infra in master_list:
-        ip = master_list[ infra ][ 'hostip' ]
-        etcdid = master_list[ infra ][ 'etcdid' ]
-        ip_peer = "{0}=http://{1}:2380".format(etcdid, ip)
-        ip_server = "http://{0}:4001".format(ip)
-
-        etcd_cluster_ips_peer = etcd_cluster_ips_peer + separated + ip_peer
-        etcd_cluster_ips_server = etcd_cluster_ips_server + separated + ip_server
-
-        separated = ","
-
-    return etcd_cluster_ips_peer, etcd_cluster_ips_server
-
-
-
-def generate_configuration_of_hadoop_queues(cluster_config):
-    """The method to configure VCs:
-      - Each VC correspoonds to a Hadoop queue.
-      - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
-      - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
-        been explicitly specified in the configuration file.
-      - If all capacities are 0, resources will be split evenly to each VC.
-    """
-    hadoop_queues_config = {}
-    #
-    virtual_clusters_config = cluster_config["clusterinfo"]["virtualClusters"]
-    if "default" not in virtual_clusters_config:
-        logger.warn("VC 'default' has not been explicitly specified. " +
-            "Auto-recoverd by adding it with 0 capacity.")
-        virtual_clusters_config["default"] = {
-            "description": "Default VC.",
-            "capacity": 0
-        }
-    total_capacity = 0
-    for vc_name in virtual_clusters_config:
-        if virtual_clusters_config[vc_name]["capacity"] < 0:
-            logger.warn("Capacity of VC '%s' (=%f) should be a positive number. " \
-                % (vc_name, virtual_clusters_config[vc_name]["capacity"]) +
-                "Auto-recoverd by setting it to 0.")
-            virtual_clusters_config[vc_name]["capacity"] = 0
-        total_capacity += virtual_clusters_config[vc_name]["capacity"]
-    if float(total_capacity).is_integer() and total_capacity == 0:
-        logger.warn("Total capacity (=%d) should be a positive number. " \
-            % (total_capacity) +
-            "Auto-recoverd by splitting resources to each VC evenly.")
-        for vc_name in virtual_clusters_config:
-            virtual_clusters_config[vc_name]["capacity"] = 1
-            total_capacity += 1
-    for vc_name in virtual_clusters_config:
-        hadoop_queues_config[vc_name] = {
-            "description": virtual_clusters_config[vc_name]["description"],
-            "weight": float(virtual_clusters_config[vc_name]["capacity"]) / float(total_capacity) * 100
-        }
-    #
-    cluster_config["clusterinfo"]["hadoopQueues"] = hadoop_queues_config
-
-
-
 def cluster_object_model_generate_service(config_path):
 
     cluster_config = load_cluster_objectModel_service(config_path)
-
-    generate_secret_base64code(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_docker_credential(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-    generate_image_url_prefix(cluster_config[ "clusterinfo" ][ "dockerregistryinfo" ])
-
-    if 'docker_tag' not in cluster_config['clusterinfo']['dockerregistryinfo']:
-        cluster_config['clusterinfo']['dockerregistryinfo']['docker_tag'] = 'latest'
-
-    generate_configuration_of_hadoop_queues(cluster_config)
-
     return cluster_config
-
 
 
 def cluster_object_model_generate_k8s(config_path):
 
     cluster_config = load_cluster_objectModel_k8s(config_path)
-
-    master_list = cluster_config['mastermachinelist']
-    etcd_cluster_ips_peer, etcd_cluster_ips_server = generate_etcd_ip_list(master_list)
-
-    # ETCD will communicate with each other through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = etcd_cluster_ips_peer
-    # Other service will write and read data through this address.
-    cluster_config['clusterinfo']['etcd_cluster_ips_server'] = etcd_cluster_ips_server
-    cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'new'
-
     return cluster_config
-
 
 
 ## TODO: Please remove all function above, after cluster_object_model is finsied.
@@ -277,7 +128,6 @@ def kubectl_env_checking(cluster_object_mode):
             else:
                 print(" Please type Y or N.")
 
-
             count_input = count_input + 1
             if count_input == 3:
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
@@ -296,13 +146,14 @@ class SubCmd(object):
     def add_handler(parser, handler, *args, **kwargs):
         """ helper function for adding sub-command handler """
         sub_parser = parser.add_parser(*args, **kwargs)
-        sub_parser.set_defaults(handler=handler) # let handler handle this subcmd
+        sub_parser.set_defaults(handler=handler)  # let handler handle this subcmd
         return sub_parser
 
     def run(self, args):
         """ will call run with expected args, subclass do not have to override this method
         if subclass use `add_handler` to register handler. """
         args.handler(args)
+
 
 class Machine(SubCmd):
     def register(self, parser):
@@ -317,10 +168,16 @@ class Machine(SubCmd):
         add_parser = SubCmd.add_handler(machine_parser, self.machine_add, "add")
         remove_parser = SubCmd.add_handler(machine_parser, self.machine_remove, "remove")
         etcd_parser = SubCmd.add_handler(machine_parser, self.etcd_fix, "etcd-fix")
+        update_parser = SubCmd.add_handler(machine_parser, self.machine_update, "update")
 
         add_arguments(add_parser)
         add_arguments(remove_parser)
         add_arguments(etcd_parser)
+
+        update_parser.add_argument("-p", "--config-path", dest="config_path", default=None,
+                                   help="the path of directory which stores the cluster configuration.")
+        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
     def process_args(self, args):
         cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
@@ -357,6 +214,14 @@ class Machine(SubCmd):
                 logger.info("master node is removed, sleep 60s for etcd cluster's updating")
                 time.sleep(60)
 
+    def machine_update(self, args):
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
+
+        update_worker = k8s_update.update(kube_config_path = args.kube_config_path)
+        update_worker.run()
+        logger.info("Congratulations! Machine update is finished.")
+
     def etcd_fix(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
 
@@ -376,8 +241,8 @@ class Service(SubCmd):
         service_parser = parser.add_subparsers(help="service operations")
 
         def add_arguments(parser):
-            parser.add_argument("-p", "--config-path", dest="config_path", required=True,
-                                help="The path of your configuration directory.")
+            parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
             parser.add_argument("-n", "--service-name", dest="service_name", default="all",
                                 help="Build and push the target image to the registry")
 
@@ -385,9 +250,6 @@ class Service(SubCmd):
         stop_parser = SubCmd.add_handler(service_parser, self.service_stop, "stop")
         delete_parser = SubCmd.add_handler(service_parser, self.service_delete, "delete")
         refresh_parser = SubCmd.add_handler(service_parser, self.service_refresh, "refresh")
-        # TODO: Two feature.
-        # Rolling Update Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
-        # Rolling back Service : paictl.py service update -p /path/to/configuration/ [ -n service-x ]
 
         add_arguments(start_parser)
         add_arguments(stop_parser)
@@ -395,35 +257,29 @@ class Service(SubCmd):
         add_arguments(refresh_parser)
 
     def process_args(self, args):
-        cluster_object_model = cluster_object_model_generate_service(args.config_path)
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
 
         service_list = None
         if args.service_name != "all":
             service_list = [args.service_name]
 
-        # Tricky, re-install kubectl first.
-        # TODO: install kubectl-install here.
-        if not kubectl_env_checking(cluster_object_model_k8s):
-            raise RuntimeError("failed to do kubectl checking")
-
-        return cluster_object_model, service_list
+        return service_list
 
     def service_start(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_starter = service_management_start.serivce_management_start(cluster_object_model, service_list)
+        service_management_starter = service_management_start.serivce_management_start(args.kube_config_path, service_list)
         service_management_starter.run()
 
-
     def service_stop(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_stopper = service_management_stop.service_management_stop(cluster_object_model, service_list)
+        service_management_stopper = service_management_stop.service_management_stop(args.kube_config_path, service_list)
         service_management_stopper.run()
 
     def service_delete(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
@@ -457,13 +313,13 @@ class Service(SubCmd):
                 logger.warning("3 Times.........  Sorry,  we will force stopping your operation.")
                 return
 
-        service_management_deleter = service_management_delete.service_management_delete(cluster_object_model, service_list)
+        service_management_deleter = service_management_delete.service_management_delete(args.kube_config_path, service_list)
         service_management_deleter.run()
 
     def service_refresh(self, args):
-        cluster_object_model, service_list = self.process_args(args)
+        service_list = self.process_args(args)
 
-        service_management_refresher = service_management_refresh.service_management_refresh(cluster_object_model, service_list)
+        service_management_refresher = service_management_refresh.service_management_refresh(args.kube_config_path, service_list)
         service_management_refresher.run()
 
 
@@ -532,8 +388,6 @@ class Cluster(SubCmd):
         cluster_util.maintain_cluster_k8s(cluster_config, option_name="clean", force=args.force, clean=True)
         logger.info("Clean up job finished")
 
-
-
     def k8s_set_environment(self, args):
 
         if args.config_path != None:
@@ -545,9 +399,7 @@ class Cluster(SubCmd):
         kubectl_install_worker.run()
 
 
-
 class Configuration(SubCmd):
-
 
     def register(self, parser):
         conf_parser = parser.add_subparsers(help="configuration operations")
@@ -555,11 +407,14 @@ class Configuration(SubCmd):
         generate_parser = SubCmd.add_handler(conf_parser, self.generate_configuration, "generate",
                                              description="Generate configuration files based on a quick-start yaml file.",
                                              formatter_class=argparse.RawDescriptionHelpFormatter)
-        update_parser = SubCmd.add_handler(conf_parser, self.update_configuration, "update",
-                                           description="Update configuration to kubernetes cluster as configmap.",
+        push_parser = SubCmd.add_handler(conf_parser, self.push_configuration, "push",
+                                           description="Push configuration to kubernetes cluster as configmap.",
                                            formatter_class=argparse.RawDescriptionHelpFormatter)
-        get_parser = SubCmd.add_handler(conf_parser, self.get_configuration, "get",
-                                        description="Download the configuration stored in the k8s cluster.",
+        pull_parser = SubCmd.add_handler(conf_parser, self.pull_configuration, "pull",
+                                        description="Get the configuration stored in the k8s cluster.",
+                                        formatter_class=argparse.RawDescriptionHelpFormatter)
+        get_id_parser = SubCmd.add_handler(conf_parser, self.get_cluster_id, "get-id",
+                                        description="Get the cluster-id stored in the k8s cluster.",
                                         formatter_class=argparse.RawDescriptionHelpFormatter)
         external_config_update_parser = SubCmd.add_handler(conf_parser, self.update_external_config, "external-config-update",
                                                            description="Update configuration of external storage where you could configure the place to sync the latest cluster configuration",
@@ -572,17 +427,20 @@ class Configuration(SubCmd):
         generate_parser.add_argument("-f", "--force", dest="force", action="store_true", default=False,
                                      help="overwrite existing files")
 
-        mutually_update_option = update_parser.add_mutually_exclusive_group()
+        mutually_update_option = push_parser.add_mutually_exclusive_group()
         mutually_update_option.add_argument("-p", "--cluster-conf-path", dest="cluster_conf_path", default=None,
                                             help="the path of directory which stores the cluster configuration.")
         mutually_update_option.add_argument("-e", "--external-storage-conf-path", dest="external_storage_conf_path",  default=None,
                                             help="the path of external storage configuration.")
-        update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+        push_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
-        get_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
+        pull_parser.add_argument("-o", "--config-output-path", dest="config_output_path", required=True,
                                 help="the path of the directory to store the configuration downloaded from k8s.")
-        get_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+        pull_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
+                                   help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
+
+        get_id_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
         external_config_update_parser.add_argument("-e", "--extneral-storage-conf-path", dest="external_storage_conf_path", required=True,
@@ -590,18 +448,13 @@ class Configuration(SubCmd):
         external_config_update_parser.add_argument("-c", "--kube-config-path", dest="kube_config_path", default="~/.kube/config",
                                                    help="The path to KUBE_CONFIG gile. Default value: ~/.kube/config")
 
-
-
-
     def generate_configuration(self, args):
         cluster_util.generate_configuration(
                 args.quick_start_config_file,
                 args.configuration_directory,
                 args.force)
 
-
-
-    def update_configuration(self, args):
+    def push_configuration(self, args):
         if args.cluster_conf_path != None:
             args.cluster_conf_path = os.path.expanduser(args.cluster_conf_path)
         if args.external_storage_conf_path != None:
@@ -615,9 +468,7 @@ class Configuration(SubCmd):
         )
         sync_handler.sync_data_from_source()
 
-
-
-    def get_configuration(self, args):
+    def pull_configuration(self, args):
         if args.config_output_path != None:
             args.config_output_path = os.path.expanduser(args.config_output_path)
         if args.kube_config_path != None:
@@ -628,7 +479,11 @@ class Configuration(SubCmd):
         )
         get_handler.run()
 
-
+    def get_cluster_id(self,args):
+        if args.kube_config_path != None:
+            args.kube_config_path = os.path.expanduser(args.kube_config_path)
+        get_id_handler = get_cluster_id(kube_config_path=args.kube_config_path)
+        get_id_handler.run()
 
     def update_external_config(self, args):
         if args.kube_config_path != None:
@@ -640,7 +495,6 @@ class Configuration(SubCmd):
             kube_config_path=args.kube_config_path
         )
         external_conf_update.update_latest_external_configuration()
-
 
 
 class Main(SubCmd):
@@ -673,5 +527,8 @@ def main(args):
 
 
 if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(script_dir)
+
     setup_logging()
     main(sys.argv[1:])

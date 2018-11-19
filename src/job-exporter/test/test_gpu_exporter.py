@@ -57,13 +57,13 @@ class TestGPUExporter(unittest.TestCase):
         file = open(sample_path, "r")
         nvidia_smi_result = file.read()
         nvidia_smi_parse_result = gpu_exporter.parse_smi_xml_result(nvidia_smi_result)
-        target_smi_info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
-                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
+        target_smi_info = {'1': {'gpu_util': u'98', 'gpu_mem_util': u'97'},
+                '0': {'gpu_util': u'100', 'gpu_mem_util': u'99'}}
         self.assertEqual(target_smi_info, nvidia_smi_parse_result)
 
     def test_convert_gpu_info_to_metrics(self):
-        info = {'1': {'gpuUtil': u'98', 'gpuMemUtil': u'97'},
-                '0': {'gpuUtil': u'100', 'gpuMemUtil': u'99'}}
+        info = {'1': {'gpu_util': u'98', 'gpu_mem_util': u'97'},
+                '0': {'gpu_util': u'100', 'gpu_mem_util': u'99'}}
         metrics = gpu_exporter.convert_gpu_info_to_metrics(info)
         self.assertEqual(5, len(metrics))
 

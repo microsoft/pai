@@ -141,7 +141,7 @@ class add:
 
         # Directly find the leader node.
         good_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
-        if good_node_config == None:
+        if good_node_config is None:
             self.logger.error("Unable to find the etcd leader node.")
             sys.exit(1)
 

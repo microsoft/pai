@@ -72,7 +72,7 @@ class remove:
         self.logger.info("{0} job begins !".format(self.jobname))
 
         commandline = "kubectl delete node {0}".format(self.node_config['nodename'])
-        common.execute_shell(
+        common.execute_shell_return(
             commandline,
             "Failed to delete  node {0}".format(self.node_config['nodename'])
         )
@@ -90,7 +90,7 @@ class remove:
             self.logger.error("Failed to uncompress {0}.tar".format(self.jobname))
             sys.exit(1)
 
-        commandline = "sudo ./{0}/kubernetes-cleanup.sh".format(self.jobname)
+        commandline = "sudo /bin/bash {0}/kubernetes-cleanup.sh".format(self.jobname)
         if common.ssh_shell_with_password_input_paramiko(self.node_config, commandline) == False:
             self.logger.error("Failed to cleanup the kubernetes deployment on {0}".format(self.node_config['hostip']))
             sys.exit(1)
@@ -149,7 +149,7 @@ class remove:
 
             leader_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
 
-            if leader_node_config == None:
+            if leader_node_config is None:
                 self.logger.error("Failed to find the leader node in the etcd cluster")
                 sys.exit(1)
 

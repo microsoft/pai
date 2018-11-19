@@ -84,7 +84,9 @@ class TestUtils(unittest.TestCase):
         singleton = utils.Singleton(getter)
 
         for _ in xrange(10):
-            self.assertEqual(100, singleton.try_get())
+            val, is_old = singleton.try_get()
+            self.assertEqual(100, val)
+            self.assertFalse(is_old)
 
     def test_singleton_with_blocking_getter_no_old_data(self):
         semaphore = threading.Semaphore(1)
@@ -94,16 +96,24 @@ class TestUtils(unittest.TestCase):
             semaphore.release()
             return 100
 
-        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2, old_data_timeout_s=0)
+        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2)
+
+        val, is_old = singleton.try_get()
+        self.assertIsNotNone(val)
+        self.assertFalse(is_old)
 
         for _ in xrange(3):
             semaphore.acquire()
 
             for _ in xrange(3):
-                self.assertIsNone(singleton.try_get())
+                val, is_old = singleton.try_get()
+                self.assertEqual(100, val)
+                self.assertTrue(is_old)
 
             semaphore.release()
-            self.assertEqual(100, singleton.try_get())
+            val, is_old = singleton.try_get()
+            self.assertEqual(100, val)
+            self.assertFalse(is_old)
 
     def test_singleton_with_blocking_getter_allow_old_data(self):
         semaphore = threading.Semaphore(1)
@@ -113,26 +123,34 @@ class TestUtils(unittest.TestCase):
             semaphore.release()
             return 100
 
-        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2, old_data_timeout_s=30)
+        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2)
 
         semaphore.acquire()
 
         for _ in xrange(3):
-            self.assertIsNone(singleton.try_get())
+            val, is_old = singleton.try_get()
+            self.assertIsNone(val)
+            self.assertTrue(is_old)
 
         semaphore.release()
         # let singleton cache one value
-        self.assertEqual(100, singleton.try_get())
+        val, is_old = singleton.try_get()
+        self.assertEqual(100, val)
+        self.assertFalse(is_old)
 
         for _ in xrange(3):
             semaphore.acquire()
 
             for _ in xrange(3):
                 # singleton returns old value
-                self.assertEqual(100, singleton.try_get())
+                val, is_old = singleton.try_get()
+                self.assertEqual(100, val)
+                self.assertTrue(is_old)
 
             semaphore.release()
-            self.assertEqual(100, singleton.try_get())
+            val, is_old = singleton.try_get()
+            self.assertEqual(100, val)
+            self.assertFalse(is_old)
 
 if __name__ == '__main__':
     unittest.main()
