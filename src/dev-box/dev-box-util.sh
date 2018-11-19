@@ -64,7 +64,7 @@ get_nodes_list() {
 }
 
 config_dev_box() {
-  #pre_config
+  pre_config
   config_ssh
-  #get_node_list
+  get_node_list
 }
