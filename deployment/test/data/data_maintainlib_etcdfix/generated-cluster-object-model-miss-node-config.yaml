@@ -1,0 +1,160 @@
+# Copyright (c) Microsoft Corporation
+# All rights reserved.
+#
+# MIT License
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+# to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+cluster:
+  common:
+    clusterid: pai
+    data-path: "/datastroage"
+
+  docker-registry:
+    namespace: openpai
+    domain: docker.io
+    tag: latest
+    secret-name: regsecret
+
+
+
+kubernetes:
+  cluster-dns: 168.63.129.16
+
+  api-servers-ip: 10.0.3.7
+
+  service-cluster-ip-range: 10.254.0.0/16
+
+  storage-backend: etcd3
+
+  docker-registry: gcr.io/google_containers
+
+  hyperkube-version: v1.9.9
+
+  etcd-version: 3.2.17
+
+  apiserver-version: v1.9.9
+
+  kube-scheduler-version: v1.9.9
+
+  kube-controller-manager-version:  v1.9.9
+
+  dashboard-version: v1.8.3
+
+  dashboard-host: 10.0.3.11
+
+  etcd-data-path: "/var/etcd/data"
+
+  etcd_cluster_ips_peer: etcdid1=http://1.2.3.1:2380
+
+  etcd_cluster_ips_server: http://1.2.3.1:4001
+
+  etcd-initial-cluster-state: "new"
+
+  master-list:
+    - infra-02
+    - infra-03
+    - ok-machine-node
+
+  worker-list:
+    - worker-01
+    - worker-02
+
+
+
+machine:
+
+  machine-sku:
+    NC24R:
+      mem: 224
+      gpu:
+        type: teslak80
+        count: 4
+      cpu:
+        vcore: 24
+      os: ubuntu16.04
+
+    D8SV3:
+      mem: 32
+      cpu:
+        vcore: 8
+      os: ubuntu16.04
+
+
+  default-machine-properties:
+    username: username_ut
+    password: password_ut
+    sshport: 22
+
+
+  machine-lists:
+    infra-03:
+      hostname: infra-03
+      nodename: 1.2.3.1
+      hostip: 1.2.3.1
+      etcdid: etcdid3
+      machine-type: D8SV3
+      k8s-role: master
+      dashboard: "true"
+      zkid: "1"
+      pai-master: "true"
+      sshport: 22
+      username: unittest
+      password: unittest123
+
+    infra-02:
+      nodename: 1.2.3.2
+      hostip: 1.2.3.2
+      sshport: 22
+      etcdid: etcdid2
+      machine-type: D8SV3
+      pai-master: "true"
+      username: unittest
+      password: unittest123
+
+    ok-machine-node:
+      hostname: infra-02
+      nodename: 1.2.3.41
+      hostip: 1.2.3.4
+      etcdid: etcdid1
+      machine-type: D8SV3
+      k8s-role: master
+      sshport: 22
+      username: unittest
+      password: unittest123
+
+    worker-01:
+      hostname: worker-01
+      nodename: 1.2.3.10
+      hostip: 1.2.3.10
+      machine-type: D8SV3
+      k8s-role: worker
+      pai-worker: "true"
+      username: unittest
+      password: unittest123
+
+    worker-02:
+      hostname: worker-02
+      nodename: 1.2.3.11
+      hostip: 1.2.3.11
+      machine-type: D8SV3
+      k8s-role: worker
+      pai-worker: "true"
+      username: unittest
+      password: unittest123
+
+
+
+
+
