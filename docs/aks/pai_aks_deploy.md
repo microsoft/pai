@@ -34,7 +34,7 @@ This document introduces the detailed procedures to boot up PAI on Azure AKS Clu
 ### Step 0. Prepare the dev-box <a name="c-step-0"></a>
 
 ##### step 0.1 common prepare the dev-box
-Please refer to this [section](../cluster-bootup.md#c-step-0) for the customize setting up a dev-box.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#c-step-0) for the customize setting up a dev-box.
 
 #####  step 0.2 additional configuration for AKS 
 
@@ -64,20 +64,20 @@ cd /pai/src/dev-box
 
 ### Step 1. Prepare the quick-start.yaml file <a name="c-step-1"></a>
 
-Please refer to this [section](../cluster-bootup.md#c-step-1) for prepare the quick-start.yaml file.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#c-step-1) for prepare the quick-start.yaml file.
 
 ### Step 2. Generate OpenPAI configuration files <a name="c-step-2"></a>
 
-Please refer to this [section](../cluster-bootup.md#c-step-2) for prepare the quick-start.yaml file.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#c-step-2) for prepare the quick-start.yaml file.
 
 ### Step 3. Customize configure OpenPAI on AKS <a name="c-step-3"></a>
 
 
 ### Step 4. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-4"></a>
 
-Please refer to this [section](../cluster-bootup.md#c-step-5) for Push cluster configuration into kubernetes, and set cluster-id.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#c-step-5) for Push cluster configuration into kubernetes, and set cluster-id.
 
 ### Step 5. Start all PAI services <a name="c-step-5"></a>
 
-Please refer to this [section](../cluster-bootup.md#c-step-6) for start all PAI services.
+Please refer to this [section](../pai-management/doc/cluster-bootup.md#c-step-6) for start all PAI services.
 
