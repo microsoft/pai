@@ -18,8 +18,10 @@
 
 // module dependencies
 const unirest = require('unirest');
+const xml2js = require('xml2js');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
+const logger = require('../config/logger');
 
 class VirtualCluster {
   constructor(name, next) {
@@ -80,6 +82,94 @@ class VirtualCluster {
         }
       });
   }
+
+  generateUpdateInfo(updateData) {
+    let jsonBuilder = new xml2js.Builder({rootName:'sched-conf'});
+    let data = [];
+    if (updateData.hasOwnProperty("pendingAdd")) {
+        for (let item of updateData["pendingAdd"]) {
+            let singleQueue = {
+                "queue-name": "root." + item,
+                "params": {
+                    "entry": {
+                        "key": "capacity",
+                        "value": updateData["pendingAdd"][item]["capacity"]
+                    }
+                }
+            };
+            data.push({"add-queue": singleQueue});
+        }
+    }
+    if (updateData.hasOwnProperty("pendingUpdate")) {
+        for (let item of updateData["pendingUpdate"]) {
+            let singleQueue = {
+                "queue-name": "root." + item,
+                "params": {
+                    "entry": {
+                        "key": "capacity",
+                        "value": updateData["pendingAdd"][item]
+                    }
+                }
+            };
+            data.push({"update-queue": singleQueue});
+        }
+    }
+    return jsonBuilder.buildObject(data)
+  }
+
+  sendUpdateInfo(updateXml, callback) {
+    unirest.put(yarnConfig.yarnVcUpdatePath)
+        .headers(yarnConfig.webserviceUpdateQueueHeaders)
+        .body(updateXml)
+        .end((res) => {
+        try {
+          logger.debug(res.body);
+          callback(res, null);
+        } catch (error) {
+          callback(null, error);
+        }
+      })
+  }
+
+  addVc(vcName, capacity, callback) {
+    this.getVcList((vcList, err) => {
+      if (err) {
+        return callback(err);
+      } else if (!vcList) {
+        // Unreachable
+        logger.warn('list virtual clusters error, no virtual cluster found');
+      } else {
+        if (vcList.hasOwnProperty(vcName)) {
+          return callback(createError('Forbidden', 'NoVirtualClusterError', `Can't add a exist virtual cluster ${vcName}.`));
+        }
+        else if (!vcList.hasOwnProperty("default")){
+          return callback(createError('Forbidden', 'NoVirtualClusterError', `No default vc found, can't allocate resource`));
+        }
+        else if (vcList["default"]<capacity) {
+          return callback(createError('Forbidden', 'NoVirtualClusterError', `No enough resource`));
+        }
+        else {
+          let data = {"pendingAdd": [], "pendingUpdate": []};
+          let addQueue = {};
+          addQueue[vcName] = capacity;
+          data["pendingAdd"].push(addQueue);
+          let updateQueue = {};
+          updateQueue["default"] = vcList["default"] - capacity;
+          data["pendingUpdate"].push(updateQueue);
+          const vcdataXml = this.generateUpdateInfo(data);
+          this.sendUpdateInfo(vcdataXml, (res, err) => {
+              if(err){
+                  return callback(err)
+              }
+          })
+
+        }
+
+      }
+    })
+  }
+
+
 }
 
 // module exports

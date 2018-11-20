@@ -16,6 +16,7 @@
 // module dependencies
 const express = require('express');
 const vcController = require('../controllers/vc');
+const token = require('../middlewares/token');
 
 const router = new express.Router();
 
@@ -25,7 +26,9 @@ router.route('/')
 
 router.route('/:vcName')
     /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
-    .get(vcController.get);
+    .get(vcController.get)
+    .put(token.check, vcController.update)
+
 
 /** Load virtual cluster when API with vcName route parameter is hit */
 router.param('vcName', vcController.load);

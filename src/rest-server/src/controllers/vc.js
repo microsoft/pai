@@ -59,9 +59,31 @@ const list = (req, res, next) => {
   });
 };
 
+/**
+ * Add a vc.
+ */
+const update = (req, res, next) => {
+  const vcName = req.body.vcName;
+  const vcCapacity = req.body.vcCapacity;
+  if (req.user.admin) {
+    VirtualCluster.prototype.addVc(vcName, vcCapacity, (err) => {
+      if (err) {
+        return next(createError.unknown(err));
+      } else {
+        return res.status(201).json({
+          message: 'update successfully',
+        });
+      }
+    });
+  } else {
+    next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));
+  }
+};
+
 // module exports
 module.exports = {
   load,
   get,
   list,
+  update,
 };

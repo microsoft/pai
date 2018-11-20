@@ -26,7 +26,12 @@ let yarnConfig = {
     'Accept': 'application/json',
   },
   yarnVcInfoPath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler`,
+  webserviceUpdateQueueHeaders: {
+    'Content-Type': 'application/xml',
+  },
+  yarnVcUpdatePath: `${process.env.YARN_URI}/ws/v1/cluster/scheduler-conf`,
 };
+
 
 const yarnConfigSchema = Joi.object().keys({
   yarnUri: Joi.string()
@@ -35,6 +40,11 @@ const yarnConfigSchema = Joi.object().keys({
   webserviceRequestHeaders: Joi.object()
     .required(),
   yarnVcInfoPath: Joi.string()
+    .uri()
+    .required(),
+  webserviceUpdateQueueHeaders: Joi.object()
+    .required(),
+  yarnVcUpdatePath: Joi.string()
     .uri()
     .required(),
 }).required();
