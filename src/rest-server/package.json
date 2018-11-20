@@ -21,8 +21,7 @@
     "url": "https://github.com/Microsoft/pai/issues"
   },
   "engines": {
-    "node": ">=6.11.0 <=6.12.2",
-    "npm": "3.10.10"
+    "node": "^8.9.0"
   },
   "dependencies": {
     "@octokit/rest": "~15.9.5",
@@ -60,7 +59,6 @@
     "lint": "eslint \"src/**/*.js\"",
     "mocha": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "start": "node index.js",
-    "test": "npm run lint && nyc npm run mocha",
-    "yarn": "yarn --ignore-engines"
+    "test": "npm run lint && nyc npm run mocha"
   }
 }
