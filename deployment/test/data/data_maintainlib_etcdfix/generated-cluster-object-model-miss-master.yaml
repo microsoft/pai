@@ -103,8 +103,8 @@ machine:
       k8s-role: worker
       pai-worker: "true"
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
     worker-02:
       hostname: worker-02
@@ -114,8 +114,8 @@ machine:
       k8s-role: worker
       pai-worker: "true"
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
 
 

@@ -110,8 +110,8 @@ machine:
       zkid: "1"
       pai-master: "true"
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
     infra-02:
       hostname: infra-02
@@ -121,8 +121,8 @@ machine:
       machine-type: D8SV3
       k8s-role: master
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
     ok-machine-node:
       hostname: ok-machine-node
@@ -132,8 +132,8 @@ machine:
       machine-type: D8SV3
       k8s-role: master
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
     worker-01:
       hostname: worker-01
@@ -143,8 +143,8 @@ machine:
       k8s-role: worker
       pai-worker: "true"
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
     worker-02:
       hostname: worker-02
@@ -154,8 +154,8 @@ machine:
       k8s-role: worker
       pai-worker: "true"
       sshport: 22
-      username: unittest
-      password: unittest123
+      username: test
+      password: test123
 
 
 
