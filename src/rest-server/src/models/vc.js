@@ -93,7 +93,7 @@ class VirtualCluster {
                 "params": {
                     "entry": {
                         "key": "capacity",
-                        "value": updateData["pendingAdd"][item]["capacity"]
+                        "value": updateData["pendingAdd"][item]
                     }
                 }
             };
@@ -118,9 +118,10 @@ class VirtualCluster {
   }
 
   sendUpdateInfo(updateXml, callback) {
+    logger.debug(updateXml)  
     unirest.put(yarnConfig.yarnVcUpdatePath)
         .headers(yarnConfig.webserviceUpdateQueueHeaders)
-        .body(updateXml)
+        .send(updateXml)
         .end((res) => {
         try {
           logger.debug(res.body);
