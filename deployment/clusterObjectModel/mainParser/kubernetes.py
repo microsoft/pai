@@ -22,7 +22,7 @@ import logging.config
 from ...k8sPaiLibrary.maintainlib import common as pai_k8s_common
 
 
-class kubernetes:
+class Kubernetes:
 
     def __init__(self, cluster_configuration, kubernetes_configuration):
         self.logger = logging.getLogger(__name__)
