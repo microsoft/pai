@@ -15,7 +15,7 @@ In order to use hdfs in job-editor, you will need to figure the ENVs below:
 
 ## Run the jupyter job-editor on PAI
 
-Using the config template below, change the `jobEnvs` according to your PAI config.
+Using the config template below, **change** the `jobEnvs` according to your PAI config.
 
 ```json
 {
@@ -26,7 +26,8 @@ Using the config template below, change the `jobEnvs` according to your PAI conf
       "PAI_URL": "your_pai_cluster_url",
       "PAI_USER_NAME": "your_pai_user",
       "HDFS_FS_DEFAULT": "hdfs://your_hdfs_name_node_ip:9000/",
-      "WEBHDFS_FS_DEFAULT": "http://your_hdfs_name_node_ip:5070/"
+      "WEBHDFS_FS_DEFAULT": "http://your_hdfs_name_node_ip:5070/",
+      "JUPYTER_TOKEN": "choose_your_jupyter_token"
   },
   "taskRoles": [
     {
@@ -37,6 +38,7 @@ Using the config template below, change the `jobEnvs` according to your PAI conf
       "shmMB": 64,
       "gpuNumber": 1,
       "minFailedTaskCount": 1,
+      "command": "bash -c /root/setup_hdfs.sh && start-notebook.sh --ip $JUPYTER_HOST_IP --port=$PAI_CONTAINER_HOST_jupyter_PORT_LIST --NotebookApp.token=${JUPYTER_TOKEN}",
       "portList": [
         {
           "label": "jupyter",
