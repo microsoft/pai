@@ -93,7 +93,7 @@ machine:
     sshport: 22
 
 
-  machine-lists:
+  machine-list:
 
     worker-01:
       hostname: worker-01

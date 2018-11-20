@@ -96,7 +96,7 @@ machine:
     sshport: 2
 
 
-  machine-lists:
+  machine-list:
     infra-01:
       hostname: infra-01
       nodename: 1.2.3.1
