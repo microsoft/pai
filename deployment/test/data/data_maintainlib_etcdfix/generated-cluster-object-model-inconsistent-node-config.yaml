@@ -125,7 +125,7 @@ machine:
       password: unittest123
 
     ok-machine-node:
-      hostname: infra-02
+      hostname: ok-machine-node
       nodename: 1.2.3.4
       hostip: 1.2.3.42
       etcdid: etcdid1
