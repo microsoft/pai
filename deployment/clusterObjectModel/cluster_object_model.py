@@ -59,8 +59,7 @@ class cluster_object_model:
 
         sys.path.insert(0, '{0}/../../src/{1}/config'.format(package_directory_com, service_name))
         default_path = "{0}/../../src/{1}/config/{1}.yaml".format(package_directory_com, service_name)
-        print service_name
-        print default_path
+
         # Prepare Service Configuration
         cluster_cfg = self.cluster_configuration
 
@@ -74,7 +73,8 @@ class cluster_object_model:
 
         # Init parser instance
         parser_module = importlib.import_module(service_name)
-        service_parser_class = getattr(parser_module, service_name)
+        parser_class_name = service_name.replace("-", " ").title().replace(" ", "")
+        service_parser_class = getattr(parser_module, parser_class_name)
         parser_instance = service_parser_class(cluster_cfg, overwrite_service_cfg, default_service_cfg)
 
         sys.path.remove('{0}/../../src/{1}/config'.format(package_directory_com, service_name))
@@ -92,9 +92,9 @@ class cluster_object_model:
             parser_dict[service_name] = self.init_service_parser(service_name)
 
         # init main parser
-        kubernetes_parser = pai_com_kubernetes.kubernetes(self.cluster_configuration, self.kubernetes_configuration)
+        kubernetes_parser = pai_com_kubernetes.Kubernetes(self.cluster_configuration, self.kubernetes_configuration)
         parser_dict["kubernetes"] = kubernetes_parser
-        machine_parser = pai_com_machine.machine(self.cluster_configuration)
+        machine_parser = pai_com_machine.Machine(self.cluster_configuration)
         parser_dict["machine"] = machine_parser
 
         return parser_dict

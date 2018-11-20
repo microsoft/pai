@@ -22,7 +22,7 @@ import logging
 import logging.config
 
 
-class cluster:
+class Cluster:
 
 
     def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
