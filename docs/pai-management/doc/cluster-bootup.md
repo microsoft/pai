@@ -49,6 +49,13 @@ Please refer to this [section](./how-to-setup-dev-box.md) for the customize sett
 
 #### Use prebuild dev-box image
 
+##### (0) Where to run dev-box
+
+- If you need PAI to deploy k8s: You can run dev-box on the server, which can ssh to the machine that will deploy pai. You can not run dev-box on a machine in a cluster that will deploy pai in the future, as OpenPAI will restart docker daemon at k8s boot up stage and let dev-box container down.
+
+- If you don't need PAI to deploy k8s: You can run dev-box on a machine in a cluster that will deploy pai in the future.
+
+ 
 ##### (1) Run your dev-box
 
 Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn't run on any PAI cluster node.
