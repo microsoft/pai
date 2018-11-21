@@ -51,7 +51,7 @@ class Drivers:
             return False, "Value of set-nvidia-runtme should be false or true."
         if "version" not in self.service_configuration:
             return False, "version is miss in service-configuration -> drivers."
-        if self.service_configuration["version"] not in ["381.111", "390.25", "410.73"]:
+        if self.service_configuration["version"] not in ["384.111", "390.25", "410.73"]:
             return False, "Value of version in drivers should be [384.111, 390.25, 410.73]."
         return True, None
 

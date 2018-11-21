@@ -46,7 +46,7 @@ drivers:
     <td>drivers.set-nvidia-runtme</td>
     <td>com["drivers"]["set-nvidia-runtime"]</td>
     <td>cluster_cfg["drivers"]["set-nvidia-runtime"]</td>
-    <td>string</td>
+    <td>Bool</td>
 </tr>
 <tr>
     <td>drivers.version</td>
