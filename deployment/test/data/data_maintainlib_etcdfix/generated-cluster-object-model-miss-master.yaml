@@ -62,9 +62,6 @@ kubernetes:
 
   etcd-initial-cluster-state: "new"
 
-  master-list:
-    - infra-01
-
   worker-list:
     - worker-01
     - worker-02
@@ -93,36 +90,32 @@ machine:
   default-machine-properties:
     username: username_ut
     password: password_ut
-    sshport: 2
+    sshport: 22
 
 
   machine-list:
-    infra-01:
-      hostname: infra-01
-      nodename: 1.2.3.1
-      hostip: 1.2.3.1
-      etcdid: etcdid1
-      machine-type: D8SV3
-      k8s-role: master
-      dashboard: "true"
-      zkid: "1"
-      pai-master: "true"
 
     worker-01:
       hostname: worker-01
-      nodename: 1.2.3.2
-      hostip: 1.2.3.2
+      nodename: 1.2.3.10
+      hostip: 1.2.3.10
       machine-type: D8SV3
       k8s-role: worker
       pai-worker: "true"
+      sshport: 22
+      username: test
+      password: test123
 
     worker-02:
       hostname: worker-02
-      nodename: 1.2.3.3
-      hostip: 1.2.3.3
+      nodename: 1.2.3.11
+      hostip: 1.2.3.11
       machine-type: D8SV3
       k8s-role: worker
       pai-worker: "true"
+      sshport: 22
+      username: test
+      password: test123
 
 
 

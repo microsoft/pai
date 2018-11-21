@@ -182,17 +182,18 @@ class Machine(SubCmd):
                                    help="The path to KUBE_CONFIG file. Default value: ~/.kube/config")
 
     def process_args(self, args):
-        cluster_object_model_k8s = cluster_object_model_generate_k8s(args.config_path)
+        cluster_object_model_instance = cluster_object_model(args.config_path)
+        com = cluster_object_model_instance.run()
         node_list = file_handler.load_yaml_config(args.node_list)
 
-        if not kubectl_env_checking(cluster_object_model_k8s):
+        if not kubectl_env_checking(com):
             raise RuntimeError("failed to do kubectl checking")
 
         for host in node_list["machine-list"]:
             if "nodename" not in host:
                 host["nodename"] = host["hostip"]
 
-        return cluster_object_model_k8s, node_list
+        return com, node_list
 
     def machine_add(self, args):
         cluster_object_model_k8s, node_list = self.process_args(args)
@@ -349,7 +350,7 @@ class Cluster(SubCmd):
         logger.info("Finish initializing PAI k8s cluster.")
 
     def k8s_clean(self, args):
-        # just use 'k8s-clean' for testing temporarily  .
+        # just use 'k8s-clean' for testing temporarily.
         cluster_object_model_instance = cluster_object_model(args.config_path)
         com = cluster_object_model_instance.run()
         logger.warning("--------------------------------------------------------")
