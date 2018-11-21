@@ -461,10 +461,10 @@ blueimp-canvas-to-blob@3.5.0:
   resolved "https://registry.yarnpkg.com/blueimp-canvas-to-blob/-/blueimp-canvas-to-blob-3.5.0.tgz#5679ac32f6a2835821f0c3ad661719ff85a9236b"
   integrity sha1-VnmsMvaig1gh8MOtZhcZ/4WpI2s=
 
-blueimp-file-upload@~9.19.2:
-  version "9.19.3"
-  resolved "https://registry.yarnpkg.com/blueimp-file-upload/-/blueimp-file-upload-9.19.3.tgz#626ee2b2fb20db7dc376b652631b31c1cd2baedf"
-  integrity sha512-lqGf7k+5UpFdDNVHbtHJkJkDuSAczfUgwf2LxHdo03aGK1uEV78dAmFGsVmHUD6jec9p8JxBicB6LBXAlnRyRA==
+blueimp-file-upload@~9.22.1:
+  version "9.22.2"
+  resolved "https://registry.yarnpkg.com/blueimp-file-upload/-/blueimp-file-upload-9.22.2.tgz#bb8cd3524d8767907efba9678e7e0e808030d3f7"
+  integrity sha512-zv+u4crf+NiUb/xA/CM9db4758LBtyFRSF4tWYtzC1+GQ4lpuDKnDLchrdyWyoORplP0BkTDdeMk7NSB2oolSA==
   optionalDependencies:
     blueimp-canvas-to-blob "3.5.0"
     blueimp-load-image "2.12.2"
@@ -1494,6 +1494,10 @@ datatables.net-responsive@2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/datatables.net-responsive/-/datatables.net-responsive-2.2.3.tgz#50a2b1b4955b16b32f573a3f00f473b0bfbee913"
   integrity sha512-8D6VtZcyuH3FG0Hn5A4LPZQEOX3+HrRFM7HjpmsQc/nQDBbdeBLkJX4Sh/o1nzFTSneuT1Wh/lYZHVPpjcN+Sw==
+  dependencies:
+    datatables.net "^1.10.15"
+    jquery ">=1.7"
+
 datatables.net-select-bs@^1.2.7:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/datatables.net-select-bs/-/datatables.net-select-bs-1.2.7.tgz#0fa812fb73ce8d0bae8356ea4d9601399d805ab5"
