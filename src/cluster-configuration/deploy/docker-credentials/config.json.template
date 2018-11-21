@@ -1,1 +1,1 @@
-{{ cluster_cfg['cluster']['docker-registry'][''] }}credential
+{{ cluster_cfg['cluster']['docker-registry']['credential'] }}
