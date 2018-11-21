@@ -47,7 +47,7 @@ class Drivers:
     def validation_pre(self):
         if "set-nvidia-runtime" not in self.service_configuration:
             return False, "set-nvidia-runtime is miss in service-configuration -> drivers."
-        if self.service_configuration["set-nvidia-runtime"] not in ["false", "true"]:
+        if self.service_configuration["set-nvidia-runtime"] not in [False, True]:
             return False, "Value of set-nvidia-runtme should be false or true."
         if "version" not in self.service_configuration:
             return False, "version is miss in service-configuration -> drivers."
