@@ -29,6 +29,13 @@ matrix:
 
     - language: python
       python: 2.7
+      install:
+      - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+      - python -m unittest deployment.clusterObjectModel.test.test_template_generate
+
+    - language: python
+      python: 2.7
       before_install:
         - cd src/job-exporter/test
       install:
