@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -15,39 +15,27 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { HttpError } from "http-errors";
+// module dependencies
+const Joi = require('joi');
 
-declare type Status =
-    number |
-    'Bad Request' |
-    'Conflict' |
-    'Forbidden' |
-    'Internal Server Error' |
-    'Not Found' |
-    'Unauthorized';
-declare type Code =
-    'BadConfigurationError' |
-    'ConflictJobError' |
-    'ConflictUserError' |
-    'ConflictVcError' |
-    'ForbiddenUserError' |
-    'IncorrectPasswordError' |
-    'InvalidParametersError' |
-    'NoApiError' |
-    'NoJobError' |
-    'NoJobConfigError' |
-    'NoJobSshInfoError' |
-    'NoUserError' |
-    'NoVirtualClusterError' |
-    'ReadOnlyJobError' |
-    'RemoveAdminError' |
-    'UnauthorizedUserError' |
-    'NoEnoughQuotaError' |
-    'UnknownError';
+// define the input schema for the 'update vc' api
+const vcPutInputSchema = Joi.object().keys({
+  vcCapacity: Joi.number()
+      .integer()
+      .min(0)
+      .max(100)
+      .required()
+}).required();
 
-declare function createError(status: Status, code: Code, message: string): HttpError;
-declare namespace createError {
-    declare function unknown(cause: Error | string): HttpError;
-}
+// define the input schema for the 'put vc status' api
+const vcStatusPutInputSchema = Joi.object().keys({
+  vcStatus: Joi.string()
+    .valid(["stopped", "running"])
+    .required(),
+}).required();
 
-export = createError;
+// module exports
+module.exports = {
+  vcPutInputSchema: vcPutInputSchema,
+  vcStatusPutInputSchema: vcStatusPutInputSchema,
+};
