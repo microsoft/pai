@@ -102,8 +102,18 @@ ${service_name}:
 Please create the service.parser in the following path. 
 
 ```bash
-src/${service_name}/config/${service_name}.py
+src/${service_name}/config/${parser_name}.py
 ```
+
+###### parser name
+
+- Example 1
+    - Service name: xxxxx
+    - parse class name: xxxxx
+- Example 2
+    - Service name: xxx-yyy-zzz
+    - parse class name: xxx_yyy_zzz
+
 
 ###### Class Name
 
