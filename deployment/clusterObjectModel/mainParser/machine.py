@@ -145,5 +145,4 @@ class Machine:
                 host["docker-data"] = "/var/lib/docker"
             com_machine["machine-list"][host["hostname"]] = host
 
-
         return com_machine

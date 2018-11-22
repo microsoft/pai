@@ -396,35 +396,35 @@ def maintain_package_cleaner(node_config):
 
 
 
-def get_etcd_leader_node(cluster_config):
-
+def get_etcd_leader_node(cluster_cfg):
+    com = cluster_cfg
     # Get leader node.
     host_list = list()
 
-    for host in cluster_config['mastermachinelist']:
-        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+    for host in com['kubernetes']['master-list']:
+        host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
 
     client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
     etcdid = client.leader['name']
-    for host in cluster_config['mastermachinelist']:
-        if etcdid == cluster_config['mastermachinelist'][host]['etcdid']:
-            logger.debug("Current leader of etcd-cluster: {0}".format(cluster_config['mastermachinelist'][host]))
-            return cluster_config['mastermachinelist'][host]
+    for host in com['kubernetes']['master-list']:
+        if etcdid == com['machine']['machine-list'][host]['etcdid']:
+            logger.debug("Current leader of etcd-cluster: {0}".format(com['machine']['machine-list'][host]))
+            return com['machine']['machine-list'][host]
 
     logger.error("Can't find the leader of etcd.")
     return None
 
 
 
-def get_new_etcd_peer_ip_list(cluster_config, new_node_config):
-
+def get_new_etcd_peer_ip_list(cluster_cfg, new_node_config):
+    com = cluster_cfg
     etcd_cluster_ips_peer = ""
     separated = ""
 
     host_list = list()
-    for host in cluster_config['mastermachinelist']:
-        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+    for host in com['kubernetes']['master-list']:
+        host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
 
     client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
