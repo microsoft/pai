@@ -67,7 +67,7 @@ class TestTemplateGenerate(unittest.TestCase):
 
         service_list = list()
 
-        subdir_list = directory_handler.get_subdirectory_list("src/")
+        subdir_list = directory_handler.get_subdirectory_list(src_path)
         for subdir in subdir_list:
 
             service_deploy_dir = "{0}/{1}/deploy".format(src_path, subdir)
