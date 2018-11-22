@@ -140,6 +140,3 @@ class service_template_generate:
 
         self.generate_template()
 
-
-
-

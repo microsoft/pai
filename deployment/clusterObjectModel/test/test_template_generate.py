@@ -57,8 +57,6 @@ class TestTemplateGenerate(unittest.TestCase):
 
 
 
-
-
     def test_template_generate(self):
 
         com_handler = cluster_object_model("{0}/data/configuration-template-generate".format(package_directory_com))
@@ -81,18 +79,4 @@ class TestTemplateGenerate(unittest.TestCase):
             service_template_generater.run()
             service_template_cleaner = service_template_clean(serv, service_conf)
             service_template_cleaner.run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
