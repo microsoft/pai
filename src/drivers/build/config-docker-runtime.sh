@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
@@ -17,46 +17,28 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-export PATH=$PATH:$NV_DRIVER/bin
+CONFIG_RUNTIME=false
 
-# If docker needn't, pls remove them
-cp -r docker/* /usr/bin/
-docker &
-docker run hello-world
-###
-
-
-## GPU test
-ls -A $NV_DRIVER
-if [ "`ls -A $NV_DRIVER`" = "" ]
-then
-  echo no gpu
-  $HADOOP_YARN_HOME/bin/yarn nodemanager
-else
-  echo gpu machine
-
-  # The loop is designed for the node restart or kubelet restart.
-  # Because when kubelet crushed, all service in the node will be started at the same time.
-  # Usually drivers' startup process is much slower than node-manager.
-  # So set the try times to 10. If after 10 time retris, the nm service still can't find gpu.
-  # Please check the node status.
-  for (( i=1; i<=10; i++ ))
-  do
-
-    if nvidia-smi
-    then
-      echo GPUs are found.
-      break
-    fi
-
-    sleep 60
-
-  done
-
-
-  $HADOOP_YARN_HOME/bin/yarn nodemanager
+if [ "$#" -eq "1" -a "$1" == "--config-runtime" ] ; then
+    CONFIG_RUNTIME=true
 fi
 
+echo CONFIG_RUNTIME is $CONFIG_RUNTIME
 
+function configDockerRuntime {
+    cp /etc/docker/daemon.json /etc/docker/daemon.json.before_config_runtime
 
+    jq -s '.[0] * .[1]' docker-config-with-nvidia-runtime.json /etc/docker/daemon.json > tmp
+    mv tmp /etc/docker/daemon.json
+
+    pkill -SIGHUP dockerd
+}
+
+function dockerRuntimeConfigured {
+    cat /etc/docker/daemon.json | jq -e 'has("default-runtime")' &> /dev/null
+    return $?
+}
+
+if test $CONFIG_RUNTIME == "true" && ! dockerRuntimeConfigured ; then
+    configDockerRuntime
+fi
