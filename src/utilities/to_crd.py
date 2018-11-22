@@ -25,6 +25,7 @@ class Prerequisite(object):
     contributor = attr.ib() # optional
     desc = attr.ib() # optional
     uri = attr.ib() # required
+    cmds = attr.ib() # required
 
     @staticmethod
     def get_or_fail(obj, key):
@@ -36,45 +37,24 @@ class Prerequisite(object):
         if version != "v2":
             raise RuntimeError("unknown protocol version " + version)
 
+        type = obj.get("type")
+
         name = Prerequisite.get_or_fail(obj, "name")
         uri = Prerequisite.get_or_fail(obj, "uri")
+        cmds = []
+        if type != "dockerimage":
+            cmds = Prerequisite.get_or_fail(obj, "command")
 
         return Prerequisite(name=name,
-                type=obj.get("type"),
+                type=type,
                 contributor=obj.get("contributor"),
                 desc=obj.get("description"),
-                uri=uri)
+                uri=uri,
+                cmds=cmds)
 
     def validate(self):
-        if self.type not in {"data", "script", "dockerimage"}:
+        if self.type not in {"data", "script", "output", "dockerimage"}:
             raise RuntimeError("type of prerequisite must be data/script/dockerimage")
-
-    def expand_to_command(self):
-        cmds = []
-        if self.type in {"data", "script"}:
-            result = urlparse.urlparse(self.uri)
-            repo = self.uri.split("/")[-1]
-
-            if result.netloc is not None and result.netloc.endswith("github.com"):
-                url, sha = self.uri.split("@")
-                cmds.append("git clone " + url)
-                cmds.append("cd " + repo + "; git checkout " + sha + "; cd ..;")
-                cmds.append("mv " + repo + " " + self.name)
-            else:
-                cmds.append("mkdir " + self.name)
-                cmds.append("wget " + self.uri)
-                if repo.endswith(".gz"):
-                    cmds.append("gunzip " + repo)
-                    repo = repo[:-3]
-                if repo.endswith(".tar"):
-                    cmds.append("mkdir " + self.name);
-                    cmds.append("tar xvf " + repo + " -C " + self.name + " --strip-components 1");
-                if repo.endswith(".zip"):
-                    cmds.append("unzip " + repo)
-                    cmds.append("mv " + repo + " " + self.name)
-
-        return cmds
-
 
 
 @attr.s
@@ -214,6 +194,7 @@ class Task(object):
     role = attr.ib() # required
     data = attr.ib() # optional
     script = attr.ib() # optional
+    output = attr.ib() # optional
     docker_image = attr.ib() # optional
     resource = attr.ib() # required
     min_failed_task_count = attr.ib() # optional
@@ -229,6 +210,7 @@ class Task(object):
         data = replace_parameters(obj.get("data"), current_parameters)
         script = replace_parameters(obj.get("script"), current_parameters)
         docker_image = replace_parameters(obj.get("dockerimage"), current_parameters)
+        output = replace_parameters(obj.get("output"), current_parameters)
 
         data = get_prerequisites(prerequisites, data)
         script = get_prerequisites(prerequisites, script)
@@ -247,20 +229,23 @@ class Task(object):
             command.append(replace_parameters(cmd, current_parameters))
 
         return Task(role=role, data=data, script=script, docker_image=docker_image,
-                resource=resource, min_failed_task_count=min_failed_task_count,
+                output=output, resource=resource,
+                min_failed_task_count=min_failed_task_count,
                 min_succeeded_task_count=min_succeeded_task_count,
                 command=command)
 
     def process_prerequisite(self):
-        data_cmd = script_cmd = []
+        data_cmd, script_cmd, output_cmd = [], [], []
         if self.data is not None:
-            data_cmd = self.data.expand_to_command()
+            data_cmd = self.data.cmds
         if self.script is not None:
-            script_cmd = self.script.expand_to_command()
+            script_cmd = self.script.cmds
         if self.docker_image is not None:
             self.docker_image = self.docker_image.uri
+        if self.output is not None:
+            output_cmd = self.output.cmds
 
-        self.command = data_cmd + script_cmd + self.command
+        self.command = data_cmd + script_cmd + self.command + output_cmd
 
     def validate(self):
         if self.role is not None and re.match("^[A-Za-z0-9._~]+$", self.role) is None:
