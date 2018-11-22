@@ -77,16 +77,10 @@ class TestTemplateGenerate(unittest.TestCase):
 
         for serv in subdir_list:
             service_conf = file_handler.load_yaml_config("{0}/{1}/deploy/service.yaml".format(src_path, serv))
-            service_template_generater = service_template_generate.service_template_generate(com, serv, service_conf)
+            service_template_generater = service_template_generate(com, serv, service_conf)
             service_template_generater.run()
-
-
-            self.logger.info("Begin to clean all service's generated template file".format(serv))
-            service_template_cleaner = service_template_clean.service_template_clean(serv, service_conf)
+            service_template_cleaner = service_template_clean(serv, service_conf)
             service_template_cleaner.run()
-
-            self.logger.info("Successfully start {0}".format(serv))
-            self.logger.info("-----------------------------------------------------------")
 
 
 
