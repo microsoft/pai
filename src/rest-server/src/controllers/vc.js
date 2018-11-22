@@ -24,7 +24,7 @@ const createError = require('../util/error');
  */
 const validate = (req, res, next, vcName) => {
   if (vcName === "default" && req.method !== "GET"){
-    return next(createError.unknown("Can't operate default vc"));
+    return next(createError('Forbidden', 'ForbiddenUserError', `Change operation to default vc isn't allowed`));
   }
   else{
     return next();
