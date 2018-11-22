@@ -24,7 +24,7 @@
   "dependencies": {
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
-    "blueimp-file-upload": "~9.19.2",
+    "blueimp-file-upload": "~9.22.1",
     "bootstrap": "~3.3.7",
     "compression": "~1.7.1",
     "cookie-parser": "~1.4.3",

@@ -7,5 +7,5 @@ idna==2.7
 macholib==1.9
 pefile==2017.11.5
 prometheus-client==0.2.0
-requests==2.19.1
+requests==2.20.0
 urllib3==1.23
