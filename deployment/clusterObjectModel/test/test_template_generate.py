@@ -25,7 +25,7 @@ import logging.config
 
 from ...paiLibrary.common import directory_handler
 from ...paiLibrary.common import file_handler
-from ...clusterObjectModel import cluster_object_model
+from ...clusterObjectModel.cluster_object_model import cluster_object_model
 from ...paiLibrary.paiService.service_template_generate import service_template_generate
 from ...paiLibrary.paiService.service_template_clean import  service_template_clean
 
