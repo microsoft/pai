@@ -32,8 +32,7 @@ class Zookeeper:
 
     def validation_pre(self):
         zkid_visited = dict()
-        for hostname in self.cluster_configuration["machine-list"]:
-            host_config = self.cluster_configuration["machine-list"][hostname]
+        for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":
                 if "zkid" not in host_config:
                     return False, "zkid is missing in your pai-master machine [{0}] .".format(host_config["hostip"])
@@ -50,10 +49,9 @@ class Zookeeper:
         zookeeper_com["host-list"] = list()
         zookeeper_com["quorum"] = ""
 
-        for hostname in self.cluster_configuration["machine-list"]:
-            host_config = self.cluster_configuration["machine-list"][hostname]
+        for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":
-                zookeeper_com["host-list"].append(hostname)
+                zookeeper_com["host-list"].append(host_config["hostname"])
                 if zookeeper_com["quorum"] is not None:
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
