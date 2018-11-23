@@ -26,7 +26,7 @@ class Zookeeper:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
-        self.service_configuration = self.merge_service_configuration(service_configuration, default_service_configuraiton)
+        #self.service_configuration = None
 
 
 
