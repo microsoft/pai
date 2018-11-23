@@ -12,12 +12,25 @@
 - Add master node can't achieve the goal that expend a No-HA cluster into HA. If you wanna add a master node, please deploy your cluster in HA mode first.
 
 ### Steps:
+
+- Add the node to kubernetes cluster
 ```bash
 
 # Add new node from nodelist.yaml
 ./paictl.py machine add -p /path/to/configuration/directory -l /path/to/your/newnodelist.yaml
 ```
+- Add the new node to cluster configuration. And configure it with the correct role.
 
+- Label the new node with the the command following.
+```bash
+./paictl.py service start -p /path/to/cluster-config -n cluster-configuration
+```
+
+### Refresh service
+
+```python
+
+```
 
 
 ## Remove nodes (worker or master) from pai cluster <a name="remove_worker_node"></a>
