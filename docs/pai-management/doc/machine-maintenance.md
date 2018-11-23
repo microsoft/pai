@@ -26,12 +26,6 @@
 ./paictl.py service start -p /path/to/cluster-config -n cluster-configuration
 ```
 
-### Refresh service
-
-```python
-
-```
-
 
 ## Remove nodes (worker or master) from pai cluster <a name="remove_worker_node"></a>
 
