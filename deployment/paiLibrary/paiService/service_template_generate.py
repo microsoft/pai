@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import os
 import logging
 import logging.config
 import yaml
@@ -23,6 +23,9 @@ import yaml
 from ..common import template_handler
 from ..common import file_handler
 
+
+
+package_directory_serv_template_gen = os.path.dirname(os.path.abspath(__file__))
 
 
 
@@ -37,6 +40,8 @@ class service_template_generate:
         self.cluster_object_mode = cluster_object_model
         self.service_name = service_name
         self.service_conf = service_conf
+
+        self.src_path = "{0}/../../../src".format(package_directory_serv_template_gen)
 
 
 
@@ -108,8 +113,8 @@ class service_template_generate:
 
         for template_file in self.service_conf["template-list"]:
 
-            template_path = "src/{0}/deploy/{1}.template".format(self.service_name, template_file)
-            target_path = "src/{0}/deploy/{1}".format(self.service_name, template_file)
+            template_path = "{0}/{1}/deploy/{2}.template".format(self.src_path, self.service_name, template_file)
+            target_path = "{0}/{1}/deploy/{2}".format(self.src_path, self.service_name, template_file)
 
             self.logger.info("Generate the template file {0}.".format(template_path))
             self.logger.info("Save the generated file to {0}.".format(target_path))
@@ -134,7 +139,4 @@ class service_template_generate:
     def run(self):
 
         self.generate_template()
-
-
-
 
