@@ -60,6 +60,12 @@ yarn-frameworklauncher:
     <td>cluster_cfg["yarn-frameworklauncher"]["webservice"]</td>
     <td>string</td>
 </tr>
+<tr>
+    <td>None</td>
+    <td>com["yarn-frameworklauncher"]["launcher-address"]</td>
+    <td>cluster_cfg["yarn-frameworklauncher"]["launcher-address"]</td>
+    <td>string</td>
+</tr>
 </table>
 
 
