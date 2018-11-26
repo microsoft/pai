@@ -1,5 +1,11 @@
 # Launcher a jupyter job-editor
 
+The example demonstrate how we leverage PAI restserver APIs to create an online job editor basing on jupyter.
+
+It runs as a normal PAI job, on the online editor we could `prepare dependencies`, `test code`, `submit job to PAI` and `do all other things` on the fly.
+
+We havn't done any encapsulation on the python code, it's simple and easy to improve and extend, any changes are welcomed.
+
 ## Setup
 
 You will need to figure out the ENVs below:
