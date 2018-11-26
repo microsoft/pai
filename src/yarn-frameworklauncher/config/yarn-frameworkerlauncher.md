@@ -30,6 +30,8 @@ yarn-frameworklauncher:
     node-list:
       - hostname1
     webservice: http://hostip1:${frameworklauncher-port}
+    launcher-address: hostip1
+    
 ```
 
 
