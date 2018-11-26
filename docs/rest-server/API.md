@@ -798,6 +798,186 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
+14. `PUT virtual-clusters/:vcName`
+
+    Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
+
+    *Request*
+    ```
+    PUT /api/v1/virtual-clusters/:vcName
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "vcCapacity": new capacity,
+    }
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "Update vc: $vcName to capacity: $vcCapacity successfully."
+    }
+    ```
+
+    *Response if try to update "default" vc*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Update operation to default vc isn't allowed"
+    }
+    ```
+
+    *Response if current user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation."
+    }
+    ```
+
+    *Response if no enough quota*
+    ```
+    Status: 403
+
+    {
+      "code": "NoEnoughQuotaError",
+      "message": "No enough quota."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+
+15. `DELETE virtual-clusters/:vcName`
+
+    remove virtual cluster in the system, don't allow to operate "default" vc.
+
+    *Request*
+    ```
+    DELETE /api/v1/virtual-clusters/:vcName
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "Remove vc: $vcName successfully."
+    }
+    ```
+
+    *Response if current user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation."
+    }
+    ```
+
+        *Response if try to update "default" vc*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Update operation to default vc isn't allowed"
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
+16. `PUT virtual-clusters/:vcName/status`
+
+    Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
+
+    *Request*
+    ```
+    PUT /api/v1/virtual-clusters/:vcName/status
+    Authorization: Bearer <ACCESS_TOKEN>
+    ```
+
+    *Parameters*
+    ```
+    {
+      "vcStatus": "running" | "stopped",
+    }
+
+    *Response if succeeded*
+    ```
+    Status: 201
+
+    {
+      "message": "Update vc: $vcName to capacity: $vcCapacity successfully."
+    }
+    ```
+
+    *Response if try to update "default" vc*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Update operation to default vc isn't allowed"
+    }
+    ```
+
+    *Response if current user has no permission*
+    ```
+    Status: 403
+
+    {
+      "code": "ForbiddenUserError",
+      "message": "Non-admin is not allow to do this operation."
+    }
+    ```
+
+    *Response if no enough quota*
+    ```
+    Status: 403
+
+    {
+      "code": "NoEnoughQuotaError",
+      "message": "No enough quota."
+    }
+    ```
+
+    *Response if a server error occured*
+    ```
+    Status: 500
+
+    {
+      "code": "UnknownError",
+      "message": "*Upstream error messages*"
+    }
+    ```
+
 ## About legacy jobs
 
 Since [Framework ACL](../../subprojects/frameworklauncher/yarn/doc/USERMANUAL.md#Framework_ACL) is enabled since this version,

@@ -24,7 +24,7 @@ const createError = require('../util/error');
  */
 const validate = (req, res, next, vcName) => {
   if (vcName === "default" && req.method !== "GET"){
-    return next(createError('Forbidden', 'ForbiddenUserError', `Change operation to default vc isn't allowed`));
+    return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
   }
   else{
     return next();
@@ -77,7 +77,7 @@ const update = (req, res, next) => {
       if (err) {
         return next(createError.unknown(err));
       } else {
-        return res.status(200).json({
+        return res.status(201).json({
           message: `update vc: ${vcName} to capacity: ${vcCapacity} successfully`,
         });
       }
@@ -89,7 +89,7 @@ const update = (req, res, next) => {
 
 
 /**
- * Stop a vc, stopping a vc will prevent new job in this vc, but will not kill running job.
+ * Update vc status, changing a vc from running to stopped a vc will only prevent new job in this vc.
  */
 const updateStatus = (req, res, next) => {
   const vcName = req.params.vcName;
