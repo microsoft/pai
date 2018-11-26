@@ -1,4 +1,4 @@
-## cluster section parser 
+## zookeeper section parser 
 
 - [Generated Configuraiton](#G_Config)
 - [Data Table](#T_config)

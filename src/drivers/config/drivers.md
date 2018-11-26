@@ -9,7 +9,7 @@
 
 #### Default configuration <a name="D_Config"></a>
 
-[cluster default configuration](drivers.yaml)
+[drivers default configuration](drivers.yaml)
 
 #### How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
 
