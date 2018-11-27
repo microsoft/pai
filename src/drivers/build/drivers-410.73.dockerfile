@@ -94,7 +94,9 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
     ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run --extract-only && \
     rm ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
 
-RUN wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf - && \
+RUN echo "wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf -" && \
+    wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf - && \
+    echo "wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf -" && \
     wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf - && \
     git clone https://github.com/NVIDIA/gdrcopy.git
 
