@@ -93,6 +93,7 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
     chmod 750 ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run && \
     ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run --extract-only && \
     rm ./NVIDIA-Linux-x86_64-$NVIDIA_VERSION.run
+
 RUN wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf - && \
     wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf - && \
     git clone https://github.com/NVIDIA/gdrcopy.git && \
@@ -103,7 +104,7 @@ RUN wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/
 	    src="/$(echo $i | cut -f6 -d' ')" && \
 	    dst="$STAGE_DIR/$MLNX_OFED_STRING/usermode$(echo $src | sed -e 's/\.\/usr//' | sed -e 's/\.\//\//')" && \
 	    (([ -d $src ] && mkdir -p $dst) || \
-	     ([ -h $src ] && cd $(dirname $dst) && ln -s -f $(echo $i | cut -f8 -d' ') $(basename $dst) && cd $STAGE_DIR/MLNX_OFED_LINUX-$OFED_VERSION-$OS_VERSION-$ARCHITECTURE/DEBS) || \
+	     ([ -h $src ] && cd $(dirname $dst) && ln -s -f $(echo $i | cut -f8 -d' ') $(basename $dst) && cd $STAGE_DIR/$MLNX_OFED_STRING/DEBS) || \
 	     ([ -f $src ] && cp $src $dst) \
 	    ); \
 	done; \
