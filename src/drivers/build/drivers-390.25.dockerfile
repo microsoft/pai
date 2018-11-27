@@ -96,8 +96,9 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
 
 RUN wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf - && \
     wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf - && \
-    git clone https://github.com/NVIDIA/gdrcopy.git && \
-    cd $MLNX_OFED_STRING/DEBS && \
+    git clone https://github.com/NVIDIA/gdrcopy.git
+
+RUN cd $MLNX_OFED_STRING/DEBS && \
     for dep in libibverbs1 libibverbs-dev ibverbs-utils libmlx4-1 libmlx5-1 librdmacm1 librdmacm-dev libibumad libibumad-devel libibmad libibmad-devel libopensm infiniband-diags mlnx-ofed-kernel-utils; do \
         dpkg -i $dep\_*_amd64.deb && \
 	dpkg --contents $dep\_*_amd64.deb | while read i; do \
