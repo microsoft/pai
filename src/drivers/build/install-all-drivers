@@ -22,10 +22,20 @@ if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA
     echo NVIDIA gpu detected, drivers installed
 
     /bin/bash enable-nvidia-persistenced-mode.sh || exit $?
+    echo NVIDIA GPU persistenced-mode is enabled
 
 else
     echo NVIDIA gpu not detected, skipping driver installation
 fi
+
+if lspci | grep -qE '(Network|Infiniband) controller.*Mellanox.*ConnectX'; then
+    echo Infiniband hardware detected
+    # Installing InfiniBand drivers and GPU direct RDMA drivers
+    /bin/bash install-ib-drivers || exit $?
+else
+    echo Infiniband hardware is not detected, skipping driver installation
+fi
+
 
 mkdir -p /jobstatus
 touch /jobstatus/jobok
