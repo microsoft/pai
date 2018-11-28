@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,19 +15,39 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
-cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
-cp  /hadoop-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
-cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
-cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 
-sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
-sed  -i "s/{ZOOKEEPER_QUORUM} /${ZOOKEEPER_QUORUM}/g" $HADOOP_CONF_DIR/yarn-site.xml
-sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml 
-sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
-sed  -i "s/{TIMELINE_SERVER_ADDRESS}/${TIMELINE_SERVER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
+import logging
+import logging.config
 
-sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
 
-sed  -i "s/{LOGSERVER_ADDRESS}/${LOGSERVER_ADDRESS}/g" $HADOOP_CONF_DIR/mapred-site.xml 
+class HadoopJobhistory:
+
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+        self.logger = logging.getLogger(__name__)
+
+        self.cluster_configuration = cluster_configuration
+
+    def validation_pre(self):
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                return True, None
+
+        return False, "No master node found in machine list"
+
+    def run(self):
+        com = {
+            "log-server-ip": None,
+            "timeline-server-ip": None,
+               }
+
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                com["log-server-ip"] = host_config["hostip"]
+                com["timeline-server-ip"] = host_config["hostip"]
+                break
+
+        return com
+
+    def validation_post(self, cluster_object_model):
+        return True, None
 
