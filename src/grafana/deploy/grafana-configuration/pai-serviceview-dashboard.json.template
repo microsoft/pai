@@ -1,3 +1,5 @@
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+
 {"dashboard": {
   "annotations": {
     "list": [
@@ -222,7 +224,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(service_net_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
+              "expr": "irate(service_net_in_byte{name=\"$service_name\"}[{{interval}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -230,7 +232,7 @@
               "refId": "A"
             },
             {
-              "expr": "irate(service_net_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
+              "expr": "irate(service_net_out_byte{name=\"$service_name\"}[{{interval}}s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{'{{'}}instance{{'}}'}} Outbound",
@@ -306,7 +308,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "irate(service_block_in_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
+              "expr": "irate(service_block_in_byte{name=\"$service_name\"}[{{interval}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -314,7 +316,7 @@
               "refId": "A"
             },
             {
-              "expr": "irate(service_block_out_byte{name=\"$service_name\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])",
+              "expr": "irate(service_block_out_byte{name=\"$service_name\"}[{{interval}}s])",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "{{'{{'}}instance{{'}}'}} Write",

@@ -92,15 +92,14 @@ restserver:
   github-repository: pai
   github-path: marketplace
 
-  
+
 webportal:
   # port for webportal
   server-port: 9286
 
-
-grafana:
-  # port for grafana
-  grafana-port: 3000
+# uncomment following if you want to change customeize grafana
+# grafana:
+#   port: 3000
 
 drivers:
   set-nvidia-runtime: false
@@ -115,24 +114,21 @@ drivers:
 # node-exporter:
 #   port: 9100
 
-prometheus:
-  # port for prometheus port
-  prometheus-port: 9091
-  # port for yarn exporter
-  yarn_exporter_port: 9459
-  # How frequently to scrape targets
-  scrape_interval: 30
- 
-  # if you want to enable alert manager to send alert email, uncomment following lines and fill
-  # right values.
-  #  alerting:
-  #    alert_manager_port: 9093
-  #    alert_receiver: alert@example.com
-  #    smtp_url: smtp.gmail.com:587
-  #    smtp_from: foo_bar@gmail.com
-  #    smtp_auth_username: user@gmail.com
-  #    smtp_auth_password: gmail_password
+# if you want to enable alert manager to send alert email, uncomment following lines and fill
+# the right values.
+# alert-manager:
+#   receiver: your_addr@example.com
+#   smtp_url: smtp.office365.com:587
+#   smtp_from: alert_sender@example.com
+#   smtp_auth_username: alert_sender@example.com
+#   smtp_auth_password: password_for_alert_sender
+#   port: 9093 # this is optional, you should not write this if you do not want to change the port alert-manager is listening on
 
+# uncomment following if you want to change customeize prometheus
+# prometheus:
+#   port: 9091
+#   # How frequently to scrape targets
+#   scrape_interval: 30
 
 pylon:
   # port of pylon
