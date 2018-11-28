@@ -213,12 +213,10 @@ $('#sidebar-menu--template-view').addClass('active');
 
 $(function() {
   const query = url.parse(window.location.href, true).query;
-  console.log(query);
   $('#content-wrapper').html(template(query));
   $('#search').submit(function(event) {
     event.preventDefault();
     let query = $(this).find('input').val();
-
     if (query) {
       search(query);
     } else {
@@ -232,13 +230,10 @@ $(function() {
   prepareCarousel($('#marketplace-datas'));
 
   setTimeout(() => {
-      console.log(query.query);
     if (query.query) {
-      console.log(1);
       $('#search input').val(query.query);
       search(query.query);
     } else {
-      console.log(2);
       loadCarousel($('#marketplace-jobs .slick-slider'), 'job');
       loadCarousel($('#marketplace-dockers .slick-slider'), 'dockerimage');
       loadCarousel($('#marketplace-scripts .slick-slider'), 'script');
