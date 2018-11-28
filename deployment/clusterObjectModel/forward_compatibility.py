@@ -24,7 +24,6 @@ def service_configuration_convert(service_configuration):
     if "yarn-frameworklauncher" not in service_configuration and "frameworklauncher" in service_configuration:
         service_configuration["yarn-frameworklauncher"] = service_configuration["frameworklauncher"]
 
-
     if "cluster" in service_configuration:
         if "common" not in service_configuration["cluster"]:
             service_configuration["cluster"]["common"] = dict()
@@ -52,7 +51,6 @@ def service_configuration_convert(service_configuration):
             if "secret-name" in service_configuration["cluster"]["docker-registry-info"]:
                 service_configuration["cluster"]["docker-registry"]["secret-name"] = \
                 service_configuration["cluster"]["docker-registry-info"]["secret-name"]
-
 
     if "hadoop" in service_configuration:
         if "hadoop-resource-manager" not in service_configuration:
