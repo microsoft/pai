@@ -107,11 +107,13 @@ drivers:
   # 410.73
   version: "384.111"
 
+# uncomment following if you want node-exporter listen to different port
+# node-exporter:
+#   port: 9100
+
 prometheus:
   # port for prometheus port
   prometheus-port: 9091
-  # port for node exporter
-  node-exporter-port: 9100
   # How frequently to scrape targets
   scrape_interval: 30
 

@@ -32,12 +32,12 @@ spec:
       name: node-exporter
     spec:
       containers:
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}node-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}node-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         readinessProbe:
           httpGet:
             path: /metrics
-            port: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+            port: {{ cluster_cfg["node-exporter"]["port"] }}
           initialDelaySeconds: 30
           periodSeconds: 30
         resources:
@@ -79,10 +79,10 @@ spec:
           - '--no-collector.xfs'
           - '--no-collector.zfs'
         ports:
-        - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
-          hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+        - containerPort: {{ cluster_cfg["node-exporter"]["port"] }}
+          hostPort: {{ cluster_cfg["node-exporter"]["port"] }}
           name: scrape
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}job-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}job-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         readinessProbe:
           exec:
@@ -143,7 +143,7 @@ spec:
             path: /var/drivers/nvidia/current
         - name: collector-mount
           hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
+            path: {{ cluster_cfg["cluster"]["common"]["data-path"] }}/prometheus
         - name: rootfs
           hostPath:
             path: /
@@ -157,7 +157,7 @@ spec:
           configMap:
             name: gpu-configuration
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       hostNetwork: true
       hostPID: true # This is required since job-exporter should get list of pid in container
       tolerations:

@@ -170,9 +170,6 @@ class Kubernetes:
         if "dashboard-version" not in k8s_cfg:
             return False, "dashboard-version is miss in kuberentes-configuration -> kubernetes."
 
-        if "etcd-data-path" not in k8s_cfg:
-            return False, "etcd-data-path is miss in kubernetes-configuration -> kubernetes."
-
         return True, None
 
 
