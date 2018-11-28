@@ -50,7 +50,7 @@ spec:
           periodSeconds: 3
         env:
         - name: HDFS_ADDRESS
-          value: {{ cluster_cfg[ 'hadoop-name-node' ][ 'master-ip' ] }}
+          value: {{ cluster_cfg[ "hadoop-name-node" ][ "master-ip" ] }}
         - name: HADOOP_NAMENODE_OPTS
           value: "-Xmx6144m"
         - name: GENERATE_CONFIG
@@ -61,14 +61,14 @@ spec:
           limits:
             memory: "8Gi"
       imagePullSecrets:
-      - name: {{ cluster_cfg["cluster"]['docker-registry']['secret-name'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: hadoop-name-storage
         hostPath:
-          path: {{ cluster_cfg['cluster']['common'][ 'data-path' ] }}/hdfs/name
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hdfs/name
       - name: hadoop-name-node-config-volume
         configMap:
           name: hadoop-name-node-configuration
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ cluster_cfg['cluster']['common'][ 'data-path' ] }}/hadooptmp/namenode
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/namenode
