@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,46 +15,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-export PATH=$PATH:$NV_DRIVER/bin
 
-# If docker needn't, pls remove them
-cp -r docker/* /usr/bin/
-docker &
-docker run hello-world
-###
+import logging
+import logging.config
 
 
-## GPU test
-ls -A $NV_DRIVER
-if [ "`ls -A $NV_DRIVER`" = "" ]
-then
-  echo no gpu
-  $HADOOP_YARN_HOME/bin/yarn nodemanager
-else
-  echo gpu machine
+class HadoopNameNode:
 
-  # The loop is designed for the node restart or kubelet restart.
-  # Because when kubelet crushed, all service in the node will be started at the same time.
-  # Usually drivers' startup process is much slower than node-manager.
-  # So set the try times to 10. If after 10 time retris, the nm service still can't find gpu.
-  # Please check the node status.
-  for (( i=1; i<=10; i++ ))
-  do
+    def __init__(self, cluster_configuration, service_configuration, default_service_configuraiton):
+        self.logger = logging.getLogger(__name__)
 
-    if nvidia-smi
-    then
-      echo GPUs are found.
-      break
-    fi
-
-    sleep 60
-
-  done
+        self.cluster_configuration = cluster_configuration
 
 
-  $HADOOP_YARN_HOME/bin/yarn nodemanager
-fi
+    def validation_pre(self):
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                return True, None
+
+        return False, "No master node found in machine list"
 
 
+
+    def run(self):
+        com = {"master-ip": None}
+
+        for host_config in self.cluster_configuration["machine-list"]:
+            if "pai-master" in host_config and host_config["pai-master"] == "true":
+                com["master-ip"] = host_config["hostip"]
+                break
+
+        return com
+
+    def validation_post(self, cluster_object_model):
+        return True, None
 
