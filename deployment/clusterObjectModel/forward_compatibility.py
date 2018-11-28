@@ -55,7 +55,7 @@ def service_configuration_convert(service_configuration):
     if "hadoop" in service_configuration:
         if "hadoop-resource-manager" not in service_configuration:
             service_configuration["hadoop-resource-manager"] = dict()
-        if "virtualClusters" not in service_configuration["hadoop-resource-manager"]:
+        if "virtualClusters" not in service_configuration["hadoop-resource-manager"] and "virtualClusters" in service_configuration["hadoop"]:
             service_configuration["hadoop-resource-manager"]["virtualClusters"] = service_configuration["hadoop"].get("virtualClusters", {})
 
     return service_configuration
