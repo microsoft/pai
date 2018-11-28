@@ -47,11 +47,11 @@ spec:
           name: gpu-confg-volume
         env:
         - name: RESOURCEMANAGER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ 'hadoop-resource-manager' ][ 'master-ip' ] }}
         - name: ZOOKEEPER_QUORUM
           value: {{ cluster_cfg[ 'zookeeper' ][ 'quorum' ] }}
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ clusterinfo[ 'hadoop-name-node' ][ 'master-ip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
         - name: TIMELINE_SERVER_ADDRESS
