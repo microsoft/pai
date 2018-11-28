@@ -1,3 +1,9 @@
+# Release v0.8.2
+
+## Bug Fixes
+* Fix grafana rule syntax error and remove unnecessary template variables  - [PR 1728](https://github.com/Microsoft/pai/pull/1728)
+* machine-maintenance document adds more detail about how to add node to kubernetes cluster. -[PR 1750](https://github.com/Microsoft/pai/pull/1750)
+
 # Release v0.8.1
 
 ## Bug Fixes
