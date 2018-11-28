@@ -27,11 +27,13 @@ def service_configuration_convert(service_configuration):
 
     if "cluster" in service_configuration:
         if "common" not in service_configuration["cluster"]:
+            service_configuration["cluster"]["common"] = dict()
             if "clusterid" in service_configuration["cluster"]:
                 service_configuration["cluster"]["common"]["clusterid"] = service_configuration["cluster"]["clusterid"]
             if "data-path" in service_configuration["cluster"]:
                 service_configuration["cluster"]["common"]["data-path"] = service_configuration["cluster"]["data-path"]
         if "docker-registry" not in service_configuration["cluster"] and "docker-registry-info" in service_configuration["cluster"]:
+            service_configuration["cluster"]["docker-registry"] = dict()
             if "docker-namespace" in service_configuration["cluster"]["docker-registry-info"]:
                 service_configuration["cluster"]["docker-registry"]["namespace"] = \
                 service_configuration["cluster"]["docker-registry-info"]["docker-namespace"]
@@ -53,7 +55,9 @@ def service_configuration_convert(service_configuration):
 
 
     if "hadoop" in service_configuration:
-        if "hadoop-resource-manager" not in service_configuration or "virtualClusters" not in service_configuration["hadoop-resource-manager"] :
+        if "hadoop-resource-manager" not in service_configuration:
+            service_configuration["hadoop-resource-manager"] = dict()
+        if "virtualClusters" not in service_configuration["hadoop-resource-manager"]:
             service_configuration["hadoop-resource-manager"]["virtualClusters"] = service_configuration["hadoop"]["virtualClusters"]
 
     return service_configuration
