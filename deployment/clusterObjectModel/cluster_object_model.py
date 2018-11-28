@@ -48,7 +48,7 @@ class cluster_object_model:
 
         sub_dir_list = directory_handler.get_subdirectory_list("{0}/../../src/".format(package_directory_com))
         for sub_dir_name in sub_dir_list:
-            parser_path = "{0}/../../src/{1}/config/{1}.py".format(package_directory_com, sub_dir_name)
+            parser_path = "{0}/../../src/{1}/config/{2}.py".format(package_directory_com, sub_dir_name, service_name.replace("-", "_"))
             if file_handler.file_exist_or_not(parser_path):
                 sub_model_list.append(sub_dir_name)
         return sub_model_list
