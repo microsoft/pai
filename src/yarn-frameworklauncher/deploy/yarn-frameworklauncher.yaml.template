@@ -53,9 +53,9 @@ spec:
         - name: HDFS_ADDRESS
           value: {{ clusterinfo[ 'hadoop-name-node' ][ 'master-ip' ] }}
         - name: LOGSERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "log-server-ip" ] }}
         - name: TIMELINE_SERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}
         - name: GENERATE_CONFIG
           value: frameworklauncher-generate-config.sh
         - name: FRAMEWORKLAUNCHER_VIP

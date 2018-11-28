@@ -65,4 +65,20 @@ class YarnFrameworklauncher:
 
     def validation_post(self, cluster_object_model):
         com = cluster_object_model
+
+        if "hadoop-resource-manager" not in com or "master-ip" not in com["hadoop-resource-manager"]:
+            return False, "hadoop-resource-manager.master-ip is missing in cluster-object-model."
+
+        if "hadoop-name-node" not in com or "master-ip" not in com["hadoop-name-node"]:
+            return False, "hadoop-name-node.master-ip is missing in cluster-object-model."
+
+        if "hadoop-jobhistory" not in com:
+            return False, "hadoop-jobhistory is missing in cluster-object-model."
+
+        if "log-server-ip" not in com["hadoop-jobhistory"]:
+            return False, "hadoop-jobhistory.log-server-ip is missing in cluster-object-model."
+
+        if "timeline-server-ip" not in com["hadoop-jobhistory"]:
+            return False, "hadoop-jobhistory.timeline-server-ip is missing in cluster-object-model."
+
         return True, None
