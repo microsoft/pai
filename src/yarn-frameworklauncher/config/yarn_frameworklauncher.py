@@ -57,7 +57,7 @@ class YarnFrameworklauncher:
         for host in self.cluster_configuration["machine-list"]:
             if "pai-master" in host and host["pai-master"] == "true":
                 yarn_launcher_com["node-list"].append(host["hostname"])
-                yarn_launcher_com["webservice"] = yarn_launcher_com["webservice"] + "http://{0}:{1}".format(host["hostip"], str(self.service_configuration["9086"]))
+                yarn_launcher_com["webservice"] = yarn_launcher_com["webservice"] + "http://{0}:{1}".format(host["hostip"], str(self.service_configuration["frameworklauncher-port"]))
                 yarn_launcher_com["launcher-address"] = host["hostip"]
 
 
