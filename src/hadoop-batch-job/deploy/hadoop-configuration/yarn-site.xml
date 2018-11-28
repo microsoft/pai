@@ -73,7 +73,7 @@
 
     <property>
       <name>yarn.resourcemanager.zk-address</name>
-       <value>ZOOKEEPER_QUORUM</value>
+       <value>{ZOOKEEPER_QUORUM}</value>
     </property>
 
     <property>
