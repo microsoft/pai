@@ -73,7 +73,6 @@ class cluster_object_model:
 
         # Init parser instance
         parser_module = importlib.import_module(service_name.replace("-", "_"))
-        print service_name.replace("-", "_")
         parser_class_name = service_name.replace("-", " ").title().replace(" ", "")
         service_parser_class = getattr(parser_module, parser_class_name)
         parser_instance = service_parser_class(cluster_cfg, overwrite_service_cfg, default_service_cfg)
