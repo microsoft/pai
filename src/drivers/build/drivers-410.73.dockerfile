@@ -114,14 +114,7 @@ RUN cd $MLNX_OFED_STRING/DEBS && \
 	done; \
     done
 
-ENV NV_DRIVER=/var/drivers/nvidia/$NVIDIA_VERSION \
-    MLNX_PREFIX=/var/drivers/mellanox/$MLNX_OFED_STRING/usermode
+COPY build/* $STAGE_DIR/
 
-ENV LD_LIBRARY_PATH=${MLNX_PREFIX}/lib:$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64 \
-    PATH=${MLNX_PREFIX}/bin:$PATH:$NV_DRIVER/bin \
-    C_INCLUDE_PATH=${C_INCLUDE_PATH:+$C_INCLUDE_PATH:}${MLNX_PREFIX}/include:${MLNX_PREFIX}/include/infiniband \
-    CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH:+$CPLUS_INCLUDE_PATH:}${MLNX_PREFIX}/include:${MLNX_PREFIX}/include/
-
-COPY build/* build/enable-nvidia-persistenced-mode.sh $STAGE_DIR/
 
 CMD /bin/bash install-all-drivers

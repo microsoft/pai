@@ -45,7 +45,7 @@ spec:
           name: docker-socket
         - mountPath: /root/.docker 
           name: docker-cred-volume
-        - mountPath: /var/drivers
+        - mountPath: /var/drivers/nvidia/current
           name: driver-path
         - mountPath: /var/lib/yarn
           name: yarn-nodemanager-storage
@@ -92,6 +92,8 @@ spec:
           value: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
         - name: YARN_NODEMANAGER_HEAPSIZE
           value: "3072"
+        - name: NV_DRIVER
+          value: /var/drivers/nvidia/current
       imagePullSecrets:
       - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
       volumes:
@@ -106,7 +108,7 @@ spec:
           name: docker-credentials
       - name: driver-path
         hostPath:
-          path: /var/drivers
+          path: /var/drivers/nvidia/current
       - name: yarn-nodemanager-storage
         hostPath:
           path: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
