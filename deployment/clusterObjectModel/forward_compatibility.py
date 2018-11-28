@@ -52,6 +52,9 @@ def service_configuration_convert(service_configuration):
                 service_configuration["cluster"]["docker-registry-info"]["secret-name"]
 
 
+    if "hadoop" in service_configuration:
+        if "hadoop-resource-manager" not in service_configuration or "virtualClusters" not in service_configuration["hadoop-resource-manager"] :
+            service_configuration["hadoop-resource-manager"]["virtualClusters"] = service_configuration["hadoop"]["virtualClusters"]
 
     return service_configuration
 
