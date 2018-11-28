@@ -291,7 +291,23 @@ def get_gpu_count(path):
         logger.warning("failed to find gpu count from config %s", gpu_config)
         return 0
 
+
+def config_environ():
+    """ since job-exporter needs to call nvidia-smi, we need to change
+    LD_LIBRARY_PATH to correct value """
+    driver_path = os.environ.get("NV_DRIVER")
+    logger.debug("NV_DRIVER is %s", driver_path)
+
+    ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH"] = ld_path + os.pathsep + \
+            os.path.join(driver_path, "lib") + os.pathsep + \
+            os.path.join(driver_path, "lib64")
+
+    logger.debug("LD_LIBRARY_PATH is %s", os.environ["LD_LIBRARY_PATH"])
+
 def main(argv):
+    config_environ()
+
     log_dir = argv[0]
     gpu_metrics_path = log_dir + "/gpu_exporter.prom"
     job_metrics_path = log_dir + "/job_exporter.prom"
@@ -309,7 +325,7 @@ def main(argv):
     type2_zombies = ZombieRecorder()
 
     configured_gpu_count = get_gpu_count("/gpu-config/gpu-configuration.json")
-    logger.info("configured_gpu_count is %s", configured_gpu_count)
+    logger.debug("configured_gpu_count is %s", configured_gpu_count)
     utils.export_metrics_to_file(configured_gpu_path, [Metric("configured_gpu_count", {},
         configured_gpu_count)])
 
