@@ -79,8 +79,16 @@ yarn-frameworklauncher:
 
 
 rest-server:
+   # secret for signing authentication tokens, e.g., "Hello PAI!"
+  jwt-secret: pai-secret
+  # database admin username 
   default-pai-admin-username: admin
+  # database admin password 
   default-pai-admin-password: admin-password
+  # rest server would achieve marketplace template from below configed github repository 
+  github-owner: Microsoft
+  github-repository: pai
+  github-path: marketplace
 
 
 webportal:

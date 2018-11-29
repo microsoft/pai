@@ -74,12 +74,10 @@ frameworklauncher:
 
 
 rest-server:
-  jwt-secret: pai-secret
+  # database admin username
   default-pai-admin-username: admin
+  # database admin password 
   default-pai-admin-password: admin-password
-  github-owner: Microsoft
-  github-repository: pai
-  github-path: marketplace
 
 
 webportal:
