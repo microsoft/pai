@@ -73,7 +73,7 @@ class TestTemplateGenerate(unittest.TestCase):
             if file_handler.directory_exits(service_deploy_dir) and file_handler.file_exist_or_not(service_deploy_conf_path):
                 service_list.append(subdir)
 
-        for serv in subdir_list:
+        for serv in service_list:
             service_conf = file_handler.load_yaml_config("{0}/{1}/deploy/service.yaml".format(src_path, serv))
             service_template_generater = service_template_generate(com, serv, service_conf)
             service_template_generater.run()
