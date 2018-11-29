@@ -39,7 +39,10 @@ class Webportal:
         server_port = self.service_configuration['server-port']
         uri = 'http://{0}:{1}'.format(master_ip, server_port)
         
-        return {'uri': uri}
+        return {
+            'server-port': server-port,
+            'uri': uri,
+        }
     
     #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness. 
     def validation_post(self, cluster_object_model):

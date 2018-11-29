@@ -17,7 +17,7 @@ For example, if you want to use different port than the default 9286, add follow
 
 ```yaml
 webportal:
-    port: new-value
+    server-port: new-value
 ```
 
 ## Generated Configuration <a name="G_Config"></a>
@@ -26,7 +26,7 @@ After parsing, object model looks like:
 
 ```yaml
 webportal:
-    port: 9286
+    server-port: 9286
     uri: "http://master_ip:9286"
 ```
 
@@ -40,9 +40,9 @@ webportal:
     <td>Data type</td>
 </tr>
 <tr>
-    <td>webportal.port</td>
-    <td>com["webportal"]["port"]</td>
-    <td>cluster_cfg["webportal"]["port"]</td>
+    <td>webportal.server-port</td>
+    <td>com["webportal"]["server-port"]</td>
+    <td>cluster_cfg["webportal"]["server-port"]</td>
     <td>Int</td>
 </tr>
 <tr>
