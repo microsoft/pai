@@ -2,7 +2,8 @@
 
 ## Bug Fixes
 * Fix grafana rule syntax error and remove unnecessary template variables  - [PR 1728](https://github.com/Microsoft/pai/pull/1728)
-* machine-maintenance document adds more detail about how to add node to kubernetes cluster. - [PR 1750](https://github.com/Microsoft/pai/pull/1750)
+* Add more detail about how to add node to kubernetes cluster in machine-maintenance document. - [PR 1750](https://github.com/Microsoft/pai/pull/1750)
+* Add disk and memory pressure toleration policy for node manager. - [PR 1784](https://github.com/Microsoft/pai/pull/1784)
 
 # Release v0.8.1
 
