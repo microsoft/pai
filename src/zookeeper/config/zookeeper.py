@@ -52,7 +52,7 @@ class Zookeeper:
         for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":
                 zookeeper_com["host-list"].append(host_config["hostname"])
-                if zookeeper_com["quorum"] is not None:
+                if zookeeper_com["quorum"] == "":
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
 
