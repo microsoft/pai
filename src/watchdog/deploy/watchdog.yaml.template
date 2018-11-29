@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
       - name: watchdog
-        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}watchdog:{{uster_cfg["cluster"]["docker-registry"]["tag"]}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}watchdog:{{uster_cfg["cluster"]["docker-registry"]["tag"]}}
         imagePullPolicy: Always
         readinessProbe:
           httpGet:
