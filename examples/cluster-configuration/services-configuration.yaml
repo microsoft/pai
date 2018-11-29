@@ -128,7 +128,6 @@ drivers:
 #   # How frequently to scrape targets
 #   scrape_interval: 30
 
-pylon:
-  # port of pylon
-  port: 80
-
+# uncomment following section if you want to customize the port of pylon
+# pylon:
+#  port: 80
