@@ -51,7 +51,7 @@ spec:
         - name: ZOOKEEPER_QUORUM
           value: {{ cluster_cfg[ 'zookeeper' ][ 'quorum' ] }}
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoop-name-node' ][ 'master-ip' ] }}
+          value: {{ cluster_cfg[ 'hadoop-name-node' ][ 'master-ip' ] }}
         - name: LOGSERVER_ADDRESS
           value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "log-server-ip" ] }}
         - name: TIMELINE_SERVER_ADDRESS
