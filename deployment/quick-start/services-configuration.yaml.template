@@ -76,7 +76,7 @@ frameworklauncher:
 rest-server:
   # database admin username
   default-pai-admin-username: admin
-  # database admin password 
+  # database admin password
   default-pai-admin-password: admin-password
 
 
