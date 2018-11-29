@@ -52,7 +52,7 @@ class VirtualCluster {
           numJobs: queueInfo.numApplications,
           numPendingJobs: queueInfo.numPendingApplications,
           resourcesUsed: queueInfo.resourcesUsed,
-          state: queueInfo.state,
+          status: queueInfo.state,
         };
       } else {
         for (let i = 0; i < queueInfo.queues.queue.length; i++) {

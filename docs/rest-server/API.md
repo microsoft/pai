@@ -773,7 +773,8 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
       "resourcesUsed":{
        "memory":0,
        "vCores":0,
-       "GPUs":0
+       "GPUs":0,
+       "state":"running"
       },
     }
     ```
@@ -813,6 +814,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     {
       "vcCapacity": new capacity,
     }
+    ```
 
     *Response if succeeded*
     ```
@@ -893,7 +895,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     }
     ```
 
-        *Response if try to update "default" vc*
+    *Response if try to update "default" vc*
     ```
     Status: 403
 
@@ -915,7 +917,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
 16. `PUT virtual-clusters/:vcName/status`
 
-    Add or update virtual cluster quota in the system, don't allow to operate "default" vc.
+    Change virtual cluster status in the system, don't allow to operate "default" vc.
 
     *Request*
     ```
@@ -928,6 +930,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     {
       "vcStatus": "running" | "stopped",
     }
+    ```
 
     *Response if succeeded*
     ```
