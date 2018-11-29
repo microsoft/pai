@@ -62,6 +62,8 @@ class HadoopResourceManager:
     def run(self):
         com = {}
 
+        com["yarn_exporter_port"] = self.service_configuration["yarn_exporter_port"]
+
         for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":
                 com["master-ip"] = host_config["hostip"]

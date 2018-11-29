@@ -30,7 +30,7 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/metrics'
-        prometheus.io/port: '{{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}'
+        prometheus.io/port: '{{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}'
     spec:
       hostNetwork: true
       hostPID: false
@@ -78,18 +78,18 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
-          hostPort: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+        - containerPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
+          hostPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
           name: scrape
         command:
           - "python3"
           - "/usr/local/yarn_exporter.py"
           - "http://127.0.0.1:8088"
-          - "-p {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}"
+          - "-p {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}"
         livenessProbe:
           httpGet:
             path: /
-            port: {{ clusterinfo['prometheusinfo']['yarn_exporter_port'] }}
+            port: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
           initialDelaySeconds: 5
           timeoutSeconds: 1
       imagePullSecrets:

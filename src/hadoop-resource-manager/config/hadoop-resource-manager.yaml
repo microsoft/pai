@@ -19,3 +19,5 @@ virtualClusters:
   default:
     description: Default VC.
     capacity: 100
+
+yarn_exporter_port: 9459
