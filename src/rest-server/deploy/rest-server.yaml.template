@@ -33,45 +33,45 @@ spec:
       hostPID: false
       containers:
       - name: rest-server
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}rest-server:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}rest-server:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         env:
         - name: LAUNCHER_WEBSERVICE_URI
-          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+          value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
-          value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+          value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
         - name: WEBHDFS_URI
-          value: {{ clusterinfo['restserverinfo']['webhdfs_uri'] }}
+          value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
-          value: {{ clusterinfo['restserverinfo']['yarn_uri'] }}
+          value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip']] }}:8088
         - name: JWT_SECRET
-          value: {{ clusterinfo['restserverinfo']['jwt_secret'] }}
+          value: {{ cluster_cfg['rest-server']['jwt-secret'] }}
         - name: DEFAULT_PAI_ADMIN_USERNAME
-          value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
         - name: DEFAULT_PAI_ADMIN_PASSWORD
-          value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: ETCD_URI
-          value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
+          value: {{ cluster_cfg['rest-server']['etcd-uri-list'] }}
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
-{% if clusterinfo['restserverinfo']['github_owner'] %}
+{% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
-          value: {{ clusterinfo['restserverinfo']['github_owner'] }}
+          value: {{ cluster_cfg['rest-server']['github-owner'] }}
 {% endif %}
-{% if clusterinfo['restserverinfo']['github_repository'] %}
+{% if cluster_cfg['rest-server']['github-repository'] %}
         - name: GITHUB_REPOSITORY
-          value: {{ clusterinfo['restserverinfo']['github_repository'] }}
+          value: {{ cluster_cfg['rest-server']['github-repository'] }}
 {% endif %}
-{% if clusterinfo['restserverinfo']['github_path'] %}
+{% if cluster_cfg['rest-server']['github-path'] %}
         - name: GITHUB_PATH
-          value: {{ clusterinfo['restserverinfo']['github_path'] }}
+          value: {{ cluster_cfg['rest-server']['github-path'] }}
 {% endif %}
         ports:
         - name: rest-server
           containerPort: 8080
-          hostPort: {{ clusterinfo['restserverinfo']['server_port'] }}
+          hostPort: {{ cluster_cfg['rest-server']['server-port'] }}
         resources:
           limits:
             memory: "512Mi"
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
