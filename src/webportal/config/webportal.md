@@ -13,7 +13,7 @@
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
-For example, if you want to use different port than the default 3000, add following to your service-configuration.yaml as following:
+For example, if you want to use different port than the default 9286, add following to your service-configuration.yaml as following:
 
 ```yaml
 webportal:
