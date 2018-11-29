@@ -36,11 +36,11 @@ class Webportal:
 
         machine_list = self.cluster_configuration['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
-        server_port = self.service_configuration['server-port']
-        uri = 'http://{0}:{1}'.format(master_ip, server_port)
+        port = self.service_configuration['port']
+        uri = 'http://{0}:{1}'.format(master_ip, port)
         
         return {
-            'server-port': server_port,
+            'port': port,
             'uri': uri,
         }
     
