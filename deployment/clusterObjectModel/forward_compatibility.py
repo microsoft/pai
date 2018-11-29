@@ -58,6 +58,12 @@ def service_configuration_convert(service_configuration):
         if "virtualClusters" not in service_configuration["hadoop-resource-manager"] and "virtualClusters" in service_configuration["hadoop"]:
             service_configuration["hadoop-resource-manager"]["virtualClusters"] = service_configuration["hadoop"]["virtualClusters"]
 
+    if "prometheus" in service_configuration:
+        if "hadoop-resource-manager" not in service_configuration:
+            service_configuration["hadoop-resource-manager"] = dict()
+        if "yarn_exporter_port" not in service_configuration["hadoop-resource-manager"] and "yarn_exporter_port" in service_configuration["prometheus"]:
+            service_configuration["hadoop-resource-manager"]["yarn_exporter_port"] = service_configuration["prometheus"]["yarn_exporter_port"]
+
     return service_configuration
 
 
