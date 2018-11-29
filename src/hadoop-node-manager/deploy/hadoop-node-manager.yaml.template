@@ -127,5 +127,10 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
+      tolerations:
+      - key: node.kubernetes.io/memory-pressure
+        operator: "Exists"
+      - key: node.kubernetes.io/disk-pressure
+        operator: "Exists"
 
 
