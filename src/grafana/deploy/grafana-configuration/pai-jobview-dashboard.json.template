@@ -1,3 +1,6 @@
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set url = cluster_cfg["grafana"]["url"] %}
+
 {"dashboard": {
   "annotations": {
     "list": [
@@ -26,7 +29,7 @@
       "height": "30px",
       "panels": [
         {
-          "content": "[JobLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/joblevelmetrics?var-job=$job)  | \n [TaskRoleLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/taskrolelevelmetrics?var-job=$job)  |\n [TaskLevelMetrics]({{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/db/tasklevelmetrics?var-job=$job)",
+          "content": "[JobLevelMetrics]({{url}}/dashboard/db/joblevelmetrics?var-job=$job)  | \n [TaskRoleLevelMetrics]({{url}}/dashboard/db/taskrolelevelmetrics?var-job=$job)  |\n [TaskLevelMetrics]({{url}}/dashboard/db/tasklevelmetrics?var-job=$job)",
           "height": "30px",
           "id": 31,
           "links": [],
@@ -280,7 +283,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])) ",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -291,7 +294,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetOut{container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetOut{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])) ",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -387,7 +390,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -398,7 +401,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}",

@@ -1,0 +1,2 @@
+port: 9091
+scrape_interval: 30
