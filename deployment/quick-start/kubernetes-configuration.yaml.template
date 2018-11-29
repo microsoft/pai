@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation
+g Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
 # MIT License
@@ -44,3 +44,7 @@ kubernetes:
   dashboard-version: v1.8.3
   # The path to storage etcd data.
   etcd-data-path: "/var/etcd"
+  # k8s dashboard configuration
+  kube-dashboard-namespace: kube-system
+  kube-dashboard-account: kubernetes-dashboard
+  kube-dashboard-role: view

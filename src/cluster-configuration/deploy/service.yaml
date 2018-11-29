@@ -20,6 +20,7 @@ template-list:
   - host-configuration/host-configuration.yaml
   - gpu-configuration/gpu-configuration.yml
   - gpu-configuration/gpu-configuration.json
+  - rbac-configuration/serviceaccount-rolebinding.sh
   - docker-credentials/config.json
   - stop.sh
   - start.sh
