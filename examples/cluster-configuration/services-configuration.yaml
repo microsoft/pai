@@ -91,9 +91,9 @@ rest-server:
   github-path: marketplace
 
 
-webportal:
-  # port for webportal
-  server-port: 9286
+# uncomment following section if you want to customize the port of web portal
+# webportal:
+#   server-port: 9286
 
 # uncomment following if you want to change customeize grafana
 # grafana:
