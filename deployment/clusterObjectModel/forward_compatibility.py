@@ -66,7 +66,8 @@ def service_configuration_convert(service_configuration):
         if "prometheus-port" in service_configuration["prometheus"] and "port" not in service_configuration["prometheus"]:
             service_configuration["prometheus"]["port"] = service_configuration["prometheus"]["prometheus-port"]
         if "alerting" in service_configuration["prometheus"]:
-            service_configuration["alert-manager"] = service_configuration["prometheus"]["alerting"]
+            if "alert-manager" not in service_configuration:
+                service_configuration["alert-manager"] = service_configuration["prometheus"]["alerting"]
             if "alert_manager_port" in service_configuration["alert-manager"] and "port" not in service_configuration["alert-manager"]:
                 service_configuration["alert-manager"]["port"] = service_configuration["alert-manager"]["alert_manager_port"]
             if "alert_receiver" in service_configuration["alert-manager"] and "receiver" not in service_configuration["alert-manager"]:
