@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,13 +16,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import subprocess
-import json
-import sys
 import re
-import time
 import logging
 import collections
+import subprocess
 
 import utils
 
@@ -60,12 +57,16 @@ def convert_to_byte(data):
         return number
 
 
-def iftop():
+def iftop(histogram, timeout):
     try:
-        output = utils.check_output(["iftop", "-t", "-P", "-s", "1", "-L", "10000",
-            "-B", "-n", "-N"])
+        output = utils.exec_cmd(
+                ["iftop", "-t", "-P", "-s", "1", "-L", "10000", "-B", "-n", "-N"],
+                stderr=subprocess.STDOUT, # also capture stderr output
+                histogram=histogram, timeout=timeout)
         return parse_iftop(output)
-    except:
+    except subprocess.TimeoutExpired:
+        logger.warning("iftop timeout")
+    except Exception:
         logger.exception("exec iftop error")
         return None
 
@@ -89,7 +90,7 @@ def parse_iftop(iftop_output, duration=40):
             if part == 1:
                 data.append(line)
 
-    for line_no in xrange(0, len(data), 2):
+    for line_no in range(0, len(data), 2):
         line1 = data[line_no].split()
         line2 = data[line_no + 1].split()
         src = line1[1]
@@ -116,15 +117,22 @@ def parse_iftop(iftop_output, duration=40):
     return result
 
 
-def lsof(pid):
+def lsof(pid, histogram, timeout):
     """ use infilter to do setns https://github.com/yadutaf/infilter """
     if pid is None:
         return None
 
     try:
-        output = utils.check_output(["infilter", str(pid), "/usr/bin/lsof", "-i", "-n", "-P"])
+        output = utils.exec_cmd(["infilter", str(pid), "/usr/bin/lsof", "-i", "-n", "-P"],
+                histogram=histogram,
+                stderr=subprocess.STDOUT, # also capture stderr output
+                timeout=timeout)
         return parse_lsof(output)
-    except:
+    except subprocess.TimeoutExpired:
+        logger.warning("lsof timeout")
+    except subprocess.CalledProcessError as e:
+        logger.warning("infilter lsof returns %d, output %s", e.returncode, e.output)
+    except Exception:
         logger.exception("exec lsof error")
         return None
 
@@ -138,9 +146,13 @@ def parse_lsof(lsof_output):
     for line in data:
         if "ESTABLISHED" in line:
             parts = line.split()
-            pid = parts[1]
-            src = parts[8].split("->")[0]
-            conns[pid].add(src)
+            if len(parts) == 10:
+                pid = parts[1]
+                src = parts[8].split("->")[0]
+                conns[pid].add(src)
+            else:
+                logger.warning("unknown format of lsof %s", parts)
+                continue
 
     return conns
 
@@ -163,21 +175,3 @@ def get_container_network_metrics(all_conns, lsof_result):
                 out_byte += all_conns[conn]["out"]
 
     return in_byte, out_byte
-
-
-def main(pids):
-    """ test purpose """
-    conns = iftop()
-
-    logger.debug("conns is %s", conns)
-    logger.debug("lsof_result is %s", lsof_result)
-
-    for pid in pids:
-        lsof_result = lsof(pid)
-        in_byte, out_byte = get_container_network_metrics(conns, lsof_result)
-        logger.info("pid %s in %d out %d", pid, in_byte, out_byte)
-
-if __name__ == "__main__":
-    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-                        level=logging.DEBUG)
-    main(sys.argv[1:])

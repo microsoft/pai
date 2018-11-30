@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import os
+import json
+import threading
+
+from wsgiref.simple_server import make_server
+from prometheus_client import make_wsgi_app, Gauge
+from prometheus_client.core import REGISTRY
+
+import collector
+
+logger = logging.getLogger(__name__)
+
+
+configured_gpu_counter = Gauge("configured_gpu_count",
+        "total number of gpu configured for this node")
+
+
+class CustomCollector(object):
+    def __init__(self, atomic_refs):
+        self.atomic_refs = atomic_refs
+
+    def collect(self):
+        data = []
+
+        for ref in self.atomic_refs:
+            # set None to achieve
+            # https://github.com/Microsoft/pai/issues/1764#issuecomment-442733098
+            d = ref.get_and_set(None)
+            if d is not None:
+                data.extend(d)
+
+        if len(data) > 0:
+            for datum in data:
+                yield datum
+        else:
+            # https://stackoverflow.com/a/6266586
+            # yield nothing
+            return
+            yield
+
+
+def config_environ():
+    """ since job-exporter needs to call nvidia-smi, we need to change
+    LD_LIBRARY_PATH to correct value """
+    driver_path = os.environ.get("NV_DRIVER")
+    logger.debug("NV_DRIVER is %s", driver_path)
+
+    ld_path = os.environ.get("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH"] = ld_path + os.pathsep + \
+            os.path.join(driver_path, "lib") + os.pathsep + \
+            os.path.join(driver_path, "lib64")
+
+    logger.debug("LD_LIBRARY_PATH is %s", os.environ["LD_LIBRARY_PATH"])
+
+
+def try_remove_old_prom_file(path):
+    """ try to remove old prom file, since old prom file are exposed by node-exporter,
+    if we do not remove, node-exporter will still expose old metrics """
+    if os.path.isfile(path):
+        try:
+            os.unlink(path)
+        except Exception as e:
+            log.warning("can not remove old prom file %s", path)
+
+
+def get_gpu_count(path):
+    hostname = os.environ.get("HOSTNAME")
+    ip = os.environ.get("HOST_IP")
+
+    logger.debug("hostname is %s, ip is %s", hostname, ip)
+
+    with open(path) as f:
+        gpu_config = json.load(f)
+
+    if hostname is not None and gpu_config["nodes"].get(hostname) is not None:
+        return gpu_config["nodes"][hostname]["gpuCount"]
+    elif ip is not None and gpu_config["nodes"].get(ip) is not None:
+        return gpu_config["nodes"][ip]["gpuCount"]
+    else:
+        logger.warning("failed to find gpu count from config %s", gpu_config)
+        return 0
+
+
+def main(args):
+    config_environ()
+    try_remove_old_prom_file(args.log + "/gpu_exporter.prom")
+    try_remove_old_prom_file(args.log + "/job_exporter.prom")
+    try_remove_old_prom_file(args.log + "/docker.prom")
+    try_remove_old_prom_file(args.log + "/time.prom")
+    try_remove_old_prom_file(args.log + "/configured_gpu.prom")
+
+    configured_gpu_counter.set(get_gpu_count("/gpu-config/gpu-configuration.json"))
+
+    # used to exchange gpu info between GpuCollector and ContainerCollector
+    gpu_info_ref = collector.AtomicRef()
+
+    # used to exchange docker stats info between ContainerCollector and ZombieCollector
+    stats_info_ref = collector.AtomicRef()
+
+    interval = args.interval
+    # Because all collector except container_collector will spent little time in calling
+    # external command to get metrics, so they need to sleep 30s to align with prometheus
+    # scrape interval. The 99th latency of container_collector loop is around 20s, so it
+    # should only sleep 10s to adapt to scrape interval
+    collector_args = [
+            ("docker_daemon_collector", interval, collector.DockerCollector),
+            ("gpu_collector", interval, collector.GpuCollector, gpu_info_ref),
+            ("container_collector", interval - 18, collector.ContainerCollector,
+                gpu_info_ref, stats_info_ref),
+            ("zombie_collector", interval, collector.ZombieCollector, stats_info_ref),
+            ]
+
+    refs = list(map(lambda x: collector.make_collector(*x), collector_args))
+
+    REGISTRY.register(CustomCollector(refs))
+
+    app = make_wsgi_app(REGISTRY)
+    httpd = make_server("", int(args.port), app)
+    httpd.serve_forever()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
+    parser.add_argument("--port", "-p", help="port to expose metrics", default="9102")
+    parser.add_argument("--interval", "-i", help="prometheus scrape interval", type=int, default=30)
+    args = parser.parse_args()
+
+    def get_logging_level():
+        mapping = {
+                "DEBUG": logging.DEBUG,
+                "INFO": logging.INFO,
+                "WARNING": logging.WARNING
+                }
+
+        result = logging.INFO
+
+        if os.environ.get("LOGGING_LEVEL") is not None:
+            level = os.environ["LOGGING_LEVEL"]
+            result = mapping.get(level.upper())
+            if result is None:
+                sys.stderr.write("unknown logging level " + level + \
+                        ", default to INFO\n")
+                result = logging.INFO
+
+        return result
+
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(threadName)s - %(filename)s:%(lineno)s - %(message)s",
+            level=get_logging_level())
+
+    main(args)

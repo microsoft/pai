@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,128 +16,27 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import re
-import codecs
 import subprocess
 
 import logging
-import threading
-import datetime
-from Queue import Queue
-from Queue import Empty
 
 logger = logging.getLogger(__name__)
 
-class Metric(object):
-    """ represents one prometheus metric record
-        https://prometheus.io/docs/concepts/data_model/ """
 
-    def __init__(self, name, labels, value):
-        self.name = name
-        self.labels = labels
-        self.value = value
+def exec_cmd(*args, **kwargs):
+    """ exec a cmd with timeout, also record time used using prometheus higtogram """
+    if kwargs.get("histogram") is not None:
+        histogram = kwargs.pop("histogram")
+    else:
+        histogram = None
 
-    def __eq__(self, o):
-        return self.name == o.name and self.labels == o.labels and self.value == o.value
+    logger.debug("about to exec %s", args[0])
 
-    def __repr__(self):
-        if len(self.labels) > 0:
-            labels = ", ".join(map(lambda x: "{}=\"{}\"".format(x[0], x[1]),
-                self.labels.items()))
-            labels = "{" + labels + "}"
-        else:
-            labels = ""
-
-        return "{}{} {}".format(self.name, labels, self.value)
-
-
-def export_metrics_to_file(path, metrics):
-    """ if metrics not None, should still open the path, to modify time stamp of file,
-    readiness probe needs this"""
-    with codecs.open(path, "w", encoding="utf-8") as f:
-        if metrics is not None:
-            for metric in metrics:
-                f.write(str(metric))
-                f.write("\n")
-
-
-def check_output(*args, **kwargs):
-    """ subprocess.check_output may hanging if cmd output too much stdout or stderr """
-    kwargs["stdout"] = subprocess.PIPE
-    kwargs["stderr"] = subprocess.PIPE
-    process = subprocess.Popen(*args, **kwargs)
-    outs = []
-    errs = []
-
-    while process.poll() is None:
-        out, err = process.communicate()
-        outs.append(out)
-        errs.append(err)
-    if process.returncode != 0:
-        logger.warn("process `%s` failed with return code %d, stdout %s, stderr %s",
-                args, process.returncode, "".join(outs), "".join(errs))
-    return "".join(outs)
-
-
-class Singleton(object):
-    """ wrapper around metrics getter, because getter may block
-        indefinitely, so we wrap call in thread.
-        Also, to avoid having too much threads, use semaphore to ensure only 1
-        thread is running """
-    def __init__(self, getter, get_timeout_s=3, name="singleton"):
-        self.getter = getter
-        self.get_timeout_s = get_timeout_s
-        self.name = name
-
-        self.semaphore = threading.Semaphore(1)
-        self.queue = Queue(1)
-        self.old_metrics = None
-
-    def wrapper(self, semaphore, queue):
-        """ wrapper assume semaphore already acquired, will release semaphore on exit """
-        result = None
-
-        try:
-            try:
-                # remove result put by previous thread but didn't get by main thread
-                queue.get(block=False)
-            except Empty:
-                pass
-
-            start = datetime.datetime.now()
-            result = self.getter()
-        except Exception as e:
-            logger.warn("%s get metrics failed", self.name)
-            logger.exception(e)
-        finally:
-            logger.info("%s get metrics spent %s", self.name, datetime.datetime.now() - start)
-            semaphore.release()
-            queue.put(result)
-
-    def try_get(self):
-        """ return value, is_old tuple, if value is not newly getted, return value we get last time,
-        and set is_old to True, otherwise return newly getted value and False """
-        if self.semaphore.acquire(False):
-            t = threading.Thread(target=Singleton.wrapper, name=self.name + "-getter",
-                    args=(self, self.semaphore, self.queue))
-            t.start()
-        else:
-            logger.warn("%s is still running", self.name + "-getter")
-
-        try:
-            self.old_metrics = self.queue.get(block=True, timeout=self.get_timeout_s)
-            return self.old_metrics, False
-        except Empty:
-            pass
-
-        return self.old_metrics, True
-
-
-def camel_to_underscore(label):
-    """ convert camel case into underscore
-    https://stackoverflow.com/a/1176023 """
-    tmp = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', label)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', tmp).lower()
+    if histogram is not None:
+        with histogram.time():
+            return subprocess.check_output(*args, **kwargs).decode("utf-8")
+    else:
+        return subprocess.check_output(*args, **kwargs).decode("utf-8")
 
 
 def walk_json_field_safe(obj, *fields):

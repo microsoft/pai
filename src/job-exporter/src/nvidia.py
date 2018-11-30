@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,13 +17,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess
-import sys
 from xml.dom import minidom
 import os
 import logging
 
 import utils
-from utils import Metric
 
 logger = logging.getLogger(__name__)
 
@@ -43,46 +41,25 @@ def parse_smi_xml_result(smi):
         if gpu_util == "N/A" or gpu_mem_util == "N/A":
             continue
 
-        result[str(minor)] = {"gpu_util": gpu_util, "gpu_mem_util": gpu_mem_util}
+        result[str(minor)] = {"gpu_util": float(gpu_util), "gpu_mem_util": float(gpu_mem_util)}
 
     return result
 
-def collect_gpu_info():
-    """ in some cases, nvidia-smi may block indefinitely, caller should be aware of this """
+def nvidia_smi(histogram, timeout):
     driver_path = os.environ["NV_DRIVER"]
     bin_path = os.path.join(driver_path, "bin/nvidia-smi")
-    try:
-        logger.info("call %s to get gpu metrics", bin_path) # used to check if nvidia-smi hangs
 
-        smi_output = utils.check_output([bin_path, "-q", "-x"])
+    try:
+        smi_output = utils.exec_cmd([bin_path, "-q", "-x"],
+                histogram=histogram, timeout=timeout)
 
         return parse_smi_xml_result(smi_output)
     except subprocess.CalledProcessError as e:
-        if e.returncode == 127:
-            logger.exception("nvidia cmd error. command '%s' return with error (code %d): %s",
-                    e.cmd, e.returncode, e.output)
-        else:
-            logger.exception("command '%s' return with error (code %d): %s",
-                    e.cmd, e.returncode, e.output)
-    except OSError as e:
-        logger.exception("nvidia-smi not found")
+        logger.exception("command '%s' return with error (code %d): %s",
+                e.cmd, e.returncode, e.output)
+    except subprocess.TimeoutExpired:
+        logger.warning("nvidia-smi timeout")
+    except Exception:
+        logger.exception("exec nvidia-smi error")
 
     return None
-
-
-def convert_gpu_info_to_metrics(gpu_infos):
-    if gpu_infos is None:
-        return None
-
-    result = [Metric("nvidiasmi_attached_gpus", {}, len(gpu_infos))]
-
-    for minor, info in gpu_infos.items():
-        label = {"minor_number": minor}
-        result.append(Metric("nvidiasmi_utilization_gpu", label, info["gpu_util"]))
-        result.append(Metric("nvidiasmi_utilization_memory", label, info["gpu_mem_util"]))
-
-    return result
-
-
-if __name__ == "__main__":
-    print collect_gpu_info()
