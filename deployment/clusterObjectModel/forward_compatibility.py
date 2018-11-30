@@ -68,9 +68,6 @@ def service_configuration_convert(service_configuration):
         if "grafana-port" in service_configuration["grafana"] and "port" not in service_configuration["grafana"]:
             service_configuration["grafana"]["port"] = service_configuration["grafana"]["grafana-port"]
 
-
-
-
     return service_configuration
 
 
