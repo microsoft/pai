@@ -40,7 +40,7 @@ class Webportal:
         uri = 'http://{0}:{1}'.format(master_ip, server_port)
         
         return {
-            'server-port': server-port,
+            'server-port': server_port,
             'uri': uri,
         }
     
