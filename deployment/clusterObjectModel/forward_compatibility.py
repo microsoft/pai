@@ -65,10 +65,18 @@ def service_configuration_convert(service_configuration):
             service_configuration["hadoop-resource-manager"]["yarn_exporter_port"] = service_configuration["prometheus"]["yarn_exporter_port"]
         if "prometheus-port" in service_configuration["prometheus"] and "port" not in service_configuration["prometheus"]:
             service_configuration["prometheus"]["port"] = service_configuration["prometheus"]["prometheus-port"]
+        if "alerting" in service_configuration["prometheus"]:
+            service_configuration["alert-manager"] = service_configuration["prometheus"]["alerting"]
+            if "alert_manager_port" in service_configuration["alert-manager"] and "port" not in service_configuration["alert-manager"]:
+                service_configuration["alert-manager"]["port"] = service_configuration["alert-manager"]["alert_manager_port"]
+            if "alert_receiver" in service_configuration["alert-manager"] and "receiver" not in service_configuration["alert-manager"]:
+                service_configuration["alert-manager"]["receiver"] = service_configuration["alert-manager"]["alert_receiver"]
 
     if "grafana" in service_configuration:
         if "grafana-port" in service_configuration["grafana"] and "port" not in service_configuration["grafana"]:
             service_configuration["grafana"]["port"] = service_configuration["grafana"]["grafana-port"]
+
+
 
     return service_configuration
 
