@@ -18,9 +18,7 @@
 
 const checkToken = (callback, redirectToLogin=true) => {
   const authToken = cookies.get('token');
-  console.log(authToken);
   if (!authToken && redirectToLogin) {
-    console.info(1);
     window.location.replace('/login.html?origin=' + encodeURIComponent(window.location.href));
   } else {
     callback(authToken);

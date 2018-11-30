@@ -31,40 +31,38 @@ const userLoginHtml = userLoginComponent({
 
 $('#content-wrapper').html(userLoginHtml);
 $(document).ready(() => {
-  userAuth.checkToken(function(token) {
-    $('#form-login').on('submit', (e) => {
-      e.preventDefault();
-      const username = $('#form-login :input[name=username]').val();
-      const password = $('#form-login :input[name=password]').val();
-      const expiration = $('#form-login :input[name=remember]').is(':checked') ? 7 : 1;
-      $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v1/token`,
-        type: 'POST',
-        data: {
-          username,
-          password,
-          expiration: expiration * 24 * 60 * 60,
-        },
-        dataType: 'json',
-        success: (data) => {
-          $('#form-login').trigger('reset');
-          if (data.error) {
-            alert(data.message);
-          } else {
-            cookies.set('user', data.user, {expires: expiration});
-            cookies.set('token', data.token, {expires: expiration});
-            cookies.set('admin', data.admin, {expires: expiration});
-            cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
-            const query = url.parse(window.location.href, true).query;
-            window.location.replace(query.origin ? query.origin : '/template.html');
-          }
-        },
-        error: (xhr, textStatus, error) => {
-          $('#form-login').trigger('reset');
-          const res = JSON.parse(xhr.responseText);
-          alert(res.message);
-        },
-      });
+  $('#form-login').on('submit', (e) => {
+    e.preventDefault();
+    const username = $('#form-login :input[name=username]').val();
+    const password = $('#form-login :input[name=password]').val();
+    const expiration = $('#form-login :input[name=remember]').is(':checked') ? 7 : 1;
+    $.ajax({
+      url: `${webportalConfig.restServerUri}/api/v1/token`,
+      type: 'POST',
+      data: {
+        username,
+        password,
+        expiration: expiration * 24 * 60 * 60,
+      },
+      dataType: 'json',
+      success: (data) => {
+        $('#form-login').trigger('reset');
+        if (data.error) {
+          alert(data.message);
+        } else {
+          cookies.set('user', data.user, {expires: expiration});
+          cookies.set('token', data.token, {expires: expiration});
+          cookies.set('admin', data.admin, {expires: expiration});
+          cookies.set('hasGitHubPAT', data.hasGitHubPAT, {expires: expiration});
+          const query = url.parse(window.location.href, true).query;
+          window.location.replace(query.origin ? query.origin : '/template.html');
+        }
+      },
+      error: (xhr, textStatus, error) => {
+        $('#form-login').trigger('reset');
+        const res = JSON.parse(xhr.responseText);
+        alert(res.message);
+      },
     });
   });
 });
