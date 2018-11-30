@@ -127,8 +127,6 @@ drivers:
 #   {% endif %}
 #   {% endif %}
 
-pylon:
-  # port of pylon
-  port: 80
-  # deploy service for cloud load balancer
-  deploy_service: false
+# uncomment following section if you want to customize the port of pylon
+# pylon:
+#  port: 80

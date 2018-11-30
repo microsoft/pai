@@ -21,6 +21,6 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: {{ clusterinfo['pyloninfo']['port'] }}
+  - port: {{ cluster_cfg['pylon']['port'] }}
   selector:
     app: pylon

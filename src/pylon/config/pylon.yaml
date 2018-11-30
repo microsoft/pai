@@ -1,0 +1,4 @@
+port: 80
+# The following 2 config is for internal use
+webhdfs-legacy-port: 50070
+deploy-service: false
