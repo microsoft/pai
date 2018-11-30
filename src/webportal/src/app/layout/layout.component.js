@@ -30,7 +30,7 @@ const userLoginNavComponent = require('../user/user-login/user-login-nav.compone
 
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
-
+console.log(userLoginNavHtml);
 window.userLogout = userLogoutComponent.userLogout;
 
 $('#navbar').html(userLoginNavHtml);
