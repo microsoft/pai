@@ -78,9 +78,7 @@ yarn-frameworklauncher:
   frameworklauncher-port: 9086
 
 
-restserver:
-  # port for rest api server
-  server-port: 9186
+rest-server:
   # secret for signing authentication tokens, e.g., hello
   jwt-secret: HelloPAI
   # database admin username
