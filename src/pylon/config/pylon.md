@@ -9,7 +9,7 @@
 
 [pylon default configuration](pylon.yaml)
 
-## How to configure cluster section in service-configuraiton.yaml <a name="HT_Config"></a>
+## How to configure pylon section in service-configuraiton.yaml <a name="HT_Config"></a>
 
 All configurations in this section is optional. If you want to customized these value, you can configure it in service-configuration.yaml.
 
