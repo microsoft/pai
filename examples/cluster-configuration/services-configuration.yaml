@@ -45,33 +45,19 @@ cluster:
     # Must be lower case, e.g., regsecret.
     secret-name: regsecret
 
-
-hadoop:
-  # custom_hadoop_binary_path is required to build hadoop-ai.
-  # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
-  # Notice: the name should be hadoop-{hadoop-version}.tar.gz
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
-  # Step 1 of 4 to set up Hadoop queues.
-  # Define all virtual clusters, equivalent concept of Hadoop queues:
-  #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
-  #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
-  #     member list of 'default' VC when it is created.
-  #   - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
-  #     been explicitly specified here.
-  virtualClusters:
-    default:
-      description: Default VC.
-      capacity: 40
-    vc1:
-      description: VC for Alice's team.
-      capacity: 20
-    vc2:
-      description: VC for Bob's team.
-      capacity: 20
-    vc3:
-      description: VC for Charlie's team.
-      capacity: 20
-
+#Uncomment following lines if you want to customize yarn
+#hadoop-resource-manager:
+#  # port for yarn exporter
+#  yarn_exporter_port: 9459
+#  # Step 1 of 4 to set up Hadoop queues.
+#  # Define all virtual clusters, equivalent concept of Hadoop queues:
+#  #   - Each VC will be assigned with (capacity / 100 * 100%) of the resources in the system.
+#  #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
+#  #     member list of 'default' VC when it is created.
+#  virtualClusters:
+#    default:
+#      description: Default VC.
+#      capacity: 100
 
 
 yarn-frameworklauncher:
