@@ -64,6 +64,13 @@ def service_configuration_convert(service_configuration):
         if "yarn_exporter_port" not in service_configuration["hadoop-resource-manager"] and "yarn_exporter_port" in service_configuration["prometheus"]:
             service_configuration["hadoop-resource-manager"]["yarn_exporter_port"] = service_configuration["prometheus"]["yarn_exporter_port"]
 
+    if "grafana" in service_configuration:
+        if "grafana-port" in service_configuration["grafana"] and "port" not in service_configuration["grafana"]:
+            service_configuration["grafana"]["port"] = service_configuration["grafana"]["grafana-port"]
+
+
+
+
     return service_configuration
 
 
