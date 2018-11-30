@@ -26,11 +26,10 @@ def transform(old_model, old_key, new_model, new_key):
         if key not in old_dict:
             return
         old_dict = old_dict[key]
-    for key in new_key_list:
+    for key in new_key_list[:-1]:
         if key not in new_model and key != new_key_list[-1]:
             new_dict[key] = dict()
-        if key != new_key_list[-1]:
-            new_dict = new_dict[key]
+        new_dict = new_dict[key]
     new_dict[new_key_list[-1]] = old_dict
 
 
