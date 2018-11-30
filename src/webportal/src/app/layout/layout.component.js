@@ -30,7 +30,9 @@ const userLoginNavComponent = require('../user/user-login/user-login-nav.compone
 
 
 const userLoginNavHtml = userLoginNavComponent({cookies});
+
 window.userLogout = userLogoutComponent.userLogout;
+
 $('#navbar').html(userLoginNavHtml);
 if (!userAuthComponent.checkAdmin()) {
   $('#sidebar-menu--cluster-view').hide();
