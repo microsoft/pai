@@ -35,7 +35,6 @@ class ConfigModel:
         # forward compatibility with the old cluster configuration
 
         if "docker-registry-info" in buildConfigContent["cluster"]:
-
             self.buildConfigDict["dockerRegistryInfo"] = buildConfigContent["cluster"]["docker-registry-info"]
             self.buildConfigDict["dockerRegistryInfo"]["dockerNameSpace"] = \
                 buildConfigContent["cluster"]["docker-registry-info"]["docker-namespace"]
