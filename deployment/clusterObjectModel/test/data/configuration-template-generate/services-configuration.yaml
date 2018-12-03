@@ -46,35 +46,22 @@ cluster:
     secret-name: regsecret
 
 
-hadoop:
-  # custom_hadoop_binary_path is required to build hadoop-ai.
-  # More about hadoop-ai please follow the link: https://github.com/Microsoft/pai/tree/master/hadoop-ai.
-  # Notice: the name should be hadoop-{hadoop-version}.tar.gz
-  custom-hadoop-binary-path: /pathHadoop/hadoop-2.9.0.tar.gz
+
+hadoop-resource-manager:
+  # port for yarn exporter
+  yarn_exporter_port: 9459
   # Step 1 of 4 to set up Hadoop queues.
   # Define all virtual clusters, equivalent concept of Hadoop queues:
-  #   - Each VC will be assigned with (capacity / total_capacity * 100%) of the resources in the system.
+  #   - Each VC will be assigned with (capacity / 100 * 100%) of the resources in the system.
   #   - The 'default' VC can be used by any PAI user, i.e. a user will be automatically put into the
   #     member list of 'default' VC when it is created.
-  #   - The system will automatically create the 'default' VC with 0 capacity, if 'default' VC has not
-  #     been explicitly specified here.
   virtualClusters:
     default:
       description: Default VC.
-      capacity: 40
-    vc1:
-      description: VC for Alice's team.
-      capacity: 20
-    vc2:
-      description: VC for Bob's team.
-      capacity: 20
-    vc3:
-      description: VC for Charlie's team.
-      capacity: 20
+      capacity: 100
 
 
-
-frameworklauncher:
+yarn-frameworklauncher:
   frameworklauncher-port: 9086
 
 
@@ -103,23 +90,9 @@ drivers:
 
 prometheus:
   # port for prometheus port
-  prometheus-port: 9091
-  # port for node exporter
-  node-exporter-port: 9100
-  # port for yarn exporter
-  yarn_exporter_port: 9459
+  port: 9091
   # How frequently to scrape targets
   scrape_interval: 30
- 
-  # if you want to enable alert manager to send alert email, uncomment following lines and fill
-  # right values.
-  #  alerting:
-  #    alert_manager_port: 9093
-  #    alert_receiver: alert@example.com
-  #    smtp_url: smtp.gmail.com:587
-  #    smtp_from: foo_bar@gmail.com
-  #    smtp_auth_username: user@gmail.com
-  #    smtp_auth_password: gmail_password
 
 
 pylon:
