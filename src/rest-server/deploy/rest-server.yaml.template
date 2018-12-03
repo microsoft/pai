@@ -51,7 +51,7 @@ spec:
         - name: DEFAULT_PAI_ADMIN_PASSWORD
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: ETCD_URI
-          value: {{ cluster_cfg['rest-server']['etcd-uri-list'] }}
+          value: {{ cluster_cfg['rest-server']['etcd-uris'] }}
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
 {% if cluster_cfg['rest-server']['github-owner'] %}
