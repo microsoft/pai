@@ -37,6 +37,9 @@ def transform(old_model, old_key, new_model, new_key):
 
 def service_configuration_convert(service_configuration):
 
+    if "cluster" in service_configuration and "common" in service_configuration:
+        return service_configuration
+
     new_configuration = {}
 
     transform(service_configuration, "drivers", new_configuration, "drivers")
