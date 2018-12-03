@@ -17,59 +17,77 @@
 
 
 
+def transform(old_model, old_key, new_model, new_key):
+    old_key_list = old_key.split('.')
+    new_key_list = new_key.split('.')
+    old_dict = old_model
+    new_dict = new_model
+    if old_dict == None:
+        return
+    for key in old_key_list:
+        if key not in old_dict:
+            return
+        old_dict = old_dict[key]
+    for key in new_key_list[:-1]:
+        if key not in new_model:
+            new_dict[key] = {}
+        new_dict = new_dict[key]
+    new_dict[new_key_list[-1]] = old_dict
+
+
 def service_configuration_convert(service_configuration):
-    if "rest-server" not in service_configuration and "restserver" in service_configuration:
-        service_configuration["rest-server"] = service_configuration["restserver"]
 
-    if "yarn-frameworklauncher" not in service_configuration and "frameworklauncher" in service_configuration:
-        service_configuration["yarn-frameworklauncher"] = service_configuration["frameworklauncher"]
+    new_configuration = {}
 
-    if "cluster" in service_configuration:
-        if "common" not in service_configuration["cluster"]:
-            service_configuration["cluster"]["common"] = dict()
-            if "clusterid" in service_configuration["cluster"]:
-                service_configuration["cluster"]["common"]["clusterid"] = service_configuration["cluster"]["clusterid"]
-            if "data-path" in service_configuration["cluster"]:
-                service_configuration["cluster"]["common"]["data-path"] = service_configuration["cluster"]["data-path"]
-        if "docker-registry" not in service_configuration["cluster"] and "docker-registry-info" in service_configuration["cluster"]:
-            service_configuration["cluster"]["docker-registry"] = dict()
-            if "docker-namespace" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["namespace"] = \
-                service_configuration["cluster"]["docker-registry-info"]["docker-namespace"]
-            if "docker-registry-domain" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["domain"] = \
-                service_configuration["cluster"]["docker-registry-info"]["docker-registry-domain"]
-            if "docker-username" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["username"] = \
-                service_configuration["cluster"]["docker-registry-info"]["docker-username"]
-            if "docker-password" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["password"] = \
-                service_configuration["cluster"]["docker-registry-info"]["docker-password"]
-            if "docker-tag" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["tag"] = \
-                service_configuration["cluster"]["docker-registry-info"]["docker-tag"]
-            if "secret-name" in service_configuration["cluster"]["docker-registry-info"]:
-                service_configuration["cluster"]["docker-registry"]["secret-name"] = \
-                service_configuration["cluster"]["docker-registry-info"]["secret-name"]
+    transform(service_configuration, "drivers", new_configuration, "drivers")
+    transform(service_configuration, "webportal", new_configuration, "webportal")
+    transform(service_configuration, "pylon", new_configuration, "pylon")
 
-    if "hadoop" in service_configuration:
-        if "hadoop-resource-manager" not in service_configuration:
-            service_configuration["hadoop-resource-manager"] = dict()
-        if "virtualClusters" not in service_configuration["hadoop-resource-manager"] and "virtualClusters" in service_configuration["hadoop"]:
-            service_configuration["hadoop-resource-manager"]["virtualClusters"] = service_configuration["hadoop"]["virtualClusters"]
+    transform(service_configuration, "cluster.clusterid", new_configuration, "cluster.common.clusterid")
+    transform(service_configuration, "cluster.data-path", new_configuration, "cluster.common.data-path")
+    transform(service_configuration, "cluster.docker-registry-info.docker-namespace",
+              new_configuration, "cluster.docker-registry.namespace")
+    transform(service_configuration, "cluster.docker-registry-info.docker-registry-domain",
+              new_configuration, "cluster.docker-registry.domain")
+    transform(service_configuration, "cluster.docker-registry-info.docker-username",
+              new_configuration, "cluster.docker-registry.username")
+    transform(service_configuration, "cluster.docker-registry-info.docker-password",
+              new_configuration, "cluster.docker-registry.password")
+    transform(service_configuration, "cluster.docker-registry-info.docker-tag",
+              new_configuration, "cluster.docker-registry.tag")
+    transform(service_configuration, "cluster.docker-registry-info.secret-name",
+              new_configuration, "cluster.docker-registry.secret-name")
 
-    if "prometheus" in service_configuration:
-        if "hadoop-resource-manager" not in service_configuration:
-            service_configuration["hadoop-resource-manager"] = dict()
-        if "yarn_exporter_port" not in service_configuration["hadoop-resource-manager"] and "yarn_exporter_port" in service_configuration["prometheus"]:
-            service_configuration["hadoop-resource-manager"]["yarn_exporter_port"] = service_configuration["prometheus"]["yarn_exporter_port"]
-        if "prometheus-port" in service_configuration["prometheus"] and "port" not in service_configuration["prometheus"]:
-            service_configuration["prometheus"]["port"] = service_configuration["prometheus"]["prometheus-port"]
+    transform(service_configuration, "restserver", new_configuration, "rest-server")
+    transform(service_configuration, "frameworklauncher", new_configuration, "yarn-frameworklauncher")
 
-    if "grafana" in service_configuration:
-        if "grafana-port" in service_configuration["grafana"] and "port" not in service_configuration["grafana"]:
-            service_configuration["grafana"]["port"] = service_configuration["grafana"]["grafana-port"]
+    transform(service_configuration, "hadoop.virtualClusters",
+              new_configuration, "hadoop-resource-manager.virtualClusters")
+    transform(service_configuration, "prometheus.yarn_exporter_port",
+              new_configuration, "hadoop-resource-manager.yarn_exporter_port")
 
-    return service_configuration
+    transform(service_configuration, "prometheus.prometheus-port",
+              new_configuration, "prometheus.port")
+    transform(service_configuration, "prometheus.scrape_interval",
+              new_configuration, "prometheus.scrape_interval")
+
+    transform(service_configuration, "prometheus.alerting.alert_receiver",
+              new_configuration, "alert-manager.receiver")
+    transform(service_configuration, "prometheus.alerting.alert_manager_port",
+              new_configuration, "alert-manager.port")
+    transform(service_configuration, "prometheus.alerting.smtp_url",
+              new_configuration, "alert-manager.smtp_url")
+    transform(service_configuration, "prometheus.alerting.smtp_from",
+              new_configuration, "alert-manager.smtp_from")
+    transform(service_configuration, "prometheus.alerting.smtp_auth_username",
+              new_configuration, "alert-manager.smtp_auth_username")
+    transform(service_configuration, "prometheus.alerting.smtp_auth_password",
+              new_configuration, "alert-manager.smtp_auth_password")
+
+    transform(service_configuration, "grafana.grafana-port",
+              new_configuration, "grafana.port")
+
+
+    return new_configuration
 
 
