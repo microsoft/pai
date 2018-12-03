@@ -45,3 +45,8 @@ cluster:
     # Must be lower case, e.g., regsecret.
     secret-name: regsecret-overwrite
 
+
+
+rest-server:
+  default-pai-admin-username: your_default_pai_admin_username
+  default-pai-admin-password: your_default_pai_admin_password

@@ -1,3 +1,6 @@
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+{% set url = cluster_cfg["grafana"]["url"] %}
+
 {"dashboard": {
   "annotations": {
     "list": [
@@ -74,7 +77,7 @@
               "refId": "A"
             },
             {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])) * 100)",
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -281,7 +284,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -292,7 +295,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -388,7 +391,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -399,7 +402,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -649,7 +652,7 @@
               "decimals": 0,
               "link": true,
               "linkTooltip": "Click to view usage of each GPU",
-              "linkUrl": "{{ clusterinfo['grafanainfo']['grafana_url'] }}:{{ clusterinfo['grafanainfo']['grafana_port'] }}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
+              "linkUrl": "{{url}}/dashboard/script/gpu.js?orgId=1&host=$__cell_2&rows=$__cell_4",
               "pattern": "instance",
               "preserveFormat": false,
               "sanitize": false,

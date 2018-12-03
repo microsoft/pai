@@ -78,19 +78,9 @@ frameworklauncher:
   frameworklauncher-port: 9086
 
 
-restserver:
-  # port for rest api server
-  server-port: 9186
-  # secret for signing authentication tokens, e.g., hello
-  jwt-secret: HelloPAI
-  # database admin username
+rest-server:
   default-pai-admin-username: your_default_pai_admin_username
-  # database admin password
   default-pai-admin-password: your_default_pai_admin_password
-   # rest server would achieve marketplace template from below configed github repository
-  github-owner: Microsoft
-  github-repository: pai
-  github-path: marketplace
 
   
 webportal:

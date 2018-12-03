@@ -16,5 +16,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% for host in cluster_cfg['machine']['machine-list'] if 'gpu' in cluster_cfg['machine']['machine-sku'][ cluster_cfg['machine']['machine-list'][host]['machine-type']] -%}
-{{cluster_cfg['machine']['machine-list'][host]['nodename']}}: {{ cluster_cfg['machine']['machine-sku'][ cluster_Cfg['machine']['machine-list'][host]['machine-type']]['gpu']['type'] }}
+{{cluster_cfg['machine']['machine-list'][host]['nodename']}}: {{ cluster_cfg['machine']['machine-sku'][ cluster_cfg['machine']['machine-list'][host]['machine-type']]['gpu']['type'] }}
 {% endfor %}

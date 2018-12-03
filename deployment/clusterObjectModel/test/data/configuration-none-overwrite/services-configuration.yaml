@@ -15,14 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-restserver:
-  # secret for signing authentication tokens, e.g., hello
-  #jwt-secret: HelloPAI
-  # database admin username
+
+rest-server:
   default-pai-admin-username: your_default_pai_admin_username
-  # database admin password
   default-pai-admin-password: your_default_pai_admin_password
-   # rest server would achieve marketplace template from below configed github repository
-  #github-owner: Microsoft
-  #github-repository: pai
-  #github-path: marketplace
+

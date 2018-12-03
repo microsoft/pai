@@ -79,6 +79,8 @@ class Kubernetes:
 
         com_kubernetes["cluster-dns"] = k8s_cfg["cluster-dns"]
         com_kubernetes["api-servers-ip"] = k8s_cfg["load-balance-ip"]
+        com_kubernetes["api-servers-port"] = "8080"
+        com_kubernetes["api-servers-url"] = "http://{0}:8080".format(k8s_cfg["load-balance-ip"])
         com_kubernetes["docker-registry"] = k8s_cfg["docker-registry"]
         com_kubernetes["hyperkube-version"] = k8s_cfg["hyperkube-version"]
         com_kubernetes["etcd-version"] = k8s_cfg["etcd-version"]
