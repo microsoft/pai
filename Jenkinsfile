@@ -81,7 +81,7 @@ sed -i "38s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yam
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
-$JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
+$JENKINS_HOME/scripts/setup_azure_int_registry_new_com.sh $CONFIG_PATH
 # build images
 cd build/
 sudo ./pai_build.py build -c $CONFIG_PATH
@@ -161,7 +161,7 @@ sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-co
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
-/jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
+/jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
@@ -261,7 +261,7 @@ sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-co
 sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
-/jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
+/jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
