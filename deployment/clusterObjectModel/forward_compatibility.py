@@ -23,6 +23,7 @@ def transform(old_model, old_key, new_model, new_key):
     old_dict = old_model
     new_dict = new_model
     print old_key_list
+    print old_dict
     for key in old_key_list:
         if key not in old_dict:
             return
