@@ -87,6 +87,8 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "grafana.grafana-port",
               new_configuration, "grafana.port")
 
+    transform(service_configuration, "prometheus.node-exporter-port",
+              new_configuration, "node-exporter.port")
 
     return new_configuration
 
