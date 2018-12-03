@@ -1,10 +1,13 @@
-# Launcher a jupyter job-editor
+# Launcher a jupyter job-editor for interactive debugging
 
-The example demonstrate how we leverage PAI restserver APIs to create an online job editor basing on jupyter.
+The example is a prototype of online job editor. It demonstrates:
 
-It runs as a normal PAI job, on the online editor we could `prepare dependencies`, `test code`, `submit job to PAI` and `do all other things` on the fly.
+1. Launcher a jupyter notebook for online editing and interactive debugging. The editor is running on PAI, so user will debug on the same environment as the job will be running and get the feedback on the fly.
+2. Leverage PAI restserver APIs to submit job on PAI. So user could try more experiments without leaving the editor.
 
-We havn't done any encapsulation on the python code, it's simple and easy to improve and extend, any changes are welcomed.
+The job-editor runs as a normal PAI job, launch a jupyter notebook `prepares dependencies`, `tests code`, `submits job to PAI` and `does all other things`.
+
+We havn't done any encapsulation, leaving the `raw code` exposing the implemetation details. It's simple and for extending, any improves are welcomed.
 
 ## Setup
 
