@@ -76,7 +76,7 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+sed -i "38s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
