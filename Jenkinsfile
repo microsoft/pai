@@ -76,7 +76,7 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
@@ -156,7 +156,7 @@ fi
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
@@ -256,7 +256,7 @@ fi
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
