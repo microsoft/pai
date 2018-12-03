@@ -854,6 +854,16 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
       "message": "No enough quota."
     }
     ```
+    
+    *Response if "default" virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoVirtualClusterError",
+      "message": "Default virtual cluster is not found, can't allocate or free resource."
+    }
+    ```
 
     *Response if a server error occured*
     ```
@@ -864,7 +874,6 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
       "message": "*Upstream error messages*"
     }
     ```
-
 
 15. `DELETE virtual-clusters/:vcName`
 
@@ -901,7 +910,27 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
     {
       "code": "ForbiddenUserError",
-      "message": "Update operation to default vc isn't allowed"
+      "message": "Don't allow to update default vc."
+    }
+    ```
+    
+    *Response if the virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoVirtualClusterError",
+      "message": "Virtual cluster $vcname is not found."
+    }
+    ```
+    
+    *Response if "default" virtual cluster does not exist*
+    ```
+    Status: 404
+
+    {
+      "code": "NoVirtualClusterError",
+      "message": "Default virtual cluster is not found, can't allocate or free resource."
     }
     ```
 
@@ -917,7 +946,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
 
 16. `PUT virtual-clusters/:vcName/status`
 
-    Change virtual cluster status in the system, don't allow to operate "default" vc.
+    Change virtual cluster status, don't allow to operate "default" vc.
 
     *Request*
     ```
@@ -937,7 +966,7 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
     Status: 201
 
     {
-      "message": "Update vc: $vcName to capacity: $vcCapacity successfully."
+      "message": "Update vc: $vcName to status: $vcStatus successfully."
     }
     ```
 
@@ -960,14 +989,14 @@ Configure the rest server port in [services-configuration.yaml](../../examples/c
       "message": "Non-admin is not allow to do this operation."
     }
     ```
-
-    *Response if no enough quota*
+    
+    *Response if the virtual cluster does not exist*
     ```
-    Status: 403
+    Status: 404
 
     {
-      "code": "NoEnoughQuotaError",
-      "message": "No enough quota."
+      "code": "NoVirtualClusterError",
+      "message": "Virtual cluster $vcname is not found."
     }
     ```
 

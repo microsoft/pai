@@ -265,7 +265,7 @@ class VirtualCluster {
         logger.warn('list virtual clusters error, no virtual cluster found');
       } else {
         if (!vcList.hasOwnProperty(vcName)){
-          return callback(createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found, can't stop`));
+          return callback(createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found, can't active`));
         }
         else{
             let data = {"pendingActive": {}};
