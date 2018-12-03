@@ -15,7 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import json
 
 def transform(old_model, old_key, new_model, new_key):
     old_key_list = old_key.split('.')
@@ -90,6 +90,7 @@ def service_configuration_convert(service_configuration):
     transform(service_configuration, "prometheus.node-exporter-port",
               new_configuration, "node-exporter.port")
 
+    print json.dumps(new_configuration)
     return new_configuration
 
 
