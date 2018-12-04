@@ -773,9 +773,9 @@ Status: 200
   "resourcesUsed":{
    "memory":0,
    "vCores":0,
-   "GPUs":0,
+   "GPUs":0
   },
-  "state":"running",
+  "state":"running"
 }
 ```
 
@@ -812,7 +812,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Parameters*
 ```
 {
-  "vcCapacity": new capacity,
+  "vcCapacity": new capacity
 }
 ```
 
@@ -957,7 +957,7 @@ Authorization: Bearer <ACCESS_TOKEN>
 *Parameters*
 ```
 {
-  "vcStatus": "running" | "stopped",
+  "vcStatus": "running" | "stopped"
 }
 ```
 
