@@ -31,8 +31,8 @@ if kubectl get configmap | grep -q "gpu-configuration"; then
     kubectl delete configmap gpu-configuration || exit $?
 fi
 
-if kubectl get secret | grep -q "{{ clusterinfo['dockerregistryinfo']['secretname'] }}"; then
-    kubectl delete secret {{ clusterinfo['dockerregistryinfo']['secretname'] }} || exit $?
+if kubectl get secret | grep -q "{{ cluster_cfg['cluster']['docker-registry']['secret-name'] }}"; then
+    kubectl delete secret {{ cluster_cfg['cluster']['docker-registry']['secret-name'] }} || exit $?
 fi
 
 popd > /dev/null

@@ -22,7 +22,6 @@ prerequisite:
 
 template-list:
   - end-to-end-test.yaml
-  - stop.sh
 
 start-script: start.sh
 stop-script: stop.sh

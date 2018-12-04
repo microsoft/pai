@@ -1,9 +1,9 @@
 {
   "nodes" : {
-{% for host in machinelist if 'gpu' in machineinfo[ machinelist[ host ][ 'machinetype' ] ] %}
-    "{{machinelist[ host ]['nodename']}}" : {
-        "gpuType" : "{{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['type'] }}",
-        "gpuCount" : {{ machineinfo[ machinelist[ host ][ 'machinetype' ] ]['gpu']['count'] }}
+{% for host in cluster_cfg['machine']['machine-list'] if 'gpu' in cluster_cfg['machine']['machine-sku'][cluster_cfg['machine']['machine-list'][host]['machinetype']] %}
+    "{{cluster_cfg['machine']['machine-list'][ host ]['nodename']}}" : {
+        "gpuType" : "{{ cluster_cfg['machine']['machine-sku'][ cluster_cfg['machine']['machine-list'][ host ][ 'machine-type' ] ]['gpu']['type'] }}",
+        "gpuCount" : {{ cluster_cfg['machine']['machine-sku'][ cluster_cfg['machine']['machine-list'][ host ][ 'machinetype' ] ]['gpu']['count'] }}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
   }

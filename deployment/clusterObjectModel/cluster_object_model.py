@@ -21,6 +21,8 @@ import importlib
 import logging
 import logging.config
 
+
+from . import forward_compatibility
 from ..paiLibrary.common import file_handler
 from ..paiLibrary.common import directory_handler
 from .mainParser import kubernetes as pai_com_kubernetes
@@ -37,7 +39,8 @@ class cluster_object_model:
         self.logger = logging.getLogger(__name__)
         self.configuration_path = configuration_path
         self.cluster_configuration = file_handler.load_yaml_config("{0}/cluster-configuration.yaml".format(configuration_path))
-        self.overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
+        overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
+        self.overwirte_service_configuration = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
         self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
         self.cluster_object_model = dict()
 
@@ -48,7 +51,7 @@ class cluster_object_model:
 
         sub_dir_list = directory_handler.get_subdirectory_list("{0}/../../src/".format(package_directory_com))
         for sub_dir_name in sub_dir_list:
-            parser_path = "{0}/../../src/{1}/config/{1}.py".format(package_directory_com, sub_dir_name)
+            parser_path = "{0}/../../src/{1}/config/{2}.py".format(package_directory_com, sub_dir_name, sub_dir_name.replace("-", "_"))
             if file_handler.file_exist_or_not(parser_path):
                 sub_model_list.append(sub_dir_name)
         return sub_model_list
@@ -67,12 +70,12 @@ class cluster_object_model:
         if file_handler.file_exist_or_not(default_path):
             default_service_cfg = file_handler.load_yaml_config(default_path)
 
-        overwrite_service_cfg = None
+        overwrite_service_cfg = {}
         if self.overwirte_service_configuration is not None and service_name in self.overwirte_service_configuration:
             overwrite_service_cfg = self.overwirte_service_configuration[service_name]
 
         # Init parser instance
-        parser_module = importlib.import_module(service_name)
+        parser_module = importlib.import_module(service_name.replace("-", "_"))
         parser_class_name = service_name.replace("-", " ").title().replace(" ", "")
         service_parser_class = getattr(parser_module, parser_class_name)
         parser_instance = service_parser_class(cluster_cfg, overwrite_service_cfg, default_service_cfg)
@@ -131,7 +134,7 @@ class cluster_object_model:
         for key in parser_dict.iterkeys():
             value = parser_dict[key]
             self.logger.info("Begin to do post-validation of {0}.".format(key))
-            ok, msg = value.validation_post(cluster_object_model)
+            ok, msg = value.validation_post(self.cluster_object_model)
             if ok is False:
                 self.logger.error(msg)
                 sys.exit(1)

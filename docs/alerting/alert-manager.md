@@ -4,19 +4,18 @@ release.
 
 # Configuration
 
-To enable Alert Manager, please configure Alert Manager by adding `alerting` fields under `prometheus`
-to services-configuration file.
+To enable Alert Manager, please follow instruction [here](../../src/alert-manager/config/alert-manager.md)
 
 Refer to example [`cluster-configuration`](../../examples/cluster-configuration/cluster-configuration.yaml) and
 [`service-configuration`](../../examples/cluster-configuration/services-configuration.yaml) for more
 information.
 
-`alerting` fields has following subfield:
+`alert-manager` fields has following subfield:
 
 | Field Name | Description |
 | --- | --- |
-| alert_manager_port | port for alert manager to listen, make sure this port is not used in node |
-| alert_receiver | which email should receive alert email |
+| port | port for alert manager to listen, make sure this port is not used in node |
+| receiver | which email should receive alert email |
 | smtp_url | smtp server url for alert manager to connect |
 | smtp_from | this email address is where alerting email sent from |
 | smtp_auth_username | use this user name to login to smtp server. This user should be able to send email as `smtp_from`, can be same with `smtp_from` |

@@ -21,7 +21,7 @@ import os
 import tempfile
 
 from ...confStorage.download import download_configuration
-from ..clusterObjectModel.objectModelFactory import objectModelFactory
+from ...clusterObjectModel.cluster_object_model import cluster_object_model
 
 
 
@@ -48,8 +48,8 @@ class service_management_configuration:
 
 
     def get_cluster_object_model_service(self):
-        objectModelFactoryHandler = objectModelFactory(configurationPath = self.tmp_path)
-        self.cluster_object_service = objectModelFactoryHandler.objectModelPipeLine()["service"]
+        objectModelFactoryHandler = cluster_object_model(configuration_path = self.tmp_path)
+        self.cluster_object_service = objectModelFactoryHandler.run()
 
 
 

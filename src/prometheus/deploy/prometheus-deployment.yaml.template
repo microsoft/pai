@@ -15,8 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% set prometheus_url = clusterinfo["prometheusinfo"]["prometheus_url"] %}
-{% set prometheus_port = clusterinfo["prometheusinfo"]["prometheus_port"] %}
+{% set prometheus_url = cluster_cfg["prometheus"]["url"] %}
+{% set prometheus_port = cluster_cfg["prometheus"]["port"] %}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -36,7 +36,7 @@ spec:
       hostNetwork: true
       containers:
       - name: prometheus
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}prometheus:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}prometheus:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         resources:
           limits:
             memory: "10Gi"
@@ -45,7 +45,7 @@ spec:
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
           - '--web.listen-address=0.0.0.0:{{prometheus_port}}'
-          - '--web.external-url={{prometheus_url}}:{{prometheus_port}}'
+          - '--web.external-url={{prometheus_url}}'
         ports:
         - name: web
           containerPort: {{prometheus_port}}
@@ -55,7 +55,7 @@ spec:
         - name: rules-volume
           mountPath: /etc/prometheus-alert
       imagePullSecrets:
-      - name: {{ clusterinfo["dockerregistryinfo"]["secretname"] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: config-volume
         configMap:
