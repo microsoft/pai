@@ -39,7 +39,7 @@ spec:
         - name: LAUNCHER_WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: HDFS_URI
-          value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
+          value: hdfs://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
         - name: WEBHDFS_URI
           value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:5070
         - name: YARN_URI
