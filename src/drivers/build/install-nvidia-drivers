@@ -33,7 +33,8 @@ function nvidiaPresent {
 }
 
 echo ======== If NVIDIA present exit early =========
-if [ nvidiaPresent ] ; then
+nvidiaPresent
+if [ $? == 0 ] ; then
     if [[ ! -L $CURRENT_DRIVER ]]; then
         mkdir -p `dirname $CURRENT_DRIVER`
         ln -s $DRIVER_PATH/$NVIDIA_VERSION $CURRENT_DRIVER
