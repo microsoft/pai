@@ -2,7 +2,7 @@
 
 The example is a prototype of online job editor. It demonstrates:
 
-1. Launcher a jupyter notebook for online editing and interactive debugging. The editor is running on PAI, so user will debug on the same environment as the job will be running and get the feedback on the fly.
+1. Launcher a jupyter notebook for online code editing and interactive debugging. The editor is running on PAI, so user will debug on the same environment as the job will be running and get the feedback on the fly.
 2. Leverage PAI restserver APIs to submit job on PAI. So user could try more experiments without leaving the editor.
 
 The job-editor runs as a normal PAI job, launch a jupyter notebook `prepares dependencies`, `tests code`, `submits job to PAI` and `does all other things`.
