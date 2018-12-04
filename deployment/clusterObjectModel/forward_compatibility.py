@@ -95,5 +95,3 @@ def service_configuration_convert(service_configuration):
 
     print json.dumps(new_configuration)
     return new_configuration
-
-
