@@ -22,14 +22,14 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
 export PATH=$PATH:$NV_DRIVER/bin
 
 if lspci | grep -qE "[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F].[0-9] (3D|VGA compatible) controller: NVIDIA Corporation.*"; then
-    if [ -d "$PRE_INSTALLED_NV_DRIVER_PATH" ]; then
+    if [ -f "$PRE_INSTALLED_NV_DRIVER_PATH/bin/nvidia-smi" ]; then
         ls -a $PRE_INSTALLED_NV_DRIVER_PATH
         echo pre installed nvidia driver detectived, skip driver installation
         rm -f $DRIVER_PATH/current # remove pre-exist link
         mkdir -p $DRIVER_PATH
         ln -s $PRE_INSTALLED_NV_DRIVER_PATH $DRIVER_PATH/current
     else
-        /bin/bash install-nvidia-drivers || exit $?
+        /bin/bash -x install-nvidia-drivers || exit $?
         echo NVIDIA gpu detected, drivers installed
 
         /bin/bash enable-nvidia-persistenced-mode.sh || exit $?
