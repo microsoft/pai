@@ -22,263 +22,266 @@ describe('VC API /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, {
-        "scheduler": {
-          "schedulerInfo": {
-            "capacity": 100.0,
-            "maxCapacity": 100.0,
+    "scheduler": {
+        "schedulerInfo": {
+            "type": "capacityScheduler",
+            "capacity": 100,
+            "usedCapacity": 0,
+            "maxCapacity": 100,
             "queueName": "root",
             "queues": {
-              "queue": [
-                {
-                  "absoluteCapacity": 10.5,
-                  "absoluteMaxCapacity": 50.0,
-                  "absoluteUsedCapacity": 0.0,
-                  "capacity": 10.5,
-                  "maxCapacity": 50.0,
-                  "numApplications": 0,
-                  "queueName": "a",
-                  "queues": {
-                    "queue": [
-                      {
-                        "absoluteCapacity": 3.15,
-                        "absoluteMaxCapacity": 25.0,
-                        "absoluteUsedCapacity": 0.0,
+                "queue": [
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
                         "capacity": 30.000002,
-                        "maxCapacity": 50.0,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 30.000002,
+                        "absoluteMaxCapacity": 100,
+                        "absoluteUsedCapacity": 0,
                         "numApplications": 0,
-                        "queueName": "a1",
-                        "queues": {
-                          "queue": [
-                            {
-                              "absoluteCapacity": 2.6775,
-                              "absoluteMaxCapacity": 25.0,
-                              "absoluteUsedCapacity": 0.0,
-                              "capacity": 85.0,
-                              "maxActiveApplications": 1,
-                              "maxActiveApplicationsPerUser": 1,
-                              "maxApplications": 267,
-                              "maxApplicationsPerUser": 267,
-                              "maxCapacity": 100.0,
-                              "numActiveApplications": 0,
-                              "numApplications": 0,
-                              "numContainers": 0,
-                              "numPendingApplications": 0,
-                              "queueName": "a1a",
-                              "resourcesUsed": {
-                                "memory": 0,
-                                "vCores": 0
-                              },
-                              "state": "RUNNING",
-                              "type": "capacitySchedulerLeafQueueInfo",
-                              "usedCapacity": 0.0,
-                              "usedResources": "<memory:0, vCores:0>",
-                              "userLimit": 100,
-                              "userLimitFactor": 1.0,
-                              "users": null
-                            },
-                            {
-                              "absoluteCapacity": 0.47250003,
-                              "absoluteMaxCapacity": 25.0,
-                              "absoluteUsedCapacity": 0.0,
-                              "capacity": 15.000001,
-                              "maxActiveApplications": 1,
-                              "maxActiveApplicationsPerUser": 1,
-                              "maxApplications": 47,
-                              "maxApplicationsPerUser": 47,
-                              "maxCapacity": 100.0,
-                              "numActiveApplications": 0,
-                              "numApplications": 0,
-                              "numContainers": 0,
-                              "numPendingApplications": 0,
-                              "queueName": "a1b",
-                              "resourcesUsed": {
-                                "memory": 0,
-                                "vCores": 0
-                              },
-                              "state": "RUNNING",
-                              "type": "capacitySchedulerLeafQueueInfo",
-                              "usedCapacity": 0.0,
-                              "usedResources": "<memory:0, vCores:0>",
-                              "userLimit": 100,
-                              "userLimitFactor": 1.0,
-                              "users": null
-                            }
-                          ]
-                        },
-                        "resourcesUsed": {
-                          "memory": 0,
-                          "vCores": 0
-                        },
+                        "queueName": "a",
                         "state": "RUNNING",
-                        "usedCapacity": 0.0,
-                        "usedResources": "<memory:0, vCores:0>"
-                      },
-                      {
-                        "absoluteCapacity": 7.35,
-                        "absoluteMaxCapacity": 50.0,
-                        "absoluteUsedCapacity": 0.0,
-                        "capacity": 70.0,
-                        "maxActiveApplications": 1,
-                        "maxActiveApplicationsPerUser": 100,
-                        "maxApplications": 735,
-                        "maxApplicationsPerUser": 73500,
-                        "maxCapacity": 100.0,
-                        "numActiveApplications": 0,
-                        "numApplications": 0,
-                        "numContainers": 0,
-                        "numPendingApplications": 0,
-                        "queueName": "a2",
                         "resourcesUsed": {
                             "memory": 0,
-                            "vCores": 0
+                            "vCores": 0,
+                            "GPUs": 0
                         },
-                        "state": "RUNNING",
-                        "type": "capacitySchedulerLeafQueueInfo",
-                        "usedCapacity": 0.0,
-                        "usedResources": "<memory:0, vCores:0>",
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "*"
+                        ],
+                        "allocatedContainers": 0,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 30.000002,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 30.000002,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 100
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 15360,
+                                        "vCores": 8,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 0,
+                        "numPendingApplications": 0,
+                        "numContainers": 0,
+                        "maxApplications": 3000,
+                        "maxApplicationsPerUser": 3000,
                         "userLimit": 100,
-                        "userLimitFactor": 100.0,
-                        "users": null
+                        "users": null,
+                        "userLimitFactor": 1,
+                        "AMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": false,
+                        "defaultPriority": 0
+                    },
+                    {
+                        "type": "capacitySchedulerLeafQueueInfo",
+                        "capacity": 70,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 70,
+                        "absoluteMaxCapacity": 100,
+                        "absoluteUsedCapacity": 0,
+                        "numApplications": 0,
+                        "queueName": "default",
+                        "state": "RUNNING",
+                        "resourcesUsed": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "hideReservationQueues": false,
+                        "nodeLabels": [
+                            "*"
+                        ],
+                        "allocatedContainers": 0,
+                        "reservedContainers": 0,
+                        "pendingContainers": 0,
+                        "capacities": {
+                            "queueCapacitiesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "capacity": 70,
+                                    "usedCapacity": 0,
+                                    "maxCapacity": 100,
+                                    "absoluteCapacity": 70,
+                                    "absoluteUsedCapacity": 0,
+                                    "absoluteMaxCapacity": 100,
+                                    "maxAMLimitPercentage": 100
+                                }
+                            ]
+                        },
+                        "resources": {
+                            "resourceUsagesByPartition": [
+                                {
+                                    "partitionName": "",
+                                    "used": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "reserved": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "pending": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amUsed": {
+                                        "memory": 0,
+                                        "vCores": 0,
+                                        "GPUs": 0
+                                    },
+                                    "amLimit": {
+                                        "memory": 15360,
+                                        "vCores": 8,
+                                        "GPUs": 0
+                                    }
+                                }
+                            ]
+                        },
+                        "numActiveApplications": 0,
+                        "numPendingApplications": 0,
+                        "numContainers": 0,
+                        "maxApplications": 7000,
+                        "maxApplicationsPerUser": 7000,
+                        "userLimit": 100,
+                        "users": null,
+                        "userLimitFactor": 100,
+                        "AMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "usedAMResource": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        },
+                        "userAMResourceLimit": {
+                            "memory": 15360,
+                            "vCores": 8,
+                            "GPUs": 0
+                        },
+                        "preemptionDisabled": false,
+                        "defaultPriority": 0
                     }
                 ]
-                  },
-                  "resourcesUsed": {
-                    "memory": 0,
-                    "vCores": 0
-                  },
-                  "state": "RUNNING",
-                  "usedCapacity": 0.0,
-                  "usedResources": "<memory:0, vCores:0>"
+            },
+            "capacities": {
+                "queueCapacitiesByPartition": [
+                    {
+                        "partitionName": "",
+                        "capacity": 100,
+                        "usedCapacity": 0,
+                        "maxCapacity": 100,
+                        "absoluteCapacity": 100,
+                        "absoluteUsedCapacity": 0,
+                        "absoluteMaxCapacity": 100,
+                        "maxAMLimitPercentage": 0
+                    }
+                ]
+            },
+            "health": {
+                "lastrun": 1543912751445,
+                "operationsInfo": {
+                    "entry": {
+                        "key": "last-release",
+                        "value": {
+                            "nodeId": "N/A",
+                            "containerId": "N/A",
+                            "queue": "N/A"
+                        }
+                    }
                 },
-                {
-                  "absoluteCapacity": 89.5,
-                  "absoluteMaxCapacity": 100.0,
-                  "absoluteUsedCapacity": 0.0,
-                  "capacity": 89.5,
-                  "maxCapacity": 100.0,
-                  "numApplications": 2,
-                  "queueName": "b",
-                  "queues": {
-                    "queue": [
-                      {
-                        "absoluteCapacity": 53.7,
-                        "absoluteMaxCapacity": 100.0,
-                        "absoluteUsedCapacity": 0.0,
-                        "capacity": 60.000004,
-                        "maxActiveApplications": 1,
-                        "maxActiveApplicationsPerUser": 100,
-                        "maxApplications": 5370,
-                        "maxApplicationsPerUser": 537000,
-                        "maxCapacity": 100.0,
-                        "numActiveApplications": 1,
-                        "numApplications": 2,
-                        "numContainers": 0,
-                        "numPendingApplications": 1,
-                        "queueName": "b1",
-                        "resourcesUsed": {
-                          "memory": 0,
-                          "vCores": 0
-                        },
-                        "state": "RUNNING",
-                        "type": "capacitySchedulerLeafQueueInfo",
-                        "usedCapacity": 0.0,
-                        "usedResources": "<memory:0, vCores:0>",
-                        "userLimit": 100,
-                        "userLimitFactor": 100.0,
-                        "users": {
-                          "user": [
-                            {
-                              "numActiveApplications": 0,
-                              "numPendingApplications": 1,
-                              "resourcesUsed": {
-                                "memory": 0,
-                                "vCores": 0
-                              },
-                              "username": "user2"
-                            },
-                            {
-                              "numActiveApplications": 1,
-                              "numPendingApplications": 0,
-                              "resourcesUsed": {
-                                "memory": 0,
-                                "vCores": 0
-                              },
-                              "username": "user1"
-                            }
-                          ]
+                "lastRunDetails": [
+                    {
+                        "operation": "releases",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
                         }
                     },
-                      {
-                        "absoluteCapacity": 35.3525,
-                        "absoluteMaxCapacity": 100.0,
-                        "absoluteUsedCapacity": 0.0,
-                        "capacity": 39.5,
-                        "maxActiveApplications": 1,
-                        "maxActiveApplicationsPerUser": 100,
-                        "maxApplications": 3535,
-                        "maxApplicationsPerUser": 353500,
-                        "maxCapacity": 100.0,
-                        "numActiveApplications": 123,
-                        "numApplications": 0,
-                        "numContainers": 0,
-                        "numPendingApplications": 0,
-                        "queueName": "b2",
-                        "resourcesUsed": {
-                          "memory": 0,
-                          "vCores": 0
-                        },
-                        "state": "RUNNING",
-                        "type": "capacitySchedulerLeafQueueInfo",
-                        "usedCapacity": 0.0,
-                        "usedResources": "<memory:0, vCores:0>",
-                        "userLimit": 100,
-                        "userLimitFactor": 100.0,
-                        "users": null
-                      },
-                      {
-                        "absoluteCapacity": 0.4475,
-                        "absoluteMaxCapacity": 100.0,
-                        "absoluteUsedCapacity": 0.0,
-                        "capacity": 0.5,
-                        "maxActiveApplications": 1,
-                        "maxActiveApplicationsPerUser": 100,
-                        "maxApplications": 44,
-                        "maxApplicationsPerUser": 4400,
-                        "maxCapacity": 100.0,
-                        "numActiveApplications": 0,
-                        "numApplications": 0,
-                        "numContainers": 0,
-                        "numPendingApplications": 0,
-                        "queueName": "b3",
-                        "resourcesUsed": {
-                          "memory": 0,
-                          "vCores": 0
-                        },
-                        "state": "RUNNING",
-                        "type": "capacitySchedulerLeafQueueInfo",
-                        "usedCapacity": 0.0,
-                        "usedResources": "<memory:0, vCores:0>",
-                        "userLimit": 100,
-                        "userLimitFactor": 100.0,
-                        "users": null
-                      }
-                    ]
-                },
-                  "resourcesUsed": {
-                    "memory": 0,
-                    "vCores": 0
-                  },
-                  "state": "RUNNING",
-                  "usedCapacity": 0.0,
-                  "usedResources": "<memory:0, vCores:0>"
-                }
-              ]
-            },
-            "type": "capacityScheduler",
-            "usedCapacity": 0.0
-          }
+                    {
+                        "operation": "allocations",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                    },
+                    {
+                        "operation": "reservations",
+                        "count": 0,
+                        "resources": {
+                            "memory": 0,
+                            "vCores": 0,
+                            "GPUs": 0
+                        }
+                    }
+                ]
+            }
         }
-      });
+    }
+});
   });
 
   // GET /api/v1/virtual-clusters
