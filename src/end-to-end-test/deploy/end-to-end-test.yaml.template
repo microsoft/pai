@@ -40,7 +40,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: HDFS_URI
-          value: http://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
+          value: hdfs://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
         - name: WEBSERVICE_URI
           value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: REST_SERVER_URI
