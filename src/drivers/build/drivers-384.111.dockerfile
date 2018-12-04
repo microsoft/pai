@@ -74,6 +74,9 @@ RUN apt-get -y update && \
         libcr-dev \
         libcr0 \
         pkg-config \
+        flex \
+        debhelper \
+        bison \
         tk && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
