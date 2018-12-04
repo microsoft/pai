@@ -774,8 +774,8 @@ Status: 200
    "memory":0,
    "vCores":0,
    "GPUs":0,
-   "state":"running"
   },
+  "state":"running",
 }
 ```
 
@@ -831,7 +831,7 @@ Status: 403
 
 {
   "code": "ForbiddenUserError",
-  "message": "Update operation to default vc isn't allowed"
+  "message": "Don't allow to update default vc"
 }
 ```
 
@@ -851,7 +851,7 @@ Status: 403
 
 {
   "code": "NoEnoughQuotaError",
-  "message": "No enough quota."
+  "message": "No enough quota in default vc."
 }
 ```
 
@@ -910,7 +910,7 @@ Status: 403
 
 {
   "code": "ForbiddenUserError",
-  "message": "Don't allow to update default vc."
+  "message": "Don't allow to remove default vc."
 }
 ```
 
@@ -976,7 +976,7 @@ Status: 403
 
 {
   "code": "ForbiddenUserError",
-  "message": "Update operation to default vc isn't allowed"
+  "message": "Don't allow to update default vc"
 }
 ```
 
