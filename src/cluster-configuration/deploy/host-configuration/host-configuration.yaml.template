@@ -30,6 +30,6 @@
     pai-master: "cluster_cfg['machine']['machine-list'][host]['pai-master']"
     {% endif -%}
     {% if 'pai-worker' in cluster_cfg['machine']['machine-list'][host] -%}
-    pai-master: "cluster_cfg['machine']['machine-list'][host]['pai-worker']"
+    pai-worker: "cluster_cfg['machine']['machine-list'][host]['pai-worker']"
     {% endif -%}
 {% endfor %}
