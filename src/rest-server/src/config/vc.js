@@ -21,16 +21,16 @@ const Joi = require('joi');
 // define the input schema for the 'update vc' api
 const vcPutInputSchema = Joi.object().keys({
   vcCapacity: Joi.number()
-      .integer()
-      .min(0)
-      .max(100)
-      .required()
+    .integer()
+    .min(0)
+    .max(100)
+    .required(),
 }).required();
 
 // define the input schema for the 'put vc status' api
 const vcStatusPutInputSchema = Joi.object().keys({
   vcStatus: Joi.string()
-    .valid(["stopped", "running"])
+    .valid(['stopped', 'running'])
     .required(),
 }).required();
 

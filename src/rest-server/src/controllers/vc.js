@@ -23,10 +23,9 @@ const createError = require('../util/error');
  * Validation, not allow operation to "default" vc.
  */
 const validate = (req, res, next, vcName) => {
-  if (vcName === "default" && req.method !== "GET"){
+  if (vcName === 'default' && req.method !== 'GET') {
     return next(createError('Forbidden', 'ForbiddenUserError', `Update operation to default vc isn't allowed`));
-  }
-  else{
+  } else {
     return next();
   }
 };
@@ -95,30 +94,28 @@ const updateStatus = (req, res, next) => {
   const vcName = req.params.vcName;
   const vcStatus = req.body.vcStatus;
   if (req.user.admin) {
-    if (vcStatus === "stopped") {
-        VirtualCluster.prototype.stopVc(vcName, (err) => {
-            if (err) {
-                return next(createError.unknown(err));
-            } else {
-                return res.status(201).json({
-                    message: `stop vc ${vcName} successfully`,
-                });
-            }
-        });
-    }
-    else if (vcStatus === "running") {
-        VirtualCluster.prototype.activeVc(vcName, (err) => {
-            if (err) {
-                return next(createError.unknown(err));
-            } else {
-                return res.status(201).json({
-                    message: `active vc ${vcName} successfully`,
-                });
-            }
-        });
-    }
-    else {
-      next(createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${vcStatus}`))
+    if (vcStatus === 'stopped') {
+      VirtualCluster.prototype.stopVc(vcName, (err) => {
+        if (err) {
+          return next(createError.unknown(err));
+        } else {
+          return res.status(201).json({
+            message: `stop vc ${vcName} successfully`,
+          });
+        }
+      });
+    } else if (vcStatus === 'running') {
+      VirtualCluster.prototype.activeVc(vcName, (err) => {
+        if (err) {
+          return next(createError.unknown(err));
+        } else {
+          return res.status(201).json({
+            message: `active vc ${vcName} successfully`,
+          });
+        }
+      });
+    } else {
+      next(createError('Bad Request', 'BadConfigurationError', `Unknown vc status: ${vcStatus}`));
     }
   } else {
     next(createError('Forbidden', 'ForbiddenUserError', `Non-admin is not allowed to do this operation.`));

@@ -994,6 +994,8 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
     nock(yarnUri)
       .get('/ws/v1/cluster/scheduler')
       .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
       .put('/ws/v1/cluster/scheduler-conf')
       .reply(200)
       .put('/ws/v1/cluster/scheduler-conf')
@@ -1012,8 +1014,27 @@ describe('VC API DELETE /api/v1/virtual-clusters', () => {
       });
   });
 
+  it('[Negative] Stop queue successfully but fail to delete, then fail to reactive it', (done) => {
+    nock(yarnUri)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
+      .get('/ws/v1/cluster/scheduler')
+      .reply(200, yarnDefaultResponse)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(200)
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(403, 'Error in YARN when delete queue')
+      .put('/ws/v1/cluster/scheduler-conf')
+      .reply(404, 'Error in YARN when reactive queue');
 
-
-
-
+    chai.request(server)
+      .delete('/api/v1/virtual-clusters/a')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .end((err, res) => {
+        expect(res, 'status code').to.have.status(500);
+        expect(res.body).to.have.property('code', 'UnknownError');
+        expect(res.body).to.have.property('message', 'Error in YARN when reactive queue');
+        done();
+      });
+  });
 });

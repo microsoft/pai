@@ -27,7 +27,6 @@ router.route('/')
     .get(vcController.list);
 
 
-
 router.route('/:vcName')
     /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
     .get(vcController.get)
