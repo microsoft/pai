@@ -147,27 +147,13 @@ do
             IB_IP_ADDRESS="192.168.$IB_SUBNET.$LAST_OCTET"
             echo "Assiging ip address $IB_IP_ADDRESS for $IB_INTERFACE interface"
             ifconfig $IB_INTERFACE up $IB_IP_ADDRESS/24 || exit $?
-            # Configure for NetPerf,
-            # Maxium transmssion Unit (mtu), is the size of the largest network layer protocol data unit that can be communicated
-            # in a single network trasaction. A larger MTU brings greater efficiency because each network packet carries more user data
-            # while protocol overheads, the resulting higher efficiency
-            # The mtu sizie 65520 for ib interface and 9014 for ethernet are suggest by Mellanox support
-            # In order change mtu to 65520 for IPoIB, we need to change "connected" for infinibanch transport service.
-            # We tested with iperf and the test result.
-            #  For XL270 on rr1 with ib0 and ib1 at 50-52Gbits/sec and Ethernet at 39.4Gbits/sec
-            #  For SL270 on gcr with ib0 at 21 Gbits/sec and Ethernet at 30Gbits/sec
-            # The IPoIB driver support the use of either connected mode or datagram mode with an interface, where datagram mode is the default mode.
             grep -q "connected" /sys/class/net/$IB_INTERFACE/mode || echo "connected" > /sys/class/net/$IB_INTERFACE/mode || exit $?
             grep -q "65520" /sys/class/net/$IB_INTERFACE/mtu || echo "65520" > /sys/class/net/$IB_INTERFACE/mtu || exit $?
             IB_SUBNET=$((IB_SUBNET+1))
         fi
 
         if grep -q Ethernet "$port_path/link_layer" && grep -qE "LinkUp|Polling" "$port_path/phys_state"; then
-            # We want to change mtu size for the Mlnx Ethernet interface device
             ETH_INTERFACE=`ls /sys/class/infiniband/$dev/device/net | grep -v ib`
-            # The mtu size to 9014 is suggest by Mellanox support. It is enable jumbo frame for the Ethernet interface
-            # that Mellanox has found to result in the best performance.
-            # However, commodity routers by default only supports up to 1500, so for reliability we stick to 1500.
             grep -q "1500" /sys/class/net/$ETH_INTERFACE/mtu || echo "1500" > /sys/class/net/$ETH_INTERFACE/mtu || exit $?
         fi
     done
