@@ -31,6 +31,7 @@ RUN apt-get -y update && \
         bc \
         sudo \
         dkms \
+        net-tools \
         iproute2 \
         libssl-dev \
         software-properties-common \

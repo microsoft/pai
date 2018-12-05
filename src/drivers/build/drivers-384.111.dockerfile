@@ -30,6 +30,7 @@ RUN apt-get -y update && \
         libssl-dev \
         sudo \
         dkms \
+        net-tools \
         iproute2 \
         software-properties-common \
         git \
