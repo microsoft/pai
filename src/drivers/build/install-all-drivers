@@ -51,6 +51,8 @@ else
     echo Infiniband hardware is not detected, skipping driver installation
 fi
 
+echo Infiniband drivers is installed successfully.
+
 
 mkdir -p /jobstatus
 touch /jobstatus/jobok
