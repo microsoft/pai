@@ -30,7 +30,6 @@ RUN apt-get -y update && \
         bind9-host \
         bc \
         libssl-dev \
-        net-tools \
         software-properties-common \
         git \
         vim \
