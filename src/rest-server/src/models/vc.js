@@ -177,7 +177,7 @@ class VirtualCluster {
           return callback(null, createError('Not Found', 'NoVirtualClusterError', `Vc ${vcName} not found`));
         }
         else{
-            return callback(vcList[vcName], null)
+          return callback(vcList[vcName], null)
         }
     })
   }
