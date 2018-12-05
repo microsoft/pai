@@ -29,14 +29,14 @@
 #
 #    # domain/namespace/image-name:tag
 #
-#    # If public, please fill it the same as your username
+#    # If resgiry is docker.io, please fill it the same as your username
 #    namespace: openpai
 #
-#    # E.g., gcr.io. If public，fill docker_registry_domain with word "public"
-#    # docker_registry_domain: public
+#    # E.g., gcr.io.
+#    # If your registry is at hub.docker, please fill it as docker.io
 #    domain: docker.io
 #
-#    # If the docker registry doesn't require authentication, please comment out docker_username and docker_password
+#    # If the docker registry doesn't require authentication, please comment out username and password
 #    #username: your_registry_username
 #    #password: your_registry_password
 #
