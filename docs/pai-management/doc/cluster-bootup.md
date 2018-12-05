@@ -61,11 +61,11 @@ Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn
 
 ```bash
 
-# Pull the dev-box image from Docker Hub
-sudo docker pull docker.io/openpai/dev-box
-
 # Select your dev-box version: https://github.com/Microsoft/pai/releases
 DEVBOX_VERSION="v0.x.y"
+
+# Pull the dev-box image from Docker Hub
+sudo docker pull docker.io/openpai/dev-box:$DEVBOX_VERSION
 
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
