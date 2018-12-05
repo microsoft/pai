@@ -663,7 +663,8 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
-            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
+            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]),
+            to: 'paialert@microsoft.com'
       ])
     }
 

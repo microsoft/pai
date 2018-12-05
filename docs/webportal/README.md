@@ -24,14 +24,14 @@ To run web portal, the following services should be started, and url of services
 
 For deployment
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build` to bundle the JavaScript/CSS modules and generate HTML pages.
 
 ---
 
 For development
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build:dev` to bundle the JavaScript/CSS modules and generate HTML pages,
    also watch the related source file, re-bundle them when file is mofified.
 3. Another `npm start` is also needed to keep the server running, see [Deployment](#deployment)

@@ -57,10 +57,6 @@ RUN chmod a+x /usr/local/start.sh
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
 RUN cp docker-17.06.2-ce.tgz /usr/local
 RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
-
-ENV NV_DRIVER=/var/drivers/nvidia/current
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
 # Only node manager need this.#
 
 CMD ["/usr/local/start.sh"]

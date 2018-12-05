@@ -10,7 +10,7 @@ A: We recommend deploying them on the same subnet. In theory, as long as the net
 
 ### Q: If user find a job to retry multiple times, how to diagnose the cause?
 
-A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and [job_log.md](./job_log.md)'s introduction.
+A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and job log doc's section:[Diagnostic job retried many times reason](./job_log.md#retry) introduction.
 
 ### Q: How to diagnose job problems through logs?
 
