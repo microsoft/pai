@@ -120,3 +120,5 @@ The limitation is because we only reserve so much memory resource for `PAI servi
 
 For example, user may have hundreds jobs running, thousands jobs waiting, and tens of thousands jobs finished.
 
+### Q: Where is "VS Code Tools for AI" support OpenPAI?
+A: The "VS Code Tools for AI" extension has been redesigned to focus on providing a great developer experience working with the Azure Machine Learning service. In the archive folder, you can find the 0.3.1 vsix installer that includes previous features before this redesign, along with corresponding docs. https://github.com/Microsoft/vscode-tools-for-ai/tree/master/archive 
