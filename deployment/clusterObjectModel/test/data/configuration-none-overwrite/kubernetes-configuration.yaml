@@ -15,96 +15,35 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-clusterID: unittest
+kubernetes:
+  # Find the namesever in  /etc/resolv.conf
+  cluster-dns: 127.0.0.1
+  # To support k8s ha, you should set an lb address here.
+  # If deploy k8s with single master node, please set master IP address here
+  load-balance-ip: 10.0.0.1
 
-
-clusterinfo:
-  # the ip address of nameserver in your cluster
-  cluster-dns: 168.63.129.16
-
-
-  # the ip address of API-server
-  # If kubernetes-ha is enable, this should be the ip or vip of lb.
-  # If kubernetes-ha is not enable, this should be the ip of the master node.
-  api-servers-ip: 10.0.3.7
-
-
-  # the port of API-server, please do not change the default port number below
-  #api-server-port: 8080
   # specify an IP range not in the same network segment with the host machine.
-  service-cluster-ip-range: 10.254.0.0/16
+  service-cluster-ip-range: 169.254.0.0/16
   # According to the etcdversion, you should fill a corresponding backend name.
   # If you are not familiar with etcd, please don't change it.
-  storage-backend: etcd2
-  # Specify the host's nodename that runs dashboard
-  dashboard-host: 10.0.3.11
+  storage-backend: etcd3
   # The docker registry used in the k8s deployment. If you can access to gcr, we suggest to use gcr.
-  dockerregistry: gcr.io/google_containers
+  docker-registry: gcr.io/google_containers
   # http://gcr.io/google_containers/hyperkube. Or the tag in your registry.
-  hyperkubeversion: v1.7.3
+  hyperkube-version: v1.9.9
   # http://gcr.io/google_containers/etcd. Or the tag in your registry.
   # If you are not familiar with etcd, please don't change it.
-  etcdversion: 2.2.5
+  etcd-version: 3.2.17
   # http://gcr.io/google_containers/kube-apiserver. Or the tag in your registry.
-  apiserverversion: v1.7.3
+  apiserver-version: v1.9.9
   # http://gcr.io/google_containers/kube-scheduler. Or the tag in your registry.
-  kubeschedulerversion: v1.7.3
+  kube-scheduler-version: v1.9.9
   # http://gcr.io/google_containers/kube-controller-manager
-  kubecontrollermanagerversion:  v1.7.3
+  kube-controller-manager-version:  v1.9.9
   # http://gcr.io/google_containers/kubernetes-dashboard-amd64
-  dashboard_version: v1.6.1
-
-
-component_list:
-
-  apiserver:
-  - src: apiserver.yaml
-    dst: src/etc/kubernetes/manifests
-
-  controller-manager:
-  - src: controller-manager.yaml
-    dst: src/etc/kubernetes/manifests
-
-  etcd:
-  - src: etcd.yaml
-    dst: src/etc/kubernetes/manifests
-
-  scheduler:
-  - src: scheduler.yaml
-    dst: src/etc/kubernetes/manifests
-
-  kubelet:
-  - src: kubelet.sh
-    dst: src/
+  dashboard-version: v1.8.3
+  # The path to storage etcd data.
+  etcd-data-path: "/var/etcd"
 
 
 
-remote_deployment:
-  master:
-    listname: mastermachinelist
-    component:
-    - name: apiserver
-    - name: controller-manager
-    - name: etcd
-    - name: scheduler
-    - name: kubelet
-
-  worker:
-    listname: workermachinelist
-    component:
-    - name: kubelet
-
-
-workermachinelist:
-
-  worker-01:
-    nodename: 1.2.3.10
-    hostip: 1.2.3.10
-    username: unittest
-    password: unittest123
-
-  worker-02:
-    nodename: 1.2.3.11
-    hostip: 1.2.3.11
-    username: unittest
-    password: unittest123

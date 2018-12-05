@@ -50,19 +50,19 @@
   <property>
     <name>yarn.scheduler.capacity.root.queues</name>
     <value>
-      {{ clusterinfo.hadoopQueues|join(", ") }}
+      {{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ]|join(", ") }}
     </value>
     <description>
       The queues at the this level (root is the root queue).
     </description>
   </property>
 
-{% for queueName in clusterinfo.hadoopQueues %}
+{% for queueName in cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ] %}
   <property>
     <name>yarn.scheduler.capacity.root.{{ queueName }}.capacity</name>
-    <value>{{ clusterinfo.hadoopQueues[queueName]["weight"] }}</value>
+    <value>{{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ][queueName]["weight"] }}</value>
     <description>
-      {{ clusterinfo.hadoopQueues[queueName]["description"] }}
+      {{ cluster_cfg[ "hadoop-resource-manager" ][ "hadoopQueues" ][queueName]["description"] }}
     </description>
   </property>
 

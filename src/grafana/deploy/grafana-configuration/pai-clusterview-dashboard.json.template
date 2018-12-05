@@ -1,3 +1,5 @@
+{% set interval = cluster_cfg["prometheus"]["scrape_interval"]|default(30) * 10 %}
+
 {"dashboard": {
   "annotations": {
     "list": [
@@ -462,7 +464,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s])) * 100",
+              "expr": "100 - avg (irate(node_cpu_seconds_total{mode=\"idle\"}[{{interval}}s])) * 100",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "cpu utilization",
@@ -627,14 +629,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "in",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{device!~\"lo\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "out",
@@ -721,14 +723,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "read",
               "refId": "A"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[{{clusterinfo['prometheusinfo']['scrape_interval']|default(30) * 10}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "write",
