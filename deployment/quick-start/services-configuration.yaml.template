@@ -18,22 +18,22 @@
 
 
 cluster:
-  common:
-    clusterid: pai-example
-
-    # HDFS, zookeeper data path on your cluster machine.
-    data-path: "/datastorage"
+  #common:
+  #  clusterid: pai-example
+  #
+  #  # HDFS, zookeeper data path on your cluster machine.
+  #  data-path: "/datastorage"
 
   # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
   docker-registry:
 
-    # If public, please fill it the same as your username
+    # The namespace in your registry. If the registry is docker.io, the namespace will be your user account.
     namespace: openpai
 
-    # E.g., gcr.io. If public, fill docker_registry_domain with word "public"
-    # docker_registry_domain: public
+    # E.g., gcr.io.
+    # if the registry is hub.docker, please fill this value with docker.io
     domain: docker.io
-    # If the docker registry doesn't require authentication, please leave docker_username and docker_password empty
+    # If the docker registry doesn't require authentication, please comment username and password
     #username: <username>
     #password: <password>
 
