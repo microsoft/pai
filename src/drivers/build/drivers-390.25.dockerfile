@@ -29,6 +29,9 @@ RUN apt-get -y update && \
         pciutils \
         bind9-host \
         bc \
+        sudo \
+        dkms \
+        iproute2 \
         libssl-dev \
         software-properties-common \
         git \
