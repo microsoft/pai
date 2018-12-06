@@ -60,6 +60,9 @@ Before start, you need to meet the following requirements:
 - See [hardware resource requirements](https://github.com/Microsoft/pai/wiki/Resource-Requirement).
 
 #### 2 Deploy OpenPAI
+
+##### [A Guide of Deployment](./docs/pai-management/README.md)
+
 ##### 2.1 [Customized deploy](./docs/pai-management/doc/cluster-bootup.md#customizeddeploy)
 ##### 2.2 [Single Box deploy](./docs/pai-management/doc/cluster-bootup.md#singlebox)
 

@@ -17,6 +17,10 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
+## OpenPAI deploy <a name="overview"></a>
+
+We assume that the whole cluster has already been configured by the system maintainer to meet the [Prerequisites](../../../README.md#how-to-deploy).
+
 #### Configuration
 
 - [A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)

@@ -21,6 +21,7 @@ default-machine-properties:
   # Account with root permission
   username: username
   password: password
+  #keyfile-path: /the/path/to/your/ssh/key
   sshport: port
 
 
