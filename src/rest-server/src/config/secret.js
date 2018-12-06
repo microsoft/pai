@@ -23,11 +23,11 @@ let userSecretConfig = {
   apiServerUri: process.env.K8S_API_SERVER_URI,
   paiUserNameSpace: 'pai-user',
   adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
-  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD
+  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
 userSecretConfig.storagePath = () => {
-  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/pai-user/secrets`;
+  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/${userSecretConfig.paiUserNameSpace}/secrets`;
 };
 
 const userSecretConfigSchema = Joi.object().keys({

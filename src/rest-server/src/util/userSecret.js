@@ -33,8 +33,8 @@ class UserSecret extends StorageBase {
           'Accept': 'application/json'
         }
       })
-      const allUserSecrets = [];
-      const userData = response['data']
+      let allUserSecrets = [];
+      let userData = response['data']
       if (userData.hasOwnProperty('items')) {
         userData['items'].forEach((item) => {
           allUserSecrets.push({
@@ -91,7 +91,7 @@ class UserSecret extends StorageBase {
 
   async delete(key, options) {
     try {
-      const response = await axios.delete(`${this.secretRootUrl}/${key}`, {
+      let response = await axios.delete(`${this.secretRootUrl}/${key}`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

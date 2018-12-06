@@ -16,12 +16,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 const userModel = require('./user');
-const etcdConfig = require('../config/etcd');
-const createError = require('../util/error');
-const util = require('util')
+const util = require('util');
 
 const check = (username, password, callback) => {
-  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db))
+  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));
   dbGet(username, null, (err, res) => {
     if (err) {
       return callback(err);
@@ -36,7 +34,7 @@ const check = (username, password, callback) => {
         res[0].hasOwnProperty('githubPAT')&&
         Boolean(res[0]['githubPAT']));
     });
-  })
+  });
 };
 
 module.exports = {check};
