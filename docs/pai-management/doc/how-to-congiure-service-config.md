@@ -18,3 +18,33 @@
 -->
 
 
+## Customize Your service-configuration.yaml
+
+### Index
+- [Configuration Example](#example)
+- [Necessary Configuration](#necessary)
+- [Customized Configuration (Optional)](#optional)
+
+### Configuration Example <a name="example"></a>
+An example service-configuration.yaml file is available [here](../../../examples/cluster-configuration/service-configuration.yaml). The yaml file includes the following fields.
+
+### Necessary Configuration <a name="necessary"></a>
+
+There are only 2 configuration which is mandatory for admin to configure. And see the yaml format data following。
+
+```YAML
+rest-server:
+  # database admin username
+  default-pai-admin-username: your_default_pai_admin_username
+  # database admin password
+  default-pai-admin-password: your_default_pai_admin_password
+```  
+
+
+
+
+
+
+
+
+
