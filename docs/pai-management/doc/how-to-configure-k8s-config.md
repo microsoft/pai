@@ -48,7 +48,7 @@ kubernetes:
 | Configuration Property | Meaning |
 | --- | --- |
 | ```cluster-dns```| Find the nameserver address in  /etc/resolv.conf|
-| ```load-balance-ip```| If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](#k8s-high-availability-configuration).|
+| ```load-balance-ip```| If the cluster has only one k8s-master, please set this field with the ip-address of your k8s-master. If there are more than one k8s-master, please refer to [k8s high availability configuration](./kubernetes-ha.md).|
 
 
 #### Some values could use the default value

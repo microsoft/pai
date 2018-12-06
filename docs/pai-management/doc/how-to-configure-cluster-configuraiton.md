@@ -115,7 +115,7 @@ User could config each service deploy at which node by labeling node with servic
 | ```machine-type``` | Required. The sku name defined in the ```machine-sku```.|
 | ```sshport, username, password, keyfile-path``` | Optional. Used if this machine's account and port is different from the default properties. Or you can remove them.|
 | ```etcdid``` | K8s-Master Required. The etcd is part of kubernetes master. If you assign the k8s-role=master to a node, you should set this filed. This value will be used when starting and fixing k8s.|
-| ```k8s-role``` | Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](./how-to-configure-k8s-config.md).|
+| ```k8s-role``` | Required. You could set this value to ```master```, ```worker``` or ```proxy```. If you want to configure more than 1 k8s-master, please refer to [Kubernetes High Availability Configuration](./kubernetes-ha.md).|
 | ```dashboard``` | Select one node to set this field. And set the value as ``` "true" ```.|
 | ```pai-master``` | Optional. hadoop-name-node, hadoop-resource-manager, frameworklauncher, restserver, webportal, grafana, prometheus and node-exporter.|
 | ```zkid``` | Unique zookeeper id required by ```pai-master``` node(s). You can set this field from ```1``` to ```n```.|
