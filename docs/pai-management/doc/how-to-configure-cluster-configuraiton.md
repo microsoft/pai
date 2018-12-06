@@ -42,7 +42,7 @@ default-machine-properties:
   sshport: port
 ```
 
-Set the default value of ```username```, ```password```, ```keyfile-path``` and ```sshport``` in ```default-machine-properties.``` PAI will use these default values to access cluster machines. User can override the default access information for each machine in [machine-list](#m_list).
+Set the default value of ```username```, ```password```, ```keyfile-path``` and ```sshport``` in ```default-machine-properties.``` OpenPAI will use these default values to access cluster machines. User can override the default access information for each machine in [machine-list](#machineList).
 
 Note: Please only write one of ```keyfile-path``` and ```password```
 
@@ -61,7 +61,7 @@ machine-sku:
     os: ubuntu16.04
 ```
 
-In this field, you could define several sku with different name. And in the machine list you should refer your machine to one of them.
+In this field, you could define several sku with different name. And in the ```machine-list``` you should refer your machine to one of them.
 
 | Configuration Property | Meaning |
 | --- | --- |
