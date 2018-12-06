@@ -23,6 +23,7 @@ template-list:
   - node-label.sh
   - etcd.yaml
   - rest-server.yaml
+  - start.sh
   - stop.sh
   - refresh.sh
 

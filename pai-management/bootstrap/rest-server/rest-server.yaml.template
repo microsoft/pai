@@ -56,6 +56,14 @@ spec:
           value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
         - name: ETCD_URI
           value: {{ clusterinfo['restserverinfo']['etcd_uri'] }}
+        - name: K8S_APISERVER_URI
+          value: clusterinfo['restserverinfo']['k8s_apiserver_uri']
+{% if clusterinfo['api-server']['tls_access'] %}
+        - name: K8S_APISERVER_CA_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - name: K8S_APISERVER_TOKEN_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token 
+{% endif %}
         ports:
         - name: rest-server
           containerPort: 8080

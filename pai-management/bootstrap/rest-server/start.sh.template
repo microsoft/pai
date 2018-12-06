@@ -21,6 +21,12 @@ pushd $(dirname "$0") > /dev/null
 
 #chmod u+x node-label.sh
 
+{% if 'ssh-keyfile-path' in clusterinfo['restserverinfo'] and 'ssh-secret-name' in clusterinfo['restserverinfo']-%}
+
+kubectl create secret generic {{ clusterinfo['restserverinfo']['ssh-secret-name'] }} --from-file=pkey={{ clusterinfo['restserverinfo']['ssh-keyfile-path'] }}
+
+{% endif -%}
+
 /bin/bash node-label.sh || exit $?
 
 kubectl apply --overwrite=true -f rest-server.yaml || exit $?
