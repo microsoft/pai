@@ -21,6 +21,14 @@ drivers:
     set-nvidia-runtme: true
 ```
 
+Or if your cluster has already installed nvidia-driver, and do not need pai to install it
+again, then you can provide this info in your service-configuration.yaml like:
+
+```yaml
+drivers:
+    pre-installed-nvidia-path: /path/to/your/drivers
+```
+
 #### Generated Configuration <a name="G_Config"></a>
 
 Generated configuration means the object model after parsing. The parsed data will be presented by a yaml format.
@@ -28,10 +36,8 @@ Generated configuration means the object model after parsing. The parsed data wi
 drivers:
     set-nvidia-runtme: false
     version: 384.111
+    pre-installed-nvidia-path: /usr/local/nvidia
 ```
-
-
-
 
 #### Table <a name="T_Config"></a>
 
@@ -54,7 +60,10 @@ drivers:
     <td>cluster_cfg["drivers"]["version"]</td>
     <td>string</td>
 </tr>
+<tr>
+    <td>drivers.pre-installed-nvidia-path</td>
+    <td>com["drivers"]["pre-installed-nvidia-path"]</td>
+    <td>cluster_cfg["drivers"]["pre-installed-nvidia-path"]</td>
+    <td>path string</td>
+</tr>
 </table>
-
-
-
