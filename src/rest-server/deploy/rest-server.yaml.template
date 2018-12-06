@@ -52,8 +52,6 @@ spec:
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: ETCD_URI
           value: {{ cluster_cfg['rest-server']['etcd-uris'] }}
-        - name: NV_DRIVER
-          value: /var/drivers/nvidia/current
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
