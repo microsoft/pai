@@ -45,26 +45,26 @@ const db = dbUtility.getStorageObject('UserSecret', {
 });
 
 const update = (username, password, admin, modify, next) => {
-  const dbGet = util.callbackify(db.get.bind(db))
+  const dbGet = util.callbackify(db.get.bind(db));
   dbGet(username, null, (err, res) => {
     if (err && err.status !== 404) {
-      return next(err)
+      return next(err);
     }
-    let userExits = (err && err.status === 404) ? false : true
+    let userExits = (err && err.status === 404) ? false : true;
     if (userExits !== modify) {
       const status = res ? 'Conflict' : 'Not found';
       const code = res ? 'ConflictUserError' : 'NoUserError';
       const message = res ? `User name ${username} already exists.` : `User ${username} not found.`;
       next(createError(status, code, message));
     } else {
-      const dbSet = util.callbackify(db.set.bind(db))
-      let options = modify ? { 'update': true } : {}
-      let updateUser = modify ? res[0] : {}
-      updateUser['password'] = password ? encrypt(username, password) : updateUser['password']
+      const dbSet = util.callbackify(db.set.bind(db));
+      let options = modify ? {'update': true} : {};
+      let updateUser = modify ? res[0] : {};
+      updateUser['password'] = password ? encrypt(username, password) : updateUser['password'];
       if (modify) {
-        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : admin
+        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : admin;
       } else {
-        updateUser['admin'] = (admin === undefined) ? false : admin
+        updateUser['admin'] = (admin === undefined) ? false : admin;
       }
 
       // Will grant admin user all VC permission
@@ -79,35 +79,35 @@ const update = (username, password, admin, modify, next) => {
           updateUser['virtualCluster'] = Object.keys(vcList).sort().toString();
           dbSet(username, updateUser, options, (err, res) => {
             if (err) {
-              return next(err)
+              return next(err);
             }
-            next()
+            next();
           });
         });
       } else {
         dbSet(username, updateUser, options, (err, res) => {
           if (err) {
-            return next(err)
+            return next(err);
           }
-          next()
+          next();
         });
       }
     }
-  })
+  });
 };
 
 const remove = (username, next) => {
-  const dbGet = util.callbackify(db.get.bind(db))
+  const dbGet = util.callbackify(db.get.bind(db));
   dbGet(username, null, (err, res) => {
     if (err && err.status === 404) {
       return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
     } else if (err) {
-      return next(err)
+      return next(err);
     }
     if (res[0]['admin']) {
       next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
     } else {
-      const dbDelete = util.callbackify(db.delete.bind(db))
+      const dbDelete = util.callbackify(db.delete.bind(db));
       dbDelete(username, (err, res) => {
         if (err) {
           return next(err);
@@ -119,7 +119,7 @@ const remove = (username, next) => {
 };
 
 const updateUserVc = (username, virtualClusters, next) => {
-  const dbGet = util.callbackify(db.get.bind(db))
+  const dbGet = util.callbackify(db.get.bind(db));
   dbGet(username, null, (err, res) => {
     if (err) {
       if (err.status === 404) {
@@ -156,11 +156,11 @@ const updateUserVc = (username, virtualClusters, next) => {
         updateVcList.push('default');
       }
       updateVcList.sort();
-      const dbSet = util.callbackify(db.set.bind(db))
-      res[0]['virtualCluster'] = updateVcList.toString()
-      dbSet(username, res[0], { 'update': true }, (err, res) => {
+      const dbSet = util.callbackify(db.set.bind(db));
+      res[0]['virtualCluster'] = updateVcList.toString();
+      dbSet(username, res[0], {'update': true}, (err, res) => {
         if (err) {
-          return next(err)
+          return next(err);
         }
         if (addUserWithInvalidVc != null) {
           return next(createError('Bad Request', 'NoVirtualClusterError', `Virtual cluster ${addUserWithInvalidVc} not found.`));
@@ -186,19 +186,19 @@ const checkUserVc = (username, virtualCluster, next) => {
           if (!vcList.hasOwnProperty(virtualCluster)) {
             return next(createError('Not Found', 'NoVirtualClusterError', `Virtual cluster ${virtualCluster} is not found.`));
           }
-          const dbGet = util.callbackify(db.get.bind(db))
+          const dbGet = util.callbackify(db.get.bind(db));
           dbGet(username, null, (err, res) => {
             if (err) {
-              return next(err)
+              return next(err);
             }
-            let userVirtualClusters = resp[0]['virtualCluster'].trim().split(',')
+            let userVirtualClusters = res[0]['virtualCluster'].trim().split(',');
             for (let item of userVirtualClusters) {
               if (item === virtualCluster) {
                 return next(null, true);
               }
             }
             next(createError('Forbidden', 'ForbiddenUserError', `User ${username} is not allowed to do operation in ${virtualCluster}`));
-          })
+          });
         }
       });
     }
@@ -206,7 +206,7 @@ const checkUserVc = (username, virtualCluster, next) => {
 };
 
 const updateUserGithubPAT = (username, githubPAT, next) => {
-  const dbGet = util.callbackify(db.get.bind(db))
+  const dbGet = util.callbackify(db.get.bind(db));
   dbGet(username, null, (err, res) => {
     if (err) {
       if (err.response.status === 404) {
@@ -216,35 +216,34 @@ const updateUserGithubPAT = (username, githubPAT, next) => {
         return next(err);
       }
     }
-    const dbSet = util.callbackify(db.set.bind(db))
-    res[0]['githubPAT'] = githubPAT
-    dbSet(username, res, { 'update': true }, (err, res) => {
+    const dbSet = util.callbackify(db.set.bind(db));
+    res[0]['githubPAT'] = githubPAT;
+    dbSet(username, res, {'update': true}, (err, res) => {
       if (err) {
-        return next(err)
+        return next(err);
       }
       next(null, true);
     });
-  }
-  )
+  });
 };
 
 const getUserGithubPAT = (username, next) => {
   if (typeof username === 'undefined') {
     next(createError('Unauthorized', 'UnauthorizedUserError', 'Guest is not allowed to do this operation.'));
   } else {
-    const get = util.callbackify(db.get.bind(db))
+    const get = util.callbackify(db.get.bind(db));
     get(username, null, (err, res) => {
       if (err) {
-        return next(err)
+        return next(err);
       }
-      let githubPAT = res[0]['data']['githubPAT']
-      next(null, githubPAT)
-    })
+      let githubPAT = res[0]['data']['githubPAT'];
+      next(null, githubPAT);
+    });
   }
 };
 
 const getUserList = (next) => {
-  const get = util.callbackify(db.get.bind(db))
+  const get = util.callbackify(db.get.bind(db));
   get('', null, (err, res) => {
     if (err) {
       return next(err);
@@ -257,8 +256,8 @@ const getUserList = (next) => {
         virtualCluster: item['virtualCluster'],
         hasGithubPAT: item['githubPAT'] ? true : false,
       });
-    })
-    next(null, userInfoList)
+    });
+    next(null, userInfoList);
   });
 };
 
@@ -274,19 +273,19 @@ const setDefaultAdmin = () => {
 
 const prepareStoragePath = () => {
   axios.post(`${secretConfig.apiServerUri}/api/v1/namespaces/`, {
-    'metadata': { 'name': `${secretConfig.paiUserNameSpace}` }
+    'metadata': {'name': `${secretConfig.paiUserNameSpace}`},
   })
-    .then(function (_) {
+    .then(function(_) {
       setDefaultAdmin();
     })
-    .catch(function (_) {
+    .catch(function(_) {
       throw new Error('build storage path failed');
-    })
+    });
 };
 
 if (config.env !== 'test') {
   axios.get(`${secretConfig.apiServerUri}/api/v1/namespaces/${secretConfig.paiUserNameSpace}`)
-    .then(function (_) {
+    .then(function(_) {
       getUserList((errMsg, userInfoList) => {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);
@@ -296,14 +295,14 @@ if (config.env !== 'test') {
             setDefaultAdmin();
           }
         }
-      })
+      });
     })
-    .catch(function (error) {
+    .catch(function(error) {
       if (error.response.status === 404) {
-        prepareStoragePath()
+        prepareStoragePath();
       }
-    })
+    });
 }
 
 // module exports
-module.exports = { encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT };
+module.exports = {encrypt, db, update, remove, updateUserVc, checkUserVc, getUserList, updateUserGithubPAT, getUserGithubPAT};
