@@ -27,14 +27,19 @@ PAI configuration consists of 4 YAML files:
 - [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
 
 
-## Index
+### Index
 
 - Step a. How to write cluster-configuraiton.yaml (#step_a)
 - Step b. How to write kubernetes-configuration.yaml (#step_b)
 - Step c. How to write service-configuraiton.yaml (#step_c)
 
+### Step a. How to write cluster-configuration.yaml  <a name="step_a"></a>
 
-## Step a. How to write cluster-configuration.yaml  
+[A Guide of customize cluster-configuration.yaml](./how-to-configure-cluster-configuraiton.md)
+
+### Step b. How to write kubernetes-configuration.yaml <a name="step_b"></a>
+
+[A Guide of customize kubernetes-configuration.yaml](./how-to-configure-k8s-config.md)
 
 
 
