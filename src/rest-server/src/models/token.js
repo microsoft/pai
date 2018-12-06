@@ -18,28 +18,25 @@
 const userModel = require('./user');
 const etcdConfig = require('../config/etcd');
 const createError = require('../util/error');
+const util = require('util')
 
 const check = (username, password, callback) => {
-  userModel.db.has(etcdConfig.userPath(username), null, (_, res) => {
-    if (!res) {
-      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
+  const dbGet = util.callbackify(userModel.db.get.bind(userModel.db))
+  dbGet(username, null, (err, res) => {
+    if (err) {
+      return callback(err);
     }
-    userModel.db.get(etcdConfig.userPath(username), {recursive: true}, (err, res) => {
+    userModel.encrypt(username, password, (err, derivedKey) => {
       if (err) {
         return callback(err);
       }
-      userModel.encrypt(username, password, (err, derivedKey) => {
-        if (err) {
-          return callback(err);
-        }
-        callback(null,
-          derivedKey === res.get(etcdConfig.userPasswdPath(username)),
-          res.get(etcdConfig.userAdminPath(username)) === 'true',
-          res.has(etcdConfig.userGithubPATPath(username)) &&
-            Boolean(res.get(etcdConfig.userGithubPATPath(username))));
-      });
+      callback(null,
+        derivedKey === res[0]['password'],
+        res[0]['admin'],
+        res[0].hasOwnProperty('githubPAT')&&
+        Boolean(res[0]['githubPAT']));
     });
-  });
+  })
 };
 
 module.exports = {check};
