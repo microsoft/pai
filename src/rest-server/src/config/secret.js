@@ -15,21 +15,41 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// module dependencies
-const Etcd2 = require('./etcd2');
-const LocalCache = require('./localCache');
-const UserSecret = require('./userSecret');
 
-const getStorageObject = (type, options = null) => {
-  switch (type) {
-    case 'etcd2':
-      return new Etcd2(options);
-    case 'localCache':
-      return new LocalCache(options);
-    case 'UserSecret':
-      return new UserSecret(options);
-    default:
-  }
+// module dependencies
+const Joi = require('joi');
+
+let userSecretConfig = {
+  apiServerUri: process.env.K8S_API_SERVER_URI,
+  paiUserNameSpace: 'pai-user',
+  adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
+  adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD
 };
 
-module.exports = {getStorageObject};
+userSecretConfig.storagePath = () => {
+  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/pai-user/secrets`;
+};
+
+const userSecretConfigSchema = Joi.object().keys({
+  apiServerUri: Joi.string()
+    .required(),
+  paiUserNameSpace: Joi.string()
+    .default('pai-user'),
+  adminName: Joi.string()
+    .token()
+    .required(),
+  adminPass: Joi.string()
+    .min(6)
+    .required(),
+  storagePath: Joi.func()
+    .arity(0)
+    .required(),
+}).required();
+
+const {error, value} = Joi.validate(userSecretConfig, userSecretConfigSchema);
+if (error) {
+  throw new Error(`config error\n${error}`);
+}
+userSecretConfig = value;
+
+module.exports = userSecretConfig;

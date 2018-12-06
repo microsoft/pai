@@ -19,6 +19,8 @@
 const Etcd = require('node-etcd');
 const StorageBase = require('./storageBase');
 
+const util = require('util');
+
 class Etcd2 extends StorageBase {
   constructor(options) {
     super();
@@ -41,18 +43,8 @@ class Etcd2 extends StorageBase {
     }
   }
 
-  set(key, value, options, callback) {
-    try {
-      this.etcdClient.set(key, value, options, (err, res) => {
-        if (!err) {
-          callback(null, res);
-        } else {
-          callback(err, null);
-        }
-      });
-    } catch (err) {
-      callback(err, null);
-    }
+  async set(key, value, options) {
+    return axios.put(url, data)
   }
 
   delete(key, options, callback) {
