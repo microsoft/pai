@@ -259,7 +259,7 @@ A distributed TensorFlow job is listed below as an example:
 
 2. Prepare a job config file
 
-    Prepare the [config file](#write-a-job-json-configuration-file-) for your job.
+    Prepare the [config file](#jobjson) for your job.
 
 3. Submit the job through web portal
 
