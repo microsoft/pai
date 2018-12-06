@@ -32,6 +32,6 @@ sed -i "/maxEpochs/c\maxEpochs = 1" G2P.cntk
 # replace train set to accelerate test
 sed -i "s/cmudict-0.7b.train-dev-20-21.ctf/cmudict-0.7b.train-dev-1-21.ctf/g" G2P.cntk
 
-cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR
+cntk configFile=G2P.cntk DataDir=$DATA_DIR OutDir=$OUTPUT_DIR || exit $?
 
 rm -rf $OUTPUT_DIR
