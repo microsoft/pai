@@ -19,19 +19,24 @@
 
 # OpenPAI Configuration Document
 
+
+
+### Index
+
+- [Overview](#overview)
+- [Step a. How to write cluster-configuraiton.yaml](#step_a)
+- [Step b. How to write kubernetes-configuration.yaml](#step_b)
+- [Step c. How to write service-configuraiton.yaml](#step_c)
+
+
+#### Overview <a name="overview"></a>
+
 PAI configuration consists of 4 YAML files:
 
 - [`cluster-configuration.yaml`](./how-to-write-pai-configuration.md#cluster_configuration) - Machine-level configurations. This file contains basic configurations of cluster, such as the login info, machine SKUs, labels of each machine, etc.
 - [`kubernetes-configuration.yaml`](./how-to-write-pai-configuration.md#kubernetes_configuration) - Kubernetes-level configurations. This file contains basic configurations of Kubernetes, such as the version info, network configurations, etc.
 - [`k8s-role-definition.yaml`](./how-to-write-pai-configuration.md#k8s_role_definition) - Kubernetes-level configurations. This file contains the mappings of Kubernetes roles and machine labels. It will be deprecated in the future.
 - [`serivices-configuration.yaml`](./how-to-write-pai-configuration.md#services_configuration) - Service-level configurations. This file contains the definitions of cluster id, docker registry, and those of all individual PAI services.
-
-
-### Index
-
-- Step a. How to write cluster-configuraiton.yaml (#step_a)
-- Step b. How to write kubernetes-configuration.yaml (#step_b)
-- Step c. How to write service-configuraiton.yaml (#step_c)
 
 ### Step a. How to write cluster-configuration.yaml  <a name="step_a"></a>
 
@@ -41,7 +46,9 @@ PAI configuration consists of 4 YAML files:
 
 [A Guide of customize kubernetes-configuration.yaml](./how-to-configure-k8s-config.md)
 
+### Step c. How to write service-configuration.yaml <a name="step_c"></a>
 
+[A Guide of customize service-configuration.yaml](./how-to-configure-service-config.md)
 
 
 
