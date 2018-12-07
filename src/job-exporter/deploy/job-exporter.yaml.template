@@ -48,6 +48,8 @@ spec:
         - "{{ cluster_cfg["job-exporter"]["port"] }}"
         - "--interval"
         - "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
+        - "--interface"
+        - "{{ cluster_cfg["job-exporter"]["interface"] }}"
         resources:
           limits:
             memory: "128Mi"
