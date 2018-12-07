@@ -78,7 +78,7 @@ class Machine:
             if "machine-type" not in host:
                 return False, "machine-type is miss in the host [{0}]".format(str(host))
             if host["machine-type"] not in cluster_cfg["machine-sku"]:
-                return False, "mahine-type [{0}] is not in machine-sku."
+                return False, "machine-type [{0}] is not in machine-sku."
 
             if "k8s-role" not in host:
                 return False, "k8s-role is miss in the host [{0}]".format(str(host))
