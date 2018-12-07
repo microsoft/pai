@@ -22,7 +22,7 @@ const StorageBase = require('./storageBase');
 class UserSecret extends StorageBase {
   constructor(options) {
     super();
-    this.secretRootUrl = options.secretRootUrl
+    this.secretRootUrl = options.secretRootUrl;
     this.options = options;
   }
 
@@ -30,11 +30,11 @@ class UserSecret extends StorageBase {
     try {
       const response = await axios.get(`${this.secretRootUrl}/${key}`, {
         headers: {
-          'Accept': 'application/json'
-        }
-      })
+          'Accept': 'application/json',
+        },
+      });
       let allUserSecrets = [];
-      let userData = response['data']
+      let userData = response['data'];
       if (userData.hasOwnProperty('items')) {
         userData['items'].forEach((item) => {
           allUserSecrets.push({
@@ -44,7 +44,7 @@ class UserSecret extends StorageBase {
             virtualCluster: item['data'].hasOwnProperty('virtualCluster') ? Buffer.from(item['data']['virtualCluster'], 'base64').toString() : 'default',
             githubPAT: item['data'].hasOwnProperty('githubPAT') ? Buffer.from(item['data']['githubPAT'], 'base64').toString() : '',
           });
-        })
+        });
       } else {
         allUserSecrets.push({
           userName: Buffer.from(userData['data']['username'], 'base64').toString(),
@@ -54,7 +54,7 @@ class UserSecret extends StorageBase {
           githubPAT: userData['data'].hasOwnProperty('githubPAT') ? Buffer.from(userData['data']['githubPAT'], 'base64').toString() : '',
         });
       }
-      return allUserSecrets
+      return allUserSecrets;
     } catch (error) {
       throw error.response;
     }
@@ -63,27 +63,27 @@ class UserSecret extends StorageBase {
   async set(key, value, options) {
     try {
       let userData = {
-        'metadata': { 'name': key },
+        'metadata': {'name': key},
         'data': {
           'username': Buffer.from(key).toString('base64'),
           'password': Buffer.from(value['password']).toString('base64'),
           'admin': Buffer.from(value['admin'].toString()).toString('base64'),
-        }
-      }
+        },
+      };
       if (value.hasOwnProperty('virtualCluster')) {
-        userData['data']['virtualCluster'] = Buffer.from(value['virtualCluster']).toString('base64')
+        userData['data']['virtualCluster'] = Buffer.from(value['virtualCluster']).toString('base64');
       }
       if (value.hasOwnProperty('githubPAT')) {
-        userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64')
+        userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64');
       }
 
-      let response = null
+      let response = null;
       if (options && options['update']) {
-        response = await axios.put(`${this.secretRootUrl}/${key}`, userData)
+        response = await axios.put(`${this.secretRootUrl}/${key}`, userData);
       } else {
-        response = await axios.post(`${this.secretRootUrl}`, userData)
+        response = await axios.post(`${this.secretRootUrl}`, userData);
       }
-      return response
+      return response;
     } catch (error) {
       throw error.response;
     }
@@ -95,9 +95,9 @@ class UserSecret extends StorageBase {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        }
-      })
-      return response
+        },
+      });
+      return response;
     } catch (error) {
       throw error.response;
     }
