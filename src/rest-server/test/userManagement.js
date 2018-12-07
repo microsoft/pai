@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -41,52 +41,20 @@ describe('Add new user: put /api/v1/user', () => {
 
   before(() => {
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/new_user')
-      .times(3)
-      .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/test',
-        'index': 1
-      });
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/new_user?dir=true')
-      .times(2)
-      .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/users/new_user',
-          'dir': true,
-          'modifiedIndex': 2,
-          'createdIndex': 2
-        }
-      });
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/new_user/passwd', { 'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12' })
-      .times(2)
-      .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/users/new_user/password',
-          'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-          'modifiedIndex': 3,
-          'createdIndex': 3
-        }
-      });
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/new_user/admin', { 'value': 'true' })
-      .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/users/new_user/admin',
-          'value': 'true',
-          'modifiedIndex': 4,
-          'createdIndex': 4
-        }
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/newuser')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'newuser\' not found',
+        'reason': 'NotFound',
+        'details': {
+          'name': 'newuser',
+          'kind': 'secrets'
+        },
+        'code': 404
       });
 
     nock(yarnUri)
@@ -119,65 +87,127 @@ describe('Add new user: put /api/v1/user', () => {
         }
       });
 
-    nock(etcdHosts)
-      .put('/v2/keys/users/new_user/virtualClusters', { 'value': 'default,vc1,vc2' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/new_user/virtualClusters',
-          'value': 'default,vc1',
-          'modifiedIndex': 5,
-          'createdIndex': 5
+
+    nock(apiServerRootUri)
+      .post('/api/v1/namespaces/pai-user/secrets', {
+        'metadata': {'name': 'newuser'},
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
+          'username': 'bmV3dXNlcg==',
+          'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
         }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'newuser',
+            'namespace': 'pai-user',
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/newuser',
+            'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
+            'resourceVersion': '1116114',
+            'creationTimestamp': '2018-12-07T02:29:47Z'
+        },
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
+          'username': 'bmV3dXNlcg==',
+          'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
+        },
+        'type': 'Opaque'
       });
 
-    nock(etcdHosts)
-      .put('/v2/keys/users/new_user/admin', { 'value': 'false' })
-      .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/users/new_user/admin',
-          'value': 'true',
-          'modifiedIndex': 4,
-          'createdIndex': 4
-        }
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/nonadmin')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'nonadmin\' not found',
+        'reason': 'NotFound',
+        'details': {
+          'name': 'nonadmin',
+          'kind': 'secrets'
+        },
+        'code': 404
       });
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/exist_user')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/exist_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/exist_user/admin',
-              'value': 'true',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/exist_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
+    nock(apiServerRootUri)
+      .post('/api/v1/namespaces/pai-user/secrets', {
+        'metadata': {'name': 'nonadmin'},
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'YmIyOTY0NDQwNDBhNmI0MzE3MDcwZmUzM2JiNzk5MmYwMjg0OTc3MmM4YmE1MjY2YTIzM2YzMzk5OTRjM2QwODEzOTc3YWYxYTQ5ZmE0YzJlM2U5NTYxODNiMWE1ZjAxOTIwNzkxY2UxYWM5YTRjNDJhODQ0OTk2ZjI3NWI1N2U=',
+          'username': 'bm9uYWRtaW4=',
         }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'newuser',
+            'namespace': 'pai-user',
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/newuser',
+            'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
+            'resourceVersion': '1116114',
+            'creationTimestamp': '2018-12-07T02:29:47Z'
+        },
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'YmIyOTY0NDQwNDBhNmI0MzE3MDcwZmUzM2JiNzk5MmYwMjg0OTc3MmM4YmE1MjY2YTIzM2YzMzk5OTRjM2QwODEzOTc3YWYxYTQ5ZmE0YzJlM2U5NTYxODNiMWE1ZjAxOTIwNzkxY2UxYWM5YTRjNDJhODQ0OTk2ZjI3NWI1N2U=',
+          'username': 'bm9uYWRtaW4=',
+        },
+        'type': 'Opaque'
       });
 
-  });
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/newuser')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'newuser\' not found',
+        'reason': 'NotFound',
+        'details': {
+          'name': 'newuser',
+          'kind': 'secrets'
+        },
+        'code': 404
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/existuser')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'existuser',
+        },
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'ZXhpc3R1c2Vy',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+
+});
+
 
   //
   // Positive cases
   //
 
-  it('Case 1 (Positive): Add a admin user with modify is false.', (done) => {
+  it('Case 1 (Positive): Add admin user', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': false })
+      .send({ 'username': 'newuser', 'password': '123456', 'admin': true, 'modify': false })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -186,11 +216,11 @@ describe('Add new user: put /api/v1/user', () => {
       });
   });
 
-  it('Case 2 (Positive): Add a user with modify is false.', (done) => {
+  it('Case 2 (Positive): Add non-admin user', (done) => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'new_user', 'password': '123456', 'modify': false })
+      .send({ 'username': 'nonadmin', 'password': '123456', 'modify': false })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -207,7 +237,7 @@ describe('Add new user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'new_user', 'password': '123456', 'admin': true, 'modify': true })
+      .send({ 'username': 'newuser', 'password': '123456', 'admin': true, 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
@@ -233,7 +263,7 @@ describe('Add new user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'exist_user', 'password': '123456', 'admin': true, 'modify': false })
+      .send({ 'username': 'existuser', 'password': '123456', 'admin': true, 'modify': false })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
@@ -253,77 +283,105 @@ describe('update user: put /api/v1/user', () => {
 
   before(() => {
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/update_user')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/updateuser')
       .times(2)
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/update_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/update_user/admin',
-              'value': 'true',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/update_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
-        }
-      });
-
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/update_user/passwd?prevExist=true', { 'value': '5e8f697ad7918d757e7c21c897bb4fccaa5ba1f3ecd11d3e61c6db7e1410f4d9ae4745accb97622ead6e38f91c328154af838098f5796c3de81fe7f6c14b817b' })
-      .times(2)
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/update_user/passwd',
-          'value': '5e8f697ad7918d757e7c21c897bb4fccaa5ba1f3ecd11d3e61c6db7e1410f4d9ae4745accb97622ead6e38f91c328154af838098f5796c3de81fe7f6c14b817b',
-          'modifiedIndex': 9,
-          'createdIndex': 9
+      .reply(200,  {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'updateuser',
         },
-        'prevNode': {
-          'key': '/users/update_user/passwd',
-          'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-          'modifiedIndex': 10,
-          'createdIndex': 10
-        }
-      });
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/update_user/admin', { 'value': 'false' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/update_user/admin',
-          'value': 'false',
-          'modifiedIndex': 11,
-          'createdIndex': 11
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+            'username': 'dXBkYXRldXNlcg==',
+            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
+            'githubPAT':'',
         },
-        'prevNode': {
-          'key': '/users/update_user/admin',
-          'value': 'true',
-          'modifiedIndex': 12,
-          'createdIndex': 12
-        }
-      });
+        'type': 'Opaque'
+    });
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/non_exist_user')
-      .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/users/non_exist_user',
-        'index': 4242650
-      });
+    nock(apiServerRootUri)
+    .put('/api/v1/namespaces/pai-user/secrets/updateuser', {
+      'metadata':{'name':'updateuser'},
+      'data': {
+         'admin': 'ZmFsc2U=',
+         'password': 'YWJhNGI5NzdkNjk1NWNlOTVkZThlNzQwMTY2NWEzNWQxNTg4NjJmNmU5ZWI0YzEzZDJhZjM4Y2I3MWU1M2ZiMjc1Y2Q0YjI1ODBiNzZkMmIxMzZlY2U5YWJlZDYyMzllNDQ3YTI5YTYyNmEzNDAyYzEzMWYwZWQ3NTcwMjcyNmY=',
+         'username': 'dXBkYXRldXNlcg==',
+         'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
+         'githubPAT':'',
+       }
+     })
+    .reply(200, {
+      'kind': 'Secret',
+      'apiVersion': 'v1',
+      'metadata': {
+          'name': 'updateuser',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/updateuser',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+      },
+      'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'YWJhNGI5NzdkNjk1NWNlOTVkZThlNzQwMTY2NWEzNWQxNTg4NjJmNmU5ZWI0YzEzZDJhZjM4Y2I3MWU1M2ZiMjc1Y2Q0YjI1ODBiNzZkMmIxMzZlY2U5YWJlZDYyMzllNDQ3YTI5YTYyNmEzNDAyYzEzMWYwZWQ3NTcwMjcyNmY=',
+          'username': 'dXBkYXRldXNlcg==',
+          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
+          'githubPAT':'',
+      },
+      'type': 'Opaque'
+    });
+
+    nock(apiServerRootUri)
+    .put('/api/v1/namespaces/pai-user/secrets/updateuser', {
+      'metadata':{'name':'updateuser'},
+      'data': {
+         'admin': 'ZmFsc2U=',
+         'password': 'YWJhNGI5NzdkNjk1NWNlOTVkZThlNzQwMTY2NWEzNWQxNTg4NjJmNmU5ZWI0YzEzZDJhZjM4Y2I3MWU1M2ZiMjc1Y2Q0YjI1ODBiNzZkMmIxMzZlY2U5YWJlZDYyMzllNDQ3YTI5YTYyNmEzNDAyYzEzMWYwZWQ3NTcwMjcyNmY=',
+         'username': 'dXBkYXRldXNlcg==',
+         'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
+         'githubPAT':'',
+       }
+     })
+    .reply(200, {
+      'kind': 'Secret',
+      'apiVersion': 'v1',
+      'metadata': {
+          'name': 'updateuser',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/updateuser',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+      },
+      'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'YWJhNGI5NzdkNjk1NWNlOTVkZThlNzQwMTY2NWEzNWQxNTg4NjJmNmU5ZWI0YzEzZDJhZjM4Y2I3MWU1M2ZiMjc1Y2Q0YjI1ODBiNzZkMmIxMzZlY2U5YWJlZDYyMzllNDQ3YTI5YTYyNmEzNDAyYzEzMWYwZWQ3NTcwMjcyNmY=',
+          'username': 'dXBkYXRldXNlcg==',
+          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
+          'githubPAT':'',
+      },
+      'type': 'Opaque'
+    });
+
+    nock(apiServerRootUri)
+    .get('/api/v1/namespaces/pai-user/secrets/nonexistuser')
+    .reply(404, {
+      'kind': 'Status',
+      'apiVersion': 'v1',
+      'metadata': {},
+      'status': 'Failure',
+      'message': 'secrets \'nonexistuser\' not found',
+      'reason': 'NotFound',
+      'details': {
+          'name': 'nonexistuser',
+          'kind': 'secrets'
+      },
+      'code': 404
+    });
+
 
   });
 
@@ -335,7 +393,7 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'update_user', 'password': 'abcdef', 'modify': true })
+      .send({ 'username': 'updateuser', 'password': 'abcdef', 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -348,7 +406,7 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'update_user', 'password': 'abcdef', 'admin': false, 'modify': true })
+      .send({ 'username': 'updateuser', 'password': 'abcdef', 'admin': false, 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -365,7 +423,7 @@ describe('update user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'non_exist_user', 'password': 'abcdef', 'admin': false, 'modify': true })
+      .send({ 'username': 'nonexistuser', 'password': 'abcdef', 'admin': false, 'modify': true })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
@@ -410,103 +468,68 @@ describe('delete user : delete /api/v1/user', () => {
 
   beforeEach(() => {
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/delete_admin_user')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/nonadmin')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/delete_admin_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/delete_admin_user/admin',
-              'value': 'true',
-              'modifiedIndex': 13,
-              'createdIndex': 13
-            }, {
-              'key': '/users/delete_admin_user/passwd',
-              'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-              'modifiedIndex': 14,
-              'createdIndex': 14
-            }],
-          'modifiedIndex': 15,
-          'createdIndex': 15
-        }
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/delete_admin_user/admin')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/delete_admin_user/admin',
-          'value': 'true',
-          'modifiedIndex': 16,
-          'createdIndex': 16
-        }
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/delete_non_exist_user')
-      .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/users/delete_non_exist_user',
-        'index': 17
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/delete_non_admin_user')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/delete_non_admin_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/delete_non_admin_user/admin',
-              'value': 'false',
-              'modifiedIndex': 18,
-              'createdIndex': 18
-            }, {
-              'key': '/users/delete_non_admin_user/passwd',
-              'value': '8507b5d862306d5bdad95b3d611b905ecdd047b0165ca3905db0d861e76bce8f3a8046e64379e81f54865f7c41b47e57cec887e5912062211bc9010afea8ab12',
-              'modifiedIndex': 19,
-              'createdIndex': 19
-            }],
-          'modifiedIndex': 20,
-          'createdIndex': 20
-        }
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/delete_non_admin_user/admin')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/delete_non_admin_user/admin',
-          'value': 'false',
-          'modifiedIndex': 21,
-          'createdIndex': 21
-        }
-      });
-
-    nock(etcdHosts)
-      .delete('/v2/keys/users/delete_non_admin_user?recursive=true')
-      .reply(200, {
-        'action': 'delete',
-        'node': {
-          'key': '/delete_non_admin_user',
-          'dir': true,
-          'modifiedIndex': 22,
-          'createdIndex': 22
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'paitest',
         },
-        'prevNode': {
-          'key': '/delete_non_admin_user',
-          'dir': true,
-          'modifiedIndex': 23,
-          'createdIndex': 23
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'bm9uYWRtaW4K',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-user/secrets/nonadmin')
+      .reply(200, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Success',
+        'details': {
+          'name': 'nonadmin',
+          'kind': 'secrets',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
         }
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/admin')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'paitest',
+        },
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'bm9uYWRtaW4K',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'nonexist\' not found',
+        'reason': 'NotFound',
+        'details': {
+            'name': 'nonexist',
+            'kind': 'secrets'
+        },
+        'code': 404
       });
   });
 
@@ -518,7 +541,7 @@ describe('delete user : delete /api/v1/user', () => {
     global.chai.request(global.server)
       .delete('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_admin_user' })))
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'nonadmin' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(200);
         done();
@@ -533,7 +556,7 @@ describe('delete user : delete /api/v1/user', () => {
     global.chai.request(global.server)
       .delete('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_admin_user' })))
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'admin' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(403);
         global.chai.expect(res, 'response format').be.json;
@@ -546,7 +569,7 @@ describe('delete user : delete /api/v1/user', () => {
     global.chai.request(global.server)
       .delete('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'delete_non_exist_user' })))
+      .send(JSON.parse(global.mustache.render(deleteUserTemplate, { 'username': 'nonexist' })))
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(404);
         global.chai.expect(res, 'response format').be.json;
@@ -606,196 +629,186 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         }
       });
 
-    nock(etcdHosts)
-      .get('/v2/keys/users/test_user')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/test')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/test_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/test_user/admin',
-              'value': 'false',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/test_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
-        }
-      });
-
-      nock(etcdHosts)
-        .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default,vc1' })
-        .reply(200, {
-          'action': 'update',
-          'node': {
-            'key': '/users/test_user/virtualClusters',
-            'value': 'default,vc1',
-            'modifiedIndex': 11,
-            'createdIndex': 11
-          },
-          'prevNode': {
-            'key': '/users/test_user/virtualClusters',
-            'value': 'default',
-            'modifiedIndex': 12,
-            'createdIndex': 12
-          }
-        });
-
-        nock(etcdHosts)
-          .put('/v2/keys/users/test_user/virtualClusters', { 'value': 'default' })
-          .reply(200, {
-            'action': 'update',
-            'node': {
-              'key': '/users/test_user/virtualClusters',
-              'value': 'default',
-              'modifiedIndex': 11,
-              'createdIndex': 11
-            },
-            'prevNode': {
-              'key': '/users/test_user/virtualClusters',
-              'value': 'default,vc1',
-              'modifiedIndex': 12,
-              'createdIndex': 12
-            }
-          });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/test_non_admin_user')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/test_non_admin_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/test_non_admin_user/admin',
-              'value': 'true',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/test_non_admin_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }, {
-              'key': '/users/test_non_admin_user/virtualClusters',
-              'value': 'default,vc1,vc2',
-              'modifiedIndex': 8,
-              'createdIndex': 8
-            }],
-          'modifiedIndex': 9,
-          'createdIndex': 9
-        }
-      });
-
-    nock(etcdHosts)
-      .put('/v2/keys/users/test_non_admin_user/virtualClusters', { 'value': 'default,vc1,vc2' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/test_non_admin_user/virtualClusters',
-          'value': 'default,vc1,vc2',
-          'modifiedIndex': 11,
-          'createdIndex': 11
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'test',
         },
-        'prevNode': {
-          'key': '/users/test_non_admin_user/virtualClusters',
-          'value': 'default',
-          'modifiedIndex': 12,
-          'createdIndex': 12
-        }
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/users/test_invalid_vc_user')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/test_invalid_vc_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/test_invalid_vc_user/admin',
-              'value': 'false',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/test_invalid_vc_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }, {
-              'key': '/users/test_invalid_vc_user/virtualClusters',
-              'value': 'default,vc1',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
-        }
-      });
-
-      nock(etcdHosts)
-      .get('/v2/keys/users/test_delete_user')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users/test_delete_user',
-          'dir': true,
-          'nodes':
-            [{
-              'key': '/users/test_delete_user/admin',
-              'value': 'false',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/test_delete_user/passwd',
-              'value': '194555a225f974d4cb864ce56ad713ed5e5a2b27a905669b31b1c9da4cebb91259e9e6f075eb8e8d9e3e2c9bd499ed5f5566e238d8b0eeead20d02aa33f8b669',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }, {
-              'key': '/users/test_delete_user/virtualClusters',
-              'value': 'default,vc1,vc2',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }],
-          'modifiedIndex': 8,
-          'createdIndex': 8
-        }
-      });
-
-      nock(etcdHosts)
-      .put('/v2/keys/users/test_delete_user/virtualClusters', { 'value': 'default' })
-      .reply(200, {
-        'action': 'update',
-        'node': {
-          'key': '/users/test_delete_user/virtualClusters',
-          'value': 'default',
-          'modifiedIndex': 11,
-          'createdIndex': 11
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+            'username': 'cGFpdGVzdA==',
+            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
-        'prevNode': {
-          'key': '/users/test_delete_user/virtualClusters',
-          'value': 'default,vc1,vc2',
-          'modifiedIndex': 12,
-          'createdIndex': 12
-        }
+        'type': 'Opaque'
+    });
+
+    nock(apiServerRootUri)
+    .put('/api/v1/namespaces/pai-user/secrets/test', {
+      'metadata':{'name':'test'},
+      'data': {
+         'admin': 'ZmFsc2U=',
+         'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+         'username': 'dGVzdA==',
+         'virtualCluster':'ZGVmYXVsdCx2YzE=',
+         'githubPAT':''
+       }
+     })
+    .reply(200, {
+      'kind': 'Secret',
+      'apiVersion': 'v1',
+      'metadata': {
+          'name': 'test',
+          'namespace': 'pai-user',
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/test',
+          'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+          'resourceVersion': '1115478',
+          'creationTimestamp': '2018-12-07T02:21:42Z'
+      },
+      'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'dGVzdA==',
+          'virtualCluster':'ZGVmYXVsdCx2YzE=',
+          'githubPAT':''
+      },
+      'type': 'Opaque'
+    });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/test2')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'test2',
+        },
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'cGFpdGVzdA==',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
       });
 
-      nock(etcdHosts)
-      .get('/v2/keys/users/non_exist_user')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/testuser3')
       .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/users/non_exist_user',
-        'index': 4242650
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'testuser3',
+        },
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
+          'username': 'dGVzdHVzZXIz',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user/secrets/testuser3', {
+        'metadata':{'name':'testuser3'},
+        'data': {
+           'admin': 'ZmFsc2U=',
+           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+           'username': 'dGVzdHVzZXIz',
+           'virtualCluster':'ZGVmYXVsdA==',
+           'githubPAT':''
+         }
+       })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'testuser3',
+            'namespace': 'pai-user',
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
+            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+            'resourceVersion': '1115478',
+            'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+            'username': 'dGVzdHVzZXIz',
+            'virtualCluster':'ZGVmYXVsdA==',
+            'githubPAT':''
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/testinvalid')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'testinvalid',
+        },
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
+          'username': 'dGVzdHVzZXIz',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'nonexist\' not found',
+        'reason': 'NotFound',
+        'details': {
+            'name': 'nonexist',
+            'kind': 'secrets'
+        },
+        'code': 404
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/test3')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'test3',
+        },
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'cGFpdGVzdA==',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/test4')
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+          'name': 'test3',
+        },
+        'data': {
+          'admin': 'dHJ1ZQ==',
+          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+          'username': 'cGFpdGVzdA==',
+          'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
       });
   });
 
@@ -807,13 +820,13 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
   const nonAdminToken = global.jwt.sign({ username: 'non_admin_user', admin: false }, process.env.JWT_SECRET, { expiresIn: 60 });
   const invalidToken = '';
 
-  // //
-  // // Positive cases
-  // //
+  //
+  // Positive cases
+  //
 
   it('Case 1 (Positive): should update non-admin user with valid virtual cluster successfully', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_user/virtualClusters')
+      .put('/api/v1/user/test/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'vc1' })))
       .end((err, res) => {
@@ -826,7 +839,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 2 (Positive): add new user with invalid virtual cluster should add default vc only and throw update vc error', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_user/virtualClusters')
+      .put('/api/v1/user/test2/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
@@ -839,7 +852,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 3 (Positive): should delete all virtual clusters except default when virtual cluster value sets to be empty ', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_delete_user/virtualClusters')
+      .put('/api/v1/user/testuser3/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': '' })))
       .end((err, res) => {
@@ -856,7 +869,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 1 (Negative): should fail to update non-admin user with invalid virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_invalid_vc_user/virtualClusters')
+      .put('/api/v1/user/testinvalid/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'non_exist_vc' })))
       .end((err, res) => {
@@ -869,7 +882,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 2 (Negative): should fail to update non-exist user virtual cluster', (done) => {
     global.chai.request(global.server)
-    .put('/api/v1/user/non_exist_user/virtualClusters')
+    .put('/api/v1/user/nonexist/virtualClusters')
     .set('Authorization', 'Bearer ' + validToken)
     .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
     .end((err, res) => {
@@ -882,7 +895,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 3 (Negative): should fail to update user with virtual cluster by non-admin user', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_user/virtualClusters')
+      .put('/api/v1/user/test3/virtualClusters')
       .set('Authorization', 'Bearer ' + nonAdminToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
       .end((err, res) => {
@@ -895,7 +908,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
 
   it('Case 4 (Negative): should fail to update admin virtual cluster', (done) => {
     global.chai.request(global.server)
-      .put('/api/v1/user/test_non_admin_user/virtualClusters')
+      .put('/api/v1/user/test4/virtualClusters')
       .set('Authorization', 'Bearer ' + validToken)
       .send(JSON.parse(global.mustache.render(updateUserVcTemplate, { 'virtualClusters': 'default' })))
       .end((err, res) => {
@@ -919,61 +932,42 @@ describe('get user info list : get /api/v1/user', () => {
 
   beforeEach(() => {
 
-    nock(etcdHosts)
-      .get('/v2/keys/users?recursive=true')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/users',
-          'dir': true,
-          'nodes': [{
-            'key': '/users/admin',
-            'dir': true,
-            'nodes': [{
-              'key': '/users/admin/passwd',
-              'value': 'pass1',
-              'modifiedIndex': 6,
-              'createdIndex': 6
-            }, {
-              'key': '/users/admin/admin',
-              'value': 'true',
-              'modifiedIndex': 7,
-              'createdIndex': 7
-            }, {
-              'key': '/users/admin/virtualClusters',
-              'value': 'default,vc1,vc2,vc3',
-              'modifiedIndex': 8,
-              'createdIndex': 8
-            }],
-            'modifiedIndex': 5,
-            'createdIndex': 5
-          }, {
-            'key': '/users/test_user',
-            'dir': true,
-            'nodes': [{
-              'key': '/users/test_user/passwd',
-              'value': 'pass2',
-              'modifiedIndex': 10,
-              'createdIndex': 10
-            }, {
-              'key': '/users/test_user/admin',
-              'value': 'false',
-              'modifiedIndex': 11,
-              'createdIndex': 11
-            }, {
-              'key': '/users/test_user/virtualClusters',
-              'value': 'default',
-              'modifiedIndex': 12,
-              'createdIndex': 12
-            }],
-            'modifiedIndex': 9,
-            'createdIndex': 9
-          }],
-          'modifiedIndex': 4,
-          'createdIndex': 4
-        }});
-
-
+        'kind': 'SecretList',
+        'apiVersion': 'v1',
+        'metadata': {
+          'selfLink': '/api/v1/namespaces/pai-user/secrets/',
+          'resourceVersion': '1062682'
+        },
+        'items': [
+          {
+            'metadata': {
+              'name': 'cantest001',
+            },
+            'data': {
+              'admin': 'ZmFsc2U=',
+              'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
+              'username': 'Y2FudGVzdDAwMQ==',
+              'virtualCluster': 'ZGVmYXVsdA=='
+            },
+            'type': 'Opaque'
+          },
+          {
+            'metadata': {
+              'name': 'paitest',
+            },
+            'data': {
+              'admin': 'dHJ1ZQ==',
+              'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+              'username': 'cGFpdGVzdA==',
+              'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+            },
+            'type': 'Opaque'
+          },
+        ]
+      });
   });
 
   //

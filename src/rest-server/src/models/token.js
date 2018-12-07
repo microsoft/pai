@@ -17,12 +17,13 @@
 
 const userModel = require('./user');
 const util = require('util');
+const createError = require('../util/error');
 
 const check = (username, password, callback) => {
   const dbGet = util.callbackify(userModel.db.get.bind(userModel.db));
   dbGet(username, null, (err, res) => {
-    if (err) {
-      return callback(err);
+    if (!res) {
+      return callback(createError('Bad Request', 'NoUserError', `User ${username} is not found.`));
     }
     userModel.encrypt(username, password, (err, derivedKey) => {
       if (err) {

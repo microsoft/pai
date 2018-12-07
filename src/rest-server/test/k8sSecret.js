@@ -261,7 +261,7 @@ describe('k8s secret delete function test', () => {
 
   beforeEach(() => {
 
-    // Mock etcd2
+    // Mock k8s secret
     nock(apiServerRootUri)
       .delete('/api/v1/namespaces/pai-user/secrets/existuser')
       .reply(200, {

@@ -50,8 +50,9 @@ const update = (username, password, admin, modify, next) => {
     if (err && err.status !== 404) {
       return next(err);
     }
-    let userExits = (err && err.status === 404) ? false : true;
-    if (userExits !== modify) {
+
+    let userExists = (err && err.status === 404) ? false : true;
+    if (userExists !== modify) {
       const status = res ? 'Conflict' : 'Not found';
       const code = res ? 'ConflictUserError' : 'NoUserError';
       const message = res ? `User name ${username} already exists.` : `User ${username} not found.`;
@@ -66,7 +67,6 @@ const update = (username, password, admin, modify, next) => {
       } else {
         updateUser['admin'] = (admin === undefined) ? false : admin;
       }
-
       // Will grant admin user all VC permission
       if (updateUser['admin']) {
         VirtualCluster.prototype.getVcList((vcList, err) => {
@@ -143,7 +143,8 @@ const updateUserVc = (username, virtualClusters, next) => {
       let addUserWithInvalidVc = null;
       for (let item of updateVcList) {
         if (!vcList.hasOwnProperty(item)) {
-          if (res[0]['virtualCluster']) {
+          if (!res[0].hasOwnProperty('virtualCluster') || !res[0]['virtualCluster']) {
+            // for the new user we need to add default vc
             updateVcList.length = 0;
             addUserWithInvalidVc = item;
             break;
