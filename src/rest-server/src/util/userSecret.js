@@ -27,6 +27,7 @@ class UserSecret extends StorageBase {
   }
 
   async get(key, options) {
+    console.log('[CAN-TEST] inGet beginging'+ `${this.secretRootUrl}/${key}`)
     try {
       const response = await axios.get(`${this.secretRootUrl}/${key}`, {
         headers: {
@@ -56,12 +57,14 @@ class UserSecret extends StorageBase {
       }
       return allUserSecrets;
     } catch (error) {
+      console.log('[CAN-TEST]' + error.response.status)
       throw error.response;
     }
   }
 
   async set(key, value, options) {
     try {
+      console.log('[CAN-TEST] value password =' + value['password'])
       let userData = {
         'metadata': {'name': key},
         'data': {
@@ -73,10 +76,10 @@ class UserSecret extends StorageBase {
       if (value.hasOwnProperty('virtualCluster')) {
         userData['data']['virtualCluster'] = Buffer.from(value['virtualCluster']).toString('base64');
       }
+
       if (value.hasOwnProperty('githubPAT')) {
         userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64');
       }
-
       let response = null;
       if (options && options['update']) {
         response = await axios.put(`${this.secretRootUrl}/${key}`, userData);
@@ -85,6 +88,7 @@ class UserSecret extends StorageBase {
       }
       return response;
     } catch (error) {
+      console.log(error)
       throw error.response;
     }
   }
