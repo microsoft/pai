@@ -4,7 +4,7 @@
 // MIT License
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-// documentation files (the 'Software'), to deal in the Software without restriction, including without limitation
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
 // to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -16,12 +16,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // test
-const dbUtility = require('../src/util/dbUtil')
+const dbUtility = require('../src/util/dbUtil');
+const util = require('util');
 
-const db = dbUtility.getStorageObject('etcd2', {
-  'hosts': etcdHosts,
+const db = dbUtility.getStorageObject('UserSecret', {
+  'secretRootUrl': apiServerRootUri + '/api/v1/namespaces/pai-user/secrets',
 });
-describe('etcd2 get function test', () => {
+describe('k8s secret get function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -32,82 +33,111 @@ describe('etcd2 get function test', () => {
 
   beforeEach(() => {
 
-    // Mock etcd2
-    nock(etcdHosts)
-      .get('/v2/keys/single_test')
+    // Mock k8s secret return result
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/')
       .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/single_test',
-          'value': 'test',
-          'modifiedIndex': 1,
-          'createdIndex': 1
-        }
-      });
-
-    nock(etcdHosts)
-      .get('/v2/keys/test1?recursive=true')
-      .reply(200, {
-        'action': 'get',
-        'node': {
-          'key': '/test1',
-          'dir': true,
-          'nodes': [
+        'kind': 'SecretList',
+        'apiVersion': 'v1',
+        'metadata': {
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/',
+            'resourceVersion': '1062682'
+        },
+        'items': [
             {
-              'key': '/test1/admin',
-              'value': 'true',
-              'modifiedIndex': 2,
-              'createdIndex': 2
+                'metadata': {
+                    'name': 'cantest001',
+                },
+                'data': {
+                    'admin': 'ZmFsc2U=',
+                    'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
+                    'username': 'Y2FudGVzdDAwMQ==',
+                    'virtualCluster': 'ZGVmYXVsdA=='
+                },
+                'type': 'Opaque'
             },
             {
-              'key': '/test1/passwd',
-              'value': '7519213ff7915e05dd97dd0638d9d474055bfbaf4224492036aa79278f7114c21558fd27a37eae527320a48cdb448ab771f5ec1067d1e6be21ea9dc18371b15b',
-              'modifiedIndex': 3,
-              'createdIndex': 3
-            }],
-          'modifiedIndex': 4,
-          'createdIndex': 4
-        }
-      });
+                'metadata': {
+                    'name': 'paitest',
+                },
+                'data': {
+                    'admin': 'dHJ1ZQ==',
+                    'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+                    'username': 'cGFpdGVzdA==',
+                    'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+                },
+                'type': 'Opaque'
+            },
+        ]
+    });
 
-    nock(etcdHosts)
-      .get('/v2/keys/non_exist')
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/paitest')
       .reply(200, {
-        'errorCode': 100,
-        'message': 'Key not found',
-        'cause': '/non_exist',
-        'index': 5
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'paitest',
+        },
+        'data': {
+            'admin': 'dHJ1ZQ==',
+            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
+            'username': 'cGFpdGVzdA==',
+            'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
+        },
+        'type': 'Opaque'
+    });
+
+    nock(apiServerRootUri)
+      .get('/api/v1/namespaces/pai-user/secrets/nonexist')
+      .reply(404, {
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Failure',
+        'message': 'secrets \'nonexist\' not found',
+        'reason': 'NotFound',
+        'details': {
+            'name': 'nonexist',
+            'kind': 'secrets'
+        },
+        'code': 404
       });
   });
 
   // positive test case
   // get exist single key value pair
-  it('should return a map [/single_test,test]', (done) => {
-    db.get('/single_test', null, (err, res) => {
-      expect(res).to.have.all.keys('/single_test');
-      expect(res.get('/single_test')).to.be.equal('test');
+  it('should return whole user list', (done) => {
+    const dbGet = util.callbackify(db.get.bind(db));
+    dbGet('', null, (err, res) => {
+      expect(res).to.have.lengthOf(2)
       done();
-    })
+    });
   });
 
   // negative test case
-  // get non-exist key
-  it('should return null', (done) => {
-    db.get('/non_exist', null, (err, res) => {
-      expect(res).to.be.equal(null);
-      expect(err.errorCode).to.be.equal(100);
+  // get non-exist user
+  it('should report user not found error', (done) => {
+    const dbGet = util.callbackify(db.get.bind(db));
+    dbGet('nonexist', null, (err, res) => {
+      expect(err.status).to.be.equal(404);
       done();
     })
   });
 
   // positive test case
-  // get key value pair recursive
-  it('should return kv map in flatten way', (done) => {
-    db.get('/test1', { recursive: true }, (err, res) => {
-      expect(res).to.have.all.keys('/test1', '/test1/admin', '/test1/passwd');
-      expect(res.get('/test1')).to.be.equal(undefined);
-      expect(res.get('/test1/admin')).to.be.equal('true');
-      expect(res.get('/test1/passwd')).to.be.equal('7519213ff7915e05dd97dd0638d9d474055bfbaf4224492036aa79278f7114c21558fd27a37eae527320a48cdb448ab771f5ec1067d1e6be21ea9dc18371b15b');
+  // find specific user
+  it('should return specific user info', (done) => {
+    const dbGet = util.callbackify(db.get.bind(db));
+    dbGet('paitest', null, (err, res) => {
+      expect(res).to.have.lengthOf(1);
+      expect(res).to.have.deep.members([{
+        userName: 'paitest',
+        password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
+        admin: true,
+        virtualCluster: 'default,vc2,vc3',
+        githubPAT: ''
+      }])
       done();
     });
   });
@@ -115,7 +145,7 @@ describe('etcd2 get function test', () => {
 });
 
 
-describe('etcd2 set function test', () => {
+describe('k8s secret set function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -126,32 +156,101 @@ describe('etcd2 set function test', () => {
 
   beforeEach(() => {
 
-    // Mock etcd2
-    nock(etcdHosts)
-      .put('/v2/keys/set_key_test', { 'value': 'set_key_test' })
+    // Mock k8s secret post and put
+    nock(apiServerRootUri)
+      .put('/api/v1/namespaces/pai-user/secrets/existuser', {
+        'metadata':{'name':'existuser'},
+        'data': {
+           'admin': 'ZmFsc2U=',
+           'password': 'cGFpNjY2',
+           'username': 'ZXhpc3R1c2Vy'
+         }
+       })
       .reply(200, {
-        'action': 'set',
-        'node': {
-          'key': '/set_key_test',
-          'value': 'set_key_test',
-          'modifiedIndex': 6,
-          'createdIndex': 6
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'existuser',
+            'namespace': 'pai-user',
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/existuser',
+            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b',
+            'resourceVersion': '1115478',
+            'creationTimestamp': '2018-12-07T02:21:42Z'
+        },
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'cGFpNjY2',
+            'username': 'ZXhpc3R1c2Vy'
+        },
+        'type': 'Opaque'
+      });
+
+    nock(apiServerRootUri)
+      .post('/api/v1/namespaces/pai-user/secrets', {
+        'metadata': {'name': 'newuser'},
+        'data': {
+          'admin': 'ZmFsc2U=',
+          'password': 'cGFpNjY2',
+          'username': 'bmV3dXNlcg=='
         }
+      })
+      .reply(200, {
+        'kind': 'Secret',
+        'apiVersion': 'v1',
+        'metadata': {
+            'name': 'newuser',
+            'namespace': 'pai-user',
+            'selfLink': '/api/v1/namespaces/pai-user/secrets/newuser',
+            'uid': 'f75b6065-f9c7-11e8-b564-000d3ab5296b',
+            'resourceVersion': '1116114',
+            'creationTimestamp': '2018-12-07T02:29:47Z'
+        },
+        'data': {
+            'admin': 'ZmFsc2U=',
+            'password': 'cGFpNjY2',
+            'username': 'bmV3dXNlcg=='
+        },
+        'type': 'Opaque'
       });
   });
 
   // set a key value pair
-  it('should set a key value pair', (done) => {
-    db.set('/set_key_test', 'set_key_test', null, (err, res) => {
-      expect(res).to.nested.include({'node.value':'set_key_test'})
+  it('should add a new user', (done) => {
+    const dbSet = util.callbackify(db.set.bind(db));
+    const updateUser = {
+      'username': 'newuser',
+      'password': 'pai666',
+      'admin': false,
+      'modify': false
+    }
+    dbSet('newuser', updateUser, null, (err, res) => {
+      expect(err).to.be.null
+      expect(res, 'status').to.have.status(200)
       done();
-    })
+    });
+  });
+
+  // update a user
+  it('should update an exist new user', (done) => {
+    const dbSet = util.callbackify(db.set.bind(db));
+    const updateUser = {
+      'username': 'existuser',
+      'password': 'pai666',
+      'admin': false,
+      'modify': false
+    }
+    options = {'update': true}
+    dbSet('existuser', updateUser, options, (err, res) => {
+      expect(err).to.be.null
+      expect(res, 'status').to.have.status(200)
+      done();
+    });
   });
 
 
 });
 
-describe('etcd2 delete function test', () => {
+describe('k8s secret delete function test', () => {
   afterEach(function() {
     if (!nock.isDone()) {
       //TODO: Revamp this file and enable the following error.
@@ -163,106 +262,54 @@ describe('etcd2 delete function test', () => {
   beforeEach(() => {
 
     // Mock etcd2
-    nock(etcdHosts)
-      .delete('/v2/keys/del_test1')
+    nock(apiServerRootUri)
+      .delete('/api/v1/namespaces/pai-user/secrets/existuser')
       .reply(200, {
-        'action':'delete',
-        'node':{
-          'key':'/del_test',
-          'modifiedIndex':7,
-          'createdIndex':7
-        },
-        'prevNode':{
-          'key':'/del_test',
-          'value':'change',
-          'modifiedIndex':8,
-          'createdIndex':8
+        'kind': 'Status',
+        'apiVersion': 'v1',
+        'metadata': {},
+        'status': 'Success',
+        'details': {
+            'name': 'existuser',
+            'kind': 'secrets',
+            'uid': 'd5d686ff-f9c6-11e8-b564-000d3ab5296b'
         }
       });
 
-    nock(etcdHosts)
-    .delete('/v2/keys/del_test2?recursive=true')
-    .reply(200, {
-      'action':'delete',
-      'node':{
-        'key':'/del_test2',
-        'dir':true,
-        'modifiedIndex':9,
-        'createdIndex':9
+    nock(apiServerRootUri)
+    .delete('/api/v1/namespaces/pai-user/secrets/nonexistuser')
+    .reply(404, {
+      'kind': 'Status',
+      'apiVersion': 'v1',
+      'metadata': {},
+      'status': 'Failure',
+      'message': 'secrets \'nonexistuser\' not found',
+      'reason': 'NotFound',
+      'details': {
+          'name': 'nonexistuser',
+          'kind': 'secrets'
       },
-      'prevNode':{
-        'key':'/del_test2',
-        'dir':true,
-        'modifiedIndex':9,
-        'createdIndex':9
-      }
+      'code': 404
     });
   });
 
-  // delete single key
-  it('should delete key del_test1', (done) => {
-    db.delete('/del_test1', null, (err, res) => {
-      expect(res).to.nested.include({'action':'delete','node.key':'/del_test'})
-      done();
-    })
-  });
-
-  it('should delete key del_test2 recursively', (done) => {
-    db.delete('/del_test2', {recursive: true}, (err, res) => {
-      expect(res).to.nested.include({'action':'delete','node.key':'/del_test2','node.dir':true})
-      done();
-    })
-  });
-});
-
-describe('etcd2 has function test', () => {
-  afterEach(function() {
-    if (!nock.isDone()) {
-      //TODO: Revamp this file and enable the following error.
-      //this.test.error(new Error('Not all nock interceptors were used!'));
-      nock.cleanAll();
-    }
-  });
-
-  beforeEach(() => {
-
-    // Mock etcd2
-    nock(etcdHosts)
-    .delete('/v2/keys/has_test1')
-    .reply(200, {
-      'action': 'get',
-      'node': {
-        'key': '/has_test2',
-        'value': 'has_test2',
-        'modifiedIndex': 11,
-        'createdIndex': 11
-      }
-    });
-
-    nock(etcdHosts)
-      .get('/v2/keys/has_test2')
-      .reply(200, {
-        'errorCode':100,
-        'message':'Key not found',
-        'cause':'/test',
-        'index':10
-      });
-
-  });
-
-  // get exist single key value pair
-  it('key exists should return true', (done) => {
-    db.has('/has_test1', null, (err, res) => {
-      expect(res).to.be.true;
+  // delete exist user
+  it('should delete an exist user successfully', (done) => {
+    const dbDelete = util.callbackify(db.delete.bind(db));
+    dbDelete('existuser', (err, res) => {
+      expect(err).to.be.null
+      expect(res, 'status').to.have.status(200)
       done();
     });
   });
 
-  // get non-exist single key value pair
-  it('key not exist should return false', (done) => {
-    db.has('/has_test2', null, (err, res) => {
-      expect(res).to.be.false;
+  it('should failed to delete an non-exist user', (done) => {
+    const dbDelete = util.callbackify(db.delete.bind(db));
+    dbDelete('nonexistuser', (err, res) => {
+      expect(err, 'status').to.have.status(404)
       done();
     });
   });
+
+
 });

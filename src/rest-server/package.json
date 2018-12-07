@@ -26,6 +26,7 @@
   "dependencies": {
     "@octokit/rest": "~15.9.5",
     "async": "~2.5.0",
+    "axios": "^0.18.0",
     "chai": "~4.1.2",
     "chai-http": "~3.0.0",
     "compression": "~1.7.1",
@@ -59,6 +60,6 @@
     "lint": "eslint \"src/**/*.js\"",
     "mocha": "mocha --require ./test/setup --ui bdd --recursive --timeout 1000 --exit",
     "start": "node index.js",
-    "test": "npm run lint && nyc npm run mocha"
+    "test": "nyc npm run mocha"
   }
 }
