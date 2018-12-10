@@ -28,9 +28,9 @@
 ### Configuration Example <a name="example"></a>
 An example service-configuration.yaml file is available [here](../../../examples/cluster-configuration/service-configuration.yaml). The yaml file includes the following fields.
 
-### Necessary Configuration <a name="necessary"></a>
+### Necessary Configuration - Minimal configuration to setup OpenPai <a name="necessary"></a>
 
-There are only 2 configuration which is mandatory for admin to configure. And see the yaml format data following。
+There are only 2 mandatory configuration for admin to configure in ```service-configuration.yaml```. And see the yaml format data following.
 
 ```YAML
 rest-server:
@@ -39,6 +39,27 @@ rest-server:
   # database admin password
   default-pai-admin-password: your_default_pai_admin_password
 ```  
+
+### Necessary Configuration - Minimal configuration to setup OpenPai <a name="optional"></a>
+
+Besides the default cofiguration to make OpenPai start, admin could customize each service component within permissible scope. From the example ```serivce-configuration.yaml```, you could find a lot of commented fileds, such as the following. For example, If you wanna customize ```drivers```, you can uncomment the filed, and overwrite the default value with your expected value. 
+```YAML
+#drivers:
+#  set-nvidia-runtime: false
+#  # You can set drivers version here. If this value is miss, default value will be 384.111
+#  # Current supported version list
+#  # 384.111
+#  # 390.25
+#  # 410.73
+#  version: "384.111"
+```  
+
+
+According to your requirements, choose the component which you wanna customized. Please read the table and the link in the table carefully. 
+
+| Service | Description | Tutorial |
+| --- | --- | --- |
+| cluster| Configure common configuration for  cluster and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
 
 
 

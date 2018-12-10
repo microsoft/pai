@@ -48,7 +48,7 @@ PAI configuration consists of 4 YAML files:
 
 ### Step c. How to write service-configuration.yaml <a name="step_c"></a>
 
-[A Guide of customize service-configuration.yaml](./how-to-configure-service-config.md)
+[A Guide of customize service-configuration.yaml](./how-to-congiure-service-config.md)
 
 
 
