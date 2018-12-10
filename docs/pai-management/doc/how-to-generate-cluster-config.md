@@ -168,24 +168,10 @@ If user want to customize configuration, please see the table below
     - HA
       - [Kubernetes High Availability Configuration](./kubernetes-ha.md)
 
-- [Configure OpenPAI from files](./how-to-write-pai-configuration.md)
-  - Cluster related configuration: [configuration of cluster-configuration.yaml](./how-to-write-pai-configuration.md#cluster_configuration)
-  - Kubernetes role related configuration: [configuration of k8s-role-definition.yaml](./how-to-write-pai-configuration.md#k8s_role_definition)
-  - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-write-pai-configuration.md#kubernetes_configuration)
-  - Service related configuration: [configuration of services-configuration.yaml](./how-to-write-pai-configuration.md#services_configuration)
+- [Configure OpenPAI from files](./customized-configuration.md)
+  - Cluster related configuration: [configuration of cluster-configuration.yaml](./how-to-configure-cluster-configuraiton.md)
+  - Kubernetes role related configuration: It will be deprecated
+  - Kubernetes related configuration: [configuration of kubernetes-configuration.yaml](./how-to-configure-k8s-config.md)
+  - Service related configuration: [configuration of services-configuration.yaml](./how-to-congiure-service-config.md)
 
-- [Configure OpenPAI services](./how-to-write-pai-service-configuration.md) [Note: This part is for advanced user who wants to customize OpenPAI each service]
-    - [Kubernetes](./how-to-write-pai-service-configuration.md#kubernetes)
-    - Webportal
-      - [Webportal](./how-to-write-pai-service-configuration.md#webportal)
-      - [Pylon](./how-to-write-pai-service-configuration.md#pylon)
-    - FrameworkLauncher
-      - [FrameworkLauncher](./how-to-write-pai-service-configuration.md#frameworklauncher)
-      - [Rest-server](./how-to-write-pai-service-configuration.md#restserver)
-    - Hadoop
-      - [YARN / HDFS](./how-to-write-pai-service-configuration.md#hadoop)
-      - [Zookeeper](./how-to-write-pai-service-configuration.md#zookeeper)
-    - Monitor
-      - [Prometheus / Exporter](./how-to-write-pai-service-configuration.md#prometheus)
-      - [Grafana](./how-to-write-pai-service-configuration.md#grafana)
-- [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
+- [Configure OpenPAI services](./how-to-congiure-service-config.md#optional) [Note: This part is for advanced user who wants to customize OpenPAI each service]
