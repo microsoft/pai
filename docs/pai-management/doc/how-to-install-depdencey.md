@@ -17,25 +17,44 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Customized deploy 
+#### Install necessary dependency on your host.
 
-### Index
-- [Step 1. Prepare configuration](#c-step-1)
-- [Step 2. Prepare the dev-box](#c-step-2)
-- [Step 3. Boot up Kubernetes](#c-step-3)
-- [Step 4. Push cluster configuration into kubernetes, and set cluster-id](#c-step-4)
-- [Step 5. Start all OpenPAI services](#c-step-5)
+```
+apt-get -y update 
 
-### Step 1. Prepare Configuraiton <a name="c-step-1"></a>
+apt-get -y install \
+      nano \
+      vim \
+      joe \
+      wget \
+      curl \
+      jq \
+      gawk \
+      psmisc \
+      python \
+      python-yaml \
+      python-jinja2 \
+      python-paramiko \
+      python-urllib3 \
+      python-tz \
+      python-nose \
+      python-prettytable \
+      python-netifaces \
+      python-dev \
+      python-pip \
+      python-mysqldb \
+      openjdk-8-jre \
+      openjdk-8-jdk \
+      openssh-server \
+      openssh-client \
+      git \
+      bash-completion \
+      inotify-tools \
+      rsync \
+      realpath \
+      net-tools
 
-- [Option A. Generate the Cluster Configuration from template](#opt_a)
-- [Option B. Write your own Cluster Configuration](#opt_b)
+pip install python-etcd docker kubernetes GitPython
 
-
-##### A. Generate cluster configuration from template <a name="opt_a"></a>
-
-- [A guide to generate cluster configuration from template](./how-to-generate-cluster-config.md)
-
-##### B. Write your own Cluster Configuration <a name="opt_b"></a>
-
-- [A guide to write cluster configuration](./customized-configuration.md)
+git clone https://github.com/Microsoft/pai.git
+```
