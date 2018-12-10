@@ -54,7 +54,7 @@ spec:
           name: etc-path-ld
         - mountPath: /etc/docker
           name: etc-path-docker
-        - mountPath: /usr/local/nvidia # TODO
+        - mountPath: {{ cluster_cfg["drivers"]["pre-installed-nvidia-path"] }}
           name: pre-install-nv-driver-path
         env:
         - name: DRIVER_PATH

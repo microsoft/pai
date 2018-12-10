@@ -24,3 +24,5 @@ set-nvidia-runtime: false
 # 390.25
 # 410.73
 version: "384.111"
+
+pre-installed-nvidia-path: /usr/local/nvidia

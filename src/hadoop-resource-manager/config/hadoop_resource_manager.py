@@ -33,11 +33,7 @@ class HadoopResourceManager:
             return default_srv_cfg
         srv_cfg = default_srv_cfg.copy()
         for k in overwrite_srv_cfg:
-            v = overwrite_srv_cfg[k]
-            if (k in srv_cfg and isinstance(overwrite_srv_cfg[k], dict) and isinstance(srv_cfg[k], dict)):
-                srv_cfg[k] = self.merge_service_configuration(overwrite_srv_cfg[k], srv_cfg[k])
-            else:
-                srv_cfg[k] = overwrite_srv_cfg[k]
+            srv_cfg[k] = overwrite_srv_cfg[k]
         return srv_cfg
 
     def validation_pre(self):

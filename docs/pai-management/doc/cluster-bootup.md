@@ -177,6 +177,40 @@ For example: v0.x.y branch, user should change docker-tag to v0.x.y.
 docker-tag: v0.x.y
 ```
 
+##### (3) changing gpu count and type
+
+Quick start will generate node with 1 gpu with type generic, this may not suit your situation,
+for example, if you have two types of machines, and one type has 4 Tesla K80 gpu cards, and
+another has 2 Tesla P100 cards, you should modify your `~/pai-config/cluster-configuration.yaml` as following:
+
+```yaml
+machine-sku:
+  k80-node:
+    mem: 40G
+    gpu:
+      type: Tesla K80
+      count: 4
+    cpu:
+      vcore: 24
+    os: ubuntu16.04
+  p100-node:
+    mem: 20G
+    gpu:
+      type: Tesla P100
+      count: 2
+    cpu:
+      vcore: 24
+    os: ubuntu16.04
+
+machine-list:
+  - hostname: xxx
+    hostip: yyy
+    machine-type: k80-node
+  - hostname: xxx
+    hostip: yyy
+    machine-type: p100-node
+```
+
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)
 
 #### How to check
