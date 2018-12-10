@@ -26,9 +26,8 @@ class Zookeeper:
         self.logger = logging.getLogger(__name__)
 
         self.cluster_configuration = cluster_configuration
-        #self.service_configuration = None
-
-
+        self.service_configuration = dict(default_service_configuraiton,
+                                          **service_configuration)
 
     def validation_pre(self):
         zkid_visited = dict()

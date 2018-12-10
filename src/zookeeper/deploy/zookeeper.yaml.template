@@ -50,9 +50,9 @@ spec:
         - name: JAVA_OPTS
           value: "-server -Xmx8192m"
         - name: ZK_ID
-          value: {{cluster_cfg["cluster"]["zookeeper"]["zkid"]}}
+          value: {{cluster_cfg["zookeeper"]["zkid"]}}
         - name: ZK_SERVERS
-          value: {{cluster_cfg["cluster"]["zookeeper"]["zk-servers"]}}
+          value: {{cluster_cfg["zookeeper"]["zk-servers"]}}
         resources:
           limits:
             memory: "10Gi"
