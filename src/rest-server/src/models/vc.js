@@ -19,6 +19,7 @@
 // module dependencies
 const unirest = require('unirest');
 const xml2js = require('xml2js');
+const math = require('mathjs');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
 const logger = require('../config/logger');
@@ -31,8 +32,8 @@ class VirtualCluster {
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
         queueDict[queueInfo.queueName] = {
-          capacity: parseInt(queueInfo.absoluteCapacity),
-          maxCapacity: parseInt(queueInfo.absoluteMaxCapacity),
+          capacity: math.round(queueInfo.absoluteCapacity),
+          maxCapacity: math.round(queueInfo.absoluteMaxCapacity),
           usedCapacity: queueInfo.absoluteUsedCapacity,
           numActiveJobs: queueInfo.numActiveApplications,
           numJobs: queueInfo.numApplications,
@@ -201,9 +202,9 @@ class VirtualCluster {
           }
           data['pendingUpdate']['default'] = defaultQuotaIfUpdated;
 
-          logger.debug('raw data to generate: ', data);
+          // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
-          logger.debug('Xml send to yarn: ', vcdataXml);
+          // logger.debug('Xml send to yarn: ', vcdataXml);
           this.sendUpdateInfo(vcdataXml, (err) => {
             if (err) {
               return callback(err);
@@ -230,9 +231,9 @@ class VirtualCluster {
           let data = {'pendingStop': {}};
           data['pendingStop'][vcName] = null;
 
-          logger.debug('raw data to generate: ', data);
+          // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
-          logger.debug('Xml send to yarn: ', vcdataXml);
+          // logger.debug('Xml send to yarn: ', vcdataXml);
           this.sendUpdateInfo(vcdataXml, (err) => {
             if (err) {
               return callback(err);
@@ -247,7 +248,6 @@ class VirtualCluster {
 
   activeVc(vcName, callback) {
     this.getVcList((vcList, err) => {
-      logger.debug(err);
       if (err) {
         return callback(err);
       } else if (!vcList) {
@@ -260,9 +260,9 @@ class VirtualCluster {
           let data = {'pendingActive': {}};
           data['pendingActive'][vcName] = null;
 
-          logger.debug('raw data to generate: ', data);
+          // logger.debug('raw data to generate: ', data);
           const vcdataXml = this.generateUpdateInfo(data);
-          logger.debug('Xml send to yarn: ', vcdataXml);
+          // logger.debug('Xml send to yarn: ', vcdataXml);
           this.sendUpdateInfo(vcdataXml, (err) => {
             if (err) {
               return callback(err);

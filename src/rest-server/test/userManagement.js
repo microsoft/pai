@@ -100,16 +100,24 @@ describe('Add new user: put /api/v1/user', () => {
                   'queueName': 'default',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc1',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc2',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 }
               ]
             },
@@ -587,16 +595,24 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
                   'queueName': 'default',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "absoluteCapacity": 30.000002,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc1',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 50.000002,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 },
                 {
                   'queueName': 'vc2',
                   'state': 'RUNNING',
                   'type': 'capacitySchedulerLeafQueueInfo',
+                  "capacity": 19.999996,
+                  "absoluteCapacity": 0,
+                  "absoluteMaxCapacity": 100,
                 }
               ]
             },
