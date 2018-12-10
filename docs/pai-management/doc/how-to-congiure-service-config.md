@@ -40,7 +40,7 @@ rest-server:
   default-pai-admin-password: your_default_pai_admin_password
 ```  
 
-### Necessary Configuration - Minimal configuration to setup OpenPai <a name="optional"></a>
+### Customized Configuration - For advanced user <a name="optional"></a>
 
 Besides the default cofiguration to make OpenPai start, admin could customize each service component within permissible scope. From the example ```serivce-configuration.yaml```, you could find a lot of commented fileds, such as the following. For example, If you wanna customize ```drivers```, you can uncomment the filed, and overwrite the default value with your expected value. 
 ```YAML
@@ -60,6 +60,8 @@ According to your requirements, choose the component which you wanna customized.
 | Service | Description | Tutorial |
 | --- | --- | --- |
 | cluster| Configure common configuration for  cluster and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
+| drivers| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
+| hadoop-resource-manager | yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
 
 
 
