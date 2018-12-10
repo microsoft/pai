@@ -283,7 +283,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -294,7 +294,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
               "format": "time_series",
               "hide": false,
               "interval": "",
