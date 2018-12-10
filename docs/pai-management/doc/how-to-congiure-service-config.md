@@ -62,6 +62,14 @@ According to your requirements, choose the component which you wanna customized.
 | cluster| Configure common configuration for  cluster and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
 | drivers| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
 | hadoop-resource-manager | yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
+| yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworklauncher/config/yarn-frameworklauncher.md)|
+| rest-server | Database admin, github for marketplace, jwt-secret | [Link](../../../src/rest-server/config/rest-server.md)|
+| webportal | webportal port configuration| [Link](../../../src/webportal/config/webportal.md)|
+| grafana | grafana port configuration| [Link](../../../src/grafana/config/grafana.md)|
+| node-exporter | node-exporter port configuration| [Link](../../../src/node-exporter/config/node-exporter.md)|
+| alert-manager | port configuration and alerts email configuration | [Link](../../../src/alert-manager/config/alert-manager.md)|
+| prometheus | port configuration and scrape interval configuration | [Link](../../../src/prometheus/config/prometheus.md)|
+| pylon | port configuration | [Link](../../../src/pylon/config/pylon.md)|
 
 
 
