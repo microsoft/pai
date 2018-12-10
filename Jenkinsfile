@@ -140,6 +140,8 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
+# clean git
+git clean -f
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -240,6 +242,8 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
+# clean git
+git clean -f
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -559,6 +563,8 @@ set -x
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
+# clean git
+git clean -f
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -603,6 +609,8 @@ set -x
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
+# clean git
+git clean -f
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
