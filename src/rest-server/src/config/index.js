@@ -20,6 +20,7 @@
 const fse = require('fs-extra');
 const Joi = require('joi');
 const dotenv = require('dotenv');
+const mustache = require('mustache');
 
 
 require.extensions['.mustache'] = (module, filename) => {
@@ -27,6 +28,12 @@ require.extensions['.mustache'] = (module, filename) => {
 };
 
 dotenv.config();
+
+mustache.escape = (string) => {
+  // https://stackoverflow.com/questions/15783701/which-characters-need-to-be-escaped-when-using-bash/27817504#27817504
+  const re = /[\x20-\x24\x26-\x2A\x2C\x3B\x3C\x3E\x3F\x5B-\x5E\x60\x7B-\x7E]/g;
+  return String(string).replace(re, '\\$&');
+};
 
 // get config from environment variables
 let config = {

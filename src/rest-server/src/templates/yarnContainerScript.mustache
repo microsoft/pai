@@ -21,7 +21,7 @@
 # Entrypoint script for yarn container.
 
 docker_name="${FRAMEWORK_NAME//\~/-}-$CONTAINER_ID"
-export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
+export PAI_DEFAULT_FS_URI={{ hdfsUri }}
 
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
@@ -71,7 +71,7 @@ printf "%s %s\n%s\n\n" "[INFO]" "NVIDIA_DEVICES" "$nvidia_devices"
 
 {{# jobData.authFile }}
 IFS=$'\r\n' GLOBIGNORE='*' \
-  eval 'cred=($(hdfs dfs -cat {{{ jobData.authFile }}}))' \
+  eval 'cred=($(hdfs dfs -cat {{ jobData.authFile }}))' \
   || { echo 'Read authFile failed' ; exit 1; }
 docker login --username ${cred[1]} --password ${cred[2]} ${cred[0]} \
   || { echo 'Authorized failed' ; exit 1; }
@@ -86,9 +86,9 @@ function get_host_list()
   info_source="webhdfs"
   while true; do
     if [[ "$info_source" = "webhdfs" ]]; then
-      taskrole_statuses=$(curl -L -H "Accept: application/json" {{{ frameworkInfoWebhdfsUri }}} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -L -H "Accept: application/json" {{ frameworkInfoWebhdfsUri }} | jq -r ".aggregatedFrameworkStatus.aggregatedTaskRoleStatuses")
     else
-      taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{{ aggregatedStatusUri }}} | jq -r ".aggregatedTaskRoleStatuses")
+      taskrole_statuses=$(curl -sS -X GET -H "Accept: application/json" {{ aggregatedStatusUri }} | jq -r ".aggregatedTaskRoleStatuses")
     fi
     jq -re ".[].taskStatuses.taskStatusArray[].containerIp" <<< $(echo $taskrole_statuses) > /dev/null
     if [ $? -eq 0 ]; then
@@ -126,7 +126,7 @@ function get_host_list()
         "User root" \
         "StrictHostKeyChecking no" \
         "UserKnownHostsFile /dev/null" \
-        "IdentityFile /root/.ssh/{{{ jobData.jobName }}}" >> ${ssh_config_file}/config
+        "IdentityFile /root/.ssh/"{{ jobData.jobName }} >> ${ssh_config_file}/config
     done < <(echo $taskrole_statuses | jq -r ".${taskrole}.taskStatuses.taskStatusArray[] | .containerIp, .containerPorts, .taskIndex")
     host_list=$(echo $host_list | sed "s/,$//g")
     echo PAI_TASK_ROLE_${taskrole}_HOST_LIST=$host_list >> $1
@@ -144,6 +144,8 @@ PAI_TASK_INDEX=$TASK_INDEX
 PAI_CONTAINER_HOST_IP=$CONTAINER_IP
 PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS
 PAI_CONTAINER_ID=$CONTAINER_ID
+ENV
+cat <<'ENV' >> $ENV_LIST
 PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 PAI_JOB_NAME={{{ jobData.jobName }}}
 PAI_USER_NAME={{{ jobData.userName }}}
@@ -179,17 +181,19 @@ get_host_list $ENV_LIST
 # Backward compatibility
 cat <<ENV >> $ENV_LIST
 # Backward compatibility
+PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP
+PAI_TASK_ROLE_INDEX=$TASK_INDEX
+ENV
+cat <<'ENV' >> $ENV_LIST
 PAI_USERNAME={{{ jobData.userName }}}
 PAI_TASK_ROLE_NAME={{{ taskData.name }}}
 PAI_TASK_ROLE_NUM={{{ taskData.taskNumber }}}
 PAI_TASK_CPU_NUM={{{ taskData.cpuNumber }}}
 PAI_TASK_MEM_MB={{{ taskData.memoryMB }}}
 PAI_TASK_GPU_NUM={{{ taskData.gpuNumber }}}
-PAI_TASK_ROLE_INDEX=$TASK_INDEX
 PAI_TASKS_NUM={{{ tasksNumber }}}
 PAI_TASK_ROLES_NUM={{{ taskRolesNumber }}}
 PAI_TASK_ROLE_LIST={{{ taskRoleList }}}
-PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP
 ENV
 
 echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
@@ -199,14 +203,14 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 # we want job environment parameters to be available only in job contianer.
 {{# jobEnvs }}
 cat <<ENV >> $ENV_LIST
-{{{ jobEnvs }}}
+{{ jobEnvs }}
 ENV
 {{/ jobEnvs }}
 
 # Prepare docker bootstrap script
 bootstrap_dir="tmp/pai-root/bootstrap"
 mkdir -p $bootstrap_dir
-hdfs dfs -get {{{ hdfsUri }}}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{{ idx }}}.sh $bootstrap_dir/docker_bootstrap.sh \
+hdfs dfs -get {{ hdfsUri }}/Container/$HADOOP_USER_NAME/$FRAMEWORK_NAME/DockerContainerScripts/{{ idx }}.sh $bootstrap_dir/docker_bootstrap.sh \
   || { echo "Can not get script from HDFS. HDFS may be down."; exit 1; }
 
 # Prepare user code
@@ -242,10 +246,10 @@ hadoop_tmp_dir="/var/lib/hadoopdata"
 container_id=$(cat /proc/self/cgroup | grep "memory" | awk -F '/' '{print $NF}')
 mounted_path=$(docker inspect $container_id |\
   jq -r --arg hadoop_tmp_dir "$hadoop_tmp_dir" '.[] | .Mounts | .[] | select(.Destination==$hadoop_tmp_dir) | .Source')
-container_local_dir=$mounted_path/nm-local-dir/usercache/{{{ jobData.userName }}}/appcache/$APP_ID/$CONTAINER_ID
+container_local_dir=$mounted_path/nm-local-dir/usercache/{{ jobData.userName }}/appcache/$APP_ID/$CONTAINER_ID
 
 # Pull docker image and run
-docker pull {{{ jobData.image }}} \
+docker pull {{ jobData.image }} \
   || { echo "Can not pull Docker image"; exit 1; }
 
 ## ATTENTION: do not specify `--pid=host` when run job, otherwise job-exporter can not get right
@@ -258,9 +262,9 @@ docker run --name $docker_name \
   --oom-score-adj=1000 \
   --cap-add=SYS_ADMIN \
   --network=host \
-  --cpus={{{ taskData.cpuNumber }}} \
-  --memory={{{ taskData.memoryMB }}}m \
-  --shm-size={{{ taskData.shmMB }}}m \
+  --cpus={{ taskData.cpuNumber }} \
+  --memory={{ taskData.memoryMB }}m \
+  --shm-size={{ taskData.shmMB }}m \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
@@ -274,12 +278,12 @@ docker run --name $docker_name \
   --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/:ro \
   --label GPU_ID=$gpu_id \
   --label PAI_HOSTNAME="$(hostname)" \
-  --label PAI_JOB_NAME={{{ jobData.jobName }}} \
-  --label PAI_JOB_VC_NAME={{{ jobData.virtualCluster }}} \
-  --label PAI_USER_NAME={{{ jobData.userName }}} \
-  --label PAI_CURRENT_TASK_ROLE_NAME={{{ taskData.name }}} \
+  --label PAI_JOB_NAME={{ jobData.jobName }} \
+  --label PAI_JOB_VC_NAME={{ jobData.virtualCluster }} \
+  --label PAI_USER_NAME={{ jobData.userName }} \
+  --label PAI_CURRENT_TASK_ROLE_NAME={{ taskData.name }} \
   --env-file $ENV_LIST \
   --entrypoint="" \
-   {{{ jobData.image }}} \
+   {{ jobData.image }} \
   /bin/bash '/pai/bootstrap/docker_bootstrap.sh'
 

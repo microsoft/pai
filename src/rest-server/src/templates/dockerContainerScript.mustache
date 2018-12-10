@@ -39,11 +39,11 @@ touch "/alive/docker_$PAI_CONTAINER_ID"
 
 
 export PAI_WORK_DIR="$(pwd)"
-PAI_WEB_HDFS_PREFIX={{{ webHdfsUri }}}/webhdfs/v1/Container
+PAI_WEB_HDFS_PREFIX={{ webHdfsUri }}/webhdfs/v1/Container
 HDFS_LAUNCHER_PREFIX=$PAI_DEFAULT_FS_URI/Container
 export CLASSPATH="$(hadoop classpath --glob)"
 
-task_role_no={{{ idx }}}
+task_role_no={{ idx }}
 
 printf "%s %s\n%s\n\n" "[INFO]" "ENV" "$(printenv | sort)"
 
@@ -51,7 +51,7 @@ cp -r /pai/code/* ./
 
 function webhdfs_create_file()
 {
-  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=CREATE"
+  webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=CREATE"
   redirectResponse=$(curl -i -X PUT ${webHdfsRequestPath} -o /dev/null -w %{redirect_url}' '%{http_code})
   redirectCode=$(cut -d ' ' -f 2 <<< ${redirectResponse})
   if [[ ${redirectCode} = "307" ]]; then
@@ -67,7 +67,7 @@ function webhdfs_create_file()
 
 function webhdfs_download_file()
 {
-  webHdfsRequestPath=${1}"?user.name="{{{ jobData.userName }}}"&op=OPEN"
+  webHdfsRequestPath=${1}"?user.name="{{ jobData.userName }}"&op=OPEN"
   localPath=${2}
   downloadResponse=$(curl -S -L ${webHdfsRequestPath} -o ${localPath} -w %{http_code})
   if [[ ${downloadResponse} = "200" ]]; then
@@ -90,7 +90,7 @@ function start_ssh_service()
 {
   printf "%s %s\n" \
     "[INFO]" "start ssh service"
-  cat /root/.ssh/{{{ jobData.jobName }}}.pub >> /root/.ssh/authorized_keys
+  cat /root/.ssh/{{ jobData.jobName }}.pub >> /root/.ssh/authorized_keys
   sed -i 's/Port.*/Port '$PAI_CONTAINER_SSH_PORT'/' /etc/ssh/sshd_config
   echo "sshd:ALL" >> /etc/hosts.allow
   service ssh restart
@@ -99,17 +99,17 @@ function start_ssh_service()
 function get_ssh_key_files()
 {
   info_source="webhdfs"
-  localKeyPath=/root/.ssh/{{{ jobData.jobName }}}.pub
-  localPrivateKeyPath=/root/.ssh/{{{ jobData.jobName }}}
+  localKeyPath=/root/.ssh/{{ jobData.jobName }}.pub
+  localPrivateKeyPath=/root/.ssh/{{ jobData.jobName }}
 
   if [[ -f $localKeyPath ]]; then
     rm -f $localKeyPath
   fi
 
   if [[ "$info_source" = "webhdfs" ]]; then
-    webHdfsKeyPath=${PAI_WEB_HDFS_PREFIX}/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/ssh/keyFiles/{{{ jobData.jobName }}}.pub
+    webHdfsKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}/{{ jobData.jobName }}/ssh/keyFiles/{{ jobData.jobName }}.pub
     webhdfs_download_file $webHdfsKeyPath $localKeyPath
-    webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{{ jobData.userName }}}/{{{ jobData.jobName }}}/ssh/keyFiles/{{{ jobData.jobName }}}
+    webHdfsPrivateKeyPath=${PAI_WEB_HDFS_PREFIX}/{{ jobData.userName }}}/{{ jobData.jobName }}}/ssh/keyFiles/{{ jobData.jobName }}
     webhdfs_download_file $webHdfsPrivateKeyPath $localPrivateKeyPath
     chmod 400 ${localPrivateKeyPath}
   else
@@ -159,7 +159,7 @@ env | grep -E "^PAI|PATH|PREFIX|JAVA|HADOOP|NVIDIA|CUDA" > /etc/environment
 function run_user_command()
 {
   printf "%s %s\n\n" "[INFO]" "USER COMMAND START"
-  {{{ taskData.command }}} || exit $?
+  eval {{ taskData.command }} || exit $?
   printf "\n%s %s\n\n" "[INFO]" "USER COMMAND END" # job_exporter relay on this exact output, if you are going to change this, remember to change job_exporter also
   exit 0
 }
