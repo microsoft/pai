@@ -62,40 +62,6 @@ def setup_logging():
     logging.config.dictConfig(logging_configuration)
 
 
-#########
-## TODO: Please remove all function following, after cluster_object_model is finsied.
-
-
-def load_cluster_objectModel_service(config_path):
-
-    objectModel = objectModelFactory.objectModelFactory(config_path)
-    ret = objectModel.objectModelPipeLine()
-
-    return ret["service"]
-
-
-def load_cluster_objectModel_k8s(config_path):
-
-    objectModel = objectModelFactory.objectModelFactory(config_path)
-    ret = objectModel.objectModelPipeLine()
-    return ret["k8s"]
-
-
-def cluster_object_model_generate_service(config_path):
-
-    cluster_config = load_cluster_objectModel_service(config_path)
-    return cluster_config
-
-
-def cluster_object_model_generate_k8s(config_path):
-
-    cluster_config = load_cluster_objectModel_k8s(config_path)
-    return cluster_config
-
-
-## TODO: Please remove all function above, after cluster_object_model is finsied.
-#########
-
 # True : continue
 # False: exit
 def kubectl_env_checking(cluster_object_mode):
