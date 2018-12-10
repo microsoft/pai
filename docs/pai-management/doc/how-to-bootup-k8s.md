@@ -16,3 +16,39 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
+
+
+## Bootup kubernetes cluster with OpenPAI
+
+#### Command
+
+```bash
+cd pai
+
+python paictl.py cluster k8s-bootup \
+  -p ~/pai-config
+```
+
+The `paictl` tool does the following things:
+
+- Install `kubectl` command in the current machine (or the dev-box).
+
+- Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`, `kubernetes-configuration.yaml` and `k8s-role-definition.yaml`.
+
+- Use `kubectl` to boot up Kubernetes on target machines.
+
+
+#### How to check
+
+After this step, the system maintainer can check the status of Kubernetes by accessing Kubernetes Dashboard:
+
+```
+http://<master>:9090
+```
+
+Where `<master>` denotes the IP address of the load balancer of Kubernetes master nodes. When there is only one master node and a load balancer is not used, it is usually the IP address of the master node itself.
+
+
+#### Help
+- [Kubernetes Deployment Q&A](./kubernetes-deploy-qna.md)
+- [paictl manual book](./../../paictl/paictl-manual.md)

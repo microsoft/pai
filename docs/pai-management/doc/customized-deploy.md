@@ -65,7 +65,8 @@ Note 2: If you have setup your environment, you could skip this step.
 
 ### Step 3. Boot up Kubernetes <a name="c-step-3"></a>
 
+- [A Guide to deploy kubenretes with paictl](./how-to-bootup-k8s.md)
 
+***
 
-
-
+### Step 4. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-4"></a>
