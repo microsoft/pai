@@ -23,6 +23,18 @@ HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
 cp /myid /var/lib/zoodata/myid
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
+# create /etc/zookeeper/conf/zoo.cfg
+echo "
+tickTime=2000
+dataDir=/var/lib/zoodata
+clientPort=2181
+initLimit=5
+syncLimit=2
+${ZK_SERVERS}
+" > /etc/zookeeper/conf/zoo.cfg
+
+# create /var/lib/zoodata/myid
+echo "${ZK_ID}" > /var/lib/zoodata/myid
 
 mkdir -p /jobstatus
 touch /jobstatus/jobok

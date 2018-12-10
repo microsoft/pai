@@ -48,6 +48,7 @@ class Zookeeper:
         zookeeper_com = dict()
         zookeeper_com["host-list"] = list()
         zookeeper_com["quorum"] = ""
+        zookeeper_com["zk-servers"] = ""
 
         for host_config in self.cluster_configuration["machine-list"]:
             if "pai-master" in host_config and host_config["pai-master"] == "true":
@@ -55,6 +56,7 @@ class Zookeeper:
                 if zookeeper_com["quorum"] != "":
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
+                zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + host_config["hostip"] + ":2888:3888\n"
 
         return zookeeper_com
 
