@@ -19,7 +19,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-echo "refresh watchdog configuration"
-kubectl apply -f watchdog-configmap.yaml || exit $?
+bash stop.sh
+bash start.sh
 
 popd > /dev/null
