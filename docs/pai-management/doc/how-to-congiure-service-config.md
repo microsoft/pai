@@ -26,7 +26,7 @@
 - [Customized Configuration (Optional)](#optional)
 
 ### Configuration Example <a name="example"></a>
-An example service-configuration.yaml file is available [here](../../../examples/cluster-configuration/service-configuration.yaml). The yaml file includes the following fields.
+An example service-configuration.yaml file is available [here](../../../examples/cluster-configuration/services-configuration.yaml). The yaml file includes the following fields.
 
 ### Necessary Configuration - Minimal configuration to setup OpenPai <a name="necessary"></a>
 
@@ -62,7 +62,7 @@ According to your requirements, choose the component which you wanna customized.
 | cluster <a name="ref_cluster_config"></a>| Configure data-path, cluster-id and docker-registry to pull image. | [Link](../../../src/cluster/config/cluster.md)|
 | drivers <a name="ref_drivers"></a>| Configure drivers version and nvidia runtime. | [Link](../../../src/drivers/config/drivers.md)|
 | hadoop-resource-manager <a name="configure_vc_capacity"></a>| yarn exporter port and default vc configuration | [Link](../../../src/hadoop-resource-manager/config/hadoop-resource-manager.md)|
-| yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworklauncher/config/yarn-frameworklauncher.md)|
+| yarn-frameworklauncher | frameworklauncher port configuration | [Link](../../../src/yarn-frameworkerlauncher/config/yarn-frameworklauncher.md)|
 | rest-server <a name="ref_rest_server"></a>| admin account, github for marketplace, jwt-secret | [Link](../../../src/rest-server/config/rest-server.md)|
 | webportal | webportal port configuration| [Link](../../../src/webportal/config/webportal.md)|
 | grafana | grafana port configuration| [Link](../../../src/grafana/config/grafana.md)|
