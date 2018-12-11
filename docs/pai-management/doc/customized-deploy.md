@@ -71,4 +71,4 @@ Note 2: If you have setup your environment, you could skip this step.
 
 ### Step 4. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-4"></a>
 
-After the kubernetes cluster is setup, and before managing your cluster and service, you should upload the cluster configuration into the kubernetes cluster with the following command.
+- [A Guide to push configuration and set id](./push-cfg-and-set-id.md)
