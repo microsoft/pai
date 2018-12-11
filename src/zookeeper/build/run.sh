@@ -31,7 +31,7 @@ syncLimit=2
 ${ZK_SERVERS}
 " > /etc/zookeeper/conf/zoo.cfg
 
-# create /var/lib/zoodata/myid
+# generate an unique zookeeper server id, it looks like "adc83b"
 echo $HOST_NAME | sha1sum | grep -Eo "[a-f0-9]{6}"  | head -n1 > /var/lib/zoodata/myid
 
 mkdir -p /jobstatus
