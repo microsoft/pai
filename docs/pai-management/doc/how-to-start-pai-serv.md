@@ -19,6 +19,8 @@
 
 ## Start OpenPai service
 
+### command
+
 When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
 
 ```bash
@@ -39,3 +41,11 @@ If the `-n` parameter is specified, only the given service, e.g. `rest-server`, 
 - Generate Kubernetes-related configuration files based on `cluster-configuration.yaml`.
 
 - Use `kubectl` to set up config maps and create pods on Kubernetes.
+
+### How to check
+After this step, the system maintainer can check the status of OpenPAI services by accessing OpenPAI kubernetes web portal:
+
+```bash
+http://<master>:9090/#!/pod?namespace=default
+```
+
