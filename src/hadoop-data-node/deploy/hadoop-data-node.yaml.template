@@ -64,6 +64,10 @@ spec:
           value: datanode-generate-script.sh
         - name: START_SERVICE
           value: datanode-start-service.sh
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              status.podIP
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
