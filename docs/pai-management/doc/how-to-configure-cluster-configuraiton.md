@@ -67,7 +67,7 @@ In this field, you could define several sku with different name. And in the ```m
 | --- | --- |
 | mem| Memory|
 | os| Now we only supported ubuntu, and pai is only tested on the version 16.04LTS.|
-| gpu<a name="gpu_driver"></a>| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
+| gpu <a name="gpu_driver"></a>| If there is no gpu on this sku, you could remove this field.If user config gpu at sku, OpenPAI will label this node as type of gpu and will try to install gpu driver if no driver at this host.|
 
 ### Field 3. machine-list <a name="machineList"></a>
 

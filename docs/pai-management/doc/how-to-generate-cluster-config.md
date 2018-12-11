@@ -153,7 +153,7 @@ If user want to customize configuration, please see the table below
 - Configure OpenPAI from scenarios
     - placement
       - [configure node placement of service](./how-to-configure-cluster-configuraiton.md#machineList)
-      - [configure install gpu driver on which server](./how-to-configure-cluster-configuration.md#gpu_driver)
+      - [configure install gpu driver on which server](./how-to-configure-cluster-configuraiton.md#gpu_driver)
     - scheduling
       - [configure virtual cluster capacity](./how-to-congiure-service-config.md#configure_vc_capacity)
     - account
