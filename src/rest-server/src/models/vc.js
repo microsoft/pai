@@ -19,7 +19,6 @@
 // module dependencies
 const unirest = require('unirest');
 const xml2js = require('xml2js');
-const math = require('mathjs');
 const yarnConfig = require('../config/yarn');
 const createError = require('../util/error');
 const logger = require('../config/logger');
@@ -32,8 +31,8 @@ class VirtualCluster {
     function traverse(queueInfo, queueDict) {
       if (queueInfo.type === 'capacitySchedulerLeafQueueInfo') {
         queueDict[queueInfo.queueName] = {
-          capacity: math.round(queueInfo.absoluteCapacity),
-          maxCapacity: math.round(queueInfo.absoluteMaxCapacity),
+          capacity: Math.round(queueInfo.absoluteCapacity),
+          maxCapacity: Math.round(queueInfo.absoluteMaxCapacity),
           usedCapacity: queueInfo.absoluteUsedCapacity,
           numActiveJobs: queueInfo.numActiveApplications,
           numJobs: queueInfo.numApplications,
