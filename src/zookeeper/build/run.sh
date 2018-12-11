@@ -20,9 +20,7 @@
 sed -i "/^JAVA_OPTS.*/ s:.*:JVMFLAGS=\"${JAVA_OPTS}\":" /usr/share/zookeeper/bin/zkEnv.sh
 
 HOST_NAME=`hostname`
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /etc/zookeeper/conf/zoo.cfg -n $HOST_NAME
-cp /myid /var/lib/zoodata/myid
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f /var/lib/zoodata/myid -n $HOST_NAME
+
 # create /etc/zookeeper/conf/zoo.cfg
 echo "
 tickTime=2000
