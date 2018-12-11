@@ -34,7 +34,7 @@ ${ZK_SERVERS}
 " > /etc/zookeeper/conf/zoo.cfg
 
 # create /var/lib/zoodata/myid
-echo "${ZK_ID}" > /var/lib/zoodata/myid
+echo $HOST_NAME | sha1sum | grep -Eo "[a-f0-9]{6}"  | head -n1 > /var/lib/zoodata/myid
 
 mkdir -p /jobstatus
 touch /jobstatus/jobok
