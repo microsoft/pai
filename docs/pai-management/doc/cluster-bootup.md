@@ -165,7 +165,17 @@ python paictl.py config generate -i /pai/deployment/quick-start/quick-start.yaml
 
 ```
 
-##### (2) update docker tag to release version
+##### (2) change your clusterid
+
+```bash
+vi ~/pai-config/services-configuration.yaml
+```
+
+Change `cluster.clusterid` to a more meaningful name instead of pai-example, this
+field will be used in alerting email title, which will tell you about which of your
+cluster is alerting.
+
+##### (3) update docker tag to release version
 
 ```bash
 vi ~/pai-config/services-configuration.yaml
@@ -177,7 +187,7 @@ For example: v0.x.y branch, user should change docker-tag to v0.x.y.
 docker-tag: v0.x.y
 ```
 
-##### (3) changing gpu count and type
+##### (4) changing gpu count and type
 
 Quick start will generate node with 1 gpu with type generic, this may not suit your situation,
 for example, if you have two types of machines, and one type has 4 Tesla K80 gpu cards, and
