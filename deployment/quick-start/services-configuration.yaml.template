@@ -93,6 +93,12 @@ rest-server:
 # node-exporter:
 #   port: 9100
 
+# uncomment following if you want to customeize job-exporter
+# job-exporter:
+#   port: 9102
+#   logging-level: INFO
+#   interface: eth0,eno2
+
 # if you want to enable alert manager to send alert email, uncomment following lines and fill
 # the right values.
 # alert-manager:

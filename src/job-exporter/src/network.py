@@ -20,6 +20,10 @@ import re
 import logging
 import collections
 import subprocess
+import socket
+import fcntl
+import struct
+import array
 
 import utils
 
@@ -57,10 +61,14 @@ def convert_to_byte(data):
         return number
 
 
-def iftop(histogram, timeout):
+def iftop(interface, histogram, timeout):
+    cmd = ["iftop", "-t", "-P", "-s", "1", "-L", "10000", "-B", "-n", "-N"]
+    if interface is not None:
+        cmd.extend(["-i", interface])
+
     try:
         output = utils.exec_cmd(
-                ["iftop", "-t", "-P", "-s", "1", "-L", "10000", "-B", "-n", "-N"],
+                cmd,
                 stderr=subprocess.STDOUT, # also capture stderr output
                 histogram=histogram, timeout=timeout)
         return parse_iftop(output)
@@ -175,3 +183,70 @@ def get_container_network_metrics(all_conns, lsof_result):
                 out_byte += all_conns[conn]["out"]
 
     return in_byte, out_byte
+
+
+def format_ip(addr):
+    return str(addr[0]) + "." + \
+           str(addr[1]) + "." + \
+           str(addr[2]) + "." + \
+           str(addr[3])
+
+
+def get_interfaces():
+    """ get all network interfaces we see, return map with interface name as key, and ip as value """
+    max_possible = 128
+    bytes = max_possible * 32
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    names = array.array("B", b"\0" * bytes)
+    outbytes = struct.unpack("iL", fcntl.ioctl(
+        s.fileno(),
+        0x8912,  # SIOCGIFCONF
+        struct.pack("iL", bytes, names.buffer_info()[0])
+    ))[0]
+
+    namestr = names.tostring()
+
+    result = {}
+    for i in range(0, outbytes, 40):
+        name = namestr[i:i+16].split(b"\0", 1)[0].decode("ascii")
+        ip   = namestr[i+20:i+24]
+        result[name] = format_ip(ip)
+    return result
+
+
+def get_ip_can_access_internet(target="hub.docker.com"):
+    """ return None on error """
+    s = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((target, 80))
+    except socket.gaierror:
+        logger.exception("failed to connect to %s", target)
+        return None
+    except Exception:
+        logger.exception("unknown exception when tying to connect %s", target)
+
+    return s.getsockname()[0]
+
+
+def try_to_get_right_interface(configured_ifs):
+    """ try to return a right interface so that iftop can listen on """
+    ifs = get_interfaces()
+
+    logger.debug("found interfaces %s", ifs)
+
+    for interface in configured_ifs.split(","):
+        interface = interface.strip()
+        if interface in ifs:
+            return interface
+
+    logger.info("didn't find correct network interface in this node, configured %s, found %s",
+            configured_ifs, ifs)
+
+    ip = get_ip_can_access_internet()
+    if ip is not None:
+        for if_name, if_ip in ifs.items():
+            if ip == if_ip:
+                return if_name
+
+    return None

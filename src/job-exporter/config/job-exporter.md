@@ -20,6 +20,18 @@ job-exporter:
     logging-level: DEBUG
 ```
 
+job-exporter needs to expose network related metrics by listening to one of network interface.
+By default, job-exporter will listen to card of eth0 or eno2 whichever it found in the node.
+But if your card name is different from these, you should edit job-exporter config in your
+service-configuration.yaml like following:
+```yaml
+job-exporter:
+    interface: eth1,eno1
+```
+
+the interface field is comma separated string, and job-exporter will listen to the one that found in your node. If none of interfaces found, job-exporter will select one that can access the internet.
+
+
 #### Generated Configuration <a name="G_Config"></a>
 
 Generated configuration means the object model after parsing. The parsed data will be presented by a yaml format.
@@ -27,6 +39,7 @@ Generated configuration means the object model after parsing. The parsed data wi
 job-exporter:
     port: 9100
     logging-level: DEBUG
+    interface: eth0,eno2
 ```
 
 
@@ -49,6 +62,12 @@ job-exporter:
     <td>job-exporter.logging-level</td>
     <td>com["job-exporter"]["logging-level"]</td>
     <td>cluster_cfg["job-exporter"]["logging-level"]</td>
+    <td>String</td>
+</tr>
+<tr>
+    <td>job-exporter.interface</td>
+    <td>com["job-exporter"]["interface"]</td>
+    <td>cluster_cfg["job-exporter"]["interface"]</td>
     <td>String</td>
 </tr>
 </table>

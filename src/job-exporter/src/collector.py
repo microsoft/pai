@@ -339,10 +339,14 @@ class ContainerCollector(Collector):
         ]))
 
     def __init__(self, name, sleep_time, atomic_ref, iteration_counter, gpu_info_ref,
-            stats_info_ref):
+            stats_info_ref, interface):
         Collector.__init__(self, name, sleep_time, atomic_ref, iteration_counter)
         self.gpu_info_ref = gpu_info_ref
         self.stats_info_ref = stats_info_ref
+
+        self.network_interface = network.try_to_get_right_interface(interface)
+        logger.info("found %s as potential network interface to listen network traffic",
+                self.network_interface)
 
         # k8s will prepend "k8s_" to pod name. There will also be a container name
         # prepend with "k8s_POD_" which is a docker container used to construct
@@ -350,7 +354,8 @@ class ContainerCollector(Collector):
         # with "k8s_POD" consume nothing.
 
     def collect_impl(self):
-        all_conns = network.iftop(ContainerCollector.iftop_histogram,
+        all_conns = network.iftop(self.network_interface,
+                ContainerCollector.iftop_histogram,
                 ContainerCollector.iftop_timeout)
 
         # set it to None so if nvidia-smi hangs till next time we get,
@@ -574,9 +579,6 @@ class ZombieCollector(Collector):
                     histogram=ZombieCollector.logs_histogram,
                     stderr=subprocess.STDOUT, # also capture stderr output
                     timeout=ZombieCollector.logs_timeout)
-        except subprocess.CalledProcessError as e:
-            logger.exception("command '%s' return with error (code %d): %s",
-                    e.cmd, e.returncode, e.output)
         except subprocess.TimeoutExpired as e:
             logger.warning("docker log timeout")
         except subprocess.CalledProcessError as e:
