@@ -72,3 +72,8 @@ Note 2: If you have setup your environment, you could skip this step.
 ### Step 4. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-4"></a>
 
 - [A Guide to push configuration and set id](./push-cfg-and-set-id.md)
+
+
+### Step 5. Start all OpenPAI services <a name="c-step-5"></a>
+
+- [A Guide to start OpenPAI services](./how-to-start-pai-serv.md)
