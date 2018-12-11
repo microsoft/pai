@@ -1,4 +1,4 @@
-## zookeeper section parser 
+## zookeeper section parser
 
 - [Generated Configuraiton](#G_Config)
 - [Data Table](#T_config)
@@ -12,8 +12,12 @@ zookeeper:
       - hostname1
       - hostname2
       - hostname3
-    
+
     quorum: hostip1:2181,hostip2:2181,hostip3:2181
+    zk-servers: "server.1=zoo1:2888:3888
+server.2=zoo2:2888:3888
+server.3=zoo3:2888:3888"
+
 ```
 
 
@@ -39,6 +43,12 @@ zookeeper:
     <td>com["zookeeper"]["host-list"]</td>
     <td>cluster_cfg["zookeeper"]["host-list"]</td>
     <td>string list</td>
+</tr>
+<tr>
+    <td>None</td>
+    <td>com["zookeeper"]["zk-servers"]</td>
+    <td>cluster_cfg["zookeeper"]["zk-servers"]</td>
+    <td>string</td>
 </tr>
 </table>
 
