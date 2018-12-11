@@ -23,11 +23,10 @@ After the kubernetes cluster is setup, and before managing your cluster and serv
 
 ### Index
 
-- [Step 1. push cluster configuration](#push_cfg)
-- [Step 2. set cluster Id](#set_id)
+- [Step 1. push cluster configuration and set-id](#push_cfg)
 - [Reference](#refer)
 
-### Step 1. Push cluster configuration into k8s configmap <a name="push_cfg"></a>
+### Step 1. Push cluster configuration into k8s configmap and set cluster-id <a name="push_cfg"></a>
 
 - [From local disk](#local_disk)
 - [From an external git repo](#git_repo)
@@ -40,10 +39,36 @@ Default value of `-c` is: `~/.kube/config`
 
 #### ```From an external git repo``` <a name="git_repo"></a>
 
+- First please write an external storage configuration.
+```YAML
+#################
+#     Git       #
+#################
 
+type: git
+url: https://github.com/microsoft/pai.git
+branch: branch_name
+path: path_in_repo
+```
 
+- Then, update this external storage configuration into kubernetes cluster with the following command.
 
-### Step 2. Set cluster Id <a name="set_id"></a>
+```bash
+python paictl.py config external-config-update -e external-config-path [ -c kubeconfig ]
+```
+
+Default value of `-c` is: `~/.kube/config`
+- At last, execute the update command following
+
+```
+python paictl.py config push [-c kubeconfig]
+```
+
+Default value of `-c` is: `~/.kube/config`
+
+If this the first time that you upload configuration, a cluster-id will be asked to type. The cluster-id is very ```important```. Please remember it. Every time you wanna manage OpenPai cluster, the cluster-id is needed.
 
 
 ### Reference <a name="refer"></a>
+
+- [pacitl manual](../../paictl/paictl-manual.md)
