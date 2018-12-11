@@ -91,7 +91,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME)(container_CPUPerc{container_label_PAI_JOB_NAME=~\"$job\"}) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME)(task_cpu_percent{container_label_PAI_JOB_NAME=~\"$job\"}) ",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -191,7 +191,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_MemUsage{ container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_mem_usage_byte{ container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -283,7 +283,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetIn{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -294,7 +294,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_NetOut{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])) ",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -390,7 +390,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockIn{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(task_block_in_byte{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -401,7 +401,7 @@
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(container_BlockOut{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (irate(task_block_out_byte{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}",
@@ -480,7 +480,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME)(container_GPUPerc{container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME)(task_gpu_percent{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -563,7 +563,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (container_GPUMemPerc{container_label_PAI_JOB_NAME=~\"$job\"})",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_gpu_mem_percent{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
@@ -637,7 +637,7 @@
         "multiFormat": "regex values",
         "name": "job",
         "options": [],
-        "query": "label_values(container_CPUPerc, container_label_PAI_JOB_NAME)",
+        "query": "label_values(task_cpu_percent, container_label_PAI_JOB_NAME)",
         "refresh": 1,
         "regex": "^(?!\\s*$).+",
         "sort": 1,

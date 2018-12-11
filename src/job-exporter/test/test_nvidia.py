@@ -15,28 +15,36 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
 import os
+import sys
 import unittest
 
 import base
 
 sys.path.append(os.path.abspath("../src/"))
 
-from docker_inspect import parse_docker_inspect
+import nvidia
 
-class TestDockerInspect(base.TestBase):
+class TestNvidia(base.TestBase):
     """
-    Test docker_inspect.py
+    Test nvidia.py
     """
-
-    def test_parse_docker_inspect(self):
-        sample_path = "data/docker_inspect_sample.json"
+    def test_parse_smi_xml_result(self):
+        sample_path = "data/nvidia_smi_sample.xml"
         with open(sample_path, "r") as f:
-            docker_inspect = f.read()
-        inspect_info = parse_docker_inspect(docker_inspect)
-        target_inspect_info = {"labels": {"container_label_PAI_USER_NAME": "openmindstudio", "container_label_GPU_ID": "0,1,", "container_label_PAI_HOSTNAME": "paigcr-a-gpu-1058", "container_label_PAI_JOB_NAME": "trialslot_nnimain_d65bc5ac", "container_label_PAI_CURRENT_TASK_ROLE_NAME": "tuner"}, "env": {"container_env_PAI_TASK_INDEX": "0"}, "pid": 95539}
-        self.assertEqual(target_inspect_info, inspect_info)
+            nvidia_smi_result = f.read()
+        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+        target_smi_info = {'1': {'gpu_util': 98, 'gpu_mem_util': 97},
+                '0': {'gpu_util': 100, 'gpu_mem_util': 99}}
+        self.assertEqual(target_smi_info, nvidia_smi_parse_result)
+
+    def test_exporter_will_not_report_unsupported_gpu(self):
+        sample_path = "data/nvidia_smi_outdated_gpu.xml"
+        with open(sample_path, "r") as f:
+            nvidia_smi_result = f.read()
+        nvidia_smi_parse_result = nvidia.parse_smi_xml_result(nvidia_smi_result)
+        self.assertEqual({}, nvidia_smi_parse_result)
+
 
 if __name__ == '__main__':
     unittest.main()

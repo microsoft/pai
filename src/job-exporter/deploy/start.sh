@@ -1,4 +1,7 @@
-#!/usr/bin/python
+#!/bin/bash
+
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -16,27 +19,11 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import argparse
-import datetime
-import os
+pushd $(dirname "$0") > /dev/null
 
-def check_no_older_than(paths, delta):
-    """ raise RuntimeError exception if any path in paths is older than `now - delta` """
-    now = datetime.datetime.now()
-    delta = datetime.timedelta(seconds=delta)
-    oldest = now - delta
+kubectl apply --overwrite=true -f job-exporter.yaml || exit $?
 
-    for path in paths:
-        mtime = os.path.getmtime(path)
-        mtime = datetime.datetime.fromtimestamp(mtime)
-        if oldest > mtime:
-            raise RuntimeError("{} was updated more than {} seconds ago".format(path, delta))
+# Wait until the service is ready.
+PYTHONPATH="../../../deployment" python -m  k8sPaiLibrary.monitorTool.check_pod_ready_status -w -k app -v job-exporter || exit $?
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("paths", nargs="+", help="file to be checked")
-    parser.add_argument("-d", "--delta", type=int, default=60, help="check file is no older than -d seconds")
-    args = parser.parse_args()
-
-    check_no_older_than(args.paths, args.delta)
+popd > /dev/null

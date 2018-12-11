@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -15,26 +17,10 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-version: 1
-disable_existing_loggers: False
-formatters:
-    pai_k8sdp:
-        format: "%(asctime)s [%(levelname)s] - %(name)s : %(message)s"
+pushd $(dirname "$0") > /dev/null
 
-handlers:
-    console:
-        class: logging.StreamHandler
-        level: DEBUG
-        formatter: pai_k8sdp
-        stream: ext://sys.stdout
-
-loggers:
-    unittest_module:
-        level: INFO
-        handler: [console]
-        propagate: no
+echo "Call stop script to stop all service first"
+/bin/bash stop.sh || exit $?
 
 
-root:
-    level: INFO
-    handlers: [console]
+popd > /dev/null
