@@ -143,24 +143,24 @@ echo PAI_TASK_INDEX=$TASK_INDEX >> $ENV_LIST
 echo PAI_CONTAINER_HOST_IP=$CONTAINER_IP >> $ENV_LIST
 echo PAI_CONTAINER_HOST_PORT_LIST=$CONTAINER_PORTS >> $ENV_LIST
 echo PAI_CONTAINER_ID=$CONTAINER_ID >> $ENV_LIST
-echo PAI_DEFAULT_FS_URI={{ hdfsUri }} >> $ENV_LIST
-echo PAI_JOB_NAME={{ jobData.jobName }} >> $ENV_LIST
-echo PAI_USER_NAME={{ jobData.userName }} >> $ENV_LIST
-echo PAI_DATA_DIR={{ jobData.dataDir }} >> $ENV_LIST
-echo PAI_OUTPUT_DIR={{ jobData.outputDir }} >> $ENV_LIST
-echo PAI_CODE_DIR={{ jobData.codeDir }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_NAME={{ taskData.name }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_TASK_COUNT={{ taskData.taskNumber }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_CPU_COUNT={{ taskData.cpuNumber }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_MEM_MB={{ taskData.memoryMB }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_SHM_MB={{ taskData.shmMB }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_GPU_COUNT={{ taskData.gpuNumber }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT={{ taskData.minFailedTaskCount }} >> $ENV_LIST
-echo PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT={{ taskData.minSucceededTaskCount }} >> $ENV_LIST
+echo -e PAI_DEFAULT_FS_URI={{ hdfsUri }} >> $ENV_LIST
+echo -e PAI_JOB_NAME={{ jobData.jobName }} >> $ENV_LIST
+echo -e PAI_USER_NAME={{ jobData.userName }} >> $ENV_LIST
+echo -e PAI_DATA_DIR={{ jobData.dataDir }} >> $ENV_LIST
+echo -e PAI_OUTPUT_DIR={{ jobData.outputDir }} >> $ENV_LIST
+echo -e PAI_CODE_DIR={{ jobData.codeDir }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_NAME={{ taskData.name }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_TASK_COUNT={{ taskData.taskNumber }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_CPU_COUNT={{ taskData.cpuNumber }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_MEM_MB={{ taskData.memoryMB }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_SHM_MB={{ taskData.shmMB }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_GPU_COUNT={{ taskData.gpuNumber }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_MIN_FAILED_TASK_COUNT={{ taskData.minFailedTaskCount }} >> $ENV_LIST
+echo -e PAI_CURRENT_TASK_ROLE_MIN_SUCCEEDED_TASK_COUNT={{ taskData.minSucceededTaskCount }} >> $ENV_LIST
 echo PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX=$TASK_INDEX >> $ENV_LIST
-echo PAI_JOB_TASK_COUNT={{ tasksNumber }} >> $ENV_LIST
-echo PAI_JOB_TASK_ROLE_COUNT={{ taskRolesNumber }} >> $ENV_LIST
-echo PAI_JOB_TASK_ROLE_LIST={{ taskRoleList }} >> $ENV_LIST
+echo -e PAI_JOB_TASK_COUNT={{ tasksNumber }} >> $ENV_LIST
+echo -e PAI_JOB_TASK_ROLE_COUNT={{ taskRolesNumber }} >> $ENV_LIST
+echo -e PAI_JOB_TASK_ROLE_LIST={{ taskRoleList }} >> $ENV_LIST
 
 
 port_list=(${CONTAINER_PORTS//;/ })
@@ -179,15 +179,15 @@ get_host_list $ENV_LIST
 echo \# Backward compatibility >> $ENV_LIST
 echo PAI_CURRENT_CONTAINER_IP=$CONTAINER_IP >> $ENV_LIST
 echo PAI_TASK_ROLE_INDEX=$TASK_INDEX >> $ENV_LIST
-echo PAI_USERNAME={{ jobData.userName }} >> $ENV_LIST
-echo PAI_TASK_ROLE_NAME={{ taskData.name }} >> $ENV_LIST
-echo PAI_TASK_ROLE_NUM={{ taskData.taskNumber }} >> $ENV_LIST
-echo PAI_TASK_CPU_NUM={{ taskData.cpuNumber }} >> $ENV_LIST
-echo PAI_TASK_MEM_MB={{ taskData.memoryMB }} >> $ENV_LIST
-echo PAI_TASK_GPU_NUM={{ taskData.gpuNumber }} >> $ENV_LIST
-echo PAI_TASKS_NUM={{ tasksNumber }} >> $ENV_LIST
-echo PAI_TASK_ROLES_NUM={{ taskRolesNumber }} >> $ENV_LIST
-echo PAI_TASK_ROLE_LIST={{ taskRoleList }} >> $ENV_LIST
+echo -e PAI_USERNAME={{ jobData.userName }} >> $ENV_LIST
+echo -e PAI_TASK_ROLE_NAME={{ taskData.name }} >> $ENV_LIST
+echo -e PAI_TASK_ROLE_NUM={{ taskData.taskNumber }} >> $ENV_LIST
+echo -e PAI_TASK_CPU_NUM={{ taskData.cpuNumber }} >> $ENV_LIST
+echo -e PAI_TASK_MEM_MB={{ taskData.memoryMB }} >> $ENV_LIST
+echo -e PAI_TASK_GPU_NUM={{ taskData.gpuNumber }} >> $ENV_LIST
+echo -e PAI_TASKS_NUM={{ tasksNumber }} >> $ENV_LIST
+echo -e PAI_TASK_ROLES_NUM={{ taskRolesNumber }} >> $ENV_LIST
+echo -e PAI_TASK_ROLE_LIST={{ taskRoleList }} >> $ENV_LIST
 
 echo PAI_CURRENT_CONTAINER_PORT="$(cut -f 1 -d"," <<< $PAI_CONTAINER_HOST_http_PORT_LIST)" >> $ENV_LIST
 
@@ -195,7 +195,7 @@ export $(grep -v '^#' $ENV_LIST | xargs)
 # put it after the 'export', so we won't source it into yarn container.
 # we want job environment parameters to be available only in job contianer.
 {{# jobEnvs }}
-echo {{ key }}={{ value }} >> $ENV_LIST
+echo -e {{ key }}={{ value }} >> $ENV_LIST
 {{/ jobEnvs }}
 
 # Prepare docker bootstrap script
