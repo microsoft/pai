@@ -83,7 +83,21 @@ RUN apt-get -y update && \
         flex \
         debhelper \
         bison \
-        tk && \
+        tk \
+        libelf-dev \
+        libaudit-dev \
+        libslang2-dev \
+        libgtk2.0-dev \
+        libperl-dev \
+        liblzma-dev \
+        libnuma-dev \
+        libglib2.0-dev \
+        libnuma1 \
+        libtool \
+        libdw-dev \
+        libiberty-dev \
+        libunwind8-dev \
+        binutils-dev && \
     pip install subprocess32 && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     mkdir -p $STAGE_DIR
