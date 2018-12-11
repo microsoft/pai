@@ -1,6 +1,6 @@
 ### Goal
 
-Provide a centralized service for maintaining configuration information and distributed synchronization. 
+Provide a centralized service for maintaining configuration information and distributed synchronization.
 
 ### Architecture
 
@@ -29,9 +29,9 @@ paictl.py image push -p /path/to/cluster/config -n zookeeper
 refer to [dockerfile](../../src/zookeeper/build/zookeeper.dockerfile).
 
 
-### Configuration  
+### Configuration
 
-Configuration file is [here](../../src/zookeeper/build/zoo.cfg), you can keep it in most cases.
+Configuration file is [here](../../src/zookeeper/build/run.sh), you can keep it in most cases.
 
 
 ### Deployment
@@ -52,7 +52,7 @@ paictl.py service stop -p /path/to/cluster/config -n zookeeper
 
 ### Refreshment
 
-Stop and restart to update configuration, related commands refer to [Deployment](#Deployment). 
+Stop and restart to update configuration, related commands refer to [Deployment](#Deployment).
 
 *Notes:* Refresh command in ` paictl.py ` for ZooKeeper is redundant temporarily.
 
