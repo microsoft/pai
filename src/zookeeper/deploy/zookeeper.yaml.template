@@ -51,6 +51,10 @@ spec:
           value: "-server -Xmx8192m"
         - name: ZK_SERVERS
           value: {{cluster_cfg["zookeeper"]["zk-servers"]}}
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              status.podIP
         resources:
           limits:
             memory: "10Gi"

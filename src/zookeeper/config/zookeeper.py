@@ -55,7 +55,8 @@ class Zookeeper:
                 if zookeeper_com["quorum"] != "":
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
-                zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + host_config["hostip"] + ":2888:3888\n"
+                # generate zookeeper server id (host_config["hostip"].replace(".", "")[-7:]): remove the dot, and reserve the last 7 digits.
+                zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + "server." + host_config["hostip"].replace(".", "")[-7:] + "=" + host_config["hostip"] + ":2888:3888\n"
 
         return zookeeper_com
 
