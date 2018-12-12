@@ -24,7 +24,7 @@ data:
     - name: "pai-alert"
       email_configs:
         - to: {{ alert_info["receiver"] }}
-          html: "{{ "{{" }} template "email.pai.html" . {{ "}}" }}"
+          html: '{{ "{{" }} template "email.pai.html" . {{ "}}" }}'
           headers:
-            subject: "{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}"
+            subject: '{{ cluster_cfg["cluster"]["common"]["cluster-id"] }}: {{ "{{" }} template "__subject" . {{ "}}" }}'
 {% endif %}
