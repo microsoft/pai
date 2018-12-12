@@ -193,8 +193,8 @@ class paiObjectModel:
         serviceDict["clusterinfo"]["dockerregistryinfo"]["docker_tag"] = \
             serviceDict["clusterinfo"]["docker-registry-info"]["docker-tag"]
         serviceDict["clusterinfo"]["dockerregistryinfo"]["secretname"] = \
-            serviceDict["clusterinfo"]["docker-registry-info"]["secret-name"]
-           
+            serviceDict["clusterinfo"]["docker-registry-info"]["secret-name"]        
+
         # section : hadoop
 
         serviceDict["clusterinfo"]["hadoopinfo"] = \
