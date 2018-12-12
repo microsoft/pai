@@ -48,7 +48,7 @@ class Zookeeper:
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
                 # generate an unique zookeeper server id, it looks like "adc83b19"	# using the first 8 digits of sha1sum(ip)
-                zkid = hashlib.sha1(host_config["hostip"]).hexdigest()[:8]
+                zkid = int(hashlib.sha1(host_config["hostip"]).hexdigest()[:8], 16)
                 zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + "server." + zkid + "=" + host_config["hostip"] + ":2888:3888\n"
 
         return zookeeper_com

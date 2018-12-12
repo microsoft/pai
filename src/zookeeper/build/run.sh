@@ -32,7 +32,7 @@ ${ZK_SERVERS}
 " > /etc/zookeeper/conf/zoo.cfg
 
 # generate an unique zookeeper server id, it looks like "adc83b19"	# using the first 8 digits of sha1sum(ip)
-echo -n $POD_IP | sha1sum | grep -Eo "[a-f0-9]{8}"  | head -n1 > /var/lib/zoodata/myid
+echo $((0x$(echo -n $POD_IP | sha1sum | grep -Eo "[a-f0-9]{8}"  | head -n1))) > /var/lib/zoodata/myid
 
 mkdir -p /jobstatus
 touch /jobstatus/jobok
