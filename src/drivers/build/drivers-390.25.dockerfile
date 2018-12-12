@@ -105,7 +105,7 @@ RUN apt-get -y update && \
 WORKDIR $STAGE_DIR
 
 ENV NVIDIA_VERSION=390.25 \
-    OFED_VERSION=4.5-1.0.1.0 \
+    OFED_VERSION=4.2-1.2.0.0 \
     OS_VERSION=ubuntu16.04 \
     ARCHITECTURE=x86_64
 
@@ -118,8 +118,8 @@ RUN wget --no-verbose http://us.download.nvidia.com/XFree86/Linux-x86_64/$NVIDIA
 
 RUN echo "wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf -" && \
     wget -q -O - http://www.mellanox.com/downloads/ofed/MLNX_OFED-$OFED_VERSION/$MLNX_OFED_STRING.tgz | tar xzf - && \
-    echo "wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.7.tar.gz | tar xzf -" && \
-    wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.7.tar.gz | tar xzf - && \
+    echo "wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf -" && \
+    wget -q -O - http://www.mellanox.com/downloads/ofed/nvidia-peer-memory_1.0.5.tar.gz | tar xzf - && \
     git clone https://github.com/NVIDIA/gdrcopy.git
 
 RUN cd $MLNX_OFED_STRING/DEBS && \
