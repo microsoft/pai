@@ -18,6 +18,7 @@
 
 import logging
 import logging.config
+import hashlib
 
 
 class Zookeeper:
@@ -30,15 +31,6 @@ class Zookeeper:
                                           **service_configuration)
 
     def validation_pre(self):
-        zkid_visited = dict()
-        for host_config in self.cluster_configuration["machine-list"]:
-            if "pai-master" in host_config and host_config["pai-master"] == "true":
-                if "zkid" not in host_config:
-                    return False, "zkid is missing in your pai-master machine [{0}] .".format(host_config["hostip"])
-                if host_config["zkid"] in zkid_visited and zkid_visited[host_config["zkid"]] is True :
-                    return False, "Duplicated zkid [zkid: {0}]. ".format(host_config["zkid"])
-                zkid_visited[host_config["zkid"]] = True
-
         return True, None
 
 
@@ -55,8 +47,9 @@ class Zookeeper:
                 if zookeeper_com["quorum"] != "":
                     zookeeper_com["quorum"] = zookeeper_com["quorum"] + ","
                 zookeeper_com["quorum"] = zookeeper_com["quorum"] + host_config["hostip"] + ":2181"
-                # generate zookeeper server id (host_config["hostip"].replace(".", "")[-7:]): remove the dot, and reserve the last 7 digits.
-                zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + "server." + host_config["hostip"].replace(".", "")[-7:] + "=" + host_config["hostip"] + ":2888:3888\n"
+                # generate an unique zookeeper server id, it looks like "adc83b19"	# using the first 8 digits of sha1sum(ip)
+                zkid = hashlib.sha1(host_config["hostip"]).hexdigest()[:8]
+                zookeeper_com["zk-servers"] = zookeeper_com["zk-servers"] + "server." + zkid + "=" + host_config["hostip"] + ":2888:3888\n"
 
         return zookeeper_com
 
