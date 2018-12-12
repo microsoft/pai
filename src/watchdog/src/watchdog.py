@@ -362,7 +362,6 @@ if __name__ == "__main__":
     parser.add_argument("--log", "-l", help="log dir to store log", default="/datastorage/prometheus")
     parser.add_argument("--interval", "-i", help="interval between two collection", default="30")
     parser.add_argument("--port", "-p", help="port to expose metrics", default="9101")
-    parser.add_argument("--hosts", "-m", help="yaml file path contains host info", default="/etc/watchdog/config.yml")
     parser.add_argument("--ca", "-c", help="ca file path")
     parser.add_argument("--bearer", "-b", help="bearer token file path")    
     args = parser.parse_args()
