@@ -20,8 +20,8 @@
 ## Customized deploy 
 
 ### Index
-- [Step 1. Prepare configuration](#c-step-1)
-- [Step 2. Prepare Deployment Environment](#c-step-2)
+- [Step 1. Prepare Deployment Environment](#c-step-1)
+- [Step 2. Prepare configuration](#c-step-2)
 - [Step 3. Boot up Kubernetes](#c-step-3)
 - [Step 4. Push cluster configuration into kubernetes, and set cluster-id](#c-step-4)
 - [Step 5. Start all OpenPAI services](#c-step-5)
@@ -29,7 +29,25 @@
 
 ***
 
-### Step 1. Prepare Configuraiton <a name="c-step-1"></a>
+### Step 1. Prepare Deployment Environment <a name="c-step-1"></a>
+
+- [Option A. Start Dev-box contianer as the environemnt.](#dev_box) 
+- [Option B. Install necessary dependency software on your host.](#install)
+
+Note 1: If you wanna manage the cluster in a machine belonging to OpenPai, please choose option B. Otherwise, option A is highly recommended.
+
+
+##### ```A. Starting Dev-box container as the environment``` <a name="dev_box"></a>
+
+- [A Guide to Setup Dev-Box](./how-to-setup-dev-box.md)
+
+##### ```B. Install necessary dependency software on your host``` <a name="install"></a>
+
+- [A Guide to install dependency on local host](./how-to-install-depdencey.md)
+
+***
+
+### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
 
 - [Option A. Generate the Cluster Configuration from template](#opt_a)
 - [Option B. Write your own Cluster Configuration](#opt_b)
@@ -42,25 +60,6 @@
 ##### ```B. Write your own Cluster Configuration``` <a name="opt_b"></a>
 
 - [A guide to write cluster configuration](./customized-configuration.md)
-
-***
-
-### Step 2. Prepare Deployment Environment <a name="c-step-2"></a>
-
-- [Option A. Start Dev-box contianer as the environemnt.](#dev_box) 
-- [Option B. Install necessary dependency software on your host.](#install)
-
-Note 1: If you wanna manage the cluster in a machine belonging to OpenPai, please choose option B. Otherwise, option A is highly recommended.
-
-Note 2: If you have setup your environment, you could skip this step.
-
-##### ```A. Starting Dev-box container as the environment``` <a name="dev_box"></a>
-
-- [A Guide to Setup Dev-Box](./how-to-setup-dev-box.md)
-
-##### ```B. Install necessary dependency software on your host``` <a name="install"></a>
-
-- [A Guide to install dependency on local host](./how-to-install-depdencey.md)
 
 ***
 

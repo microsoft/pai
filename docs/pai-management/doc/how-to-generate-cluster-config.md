@@ -21,28 +21,14 @@
 
 ### Index
 
-- [Step 1. Prepare environment](#Env)
-- [Step 2. Write Quick Start Configuration](#Quick)
-- [Step 3. Generate OpenPAI configuration files](#Generate)
-- [Optional Step 4. Customize configure OpenPAI](#Customize)
+- [Step 1. Write Quick Start Configuration](#Quick)
+- [Step 2. Generate OpenPAI configuration files](#Generate)
+- [Optional Step 3. Customize configure OpenPAI](#Customize)
 
 
-### Step 1. Prepare environment <a name="Env"></a>
 
-- [A. Start Dev-box contianer as the environemnt.](#dev_box) 
-- [B. Install necessary dependency software on your host.](#install)
 
-Note: If you wanna manage the cluster in a machine belonging to OpenPai, please choose option B. Otherwise, option A is highly recommended.
-
-##### ```Starting Dev-box container as the environment``` <a name="dev_box"></a>
-
-- [A Guide to Setup Dev-Box](./how-to-setup-dev-box.md)
-
-##### ```Install necessary dependency software on your host``` <a name="install"></a>
-
-- [A Guide to install dependency on local host](./how-to-install-depdencey.md)
-
-### Step 2. Write Quick start <a name="Generate"></a>
+### Step 1. Write Quick start <a name="Generate"></a>
 
 There is a example file in the [link](./../../../deployment/quick-start/quick-start-example.yaml) .
 
@@ -76,7 +62,7 @@ ssh-password: pai-password
 #service-cluster-ip-range: <ip-range-for-k8s>
 ```
 
-### Step 3. Generate OpenPAI configuration files <a name="Generate"></a>
+### Step 2. Generate OpenPAI configuration files <a name="Generate"></a>
 
 ##### (1) generate configuration files
 
@@ -144,7 +130,7 @@ The `paictl` tool sets the following default values in the 4 configuration files
 | ```REST server's admin user``` | REST server's admin user is set to `admin`, and its password is set to `admin-password` |
 | ```VC``` | There is only one VC in the system, `default`, which has 100% of the resource capacity. |  
 
-##### Optional Step 4. Customize configure OpenPAI <a name="Customize"></a>
+### Optional Step 3. Customize configure OpenPAI <a name="Customize"></a>
 This method is for advanced users.
 
 The description of each field in these configuration files can be found in [A Guide For Cluster Configuration](./customized-configuration.md).
