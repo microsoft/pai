@@ -45,6 +45,8 @@ spec:
           name: yarn-resourcemanager-storage
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /host-configuration
+          name: host-confg-volume
         readinessProbe:
           exec:
             command:
@@ -104,3 +106,6 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/resourcemanager
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration

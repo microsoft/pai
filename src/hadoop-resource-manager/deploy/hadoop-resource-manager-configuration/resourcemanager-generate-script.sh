@@ -17,6 +17,24 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+ip_list=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
+
+host_ip_address=''
+
+for ip_address in $ip_list
+do
+    if cat /host-configuration/host-configuration.yaml | grep -q $ip_address;
+    then
+       host_ip_address=$ip_address
+       break
+    fi
+done
+
+echo "The ip-address of this machine is: $host_ip_address"
+
+echo "$host_ip_address  $host_ip_address" >> /etc/hosts
+
+
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
