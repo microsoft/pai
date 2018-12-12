@@ -41,10 +41,6 @@ cluster:
     # Must be lower case, e.g., regsecret.
     secret-name: pai-secret
 
-  api-server:
-    # use tls for prometheus access
-    tls_access: false
-
 
 hadoop:
   # When needed, hadoop-ai would be downloaded and built under 'custom-hadoop-binary-path'.
