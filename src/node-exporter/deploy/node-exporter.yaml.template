@@ -83,6 +83,7 @@ spec:
         volumeMounts:
         - name: host-root
           mountPath: /host-root/
+          readOnly: true
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
