@@ -80,8 +80,15 @@ spec:
         - containerPort: {{ cluster_cfg["node-exporter"]["port"] }}
           hostPort: {{ cluster_cfg["node-exporter"]["port"] }}
           name: scrape
+        volumeMounts:
+        - name: host-root
+          mountPath: /host-root/
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
       hostNetwork: true
       tolerations:
       - key: node.kubernetes.io/memory-pressure
