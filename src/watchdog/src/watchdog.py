@@ -204,11 +204,11 @@ def process_pods_status(pai_pod_gauge, pai_container_gauge, podsJsonObject):
     map(_map_fn, podsJsonObject["items"])
 
 
-def collect_healthz(gauge, histogram, service_name, address, port, url, ca_path, headers):
+def collect_healthz(gauge, histogram, service_name, scheme, address, port, url, ca_path, headers):
     with histogram.time():
         error = "ok"
         try:
-            error = requests.get("https://{}:{}{}".format(address, port, url), headers = headers, verify = ca_path).text
+            error = requests.get("{}://{}:{}{}".format(scheme, address, port, url), headers = headers, verify = ca_path).text
         except Exception as e:
             error_counter.labels(type="healthz").inc()
             error = str(e)
@@ -217,20 +217,20 @@ def collect_healthz(gauge, histogram, service_name, address, port, url, ca_path,
         gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJsonObject, ca_path, headers):
+def collect_k8s_componentStaus(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, nodesJsonObject, ca_path, headers):
     collect_healthz(k8s_gauge, api_healthz_histogram,
-            "k8s_api_server", api_server_ip, api_server_port, "/healthz", ca_path, headers)
+            "k8s_api_server", api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
     collect_healthz(k8s_gauge, etcd_healthz_histogram,
-            "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd", ca_path, headers)
+            "k8s_etcd", api_server_scheme, api_server_ip, api_server_port, "/healthz/etcd", ca_path, headers)
 
     # check kubelet
     nodeItems = nodesJsonObject["items"]
 
     for name in nodeItems:
         ip = name["metadata"]["name"]
-
+        
         collect_healthz(k8s_gauge, kubelet_healthz_histogram,
-            "k8s_kubelet", ip, 10255, "/healthz", None, None)
+            "k8s_kubelet", "http", ip, 10255, "/healthz", None, None)
 
 
 def parse_node_item(pai_node_gauge, node):
@@ -303,6 +303,7 @@ def main(args):
 
     address = args.k8s_api
     parse_result = urlparse.urlparse(address)
+    api_server_scheme = parse_result.scheme
     api_server_ip = parse_result.hostname
     api_server_port = parse_result.port or 80
     ca_path = args.ca
@@ -345,7 +346,7 @@ def main(args):
             process_nodes_status(pai_node_gauge, nodesStatus)
 
             # 3. check k8s level status
-            collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus, ca_path, headers)
+            collect_k8s_componentStaus(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, nodesStatus, ca_path, headers)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
