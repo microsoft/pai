@@ -66,7 +66,7 @@ python paictl.py config push [-c kubeconfig]
 
 Default value of `-c` is: `~/.kube/config`
 
-If this the first time that you upload configuration, a cluster-id will be asked to type. The cluster-id is very ```important```. Please remember it. Every time you wanna manage OpenPai cluster, the cluster-id is needed.
+If this the first time that you upload configuration, a cluster-id will be asked to type. The cluster-id is very ```important```. Please remember it. Every time you wanna manage OpenPAI cluster, the cluster-id is needed.
 
 
 ### Reference <a name="refer"></a>

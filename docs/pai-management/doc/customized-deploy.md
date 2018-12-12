@@ -34,7 +34,7 @@
 - [Option A. Start Dev-box contianer as the environemnt.](#dev_box) 
 - [Option B. Install necessary dependency software on your host.](#install)
 
-Note 1: If you wanna manage the cluster in a machine belonging to OpenPai, please choose option B. Otherwise, option A is highly recommended.
+Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose option B. Otherwise, option A is highly recommended.
 
 
 ##### ```A. Starting Dev-box container as the environment``` <a name="dev_box"></a>
