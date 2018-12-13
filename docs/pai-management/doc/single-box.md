@@ -50,7 +50,7 @@ If you are very familiar with OpenPAI, you could directly write your configurait
 
 ***
 
-### Step 3. Boot up Kubernetes <a name="c-step-3"></a>
+### Step 3. Deploy Kubernetes <a name="c-step-3"></a>
 
 - [A Guide to deploy kubenretes with paictl](./how-to-bootup-k8s.md)
 

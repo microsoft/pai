@@ -21,7 +21,7 @@
 
 ### command
 
-When Kubernetes is up and running, PAI services can then be deployed to it using `paictl` tool:
+[When Kubernetes is up and running](./how-to-bootup-k8s.md#ref_check), PAI services can then be deployed to it using `paictl` tool:
 
 ```bash
 cd pai
@@ -29,12 +29,9 @@ cd pai
 # cmd should be executed under /pai directory in the environment.
 
 python paictl.py service start \
-  [ -c /path/to/kubeconfig] \
+  [ -c ~/.kube/config] \
   [ -n service-name ]
 ```
-
-
-Default value of `-c` is: `~/.kube/config`
 
 If the `-n` parameter is specified, only the given service, e.g. `rest-server`, `webportal`, `watchdog`, etc., will be deployed. If not, all PAI services will be deployed. In the latter case, the above command does the following things:
 

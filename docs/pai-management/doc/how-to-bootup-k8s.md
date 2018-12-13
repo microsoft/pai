@@ -44,7 +44,7 @@ The `paictl` tool does the following things:
 - Use `kubectl` to boot up Kubernetes on target machines.
 
 
-#### How to check
+#### How to check <a name="ref_check"></a>
 
 After this step, the system maintainer can check the status of Kubernetes by accessing Kubernetes Dashboard:
 
