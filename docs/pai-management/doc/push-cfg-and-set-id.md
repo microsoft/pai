@@ -44,7 +44,7 @@ python paictl.py config push -p /path/to/config/dir [-c ~/.kube/config]
 
 #### ```Option B. From an external git repo``` <a name="git_repo"></a>
 
-- First please write an external storage configuration.
+- First please write an external storage configuration. 
 ```YAML
 #################
 #     Git       #
@@ -55,6 +55,9 @@ url: https://github.com/microsoft/pai.git
 branch: branch_name
 path: path_in_repo
 ```
+
+Note: You should do it at the first time to update configuraiton from git repo to the cluster. If you have done this steps before, you could skip it.
+
 
 - Then, update this external storage configuration into kubernetes cluster with the following command.
 
