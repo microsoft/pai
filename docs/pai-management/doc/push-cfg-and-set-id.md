@@ -17,27 +17,32 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Push Configuration to cluster and set cluster id for the new deployed cluster
+## Update Configuration
 
 After the kubernetes cluster is setup, and before managing your cluster and service, you should upload the cluster configuration into the kubernetes cluster with the following command.
 
 ### Index
 
-- [Step 1. push cluster configuration and set-id](#push_cfg)
+- [Push Cluster Configuration](#push_cfg)
 - [Reference](#refer)
 
-### Step 1. Push cluster configuration into k8s configmap and set cluster-id <a name="push_cfg"></a>
+### Update Cluster Configuration <a name="push_cfg"></a>
 
-- [From local disk](#local_disk)
-- [From an external git repo](#git_repo)
+- [Option A. From local disk](#local_disk)
+- [Option B. From an external git repo](#git_repo)
 
-#### ```From local disk``` <a name="local_disk"></a>
+
+If your cluster configuration is managed and stored in a host path, you could choose the Option A to update the configuration into the cluster.
+
+If your cluster configuration is managed and stored at a git repo, you could choose the Option B to sync the configuration directly from git repo to cluster.
+
+#### ```Option A. From local disk``` <a name="local_disk"></a>
 ```bash
-python paictl.py config push -p /path/to/config/dir [-c /path/to/kubeconfig]
+python paictl.py config push -p /path/to/config/dir [-c ~/.kube/config]
 ```
-Default value of `-c` is: `~/.kube/config`
 
-#### ```From an external git repo``` <a name="git_repo"></a>
+
+#### ```Option B. From an external git repo``` <a name="git_repo"></a>
 
 - First please write an external storage configuration.
 ```YAML
@@ -54,19 +59,19 @@ path: path_in_repo
 - Then, update this external storage configuration into kubernetes cluster with the following command.
 
 ```bash
-python paictl.py config external-config-update -e external-config-path [ -c kubeconfig ]
+python paictl.py config external-config-update -e external-config-path [ -c ~/.kube/config ]
 ```
 
-Default value of `-c` is: `~/.kube/config`
 - At last, execute the update command following
 
 ```
-python paictl.py config push [-c kubeconfig]
+python paictl.py config push [-c ~/.kube/config]
 ```
 
-Default value of `-c` is: `~/.kube/config`
 
-If this the first time that you upload configuration, a cluster-id will be asked to type. The cluster-id is very ```important```. Please remember it. Every time you wanna manage OpenPAI cluster, the cluster-id is needed.
+If this the first time that you upload configuration, a ```cluster-id``` will be asked to type. The cluster-id is used to manage this cluster.
+
+What if you forget the cluster-id? Please refer to the [link](../../paictl/paictl-manual.md#Config_Id) in the pacitl manual book.
 
 
 ### Reference <a name="refer"></a>

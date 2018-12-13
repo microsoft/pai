@@ -23,7 +23,7 @@
 - [Step 1. Prepare Deployment Environment](#c-step-1)
 - [Step 2. Prepare configuration](#c-step-2)
 - [Step 3. Boot up Kubernetes](#c-step-3)
-- [Step 4. Push cluster configuration into kubernetes, and set cluster-id](#c-step-4)
+- [Step 4. Update cluster configuration into kubernetes](#c-step-4)
 - [Step 5. Start all OpenPAI services](#c-step-5)
 - [Step 6. Validate deployment](#c-step-6)
 
@@ -57,9 +57,9 @@ If you are very familiar with OpenPAI, you could directly write your configurait
 
 ***
 
-### Step 4. Push cluster configuration into kubernetes, and set cluster-id <a name="c-step-4"></a>
+### Step 4. Update cluster configuration into kubernetes <a name="c-step-4"></a>
 
-- [A Guide to push configuration and set id](./push-cfg-and-set-id.md)
+- [A Guide to update configuration](./push-cfg-and-set-id.md)
 
 ***
 
