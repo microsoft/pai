@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Customized deploy 
+## Distributed deploy 
 
 ### Index
 - [Step 1. Prepare Deployment Environment](#c-step-1)
@@ -31,35 +31,23 @@
 
 ### Step 1. Prepare Deployment Environment <a name="c-step-1"></a>
 
-- [Option A. Start Dev-box contianer as the environemnt.](#dev_box) 
-- [Option B. Install necessary dependency software on your host.](#install)
+- [Option A. Start Dev-box contianer as the environemnt.](./how-to-setup-dev-box.md) 
+- [Option B. Install necessary dependency software on your host.](./how-to-install-depdencey.md)
 
 Note 1: If you wanna manage the cluster in a machine belonging to OpenPAI, please choose option B. Otherwise, option A is highly recommended.
-
-
-##### ```A. Starting Dev-box container as the environment``` <a name="dev_box"></a>
-
-- [A Guide to Setup Dev-Box](./how-to-setup-dev-box.md)
-
-##### ```B. Install necessary dependency software on your host``` <a name="install"></a>
-
-- [A Guide to install dependency on local host](./how-to-install-depdencey.md)
 
 ***
 
 ### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
 
-- [Option A. Generate the Cluster Configuration from template](#opt_a)
-- [Option B. Write your own Cluster Configuration](#opt_b)
+- [Option A. Generate the Cluster Configuration from template](./how-to-generate-cluster-config.md)
+- [Option B. Write your own Cluster Configuration](./customized-configuration.md)
 
+If this the first time for you to deploy OpenPAI, Option A is highly recommended. 
 
-##### ```A. Generate cluster configuration from template``` <a name="opt_a"></a>
+If you wanna customize the configuration, you could firstly follow the Option A to generate a rough cluster configuration. And then you can follow Option B to customize your configuration according to your requirements.
 
-- [A guide to generate cluster configuration from template](./how-to-generate-cluster-config.md)
-
-##### ```B. Write your own Cluster Configuration``` <a name="opt_b"></a>
-
-- [A guide to write cluster configuration](./customized-configuration.md)
+If you are very familiar with OpenPAI, you could directly write your configuraiton based on the Option B.
 
 ***
 

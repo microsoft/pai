@@ -39,17 +39,14 @@
 
 ### Step 2. Prepare Configuraiton <a name="c-step-2"></a>
 
-- [Option A. Generate the Cluster Configuration from template](#opt_a)
-- [Option B. Write your own Cluster Configuration](#opt_b)
+- [Option A. Generate the Cluster Configuration from template](./how-to-generate-cluster-config.md)
+- [Option B. Write your own Cluster Configuration](./customized-configuration.md)
 
+If this the first time for you to deploy OpenPAI, Option A is highly recommended. 
 
-##### ```A. Generate cluster configuration from template``` <a name="opt_a"></a>
+If you wanna customize the configuration, you could firstly follow the Option A to generate a rough cluster configuration. And then you can follow Option B to customize your configuration according to your requirements.
 
-- [A guide to generate cluster configuration from template](./how-to-generate-cluster-config.md)
-
-##### ```B. Write your own Cluster Configuration``` <a name="opt_b"></a>
-
-- [A guide to write cluster configuration](./customized-configuration.md)
+If you are very familiar with OpenPAI, you could directly write your configuraiton based on the Option B.
 
 ***
 
