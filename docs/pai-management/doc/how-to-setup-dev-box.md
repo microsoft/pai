@@ -19,12 +19,18 @@
 
 # Setup dev-box document
 
-# Table of Contents
-- 1. [Install docker on your server](#c-step-1)
-        - 1.1 [Use prebuild dev-box image](#c-step-1.1)
-        - 1.2 [build dev-box docker image on your own](#c-step-1.2)
-- 2. [Deploy dev-box over existing K8s](#c-step-2)
+## Table of Contents
+- 1. [What's dev-box?](#introduce)
+- 2. [Install docker on your server](#c-step-1)
+        - 2.1 [Use prebuild dev-box image](#c-step-1.1)
+        - 2.2 [build dev-box docker image on your own](#c-step-1.2)
+- 3. [Deploy dev-box over existing K8s](#c-step-2)
 
+
+
+## What's dev-box? <a name="introduce"></a>
+
+Dev-Box is a docker container which contains necessary dependent software for paictl to deploy and manage you cluster. With a dev-box, you no longer need to install the software in your host environment, make your host environment's software package clean. 
 
 ## Install docker on your server <a name="c-step-1"></a>
 

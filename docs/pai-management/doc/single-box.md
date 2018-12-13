@@ -25,7 +25,7 @@
 - [Step 3. Boot up Kubernetes](#c-step-3)
 - [Step 4. Push cluster configuration into kubernetes, and set cluster-id](#c-step-4)
 - [Step 5. Start all OpenPAI services](#c-step-5)
-- [Step 6. Check](#c-step-6)
+- [Step 6. Validate deployment](#c-step-6)
 
 ***
 
@@ -68,5 +68,13 @@
 ### Step 5. Start all OpenPAI services <a name="c-step-5"></a>
 
 - [A Guide to start OpenPAI services](./how-to-start-pai-serv.md)
+
+***
+
+### Step 6. Validate deployment <a name="c-step-6"></a>
+
+- [A Guide to validate deployment](./validate-deployment.md)
+
+***
 
 

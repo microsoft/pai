@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## OpenPAI deploy <a name="overview"></a>
+## OpenPAI deploy 
 
 #### Configuration
 

@@ -61,10 +61,13 @@ Before start, you need to meet the following requirements:
 
 #### 2 Deploy OpenPAI
 
-##### A Guide of Deployment
+If you have only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following. 
 
-##### 2.1 [Customized deploy](./docs/pai-management/doc/customized-deploy.md)
-##### 2.2 [Single Box deploy](./docs/pai-management/doc/single-box.md)
+If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
+
+##### 2.1 [Single Box deploy](./docs/pai-management/doc/single-box.md)
+##### 2.2 [Distributed deploy](./docs/pai-management/doc/customized-deploy.md)
+
 
 ## How to use
 ### How to train jobs
