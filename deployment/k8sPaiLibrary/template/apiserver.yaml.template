@@ -28,7 +28,7 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/kube-apiserver:{{ clusterconfig['apiserverversion'] }}
+  - image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kube-apiserver:{{ cluster_cfg['kubernetes']['apiserver-version'] }}
     name: apiserver-container
     command:
     - /usr/local/bin/kube-apiserver
@@ -36,12 +36,12 @@ spec:
     - --insecure-bind-address
     - {{ hostcofig['hostip'] }}
     - --storage-backend
-    - {{ clusterconfig['storage-backend'] }}
+    - {{ cluster_cfg['kubernetes']['storage-backend'] }}
     - --allow-privileged=true
     - --etcd-servers
-    - {{ clusterconfig['etcd_cluster_ips_server'] }}
+    - {{ cluster_cfg['kubernetes']['etcd_cluster_ips_server'] }}
     - --service-cluster-ip-range
-    - {{ clusterconfig['service-cluster-ip-range'] }}
+    - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
     - --storage-media-type
     - application/json
     - --anonymous-auth=true

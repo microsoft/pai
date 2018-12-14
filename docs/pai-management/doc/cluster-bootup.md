@@ -61,8 +61,11 @@ Notice that `dev-box` should run on a machine outside of PAI cluster, it shouldn
 
 ```bash
 
+# Select your dev-box version: https://github.com/Microsoft/pai/releases
+DEVBOX_VERSION="v0.x.y"
+
 # Pull the dev-box image from Docker Hub
-sudo docker pull docker.io/openpai/dev-box
+sudo docker pull docker.io/openpai/dev-box:$DEVBOX_VERSION
 
 # Run your dev-box
 # Assume the path of custom-hadoop-binary-path in your service-configuration is /pathHadoop,
@@ -77,7 +80,7 @@ sudo docker run -itd \
         --privileged=true \
         --net=host \
         --name=dev-box \
-        docker.io/openpai/dev-box
+        docker.io/openpai/dev-box:$DEVBOX_VERSION
 ```
 ##### (2) Working in your dev-box
 
@@ -162,7 +165,17 @@ python paictl.py config generate -i /pai/deployment/quick-start/quick-start.yaml
 
 ```
 
-##### (2) update docker tag to release version
+##### (2) change your clusterid
+
+```bash
+vi ~/pai-config/services-configuration.yaml
+```
+
+Change `cluster.clusterid` to a more meaningful name instead of pai-example, this
+field will be used in alerting email title, which will tell you about which of your
+cluster is alerting.
+
+##### (3) update docker tag to release version
 
 ```bash
 vi ~/pai-config/services-configuration.yaml
@@ -172,6 +185,40 @@ For example: v0.x.y branch, user should change docker-tag to v0.x.y.
 
 ```bash
 docker-tag: v0.x.y
+```
+
+##### (4) changing gpu count and type
+
+Quick start will generate node with 1 gpu with type generic, this may not suit your situation,
+for example, if you have two types of machines, and one type has 4 Tesla K80 gpu cards, and
+another has 2 Tesla P100 cards, you should modify your `~/pai-config/cluster-configuration.yaml` as following:
+
+```yaml
+machine-sku:
+  k80-node:
+    mem: 40G
+    gpu:
+      type: Tesla K80
+      count: 4
+    cpu:
+      vcore: 24
+    os: ubuntu16.04
+  p100-node:
+    mem: 20G
+    gpu:
+      type: Tesla P100
+      count: 2
+    cpu:
+      vcore: 24
+    os: ubuntu16.04
+
+machine-list:
+  - hostname: xxx
+    hostip: yyy
+    machine-type: k80-node
+  - hostname: xxx
+    hostip: yyy
+    machine-type: p100-node
 ```
 
 [Appendix: Default values in auto-generated configuration files](./how-to-write-pai-configuration.md#appendix)

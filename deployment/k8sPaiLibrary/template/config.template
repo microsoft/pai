@@ -22,7 +22,7 @@ preferences: {}
 clusters:
 - cluster:
     insecure-skip-tls-verify: true
-    server: http://{{ clusterconfig['api-servers-ip'] }}:8080
+    server: http://{{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
   name: kubernetes
 
 contexts:

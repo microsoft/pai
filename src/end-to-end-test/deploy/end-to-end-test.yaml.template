@@ -36,18 +36,18 @@ spec:
       hostPID: false
       containers:
       - name: end-to-end-test
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}end-to-end-test:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}end-to-end-test:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         env:
         - name: HDFS_URI
-          value: {{ clusterinfo['restserverinfo']['hdfs_uri'] }}
+          value: hdfs://{{ cluster_cfg['hadoop-name-node']['master-ip'] }}:9000
         - name: WEBSERVICE_URI
-          value: {{ clusterinfo['restserverinfo']['webservice_uri'] }}
+          value: {{ cluster_cfg['yarn-frameworklauncher']['webservice'] }}
         - name: REST_SERVER_URI
-          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+          value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: TEST_USERNAME
-          value: {{ clusterinfo['restserverinfo']['default_pai_admin_username'] }}
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-username'] }}
         - name: TEST_PASSWORD
-          value: {{ clusterinfo['restserverinfo']['default_pai_admin_password'] }}
+          value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

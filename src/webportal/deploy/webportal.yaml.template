@@ -33,31 +33,31 @@ spec:
       hostPID: false
       containers:
       - name: webportal
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}webportal:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg['cluster']['docker-registry']['prefix'] }}webportal:{{ cluster_cfg['cluster']['docker-registry']['tag'] }}
         imagePullPolicy: Always
         env:
         - name: REST_SERVER_URI
-          value: {{ clusterinfo['webportalinfo']['rest_server_uri'] }}
+          value: {{ cluster_cfg['rest-server']['uri'] }}
         - name: PROMETHEUS_URI
-          value: {{ clusterinfo['webportalinfo']['prometheus_uri'] }}
+          value: {{ cluster_cfg['prometheus']['url'] }}
         - name: YARN_WEB_PORTAL_URI
-          value: {{ clusterinfo['webportalinfo']['yarn_web_portal_uri'] }}
+          value: http://{{ cluster_cfg['hadoop-resource-manager']['master-ip'] }}:8088
         - name: GRAFANA_URI
-          value: {{ clusterinfo['webportalinfo']['grafana_uri'] }}
+          value: {{ cluster_cfg['grafana']['url'] }}
         - name: K8S_DASHBOARD_URI
-          value: {{ clusterinfo['webportalinfo']['k8s_dashboard_uri'] }}
+          value: http://{{ cluster_cfg['kubernetes']['dashboard-host'] }}:9090
         - name: K8S_API_SERVER_URI
-          value: {{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}
+          value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
         - name: EXPORTER_PORT
-          value: "{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}"
+          value: "{{ cluster_cfg['node-exporter']['port'] }}"
         - name: PROM_SCRAPE_TIME
-          value: {{ clusterinfo['prometheusinfo']['scrape_interval'] * 10}}s
+          value: {{ cluster_cfg['prometheus']['scrape_interval'] * 10 }}s
         ports:
         - name: webportal
           containerPort: 8080
-          hostPort: {{ clusterinfo['webportalinfo']['server_port'] }}
+          hostPort: {{ cluster_cfg['webportal']['server-port'] }}
         resources:
           limits:
             memory: "512Mi"
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

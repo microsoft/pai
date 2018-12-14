@@ -101,17 +101,17 @@ class etcdfix_conf_validation:
 
     def cluster_conf_validation(self):
 
-        if 'mastermachinelist' not in self.cluster_config:
+        com = self.cluster_config
 
+        if 'master-list' not in com["kubernetes"]:
             self.logger.error("mastermachinelist not in your cluster configuration.")
-
             return False
 
         ret = False
 
-        for host in self.cluster_config['mastermachinelist']:
+        for host in com["kubernetes"]["master-list"]:
 
-            hostObject = self.cluster_config['mastermachinelist'][host]
+            hostObject = com["machine"]["machine-list"][host]
 
             if self.node_conf_validation(hostObject) == False:
 
@@ -120,36 +120,32 @@ class etcdfix_conf_validation:
             if str(hostObject['nodename']) == str(self.node_config['nodename']):
 
                 if str(hostObject['hostip']) != str(self.node_config['hostip']):
-
-                    self.logger.error("Hostip of the bad node in cluster configuration is inconsistent with node configuration")
+                    self.logger.error(
+                        "Hostip of the bad node in cluster configuration is inconsistent with node configuration")
                     return False
 
                 if str(hostObject['username']) != str(self.node_config['username']):
-
-                    self.logger.error("username of the bad node in cluster configuration is inconsistent with node configuration")
+                    self.logger.error(
+                        "username of the bad node in cluster configuration is inconsistent with node configuration")
                     return False
 
                 if str(hostObject['password']) != str(self.node_config['password']):
-
-                    self.logger.error("password of the bad node in cluster configuration is inconsistent with node configuration")
+                    self.logger.error(
+                        "password of the bad node in cluster configuration is inconsistent with node configuration")
                     return False
 
                 if 'sshport' not in hostObject:
-
                     hostObject['sshport'] = 22
 
                 if 'sshport' not in self.node_config:
-
                     self.node_config['sshport'] = 22
 
                 if str(hostObject['sshport']) != str(self.node_config['sshport']):
-
                     self.logger.error(
                         "sshport of the bad node in cluster configuration is inconsistent with node configuration")
                     return False
 
                 if str(hostObject['etcdid']) != str(self.node_config['etcdid']):
-
                     self.logger.error(
                         "etcdid of the bad node in cluster configuration is inconsistent with node configuration")
                     return False
@@ -177,14 +173,14 @@ class etcdfix:
     A class to reconfiguration etcd. Fix the issue when etcd's data is corrupted
     """
 
-    def __init__(self, cluster_config, node_config, clean):
+    def __init__(self, cluster_object_model, node_config, clean):
 
         self.logger = logging.getLogger(__name__)
 
         self.logger.info("Initialize class etcdfix to fix the broken etcd member on {0}".format(node_config["nodename"]))
         self.logger.debug("Node-configuration: {0}".format(str(node_config)))
 
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         self.bad_node_config = node_config
         maintain_configuration_path = os.path.join(package_directory_etcdfix, "../maintainconf/etcdfix.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
@@ -197,7 +193,7 @@ class etcdfix:
         self.logger.debug("Prepare package for {0} on {1}".format(jobname, node_config['nodename']))
         self.logger.debug("The job configuration: {0}".format(self.maintain_config[jobname]))
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, jobname)
+        common.maintain_package_wrapper(self.cluster_object_model, self.maintain_config, node_config, jobname)
 
 
 
@@ -223,7 +219,7 @@ class etcdfix:
         if common.sftp_paramiko(src_local, dst_remote, script_package, bad_node_config) == False:
             sys.exit(1)
 
-        commandline = "tar -xvf {0}.tar && sudo ./{0}/stop-etcd-server.sh".format("etcd-reconfiguration-stop")
+        commandline = "tar -xvf {0}.tar && sudo /bin/bash {0}/stop-etcd-server.sh".format("etcd-reconfiguration-stop")
 
         if common.ssh_shell_with_password_input_paramiko(bad_node_config, commandline) == False:
             sys.exit(1)
@@ -280,13 +276,15 @@ class etcdfix:
 
     def restart_etcd_server(self, bad_node_config):
 
+        com = self.cluster_object_model
+
         self.logger.info("Begin to execute the job : etcd-reconfiguration-restart.")
         self.logger.info("Restart etcd server on host [{0}].".format(bad_node_config['nodename']))
 
         new_etcd_cluster_ips_peer = self.get_etcd_peer_ip_list(bad_node_config)
 
-        self.cluster_config['clusterinfo']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
-        self.cluster_config['clusterinfo']['etcd-initial-cluster-state'] = 'existing'
+        com['kubernetes']['etcd_cluster_ips_peer'] = new_etcd_cluster_ips_peer
+        com['kubernetes']['etcd-initial-cluster-state'] = 'existing'
 
         self.prepare_package(bad_node_config, "etcd-reconfiguration-restart")
 
@@ -310,21 +308,19 @@ class etcdfix:
 
 
     def get_etcd_leader_node(self):
+        com = self.cluster_object_model
 
         # Get leader node.
         host_list = list()
-
-        for host in self.cluster_config['mastermachinelist']:
-            host_list.append((self.cluster_config['mastermachinelist'][host]['hostip'], 4001))
-
+        for host in com['kubernetes']['master-list']:
+            host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         etcdid = client.leader['name']
-
-        for host in self.cluster_config['mastermachinelist']:
-            if etcdid == self.cluster_config['mastermachinelist'][host]['etcdid']:
-                self.logger.debug("Current leader of etcd-cluster: {0}".format(self.cluster_config['mastermachinelist'][host]))
-                return self.cluster_config['mastermachinelist'][host]
+        for host in com['kubernetes']['master-list']:
+            if etcdid == com['machine']['machine-list'][host]['etcdid']:
+                self.logger.debug("Current leader of etcd-cluster: {0}".format(com['machine']['machine-list'][host]))
+                return com['machine']['machine-list'][host]
 
         self.logger.error("Can't find the leader of etcd.")
         return None
@@ -332,15 +328,14 @@ class etcdfix:
 
 
     def get_etcd_peer_ip_list(self, bad_node_config):
+        com = self.cluster_object_model
 
         etcd_cluster_ips_peer = ""
         separated = ""
 
         host_list = list()
-
-        for host in self.cluster_config['mastermachinelist']:
-            host_list.append((self.cluster_config['mastermachinelist'][host]['hostip'], 4001))
-
+        for host in com['kubernetes']['master-list']:
+            host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         member_dict = client.members
@@ -372,8 +367,7 @@ class etcdfix:
 
     def run(self):
 
-        validation = etcdfix_conf_validation(self.cluster_config, self.bad_node_config)
-
+        validation = etcdfix_conf_validation(self.cluster_object_model, self.bad_node_config)
         if validation.validation() == False:
             sys.exit(1)
 

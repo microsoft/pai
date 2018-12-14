@@ -18,139 +18,35 @@
 import os
 import sys
 import unittest
-import yaml
-import threading
-import logging
-import logging.config
-import tempfile
+import subprocess
+
+import base
 
 sys.path.append(os.path.abspath("../src/"))
 
 import utils
-from utils import Metric
 
-log = logging.getLogger(__name__)
-
-class TestUtils(unittest.TestCase):
+class TestUtils(base.TestBase):
     """
     Test utils.py
     """
-    def setUp(self):
-        try:
-            os.chdir(os.path.abspath("test"))
-        except:
-            pass
+    def test_walk_json_field_safe(self):
+        self.assertIsNone(utils.walk_json_field_safe(None, 1, "abc"))
+        self.assertIsNone(utils.walk_json_field_safe([], 1, "abc"))
+        self.assertIsNone(utils.walk_json_field_safe([{"abc"}], 1, "abc"))
+        self.assertEqual("345",
+                utils.walk_json_field_safe([{"name": "123"}, {"name": "345"}], 1, "name"))
 
-        configuration_path = "logging.yaml"
+    def test_exec_cmd_with_0_return_value(self):
+        self.assertEqual("10\n", utils.exec_cmd(["echo", "10"]))
 
-        if os.path.exists(configuration_path):
-            with open(configuration_path, 'rt') as f:
-                logging_configuration = yaml.safe_load(f.read())
-            logging.config.dictConfig(logging_configuration)
-            logging.getLogger()
+    def test_exec_cmd_with_timeout(self):
+        with self.assertRaises(subprocess.TimeoutExpired) as context:
+            utils.exec_cmd(["sleep", "10"], timeout=1)
 
-
-    def tearDown(self):
-        try:
-            os.chdir(os.path.abspath(".."))
-        except:
-            pass
-
-    def test_metrics_eq(self):
-        self.assertEqual(Metric("foo", {"abc": "1"}, "3"),
-                Metric("foo", {"abc": "1"}, "3"))
-
-        self.assertNotEqual(Metric("foo", {"abc": "1"}, "3"),
-                Metric("bar", {"abc": "1"}, "3"))
-        self.assertNotEqual(Metric("foo", {"abc": "2"}, "3"),
-                Metric("foo", {"abc": "1"}, "3"))
-        self.assertNotEqual(Metric("foo", {"abc": "2"}, "3"),
-                Metric("foo", {"abc": "2"}, "5"))
-
-    def test_export_metrics_to_file(self):
-        metrics = []
-        metrics.append(Metric("foo", {"bar": 2}, "3"))
-        metrics.append(Metric("bar", {}, "4"))
-        with tempfile.NamedTemporaryFile() as f:
-            utils.export_metrics_to_file(f.name, metrics)
-            lines = f.readlines()
-            self.assertEqual("foo{bar=\"2\"} 3", lines[0].strip())
-            self.assertEqual("bar 4", lines[1].strip())
-
-    def test_singleton_normal(self):
-        def getter():
-            return 100
-
-        singleton = utils.Singleton(getter)
-
-        for _ in xrange(10):
-            val, is_old = singleton.try_get()
-            self.assertEqual(100, val)
-            self.assertFalse(is_old)
-
-    def test_singleton_with_blocking_getter_no_old_data(self):
-        semaphore = threading.Semaphore(1)
-
-        def blocking_getter():
-            semaphore.acquire(blocking=True)
-            semaphore.release()
-            return 100
-
-        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2)
-
-        val, is_old = singleton.try_get()
-        self.assertIsNotNone(val)
-        self.assertFalse(is_old)
-
-        for _ in xrange(3):
-            semaphore.acquire()
-
-            for _ in xrange(3):
-                val, is_old = singleton.try_get()
-                self.assertEqual(100, val)
-                self.assertTrue(is_old)
-
-            semaphore.release()
-            val, is_old = singleton.try_get()
-            self.assertEqual(100, val)
-            self.assertFalse(is_old)
-
-    def test_singleton_with_blocking_getter_allow_old_data(self):
-        semaphore = threading.Semaphore(1)
-
-        def blocking_getter():
-            semaphore.acquire(blocking=True)
-            semaphore.release()
-            return 100
-
-        singleton = utils.Singleton(blocking_getter, get_timeout_s=0.2)
-
-        semaphore.acquire()
-
-        for _ in xrange(3):
-            val, is_old = singleton.try_get()
-            self.assertIsNone(val)
-            self.assertTrue(is_old)
-
-        semaphore.release()
-        # let singleton cache one value
-        val, is_old = singleton.try_get()
-        self.assertEqual(100, val)
-        self.assertFalse(is_old)
-
-        for _ in xrange(3):
-            semaphore.acquire()
-
-            for _ in xrange(3):
-                # singleton returns old value
-                val, is_old = singleton.try_get()
-                self.assertEqual(100, val)
-                self.assertTrue(is_old)
-
-            semaphore.release()
-            val, is_old = singleton.try_get()
-            self.assertEqual(100, val)
-            self.assertFalse(is_old)
+    def test_exec_cmd_with_non_0_return_value(self):
+        with self.assertRaises(subprocess.CalledProcessError) as context:
+            utils.exec_cmd(["false"])
 
 if __name__ == '__main__':
     unittest.main()

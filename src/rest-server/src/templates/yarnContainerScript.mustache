@@ -26,28 +26,14 @@ export PAI_DEFAULT_FS_URI={{{ hdfsUri }}}
 exec 13>$LAUNCHER_LOG_DIR/YarnContainerDebug.log
 BASH_XTRACEFD=13
 
-function debug_log()
-{
-  if [ $# -gt 1 ]; then
-    local prefix=$1
-    local message=$2
-    echo "[DEBUG] $prefix: $message"
-  fi
-}
 
 function exit_handler()
 {
   rc=$?
-  local handler="Yarn container exit handler"
-  debug_log "$handler"  "EXIT signal received in yarn container, performing clean up action..."
+  printf "[DEBUG] EXIT signal received in yarn container, performing clean up action...\n"
 
-  debug_log "$handler" "write exit code to file"
-  debug_log "$handler" "yarn container exit code: $rc"
-  debug_log "$handler" "exit code file path: /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
+  printf "[DEBUG] Write exit code $rc to file /var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode.\n"
   echo $rc > "/var/lib/hadoopdata/nm-local-dir/nmPrivate/$APP_ID/$CONTAINER_ID/$CONTAINER_ID.pid.exitcode"
-
-  debug_log "$handler" "clean the container code"
-  rm -fr tmp/pai-root/code 2>/dev/null
 
   exit $rc
 }
@@ -57,11 +43,13 @@ PS4="+[\t] "
 trap exit_handler EXIT
 
 
-mkdir -p "/tmp/pai-root/alive/$APP_ID"
+alive_dir="tmp/pai-root/alive"
+
+mkdir -p $alive_dir
 while /bin/true; do
-  touch "/tmp/pai-root/alive/$APP_ID/yarn_$CONTAINER_ID"
+  touch "$alive_dir/yarn_$CONTAINER_ID"
   sleep 20
-  [ -f "/tmp/pai-root/alive/$APP_ID/docker_$CONTAINER_ID" ] && [ ! "$(docker ps | grep $docker_name)" ] && break
+  [ -f "$alive_dir/docker_$CONTAINER_ID" ] && [ ! "$(docker ps | grep $docker_name)" ] && break
 done &
 
 gpu_id=''
@@ -240,8 +228,9 @@ if [[ -n $PAI_CODE_DIR ]]; then
 fi
 
 # Prepare docker debug log
-mkdir -p "/tmp/pai-root/log/$APP_ID/$CONTAINER_ID"
-ln -s /tmp/pai-root/log/$APP_ID/$CONTAINER_ID/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
+log_dir="tmp/pai-root/log"
+mkdir -p $log_dir
+ln -s $log_dir/DockerContainerDebug.log $LAUNCHER_LOG_DIR/DockerContainerDebug.log
 
 # copy the hadoop configuration file
 hadoop_config_dir="hadoop_config"
@@ -275,12 +264,12 @@ docker run --name $docker_name \
   $nvidia_devices \
   --device=/dev/fuse \
   --security-opt apparmor:unconfined \
-  --volume /tmp/pai-root/alive/$APP_ID:/alive \
-  --volume /tmp/pai-root/alive/$APP_ID/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
-  --volume /tmp/pai-root/log/$APP_ID/$CONTAINER_ID:/pai/log \
+  --volume $container_local_dir/$alive_dir:/alive \
+  --volume $container_local_dir/$alive_dir/yarn_$CONTAINER_ID:/alive/yarn_$CONTAINER_ID:ro \
+  --volume $container_local_dir/$log_dir:/pai/log \
   --volume $container_local_dir/$bootstrap_dir:/pai/bootstrap:ro \
   --volume $container_local_dir/$code_dir:/pai/code:ro \
-  --volume ${NV_DRIVER}:/usr/local/nvidia:ro \
+  --volume /var/drivers/nvidia/current:/usr/local/nvidia:ro \
   --volume $container_local_dir/$hadoop_config_dir:/etc/hadoop \
   --volume $container_local_dir/$ssh_config_file:/pai/ssh_config/:ro \
   --label GPU_ID=$gpu_id \

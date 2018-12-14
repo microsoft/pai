@@ -34,7 +34,7 @@ spec:
       hostPID: true
       containers:
       - name: hadoop-node-manager
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         securityContext:
           privileged: true
@@ -71,31 +71,31 @@ spec:
             memory: "4Gi"
         env:
         - name: RESOURCEMANAGER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
-        - name: ZOOKEEPER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}
+        - name: ZOOKEEPER_QUORUM
+          value: {{ cluster_cfg[ "zookeeper" ][ "quorum" ] }}
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-name-node" ][ "master-ip" ] }}
         - name: LOGSERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "log-server-ip" ] }}
         - name: TIMELINE_SERVER_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}
         - name: GENERATE_CONFIG
           value: nodemanager-generate-script.sh
         - name: START_SERVICE
           value: nodemanager-start-service.sh
         - name: HOST_YARN_NODEMANAGER_STORAGE
-          value: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
+          value: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/yarn/node
         - name: HOST_HADOOP_TMP_STORAGE
-          value: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
+          value: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
         - name: CURRENT_IMAGE_NAME
-          value: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+          value: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         - name: YARN_NODEMANAGER_HEAPSIZE
           value: "3072"
         - name: NV_DRIVER
           value: /var/drivers/nvidia/current
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: device-mount
         hostPath:
@@ -111,7 +111,7 @@ spec:
           path: /var/drivers/nvidia/current
       - name: yarn-nodemanager-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/yarn/node
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/yarn/node
       - name: pai-tmp-path
         hostPath:
           path: /tmp/pai-root
@@ -126,10 +126,11 @@ spec:
           name: host-configuration
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/nodemanager
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
       - key: node.kubernetes.io/disk-pressure
         operator: "Exists"
+
 
