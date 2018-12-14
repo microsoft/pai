@@ -26,7 +26,7 @@ process.env.JWT_SECRET = 'jwt_test_secret';
 process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
 process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
 process.env.YARN_URI = 'http://yarn.test.pai:8088';
-process.env.K8S_API_SERVER_URI = 'http://apiserver.test.pai:8080'
+process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
 
 
 // module dependencies
@@ -50,7 +50,7 @@ global.should = chai.should;
 global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
-global.apiServerRootUri = process.env.K8S_API_SERVER_URI;
+global.apiServerRootUri = process.env.K8S_APISERVER_URI;
 global.yarnUri = process.env.YARN_URI;
 
 global.jobConfigTemplate = JSON.stringify({
