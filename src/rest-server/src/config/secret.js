@@ -20,7 +20,7 @@
 const Joi = require('joi');
 
 let userSecretConfig = {
-  apiServerUri: process.env.K8S_API_SERVER_URI,
+  apiServerUri: process.env.K8S_APISERVER_URI,
   paiUserNameSpace: 'pai-user',
   adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
   adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
