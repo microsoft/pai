@@ -25,7 +25,7 @@
 - [Step 3. Boot up Kubernetes](#c-step-3)
 - [Step 4. Update cluster configuration into kubernetes](#c-step-4)
 - [Step 5. Start all OpenPAI services](#c-step-5)
-- [Step 6. Validate deployment](#c-step-6)
+- [appendix. Validate deployment](#appendix)
 
 ***
 
@@ -70,7 +70,7 @@ If you are very familiar with OpenPAI, you could directly write your configurait
 
 ***
 
-### Step 6. Validate deployment <a name="c-step-6"></a>
+### appendix. Validate deployment <a name="appendix"></a>
 
 - [A Guide to validate deployment](./validate-deployment.md)
 
