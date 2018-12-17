@@ -18,6 +18,8 @@
 
 // module dependencies
 const Joi = require('joi');
+const {readFileSync} = require('fs');
+const {Agent} = require('https');
 
 let userSecretConfig = {
   apiServerUri: process.env.K8S_APISERVER_URI,
@@ -26,8 +28,27 @@ let userSecretConfig = {
   adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
+
 userSecretConfig.storagePath = () => {
   return `${userSecretConfig.apiServerUri}/api/v1/namespaces/${userSecretConfig.paiUserNameSpace}/secrets`;
+};
+
+userSecretConfig.requestConfig = () => {
+  const config = {
+    baseURL: userSecretConfig.storagePath(),
+    maxRedirects: 0,
+  };
+
+  if ('K8S_APISERVER_CA_FILE' in process.env) {
+    const ca = readFileSync(process.env.K8S_APISERVER_CA_FILE);
+    config.httpsAgent = new Agent({ca});
+  }
+
+  if ('K8S_APISERVCER_TOKEN_FILE' in process.env) {
+    const token = readFileSync(process.env.K8S_APISERVER_TOKEN_FILE, 'ascii');
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 };
 
 const userSecretConfigSchema = Joi.object().keys({
@@ -42,6 +63,9 @@ const userSecretConfigSchema = Joi.object().keys({
     .min(6)
     .required(),
   storagePath: Joi.func()
+    .arity(0)
+    .required(),
+  requestConfig: Joi.func()
     .arity(0)
     .required(),
 }).required();
