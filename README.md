@@ -66,7 +66,7 @@ If you only have one mahince, and want to deploy pai on it. Please choose ```Sin
 If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
 
 ##### 2.1 [Single Box deploy](./docs/pai-management/doc/single-box.md)
-##### 2.2 [Distributed deploy](./docs/pai-management/doc/customized-deploy.md)
+##### 2.2 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
 
 
 ## How to use
