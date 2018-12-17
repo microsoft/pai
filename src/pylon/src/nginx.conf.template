@@ -90,6 +90,10 @@ http {
         \"appTrackingUrl\":\"http://([^/]*):8088/([^\"]*)\"
         \"appTrackingUrl\":\"$scheme://$http_host/yarn/$1:8088/$2\"
         r;
+      subs_filter
+        \"appTrackingUrl\":\"http://([^/]*):5070/([^\"]*)\"
+        \"appTrackingUrl\":\"$scheme://$http_host/a/$1:5070/$2\"
+        r;
     }
 
     # Kubernetes API server.
