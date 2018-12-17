@@ -142,6 +142,7 @@ rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
 # clean git
 git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -244,6 +245,7 @@ rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
 # clean git
 git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -565,6 +567,7 @@ set -x
 cd /pai
 # clean git
 git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
@@ -611,6 +614,7 @@ set -x
 cd /pai
 # clean git
 git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
