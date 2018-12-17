@@ -148,6 +148,7 @@ if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -251,6 +252,7 @@ if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -573,6 +575,7 @@ if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -620,6 +623,7 @@ if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
