@@ -27,7 +27,7 @@
 - [Step a. How to write cluster-configuraiton.yaml](#step_a)
 - [Step b. How to write kubernetes-configuration.yaml](#step_b)
 - [Step c. How to write service-configuraiton.yaml](#step_c)
-
+- [Step d. How to write k8s-role-definition.yaml](#step_d)
 
 #### Overview <a name="overview"></a>
 
@@ -49,6 +49,11 @@ PAI configuration consists of 4 YAML files:
 ### Step c. How to write service-configuration.yaml <a name="step_c"></a>
 
 [A Guide of customize service-configuration.yaml](./how-to-congiure-service-config.md)
+
+### Step d. How to write k8s-role-definition.yaml <a name="step_d"></a>
+
+Please directly copy the example [```k8s-role-definition.yaml```](../../../examples/cluster-configuration/k8s-role-definition.yaml)'s content.
+
 
 
 
