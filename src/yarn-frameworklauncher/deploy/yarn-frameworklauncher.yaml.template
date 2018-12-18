@@ -45,6 +45,8 @@ spec:
           name: launcher-log
         - mountPath: /gpu-configuration
           name: gpu-confg-volume
+        - mountPath: /host-configuration
+          name: host-confg-volume
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
@@ -89,3 +91,7 @@ spec:
       - name: gpu-confg-volume
         configMap:
           name: gpu-configuration
+      - name: host-confg-volume
+        configMap:
+          name: host-configuration
+

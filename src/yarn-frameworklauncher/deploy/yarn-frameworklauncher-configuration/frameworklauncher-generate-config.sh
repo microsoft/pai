@@ -19,6 +19,24 @@
 
 # Prepare for hadoop-config.
 
+
+ip_list=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
+
+host_ip_address=''
+
+for ip_address in $ip_list
+do
+    if cat /host-configuration/host-configuration.yaml | grep -q $ip_address;
+    then
+       host_ip_address=$ip_address
+       break
+    fi
+done
+
+echo "The ip-address of this machine is: $host_ip_address"
+
+echo "$host_ip_address  $host_ip_address" >> /etc/hosts
+
 cp  /hadoop-nm-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-nm-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 cp  /hadoop-nm-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
