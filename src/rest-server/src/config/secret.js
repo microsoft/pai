@@ -31,7 +31,7 @@ let userSecretConfig = {
 
 
 getStoragePath = () => {
-  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/${userSecretConfig.paiUserNameSpace}/secrets`;
+  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/`;
 };
 
 userSecretConfig.requestConfig = () => {
