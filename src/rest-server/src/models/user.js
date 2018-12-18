@@ -40,8 +40,8 @@ const encrypt = (username, password, callback) => {
 };
 
 const db = dbUtility.getStorageObject('UserSecret', {
-  'apiServerUri': secretConfig.apiServerUri,
   'paiUserNameSpace': secretConfig.paiUserNameSpace,
+  'requestConfig' : secretConfig.requestConfig(),
 });
 
 const update = (username, password, admin, modify, next) => {
