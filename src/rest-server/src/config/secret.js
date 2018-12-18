@@ -20,7 +20,6 @@
 const Joi = require('joi');
 const {readFileSync} = require('fs');
 const {Agent} = require('https');
-const {resolve} = require('path');
 
 let userSecretConfig = {
   apiServerUri: process.env.K8S_APISERVER_URI,
@@ -36,13 +35,11 @@ userSecretConfig.requestConfig = () => {
   };
 
   if ('K8S_APISERVER_CA_FILE' in process.env) {
-    process.env.K8S_APISERVER_CA_FILE = resolve(__dirname, 'ca.crt');
     const ca = readFileSync(process.env.K8S_APISERVER_CA_FILE);
     config.httpsAgent = new Agent({ca});
   }
 
   if ('K8S_APISERVCER_TOKEN_FILE' in process.env) {
-    process.env.K8S_APISERVER_TOKEN_FILE = resolve(__dirname, 'token');
     const token = readFileSync(process.env.K8S_APISERVER_TOKEN_FILE, 'ascii');
     config.headers['Authorization'] = `Bearer ${token}`;
   }
