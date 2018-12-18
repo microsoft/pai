@@ -269,7 +269,6 @@ describe('Add new user: put /api/v1/user', () => {
       .set('Authorization', 'Bearer ' + validToken)
       .send({ 'username': 'existuser', 'password': '123456', 'admin': true, 'modify': false })
       .end((err, res) => {
-        console.log(res.response)
         global.chai.expect(res, 'status code').to.have.status(409);
         global.chai.expect(res, 'response format').be.json;
         global.chai.expect(res.body.code, 'response code').equal('ConflictUserError');
