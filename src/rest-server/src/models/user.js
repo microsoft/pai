@@ -39,6 +39,7 @@ const encrypt = (username, password, callback) => {
   }
 };
 
+console.log(secretConfig.requestConfig());
 const db = dbUtility.getStorageObject('UserSecret', {
   'paiUserNameSpace': secretConfig.paiUserNameSpace,
   'requestConfig' : secretConfig.requestConfig(),
@@ -68,7 +69,7 @@ const update = (username, password, admin, modify, next) => {
       } else {
         updateUser['admin'] = (admin === undefined) ? false : admin;
       }
-      console.log(updateUser)
+      // console.log(updateUser)
       // Will grant admin user all VC permission
       if (updateUser['admin']) {
         VirtualCluster.prototype.getVcList((vcList, err) => {
@@ -290,7 +291,7 @@ if (config.env !== 'test') {
         throw new Error('Check user info storage base path failed');
       }
     } else {
-      console.log('[CAN-TEST] namespace prepared succeed')
+      // console.log('[CAN-TEST] namespace prepared succeed')
       getUserList((errMsg, userInfoList) => {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);

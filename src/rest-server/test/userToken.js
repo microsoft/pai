@@ -39,18 +39,19 @@ describe('user token test: post /api/v1/token', () => {
 
   beforeEach(() => {
 
+    // mock for case 1 username=tokentest
     nock(apiServerRootUri)
-      .get('/api/v1/namespaces/pai-user/secrets/tokentest')
+      .get('/api/v1/namespaces/pai-user/secrets/746f6b656e74657374')
       .reply(200, {
         'kind': 'Secret',
         'apiVersion': 'v1',
         'metadata': {
-            'name': 'paitest',
+            'name': '746f6b656e74657374',
         },
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
-            'username': 'dG9rZW50ZXN0',
+            'userName': 'dG9rZW50ZXN0',
             'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
