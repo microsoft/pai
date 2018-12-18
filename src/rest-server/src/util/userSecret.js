@@ -22,8 +22,12 @@ const StorageBase = require('./storageBase');
 class UserSecret extends StorageBase {
   constructor(options) {
     super();
-    this.secretRootUrl = options.secretRootUrl;
+    this.storageBasePath = `${options.apiServerUri}/api/v1/namespaces/${options.paiUserNameSpace}`
+    this.secretRootUri = `${this.storageBasePath}/secrets/`;
     this.options = options;
+    console.log('[CAN-TEST] storageBasePath is ' + this.storageBasePath);
+    console.log('[CAN-TEST] secretRootUri is ' + this.secretRootUri);
+    console.log(this.options);
   }
 
   async get(key, options) {
@@ -31,7 +35,7 @@ class UserSecret extends StorageBase {
       console.log('[CAN-TEST] in userSecret get')
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
       console.log('[CAN-TEST] hexKey = ' + hexKey);
-      const response = await axios.get(`${this.secretRootUrl}/${hexKey}`, {
+      const response = await axios.get(`${this.secretRootUri}/${hexKey}`, {
         headers: {
           'Accept': 'application/json',
         },
@@ -87,12 +91,12 @@ class UserSecret extends StorageBase {
       let response = null;
       if (options && options['update']) {
         console.log('[CAN-TEST] in put')
-        console.log(`[CAN-TEST] require url=${this.secretRootUrl}/${hexKey}`)
-        response = await axios.put(`${this.secretRootUrl}/${hexKey}`, userData);
+        console.log(`[CAN-TEST] require url=${this.secretRootUri}/${hexKey}`)
+        response = await axios.put(`${this.secretRootUri}/${hexKey}`, userData);
       } else {
         console.log('[CAN-TEST] in post')
-        console.log(`[CAN-TEST] require url=${this.secretRootUrl}`)
-        response = await axios.post(`${this.secretRootUrl}`, userData);
+        console.log(`[CAN-TEST] require url=${this.secretRootUri}`)
+        response = await axios.post(`${this.secretRootUri}`, userData);
       }
       return response;
     } catch (error) {
@@ -104,7 +108,7 @@ class UserSecret extends StorageBase {
   async delete(key, options) {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      let response = await axios.delete(`${this.secretRootUrl}/${hexKey}`, {
+      let response = await axios.delete(`${this.secretRootUri}/${hexKey}`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -115,6 +119,31 @@ class UserSecret extends StorageBase {
       throw error.response;
     }
   }
+
+  async prepareBasePath() {
+    try {
+      const response = await axios.post(`${this.options.apiServerUri}/api/v1/namespaces/`, {
+        'metadata': { 'name': `${this.options.paiUserNameSpace}` },
+      })
+      return response;
+    } catch (error) {
+      throw error.response;
+    }
+  }
+
+  async checkBasePath() {
+    try {
+      const response = await axios.get(`${this.storageBasePath}`, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error.response;
+    }
+  }
+
 }
 
 module.exports = UserSecret;

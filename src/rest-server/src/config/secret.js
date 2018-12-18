@@ -30,13 +30,13 @@ let userSecretConfig = {
 };
 
 
-userSecretConfig.storagePath = () => {
+getStoragePath = () => {
   return `${userSecretConfig.apiServerUri}/api/v1/namespaces/${userSecretConfig.paiUserNameSpace}/secrets`;
 };
 
 userSecretConfig.requestConfig = () => {
   const config = {
-    baseURL: userSecretConfig.storagePath(),
+    baseURL: getStoragePath(),
     maxRedirects: 0,
   };
 
@@ -64,9 +64,6 @@ const userSecretConfigSchema = Joi.object().keys({
     .required(),
   adminPass: Joi.string()
     .min(6)
-    .required(),
-  storagePath: Joi.func()
-    .arity(0)
     .required(),
   requestConfig: Joi.func()
     .arity(0)
