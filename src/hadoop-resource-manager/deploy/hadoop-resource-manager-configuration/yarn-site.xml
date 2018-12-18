@@ -218,7 +218,7 @@
 
   <property>
     <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
-    <value>1200000</value>
+    <value>1500000</value>
   </property>
 
   <property>
