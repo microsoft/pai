@@ -28,7 +28,10 @@ class UserSecret extends StorageBase {
 
   async get(key, options) {
     try {
-      const response = await axios.get(`${this.secretRootUrl}/${key}`, {
+      console.log('[CAN-TEST] in userSecret get')
+      const hexKey = key ? Buffer.from(key).toString('hex') : '';
+      console.log('[CAN-TEST] hexKey = ' + hexKey);
+      const response = await axios.get(`${this.secretRootUrl}/${hexKey}`, {
         headers: {
           'Accept': 'application/json',
         },
@@ -38,7 +41,7 @@ class UserSecret extends StorageBase {
       if (userData.hasOwnProperty('items')) {
         userData['items'].forEach((item) => {
           allUserSecrets.push({
-            userName: Buffer.from(item['data']['username'], 'base64').toString(),
+            userName: Buffer.from(item['data']['userName'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
             admin: Buffer.from(item['data']['admin'], 'base64').toString() === 'true' ? true : false,
             virtualCluster: item['data'].hasOwnProperty('virtualCluster') ? Buffer.from(item['data']['virtualCluster'], 'base64').toString() : 'default',
@@ -47,7 +50,7 @@ class UserSecret extends StorageBase {
         });
       } else {
         allUserSecrets.push({
-          userName: Buffer.from(userData['data']['username'], 'base64').toString(),
+          userName: Buffer.from(userData['data']['userName'], 'base64').toString(),
           password: Buffer.from(userData['data']['password'], 'base64').toString(),
           admin: Buffer.from(userData['data']['admin'], 'base64').toString() === 'true' ? true : false,
           virtualCluster: userData['data'].hasOwnProperty('virtualCluster') ? Buffer.from(userData['data']['virtualCluster'], 'base64').toString() : 'default',
@@ -56,16 +59,19 @@ class UserSecret extends StorageBase {
       }
       return allUserSecrets;
     } catch (error) {
+      console.log(error)
       throw error.response;
     }
   }
 
   async set(key, value, options) {
+    console.log('[CAN-TEST] in userSecret set')
     try {
+      const hexKey = key ? Buffer.from(key).toString('hex') : '';
       let userData = {
-        'metadata': {'name': key},
+        'metadata': {'name': hexKey},
         'data': {
-          'username': Buffer.from(key).toString('base64'),
+          'userName': Buffer.from(value['userName']).toString('base64'),
           'password': Buffer.from(value['password']).toString('base64'),
           'admin': Buffer.from(value['admin'].toString()).toString('base64'),
         },
@@ -76,21 +82,29 @@ class UserSecret extends StorageBase {
       if (value.hasOwnProperty('githubPAT')) {
         userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64');
       }
+      console.log(userData)
+
       let response = null;
       if (options && options['update']) {
-        response = await axios.put(`${this.secretRootUrl}/${key}`, userData);
+        console.log('[CAN-TEST] in put')
+        console.log(`[CAN-TEST] require url=${this.secretRootUrl}/${hexKey}`)
+        response = await axios.put(`${this.secretRootUrl}/${hexKey}`, userData);
       } else {
+        console.log('[CAN-TEST] in post')
+        console.log(`[CAN-TEST] require url=${this.secretRootUrl}`)
         response = await axios.post(`${this.secretRootUrl}`, userData);
       }
       return response;
     } catch (error) {
+      console.log(error);
       throw error.response;
     }
   }
 
   async delete(key, options) {
     try {
-      let response = await axios.delete(`${this.secretRootUrl}/${key}`, {
+      const hexKey = key ? Buffer.from(key).toString('hex') : '';
+      let response = await axios.delete(`${this.secretRootUrl}/${hexKey}`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

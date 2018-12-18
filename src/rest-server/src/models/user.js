@@ -61,12 +61,14 @@ const update = (username, password, admin, modify, next) => {
       const dbSet = util.callbackify(db.set.bind(db));
       let options = modify ? {'update': true} : {};
       let updateUser = modify ? res[0] : {};
+      updateUser['userName'] = username;
       updateUser['password'] = password ? encrypt(username, password) : updateUser['password'];
       if (modify) {
         updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : admin;
       } else {
         updateUser['admin'] = (admin === undefined) ? false : admin;
       }
+      console.log(updateUser)
       // Will grant admin user all VC permission
       if (updateUser['admin']) {
         VirtualCluster.prototype.getVcList((vcList, err) => {
@@ -285,8 +287,10 @@ const prepareStoragePath = () => {
 };
 
 if (config.env !== 'test') {
+  console.log(`[CAN-TEST] ${secretConfig.apiServerUri}/api/v1/namespaces/${secretConfig.paiUserNameSpace}`)
   axios.get(`${secretConfig.apiServerUri}/api/v1/namespaces/${secretConfig.paiUserNameSpace}`)
     .then(function(_) {
+      console.log('[CAN-TEST] namespace prepared succeed')
       getUserList((errMsg, userInfoList) => {
         if (errMsg) {
           logger.warn('get user list failed', errMsg);
@@ -299,6 +303,7 @@ if (config.env !== 'test') {
       });
     })
     .catch(function(error) {
+      console.log('[CAN-TEST] namespace prepared failed')
       if (error.response.status === 404) {
         prepareStoragePath();
       }
