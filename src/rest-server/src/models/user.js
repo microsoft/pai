@@ -25,7 +25,6 @@ const createError = require('../util/error');
 const logger = require('../config/logger');
 const VirtualCluster = require('./vc');
 const util = require('util');
-const axios = require('axios');
 
 const encrypt = (username, password, callback) => {
   const iterations = 10000;
@@ -41,7 +40,8 @@ const encrypt = (username, password, callback) => {
 };
 
 const db = dbUtility.getStorageObject('UserSecret', {
-  'secretRootUrl': secretConfig.storagePath(),
+  'apiServerUri': secretConfig.apiServerUri,
+  'paiUserNameSpace': secretConfig.paiUserNameSpace,
 });
 
 const update = (username, password, admin, modify, next) => {
@@ -274,22 +274,22 @@ const setDefaultAdmin = () => {
   });
 };
 
-const prepareStoragePath = () => {
-  axios.post(`${secretConfig.apiServerUri}/api/v1/namespaces/`, {
-    'metadata': {'name': `${secretConfig.paiUserNameSpace}`},
-  })
-    .then(function(_) {
-      setDefaultAdmin();
-    })
-    .catch(function(_) {
-      throw new Error('build storage path failed');
-    });
-};
-
 if (config.env !== 'test') {
-  console.log(`[CAN-TEST] ${secretConfig.apiServerUri}/api/v1/namespaces/${secretConfig.paiUserNameSpace}`)
-  axios.get(`${secretConfig.apiServerUri}/api/v1/namespaces/${secretConfig.paiUserNameSpace}`)
-    .then(function(_) {
+  const dbCheckBasePath = util.callbackify(db.checkBasePath.bind(db));
+  dbCheckBasePath((err, res) => {
+    if (err) {
+      if (err.status === 404) {
+        const dbPrepareBasePath = util.callbackify(db.prepareBasePath.bind(db));
+        dbPrepareBasePath((err, res) => {
+          if (err) {
+            throw new Error('build storage base path failed');
+          }
+          setDefaultAdmin();
+        })
+      } else {
+        throw new Error('Check user info storage base path failed');
+      }
+    } else {
       console.log('[CAN-TEST] namespace prepared succeed')
       getUserList((errMsg, userInfoList) => {
         if (errMsg) {
@@ -301,13 +301,8 @@ if (config.env !== 'test') {
           }
         }
       });
-    })
-    .catch(function(error) {
-      console.log('[CAN-TEST] namespace prepared failed')
-      if (error.response.status === 404) {
-        prepareStoragePath();
-      }
-    });
+    }
+  })
 }
 
 // module exports
