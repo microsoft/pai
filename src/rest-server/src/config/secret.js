@@ -29,14 +29,9 @@ let userSecretConfig = {
   adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
-
-getStoragePath = () => {
-  return `${userSecretConfig.apiServerUri}/api/v1/namespaces/`;
-};
-
 userSecretConfig.requestConfig = () => {
   const config = {
-    baseURL: getStoragePath(),
+    baseURL: `${userSecretConfig.apiServerUri}/api/v1/namespaces/`,
     maxRedirects: 0,
   };
 
