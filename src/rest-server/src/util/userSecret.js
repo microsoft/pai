@@ -22,10 +22,9 @@ const StorageBase = require('./storageBase');
 class UserSecret extends StorageBase {
   constructor(options) {
     super();
-    this.storageBasePath = `${options.apiServerUri}/api/v1/namespaces/${options.paiUserNameSpace}`
-    this.secretRootUri = `${this.storageBasePath}/secrets/`;
+    this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
+    this.request = axios.create(options.requestConfig);
     this.options = options;
-    console.log('[CAN-TEST] storageBasePath is ' + this.storageBasePath);
     console.log('[CAN-TEST] secretRootUri is ' + this.secretRootUri);
     console.log(this.options);
   }
@@ -35,7 +34,8 @@ class UserSecret extends StorageBase {
       console.log('[CAN-TEST] in userSecret get')
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
       console.log('[CAN-TEST] hexKey = ' + hexKey);
-      const response = await axios.get(`${this.secretRootUri}/${hexKey}`, {
+      console.log(`[CAN-TEST] request uri is =${this.secretRootUri}/${hexKey}`)
+      const response = await this.request.get(`${this.secretRootUri}/${hexKey}`, {
         headers: {
           'Accept': 'application/json',
         },
@@ -92,11 +92,11 @@ class UserSecret extends StorageBase {
       if (options && options['update']) {
         console.log('[CAN-TEST] in put')
         console.log(`[CAN-TEST] require url=${this.secretRootUri}/${hexKey}`)
-        response = await axios.put(`${this.secretRootUri}/${hexKey}`, userData);
+        response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
       } else {
         console.log('[CAN-TEST] in post')
         console.log(`[CAN-TEST] require url=${this.secretRootUri}`)
-        response = await axios.post(`${this.secretRootUri}`, userData);
+        response = await this.request.post(`${this.secretRootUri}`, userData);
       }
       return response;
     } catch (error) {
@@ -108,7 +108,7 @@ class UserSecret extends StorageBase {
   async delete(key, options) {
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      let response = await axios.delete(`${this.secretRootUri}/${hexKey}`, {
+      let response = await this.request.delete(`${this.secretRootUri}/${hexKey}`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -122,7 +122,7 @@ class UserSecret extends StorageBase {
 
   async prepareBasePath() {
     try {
-      const response = await axios.post(`${this.options.apiServerUri}/api/v1/namespaces/`, {
+      const response = await this.request.post('', {
         'metadata': { 'name': `${this.options.paiUserNameSpace}` },
       })
       return response;
@@ -133,7 +133,7 @@ class UserSecret extends StorageBase {
 
   async checkBasePath() {
     try {
-      const response = await axios.get(`${this.storageBasePath}`, {
+      const response = await this.request.get(`${this.options.paiUserNameSpace}`, {
         headers: {
           'Accept': 'application/json',
         },
