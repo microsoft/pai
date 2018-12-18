@@ -96,6 +96,7 @@ class UserSecret extends StorageBase {
       } else {
         console.log('[CAN-TEST] in post')
         console.log(`[CAN-TEST] require url=${this.secretRootUri}`)
+        console.log(userData)
         response = await this.request.post(`${this.secretRootUri}`, userData);
       }
       return response;
@@ -116,6 +117,7 @@ class UserSecret extends StorageBase {
       });
       return response;
     } catch (error) {
+      console.log(error);
       throw error.response;
     }
   }
