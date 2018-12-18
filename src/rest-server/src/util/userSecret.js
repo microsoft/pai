@@ -25,16 +25,11 @@ class UserSecret extends StorageBase {
     this.secretRootUri = `${options.paiUserNameSpace}/secrets`;
     this.request = axios.create(options.requestConfig);
     this.options = options;
-    console.log('[CAN-TEST] secretRootUri is ' + this.secretRootUri);
-    console.log(this.options);
   }
 
   async get(key, options) {
     try {
-      console.log('[CAN-TEST] in userSecret get')
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
-      console.log('[CAN-TEST] hexKey = ' + hexKey);
-      console.log(`[CAN-TEST] request uri is =${this.secretRootUri}/${hexKey}`)
       const response = await this.request.get(`${this.secretRootUri}/${hexKey}`, {
         headers: {
           'Accept': 'application/json',
@@ -63,13 +58,11 @@ class UserSecret extends StorageBase {
       }
       return allUserSecrets;
     } catch (error) {
-      console.log(error)
       throw error.response;
     }
   }
 
   async set(key, value, options) {
-    console.log('[CAN-TEST] in userSecret set')
     try {
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
       let userData = {
@@ -86,22 +79,14 @@ class UserSecret extends StorageBase {
       if (value.hasOwnProperty('githubPAT')) {
         userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64');
       }
-      console.log(userData)
-
       let response = null;
       if (options && options['update']) {
-        console.log('[CAN-TEST] in put')
-        console.log(`[CAN-TEST] require url=${this.secretRootUri}/${hexKey}`)
         response = await this.request.put(`${this.secretRootUri}/${hexKey}`, userData);
       } else {
-        console.log('[CAN-TEST] in post')
-        console.log(`[CAN-TEST] require url=${this.secretRootUri}`)
-        console.log(userData)
         response = await this.request.post(`${this.secretRootUri}`, userData);
       }
       return response;
     } catch (error) {
-      console.log(error);
       throw error.response;
     }
   }
@@ -117,7 +102,6 @@ class UserSecret extends StorageBase {
       });
       return response;
     } catch (error) {
-      console.log(error);
       throw error.response;
     }
   }
@@ -125,8 +109,8 @@ class UserSecret extends StorageBase {
   async prepareBasePath() {
     try {
       const response = await this.request.post('', {
-        'metadata': { 'name': `${this.options.paiUserNameSpace}` },
-      })
+        'metadata': {'name': `${this.options.paiUserNameSpace}`},
+      });
       return response;
     } catch (error) {
       throw error.response;
@@ -145,7 +129,5 @@ class UserSecret extends StorageBase {
       throw error.response;
     }
   }
-
 }
-
 module.exports = UserSecret;
