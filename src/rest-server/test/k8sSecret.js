@@ -139,7 +139,6 @@ describe('k8s secret get function test', () => {
   it('should return specific user info', (done) => {
     const dbGet = util.callbackify(db.get.bind(db));
     dbGet('paitest', null, (err, res) => {
-      console.log(res)
       expect(res).to.have.lengthOf(1);
       expect(res).to.have.deep.members([{
         userName: 'paitest',
