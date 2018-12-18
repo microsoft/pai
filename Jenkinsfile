@@ -140,11 +140,15 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
+# clean git
+git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -240,11 +244,15 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
+# clean git
+git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -559,11 +567,15 @@ set -x
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
+# clean git
+git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
@@ -603,11 +615,15 @@ set -x
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
+# clean git
+git clean -f
+rm -rf /pai/.git/index.lock
 # Choose the branch
 if [[ $GIT_BRANCH == PR* ]];
 then
     #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
     git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
+    git reset --hard ${GIT_BRANCH}
     git checkout ${GIT_BRANCH}
 else
     git fetch origin ${GIT_BRANCH}
