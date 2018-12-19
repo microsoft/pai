@@ -41,7 +41,7 @@ const serviceViewHtml = serviceViewComponent({
 
 const loadServices = () => {
   loading.showLoading();
-  service.getServiceView(webportalConfig.k8sApiServerUri, 'default', (data) => {
+  service.getServiceView(webportalConfig.restServerUri + '/api/v1/kubernetes', 'default', (data) => {
     loading.hideLoading();
     $('#service-table').html(serviceTableComponent({
       data,
