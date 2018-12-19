@@ -37,11 +37,11 @@ spec:
       - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}node-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         readinessProbe:
-          httpGet:
-            path: /metrics
+          tcpSocket:
             port: {{ cluster_cfg["node-exporter"]["port"] }}
           initialDelaySeconds: 3
           periodSeconds: 30
+          timeoutSeconds: 10
         resources:
           limits:
             memory: "128Mi"

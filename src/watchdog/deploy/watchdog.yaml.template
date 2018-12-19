@@ -41,8 +41,9 @@ spec:
         readinessProbe:
           tcpSocket: # because http get will trigger job-exporter abandom old metrics, so we use tcp instead of http
             port: 9101
-          initialDelaySeconds: 30
+          initialDelaySeconds: 3
           periodSeconds: 30
+          timeoutSeconds: 10
         resources:
           limits:
             memory: "256Mi"
