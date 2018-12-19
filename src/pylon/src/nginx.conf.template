@@ -295,9 +295,6 @@ http {
         '{{REST_SERVER_URI}}'
         '/rest-server';
       sub_filter
-        '{{K8S_API_SERVER_URI}}'
-        '/kubernetes';
-      sub_filter
         '{{PROMETHEUS_URI}}'
         '/prometheus';
       sub_filter

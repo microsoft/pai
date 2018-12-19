@@ -69,5 +69,7 @@ class RestServer:
             return False, 'hadoop-name-node.master-ip is required'
         if 'hadoop-resource-manager' not in cluster_object_model or 'master-ip' not in cluster_object_model['hadoop-resource-manager']:
             return False, 'hadoop-resource-manager.master-ip is required'
+        if 'kubernetes' not in cluster_object_model or 'api-servers-url' not in cluster_object_model['kubernetes']:
+            return False, 'kubernetes.api-servers-url is required'
 
         return True, None

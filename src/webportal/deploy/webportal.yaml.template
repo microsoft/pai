@@ -46,8 +46,6 @@ spec:
           value: {{ cluster_cfg['grafana']['url'] }}
         - name: K8S_DASHBOARD_URI
           value: http://{{ cluster_cfg['kubernetes']['dashboard-host'] }}:9090
-        - name: K8S_API_SERVER_URI
-          value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
         - name: EXPORTER_PORT
           value: "{{ cluster_cfg['node-exporter']['port'] }}"
         - name: PROM_SCRAPE_TIME
