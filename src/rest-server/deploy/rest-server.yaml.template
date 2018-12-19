@@ -64,6 +64,8 @@ spec:
         - name: GITHUB_PATH
           value: {{ cluster_cfg['rest-server']['github-path'] }}
 {% endif %}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
         ports:
         - name: rest-server
           containerPort: 8080
