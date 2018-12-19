@@ -1,3 +1,10 @@
+# Release v0.8.3
+
+## Bug Fixes
+* [issue 1873](https://github.com/Microsoft/pai/issues/1873) Fix webportal document broken link.  - [PR 1898](https://github.com/Microsoft/pai/pull/1898) [PR 1844](https://github.com/Microsoft/pai/pull/1844) [PR 1847](https://github.com/Microsoft/pai/pull/1847)
+* [issue 1887](https://github.com/Microsoft/pai/issues/1887) Fix SSH info in webportal behind pylon is not replaced problem. - [PR 1901](https://github.com/Microsoft/pai/pull/1901)
+* [issue 1863](https://github.com/Microsoft/pai/issues/1863) Fix the issue of missing file when clean-up kubernetes . - [PR 1864](https://github.com/Microsoft/pai/pull/1864)
+
 # Release v0.8.2
 
 ## Bug Fixes
