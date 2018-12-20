@@ -17,6 +17,8 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
+## OpenPAI deploy 
+
 #### Configuration
 
 - [A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
