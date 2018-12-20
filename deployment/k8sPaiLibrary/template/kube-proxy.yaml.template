@@ -39,7 +39,7 @@ spec:
         - /hyperkube
         - proxy
         - --master
-        - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
+        - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
         - --cluster-cidr
         - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
         securityContext:

@@ -28,7 +28,7 @@ spec:
     command:
     - /usr/local/bin/kube-scheduler
     - --master
-    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
+    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
     - --leader-elect=true
     livenessProbe:
       httpGet:
