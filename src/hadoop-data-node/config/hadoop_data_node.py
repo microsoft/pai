@@ -44,7 +44,7 @@ class HadoopDataNode:
         com = {}
         # com["storage_path"] = self.service_configuration.get("storage_path") or \
         #                       "{}/hdfs/data".format(self.cluster_configuration["cluster"]["common"]["data-path"])
-
+        com["storage_path"] = self.service_configuration.get("storage_path")
         return com
 
     def validation_post(self, cluster_object_model):

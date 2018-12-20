@@ -16,7 +16,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {% set folders = cluster_cfg[ "hadoop-data-node" ][ "storage_path" ] or cluster_cfg["cluster"]["common"][ "data-path" ] + "/hdfs/data" %}
-
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -41,7 +40,7 @@ spec:
         {% for folder in folders.split(",") %}
         - mountPath: /var/lib/hdfs/data-{{ loop.index }}
           name: hadoop-data-storage-{{ loop.index }}
-          {% do mount_points.append("file:///var/lib/hdfs/data-" + loop.index) %}
+          {% set ignored = mount_points.append("file:///var/lib/hdfs/data-" + loop.index|string) %}
         {% endfor %}
         - mountPath: /hadoop-configuration
           name: hadoop-data-node-config-volume
