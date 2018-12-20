@@ -61,12 +61,14 @@ Before start, you need to meet the following requirements:
 
 #### 2 Deploy OpenPAI
 
-If you only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following. 
-
 If you have a cluster which contains more than 2 machine and want to deploy pai on it. Please choose ```Distributed deploy``` following.
 
-##### 2.1 [Single Box deploy](./docs/pai-management/doc/single-box.md)
-##### 2.2 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
+If you only have one mahince, and want to deploy pai on it. Please choose ```Single Box deploy``` following. 
+
+
+##### 2.1 [Distributed deploy](./docs/pai-management/doc/distributed-deploy.md)
+##### 2.2 [Single Box deploy](./docs/pai-management/doc/single-box.md)
+
 
 
 ## How to use
