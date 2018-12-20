@@ -42,8 +42,8 @@ class HadoopDataNode:
 
     def run(self):
         com = {}
-        com["storage_path"] = self.service_configuration.get("storage_path") or \
-                              "{}/hdfs/data".format(self.cluster_configuration["cluster"]["common"]["data-path"])
+        # com["storage_path"] = self.service_configuration.get("storage_path") or \
+        #                       "{}/hdfs/data".format(self.cluster_configuration["cluster"]["common"]["data-path"])
 
         return com
 

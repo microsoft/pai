@@ -15,6 +15,8 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set folders = cluster_cfg[ "hadoop-data-node" ][ "storage_path" ] or cluster_cfg["cluster"]["common"][ "data-path" ] + "/hdfs/data" %}
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -36,10 +38,10 @@ spec:
         imagePullPolicy: Always
         volumeMounts:
         {% set mount_points = [] %}
-        {% for folder in cluster_cfg["hadoop-data-node"]["storage_path"].split(",") %}
+        {% for folder in folders.split(",") %}
         - mountPath: /var/lib/hdfs/data-{{ loop.index }}
           name: hadoop-data-storage-{{ loop.index }}
-          {% do mount_points.append("file:///var/lib/hdfs/data-"loop.index) %}
+          {% do mount_points.append("file:///var/lib/hdfs/data-" + loop.index) %}
         {% endfor %}
         - mountPath: /hadoop-configuration
           name: hadoop-data-node-config-volume
@@ -76,7 +78,7 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/datanode
-      {% for folder in cluster_cfg["hadoop-data-node"]["storage_path"].split(",") %}
+      {% for folder in folders.split(",") %}
       - name: hadoop-data-storage-{{ loop.index }}
         hostPath:
           path: {{ folder }}
