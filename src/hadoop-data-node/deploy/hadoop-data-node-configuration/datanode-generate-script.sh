@@ -26,4 +26,5 @@ cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
 HOST_NAME=`hostname`
 /usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/hdfs-site.xml -n $HOST_NAME
 
-sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml 
+sed -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/core-site.xml
+sed -i "s#{HADOOP_DATANODE_DATA_DIR}#${HADOOP_DATANODE_DATA_DIR}#g" $HADOOP_CONF_DIR/hdfs-site.xml

@@ -35,8 +35,12 @@ spec:
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /var/lib/hdfs/data
-          name: hadoop-data-storage
+        {% set mount_points = [] %}
+        {% for folder in cluster_cfg["hadoop-data-node"]["storage_path"].split(",") %}
+        - mountPath: /var/lib/hdfs/data-{{ loop.index }}
+          name: hadoop-data-storage-{{ loop.index }}
+          {% do mount_points.append("file:///var/lib/hdfs/data-"loop.index) %}
+        {% endfor %}
         - mountPath: /hadoop-configuration
           name: hadoop-data-node-config-volume
         - mountPath: /host-configuration
@@ -64,15 +68,19 @@ spec:
           value: datanode-generate-script.sh
         - name: START_SERVICE
           value: datanode-start-service.sh
+        - name: HADOOP_DATANODE_DATA_DIR
+          value: {{ mount_points|join(",") }}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/datanode
-      - name: hadoop-data-storage
+      {% for folder in cluster_cfg["hadoop-data-node"]["storage_path"].split(",") %}
+      - name: hadoop-data-storage-{{ loop.index }}
         hostPath:
-          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hdfs/data
+          path: {{ folder }}
+      {% endfor %}
       - name: hadoop-data-node-config-volume
         configMap:
           name:  hadoop-data-node-configuration
