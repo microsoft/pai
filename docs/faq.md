@@ -58,7 +58,7 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 
 ### Q: How to configure virtual cluster capacity?
 
-A: Please refer [configure virtual cluster capacity](./pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
+A: Please refer [configure virtual cluster capacity](./../src/hadoop-resource-manager/config/hadoop-resource-manager.md)
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job?
 
