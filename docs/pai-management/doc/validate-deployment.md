@@ -230,7 +230,7 @@ If the -n parameter is specified, only the given service, e.g. rest-server, webp
 
 2. ```Boot up single all OpenPAI services.```
 
-Please refer to this [section](./cluster-bootup.md#step-3) for details.
+Please refer to this [section](./distributed-deploy.md#c-step-5) for details.
 
 ### 5 Troubleshooting Kubernetes Clusters  <a name="troubleshooting_5"></a>
 

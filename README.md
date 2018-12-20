@@ -87,7 +87,7 @@ If you only have one mahince, and want to deploy pai on it. Please choose ```Sin
     - [Launch a jupyter notebook and work in it](./examples/jupyter/README.md)
 
 ### Cluster administration
-- [Deployment infrastructure](./docs/pai-management/doc/cluster-bootup.md)
+- [Deployment infrastructure](./docs/pai-management/doc/distributed-deploy.md)
 - [Cluster maintenance](https://github.com/Microsoft/pai/wiki/Maintenance-(Service-&-Machine))
 - [Monitoring](./docs/webportal/README.md)
 
