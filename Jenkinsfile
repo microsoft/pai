@@ -122,6 +122,9 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-singlebox \
   10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > SINGLE_BOX_DEV_BOX.txt
+
+sudo docker exec $(cat SINGLE_BOX_DEV_BOX.txt) rm -rf /pai
+sudo docker cp ${WORKSPACE} $(cat SINGLE_BOX_DEV_BOX.txt):/pai
 '''
             script {
               env.SINGLE_BOX_DEV_BOX = readFile("$WORKSPACE/SINGLE_BOX_DEV_BOX.txt").trim()
@@ -140,21 +143,7 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
-# clean git
-git clean -f
-rm -rf /pai/.git/index.lock
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git reset --hard ${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
 # Step 1. Generate config
@@ -226,6 +215,9 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-cluster \
   10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > CLUSTER_DEV_BOX.txt
+
+sudo docker exec $(cat CLUSTER_DEV_BOX.txt) rm -rf /pai
+sudo docker cp ${WORKSPACE} $(cat CLUSTER_DEV_BOX.txt):/pai
 '''
             script {
               env.CLUSTER_DEV_BOX = readFile("$WORKSPACE/CLUSTER_DEV_BOX.txt").trim()
@@ -244,21 +236,7 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
-# clean git
-git clean -f
-rm -rf /pai/.git/index.lock
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git reset --hard ${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_cluster.sh /quick-start
 # Step 1. Generate config
@@ -567,21 +545,7 @@ set -x
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
-# clean git
-git clean -f
-rm -rf /pai/.git/index.lock
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git reset --hard ${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
 openpai-test
@@ -615,21 +579,7 @@ set -x
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
-# clean git
-git clean -f
-rm -rf /pai/.git/index.lock
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git reset --hard ${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
 openpai-test
