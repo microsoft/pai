@@ -52,6 +52,8 @@ spec:
           value: {{ cluster_cfg['rest-server']['default-pai-admin-password'] }}
         - name: ETCD_URI
           value: {{ cluster_cfg['rest-server']['etcd-uris'] }}
+        - name: K8S_APISERVER_URI
+          value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
 {% if cluster_cfg['rest-server']['github-owner'] %}
         - name: GITHUB_OWNER
           value: {{ cluster_cfg['rest-server']['github-owner'] }}
