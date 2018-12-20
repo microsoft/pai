@@ -124,7 +124,6 @@ const updateUserVc = (username, virtualClusters, next) => {
   dbGet(username, null, (err, res) => {
     if (err) {
       if (err.status === 404) {
-        // 'Key not found' refer to https://coreos.com/etcd/docs/latest/v2/errorcode.html
         return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
       } else {
         return next(err);
@@ -211,8 +210,7 @@ const updateUserGithubPAT = (username, githubPAT, next) => {
   const dbGet = util.callbackify(db.get.bind(db));
   dbGet(username, null, (err, res) => {
     if (err) {
-      if (err.response.status === 404) {
-        // 'Key not found' refer to https://coreos.com/etcd/docs/latest/v2/errorcode.html
+      if (err.status === 404) {
         return next(createError('Not Found', 'NoUserError', `User ${username} not found.`));
       } else {
         return next(err);
