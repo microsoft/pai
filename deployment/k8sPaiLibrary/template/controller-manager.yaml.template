@@ -28,7 +28,7 @@ spec:
     command:
     - /usr/local/bin/kube-controller-manager
     - --master
-    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
+    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
     - --service-cluster-ip-range
     - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
     - --leader-elect=true

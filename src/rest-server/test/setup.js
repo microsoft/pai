@@ -54,11 +54,11 @@ global.etcdHosts = process.env.ETCD_URI;
 global.yarnUri = process.env.YARN_URI;
 
 global.jobConfigTemplate = JSON.stringify({
-  'jobName': '{{jobName}}',
+  'jobName': '{{{jobName}}}',
   'image': 'aiplatform/pai.run.tensorflow',
   'dataDir': 'hdfs://10.240.0.10:9000/test/data',
   'codeDir': 'hdfs://10.240.0.10:9000/test/code',
-  'virtualCluster': '{{virtualCluster}}',
+  'virtualCluster': '{{{virtualCluster}}}',
   'taskRoles': [
     {
       'name': 'role1',
@@ -78,14 +78,14 @@ global.jobConfigTemplate = JSON.stringify({
 
 global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {
-    'frameworkName': '{{frameworkName}}',
-    'queue': '{{queueName}}',
+    'frameworkName': '{{{frameworkName}}}',
+    'queue': '{{{queueName}}}',
   },
   'aggregatedFrameworkRequest': {
     'frameworkRequest': {
       'frameworkDescriptor': {
         'user': {
-          'name': '{{userName}}',
+          'name': '{{{userName}}}',
         },
       },
     },
@@ -101,7 +101,7 @@ global.frameworkDetailTemplate = JSON.stringify({
         'unKnownRetriedCount': 0,
       },
       'frameworkState': 'APPLICATION_RUNNING',
-      'applicationId': '{{applicationId}}',
+      'applicationId': '{{{applicationId}}}',
     },
     'aggregatedTaskRoleStatuses': {
       'role1': {
