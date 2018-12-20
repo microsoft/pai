@@ -69,5 +69,5 @@ docker run \
   --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
   --healthz-bind-address="0.0.0.0" \
   --healthz-port="10248" \
-  --feature-gates="DevicePlugins=true" \
+  --feature-gates="DevicePlugins=true,TaintBasedEvictions=true" \
   --v=2

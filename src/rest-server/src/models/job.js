@@ -404,11 +404,11 @@ class Job {
     for (let i = 0; i < data.taskRoles.length; i ++) {
       tasksNumber += data.taskRoles[i].taskNumber;
     }
-    let jobEnvs = '';
+    let jobEnvs = [];
     if (data.jobEnvs) {
         for (let key in data.jobEnvs) {
             if (data.jobEnvs.hasOwnProperty(key)) {
-                jobEnvs = jobEnvs.concat(key, '=', data.jobEnvs[key], '\n');
+                jobEnvs.push({key, value: data.jobEnvs[key]});
             }
         }
     }

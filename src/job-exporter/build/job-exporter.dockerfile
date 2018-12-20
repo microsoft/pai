@@ -15,13 +15,13 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:2.7
+FROM python:3.7
 
 RUN apt-get update && apt-get install --no-install-recommends -y build-essential git && \
     git clone https://github.com/yadutaf/infilter --depth 1 && \
     cd infilter && make
 
-FROM python:2.7
+FROM python:3.7
 
 RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz \
     | tar -xzvC /usr/local && \
@@ -30,7 +30,7 @@ RUN curl -SL https://download.docker.com/linux/static/stable/x86_64/docker-17.06
     mkdir -p /job_exporter && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=0 infilter/infilter /usr/bin
-COPY src/* /job_exporter/
+RUN pip3 install prometheus_client
 
-CMD python /job_exporter/job_exporter.py /datastorage/prometheus 30
+COPY --from=0 infilter/infilter /usr/bin
+COPY src/*.py /job_exporter/

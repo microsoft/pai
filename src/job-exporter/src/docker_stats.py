@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # Copyright (c) Microsoft Corporation
 # All rights reserved.
 #
@@ -17,10 +17,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import subprocess
-import json
 import sys
 import re
-import datetime
 import logging
 
 import utils
@@ -28,7 +26,7 @@ import utils
 logger = logging.getLogger(__name__)
 
 def parse_percentile(data):
-    return data.replace("%", "")
+    return float(data.replace("%", ""))
 
 def parse_io(data):
     inOut = data.split("/")
@@ -65,14 +63,13 @@ def convert_to_byte(data):
         return number
 
 def parse_docker_stats(stats):
-    data = [line.split(',') for line in stats.splitlines()]
+    data = [line.split(",") for line in stats.splitlines()]
     # pop the headers
     data.pop(0)
-    rowNum = len(data)
-    colNum = len(data[0])
-    containerStats = {}
+    row_count = len(data)
+    container_stats = {}
 
-    for i in range(rowNum):
+    for i in range(row_count):
         id = data[i][0]
         containerInfo = {
             "id": data[i][0],
@@ -83,26 +80,20 @@ def parse_docker_stats(stats):
             "BlockIO": parse_io(data[i][5]),
             "MemPerc": parse_percentile(data[i][6])
         }
-        containerStats[id] = containerInfo
-    return containerStats
+        container_stats[id] = containerInfo
+    return container_stats
 
-def stats():
-    start = datetime.datetime.now()
+def stats(histogram, timeout):
     try:
-        logger.info("ready to run docker stats")
-        dockerDockerStats = utils.check_output([
+        result = utils.exec_cmd([
             "docker", "stats", "--no-stream", "--format",
-            "table {{.Container}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"])
-        return parse_docker_stats(dockerDockerStats)
+            "table {{.Container}},{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}},{{.MemPerc}}"],
+            histogram=histogram,
+            timeout=timeout)
+        return parse_docker_stats(result)
     except subprocess.CalledProcessError as e:
         logger.error("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
-    finally:
-        end = datetime.datetime.now()
-        logger.info("docker state spent %s", end - start)
-
-def main(argv):
-    stats()
-
-# execute cmd example: python .\docker_stats.py True
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    except subprocess.TimeoutExpired:
+        logger.warning("docker stats timeout")
+    except Exception:
+        logger.exception("exec docker stats error")

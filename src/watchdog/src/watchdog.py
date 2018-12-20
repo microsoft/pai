@@ -23,7 +23,6 @@ import json
 import sys
 import requests
 import logging
-from logging.handlers import RotatingFileHandler
 import time
 import threading
 

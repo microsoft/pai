@@ -20,9 +20,7 @@
 
 pushd $(dirname "$0") > /dev/null
 
-
-echo "refresh prometheus configuration"
-kubectl apply -f prometheus-configmap.yaml || exit $?
-
+bash stop.sh
+bash start.sh
 
 popd > /dev/null
