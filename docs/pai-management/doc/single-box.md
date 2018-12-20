@@ -17,7 +17,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-## Single deploy 
+## Single Box Deploy 
 
 ### Index
 - [Step 1. Prepare Deployment Environment](#c-step-1)
