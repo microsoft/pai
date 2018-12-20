@@ -37,8 +37,9 @@ ENV HADOOP_PREFIX=/usr/local/hadoop \
     HADOOP_YARN_HOME=/usr/local/hadoop \
     HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop \
     HADOOP_ROOT_LOGGER=INFO,console \
-    HADOOP_SECURITY_LOGGER=INFO,console \
-    YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+    HADOOP_SECURITY_LOGGER=INFO,console
+
+ENV YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
 
 ENV PATH=$PATH:$HADOOP_BIN_DIR:$HADOOP_SBIN_DIR:/usr/share/zookeeper/bin
 
