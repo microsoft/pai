@@ -267,9 +267,14 @@ A distributed TensorFlow job is listed below as an example:
 
 ## How to debug the job <a name="debug"></a>
 
+### (1) From OpenPAI web page to debug job
+
+Please refer doc [How to diagnose job problems through logs](job_log.md)
+
+### (2) SSH to debug job
 You can ssh connect to a specified container either from outside or inside container.
 
-### SSH connect from outside
+#### SSH connect from outside
 
 1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
 
@@ -288,7 +293,7 @@ You can ssh connect to a specified container either from outside or inside conta
    ```sh
    ssh -i userName~jobName -p ssh_port root@container_ip
    ```
-### SSH connect inside containers
+#### SSH connect inside containers
 
 You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
 ```sh
