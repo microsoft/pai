@@ -48,7 +48,7 @@ curl -i -X DELETE "http://master-node-address/webhdfs/api/v1/test/test_file?op=D
 
 ## HDFS Command <a name="HDFS_Command"></a>
 
-- Prepare hdfs cmd package:
+- Prepare HDFS cmd package:
 
 The commands are available in the Hadoop package. Users can use this package in two ways.
 
@@ -74,7 +74,7 @@ All commands are located in *bin* directory.
 
 Please refer [HDFS Command Guide](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
 
-- Where to get the hdfs entrypoint:
+- Where to get the HDFS entrypoint:
 
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
 Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address. 
