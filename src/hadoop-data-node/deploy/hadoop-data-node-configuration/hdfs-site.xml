@@ -39,7 +39,7 @@
 
 <property>
   <name>dfs.datanode.data.dir</name>
-  <value>file:///var/lib/hdfs/data</value>
+  <value>{HADOOP_DATANODE_DATA_DIR}</value>
   <description>
          This property specifies the URIs of the directories where the DataNode stores
          blocks.
