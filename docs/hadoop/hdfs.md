@@ -48,16 +48,40 @@ curl -i -X DELETE "http://master-node-address/webhdfs/api/v1/test/test_file?op=D
 
 ## HDFS Command <a name="HDFS_Command"></a>
 
-The commands are available in the Hadoop package. Please download the version you need on [Hadoop Releases](http://hadoop.apache.org/releases.html).
+- Prepare hdfs cmd package:
+
+The commands are available in the Hadoop package. Users can use this package in two ways.
+
+    - Method 1 (Host env):
+
+Please download the version you need on [Hadoop Releases](http://hadoop.apache.org/releases.html).
 Then extract it to your machine by running
+
 ```bash
 tar -zxvf hadoop-package-name
 ```
+
 All commands are located in *bin* directory.
-Please refer [HDFS Command Guid](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
+
+    - Method 2 (docker container env):
+
+We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
+    Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
+    
+All commands are located in *bin* directory.
+
+- How to use cmd:
+
+Please refer [HDFS Command Guide](http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for detailed command descriptions.
+
+- Where to get the hdfs entrypoint:
+
 All files in the HDFS are specified by its URI following pattern *hdfs://hdfs-name-node-address:name-node-port/parent/child*.
-Here the *name-node-port* is 9000. The *hdfs-name-node-address* is the address of the machine with *pai-master* label *true* in configuration
+Here the *name-node-port* is 9000. The *hdfs-name-node-address* default value is the same OpenPAI entrypoint page ip address. 
+
+Note: *hdfs-name-node-address* It is the address of the machine with *pai-master* label *true* in configuration
 file [cluster-configuration.yaml](../../examples/cluster-configuration/cluster-configuration.yaml).
+If you don't know where this file is, please contact the cluster administrator.
 
 ## Web Portal <a name="Web_Portal"></a>
 
