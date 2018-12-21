@@ -112,7 +112,7 @@
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}} -- {{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "refId": "A"
             }
           ],
@@ -214,7 +214,7 @@
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -300,22 +300,22 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"})",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Net In {{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
+              "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Net Out {{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "refId": "B",
               "step": 600
             }
@@ -409,7 +409,7 @@
               "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(task_block_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Write {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Read {{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -418,7 +418,7 @@
             {
               "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (irate(task_block_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "intervalFactor": 2,
-              "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "Write {{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "refId": "B"
             }
           ],
@@ -498,7 +498,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -595,7 +595,7 @@
               "expr": "avg by (container_label_PAI_JOB_NAME, container_label_PAI_CURRENT_TASK_ROLE_NAME) (task_gpu_mem_percent{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}-{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
+              "legendFormat": "{{'{{container_label_PAI_CURRENT_TASK_ROLE_NAME}}'}}",
               "refId": "B"
             }
           ],

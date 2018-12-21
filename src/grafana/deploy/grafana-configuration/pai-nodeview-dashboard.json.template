@@ -48,7 +48,7 @@
             "max": false,
             "min": false,
             "rightSide": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -69,19 +69,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "",
-              "format": "time_series",
-              "instant": false,
-              "intervalFactor": 2,
-              "legendFormat": "Utilization",
-              "refId": "A"
-            },
-            {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node\"}[{{interval}}s])) * 100)",
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
-              "legendFormat": "cpu utilization",
               "refId": "B"
             }
           ],
@@ -99,7 +90,7 @@
           "title": "CPU",
           "tooltip": {
             "msResolution": false,
-            "shared": false,
+            "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
@@ -178,7 +169,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_MemTotal_bytes{instance=~'$node'} - node_memory_MemFree_bytes{instance=~'$node'} - node_memory_Buffers_bytes{instance=~'$node'} - node_memory_Cached_bytes{instance=~'$node'}",
+              "expr": "node_memory_MemTotal_bytes{instance=~'$node(:[0-9]*)?$'} - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -189,7 +180,7 @@
               "target": ""
             },
             {
-              "expr": "node_memory_MemFree_bytes{instance=~'$node'}",
+              "expr": "node_memory_MemFree_bytes{instance=~'$node(:[0-9]*)?$'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -199,7 +190,7 @@
               "step": 600
             },
             {
-              "expr": "node_memory_Buffers_bytes{instance=~'$node'} + node_memory_Cached_bytes{instance=~'$node'}",
+              "expr": "node_memory_Buffers_bytes{instance=~'$node(:[0-9]*)?$'} + node_memory_Cached_bytes",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
@@ -284,7 +275,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -295,7 +286,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -391,7 +382,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -402,7 +393,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node(:[0-9]*)?$\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -462,7 +453,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -482,11 +473,10 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_gpu{instance=~\"$node\"})",
+              "expr": "avg(nvidiasmi_utilization_gpu{instance=~\"$node(:[0-9]*)?$\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "avg gpu utilization",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -545,7 +535,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -565,10 +555,9 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node\"})",
+              "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node(:[0-9]*)?$\"})",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "gpu memory",
               "refId": "B"
             }
           ],
@@ -728,12 +717,11 @@
           ],
           "targets": [
             {
-              "expr": "configured_gpu_count{instance=~\"$node\"}",
+              "expr": "configured_gpu_count{instance=~\"$node(:[0-9]*)?$\"}",
               "format": "table",
               "instant": true,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "",
               "refId": "A"
             }
           ],
@@ -773,7 +761,7 @@
         "options": [],
         "query": "label_values(node_uname_info, instance)",
         "refresh": 1,
-        "regex": "",
+        "regex": "/([^:]*)/",
         "sort": 1,
         "tagValuesQuery": "",
         "tags": [],

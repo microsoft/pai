@@ -70,7 +70,7 @@
             "max": false,
             "min": false,
             "rightSide": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -95,7 +95,6 @@
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "A"
             }
           ],
@@ -163,7 +162,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -197,7 +196,6 @@
               "instant": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -283,23 +281,23 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_in_byte{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "In {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Network Inbound",
               "metric": "",
               "refId": "A",
               "step": 600,
               "target": ""
             },
             {
-              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s])",
+              "expr": "avg by (container_label_PAI_JOB_NAME) (task_net_out_byte{container_label_PAI_JOB_NAME=~\"$job\"})",
               "format": "time_series",
               "hide": false,
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Out {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Network Outbound",
               "refId": "B",
               "step": 600
             }
@@ -394,7 +392,7 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "Write {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Disk Read",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -404,7 +402,7 @@
               "expr": "avg by (container_label_PAI_JOB_NAME) (irate(task_block_out_byte{ container_label_PAI_JOB_NAME=~\"$job\"}[{{interval}}s]))",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "Read {{'{{container_label_PAI_JOB_NAME}}'}}",
+              "legendFormat": "Disk Write",
               "refId": "B"
             }
           ],
@@ -460,7 +458,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -484,7 +482,6 @@
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
               "metric": "",
               "refId": "A",
               "step": 600,
@@ -543,7 +540,7 @@
             "current": false,
             "max": false,
             "min": false,
-            "show": true,
+            "show": false,
             "total": false,
             "values": false
           },
@@ -567,7 +564,6 @@
               "format": "time_series",
               "instant": false,
               "intervalFactor": 2,
-              "legendFormat": "{{'{{container_label_PAI_JOB_NAME}}'}}",
               "refId": "B"
             }
           ],
