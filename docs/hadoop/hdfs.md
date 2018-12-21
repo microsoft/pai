@@ -1,6 +1,6 @@
 # HDFS
 
-This guidance provides users instructions to operate the HDFS cluster in OpenPAI.
+This guidance provides users instructions to access the HDFS data in OpenPAI.
 
 # Table of Content
 - [ Access HDFS Data ](#Access_HDFS_Data)
