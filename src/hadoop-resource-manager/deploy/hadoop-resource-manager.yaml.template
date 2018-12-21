@@ -69,7 +69,7 @@ spec:
           value: resourcemanager-generate-script.sh
         - name: START_SERVICE
           value: resourcemanager-start-service.sh
-{% if cluster_cfg['cluster']['common']['qos-switch] == "true" -%}
+{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
         resources:
           limits:
             memory: "36Gi"

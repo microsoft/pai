@@ -56,7 +56,7 @@ spec:
         - name: webportal
           containerPort: 8080
           hostPort: {{ cluster_cfg['webportal']['server-port'] }}
-{% if cluster_cfg['cluster']['common']['qos-switch] == "true" -%}
+{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
         resources:
           limits:
             memory: "512Mi"

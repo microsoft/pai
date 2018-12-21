@@ -52,7 +52,7 @@ spec:
     volumeMounts:
     - mountPath: /var/etcd
       name: varetcd
-{% if cluster_cfg['kuberentes']['qos-switch] == "true" -%}
+{% if cluster_cfg['kuberentes']['qos-switch'] == "true" -%}
     resources:
       requests:
         memory: "1Gi"

@@ -70,7 +70,7 @@ spec:
               port: pylon
             initialDelaySeconds: 10
             periodSeconds: 60
-{% if cluster_cfg['cluster']['common']['qos-switch] == "true" -%}
+{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
           resources:
             limits:
               memory: "1Gi"

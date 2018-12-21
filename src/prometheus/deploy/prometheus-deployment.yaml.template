@@ -37,7 +37,7 @@ spec:
       containers:
       - name: prometheus
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}prometheus:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
-{% if cluster_cfg['cluster']['common']['qos-switch] == "true" -%}
+{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
         resources:
           limits:
             memory: "10Gi"

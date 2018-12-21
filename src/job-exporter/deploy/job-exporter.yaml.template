@@ -51,7 +51,7 @@ spec:
         - "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
         - "--interface"
         - "{{ cluster_cfg["job-exporter"]["interface"] }}"
-{% if cluster_cfg['cluster']['common']['qos-switch] == "true" -%}
+{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
         resources:
           limits:
             memory: "128Mi"
