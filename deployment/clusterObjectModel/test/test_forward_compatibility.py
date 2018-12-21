@@ -70,5 +70,5 @@ class TestClusterObjectModel(unittest.TestCase):
         print ser_cfg_after_standard
 
         self.assertTrue(
-            ser_cfg_after == ser_cfg_after_sample
+            ser_cfg_after == ser_cfg_after_standard
         )
