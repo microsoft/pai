@@ -69,7 +69,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node:.*\"}[{{interval}}s])) * 100)",
+              "expr": "100 - (avg by (instance)(irate(node_cpu_seconds_total{mode=\"idle\",instance=~\"$node.*\"}[{{interval}}s])) * 100)",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -169,7 +169,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "node_memory_MemTotal_bytes{instance=~'$node:.*'} - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes",
+              "expr": "node_memory_MemTotal_bytes{instance=~'$node.*'} - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -180,7 +180,7 @@
               "target": ""
             },
             {
-              "expr": "node_memory_MemFree_bytes{instance=~'$node:.*'}",
+              "expr": "node_memory_MemFree_bytes{instance=~'$node.*'}",
               "format": "time_series",
               "hide": false,
               "interval": "",
@@ -190,7 +190,7 @@
               "step": 600
             },
             {
-              "expr": "node_memory_Buffers_bytes{instance=~'$node:.*'} + node_memory_Cached_bytes",
+              "expr": "node_memory_Buffers_bytes{instance=~'$node.*'} + node_memory_Cached_bytes",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "buff/cache",
@@ -275,7 +275,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node:.*\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=~\"$node.*\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -286,7 +286,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node:.*\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=~\"$node.*\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": true,
               "interval": "",
@@ -382,7 +382,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node:.*\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_read_bytes_total{instance=~\"$node.*\"}[{{interval}}s]))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -393,7 +393,7 @@
               "target": ""
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node:.*\"}[{{interval}}s]))",
+              "expr": "sum(rate(node_disk_written_bytes_total{instance=~\"$node.*\"}[{{interval}}s]))",
               "format": "time_series",
               "hide": false,
               "intervalFactor": 2,
@@ -473,7 +473,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_gpu{instance=~\"$node:.*\"})",
+              "expr": "avg(nvidiasmi_utilization_gpu{instance=~\"$node.*\"})",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 2,
@@ -555,7 +555,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node:.*\"})",
+              "expr": "avg(nvidiasmi_utilization_memory{instance=~\"$node.*\"})",
               "format": "time_series",
               "intervalFactor": 2,
               "refId": "B"
@@ -717,7 +717,7 @@
           ],
           "targets": [
             {
-              "expr": "configured_gpu_count{instance=~\"$node:.*\"}",
+              "expr": "configured_gpu_count{instance=~\"$node.*\"}",
               "format": "table",
               "instant": true,
               "interval": "",
