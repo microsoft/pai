@@ -51,8 +51,8 @@ curl -i -X DELETE "http://master-node-address/webhdfs/api/v1/test/test_file?op=D
 - Prepare hdfs cmd package:
 
 The commands are available in the Hadoop package. Users can use this package in two ways.
-    
-    - Method 1 (Host env):
+
+**Method 1 (Host env):**
 
 Please download the version you need on [Hadoop Releases](http://hadoop.apache.org/releases.html).
 Then extract it to your machine by running
@@ -63,7 +63,7 @@ tar -zxvf hadoop-package-name
 
 All commands are located in *bin* directory.
     
-    - Method 2 (docker container env):
+**Method 2 (docker container env):**
 
 We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
     Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
