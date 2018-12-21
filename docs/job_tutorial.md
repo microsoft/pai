@@ -261,9 +261,11 @@ A distributed TensorFlow job is listed below as an example:
 
     Prepare the [config file](#jobjson) for your job.
 
-3. Submit the job through web portal
+3. [Submit the job through web portal](submit_from_webportal.md)
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
+
+    Note: For other job submission methods. Please refer [doc](../README.md#how-to-train-jobs)
 
 ## How to debug the job <a name="debug"></a>
 
