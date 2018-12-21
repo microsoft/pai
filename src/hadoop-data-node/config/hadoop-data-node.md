@@ -20,9 +20,9 @@ if isn't specified, will use `cluster.common.data-path/hdfs/data`
 
 #### Generated Configuration <a name="G_Config"></a>
 
-After parsing, object model looks like:
+After parsing, object model will be a comma-delimited string, every substring is a directory:
 ```yaml
-storage_path: /path/to/folder1,/path/to/folder2,etc.
+storage_path: /path/to/folder1,/path/to/folder2,...
 ```
 
 
