@@ -302,6 +302,10 @@ You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK
 ssh worker-0
 ```
 
+### (3) Job Profiling
+
+Users can view the resource cost and bottlenecks of various metrics of the job by following the [job profiling doc](job_profiling.md).
+
 ## Learn more job examples <a name="moreexample"></a>
 
 For more examples, please refer to [job examples directory](../examples).
