@@ -90,7 +90,7 @@
           "title": "CPU",
           "tooltip": {
             "msResolution": false,
-            "shared": false,
+            "shared": true,
             "sort": 0,
             "value_type": "individual"
           },
