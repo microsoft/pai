@@ -271,7 +271,7 @@ A distributed TensorFlow job is listed below as an example:
 
 Please refer doc [How to diagnose job problems through logs](job_log.md)
 
-### (2) SSH to debug job
+### (2) SSH to job container and debug job
 You can ssh connect to a specified container either from outside or inside container.
 
 #### SSH connect from outside
