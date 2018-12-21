@@ -30,6 +30,7 @@ cluster:
     common:
       cluster-id: pai
       data-path: "/datastorage"
+      qos-switch: "true"
     docker-registry:
       namespace: openpai
       domain: docker.io
@@ -64,6 +65,12 @@ cluster:
     <td>cluster.common.data-path</td>
     <td>com["cluster"]["common"]["data-path"]</td>
     <td>cluster_cfg["cluster"]["common"]["data-path"]</td>
+    <td>string</td>
+</tr>
+<tr>
+    <td>cluster.common.qos-switch</td>
+    <td>com["cluster"]["common"]["qos-switch"]</td>
+    <td>cluster_cfg["cluster"]["common"]["qos-switch"]</td>
     <td>string</td>
 </tr>
 <tr>
