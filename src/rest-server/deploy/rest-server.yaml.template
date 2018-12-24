@@ -66,6 +66,12 @@ spec:
 {% endif %}
         - name: K8S_APISERVER_URI
           value: {{ cluster_cfg['kubernetes']['api-servers-url'] }}
+{% if cluster_cfg['kubernetes']['api-servers-url'].startswith('https://') %}
+        - name: K8S_APISERVER_CA_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - name: K8S_APISERVER_TOKEN_FILE
+          value: /var/run/secrets/kubernetes.io/serviceaccount/token 
+{% endif %}
         ports:
         - name: rest-server
           containerPort: 8080
