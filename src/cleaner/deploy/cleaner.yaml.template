@@ -67,11 +67,11 @@ spec:
             - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
-{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
-{%- endif %}
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
