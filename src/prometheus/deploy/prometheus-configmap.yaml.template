@@ -35,8 +35,6 @@ data:
       tls_config:
         ca_file: {{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/ca.crt
       bearer_token_file: {{ clusterinfo['kubernetes']['serviceaccount_token_path'] }}/token
-      kubernetes_sd_configs:
-      - role: node
       {% endif %}
       kubernetes_sd_configs:
       - api_server: "{{ cluster_cfg["kubernetes"]["api-servers-url"] }}"
