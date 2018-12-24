@@ -36,7 +36,7 @@ spec:
         port: 10251
       initialDelaySeconds: 15
       timeoutSeconds: 1
-    {%- if cluster_cfg['kuberentes']['qos-switch'] == "true" %}
+    {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
     resources:
       requests:
         memory: "1Gi"

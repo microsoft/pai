@@ -47,7 +47,7 @@ spec:
     - --anonymous-auth=true
     - --cors-allowed-origins
     - .*
-    {%- if cluster_cfg['kuberentes']['qos-switch'] == "true" %}
+    {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
     resources:
       requests:
         memory: "1Gi"
