@@ -48,9 +48,6 @@ api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
 etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
         "Response latency for requesting etcd healthz (seconds)")
 
-kubelet_healthz_histogram = Histogram("k8s_kubelet_resp_latency_seconds",
-        "Response latency for requesting kubelet healthz (seconds)")
-
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
 
@@ -216,20 +213,11 @@ def collect_healthz(gauge, histogram, service_name, address, port, url):
         gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesJsonObject):
+def collect_k8s_component(k8s_gauge, api_server_ip, api_server_port):
     collect_healthz(k8s_gauge, api_healthz_histogram,
             "k8s_api_server", api_server_ip, api_server_port, "/healthz")
     collect_healthz(k8s_gauge, etcd_healthz_histogram,
             "k8s_etcd", api_server_ip, api_server_port, "/healthz/etcd")
-
-    # check kubelet
-    nodeItems = nodesJsonObject["items"]
-
-    for name in nodeItems:
-        ip = name["metadata"]["name"]
-
-        collect_healthz(k8s_gauge, kubelet_healthz_histogram,
-            "k8s_kubelet", ip, 10255, "/healthz")
 
 
 def parse_node_item(pai_node_gauge, node):
@@ -331,11 +319,11 @@ def main(args):
             process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram)
-            process_nodes_status(pai_node_gauge, nodesStatus)
+            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram)
+            process_nodes_status(pai_node_gauge, nodes_status)
 
             # 3. check k8s level status
-            collect_k8s_componentStaus(k8s_gauge, api_server_ip, api_server_port, nodesStatus)
+            collect_k8s_component(k8s_gauge, api_server_ip, api_server_port)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
