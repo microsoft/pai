@@ -48,11 +48,11 @@ spec:
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
-{% if cluster_cfg['cluster']['common']['qos-switch'] == "true" -%}
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
-{%- endif %}
+        {%- endif %}
       - name: deleted-files-cleaner
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
