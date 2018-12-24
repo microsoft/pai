@@ -66,11 +66,13 @@ spec:
         #        You will need increase the resource in order to run more jobs.
         - name: LAUNCHER_OPTS
           value: "-server -Xmx3072m -Djute.maxbuffer=49107800"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "4Gi"
           requests:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]['docker-registry']['secret-name'] }}
       volumes:

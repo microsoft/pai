@@ -52,10 +52,12 @@ spec:
     volumeMounts:
     - mountPath: /var/etcd
       name: varetcd
+    {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
     resources:
       requests:
         memory: "1Gi"
         cpu: "1000m"
+    {%- endif %}
   volumes:
   - hostPath:
       path: {{ cluster_cfg['kubernetes']['etcd-data-path'] }}

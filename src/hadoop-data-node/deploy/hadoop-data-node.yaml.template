@@ -55,11 +55,13 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "4Gi"
           requests:
             memory: "1Gi"
+        {%- endif %}
         env:
         - name: HADOOP_DATANODE_OPTS
           value: "-Xmx2048m"

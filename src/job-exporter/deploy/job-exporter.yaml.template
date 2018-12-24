@@ -51,9 +51,11 @@ spec:
         - "{{ cluster_cfg["prometheus"]["scrape_interval"] }}"
         - "--interface"
         - "{{ cluster_cfg["job-exporter"]["interface"] }}"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "128Mi"
+        {%- endif %}
         securityContext:
           privileged: true # this is required since job-exporter will call setns to other containers
         env:

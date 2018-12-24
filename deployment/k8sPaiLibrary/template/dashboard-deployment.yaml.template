@@ -43,11 +43,13 @@ spec:
         image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kubernetes-dashboard-amd64:{{ cluster_cfg['kubernetes']['dashboard-version'] }}
         args:
           - --apiserver-host={{ cluster_cfg['kubernetes']['api-servers-url'] }}
+        {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
         resources:
           # the ideal cpu setting will be 3.5, according to our experiment. If the server hosting k8s dashboard has enough resource, user can change this setting to a larger value.
           requests:
             cpu: "1000m"
             memory: 1000Mi
+        {%- endif %}
         ports:
         - containerPort: 9090
         livenessProbe:

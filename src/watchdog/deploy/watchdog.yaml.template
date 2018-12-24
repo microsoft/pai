@@ -44,9 +44,11 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 30
           timeoutSeconds: 10
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "256Mi"
+        {%- endif %}
         env:
         - name: LOGGING_LEVEL
           value: INFO

@@ -97,6 +97,8 @@ class Kubernetes:
         else:
             com_kubernetes["etcd-data-path"] = k8s_cfg["etcd-data-path"]
 
+        com_kubernetes["qos-switch"] = k8s_cfg["qos-switch"] if ("qos-switch" in k8s_cfg) else "true"
+
         k8s_master_list = self.get_k8s_master_machine()
         etcd_cluster_ips_peer, etcd_cluster_ips_server = self.generate_etcd_ip_list(k8s_master_list)
 

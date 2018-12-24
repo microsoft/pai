@@ -48,9 +48,11 @@ spec:
             - '`find /tmp/docker-cache-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
+        {%- endif %}
       - name: deleted-files-cleaner
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
@@ -65,9 +67,11 @@ spec:
             - '`find /tmp/deleted-files-cleaner-healthy -mmin -1`'
           initialDelaySeconds: 60
           periodSeconds: 30
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
