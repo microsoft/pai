@@ -32,7 +32,7 @@ spec:
       hostNetwork: true
       containers:
       - name: docker-cache-cleaner
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
         - 'docker_cache'
         imagePullPolicy: Always
@@ -52,7 +52,7 @@ spec:
           limits:
             memory: "1Gi"
       - name: deleted-files-cleaner
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}cleaner:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}cleaner:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         args:
         - 'deleted_files'
         imagePullPolicy: Always
@@ -69,7 +69,7 @@ spec:
           limits:
             memory: "1Gi"
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: docker-socket
         hostPath:

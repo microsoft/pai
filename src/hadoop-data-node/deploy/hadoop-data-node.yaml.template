@@ -15,6 +15,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+{% set folders = cluster_cfg[ "hadoop-data-node" ][ "storage_path" ] or cluster_cfg["cluster"]["common"][ "data-path" ] + "/hdfs/data" %}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -32,11 +33,15 @@ spec:
       hostPID: false
       containers:
       - name:  hadoop-data-node
-        image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}hadoop-run:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /var/lib/hdfs/data
-          name: hadoop-data-storage
+        {% set mount_points = [] %}
+        {% for folder in folders.split(",") %}
+        - mountPath: /var/lib/hdfs/data-{{ loop.index }}
+          name: hadoop-data-storage-{{ loop.index }}
+          {% set ignored = mount_points.append("file:///var/lib/hdfs/data-" + loop.index|string) %}
+        {% endfor %}
         - mountPath: /hadoop-configuration
           name: hadoop-data-node-config-volume
         - mountPath: /host-configuration
@@ -52,25 +57,31 @@ spec:
           periodSeconds: 3
         resources:
           limits:
+            memory: "4Gi"
+          requests:
             memory: "1Gi"
         env:
         - name: HADOOP_DATANODE_OPTS
-          value: "-Xmx512m"
+          value: "-Xmx2048m"
         - name: HDFS_ADDRESS
-          value: {{ clusterinfo[ 'hadoopinfo' ][ 'hadoop_vip' ] }}
+          value: {{ cluster_cfg[ "hadoop-name-node" ][ "master-ip" ] }}
         - name: GENERATE_CONFIG
           value: datanode-generate-script.sh
         - name: START_SERVICE
           value: datanode-start-service.sh
+        - name: HADOOP_DATANODE_DATA_DIR
+          value: {{ mount_points|join(",") }}
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:
       - name: hadoop-tmp-storage
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hadooptmp/datanode
-      - name: hadoop-data-storage
+          path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/datanode
+      {% for folder in folders.split(",") %}
+      - name: hadoop-data-storage-{{ loop.index }}
         hostPath:
-          path: {{ clusterinfo[ 'dataPath' ] }}/hdfs/data
+          path: {{ folder }}
+      {% endfor %}
       - name: hadoop-data-node-config-volume
         configMap:
           name:  hadoop-data-node-configuration

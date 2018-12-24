@@ -24,14 +24,14 @@ To run web portal, the following services should be started, and url of services
 
 For deployment
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build` to bundle the JavaScript/CSS modules and generate HTML pages.
 
 ---
 
 For development
 
-1. Run `npm run yarn install` to install dependencies.
+1. Run `yarn install` to install dependencies.
 2. Run `npm run build:dev` to bundle the JavaScript/CSS modules and generate HTML pages,
    also watch the related source file, re-bundle them when file is mofified.
 3. Another `npm start` is also needed to keep the server running, see [Deployment](#deployment)
@@ -66,7 +66,7 @@ And the following field could be configured optionally:
 
 ## Deployment
 
-The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/cluster-bootup.md).
+The deployment of web portal goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/customized-configuration.md).
 
 ---
 

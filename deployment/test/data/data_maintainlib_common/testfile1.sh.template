@@ -17,14 +17,32 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+set -e
+
+#scriptPath=$1
+#apt-get -y install python-pip
+#pip install docker
+#DOCKER_ROOT_DIR_FOR_KUBELET=`python $scriptPath/docker-info-root-dir.py` || {
+#
+#   error_code=$?
+#   echo "Failed to Get the docker root path from docker api."
+#   exit $error_code
+#
+#}
+
+DOCKER_ROOT_DIR_FOR_KUBELET=`docker info | grep "Docker Root Dir" | awk -F' ' '{print $NF}'`
+
+echo "Docker ROOT DIR IS $DOCKER_ROOT_DIR_FOR_KUBELET"
+
+
 docker run \
     --name=kubelet \
-    --volume=/etc/kubernetes/manifests:/etc/kubernetes/manifests:rw \
+    --volume=/etc/kubernetes:/etc/kubernetes:rw \
     --volume=/:/rootfs:rw \
     --volume=/sys:/sys:rw \
     --volume=/dev:/dev:rw \
-    --volume=/var/lib/docker/:/var/lib/docker:rw \
-    --volume=/var/lib/kubelet/:/var/lib/kubelet:rw \
+    --volume=${DOCKER_ROOT_DIR_FOR_KUBELET}:${DOCKER_ROOT_DIR_FOR_KUBELET}:rw \
+    --volume=/var/lib/kubelet/:/var/lib/kubelet:rw,shared \
     --volume=/etc/resolv.conf:/etc/resolv.conf:rw \
     --volume=/var/run:/var/run:rw \
     --volume=/var/log:/var/log:rw \
@@ -33,16 +51,23 @@ docker run \
     --pid=host \
     --privileged=true \
     -d \
-    {{ clusterconfig['dockerregistry'] }}/hyperkube:{{ clusterconfig['hyperkubeversion'] }} \
-    /hyperkube kubelet --address={{ hostcofig['hostip'] }} \
+    {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }} \
+    /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
   --register-node=true \
-  --api-servers={{ clusterconfig['api-servers-ip'] }}:8080 \
+  --kubeconfig=/etc/kubernetes/config \
+  --require-kubeconfig \
   --hostname-override={{ hostcofig['nodename'] }} \
-  --cluster-dns={{ clusterconfig['cluster-dns'] }} \
+  --cluster-dns={{ cluster_cfg['kubernetes']['cluster-dns'] }} \
   --cluster-domain=cluster.local  \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
-  --image-gc-high-threshold=98 \
-  --image-gc-low-threshold=95 \
+  --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
+  --image-pull-progress-deadline=10m \
+  --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
+  --system-reserved=memory=3Gi \
+  --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
+  --healthz-bind-address="0.0.0.0" \
+  --healthz-port="10248" \
+  --feature-gates="DevicePlugins=true" \
   --v=2

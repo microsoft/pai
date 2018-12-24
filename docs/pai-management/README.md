@@ -17,25 +17,15 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-#### Configuration
-
-- [A Guide For Cluster Configuration](doc/how-to-write-pai-configuration.md)
-
-
-#### Setup Your Dev-box
-
-Note: Please working on dev-box when managing your cluster.
-
-
-- [A Guide For setup a dev-box](doc/how-to-setup-dev-box.md)
+## OpenPAI deploy 
 
 
 #### Cluster Bootstrap
 
-###### distributed
-- [A Guide For Booting Up The Cluster](doc/cluster-bootup.md)
-###### single box
-- [A Guide For Single Box Bootstrap](doc/cluster-bootup.md#singlebox)
+###### ```distributed```
+- [A Guide For Booting Up The Cluster](doc/distributed-deploy.md)
+###### ```single box```
+- [A Guide For Single Box Bootstrap](doc/single-box.md)
 
 #### PAI Machine Maintenance
 
@@ -49,10 +39,8 @@ Note: Please working on dev-box when managing your cluster.
 - You could skip the build process, and pull service image from our public registry.
 
 
-
 - [A Guide For Service Maintenance](../paictl/paictl-manual.md#Service)
 
-- [A Guide For Pulling Image From the Public Registry](doc/how-to-write-pai-configuration.md#serivices-configurationyaml)
 
 #### Advanced, Add Your Service
 

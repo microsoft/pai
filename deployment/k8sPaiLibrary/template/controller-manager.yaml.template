@@ -23,14 +23,14 @@ metadata:
 spec:
   hostNetwork: true
   containers:
-  - image: {{ clusterconfig['dockerregistry'] }}/kube-controller-manager:{{ clusterconfig['kubecontrollermanagerversion'] }}
+  - image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kube-controller-manager:{{ cluster_cfg['kubernetes']['kube-controller-manager-version'] }}
     name: kube-controller-manager
     command:
     - /usr/local/bin/kube-controller-manager
     - --master
-    - {{ clusterconfig['api-servers-ip'] }}:8080
+    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
     - --service-cluster-ip-range
-    - {{ clusterconfig['service-cluster-ip-range'] }}
+    - {{ cluster_cfg['kubernetes']['service-cluster-ip-range'] }}
     - --leader-elect=true
     livenessProbe:
       httpGet:
@@ -39,6 +39,6 @@ spec:
       initialDelaySeconds: 15
       timeoutSeconds: 1
     resources:
-      limits:
+      requests:
         memory: "1Gi"
         cpu: "1000m"

@@ -37,8 +37,9 @@ ENV HADOOP_PREFIX=/usr/local/hadoop \
     HADOOP_YARN_HOME=/usr/local/hadoop \
     HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop \
     HADOOP_ROOT_LOGGER=INFO,console \
-    HADOOP_SECURITY_LOGGER=INFO,console \
-    YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+    HADOOP_SECURITY_LOGGER=INFO,console
+
+ENV YARN_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
 
 ENV PATH=$PATH:$HADOOP_BIN_DIR:$HADOOP_SBIN_DIR:/usr/share/zookeeper/bin
 
@@ -57,10 +58,6 @@ RUN chmod a+x /usr/local/start.sh
 RUN wget https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz
 RUN cp docker-17.06.2-ce.tgz /usr/local
 RUN tar xzvf /usr/local/docker-17.06.2-ce.tgz
-
-ENV NV_DRIVER=/var/drivers/nvidia/current
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NV_DRIVER/lib:$NV_DRIVER/lib64
-ENV PATH=$PATH:$NV_DRIVER/bin
 # Only node manager need this.#
 
 CMD ["/usr/local/start.sh"]

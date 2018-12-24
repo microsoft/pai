@@ -41,11 +41,11 @@ class remove:
     An class to remove the node from current pai's k8s cluster.
     """
 
-    def __init__(self, cluster_config, node_config, clean):
+    def __init__(self, cluster_object_model, node_config, clean):
 
         self.logger = logging.getLogger(__name__)
 
-        self.cluster_config = cluster_config
+        self.cluster_object_model = cluster_object_model
         self.node_config = node_config
         maintain_configuration_path = os.path.join(package_directory_remove, "../maintainconf/remove.yaml")
         self.maintain_config = common.load_yaml_file(maintain_configuration_path)
@@ -54,10 +54,9 @@ class remove:
 
 
 
-
     def prepare_package(self, node_config, jobname):
 
-        common.maintain_package_wrapper(self.cluster_config, self.maintain_config, node_config, jobname)
+        common.maintain_package_wrapper(self.cluster_object_model, self.maintain_config, node_config, jobname)
 
 
 
@@ -144,10 +143,11 @@ class remove:
 
     def job_execute_remove_node_from_etcd_cluster(self):
 
+        com = self.cluster_object_model
         # Waiting for the bad node to remove from leader.
         while True:
 
-            leader_node_config = pai_common.get_etcd_leader_node(self.cluster_config)
+            leader_node_config = pai_common.get_etcd_leader_node(com)
 
             if leader_node_config is None:
                 self.logger.error("Failed to find the leader node in the etcd cluster")

@@ -21,10 +21,10 @@ groups:
     - name: node-rules
       rules:
       - alert: NodeFilesystemUsage
-        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 80
+        expr: node_filesystem_avail_bytes{mountpoint=~"/host-root.*", device=~"/dev.*"} / node_filesystem_size_bytes <= 0.2
         for: 5m
         annotations:
-          summary: "FileSystem usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
+          summary: "FileSystem {{$labels.device}} usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
 
       - alert: NodeMemoryUsage
         expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes )) / node_memory_MemTotal_bytes * 100 > 80
@@ -33,10 +33,10 @@ groups:
           summary: "Memory usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
 
       - alert: NodeCPUUsage
-        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 90
         for: 5m
         annotations:
-          summary: "CPU usage in {{$labels.instance}} is above 80% (current value is: {{ $value }})"
+          summary: "CPU usage in {{$labels.instance}} is above 90% (current value is: {{ $value }})"
 
       - alert: NodeDiskPressure
         expr: pai_node_count{disk_pressure="true"} > 1

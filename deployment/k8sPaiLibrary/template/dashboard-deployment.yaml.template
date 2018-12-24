@@ -37,19 +37,16 @@ spec:
     spec:
       hostNetwork: true
       nodeSelector:
-        kubernetes.io/hostname: {{ clusterconfig['dashboard-host'] }}
+        kubernetes.io/hostname: {{ cluster_cfg['kubernetes']['dashboard-host'] }}
       containers:
       - name: kubernetes-dashboard
-        image: {{ clusterconfig['dockerregistry'] }}/kubernetes-dashboard-amd64:{{ clusterconfig['dashboard_version'] }}
+        image: {{ cluster_cfg['kubernetes']['docker-registry'] }}/kubernetes-dashboard-amd64:{{ cluster_cfg['kubernetes']['dashboard-version'] }}
         args:
-          - --apiserver-host=http://{{ clusterconfig['api-servers-ip'] }}:8080
+          - --apiserver-host={{ cluster_cfg['kubernetes']['api-servers-url'] }}
         resources:
           # the ideal cpu setting will be 3.5, according to our experiment. If the server hosting k8s dashboard has enough resource, user can change this setting to a larger value.
-          limits:
-            cpu: "1000m"
-            memory: 3000Mi
           requests:
-            cpu: "0.5"
+            cpu: "1000m"
             memory: 1000Mi
         ports:
         - containerPort: 9090

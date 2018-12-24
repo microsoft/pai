@@ -16,15 +16,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const Etcd2 = require('./etcd2');
 const LocalCache = require('./localCache');
+const UserSecret = require('./userSecret');
 
 const getStorageObject = (type, options = null) => {
   switch (type) {
-    case 'etcd2':
-      return new Etcd2(options);
     case 'localCache':
       return new LocalCache(options);
+    case 'UserSecret':
+      return new UserSecret(options);
     default:
   }
 };

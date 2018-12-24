@@ -5,7 +5,6 @@ window.ENV = {
   yarnWebPortalUri: '${YARN_WEB_PORTAL_URI}',
   grafanaUri: '${GRAFANA_URI}',
   k8sDashboardUri: '${K8S_DASHBOARD_URI}',
-  k8sApiServerUri: '${K8S_API_SERVER_URI}',
   exporterPort: '${EXPORTER_PORT}',
   promScrapeTime: '${PROM_SCRAPE_TIME}'
 };

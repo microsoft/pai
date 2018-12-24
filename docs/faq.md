@@ -10,7 +10,7 @@ A: We recommend deploying them on the same subnet. In theory, as long as the net
 
 ### Q: If user find a job to retry multiple times, how to diagnose the cause?
 
-A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and [job_log.md](./job_log.md)'s introduction.
+A: Users can find historical job logs through yarn. Please check [issue-1072](https://github.com/Microsoft/pai/issues/1072)'s answer and job log doc's section:[Diagnostic job retried many times reason](./job_log.md#retry) introduction.
 
 ### Q: How to diagnose job problems through logs?
 
@@ -58,7 +58,7 @@ Each queue enforces a limit on the percentage of resources allocated to a user a
 
 ### Q: How to configure virtual cluster capacity?
 
-A: Please refer [configure virtual cluster capacity](./pai-management/doc/how-to-write-pai-configuration.md#configure_vc_capacity)
+A: Please refer [configure virtual cluster capacity](./../src/hadoop-resource-manager/config/hadoop-resource-manager.md)
 
 ### Q: How to use private docker registry job image when submitting an OpenPAI job?
 

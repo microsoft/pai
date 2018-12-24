@@ -18,8 +18,6 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  annotations:
-    prometheus.io/scrape: 'true'
   name: node-exporter
 spec:
   selector:
@@ -29,26 +27,26 @@ spec:
     metadata:
       labels:
         app: node-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ cluster_cfg["node-exporter"]["port"] }}"
       name: node-exporter
     spec:
       containers:
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}node-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
+      - image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}node-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
         readinessProbe:
-          httpGet:
-            path: /metrics
-            port: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
-          initialDelaySeconds: 30
+          tcpSocket:
+            port: {{ cluster_cfg["node-exporter"]["port"] }}
+          initialDelaySeconds: 3
           periodSeconds: 30
+          timeoutSeconds: 10
         resources:
           limits:
             memory: "128Mi"
-        volumeMounts:
-        - mountPath: /datastorage/prometheus
-          name: collector-mount
         name: node-exporter
         args:
-          - '--collector.textfile.directory=/datastorage/prometheus'
           - '--no-collector.arp'
           - '--no-collector.bcache'
           - '--no-collector.bonding'
@@ -79,83 +77,20 @@ spec:
           - '--no-collector.xfs'
           - '--no-collector.zfs'
         ports:
-        - containerPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
-          hostPort: {{ clusterinfo['prometheusinfo']['node_exporter_port'] }}
+        - containerPort: {{ cluster_cfg["node-exporter"]["port"] }}
+          hostPort: {{ cluster_cfg["node-exporter"]["port"] }}
           name: scrape
-      - image: {{ clusterinfo['dockerregistryinfo']['prefix'] }}job-exporter:{{ clusterinfo['dockerregistryinfo']['docker_tag'] }}
-        imagePullPolicy: Always
-        readinessProbe:
-          exec:
-            command:
-            - "python"
-            - "/job_exporter/no_older_than.py"
-            - "--delta"
-            - "120"
-            - "/datastorage/prometheus/job_exporter.prom"
-            - "/datastorage/prometheus/gpu_exporter.prom"
-          initialDelaySeconds: 30
-          periodSeconds: 30
-        resources:
-          limits:
-            memory: "128Mi"
-        securityContext:
-          privileged: true # this is required by job-exporter
-        env:
-        - name: HOST_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
         volumeMounts:
-        - mountPath: /root/.docker
-          name: docker-cred-volume
-        - mountPath: /bin/docker
-          name: docker-bin
-        - mountPath: /var/run/docker.sock
-          name: docker-socket
-        - mountPath: /dev
-          name: device-mount
-        - mountPath: /var/drivers
-          name: driver-path
-        - mountPath: /datastorage/prometheus
-          name: collector-mount
-        - mountPath: /gpu-config
-          name: gpu-config
-        name: job-exporter
-      volumes:
-        - name: docker-bin
-          hostPath:
-            path: /bin/docker
-        - name: docker-socket
-          hostPath:
-            path: /var/run/docker.sock
-        - name: docker-cred-volume
-          configMap:
-            name: docker-credentials
-        - name: device-mount
-          hostPath:
-            path: /dev
-        - name: driver-path
-          hostPath:
-            path: /var/drivers
-        - name: collector-mount
-          hostPath:
-            path: {{ clusterinfo[ 'dataPath' ] }}/prometheus
-        - name: rootfs
-          hostPath:
-            path: /
-        - name: var-run
-          hostPath:
-            path: /var/run
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: gpu-config
-          configMap:
-            name: gpu-configuration
+        - name: host-root
+          mountPath: /host-root/
+          readOnly: true
       imagePullSecrets:
-      - name: {{ clusterinfo['dockerregistryinfo']['secretname'] }}
+      - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
       hostNetwork: true
-      hostPID: true # This is required since job-exporter should get list of pid in container
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

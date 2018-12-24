@@ -22,12 +22,33 @@ matrix:
 
     - language: python
       python: 2.7
+      install:
+      - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+      - python -m unittest deployment.clusterObjectModel.test.test_cluster_object_model
+
+    - language: python
+      python: 2.7
+      install:
+      - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+      - python -m unittest deployment.clusterObjectModel.test.test_template_generate
+
+    - language: python
+      python: 2.7
+      install:
+        - pip install paramiko pyyaml jinja2 python-etcd kubernetes GitPython
+      script:
+        - python -m unittest deployment.clusterObjectModel.test.test_forward_compatibility
+
+    - language: python
+      python: 3.6
       before_install:
         - cd src/job-exporter/test
       install:
-        - pip install pyyaml
+        - pip install prometheus_client
       script:
-        - python -m unittest discover .
+        - python3 -m unittest discover .
 
     - language: python
       python: 2.7
@@ -55,43 +76,43 @@ matrix:
         - mvn clean test jacoco:report coveralls:report
 
     - language: node_js
-      node_js: 6
+      node_js: lts/carbon
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
       install:
-        - npm install
+        - yarn install
       script:
         - npm test
         - npm run coveralls
 
     - language: node_js
-      node_js: 7
+      node_js: node
       env: NODE_ENV=test
       before_install:
         - cd src/rest-server
       install:
-        - npm install
+        - yarn install --ignore-engines
       script:
         - npm test
         - npm run coveralls
 
     - language: node_js
-      node_js: 6
+      node_js: lts/carbon
       before_install:
         - cd src/webportal
       install:
-        - npm run yarn install
+        - yarn install
         - npm run build
       script:
         - npm test
 
     - language: node_js
-      node_js: 7
+      node_js: node
       before_install:
         - cd src/webportal
       install:
-        - npm run yarn install
+        - yarn install --ignore-engines
         - npm run build
       script:
         - npm test

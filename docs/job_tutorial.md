@@ -174,6 +174,7 @@ Below we show a complete list of environment variables accessible in a Docker co
 | PAI_CONTAINER_HOST_PORT_LIST       | Allocated port list for current docker container, in `portLabel0:port0,port1,port2;portLabel1:port3,port4` format |
 | PAI_CONTAINER_HOST\_`$type`\_PORT_LIST | Allocated port list for `portList.label == $type`, comma separated `port` string |
 | PAI_TASK_ROLE\_`$name`\_HOST_LIST  | Host list for `PAI_TASK_ROLE_NAME == $name`, comma separated `ip:port` string, sorted by current task index in task role. Each task role has a host list environment variable with the corresponding task role name |
+| PAI_\_`$taskRole`\_`$currentTaskIndex`\_`$type`_PORT | The port for `portList.label == $type, task role name == $taskRole and task index of current task role == $currentTaskIndex`. Each port has corresponding environment variable and is exposed to all tasks. |
 
 
 ### A deep learning job example <a name="example"></a>
@@ -253,13 +254,13 @@ A distributed TensorFlow job is listed below as an example:
 
 1. Put the code and data on [HDFS](../docs/hadoop/hdfs.md)
 
-- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS) to upload your code and data to HDFS on the system.
-- Option-2: Use HDFS tools to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
+- Option-1: Use [WebHDFS](../docs/hadoop/hdfs.md#WebHDFS-) to upload your code and data to HDFS on the system.
+- Option-2: Use [HDFS cmd](../docs/hadoop/hdfs.md#hdfs-command-) to upload your code and data to HDFS on the system. We upload a [Docker image](https://hub.docker.com/r/paiexample/pai.example.hdfs/) to DockerHub with built-in HDFS support.
     Please refer to the [HDFS commands guide](https://hadoop.apache.org/docs/r2.7.2/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html) for details.
 
 2. Prepare a job config file
 
-    Prepare the [config file](#json-config-file-for-job-submission) for your job.
+    Prepare the [config file](#jobjson) for your job.
 
 3. Submit the job through web portal
 
@@ -271,7 +272,7 @@ You can ssh connect to a specified container either from outside or inside conta
 
 ### SSH connect from outside
 
-1. Get job ssh connect info by invoking `/api/v1/jobs/:jobName/ssh` api or clicking the job detail page on webportal.
+1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
 
 2. Open a Bash shell terminal.
 

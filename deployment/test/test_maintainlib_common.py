@@ -138,18 +138,15 @@ class TestMaintainlibCommon(unittest.TestCase):
     def test_package_common_1(self):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
-        cluster_config = common.load_yaml_file("test-cluster-config.yaml")
-        node_config = cluster_config['workermachinelist']['worker-01']
+        cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
+        node_config = cluster_object_model['machine']['machine-list']['worker-01']
 
-
-        common.maintain_package_wrapper(cluster_config, maintain_config, node_config, "unittest-common-1")
+        common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-1")
         self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common-1.tar"))
-
 
         package = tarfile.open("parcel-center/1.2.3.2/unittest-common-1.tar", "r:")
         package.extractall()
         self.assertTrue(os.path.exists("unittest-common-1/"))
-
 
         target_file_list = ["testfile1.sh", "testfile2.sh"]
         package_file_list = os.listdir("unittest-common-1/")
@@ -167,18 +164,15 @@ class TestMaintainlibCommon(unittest.TestCase):
     def test_package_common_2(self):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
-        cluster_config = common.load_yaml_file("test-cluster-config.yaml")
-        node_config = cluster_config['workermachinelist']['worker-01']
+        cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
+        node_config = cluster_object_model['machine']['machine-list']['worker-01']
 
-
-        common.maintain_package_wrapper(cluster_config, maintain_config, node_config, "unittest-common-2")
+        common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-2")
         self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common-2.tar"))
-
 
         package = tarfile.open("parcel-center/1.2.3.2/unittest-common-2.tar", "r:")
         package.extractall()
         self.assertTrue(os.path.exists("unittest-common-2/"))
-
 
         target_file_list = ["testfile2.sh"]
         package_file_list = os.listdir("unittest-common-2/")
@@ -196,11 +190,11 @@ class TestMaintainlibCommon(unittest.TestCase):
     def test_package_common_3(self):
 
         maintain_config = common.load_yaml_file("test-maintain.yaml")
-        cluster_config = common.load_yaml_file("test-cluster-config.yaml")
-        node_config = cluster_config['workermachinelist']['worker-01']
+        cluster_object_model = common.load_yaml_file("test-generated-cluster-object-model.yaml")
+        node_config = cluster_object_model['machine']['machine-list']['worker-01']
 
 
-        common.maintain_package_wrapper(cluster_config, maintain_config, node_config, "unittest-common-3")
+        common.maintain_package_wrapper(cluster_object_model, maintain_config, node_config, "unittest-common-3")
         self.assertTrue(os.path.exists("parcel-center/1.2.3.2/unittest-common-3.tar"))
 
 

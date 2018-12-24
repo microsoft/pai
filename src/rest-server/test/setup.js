@@ -23,10 +23,10 @@ process.env.HDFS_URI = 'hdfs://hdfs.test.pai:9000';
 process.env.WEBHDFS_URI = 'http://hdfs.test.pai:5070';
 process.env.LAUNCHER_WEBSERVICE_URI = 'http://launcher.test.pai:9086';
 process.env.JWT_SECRET = 'jwt_test_secret';
-process.env.ETCD_URI = 'http://etcd.test.ip1.pai:4001';
 process.env.DEFAULT_PAI_ADMIN_USERNAME = 'paiAdmin';
 process.env.DEFAULT_PAI_ADMIN_PASSWORD = 'adminis';
 process.env.YARN_URI = 'http://yarn.test.pai:8088';
+process.env.K8S_APISERVER_URI = 'http://kubernetes.test.pai:8080';
 
 
 // module dependencies
@@ -50,15 +50,15 @@ global.should = chai.should;
 global.server = server;
 global.webhdfsUri = process.env.WEBHDFS_URI;
 global.launcherWebserviceUri = process.env.LAUNCHER_WEBSERVICE_URI;
-global.etcdHosts = process.env.ETCD_URI;
+global.apiServerRootUri = process.env.K8S_APISERVER_URI;
 global.yarnUri = process.env.YARN_URI;
 
 global.jobConfigTemplate = JSON.stringify({
-  'jobName': '{{jobName}}',
+  'jobName': '{{{jobName}}}',
   'image': 'aiplatform/pai.run.tensorflow',
   'dataDir': 'hdfs://10.240.0.10:9000/test/data',
   'codeDir': 'hdfs://10.240.0.10:9000/test/code',
-  'virtualCluster': '{{virtualCluster}}',
+  'virtualCluster': '{{{virtualCluster}}}',
   'taskRoles': [
     {
       'name': 'role1',
@@ -73,19 +73,19 @@ global.jobConfigTemplate = JSON.stringify({
   'jobEnvs': {
     'job_parameter1': 'value1',
     'job_parameter2': 'value2',
-  }
+  },
 });
 
 global.frameworkDetailTemplate = JSON.stringify({
   'summarizedFrameworkInfo': {
-    'frameworkName': '{{frameworkName}}',
-    'queue': '{{queueName}}',
+    'frameworkName': '{{{frameworkName}}}',
+    'queue': '{{{queueName}}}',
   },
   'aggregatedFrameworkRequest': {
     'frameworkRequest': {
       'frameworkDescriptor': {
         'user': {
-          'name': '{{userName}}',
+          'name': '{{{userName}}}',
         },
       },
     },
@@ -101,7 +101,7 @@ global.frameworkDetailTemplate = JSON.stringify({
         'unKnownRetriedCount': 0,
       },
       'frameworkState': 'APPLICATION_RUNNING',
-      'applicationId': '{{applicationId}}',
+      'applicationId': '{{{applicationId}}}',
     },
     'aggregatedTaskRoleStatuses': {
       'role1': {

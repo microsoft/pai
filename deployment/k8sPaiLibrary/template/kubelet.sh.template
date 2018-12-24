@@ -51,23 +51,23 @@ docker run \
     --pid=host \
     --privileged=true \
     -d \
-    {{ clusterconfig['dockerregistry'] }}/hyperkube:{{ clusterconfig['hyperkubeversion'] }} \
+    {{ cluster_cfg['kubernetes']['docker-registry'] }}/hyperkube:{{ cluster_cfg['kubernetes']['hyperkube-version'] }} \
     /hyperkube kubelet --fail-swap-on=false --address={{ hostcofig['hostip'] }} \
   --register-node=true \
   --kubeconfig=/etc/kubernetes/config \
   --require-kubeconfig \
   --hostname-override={{ hostcofig['nodename'] }} \
-  --cluster-dns={{ clusterconfig['cluster-dns'] }} \
+  --cluster-dns={{ cluster_cfg['kubernetes']['cluster-dns'] }} \
   --cluster-domain=cluster.local  \
   --pod-manifest-path=/etc/kubernetes/manifests \
   --allow-privileged=true \
   --logtostderr=true \
-  --pod-infra-container-image {{ clusterconfig['dockerregistry'] }}/pause-amd64:3.0 \
+  --pod-infra-container-image {{ cluster_cfg['kubernetes']['docker-registry'] }}/pause-amd64:3.0 \
   --image-pull-progress-deadline=10m \
   --docker-root=${DOCKER_ROOT_DIR_FOR_KUBELET} \
   --system-reserved=memory=3Gi \
-  --eviction-hard="memory.available<1Gi,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
+  --eviction-hard="memory.available<5%,nodefs.available<5%,imagefs.available<5%,nodefs.inodesFree<5%,imagefs.inodesFree<5%" \
   --healthz-bind-address="0.0.0.0" \
   --healthz-port="10248" \
-  --feature-gates="DevicePlugins=true" \
+  --feature-gates="DevicePlugins=true,TaintBasedEvictions=true" \
   --v=2

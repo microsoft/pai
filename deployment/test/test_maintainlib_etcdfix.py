@@ -72,7 +72,7 @@ class TestMaintainlibEtcdFix(unittest.TestCase):
     def test_etcdfix_conf_validation_node_config_validation(self):
 
         node_list = common.load_yaml_file("data/data_maintainlib_etcdfix/test_node_list_config.yaml")
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_ok.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-ok.yaml")
 
         node_config = node_list['machinelist']['ok-machine-node']
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
@@ -121,32 +121,26 @@ class TestMaintainlibEtcdFix(unittest.TestCase):
         node_config = node_list['machinelist']['ok-machine-node']
 
 
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_ok.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-ok.yaml")
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
         self.assertTrue(validation.cluster_conf_validation())
 
 
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_miss_master_list.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-miss-master.yaml")
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
         self.assertFalse(validation.cluster_conf_validation())
 
 
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_miss_node_config.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-miss-node-config.yaml")
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
         self.assertFalse(validation.cluster_conf_validation())
 
 
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_wrong_node_config.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-wrong-node-config.yaml")
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
         self.assertFalse(validation.cluster_conf_validation())
 
 
-        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/test_cluster_config_inconsistent_node_config.yaml")
+        cluster_config = common.load_yaml_file("data/data_maintainlib_etcdfix/generated-cluster-object-model-inconsistent-node-config.yaml")
         validation = etcdfix.etcdfix_conf_validation(cluster_config, node_config)
         self.assertFalse(validation.cluster_conf_validation())
-
-
-
-
-
-

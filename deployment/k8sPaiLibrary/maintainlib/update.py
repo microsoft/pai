@@ -31,7 +31,8 @@ from ...confStorage import conf_storage_util
 from ...confStorage.download import download_configuration
 from ...paiLibrary.common import directory_handler
 from ...paiLibrary.common import kubernetes_handler
-from ...paiLibrary.clusterObjectModel import objectModelFactory
+
+from ...clusterObjectModel.cluster_object_model import  cluster_object_model
 
 
 class update:
@@ -64,12 +65,13 @@ class update:
 
         config_get = download_configuration(config_output_path=self.tmp_path, kube_config_path=self.kube_config_path)
         config_get.run()
-        objectModel = objectModelFactory.objectModelFactory(self.tmp_path)
-        ret = objectModel.objectModelPipeLine()
+
+        cluster_object_model_instance = cluster_object_model(self.tmp_path)
+        com = cluster_object_model_instance.run()
 
         directory_handler.directory_delete(self.tmp_path)
         self.logger.info("Successfully get latest configuration from Kubernetes.")
-        return ret["k8s"]
+        return com
 
 
 
@@ -84,16 +86,15 @@ class update:
     def get_node_config_from_cluster_configuration(self):
 
         self.logger.info("Try to get node confguration from cluster configuration.")
-        cluster_config = self.k8s_configuration
+        com = self.k8s_configuration
         node_config_from_cluster_conf = dict()
 
-        for role in cluster_config["remote_deployment"]:
-            listname = cluster_config["remote_deployment"][role]["listname"]
-            if listname not in cluster_config:
+        for role in ["proxy", "master", "worker"]:
+            if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
 
-            for node_key in cluster_config[listname]:
-                node_config = cluster_config[listname][node_key]
+            for node_key in com['kubernetes']["{0}-list".format(role)]:
+                node_config = com["machine"]["machine-list"][node_key]
                 node_config_from_cluster_conf[node_key] = node_config
 
         self.logger.info("Successfully get latest configuration from cluster configuration.")
@@ -188,15 +189,14 @@ class update:
     def add_machine(self):
 
         node_list = self.node_list_from_k8s
-        cluster_configuration = self.k8s_configuration
+        com = self.k8s_configuration
 
-        for role in cluster_configuration["remote_deployment"]:
-            listname = cluster_configuration["remote_deployment"][role]["listname"]
-            if listname not in cluster_configuration:
+        for role in ["proxy", "master", "worker"]:
+            if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
 
-            for node_key in cluster_configuration[listname]:
-                node_config = cluster_configuration[listname][node_key]
+            for node_key in com['kubernetes']["{0}-list".format(role)]:
+                node_config = com["machine"]["machine-list"][node_key]
 
                 if not self.node_status_check(node_config, node_list):
                     self.logger.info("Begin to add new node into pai cluster.")
@@ -204,11 +204,11 @@ class update:
                     self.logger.info("Target node address: {0}".format(node_config["hostip"]))
 
                     self.logger.info("[ 0/2 ] Cleaning the target node. ")
-                    self.remove(node_config, cluster_configuration)
+                    self.remove(node_config, com)
                     self.logger.info("[ 1/2 ] Cleaning Done!")
 
                     self.logger.info("[ 1/2 ] Install kubelet on the target node.")
-                    self.install(node_config, cluster_configuration)
+                    self.install(node_config, com)
                     self.logger.info("[ 2/2 ] Install Done!")
 
                     self.logger.info("Node [{0}] is added into the cluster as a new kubernetes node.".format(node_config["nodename"]))

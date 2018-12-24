@@ -32,19 +32,36 @@ class ConfigModel:
         buildConfigContent = build_utility.load_yaml_config(self.buildConfiguration)
 
         # section : dockerRegistryInfo:
+        # forward compatibility with the old cluster configuration
 
-        self.buildConfigDict["dockerRegistryInfo"] = buildConfigContent["cluster"]["docker-registry-info"]
-        self.buildConfigDict["dockerRegistryInfo"]["dockerNameSpace"] = \
-            buildConfigContent["cluster"]["docker-registry-info"]["docker-namespace"]
-        self.buildConfigDict["dockerRegistryInfo"]["dockerRegistryDomain"] = \
-            buildConfigContent["cluster"]["docker-registry-info"]["docker-registry-domain"]
-        self.buildConfigDict["dockerRegistryInfo"]["dockerUserName"] = buildConfigContent["cluster"]["docker-registry-info"]["docker-username"] \
-            if  "docker-username" in buildConfigContent["cluster"]["docker-registry-info"] else None
-        self.buildConfigDict["dockerRegistryInfo"]["dockerPassword"] = buildConfigContent["cluster"]["docker-registry-info"]["docker-password"] \
-            if  "docker-password" in buildConfigContent["cluster"]["docker-registry-info"] else None
-        self.buildConfigDict["dockerRegistryInfo"]["dockerTag"] = \
-            buildConfigContent["cluster"]["docker-registry-info"]["docker-tag"]
-        self.buildConfigDict["dockerRegistryInfo"]["secretName"] = \
-            buildConfigContent["cluster"]["docker-registry-info"]["secret-name"]
+        if "docker-registry-info" in buildConfigContent["cluster"]:
+            self.buildConfigDict["dockerRegistryInfo"] = buildConfigContent["cluster"]["docker-registry-info"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerNameSpace"] = \
+                buildConfigContent["cluster"]["docker-registry-info"]["docker-namespace"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerRegistryDomain"] = \
+                buildConfigContent["cluster"]["docker-registry-info"]["docker-registry-domain"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerUserName"] = buildConfigContent["cluster"]["docker-registry-info"]["docker-username"] \
+                if  "docker-username" in buildConfigContent["cluster"]["docker-registry-info"] else None
+            self.buildConfigDict["dockerRegistryInfo"]["dockerPassword"] = buildConfigContent["cluster"]["docker-registry-info"]["docker-password"] \
+                if  "docker-password" in buildConfigContent["cluster"]["docker-registry-info"] else None
+            self.buildConfigDict["dockerRegistryInfo"]["dockerTag"] = \
+                buildConfigContent["cluster"]["docker-registry-info"]["docker-tag"]
+            self.buildConfigDict["dockerRegistryInfo"]["secretName"] = \
+                buildConfigContent["cluster"]["docker-registry-info"]["secret-name"]
+
+        else:
+            self.buildConfigDict["dockerRegistryInfo"] = buildConfigContent["cluster"]["docker-registry"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerNameSpace"] = \
+                buildConfigContent["cluster"]["docker-registry"]["namespace"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerRegistryDomain"] = \
+                buildConfigContent["cluster"]["docker-registry"]["domain"]
+            self.buildConfigDict["dockerRegistryInfo"]["dockerUserName"] = buildConfigContent["cluster"]["docker-registry"]["username"] \
+                if  "username" in buildConfigContent["cluster"]["docker-registry"] else None
+            self.buildConfigDict["dockerRegistryInfo"]["dockerPassword"] = buildConfigContent["cluster"]["docker-registry"]["password"] \
+                if  "password" in buildConfigContent["cluster"]["docker-registry"] else None
+            self.buildConfigDict["dockerRegistryInfo"]["dockerTag"] = \
+                buildConfigContent["cluster"]["docker-registry"]["tag"]
+            self.buildConfigDict["dockerRegistryInfo"]["secretName"] = \
+                buildConfigContent["cluster"]["docker-registry"]["secret-name"]
 
         return self.buildConfigDict

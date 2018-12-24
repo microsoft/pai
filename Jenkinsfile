@@ -76,12 +76,12 @@ ls $CONFIG_PATH/
 rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
-$JENKINS_HOME/scripts/setup_azure_int_registry.sh $CONFIG_PATH
+$JENKINS_HOME/scripts/setup_azure_int_registry_new_com.sh $CONFIG_PATH
 # build images
 cd build/
 sudo ./pai_build.py build -c $CONFIG_PATH
@@ -122,6 +122,9 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-singlebox \
   10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > SINGLE_BOX_DEV_BOX.txt
+
+sudo docker exec $(cat SINGLE_BOX_DEV_BOX.txt) rm -rf /pai
+sudo docker cp ${WORKSPACE} $(cat SINGLE_BOX_DEV_BOX.txt):/pai
 '''
             script {
               env.SINGLE_BOX_DEV_BOX = readFile("$WORKSPACE/SINGLE_BOX_DEV_BOX.txt").trim()
@@ -140,28 +143,18 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_single-box.sh /quick-start
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
-/jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
+/jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
@@ -222,6 +215,9 @@ sudo docker run -itd \
   --net=host \
   --name=dev-box-cluster \
   10.0.1.5:5000/openpai/dev-box:${IMAGE_TAG} > CLUSTER_DEV_BOX.txt
+
+sudo docker exec $(cat CLUSTER_DEV_BOX.txt) rm -rf /pai
+sudo docker cp ${WORKSPACE} $(cat CLUSTER_DEV_BOX.txt):/pai
 '''
             script {
               env.CLUSTER_DEV_BOX = readFile("$WORKSPACE/CLUSTER_DEV_BOX.txt").trim()
@@ -240,28 +236,18 @@ rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
 cd /pai
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # Create quick-start.yaml
 /jenkins/scripts/${BED}-gen_cluster.sh /quick-start
 # Step 1. Generate config
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
-sed -i "38s/.*/    docker-tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
+sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
 # change ectdid, zkid
 sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
 sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
-/jenkins/scripts/setup_azure_int_registry.sh /cluster-configuration
+/jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
@@ -559,17 +545,7 @@ set -x
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
 openpai-test
@@ -603,17 +579,7 @@ set -x
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -x
 cd /pai
-# Choose the branch
-if [[ $GIT_BRANCH == PR* ]];
-then
-    #PR_ID=$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)
-    git fetch origin pull/$(echo ${GIT_BRANCH} | cut -d\'-\' -f 2)/head:${GIT_BRANCH}
-    git checkout ${GIT_BRANCH}
-else
-    git fetch origin ${GIT_BRANCH}
-    git checkout --track origin/${GIT_BRANCH}
-    git reset --hard origin/${GIT_BRANCH}
-fi
+
 # delete service for next install
 ./paictl.py service start -n cluster-configuration << EOF
 openpai-test
@@ -663,7 +629,8 @@ sudo docker rm -f ${CLUSTER_DEV_BOX}
       step([
             $class: 'Mailer',
             notifyEveryUnstableBuild: true,
-            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])
+            recipients: emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]),
+            to: 'paialert@microsoft.com'
       ])
     }
 

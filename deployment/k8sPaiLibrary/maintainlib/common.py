@@ -96,13 +96,12 @@ def read_template(template_path):
 
 
 
-def generate_from_template(template_data, cluster_config, host_config):
+def generate_from_template(template_data, cluster_object_model, host_config):
 
     generated_file = jinja2.Template(template_data).render(
         {
             "hostcofig": host_config,
-            "clusterconfig": cluster_config['clusterinfo'],
-            "cluster": cluster_config
+            "cluster_cfg": cluster_object_model
         }
     )
 
@@ -137,6 +136,24 @@ def ipv4_address_validation(ipv4_addr):
         logger.error("{0} is not a correct ipv4 address!".format(ipv4_addr))
 
     return ret
+
+
+
+def cidr_validation(cidr):
+    str_list = cidr.split("/")
+
+    if len(str_list) != 2:
+        logger.error("{0} is not a correct CIDR.".format(cidr))
+        return False
+
+    if ipv4_address_validation(str_list[0]) is not True:
+        return False
+
+    if int(str_list[1]) > 32 or int(str_list[1]) < 0:
+        logger.error("{0} is not a correct CIDR.".format(cidr))
+        return False
+
+    return True
 
 
 
@@ -336,7 +353,7 @@ def archive_tar(target, path):
 
 
 
-def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobname):
+def maintain_package_wrapper(cluster_object_model, maintain_config, node_config, jobname):
 
     create_path("parcel-center/{0}/{1}".format(node_config['nodename'], jobname))
 
@@ -348,7 +365,7 @@ def maintain_package_wrapper(cluster_config, maintain_config, node_config, jobna
             dst = template_info['dst']
 
             template_data = read_template("{0}".format(src))
-            template_file = generate_from_template(template_data, cluster_config, node_config)
+            template_file = generate_from_template(template_data, cluster_object_model, node_config)
             create_path("parcel-center/{0}/{1}".format(node_config['nodename'], dst))
             write_generated_file(template_file, "parcel-center/{0}/{1}/{2}".format(node_config['nodename'], dst, name))
 
@@ -379,35 +396,35 @@ def maintain_package_cleaner(node_config):
 
 
 
-def get_etcd_leader_node(cluster_config):
-
+def get_etcd_leader_node(cluster_cfg):
+    com = cluster_cfg
     # Get leader node.
     host_list = list()
 
-    for host in cluster_config['mastermachinelist']:
-        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+    for host in com['kubernetes']['master-list']:
+        host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
 
     client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
     etcdid = client.leader['name']
-    for host in cluster_config['mastermachinelist']:
-        if etcdid == cluster_config['mastermachinelist'][host]['etcdid']:
-            logger.debug("Current leader of etcd-cluster: {0}".format(cluster_config['mastermachinelist'][host]))
-            return cluster_config['mastermachinelist'][host]
+    for host in com['kubernetes']['master-list']:
+        if etcdid == com['machine']['machine-list'][host]['etcdid']:
+            logger.debug("Current leader of etcd-cluster: {0}".format(com['machine']['machine-list'][host]))
+            return com['machine']['machine-list'][host]
 
     logger.error("Can't find the leader of etcd.")
     return None
 
 
 
-def get_new_etcd_peer_ip_list(cluster_config, new_node_config):
-
+def get_new_etcd_peer_ip_list(cluster_cfg, new_node_config):
+    com = cluster_cfg
     etcd_cluster_ips_peer = ""
     separated = ""
 
     host_list = list()
-    for host in cluster_config['mastermachinelist']:
-        host_list.append((cluster_config['mastermachinelist'][host]['hostip'], 4001))
+    for host in com['kubernetes']['master-list']:
+        host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
 
     client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 

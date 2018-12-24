@@ -23,7 +23,6 @@ import json
 import sys
 import requests
 import logging
-from logging.handlers import RotatingFileHandler
 import time
 import threading
 
@@ -48,9 +47,6 @@ api_healthz_histogram = Histogram("k8s_api_healthz_resp_latency_seconds",
 # to get 95 percentile latency in past 5 miniute.
 etcd_healthz_histogram = Histogram("k8s_etcd_resp_latency_seconds",
         "Response latency for requesting etcd healthz (seconds)")
-
-kubelet_healthz_histogram = Histogram("k8s_kubelet_resp_latency_seconds",
-        "Response latency for requesting kubelet healthz (seconds)")
 
 list_pods_histogram = Histogram("k8s_api_list_pods_latency_seconds",
         "Response latency for list pods from k8s api (seconds)")
@@ -217,21 +213,11 @@ def collect_healthz(gauge, histogram, service_name, scheme, address, port, url, 
         gauge.add_metric([service_name, error, address], 1)
 
 
-def collect_k8s_componentStaus(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, nodesJsonObject, ca_path, headers):
+def collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers):
     collect_healthz(k8s_gauge, api_healthz_histogram,
             "k8s_api_server", api_server_scheme, api_server_ip, api_server_port, "/healthz", ca_path, headers)
     collect_healthz(k8s_gauge, etcd_healthz_histogram,
             "k8s_etcd", api_server_scheme, api_server_ip, api_server_port, "/healthz/etcd", ca_path, headers)
-
-    # check kubelet
-    nodeItems = nodesJsonObject["items"]
-
-    for name in nodeItems:
-        ip = name["metadata"]["name"]
-        
-        collect_healthz(k8s_gauge, kubelet_healthz_histogram,
-            "k8s_kubelet", "http", ip, 10255, "/healthz", None, None)
-
 
 def parse_node_item(pai_node_gauge, node):
     name = node["metadata"]["name"]
@@ -342,11 +328,11 @@ def main(args):
             process_pods_status(pai_pod_gauge, pai_container_gauge, podsStatus)
 
             # 2. check nodes level status
-            nodesStatus = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers) 
-            process_nodes_status(pai_node_gauge, nodesStatus)
+            nodes_status = request_with_histogram(list_nodes_url, list_nodes_histogram, ca_path, headers) 
+            process_nodes_status(pai_node_gauge, nodes_status)
 
             # 3. check k8s level status
-            collect_k8s_componentStaus(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, nodesStatus, ca_path, headers)
+            collect_k8s_component(k8s_gauge, api_server_scheme, api_server_ip, api_server_port, ca_path, headers)
         except Exception as e:
             error_counter.labels(type="unknown").inc()
             logger.exception("watchdog failed in one iteration")
@@ -356,7 +342,26 @@ def main(args):
 
         time.sleep(float(args.interval))
 
-# python watchdog.py http://10.151.40.133:8080
+
+def get_logging_level():
+    mapping = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING
+            }
+
+    result = logging.INFO
+
+    if os.environ.get("LOGGING_LEVEL") is not None:
+        level = os.environ["LOGGING_LEVEL"]
+        result = mapping.get(level.upper())
+        if result is None:
+            sys.stderr.write("unknown logging level " + level + ", default to INFO\n")
+            result = logging.INFO
+
+    return result
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("k8s_api", help="kubernetes api uri eg. http://10.151.40.133:8080")
@@ -368,6 +373,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.basicConfig(format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)s - %(message)s",
-            level=logging.INFO)
+            level=get_logging_level())
 
     main(args)

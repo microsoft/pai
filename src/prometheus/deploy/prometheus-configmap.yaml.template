@@ -15,14 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% set prom_info = clusterinfo['prometheusinfo'] %}
-{% set has_alert_manager = 'alerting' in prom_info %}
-
-{% if has_alert_manager and 'alert_manager_port' in prom_info['alerting'] %}
-{% set port = clusterinfo['prometheusinfo']['alerting']['alert_manager_port'] %}
-{% else %}
-{% set port = 9093 %}
-{% endif %}
+{% set prom_info = cluster_cfg["prometheus"] %}
+{% set has_alert_manager = cluster_cfg["alert-manager"]["configured"] %}
+{% set alert_manager_port = cluster_cfg["alert-manager"]["port"] %}
 
 apiVersion: v1
 kind: ConfigMap
@@ -34,22 +29,10 @@ data:
     rule_files:
       - "/etc/prometheus-alert/*.rules"
     scrape_configs:
-    - job_name: 'node_exporter'
-      scrape_interval: {{ prom_info['scrape_interval']|default(30) }}s
-      kubernetes_sd_configs:
-      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
-        role: node
-      # Extract label __address__ inner ip address and replace the port to exporter's port to build target address. 
-      # Prometheus will fetch data from target address. 
-      relabel_configs:
-      - source_labels: [__address__]
-        regex: '([^:]+)(:\d*)?'
-        replacement: '${1}:{{ clusterinfo['prometheusinfo']['node_exporter_port'] }}'
-        target_label: __address__
     - job_name: 'pai_serivce_exporter'
-      scrape_interval: {{clusterinfo['prometheusinfo']['scrape_interval']}}s
+      scrape_interval: {{ prom_info["scrape_interval"] }}s
       kubernetes_sd_configs:
-      - api_server: '{{ clusterinfo['webportalinfo']['k8s_api_server_uri'] }}'
+      - api_server: "{{ cluster_cfg["kubernetes"]["api-servers-url"] }}"
         role: pod
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
@@ -60,7 +43,7 @@ data:
           action: replace
           target_label: __metrics_path__
         - source_labels: [__meta_kubernetes_pod_host_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
-          regex: ([^;]+);(\d+)
+          regex: '([^;]+);(\d+)'
           replacement: ${1}:${2}
           action: replace
           target_label: __address__
@@ -75,5 +58,5 @@ data:
       alertmanagers:
         - static_configs:
           - targets:
-            - {{ prom_info['alerting']['alert-manager-hosts'] }}:{{ port }}
+            - {{ cluster_cfg["alert-manager"]["host"] }}:{{ alert_manager_port }}
 {% endif %}

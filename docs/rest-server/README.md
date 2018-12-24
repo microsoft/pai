@@ -41,7 +41,7 @@ To start a REST Server service, the following services should be ready and corre
 
 ## Build
 
-Run `npm run yarn install` to install dependencies.
+Run `yarn install` to install dependencies.
 
 ## Configuration
 
@@ -81,7 +81,7 @@ And the following field could be configured optionally:
 
 ## Deployment
 
-The deployment of REST Server goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/cluster-bootup.md).
+The deployment of REST Server goes with the bootstrapping process of the whole PAI cluster, which is described in detail in [Tutorial: Booting up the cluster](../pai-management/doc/customized-configuration.md).
 
 ---
 
