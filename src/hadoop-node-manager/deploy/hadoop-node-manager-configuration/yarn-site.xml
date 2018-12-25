@@ -92,7 +92,7 @@
 
     <property>
       <name>yarn.nodemanager.hostname</name>
-      <value>{{ host_config['ip'] }}</value>
+      <value>{POD_IP}</value>
     </property>  
 
     <property>  
@@ -137,7 +137,7 @@
 
     <property>
       <name>yarn.nodemanager.address</name>
-      <value>{{ host_config['ip'] }}:8041</value>
+      <value>{POD_IP}:8041</value>
     </property>
 
     <property>
