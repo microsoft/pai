@@ -33,13 +33,29 @@ spec:
         prometheus.io/port: '{{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}'
     spec:
       hostNetwork: true
-      hostPID: true
+      hostPID: false
       containers:
+      - name: yarn-exporter
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
+          hostPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
+          name: scrape
+        command:
+          - "python3"
+          - "/usr/local/yarn_exporter.py"
+          - "http://127.0.0.1:8088"
+          - "-p {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
       - name: hadoop-resource-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-resource-manager-config-volume
