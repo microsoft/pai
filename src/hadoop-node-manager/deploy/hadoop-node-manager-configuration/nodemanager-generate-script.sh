@@ -17,6 +17,19 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+function monitor_blacklist()
+{
+    if [ ! -d `dirname $2` ]; then
+        mkdir `dirname $2`
+    fi
+    while true
+    do
+        cat $1 2>/dev/null | grep "$3:" | grep -Eo '(0|1)*$' >$2
+        sleep 60
+    done
+}
+
+
 ip_list=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'`
 
 host_ip_address=''
@@ -34,6 +47,8 @@ echo "The ip-address of this machine is: $host_ip_address"
 
 echo "$host_ip_address  $host_ip_address" >> /etc/hosts
 
+# monitor blacklist file
+monitor_blacklist /hadoop-gpu-blacklist /usr/local/hadoop/etc/hadoop/gpu_blacklist ${host_ip_address}
 
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml

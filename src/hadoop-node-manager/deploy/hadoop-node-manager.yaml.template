@@ -59,6 +59,8 @@ spec:
           name: host-confg-volume
         - mountPath: /var/lib/hadoopdata
           name: hadoop-tmp-storage
+        - mountPath: /hadoop-gpu-blacklist
+          name: hadoop-gpu-blacklist
         readinessProbe:
           exec:
             command:
@@ -129,6 +131,9 @@ spec:
       - name: hadoop-tmp-storage
         hostPath:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
+      - name: hadoop-gpu-blacklist
+        configMap:
+          name: gpu_blacklist
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"

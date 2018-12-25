@@ -18,3 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 kubectl create configmap hadoop-node-manager-configuration --from-file=hadoop-node-manager-configuration/ --dry-run -o yaml | kubectl apply --overwrite=true -f - || exit $?
+
+if ! kubectl get configmap gpu_blacklist 1>/dev/null 2>&1; then
+    kubectl create configmap gpu_blacklist
+fi
