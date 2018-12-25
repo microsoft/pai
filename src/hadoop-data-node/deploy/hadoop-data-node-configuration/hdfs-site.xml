@@ -268,7 +268,7 @@
 
 <property>
    <name>dfs.datanode.hostname</name>
-   <value>{{ host_config['ip'] }}</value>
+   <value>{POD_IP}</value>
 </property>
 
 <property>
