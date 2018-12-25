@@ -38,6 +38,8 @@ spec:
       - name: hadoop-resource-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
+        securityContext:
+          privileged: true
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-resource-manager-config-volume
