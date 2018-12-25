@@ -34,7 +34,7 @@ spec:
     spec:
       hostNetwork: true
       hostPID: false
-      initContainers:
+      containers:
       - name: yarn-exporter
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
@@ -53,7 +53,6 @@ spec:
             port: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
           initialDelaySeconds: 5
           timeoutSeconds: 1
-      containers:
       - name: hadoop-resource-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
