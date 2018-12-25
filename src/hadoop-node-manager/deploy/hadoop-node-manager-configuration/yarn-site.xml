@@ -256,7 +256,7 @@
   <property>
     <description>the gpu blacklist file</description>
     <name>yarn.nodemanager.gpu_blacklist_file</name>
-    <value>"/blacklist/gpu_blacklist"</value>
+    <value>/blacklist/gpu_blacklist</value>
   </property>
   
   <property>
