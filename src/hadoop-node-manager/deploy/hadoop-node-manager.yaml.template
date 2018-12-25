@@ -70,6 +70,10 @@ spec:
           limits:
             memory: "4Gi"
         env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}
         - name: ZOOKEEPER_QUORUM

@@ -41,9 +41,7 @@ cp  /hadoop-configuration/yarn-site.xml $HADOOP_CONF_DIR/yarn-site.xml
 cp  /hadoop-configuration/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.sh
 cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 
-HOST_NAME=`hostname`
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/yarn-site.xml  -n $HOST_NAME
-
+sed  -i "s/{POD_IP}/${POD_IP}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{ZOOKEEPER_QUORUM}/${ZOOKEEPER_QUORUM}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
