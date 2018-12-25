@@ -42,9 +42,7 @@ cp  /hadoop-configuration/yarn-env.sh $HADOOP_CONF_DIR/yarn-env.sh
 # Share hdfs configuration to user's job
 cp  /hadoop-configuration/hdfs-site.xml $HADOOP_CONF_DIR/hdfs-site.xml
 
-HOST_NAME=`hostname`
-/usr/local/host-configure.py -c /host-configuration/host-configuration.yaml -f $HADOOP_CONF_DIR/yarn-site.xml  -n $HOST_NAME
-
+sed  -i "s/{POD_IP}/${POD_IP}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{RESOURCEMANAGER_ADDRESS}/${RESOURCEMANAGER_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{ZOOKEEPER_QUORUM}/${ZOOKEEPER_QUORUM}/g" $HADOOP_CONF_DIR/yarn-site.xml
 sed  -i "s/{HDFS_ADDRESS}/${HDFS_ADDRESS}/g" $HADOOP_CONF_DIR/yarn-site.xml
