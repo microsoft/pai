@@ -61,6 +61,10 @@ spec:
           requests:
             memory: "1Gi"
         env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: HADOOP_DATANODE_OPTS
           value: "-Xmx2048m"
         - name: HDFS_ADDRESS
