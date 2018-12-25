@@ -22,7 +22,7 @@ pushd $(dirname "$0") > /dev/null
 hadoopBinaryDir="/hadoop-binary/"
 
 hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}12940533-12933562-docker_executor-done"
+cacheVersion="${hadoopBinaryDir}gpu_blacklist-12933562-docker_executor-done"
 
 
 echo "hadoopbinarypath:${hadoopBinaryDir}"

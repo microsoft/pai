@@ -252,6 +252,12 @@
     <name>yarn.gpu_not_ready_memory_threshold-mb</name>
     <value>20</value>
   </property>
+
+  <property>
+    <description>the gpu blacklist file</description>
+    <name>yarn.nodemanager.gpu_blacklist_file</name>
+    <value>"/blacklist/gpu_blacklist"</value>
+  </property>
   
   <property>
     <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
