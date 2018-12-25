@@ -60,7 +60,7 @@ class TestTemplateGenerate(unittest.TestCase):
     def test_template_generate(self):
 
         com_handler = cluster_object_model("{0}/data/configuration-template-generate".format(package_directory_com))
-        com = com_handler.run()
+        com = com_handler.service_config()
         src_path = "{0}/../../../src".format(package_directory_com)
 
         service_list = list()

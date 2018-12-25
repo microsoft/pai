@@ -14,13 +14,29 @@
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-apiVersion: v1
-kind: Service
-metadata:
-  name: pylon
-spec:
-  type: LoadBalancer
-  ports:
-  - port: {{ cluster_cfg['pylon']['port'] }}
-  selector:
-    app: pylon
+
+
+# If corresponding values aren't be set in the machine list, the default value will be filled in.
+
+# kubernetes api server and dashboard host
+kubernetes:
+  api-servers-url: {{ env["api-servers-url"] }}
+  dashboard-url: {{ env["dashboard-url"] }}
+
+# TODO please modify it according to your own hardware
+machine-sku:
+  GENERIC:
+    mem: 1
+    gpu:
+      type: generic
+      count: 1
+    cpu:
+      vcore: 1
+    os: ubuntu16.04
+
+machine-list:
+{%- for m in env["machines"] %}
+  - {% for key, nested_value in m | dictsort %}{{ key }}: "{{ nested_value }}"
+    {% endfor %}
+
+{%- endfor %}

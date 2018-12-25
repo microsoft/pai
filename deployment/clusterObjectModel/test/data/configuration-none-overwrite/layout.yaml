@@ -15,6 +15,9 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+kubernetes:
+  api-servers-url: http://10.0.0.1:8080
+  dashboard-host: 10.0.0.1
 
 # If corresponding values aren't be set in the machine list, the default value will be filled in.
 default-machine-properties:
@@ -61,7 +64,7 @@ machine-list:
       dashboard: "true"
       zkid: "1"
       pai-master: "true"
-      
+
 
     - hostname: hostname
       hostip: 10.0.0.2
@@ -71,7 +74,7 @@ machine-list:
       #username: username (Optional)
       #password: password (Optional)
       k8s-role: master
-      
+
 
     - hostname: hostname
       hostip: 10.0.0.3

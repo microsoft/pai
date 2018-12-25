@@ -30,16 +30,12 @@ class Kubernetes:
         self.cluster_configuration = cluster_configuration
         self.kubernetes_configuration = kubernetes_configuration
 
-
-
     def get_k8s_master_machine(self):
         k8s_master_list = []
         for host in self.cluster_configuration["machine-list"]:
             if host["k8s-role"] == "master":
                 k8s_master_list.append(host)
         return k8s_master_list
-
-
 
     def generate_etcd_ip_list(self, master_list):
         etcd_cluster_ips_peer = ""
@@ -58,7 +54,6 @@ class Kubernetes:
 
         return etcd_cluster_ips_peer, etcd_cluster_ips_server
 
-
     def get_k8s_dashboard_node_ip(self):
         hostip = ""
         for host in self.cluster_configuration["machine-list"]:
@@ -70,8 +65,6 @@ class Kubernetes:
             sys.exit(1)
 
         return hostip
-
-
 
     def run(self):
         k8s_cfg = self.kubernetes_configuration["kubernetes"]
@@ -85,13 +78,15 @@ class Kubernetes:
         com_kubernetes["docker-registry"] = k8s_cfg["docker-registry"]
         com_kubernetes["hyperkube-version"] = k8s_cfg["hyperkube-version"]
         com_kubernetes["etcd-version"] = k8s_cfg["etcd-version"]
-        com_kubernetes["service-cluster-ip-range"]  = k8s_cfg["service-cluster-ip-range"]
+        com_kubernetes["service-cluster-ip-range"] = k8s_cfg["service-cluster-ip-range"]
         com_kubernetes["apiserver-version"] = k8s_cfg["apiserver-version"]
         com_kubernetes["storage-backend"] = k8s_cfg["storage-backend"]
         com_kubernetes["kube-scheduler-version"] = k8s_cfg["kube-scheduler-version"]
         com_kubernetes["kube-controller-manager-version"] = k8s_cfg["kube-controller-manager-version"]
         com_kubernetes["dashboard-version"] = k8s_cfg["dashboard-version"]
         com_kubernetes["dashboard-host"] = self.get_k8s_dashboard_node_ip()
+        com_kubernetes["dashboard-url"] = "http://{0}:9090".format(self.get_k8s_dashboard_node_ip())
+
         if "etcd-data-path" not in k8s_cfg:
             com_kubernetes["etcd-data-path"] = "/var/etcd/data"
         else:
@@ -128,8 +123,6 @@ class Kubernetes:
             com_kubernetes["proxy-list"] = proxy_list
 
         return com_kubernetes
-
-
 
     def validation_pre(self):
         k8s_cfg = self.kubernetes_configuration["kubernetes"]
@@ -176,8 +169,6 @@ class Kubernetes:
             return False, "dashboard-version is miss in kuberentes-configuration -> kubernetes."
 
         return True, None
-
-
 
     def validation_post(self, cluster_object_model):
         return True, None

@@ -111,7 +111,7 @@ class etcdfix_conf_validation:
 
         for host in com["kubernetes"]["master-list"]:
 
-            hostObject = com["machine"]["machine-list"][host]
+            hostObject = com["layout"]["machine-list"][host]
 
             if self.node_conf_validation(hostObject) == False:
 
@@ -313,14 +313,14 @@ class etcdfix:
         # Get leader node.
         host_list = list()
         for host in com['kubernetes']['master-list']:
-            host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
+            host_list.append((com['layout']['machine-list'][host]['hostip'], 4001))
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         etcdid = client.leader['name']
         for host in com['kubernetes']['master-list']:
-            if etcdid == com['machine']['machine-list'][host]['etcdid']:
-                self.logger.debug("Current leader of etcd-cluster: {0}".format(com['machine']['machine-list'][host]))
-                return com['machine']['machine-list'][host]
+            if etcdid == com['layout']['machine-list'][host]['etcdid']:
+                self.logger.debug("Current leader of etcd-cluster: {0}".format(com['layout']['machine-list'][host]))
+                return com['layout']['machine-list'][host]
 
         self.logger.error("Can't find the leader of etcd.")
         return None
@@ -335,7 +335,7 @@ class etcdfix:
 
         host_list = list()
         for host in com['kubernetes']['master-list']:
-            host_list.append((com['machine']['machine-list'][host]['hostip'], 4001))
+            host_list.append((com['layout']['machine-list'][host]['hostip'], 4001))
         client = etcd.Client(host=tuple(host_list), allow_reconnect=True)
 
         member_dict = client.members
