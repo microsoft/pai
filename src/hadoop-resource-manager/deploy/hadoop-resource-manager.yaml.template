@@ -34,12 +34,26 @@ spec:
     spec:
       hostNetwork: true
       hostPID: false
+      initContainers:
+      - name: etc-host-modifyer
+        image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /hadoop-configuration
+          name: hadoop-resource-manager-config-volume
+        env:
+        - name: RESOURCEMANAGER_ADDRESS
+          value: {{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}
+        - name: TIMELINE_SERVER_ADDRESS
+          value: {{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}
+        - name: GENERATE_CONFIG
+          value: etc-hosts-modifyer.sh
+        - name: START_SERVICE
+          value: etc-hosts-modifyer-done.sh
       containers:
       - name: yarn-exporter
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}yarn-exporter:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         ports:
         - containerPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
           hostPort: {{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}
@@ -58,8 +72,6 @@ spec:
       - name: hadoop-resource-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /hadoop-configuration
           name: hadoop-resource-manager-config-volume
