@@ -33,7 +33,7 @@ spec:
         prometheus.io/port: '{{ cluster_cfg[ "hadoop-resource-manager" ]["yarn_exporter_port"] }}'
     spec:
       hostNetwork: true
-      hostPID: false
+      hostPID: true
       containers:
       - name: hadoop-resource-manager
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
