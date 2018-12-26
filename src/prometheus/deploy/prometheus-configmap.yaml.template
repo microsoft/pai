@@ -32,7 +32,7 @@ data:
     - job_name: 'pai_serivce_exporter'
       scrape_interval: {{ prom_info["scrape_interval"] }}s
       kubernetes_sd_configs:
-      - api_server: "{{ cluster_cfg["kubernetes"]["api-servers-url"] }}"
+      - api_server: {{ cluster_cfg["cluster"]["kubernetes"]["api-servers-url"] }}
         role: pod
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
