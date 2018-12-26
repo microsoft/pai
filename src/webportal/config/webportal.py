@@ -58,8 +58,6 @@ class Webportal:
             ('prometheus', 'url'),
             ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),
-            ('kubernetes', 'dashboard-host'),
-            ('kubernetes', 'api-servers-url'),
             ('node-exporter', 'port'),
             ('prometheus', 'scrape_interval'),
         ):

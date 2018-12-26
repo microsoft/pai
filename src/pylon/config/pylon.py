@@ -21,7 +21,7 @@ class Pylon:
         self.cluster_configuration = cluster_configuration
         self.service_configuration = dict(default_service_configuraiton,
                                           **service_configuration)
-    
+
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
         machine_list = self.cluster_configuration['machine-list']
@@ -29,7 +29,7 @@ class Pylon:
             return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
 
         return True, None
-    
+
     #### Generate the final service object model
     def run(self):
         # parse your service object model here, and return a generated dictionary
@@ -38,17 +38,16 @@ class Pylon:
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         port = self.service_configuration['port']
         uri = 'http://{0}:{1}'.format(master_ip, port)
-        
+
         return {
             'port': port,
             'uri': uri,
         }
-    
-    #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness. 
+
+    #### All service and main module (kubrenetes, machine) is generated. And in this check steps, you could refer to the service object model which you will used in your own service, and check its existence and correctness.
     def validation_post(self, cluster_object_model):
         for (service, config) in (
             ('rest-server', 'uri'),
-            ('kubernetes', 'api-servers-url'),
             ('hadoop-name-node', 'master-ip'),
             ('prometheus', 'url'),
             ('alert-manager', 'url'),
