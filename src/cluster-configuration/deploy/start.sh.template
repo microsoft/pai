@@ -25,12 +25,12 @@ pushd $(dirname "$0") > /dev/null
 kubectl apply --overwrite=true -f secret.yaml || exit $?
 
 # Label all the machines
-{% for host in cluster_cfg['machine']['machine-list'] %}
-    {% if 'pai-master' in cluster_cfg['machine']['machine-list'][host] and cluster_cfg['machine']['machine-list'][host]['pai-master'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['machine']['machine-list'][host]['nodename'] }} pai-master=true || exit $?
+{% for host in cluster_cfg['layout']['machine-list'] %}
+    {% if 'pai-master' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-master'] == 'true' %}
+kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-master=true || exit $?
     {% endif %}
-    {% if 'pai-worker' in cluster_cfg['machine']['machine-list'][host] and cluster_cfg['machine']['machine-list'][host]['pai-worker'] == 'true' %}
-kubectl label --overwrite=true nodes {{ cluster_cfg['machine']['machine-list'][host]['nodename'] }} pai-worker=true || exit $?
+    {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] and cluster_cfg['layout']['machine-list'][host]['pai-worker'] == 'true' %}
+kubectl label --overwrite=true nodes {{ cluster_cfg['layout']['machine-list'][host]['nodename'] }} pai-worker=true || exit $?
     {% endif %}
 {% endfor %}
 
