@@ -33,8 +33,8 @@ done
 echo "The ip-address of this machine is: $host_ip_address"
 
 echo "$host_ip_address  $host_ip_address" >> /etc/hosts
-echo "$RESOURCEMANAGER_ADDRESS  $RESOURCEMANAGER_ADDRESS" >> /etc/hosts
-echo "$TIMELINE_SERVER_ADDRESS  $TIMELINE_SERVER_ADDRESS" >> /etc/hosts
+#echo "$RESOURCEMANAGER_ADDRESS  $RESOURCEMANAGER_ADDRESS" >> /etc/hosts
+#echo "$TIMELINE_SERVER_ADDRESS  $TIMELINE_SERVER_ADDRESS" >> /etc/hosts
 
 
 
