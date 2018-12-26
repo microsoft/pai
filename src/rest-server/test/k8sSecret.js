@@ -55,7 +55,7 @@ describe('k8s secret get function test', () => {
                 'data': {
                     'admin': 'ZmFsc2U=',
                     'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
-                    'userName': 'Y2FudGVzdDAwMQ==',
+                    'username': 'Y2FudGVzdDAwMQ==',
                     'virtualCluster': 'ZGVmYXVsdA=='
                 },
                 'type': 'Opaque'
@@ -67,7 +67,7 @@ describe('k8s secret get function test', () => {
                 'data': {
                     'admin': 'dHJ1ZQ==',
                     'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-                    'userName': 'cGFpdGVzdA==',
+                    'username': 'cGFpdGVzdA==',
                     'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
                 },
                 'type': 'Opaque'
@@ -87,7 +87,7 @@ describe('k8s secret get function test', () => {
         'data': {
             'admin': 'dHJ1ZQ==',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'userName': 'cGFpdGVzdA==',
+            'username': 'cGFpdGVzdA==',
             'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -141,9 +141,9 @@ describe('k8s secret get function test', () => {
     dbGet('paitest', null, (err, res) => {
       expect(res).to.have.lengthOf(1);
       expect(res).to.have.deep.members([{
-        userName: 'paitest',
+        username: 'paitest',
         password: '31a744c3af89056024ff62c356f547ddc353ad727d310a773718812982d5c6efc3bff70db5e1043bd21d2edc883c8cd4f9e74a1e5205433649361148ba896434',
-        admin: true,
+        admin: 'true',
         virtualCluster: 'default,vc2,vc3',
         githubPAT: ''
       }])
@@ -171,7 +171,7 @@ describe('k8s secret set function test', () => {
         'data': {
            'admin': 'ZmFsc2U=',
            'password': 'cGFpNjY2',
-           'userName': 'ZXhpc3R1c2Vy'
+           'username': 'ZXhpc3R1c2Vy'
          }
        })
       .reply(200, {
@@ -188,7 +188,7 @@ describe('k8s secret set function test', () => {
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'cGFpNjY2',
-            'userName': 'ZXhpc3R1c2Vy'
+            'username': 'ZXhpc3R1c2Vy'
         },
         'type': 'Opaque'
       });
@@ -200,7 +200,7 @@ describe('k8s secret set function test', () => {
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'cGFpNjY2',
-          'userName': 'bmV3dXNlcg=='
+          'username': 'bmV3dXNlcg=='
         }
       })
       .reply(200, {
@@ -217,7 +217,7 @@ describe('k8s secret set function test', () => {
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'cGFpNjY2',
-            'userName': 'bmV3dXNlcg=='
+            'username': 'bmV3dXNlcg=='
         },
         'type': 'Opaque'
       });
@@ -227,7 +227,7 @@ describe('k8s secret set function test', () => {
   it('should add a new user', (done) => {
     const dbSet = util.callbackify(db.set.bind(db));
     const updateUser = {
-      'userName': 'newuser',
+      'username': 'newuser',
       'password': 'pai666',
       'admin': false,
       'modify': false
@@ -243,7 +243,7 @@ describe('k8s secret set function test', () => {
   it('should update an exist new user', (done) => {
     const dbSet = util.callbackify(db.set.bind(db));
     const updateUser = {
-      'userName': 'existuser',
+      'username': 'existuser',
       'password': 'pai666',
       'admin': false,
       'modify': false

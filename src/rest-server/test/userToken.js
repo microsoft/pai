@@ -51,7 +51,7 @@ describe('user token test: post /api/v1/token', () => {
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'MzdhM2Q3NzViZGYzYzhiZDZjY2Y0OTRiNzZkMjk3ZjZhNWNlNDhlNmY5Yjg1MjZlMDVlZmVlYjY0NDY4OTc2OGEwZTlmZjc0NmE2NDM1NTM4YjllN2M5MDM5Y2IxMzlkYTM3OWU0NWU3ZTdlODUzOTA2ZmE2YTc5MGUwOTRmNzI=',
-            'userName': 'dG9rZW50ZXN0',
+            'username': 'dG9rZW50ZXN0',
             'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'

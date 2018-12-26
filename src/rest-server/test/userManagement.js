@@ -92,7 +92,7 @@ describe('Add new user: put /api/v1/user', () => {
       .post('/api/v1/namespaces/pai-user/secrets', {
         'metadata': {'name': '6e657775736572'},
         'data': {
-          'userName': 'bmV3dXNlcg==',
+          'username': 'bmV3dXNlcg==',
           'admin': 'dHJ1ZQ==',
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
           'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
@@ -110,7 +110,7 @@ describe('Add new user: put /api/v1/user', () => {
             'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
-          'userName': 'bmV3dXNlcg==',
+          'username': 'bmV3dXNlcg==',
           'admin': 'dHJ1ZQ==',
           'password': 'MDkxZjc0YzZjNTYyOWExZTlmN2Y3N2ZlMjc1Mjk1NmNkYmQ4ZmNlMjRlZmM4NmUxODJlMzQ5ZmI3MzJhMjRkNTU5ZmQ5NWExYzVjZjZiNzNhZWQzNjA3ZDcxYmU3YjA0ZDMyZjcwNTJjMzdlMTEwNTUzMDliNWIwMjczNmFjNDE=',
           'virtualCluster': 'ZGVmYXVsdCx2YzEsdmMy'
@@ -139,7 +139,7 @@ describe('Add new user: put /api/v1/user', () => {
       .post('/api/v1/namespaces/pai-user/secrets', {
         'metadata': {'name': '6e6f6e5f61646d696e'},
         'data': {
-          'userName': 'bm9uX2FkbWlu',
+          'username': 'bm9uX2FkbWlu',
           'admin': 'ZmFsc2U=',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
         },
@@ -156,7 +156,7 @@ describe('Add new user: put /api/v1/user', () => {
             'creationTimestamp': '2018-12-07T02:29:47Z'
         },
         'data': {
-          'userName': 'bm9uX2FkbWlu',
+          'username': 'bm9uX2FkbWlu',
           'admin': 'ZmFsc2U=',
           'password': 'ZmFmZTk5ZGZlOWQzNzZlOTllYzFkMjlmN2ZlZWZhNmViYjZkYWYwM2RkYWYyNmRlNTdiMWFlYWIyNzU2ZGNiN2FjYTk5Y2Y1Y2E4YjQ1ZGM5OWI3YjM5NTE5ZGM3YjZlMzZmODlhOTY0NzUyNTZkOWE5MTdlZTQxMTc4ZGEzZGI=',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
@@ -193,7 +193,7 @@ describe('Add new user: put /api/v1/user', () => {
         'data': {
           'admin': 'dHJ1ZQ==',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'ZXhpc3R1c2Vy',
+          'username': 'ZXhpc3R1c2Vy',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -211,7 +211,7 @@ describe('Add new user: put /api/v1/user', () => {
     global.chai.request(global.server)
       .put('/api/v1/user')
       .set('Authorization', 'Bearer ' + validToken)
-      .send({ 'username': 'newuser', 'password': '123456', 'admin': true, 'modify': false })
+      .send({ 'username': 'newuser', 'password': '123456', 'admin': 'true', 'modify': false })
       .end((err, res) => {
         global.chai.expect(res, 'status code').to.have.status(201);
         global.chai.expect(res, 'response format').be.json;
@@ -300,7 +300,7 @@ describe('update user: put /api/v1/user', () => {
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'userName': 'dXBkYXRlX3VzZXI=',
+            'username': 'dXBkYXRlX3VzZXI=',
             'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz',
             'githubPAT':'',
         },
@@ -313,7 +313,7 @@ describe('update user: put /api/v1/user', () => {
       'data': {
          'admin': 'ZmFsc2U=',
          'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-         'userName': 'dXBkYXRlX3VzZXI=',
+         'username': 'dXBkYXRlX3VzZXI=',
          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
          'githubPAT':'',
        }
@@ -346,7 +346,7 @@ describe('update user: put /api/v1/user', () => {
       'data': {
          'admin': 'ZmFsc2U=',
          'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-         'userName': 'dXBkYXRlX3VzZXI=',
+         'username': 'dXBkYXRlX3VzZXI=',
          'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
          'githubPAT':'',
        }
@@ -365,7 +365,7 @@ describe('update user: put /api/v1/user', () => {
       'data': {
           'admin': 'ZmFsc2U=',
           'password': 'NWU4ZjY5N2FkNzkxOGQ3NTdlN2MyMWM4OTdiYjRmY2NhYTViYTFmM2VjZDExZDNlNjFjNmRiN2UxNDEwZjRkOWFlNDc0NWFjY2I5NzYyMmVhZDZlMzhmOTFjMzI4MTU0YWY4MzgwOThmNTc5NmMzZGU4MWZlN2Y2YzE0YjgxN2I=',
-          'userName': 'dXBkYXRlX3VzZXI=',
+          'username': 'dXBkYXRlX3VzZXI=',
           'virtualCluster':'ZGVmYXVsdCx2YzIsdmMz',
           'githubPAT':'',
       },
@@ -487,7 +487,7 @@ describe('delete user : delete /api/v1/user', () => {
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'bm9uYWRtaW4K',
+          'username': 'bm9uYWRtaW4K',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -519,7 +519,7 @@ describe('delete user : delete /api/v1/user', () => {
         'data': {
           'admin': 'dHJ1ZQ==',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'bm9uYWRtaW4K',
+          'username': 'bm9uYWRtaW4K',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -651,7 +651,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'userName': 'cGFpdGVzdA==',
+            'username': 'cGFpdGVzdA==',
             'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -663,7 +663,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       'data': {
          'admin': 'ZmFsc2U=',
          'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-         'userName': 'cGFpdGVzdA==',
+         'username': 'cGFpdGVzdA==',
          'virtualCluster':'ZGVmYXVsdCx2YzE=',
          'githubPAT':''
        }
@@ -682,7 +682,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
       'data': {
           'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'cGFpdGVzdA==',
+          'username': 'cGFpdGVzdA==',
           'virtualCluster':'ZGVmYXVsdCx2YzE=',
           'githubPAT':''
       },
@@ -701,7 +701,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'cGFpdGVzdA==',
+          'username': 'cGFpdGVzdA==',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -719,7 +719,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
-          'userName': 'dGVzdHVzZXIz',
+          'username': 'dGVzdHVzZXIz',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -731,7 +731,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
            'admin': 'ZmFsc2U=',
            'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-           'userName': 'dGVzdHVzZXIz',
+           'username': 'dGVzdHVzZXIz',
            'virtualCluster':'ZGVmYXVsdA==',
            'githubPAT':''
          }
@@ -750,7 +750,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
             'admin': 'ZmFsc2U=',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'userName': 'dGVzdHVzZXIz',
+            'username': 'dGVzdHVzZXIz',
             'virtualCluster':'ZGVmYXVsdA==',
             'githubPAT':''
         },
@@ -769,7 +769,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
           'admin': 'ZmFsc2U=',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ==',
-          'userName': 'dGVzdHVzZXIz',
+          'username': 'dGVzdHVzZXIz',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -822,7 +822,7 @@ describe('update user virtual cluster : put /api/v1/user/:username/virtualCluste
         'data': {
           'admin': 'dHJ1ZQ==',
           'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-          'userName': 'cGFpdGVzdA==',
+          'username': 'cGFpdGVzdA==',
           'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
         },
         'type': 'Opaque'
@@ -966,7 +966,7 @@ describe('get user info list : get /api/v1/user', () => {
             'data': {
               'admin': 'ZmFsc2U=',
               'password': 'OGRiYjYyMWEwYWY0Y2NhMDk3NTU5MmJkNzQ0M2NkNzc5YzRkYjEwMzA2NGExYTE1MWI4YjAyYmNkZjJkYmEwNjBlMzFhNTRhYzI4MjJlYjZmZTY0ZTgxM2ZkODg0MzI5ZjNiYTYwMGFlNmQ2NjMzNGYwYjhkYzIwYTIyM2MzOWU=',
-              'userName': 'Y2FudGVzdDAwMQ==',
+              'username': 'Y2FudGVzdDAwMQ==',
               'virtualCluster': 'ZGVmYXVsdA=='
             },
             'type': 'Opaque'
@@ -978,7 +978,7 @@ describe('get user info list : get /api/v1/user', () => {
             'data': {
               'admin': 'dHJ1ZQ==',
               'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-              'userName': 'cGFpdGVzdA==',
+              'username': 'cGFpdGVzdA==',
               'virtualCluster': 'ZGVmYXVsdCx2YzIsdmMz'
             },
             'type': 'Opaque'

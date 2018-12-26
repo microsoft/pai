@@ -64,9 +64,9 @@ const update = (username, password, admin, modify, next) => {
       updateUser['username'] = username;
       updateUser['password'] = password ? encrypt(username, password) : updateUser['password'];
       if (modify) {
-        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : admin;
+        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : `${admin}`;
       } else {
-        updateUser['admin'] = (admin === undefined) ? false : admin;
+        updateUser['admin'] = (admin === undefined) ? 'false' : `${admin}`;
       }
       // Will grant admin user all VC permission
       if (updateUser['admin'] === 'true') {
@@ -217,8 +217,6 @@ const updateUserGithubPAT = (username, githubPAT, next) => {
       }
     }
     const dbSet = util.callbackify(db.set.bind(db));
-    console.log("[CAN-TEST] in updateUserGithubPAT");
-    console.log(res[0])
     res[0]['githubPAT'] = githubPAT;
     dbSet(username, res[0], {'update': true}, (err, res) => {
       if (err) {

@@ -64,12 +64,6 @@ class UserSecret extends StorageBase {
 
   async set(key, value, options) {
     try {
-      console.log(value)
-      console.log("[CAN-TEST] hasTest = " + value.hasOwnProperty('githubPAT'))
-      console.log("[CAN-TEST] hasVcTest = " + value.hasOwnProperty('virtualCluster'))
-      console.log("[CAN-TEST] username = " + value['username'])
-      console.log("[CAN-TEST] password = " + value['password'])
-      console.log("[CAN-TEST] admin = " + value['admin'])
       const hexKey = key ? Buffer.from(key).toString('hex') : '';
       let userData = {
         'metadata': {'name': hexKey},
@@ -80,12 +74,9 @@ class UserSecret extends StorageBase {
         },
       };
       if (value.hasOwnProperty('virtualCluster')) {
-        console.log("[CAN-TEST] virtualCluster = " + value['virtualCluster'])
         userData['data']['virtualCluster'] = Buffer.from(value['virtualCluster']).toString('base64');
       }
       if (value.hasOwnProperty('githubPAT')) {
-        console.log('[CAN-TEST] has githubPAT and value=' + value['githubPAT']);
-        console.log("[CAN-TEST] githubPAT = " + value['githubPAT'])
         userData['data']['githubPAT'] = Buffer.from(value['githubPAT']).toString('base64');
       }
       let response = null;
@@ -96,7 +87,6 @@ class UserSecret extends StorageBase {
       }
       return response;
     } catch (error) {
-      console.log(error)
       throw error.response;
     }
   }
