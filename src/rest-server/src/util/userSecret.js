@@ -40,18 +40,18 @@ class UserSecret extends StorageBase {
       if (userData.hasOwnProperty('items')) {
         userData['items'].forEach((item) => {
           allUserSecrets.push({
-            userName: Buffer.from(item['data']['userName'], 'base64').toString(),
+            username: Buffer.from(item['data']['username'], 'base64').toString(),
             password: Buffer.from(item['data']['password'], 'base64').toString(),
-            admin: Buffer.from(item['data']['admin'], 'base64').toString() === 'true' ? true : false,
+            admin: Buffer.from(item['data']['admin'], 'base64').toString(),
             virtualCluster: item['data'].hasOwnProperty('virtualCluster') ? Buffer.from(item['data']['virtualCluster'], 'base64').toString() : 'default',
             githubPAT: item['data'].hasOwnProperty('githubPAT') ? Buffer.from(item['data']['githubPAT'], 'base64').toString() : '',
           });
         });
       } else {
         allUserSecrets.push({
-          userName: Buffer.from(userData['data']['userName'], 'base64').toString(),
+          username: Buffer.from(userData['data']['username'], 'base64').toString(),
           password: Buffer.from(userData['data']['password'], 'base64').toString(),
-          admin: Buffer.from(userData['data']['admin'], 'base64').toString() === 'true' ? true : false,
+          admin: Buffer.from(userData['data']['admin'], 'base64').toString(),
           virtualCluster: userData['data'].hasOwnProperty('virtualCluster') ? Buffer.from(userData['data']['virtualCluster'], 'base64').toString() : 'default',
           githubPAT: userData['data'].hasOwnProperty('githubPAT') ? Buffer.from(userData['data']['githubPAT'], 'base64').toString() : '',
         });
@@ -68,7 +68,7 @@ class UserSecret extends StorageBase {
       let userData = {
         'metadata': {'name': hexKey},
         'data': {
-          'userName': Buffer.from(value['userName']).toString('base64'),
+          'username': Buffer.from(value['username']).toString('base64'),
           'password': Buffer.from(value['password']).toString('base64'),
           'admin': Buffer.from(value['admin'].toString()).toString('base64'),
         },
