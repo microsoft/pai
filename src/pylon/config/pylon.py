@@ -48,10 +48,8 @@ class Pylon:
     def validation_post(self, cluster_object_model):
         for (service, config) in (
             ('rest-server', 'uri'),
-            ('kubernetes', 'api-servers-url'),
             ('hadoop-name-node', 'master-ip'),
             ('prometheus', 'url'),
-            ('kubernetes', 'dashboard-host'),
             ('hadoop-resource-manager', 'master-ip'),
             ('grafana', 'url'),
             ('webportal', 'uri'),
