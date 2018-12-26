@@ -133,7 +133,7 @@ spec:
           path: {{ cluster_cfg["cluster"]["common"][ "data-path" ] }}/hadooptmp/nodemanager
       - name: hadoop-gpu-blacklist
         configMap:
-          name: gpu_blacklist
+          name: gpu-blacklist
       tolerations:
       - key: node.kubernetes.io/memory-pressure
         operator: "Exists"
