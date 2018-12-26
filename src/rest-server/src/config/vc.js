@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation
+// All rights reserved.
 //
 // MIT License
 //
@@ -14,34 +16,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // module dependencies
-const express = require('express');
-const vcController = require('../controllers/vc');
-const token = require('../middlewares/token');
-const param = require('../middlewares/parameter');
-const vcConfig = require('../config/vc');
+const Joi = require('joi');
 
-const router = new express.Router();
+// define the input schema for the 'update vc' api
+const vcPutInputSchema = Joi.object().keys({
+  vcCapacity: Joi.number()
+    .integer()
+    .min(0)
+    .max(100)
+    .required(),
+}).required();
 
-router.route('/')
-    /** GET /api/v1/virtual-clusters - Return cluster virtual cluster info */
-    .get(vcController.list);
-
-
-router.route('/:vcName')
-    /** GET /api/v1/virtual-clusters/vcName - Return cluster specified virtual cluster info */
-    .get(vcController.get)
-    /** PUT /api/v1/virtual-clusters/vcName - Create a vc */
-    .put(token.check, param.validate(vcConfig.vcPutInputSchema), vcController.update)
-    /** DELETE /api/v1/virtual-clusters/vcName - Remove a vc */
-    .delete(token.check, vcController.remove);
-
-
-router.route('/:vcName/status')
-    /** PUT /api/v1/virtual-clusters/vcName - Change vc status (running or stopped) */
-    .put(token.check, param.validate(vcConfig.vcStatusPutInputSchema), vcController.updateStatus);
-
-
-router.param('vcName', vcController.validate);
+// define the input schema for the 'put vc status' api
+const vcStatusPutInputSchema = Joi.object().keys({
+  vcStatus: Joi.string()
+    .valid(['stopped', 'running'])
+    .required(),
+}).required();
 
 // module exports
-module.exports = router;
+module.exports = {
+  vcPutInputSchema: vcPutInputSchema,
+  vcStatusPutInputSchema: vcStatusPutInputSchema,
+};
