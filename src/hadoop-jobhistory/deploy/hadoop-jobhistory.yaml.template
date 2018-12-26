@@ -41,8 +41,6 @@ spec:
       - name:  hadoop-jobhistory-service
         image: {{ cluster_cfg["cluster"]["docker-registry"]["prefix"] }}hadoop-run:{{ cluster_cfg["cluster"]["docker-registry"]["tag"] }}
         imagePullPolicy: Always
-        securityContext:
-          privileged: true
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}
