@@ -16,20 +16,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-{% for host in cluster_cfg['machine']['machine-list'] %}
+{% for host in cluster_cfg['layout']['machine-list'] %}
 
 {{ host }}:
-    ip: {{ cluster_cfg['machine']['machine-list'][host]['hostip'] }}
-    {% if 'zkid' in cluster_cfg['machine']['machine-list'][host] -%}
-    zkid: "{{ cluster_cfg['machine']['machine-list'][host]['zkid'] }}"
+    ip: {{ cluster_cfg['layout']['machine-list'][host]['hostip'] }}
+    {% if 'zkid' in cluster_cfg['layout']['machine-list'][host] -%}
+    zkid: "{{ cluster_cfg['layout']['machine-list'][host]['zkid'] }}"
     {% endif -%}
-    {% if 'gpu' in cluster_cfg['machine']['machine-sku'][cluster_cfg['machine']['machine-list'][host]['machine-type']] -%}
+    {% if 'gpu' in cluster_cfg['layout']['machine-sku'][cluster_cfg['layout']['machine-list'][host]['machine-type']] -%}
     machinetype: gpu
     {% endif -%}
-    {% if 'pai-master' in cluster_cfg['machine']['machine-list'][host] -%}
-    pai-master: "cluster_cfg['machine']['machine-list'][host]['pai-master']"
+    {% if 'pai-master' in cluster_cfg['layout']['machine-list'][host] -%}
+    pai-master: "cluster_cfg['layout']['machine-list'][host]['pai-master']"
     {% endif -%}
-    {% if 'pai-worker' in cluster_cfg['machine']['machine-list'][host] -%}
-    pai-worker: "cluster_cfg['machine']['machine-list'][host]['pai-worker']"
+    {% if 'pai-worker' in cluster_cfg['layout']['machine-list'][host] -%}
+    pai-worker: "cluster_cfg['layout']['machine-list'][host]['pai-worker']"
     {% endif -%}
 {% endfor %}

@@ -15,6 +15,40 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-{% for host in cluster_cfg['layout']['machine-list'] if 'gpu' in cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']] -%}
-{{cluster_cfg['layout']['machine-list'][host]['nodename']}}: {{ cluster_cfg['layout']['machine-sku'][ cluster_cfg['layout']['machine-list'][host]['machine-type']]['gpu']['type'] }}
-{% endfor %}
+
+import logging
+import logging.config
+
+from ...k8sPaiLibrary.maintainlib import common as pai_k8s_common
+
+
+class Layout:
+
+    def __init__(self, layout_configuration):
+        self.logger = logging.getLogger(__name__)
+        self.layout_configuration = layout_configuration
+
+
+
+    def validation_pre(self):
+        # TODO
+        return True, None
+
+
+
+    def validation_post(self, cluster_object_model):
+        return True, None
+
+
+
+    def run(self):
+        com_layout = dict()
+        com_layout["machine-sku"] = self.layout_configuration["machine-sku"]
+        com_layout["machine-list"] = dict()
+
+        for host in self.layout_configuration["machine-list"]:
+            com_layout["machine-list"][host["hostname"]] = host
+            com_layout["machine-list"][host["hostname"]]["nodename"] = host["hostip"]
+
+        return com_layout
+
