@@ -67,7 +67,7 @@ class service_management_refresh:
 
     def refresh_all_label(self):
         self.logger.info("Begin to refresh all the nodes' labels")
-        machinelist = self.cluster_object_model['machine']['machine-list']
+        machinelist = self.cluster_object_model['layout']['machine-list']
         
         labels = ['pai-master', 'pai-worker', 'no-driver', 'no-nodeexporter']
         logging.info("Currently supported labels: " + str(labels))
@@ -102,7 +102,7 @@ class service_management_refresh:
             return
 
         service_conf = file_handler.load_yaml_config("src/{0}/deploy/service.yaml".format(serv))
-        machinelist = self.cluster_object_model['machine']['machine-list']
+        machinelist = self.cluster_object_model['layout']['machine-list']
         service_refresher = service_refresh.service_refresh(service_conf, serv, self.label_map)
 
         dependency_list = service_refresher.get_dependency()

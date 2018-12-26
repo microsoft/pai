@@ -27,6 +27,7 @@ from ..paiLibrary.common import file_handler
 from ..paiLibrary.common import directory_handler
 from .mainParser import kubernetes as pai_com_kubernetes
 from .mainParser import machine as pai_com_machine
+from .mainParser import layout as pai_com_layout
 
 
 package_directory_com = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,7 @@ class cluster_object_model:
         overwirte_service_configuration = file_handler.load_yaml_config("{0}/services-configuration.yaml".format(configuration_path))
         self.overwirte_service_configuration = forward_compatibility.service_configuration_convert(overwirte_service_configuration)
         self.kubernetes_configuration = file_handler.load_yaml_config("{0}/kubernetes-configuration.yaml".format(configuration_path))
+        self.layout = file_handler.load_yaml_config("{0}/layout.yaml".format(configuration_path))
         self.cluster_object_model = dict()
 
 
@@ -65,6 +67,7 @@ class cluster_object_model:
 
         # Prepare Service Configuration
         cluster_cfg = self.cluster_configuration
+        layout = self.layout
 
         default_service_cfg = []
         if file_handler.file_exist_or_not(default_path):
@@ -99,6 +102,7 @@ class cluster_object_model:
         parser_dict["kubernetes"] = kubernetes_parser
         machine_parser = pai_com_machine.Machine(self.cluster_configuration)
         parser_dict["machine"] = machine_parser
+        parser_dict["layout"] = pai_com_layout.Layout(self.cluster_configuration)
 
         return parser_dict
 
