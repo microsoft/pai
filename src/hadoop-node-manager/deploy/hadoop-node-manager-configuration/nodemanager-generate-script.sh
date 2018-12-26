@@ -48,7 +48,7 @@ echo "The ip-address of this machine is: $host_ip_address"
 echo "$host_ip_address  $host_ip_address" >> /etc/hosts
 
 # monitor blacklist file
-monitor_blacklist /hadoop-gpu-blacklist /usr/local/hadoop/etc/hadoop/gpu_blacklist ${host_ip_address} &
+monitor_blacklist /hadoop-gpu-blacklist/blacklist /usr/local/hadoop/etc/hadoop/gpu_blacklist ${host_ip_address} &
 
 cp  /hadoop-configuration/core-site.xml $HADOOP_CONF_DIR/core-site.xml
 cp  /hadoop-configuration/mapred-site.xml $HADOOP_CONF_DIR/mapred-site.xml
