@@ -23,6 +23,7 @@ cd /
 # patch for webhdfs upload issue when using nginx as a reverse proxy
 wget https://issues.apache.org/jira/secure/attachment/12933562/HDFS-13773.patch
 
+# Todo: update patch to jira
 git clone https://github.com/mzmssg/hadoop.git
 
 cd hadoop
@@ -47,5 +48,5 @@ echo "Successfully build hadoop 2.9.0 AI"
 
 # When Changing the patch id, please update the filename here.
 rm /hadoop-binary/*-done
-touch /hadoop-binary/gpu_blacklist-12933562-docker_executor-done
+touch /hadoop-binary/gpu_patch-12933562-docker_executor-done
 

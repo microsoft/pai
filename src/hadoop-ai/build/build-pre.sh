@@ -22,14 +22,14 @@ pushd $(dirname "$0") > /dev/null
 hadoopBinaryDir="/hadoop-binary/"
 
 hadoopBinaryPath="${hadoopBinaryDir}hadoop-2.9.0.tar.gz"
-cacheVersion="${hadoopBinaryDir}gpu_blacklist-12933562-docker_executor-done"
+cacheVersion="${hadoopBinaryDir}gpu_patch-12933562-docker_executor-done"
 
 
 echo "hadoopbinarypath:${hadoopBinaryDir}"
 
 [[ -f $cacheVersion ]] &&
 {
-    echo "Hadoop ai with patch 12940533-12933562-docker_executor has been built"
+    echo "Hadoop ai with patch gpu_patch-12933562-docker_executor has been built"
     echo "Skip this build precess"
     exit 0
 }
