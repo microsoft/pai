@@ -24,16 +24,11 @@ class RestServer:
     
     #### Fist check, ensure all the configured data in cluster_configuration, service_configuration, default_service_configuration is right. And nothing is miss.
     def validation_pre(self):
+        machine_list = self.cluster_configuration['machine-list']
         if 'default-pai-admin-username' not in self.service_configuration:
             return False, '"default-pai-admin-username" is required in rest-server'
         if 'default-pai-admin-password' not in self.service_configuration:
             return False, '"default-pai-admin-password" is required in rest-server'
-
-        machine_list = self.cluster_configuration['machine-list']
-        if all(host.get('k8s-role') != 'master' for host in machine_list):
-            return False, 'At least 1 "k8s-role=master" labeled machine is required to deploy the etcd'
-        if len([host for host in machine_list if host.get('pai-master') == 'true']) != 1:
-            return False, '1 and only 1 "pai-master=true" machine is required to deploy the rest server'
 
         return True, None
     
@@ -44,9 +39,9 @@ class RestServer:
         machine_list = self.cluster_configuration['machine-list']
         master_ip = [host['hostip'] for host in machine_list if host.get('pai-master') == 'true'][0]
         server_port = self.service_configuration['server-port']
-        
+
         service_object_model = dict()
-        
+
         service_object_model['uri'] = 'http://{0}:{1}'.format(master_ip, server_port)
         service_object_model['server-port'] = server_port
         service_object_model['jwt-secret'] = self.service_configuration['jwt-secret']
@@ -55,9 +50,6 @@ class RestServer:
         service_object_model['github-owner'] = self.service_configuration['github-owner']
         service_object_model['github-repository'] = self.service_configuration['github-repository']
         service_object_model['github-path'] = self.service_configuration['github-path']
-        service_object_model['etcd-uris'] = ','.join('http://{0}:4001'.format(host['hostip'])
-                                                     for host in machine_list
-                                                     if host.get('k8s-role') == 'master')
 
         return service_object_model
     
