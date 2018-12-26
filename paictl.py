@@ -501,6 +501,11 @@ class Configuration(SubCmd):
         )
         external_conf_update.update_latest_external_configuration()
 
+def handle_layout(args):
+    # TODO now no options implemented
+    print(args)
+    from deployment import layout
+    layout.generate_layout(args.output + "/layout.yaml")
 
 class Main(SubCmd):
     def __init__(self, subcmds):
@@ -508,6 +513,12 @@ class Main(SubCmd):
 
     def register(self, parser):
         sub_parser = parser.add_subparsers(help="paictl operations")
+
+        # create the parser for "layout" command
+        parser_layout = sub_parser.add_parser('layout', help='layout operations')
+        parser_layout.add_argument("--dry", dest="dry", type=bool, default=False, help="dry run. Generate the layout.yaml")
+        parser_layout.add_argument("--output", dest="output", default='/cluster-configuration', help="Output directory of layout.yaml")
+        parser_layout.set_defaults(handler=handle_layout)
 
         for name, subcmd in self.subcmds.items():
             subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
