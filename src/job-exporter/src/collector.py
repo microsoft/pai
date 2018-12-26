@@ -236,25 +236,21 @@ class DockerCollector(Collector):
     cmd_timeout = 1 # 99th latency is 0.01s
 
     def collect_impl(self):
-        cmd = """
-        systemctl is-active docker > /dev/null 2>&1 ;
-        if [ $? -eq 0 ]; then echo "true"; else echo "false" ; fi
-        """
+        cmd = ["docker", "info"]
         error = "ok"
 
         try:
-            out = utils.exec_cmd(cmd, shell=True,
+            out = utils.exec_cmd(cmd,
                     histogram=DockerCollector.cmd_histogram,
                     timeout=DockerCollector.cmd_timeout)
 
-            if "true" not in str(out):
-                error = "inactive"
+            logger.debug("output for docker info is %s", out)
         except subprocess.CalledProcessError as e:
             logger.exception("command '%s' return with error (code %d): %s",
                     cmd, e.returncode, e.output)
             error = e.strerror()
         except subprocess.TimeoutExpired as e:
-            logging.warning("check docker active timeout")
+            logger.warning("check docker active timeout")
             error = "timeout"
         except Exception as e:
             error = e.strerror()
@@ -279,7 +275,7 @@ class GpuCollector(Collector):
         gpu_info = nvidia.nvidia_smi(GpuCollector.cmd_histogram,
                 GpuCollector.cmd_timeout)
 
-        logging.debug("get gpu_info %s", gpu_info)
+        logger.debug("get gpu_info %s", gpu_info)
 
         self.gpu_info_ref.get_and_set(gpu_info)
 
@@ -481,7 +477,7 @@ class ContainerCollector(Collector):
             try:
                 self.process_one_container(container_id, stats, gpu_infos, all_conns, gauges)
             except Exception:
-                logging.exception("error when trying to process container %s with name %s",
+                logger.exception("error when trying to process container %s with name %s",
                         container_id, utils.walk_json_field_safe(stats, "name"))
 
         return gauges.as_array()
@@ -601,7 +597,7 @@ class ZombieCollector(Collector):
             2. yarn container exited but job container didn't
         """
         if stats is None:
-            logging.warning("docker stats is None")
+            logger.warning("docker stats is None")
             return
 
         exited_containers = set(filter(self.is_container_exited, stats.keys()))

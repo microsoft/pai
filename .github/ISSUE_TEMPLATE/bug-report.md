@@ -35,6 +35,7 @@ If you're looking for help, check [Stack Overflow](https://stackoverflow.com/que
 - Cloud provider or hardware configuration:
 - OS (e.g. from /etc/os-release):
 - Kernel (e.g. `uname -a`):
+- Hardware (e.g. core number, memory size, storage size, GPU type etc.):
 - Others:
 
 **Anything else we need to know**:
