@@ -24,7 +24,7 @@ function monitor_blacklist()
     fi
     while true
     do
-        cat $1 2>/dev/null | grep "$3:" | grep -Eo '(0|1)*$' >$2
+        cat $1 2>/dev/null | grep -E "^$3:" | grep -Eo '(0|1)*$' >$2
         sleep 60
     done
 }
