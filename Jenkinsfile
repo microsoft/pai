@@ -167,6 +167,8 @@ sleep 6s
 openpai-test
 EOF
 
+# TODO generate layout
+./paictl.py layout
 
 # Step 4. Start all PAI services
 # start pai services
@@ -259,6 +261,9 @@ sleep 6s
 ./paictl.py config push -p /cluster-configuration << EOF
 openpai-test
 EOF
+
+# TODO generate layout
+./paictl.py layout
 
 # Step 4. Start all PAI services
 # start pai services
