@@ -32,14 +32,14 @@ def generate_layout(output_file):
 
     # the default sku
     machineSku = yaml.load("""
-    machine-sku:
+machine-sku:
     GENERIC:
         mem: 1
         gpu:
-        type: generic
-        count: 1
+            type: generic
+            count: 1
         cpu:
-        vcore: 1
+            vcore: 1
         os: ubuntu16.04
     """)
 
