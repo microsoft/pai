@@ -32,7 +32,7 @@ This guidance provides users instructions to operate the HDFS cluster in OpenPAI
 
 The HDFS service image can be built together with other services by running this command:
 ```bash
-python pai_build.py build -c /path/to/configuration/ -s hadoop-run
+python pai_build.py build -c /path/to/configuration/
 ```
 HDFS is in the hadoop-run image, it can be built respectively with following commands:
 ```bash
