@@ -61,15 +61,15 @@ const update = (username, password, admin, modify, next) => {
       const dbSet = util.callbackify(db.set.bind(db));
       let options = modify ? {'update': true} : {};
       let updateUser = modify ? res[0] : {};
-      updateUser['userName'] = username;
+      updateUser['username'] = username;
       updateUser['password'] = password ? encrypt(username, password) : updateUser['password'];
       if (modify) {
-        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : admin;
+        updateUser['admin'] = (admin === undefined) ? updateUser['admin'] : `${admin}`;
       } else {
-        updateUser['admin'] = (admin === undefined) ? false : admin;
+        updateUser['admin'] = (admin === undefined) ? 'false' : `${admin}`;
       }
       // Will grant admin user all VC permission
-      if (updateUser['admin']) {
+      if (updateUser['admin'] === 'true') {
         VirtualCluster.prototype.getVcList((vcList, err) => {
           if (err) {
             return next(err);
@@ -105,7 +105,7 @@ const remove = (username, next) => {
     } else if (err) {
       return next(err);
     }
-    if (res[0]['admin']) {
+    if (res[0]['admin'] === 'true') {
       next(createError('Forbidden', 'RemoveAdminError', `Admin ${username} is not allowed to remove.`));
     } else {
       const dbDelete = util.callbackify(db.delete.bind(db));
@@ -129,7 +129,7 @@ const updateUserVc = (username, virtualClusters, next) => {
         return next(err);
       }
     }
-    if (res[0]['admin']) {
+    if (res[0]['admin'] === 'true') {
       return next(createError('Forbidden', 'ForbiddenUserError', 'Admin\'s virtual clusters cannot be updated.'));
     }
     VirtualCluster.prototype.getVcList((vcList, err) => {
@@ -218,7 +218,7 @@ const updateUserGithubPAT = (username, githubPAT, next) => {
     }
     const dbSet = util.callbackify(db.set.bind(db));
     res[0]['githubPAT'] = githubPAT;
-    dbSet(username, res, {'update': true}, (err, res) => {
+    dbSet(username, res[0], {'update': true}, (err, res) => {
       if (err) {
         return next(err);
       }
@@ -251,7 +251,7 @@ const getUserList = (next) => {
     const userInfoList = [];
     res.forEach((item) => {
       userInfoList.push({
-        userName: item['userName'],
+        username: item['username'],
         admin: item['admin'],
         virtualCluster: item['virtualCluster'],
         hasGithubPAT: item['githubPAT'] ? true : false,

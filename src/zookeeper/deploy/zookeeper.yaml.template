@@ -49,12 +49,14 @@ spec:
         env:
         - name: JAVA_OPTS
           value: "-server -Xmx8192m"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "10Gi"
             cpu: "1000m"
           requests:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]['docker-registry']['secret-name'] }}
       volumes:

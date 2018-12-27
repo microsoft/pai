@@ -28,6 +28,13 @@ spec:
       labels:
         app: hadoop-jobhistory-service
     spec:
+      hostAliases:
+      - ip: "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+      - ip: "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
       hostNetwork: true
       hostPID: false
       containers:
@@ -65,11 +72,13 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "2Gi"
           requests:
             memory: "1Gi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:

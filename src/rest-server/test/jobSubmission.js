@@ -100,7 +100,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
           global.frameworkDetailTemplate,
           {
             'frameworkName': 'job1',
-            'userName': 'test',
+            'username': 'test',
             'applicationId': 'app1',
           }
         )
@@ -198,7 +198,7 @@ describe('Submit job: POST /api/v1/user/:username/jobs', () => {
         'data': {
             'admin': 'dHJ1ZQ==',
             'password': 'MzFhNzQ0YzNhZjg5MDU2MDI0ZmY2MmMzNTZmNTQ3ZGRjMzUzYWQ3MjdkMzEwYTc3MzcxODgxMjk4MmQ1YzZlZmMzYmZmNzBkYjVlMTA0M2JkMjFkMmVkYzg4M2M4Y2Q0ZjllNzRhMWU1MjA1NDMzNjQ5MzYxMTQ4YmE4OTY0MzQ=',
-            'userName': 'dXNlcjE=',
+            'username': 'dXNlcjE=',
             'virtualCluster': 'ZGVmYXVsdCx2YzE='
         },
         'type': 'Opaque'

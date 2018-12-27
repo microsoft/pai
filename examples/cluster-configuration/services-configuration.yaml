@@ -24,6 +24,10 @@
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
 #
+#    #Enable QoS feature or not. Default value is "true"
+#    qos-switch: "true"
+#
+#
 #  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 #  docker-registry:
 #

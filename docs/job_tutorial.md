@@ -104,7 +104,7 @@ Below please find the detailed explanation for each of the parameters in the con
 | `authFile`                       | String, optional, HDFS URI | Docker registry authentication file existing on HDFS |
 | `dataDir`                        | String, optional, HDFS URI | Data directory existing on HDFS          |
 | `outputDir`                      | String, optional, HDFS URI | Output directory on HDFS, `$PAI_DEFAULT_FS_URI/Output/$jobName` will be used if not specified |
-| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS, should not contain any data and should be less than 200MB    |
+| `codeDir`                        | String, optional, HDFS URI | Code directory existing on HDFS, should not contain any data and should be less than 200MB. codeDir will created to your job container local environment and could be accessed inner job container. NOTE: this folder is readonly     |
 | `virtualCluster`                 | String, optional           | The virtual cluster job runs on. If omitted, the job will run on `default` virtual cluster    |
 | `taskRoles`                      | List, required             | List of `taskRole`, one task role at least |
 | `taskRole.name`                  | String in `^[A-Za-z0-9._~]+$` format, required | Name for the task role, need to be unique with other roles |
@@ -135,7 +135,11 @@ username
 password
 ```
 
-*NOTE*: If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+**NOTE**:
+
+- If you're using a private registry at Docker Hub, you should use `docker.io` for `docker_registry_server` field in the authentication file.
+
+- Only **codeDir** will created to your job container local environment and could be accessed inner job container. dataDir & outputDir are environmental variable (For example, the file link url of hdfs) which will be used by your job inner training code to read data from the storage link.
 
 ### Job runtime environmental variable <a name="envvar"></a>
 
@@ -262,15 +266,22 @@ A distributed TensorFlow job is listed below as an example:
 
     Prepare the [config file](#jobjson) for your job.
 
-3. Submit the job through web portal
+3. [Submit the job through web portal](submit_from_webportal.md)
 
     Open web portal in a browser, click "Submit Job" and upload your config file.
 
+    Note: For other job submission methods. Please refer [doc](../README.md#how-to-train-jobs)
+
 ## How to debug the job <a name="debug"></a>
 
+### (1) From OpenPAI web page to debug job
+
+Please refer doc [How to diagnose job problems through logs](job_log.md)
+
+### (2) SSH to job container and debug job
 You can ssh connect to a specified container either from outside or inside container.
 
-### SSH connect from outside
+#### SSH connect from outside
 
 1. Get job ssh connect info by invoking [Get job SSH info](rest-server/API.md#get-userusernamejobsjobnamessh) api or clicking the job detail page on webportal.
 
@@ -289,12 +300,16 @@ You can ssh connect to a specified container either from outside or inside conta
    ```sh
    ssh -i userName~jobName -p ssh_port root@container_ip
    ```
-### SSH connect inside containers
+#### SSH connect inside containers
 
 You can use `ssh $PAI_CURRENT_TASK_ROLE_NAME-$PAI_CURRENT_TASK_ROLE_CURRENT_TASK_INDEX` command to connect into another containers which belong to the same job. For example, if there are two taskRoles: master and worker, you can connect to worker-0 container directly with below command line:
 ```sh
 ssh worker-0
 ```
+
+### (3) Job Profiling
+
+Users can view the resource cost and bottlenecks of various metrics of the job by following the [job profiling doc](job_profiling.md).
 
 ## Learn more job examples <a name="moreexample"></a>
 

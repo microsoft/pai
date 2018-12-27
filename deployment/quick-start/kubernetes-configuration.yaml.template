@@ -44,3 +44,6 @@ kubernetes:
   dashboard-version: v1.8.3
   # The path to storage etcd data.
   etcd-data-path: "/var/etcd"
+
+  # #Enable QoS feature for k8s or not. Default value is "true"
+  # qos-switch: "true"
