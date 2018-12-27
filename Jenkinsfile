@@ -155,6 +155,11 @@ sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-con
 sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
+
+sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
+sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.6:8080" /cluster-configuration/services-configuration.yaml
+sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.6" /cluster-configuration/services-configuration.yaml
+
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
 >/cluster-configuration/layout.yaml
@@ -252,6 +257,11 @@ sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-confi
 sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
+
+sed -i "21i\\ \\ kubernetes:" /cluster-configuration/services-configuration.yaml
+sed -i "22i\\ \\ \\ \\ api-server-url: http://10.0.1.8:8080" /cluster-configuration/services-configuration.yaml
+sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.8" /cluster-configuration/services-configuration.yaml
+
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
 >/cluster-configuration/layout.yaml
