@@ -156,19 +156,21 @@ sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
+# TODO hack the ci
+>/cluster-configuration/layout.yaml
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
 
 # ! TODO wait for cluster ready
 sleep 6s
 
+# TODO generate layout
+./paictl.py layout
+
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
 openpai-test
 EOF
-
-# TODO generate layout
-./paictl.py layout
 
 # Step 4. Start all PAI services
 # start pai services
@@ -251,19 +253,21 @@ sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 # Step 2. Boot up Kubernetes
+# TODO hack the ci
+>/cluster-configuration/layout.yaml
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
 
 # ! TODO wait for cluster ready
 sleep 6s
 
+# TODO generate layout
+./paictl.py layout
+
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
 openpai-test
 EOF
-
-# TODO generate layout
-./paictl.py layout
 
 # Step 4. Start all PAI services
 # start pai services
