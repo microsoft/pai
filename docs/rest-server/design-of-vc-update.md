@@ -20,9 +20,8 @@
 | 4    | /api/v1/virtual-clusters/:vcName        | PUT      | 新增或变更vc       |
 | 5    | /api/v1/virtual-clusters/:vcName        | DELETE   | 删除vc             |
 | 6    | /api/v1/virtual-clusters/:vcName/status | PUT      | 变更vc状态         |
-| 7    | /api/v1/user/:username/virtualClusters  | GET      | 获取用户拥有的vc   |
+| 7    | /api/v1/user                            | GET      | 获取账户详情       |
 | 8    | /api/v1/user/:username/virtualClusters  | PUT      | 新增或变更用户的vc |
-| 9    | /api/v1/user                            | GET      | 获取账户详情       |
 
 
 
@@ -70,7 +69,9 @@
 
 ![1545903801627](./list_vc.png)
 
-(1) 变更 Virtual Cluster 页面，对于普通用户特殊处理，若该vc是用户不具有的权限，将所在行置灰
+（1）变更 Virtual Cluster 页面，对于普通用户特殊处理，若该vc是用户不具有的权限，将所在行置灰
+
+（2）目前还不具备这个能力，缺少REST API支持，拟增加接口`GET /api/v1/user/:username/virtualClusters`返回用户本身所拥有的vc。
 
 ### 3.7 list the names of all vcs
 
