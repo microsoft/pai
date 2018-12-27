@@ -15,30 +15,32 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+const template = require('./template-detail.component.ejs');
+require('./template-detail.component.css');
 
-// module dependencies
-require('bootstrap');
-require('admin-lte');
-require('bootstrap/dist/css/bootstrap.min.css');
-require('admin-lte/dist/css/AdminLTE.min.css');
-require('admin-lte/dist/css/skins/_all-skins.min.css');
-require('font-awesome/css/font-awesome.min.css');
-require('./layout.component.scss');
-const userAuthComponent = require('../user/user-auth/user-auth.component.js');
-const userLogoutComponent = require('../user/user-logout/user-logout.component.js');
-const userLoginNavComponent = require('../user/user-login/user-login-nav.component.ejs');
-const pluginComponent = require('./plugins.component.ejs');
+module.exports = function(element, restServerUri, query) {
+const context = {
+    compileUri: function(uri) {
+        if (!/^https?:\/\//.test(uri)) return 'http://hub.docker.com/r/' + uri;
+        if (/^https:\/\/github.com\//.test(uri)) return uri.replace('@', '?ref=');
+        return uri;
+    },
+    pluginIndex: query.index,
+};
 
+$(function() {
+    const type = {
+        'job': 'job',
+        'docker': 'dockerimage',
+        'script': 'script',
+        'data': 'data',
+    }[query.type] || 'job';
+    const name = query.name;
+    if (type == null || name == null) return location.href = '/';
 
-const userLoginNavHtml = userLoginNavComponent({cookies});
-
-window.userLogout = userLogoutComponent.userLogout;
-
-$('#navbar').html(userLoginNavHtml);
-if (!userAuthComponent.checkAdmin()) {
-  $('#sidebar-menu--cluster-view').hide();
-}
-
-if (Array.isArray(window.PAI_PLUGINS) && window.PAI_PLUGINS.length > 0) {
-  $('.sidebar-menu').append(pluginComponent({plugins: window.PAI_PLUGINS}));
-}
+    const u = `${restServerUri}/api/v2/template/${type}/${name}`;
+    $.getJSON(u).then(template.bind(context)).then(function(html) {
+        $(element).html(html);
+    });
+});
+};

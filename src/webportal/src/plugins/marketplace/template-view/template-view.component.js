@@ -19,17 +19,17 @@
 require('json-editor'); /* global JSONEditor */
 require('slick-carousel');
 require('slick-carousel/slick/slick.css');
-const url = require('url');
 
 require('./template-view.component.css');
 const template = require('./template-view.component.ejs');
 const slideTemplate = require('./template-view.slide.component.ejs');
-const webportalConfig = require('../../config/webportal.config.js');
-const userAuth = require('../../user/user-auth/user-auth.component');
-const jobSchema = require('../job-submit/sub-components/json-editor-schema.js');
-const yamlHelper = require('../job-submit/sub-components/yaml-json-editor-convert.js');
-const githubThrottled = require('../template-common/github-throttled');
+const userAuth = require('../../../app/user/user-auth/user-auth.component');
+const jobSchema = require('../../../app/marketplace/job-submit/sub-components/json-editor-schema.js');
+const yamlHelper = require('../../../app/marketplace/job-submit/sub-components/yaml-json-editor-convert.js');
+const githubThrottled = require('../github-throttled');
 
+module.exports = function(element, restServerUri, query) {
+const pluginIndex = query.index;
 const slideContext = {
   parseType: function parseType(rawType) {
     return {
@@ -39,6 +39,7 @@ const slideContext = {
       'data': 'data',
     }[rawType] || 'job';
   },
+  pluginIndex: pluginIndex,
 };
 
 let uploadData = {};
@@ -73,7 +74,7 @@ function loadCarousel($slick, type, page) {
 
   function apply(page) {
     if ($slick.data('request-id') !== requestId) return;
-    $.getJSON(`${webportalConfig.restServerUri}/api/v2/template/${type}`, {pageno: page})
+    $.getJSON(`${restServerUri}/api/v2/template/${type}`, {pageno: page})
       .then(function(data) {
         if ($slick.data('request-id') !== requestId) return;
 
@@ -88,7 +89,7 @@ function loadCarousel($slick, type, page) {
         if (data.totalCount > 5) {
           $slick.parents('section').find('h2 a')
             .removeClass('hidden')
-            .attr('href', '/template-list.html?type=' + slideContext.parseType(type));
+            .attr('href', '?index=' + pluginIndex + '&type=' + slideContext.parseType(type));
         }
       });
   }
@@ -123,7 +124,7 @@ function search(query) {
 
     userAuth.checkToken((token) => {
       $.ajax({
-        url: `${webportalConfig.restServerUri}/api/v2/template`,
+        url: `${restServerUri}/api/v2/template`,
         type: 'GET',
         dataType: 'json',
         data: {
@@ -151,7 +152,7 @@ function search(query) {
           if ($jobsSlick.find('.thumbnail').length > 5) {
             $jobsSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=job&query=' + query);
+              .attr('href', '?index=' + pluginIndex + '&type=job&query=' + query);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -164,7 +165,7 @@ function search(query) {
           if ($dockersSlick.find('.thumbnail').length > 5) {
             $dockersSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=docker&query=' + query);
+              .attr('href', '?index=' + pluginIndex + '&type=docker&query=' + query);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -177,7 +178,7 @@ function search(query) {
           if ($scriptsSlick.find('.thumbnail').length > 5) {
             $scriptsSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=script&query=' + query);
+              .attr('href', '?index=' + pluginIndex + '&type=script&query=' + query);
           }
 
           $(slideTemplate.call(slideContext, {
@@ -190,7 +191,7 @@ function search(query) {
           if ($dataSlick.find('.thumbnail').length > 5) {
             $dataSlick.parents('section').find('h2 a')
               .removeClass('hidden')
-              .attr('href', '/template-list.html?type=data&query=' + query);
+              .attr('href', '?index=' + pluginIndex + '&type=data&query=' + query);
           }
 
           if (data.pageNo * data.pageSize < Math.min(data.totalCount, 150)) {
@@ -209,11 +210,8 @@ function search(query) {
   }
 }
 
-$('#sidebar-menu--template-view').addClass('active');
-
 $(function() {
-  const query = url.parse(window.location.href, true).query;
-  $('#content-wrapper').html(template(query));
+  $(element).html(template(query));
   $('#search').submit(function(event) {
     event.preventDefault();
     let query = $(this).find('input').val();
@@ -314,7 +312,7 @@ $(function() {
     function upload(isYamlFile) {
       userAuth.checkToken((token) => {
         $.ajax({
-          url: `${webportalConfig.restServerUri}/api/v2/template`,
+          url: `${restServerUri}/api/v2/template`,
           data: uploadData,
           type: 'POST',
           headers: {
@@ -338,3 +336,4 @@ $(function() {
     }
   });
 });
+};

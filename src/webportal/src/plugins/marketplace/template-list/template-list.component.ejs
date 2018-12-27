@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-xs-9">
             <p class="lead">
-              <a href="marketplace.html">Marketplace</a> / <span class="text-capitalize"><%= type %></span>
+              <a href="?index=<%= this.pluginIndex %>">Marketplace</a> / <span class="text-capitalize"><%= type %></span>
             </p>
           </div>
           <!--<div class="col-xs-3">
@@ -13,6 +13,7 @@
           </div>-->
           <div class="col-md-6">
             <form class="input-group input-group-sm pull-right">
+              <input type="hidden" name="index" value="<%= this.pluginIndex %>">
               <input type="hidden" name="type" value="<%= type %>">
               <input type="search" class="form-control" name="query" value="<%= query %>" placeholder="Search <%= type %> on Platform for AI">
               <span class="input-group-btn">

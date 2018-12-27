@@ -22,6 +22,7 @@
     "node": "^8.9.0"
   },
   "dependencies": {
+    "@webcomponents/custom-elements": "^1.2.1",
     "admin-lte": "~2.4.2",
     "app-root-path": "~2.0.1",
     "blueimp-file-upload": "~9.22.1",
@@ -79,7 +80,7 @@
     "prebuild": "npm run clean && node config/preprocess.js",
     "build": "webpack --config webpack.config.js --progress --profile",
     "build:dev": "npm run build -- --debug --devtool eval-cheap-module-source-map --output-pathinfo --watch",
-    "prestart": "envsub --env-file .env --system src/app/env.js dist/scripts/env.js",
+    "prestart": "envsub --env-file .env --system src/app/env.js.template dist/scripts/env.js",
     "start": "node server"
   }
 }

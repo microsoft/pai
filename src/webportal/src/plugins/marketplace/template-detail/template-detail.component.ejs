@@ -3,7 +3,7 @@
     'dockerimage': 'docker',
     'script': 'script',
     'data': 'data',
-}[type] || 'job'; %>
+}[type] || 'job', urlPrefix = '?index=' + this.pluginIndex; %>
 <div class="container-fluid" id="info">
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -11,11 +11,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p class="lead">
-                            <a href="marketplace.html">Marketplace</a> / <span class="text-capitalize"><%= typeDisplay %></span>
+                            <a href="<%= urlPrefix %>">Marketplace</a> / <span class="text-capitalize"><%= typeDisplay %></span>
                         </p>
                     </div>
                     <div class="col-md-6">
-                        <form class="input-group input-group-sm pull-right" action="marketplace.html">
+                        <form class="input-group input-group-sm pull-right">
+                            <input type="hidden" name="index" value="<%= this.pluginIndex %>">
                             <input type="search" class="form-control" name="query"
                                 placeholder="Search job, docker script, and data on Platform for AI">
                             <span class="input-group-btn">
@@ -65,7 +66,7 @@
                             'data': 'data',
                         }[item.type] || 'job'; %>
                         <div class="col-sm-6 col-md-4 col-lg-3">
-                            <a href="?type=<%= encodeURIComponent(subTypeDisplay) %>&name=<%= encodeURIComponent(item.name) %>"
+                            <a href="<%= urlPrefix %>&type=<%= encodeURIComponent(subTypeDisplay) %>&name=<%= encodeURIComponent(item.name) %>"
                                 class="thumbnail">
                                 <img src="/assets/img/marketplace/<%= subTypeDisplay %>.jpg" width="50%">
                                 <div class="caption">

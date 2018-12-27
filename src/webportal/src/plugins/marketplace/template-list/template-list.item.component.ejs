@@ -1,6 +1,6 @@
 <% for(var i = 0, l = items.length; i < l; i += 1) { var item = items[i] %>
 <div class="content col-md-2 col-sm-4 col-xs-6" style="min-height: auto;">
-  <a href="/template.html?type=<%= this.parseType(item.type) %>&name=<%= encodeURIComponent(item.name) %>"
+  <a href="?index=<%= this.pluginIndex %>&type=<%= this.parseType(item.type) %>&name=<%= encodeURIComponent(item.name) %>"
     class="thumbnail" style="margin: 0">
     <img src="/assets/img/marketplace/<%= this.parseType(item.type) %>.jpg" width="50%">
     <div class="caption">
