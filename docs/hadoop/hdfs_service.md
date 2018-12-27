@@ -53,10 +53,10 @@ for the detailed property descriptions.
   
 ## Storage Path <a name="Storage_Path"></a>
 
-By default, HDFS's store metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in 
+By default, HDFS stores metadata, tmpdata and data blocks following global setting of *${cluster.common.data-path}* in 
 file [services-configuration.yaml](../../examples/cluster-configuration/services-configuration.yaml).
 For the major disk consumers of data blocks, its path could be overwritten by *${hadoop-data-node.storage_path}*, 
-which supports a comma-delimited list of directories to store data on multiple disks.
+which supports a comma-delimited list of directories to configure multiple disks.
 
 ### Name Node <a name="Name_Node"></a>
 
@@ -67,7 +67,7 @@ which supports a comma-delimited list of directories to store data on multiple d
 ### Data Node <a name="Data_Node"></a>
 
 * Configuration Data: Its path is defined by *hadoop-data-node-configuration* configuration map.
-* Data Storage: If  *${hadoop-data-node.storage_path}* specified, blocks stored in these paths, otherwise in the *hdfs/data* directory under the storage path.
+* Data Storage: If  *${hadoop-data-node.storage_path}* specified, blocks are stored in these paths, otherwise in the *hdfs/data* directory under the storage path.
 * Host Configuration: Its path is defined by *host-configuration* configuration map.
 * Temp Data: It is in the *hadooptmp/datanode* directory under the storage path.
 
