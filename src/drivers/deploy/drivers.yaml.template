@@ -68,11 +68,13 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "2Gi"
           requests:
             memory: "256Mi"
+        {%- endif %}
         command: ["bash", "-x", "./install-all-drivers"]
         {% if cluster_cfg['drivers']['set-nvidia-runtime'] %}
         args:

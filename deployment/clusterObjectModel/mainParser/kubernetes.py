@@ -79,8 +79,9 @@ class Kubernetes:
 
         com_kubernetes["cluster-dns"] = k8s_cfg["cluster-dns"]
         com_kubernetes["api-servers-ip"] = k8s_cfg["load-balance-ip"]
-        com_kubernetes["api-servers-port"] = "8080"
-        com_kubernetes["api-servers-url"] = "http://{0}:8080".format(k8s_cfg["load-balance-ip"])
+        com_kubernetes["api-servers-port"] = k8s_cfg["api-servers-port"] if ("api-servers-port" in k8s_cfg) else "8080"
+        com_kubernetes["api-servers-http-schema"] = k8s_cfg["api-servers-http-schema"] if ("api-servers-http-schema" in k8s_cfg) else "http"
+        com_kubernetes["api-servers-url"] = "{0}://{1}:{2}".format(com_kubernetes["api-servers-http-schema"], k8s_cfg["load-balance-ip"], com_kubernetes["api-servers-port"])
         com_kubernetes["docker-registry"] = k8s_cfg["docker-registry"]
         com_kubernetes["hyperkube-version"] = k8s_cfg["hyperkube-version"]
         com_kubernetes["etcd-version"] = k8s_cfg["etcd-version"]
@@ -95,6 +96,8 @@ class Kubernetes:
             com_kubernetes["etcd-data-path"] = "/var/etcd/data"
         else:
             com_kubernetes["etcd-data-path"] = k8s_cfg["etcd-data-path"]
+
+        com_kubernetes["qos-switch"] = k8s_cfg["qos-switch"] if ("qos-switch" in k8s_cfg) else "true"
 
         k8s_master_list = self.get_k8s_master_machine()
         etcd_cluster_ips_peer, etcd_cluster_ips_server = self.generate_etcd_ip_list(k8s_master_list)

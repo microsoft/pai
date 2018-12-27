@@ -1,0 +1,67 @@
+cluster:
+  common:
+      clusterid: pai_ut
+      data-path: "/datastorage"
+  docker-registry:
+      namespace: ut
+      domain: pai.ut.com.test.mock
+      username: pai_ut
+      password: pai_ut_pass_go
+      tag: v.ut.0.x
+      secret-name: ut_secret
+
+hadoop-resource-manager:
+  yarn_exporter_port: 9459
+  virtualClusters:
+    default:
+      description: default
+      capacity: 40
+    vc1:
+      description: VC for Alice.
+      capacity: 10
+    vc2:
+      description: VC for Bob.
+      capacity: 20
+    vc3:
+      description: VC for Charlie.
+      capacity: 30
+
+prometheus:
+  port: 9091
+  scrape_interval: 30
+
+alert-manager:
+  receiver: paiut@pai.com
+  port: 9093
+  smtp_url: smtp.pai666.com:111
+  smtp_from: pai-563-bot@pai.com
+  smtp_auth_username: pai-563-bot@pai.com
+  smtp_auth_password: pai66666666666
+
+grafana:
+  port: 3000
+
+node-exporter:
+  port: 9100
+
+rest-server:
+  server-port: 9186
+  jwt-secret: nihao
+  default-pai-admin-username: wa
+  default-pai-admin-password: wawawa
+  github-owner: Microsoft
+  github-repository: pai
+  github-path: marketplace
+
+yarn-frameworklauncher:
+  frameworklauncher-port: 9086
+
+drivers:
+  set-nvidia-runtime: false
+  version: "390.25"
+
+webportal:
+  server-port: 9286
+
+pylon:
+  port: 80

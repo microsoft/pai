@@ -24,6 +24,10 @@
 #    # HDFS, zookeeper data path on your cluster machine.
 #    data-path: "/datastorage"
 #
+#    #Enable QoS feature or not. Default value is "true"
+#    qos-switch: "true"
+#
+#
 #  # the docker registry to store docker images that contain system services like frameworklauncher, hadoop, etc.
 #  docker-registry:
 #
@@ -59,6 +63,13 @@
 #    default:
 #      description: Default VC.
 #      capacity: 100
+
+#Uncomment following lines if you want to customize hdfs
+#hadoop-data-node:
+#  # storage path for hdfs, support comma-delimited list of directories, eg. /path/to/folder1,/path/to/folder2 ...
+#  # if left empty, will use cluster.common.data-path/hdfs/data
+#  storage_path:
+
 
 
 #uncomment following if you want to change customeize yarn-frameworklauncher

@@ -28,7 +28,7 @@ spec:
     command:
     - /usr/local/bin/kube-scheduler
     - --master
-    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:8080
+    - {{ cluster_cfg['kubernetes']['api-servers-ip'] }}:{{ cluster_cfg['kubernetes']['api-servers-port'] }}
     - --leader-elect=true
     livenessProbe:
       httpGet:
@@ -36,7 +36,9 @@ spec:
         port: 10251
       initialDelaySeconds: 15
       timeoutSeconds: 1
+    {%- if cluster_cfg['kubernetes']['qos-switch'] == "true" %}
     resources:
       requests:
         memory: "1Gi"
         cpu: "1000m"
+    {%- endif %}

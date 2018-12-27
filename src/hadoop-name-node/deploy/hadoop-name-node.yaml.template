@@ -57,9 +57,11 @@ spec:
           value: namenode-generate-script.sh
         - name: START_SERVICE
           value: namenode-start-service.sh
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "8Gi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}
       volumes:

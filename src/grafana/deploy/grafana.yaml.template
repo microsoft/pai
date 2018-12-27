@@ -50,8 +50,10 @@ spec:
           value: {{ cluster_cfg["grafana"]["url"] }}
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "256Mi"
+        {%- endif %}
       imagePullSecrets:
       - name: {{ cluster_cfg["cluster"]["docker-registry"]["secret-name"] }}

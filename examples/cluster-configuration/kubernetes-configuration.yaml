@@ -21,6 +21,8 @@ kubernetes:
   # To support k8s ha, you should set an lb address here.
   # If deploy k8s with single master node, please set master IP address here
   load-balance-ip: IP
+  #api-servers-port: 8080
+  #api-servers-http-schema: http
 
   # specify an IP range not in the same network segment with the host machine.
   service-cluster-ip-range: 169.254.0.0/16
@@ -44,6 +46,9 @@ kubernetes:
   dashboard-version: v1.8.3
   # The path to storage etcd data.
   etcd-data-path: "/var/etcd"
+
+  # #Enable QoS feature for k8s or not. Default value is "true"
+  # qos-switch: "true"
 
 
 

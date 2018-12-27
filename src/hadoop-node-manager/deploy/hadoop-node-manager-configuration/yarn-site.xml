@@ -255,7 +255,7 @@
   
   <property>
     <name>yarn.resourcemanager.rm.container-allocation.expiry-interval-ms</name>
-    <value>1200000</value>
+    <value>1500000</value>
   </property>
 
   <property>
@@ -271,6 +271,15 @@
   <property>
     <name>yarn.resourcemanager.container-tokens.master-key-rolling-interval-secs</name>
     <value>88000</value>
+  </property>
+
+  <property>
+    <description>
+    The duration (in ms) the YARN client waits for an expected state change
+    to occur.  -1 means unlimited wait time.
+    </description>
+    <name>yarn.client.application-client-protocol.poll-timeout-ms</name>
+    <value>900000</value>
   </property>
 
 <property>

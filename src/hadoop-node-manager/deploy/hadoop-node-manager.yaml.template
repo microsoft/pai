@@ -28,6 +28,13 @@ spec:
       labels:
         app: hadoop-node-manager
     spec:
+      hostAliases:
+      - ip: "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}"
+      - ip: "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
+        hostnames:
+        - "{{ cluster_cfg[ "hadoop-jobhistory" ][ "timeline-server-ip" ] }}"
       hostNetwork: true
       # TODO: Node manager mounts hostPID to monitor job processes in nvidia-smi,
       # but it leads network monitor getting a excessive traffic.
@@ -66,9 +73,11 @@ spec:
             - /jobstatus/jobok
           initialDelaySeconds: 5
           periodSeconds: 3
+        {%- if cluster_cfg['cluster']['common']['qos-switch'] == "true" %}
         resources:
           limits:
             memory: "4Gi"
+        {%- endif %}
         env:
         - name: RESOURCEMANAGER_ADDRESS
           value: {{ cluster_cfg[ "hadoop-resource-manager" ][ "master-ip" ] }}

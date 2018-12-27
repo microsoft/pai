@@ -19,75 +19,41 @@
 // module dependencies
 const Joi = require('joi');
 
-let etcdConfig = {
-  etcdUri: process.env.ETCD_URI,
+let userSecretConfig = {
+  apiServerUri: process.env.K8S_APISERVER_URI,
+  paiUserNameSpace: 'pai-user',
   adminName: process.env.DEFAULT_PAI_ADMIN_USERNAME,
   adminPass: process.env.DEFAULT_PAI_ADMIN_PASSWORD,
 };
 
-etcdConfig.etcdHosts = etcdConfig.etcdUri.split(',');
-
-etcdConfig.storagePath = () => {
-  return `/users`;
+userSecretConfig.requestConfig = () => {
+  const config = {
+    baseURL: `${userSecretConfig.apiServerUri}/api/v1/namespaces/`,
+    maxRedirects: 0,
+  };
+  return config;
 };
 
-etcdConfig.userPath = (username) => {
-  return `${etcdConfig.storagePath()}/${username}`;
-};
-
-etcdConfig.userPasswdPath = (username) => {
-  return `${etcdConfig.userPath(username)}/passwd`;
-};
-
-etcdConfig.userAdminPath = (username) => {
-  return `${etcdConfig.userPath(username)}/admin`;
-};
-
-etcdConfig.userVirtualClusterPath = (username) => {
-  return `${etcdConfig.userPath(username)}/virtualClusters`;
-};
-
-etcdConfig.userGithubPATPath = (username) => {
-  return `${etcdConfig.userPath(username)}/githubPAT`;
-};
-
-const etcdConfigSchema = Joi.object().keys({
-  etcdUri: Joi.string()
+const userSecretConfigSchema = Joi.object().keys({
+  apiServerUri: Joi.string()
     .required(),
-  etcdHosts: Joi.array().items(Joi.string()
-    .uri()
-    .required()
-  ).required(),
+  paiUserNameSpace: Joi.string()
+    .default('pai-user'),
   adminName: Joi.string()
     .token()
     .required(),
   adminPass: Joi.string()
     .min(6)
     .required(),
-  storagePath: Joi.func()
+  requestConfig: Joi.func()
     .arity(0)
-    .required(),
-  userPath: Joi.func()
-    .arity(1)
-    .required(),
-  userPasswdPath: Joi.func()
-    .arity(1)
-    .required(),
-  userAdminPath: Joi.func()
-    .arity(1)
-    .required(),
-  userVirtualClusterPath: Joi.func()
-    .arity(1)
-    .required(),
-  userGithubPATPath: Joi.func()
-    .arity(1)
     .required(),
 }).required();
 
-const {error, value} = Joi.validate(etcdConfig, etcdConfigSchema);
+const {error, value} = Joi.validate(userSecretConfig, userSecretConfigSchema);
 if (error) {
   throw new Error(`config error\n${error}`);
 }
-etcdConfig = value;
+userSecretConfig = value;
 
-module.exports = etcdConfig;
+module.exports = userSecretConfig;
