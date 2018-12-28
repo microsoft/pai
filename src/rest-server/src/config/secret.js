@@ -18,6 +18,8 @@
 
 // module dependencies
 const Joi = require('joi');
+const {readFileSync} = require('fs');
+const {Agent} = require('https');
 
 let userSecretConfig = {
   apiServerUri: process.env.K8S_APISERVER_URI,
@@ -31,6 +33,15 @@ userSecretConfig.requestConfig = () => {
     baseURL: `${userSecretConfig.apiServerUri}/api/v1/namespaces/`,
     maxRedirects: 0,
   };
+  if ('K8S_APISERVER_CA_FILE' in process.env) {
+    const ca = readFileSync(process.env.K8S_APISERVER_CA_FILE);
+    config.httpsAgent = new Agent({ca});
+  }
+
+   if ('K8S_APISERVCER_TOKEN_FILE' in process.env) {
+    const token = readFileSync(process.env.K8S_APISERVER_TOKEN_FILE, 'ascii');
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
   return config;
 };
 
