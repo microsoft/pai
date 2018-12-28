@@ -73,6 +73,30 @@
 
 （2）目前还不具备这个能力，缺少REST API支持，拟增加接口`GET /api/v1/user/:username/virtualClusters`返回用户本身所拥有的vc。
 
+（3）需要变动处：
+
+routes/uesr.js  增加
+
+```javascript
+router.route('/:username/virtualClusters')
+    .get(token.check,  userController.getUserVc);
+// 这里的token只能校验用户具有某种token，并不能证明他是:username的token，如果想这么做，还需要进一步优化：
+// 在middlewares/token.js 中增加checkWithUsername
+```
+controllers/user.js 增加
+```javascript
+const getUserVc = (req, res, next) => {...}
+```
+models/user.js 增加
+```javascript
+const getUserVc = (username, virtualCluster, callback) => {
+  ...
+  db.get(etcdConfig.userVirtualClusterPath(username), null, (err, res) => {
+  ...
+}
+```
+
+
 ### 3.7 list the names of all vcs
 
 现在已支持
