@@ -47,6 +47,8 @@ spec:
 {% endif %}
             - name: PROMETHEUS_URI
               value: {{ cluster_cfg['prometheus']['url'] }}
+            - name: ALERT_MANGER_URI
+              value: {{ cluster_cfg['alert-manager']['url'] }}
             - name: K8S_DASHBOARD_URI
               value: http://{{ cluster_cfg['kubernetes']['dashboard-host'] }}:9090
             - name: YARN_WEB_PORTAL_URI
