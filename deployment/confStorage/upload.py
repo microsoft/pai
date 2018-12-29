@@ -69,7 +69,6 @@ class upload_configuration:
     def upload_latest_configuration(self):
 
         conf_dict = dict()
-        conf_dict["cluster-configuration.yaml"] = conf_storage_util.read_file_from_path("{0}/cluster-configuration.yaml".format(self.config_path))
         conf_dict["k8s-role-definition.yaml"] = conf_storage_util.read_file_from_path("{0}/k8s-role-definition.yaml".format(self.config_path))
         conf_dict["kubernetes-configuration.yaml"] = conf_storage_util.read_file_from_path(
             "{0}/kubernetes-configuration.yaml".format(self.config_path))
