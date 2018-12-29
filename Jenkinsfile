@@ -77,9 +77,6 @@ rm -rf $CONFIG_PATH/*.yaml
 ./paictl.py config generate -i ${QUICK_START_PATH}/quick-start.yaml -o $CONFIG_PATH
 # update image tag
 sed -i "40s/.*/    tag: ${IMAGE_TAG}/" ${CONFIG_PATH}/services-configuration.yaml
-# change ectdid, zkid
-sed -i "41s/.*/    etcdid: singleboxetcdid1/" ${CONFIG_PATH}/cluster-configuration.yaml
-sed -i "42s/.*/    zkid: "1"/" ${CONFIG_PATH}/cluster-configuration.yaml
 # setup registry
 $JENKINS_HOME/scripts/setup_azure_int_registry_new_com.sh $CONFIG_PATH
 # build images
@@ -138,7 +135,7 @@ set -ex
 sudo docker exec -i ${SINGLE_BOX_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -ex
 # prepare directory
-rm -rf /cluster-configuration/cluster-configuration.yaml
+rm -rf /cluster-configuration/layout.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
@@ -150,9 +147,6 @@ cd /pai
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
-# change ectdid, zkid
-sed -i "41s/.*/    etcdid: singleboxetcdid1/" /cluster-configuration/cluster-configuration.yaml
-sed -i "42s/.*/    zkid: "1"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
@@ -240,7 +234,7 @@ set -ex
 sudo docker exec -i ${CLUSTER_DEV_BOX} /bin/bash <<EOF_DEV_BOX
 set -ex
 # prepare directory
-rm -rf /cluster-configuration/cluster-configuration.yaml
+rm -rf /cluster-configuration/layout.yaml
 rm -rf /cluster-configuration/k8s-role-definition.yaml
 rm -rf /cluster-configuration/kubernetes-configuration.yaml
 rm -rf /cluster-configuration/services-configuration.yaml
@@ -252,9 +246,6 @@ cd /pai
 ./paictl.py config generate -i /quick-start/quick-start.yaml -o /cluster-configuration
 # update image tag
 sed -i "40s/.*/    tag: ${IMAGE_TAG}/" /cluster-configuration/services-configuration.yaml
-# change ectdid, zkid
-sed -i "41s/.*/    etcdid: clusteretcdid1/" /cluster-configuration/cluster-configuration.yaml
-sed -i "42s/.*/    zkid: "2"/" /cluster-configuration/cluster-configuration.yaml
 # setup registry
 /jenkins/scripts/setup_azure_int_registry_new_com.sh /cluster-configuration
 
