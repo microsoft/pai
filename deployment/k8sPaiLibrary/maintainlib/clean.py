@@ -102,10 +102,11 @@ class clean:
         self.logger.warning("Begin to destroy whole cluster.")
         self.logger.warning("After destorying, all kubenretes's metadata will be deleted and etcd will be cleaned too.")
         for role in ["proxy", "master", "worker"]:
+            print(role)
             if "{0}-list".format(role) not in com["kubernetes"]:
                 continue
             for hostname in com["kubernetes"]["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][hostname]
+                node_config = com["layout"]["machine-list"][hostname]
                 self.logger.info("Begin to clean data on host {0}".format(node_config["hostip"]))
                 self.prepare_package(node_config)
                 self.job_executer(node_config)

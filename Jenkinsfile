@@ -162,7 +162,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.6" /cluster-configuration/services
 
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
->/cluster-configuration/layout.yaml
+#>/cluster-configuration/layout.yaml
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
 
@@ -170,7 +170,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.6" /cluster-configuration/services
 sleep 6s
 
 # TODO generate layout
-./paictl.py layout
+#./paictl.py layout
 
 # Step 3. Upload cluster-configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
@@ -264,7 +264,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.8" /cluster-configuration/services
 
 # Step 2. Boot up Kubernetes
 # TODO hack the ci
->/cluster-configuration/layout.yaml
+#>/cluster-configuration/layout.yaml
 # install k8s
 ./paictl.py cluster k8s-bootup -p /cluster-configuration
 
@@ -272,7 +272,7 @@ sed -i "23i\\ \\ \\ \\ dashbaord-host: 10.0.1.8" /cluster-configuration/services
 sleep 6s
 
 # TODO generate layout
-./paictl.py layout
+#./paictl.py layout
 
 # Step 3. Upload cluster configuration into kubernetes cluster. And set cluster-id
 ./paictl.py config push -p /cluster-configuration << EOF
