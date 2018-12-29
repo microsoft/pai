@@ -49,7 +49,7 @@ class service_management_configuration:
 
     def get_cluster_object_model_service(self):
         objectModelFactoryHandler = cluster_object_model(configuration_path = self.tmp_path)
-        self.cluster_object_service = objectModelFactoryHandler.run()
+        self.cluster_object_service = objectModelFactoryHandler.service_config()
 
 
 

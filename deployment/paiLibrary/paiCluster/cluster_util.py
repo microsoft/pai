@@ -106,7 +106,7 @@ def generate_configuration(quick_start_config_file, configuration_directory, for
     #
     # Generate configuration files.
     target_file_names = [
-        "cluster-configuration.yaml",
+        "layout.yaml",
         "kubernetes-configuration.yaml",
         "k8s-role-definition.yaml",
         "services-configuration.yaml"
