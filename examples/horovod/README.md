@@ -37,7 +37,11 @@ Note that we use the same data as [tensorflow distributed cifar-10 example](http
 4. Prepare a script in order to detest whether the containers are ready before run the mpi job. [Here](./start.sh) is an example.
 5. Prepare a job configuration file and submit it through webportal. The config examples are following.
 
-**Note** that you can simply run the prepare.sh to do the above preparing work, but you must make sure you can use HDFS client on your local mechine. If you can, just run the shell script with a parameter of your HDFS socket! `/bin/bash prepare.sh ip:port`
+**Note:** you can run the `prepare.sh` to do the above preparing work, make sure you have installed HDFS client before. 
+```
+export HADOOP_USER_NAME=root
+bash prepare.sh {hdfs_uri} {pai_username}
+```
 
 Here is a configuration file example:
 
@@ -49,20 +53,16 @@ Here is a configuration file example:
 {
   "jobName": "horovod-mpi-cifar10",
   "image": "openpai/example.horovod.mpi",
-  "dataDir": "$PAI_DEFAULT_FS_URI/examples/tensorflow/distributed-cifar-10/data",
-  "outputDir": "$PAI_DEFAULT_FS_URI/examples/horovod/output",
-  "codeDir": "$PAI_DEFAULT_FS_URI/examples/horovod/code",
-  "virtualCluster": "default",
-  "retryCount": 0,
+  "dataDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/tensorflow/distributed-cifar-10/data",
+  "outputDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/horovod/output",
+  "codeDir": "$PAI_DEFAULT_FS_URI/$PAI_USERNAME/examples/horovod/code",
   "taskRoles": [
     {
       "name": "main",
       "taskNumber": 1,
       "cpuNumber": 4,
       "memoryMB": 16384,
-      "shmMB": 64,
       "gpuNumber": 2,
-      "minFailedTaskCount": 1,
       "minSucceededTaskCount": 1,
       "command": "/bin/bash code/start.sh"
     },
@@ -71,9 +71,7 @@ Here is a configuration file example:
       "taskNumber": 1,
       "cpuNumber": 4,
       "memoryMB": 16384,
-      "shmMB": 64,
       "gpuNumber": 2,
-      "minFailedTaskCount": 1,
       "command": "sleep infinity"
     }
   ]

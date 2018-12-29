@@ -87,8 +87,9 @@ RUN wget http://archive.apache.org/dist/hadoop/core/hadoop-3.1.1/hadoop-3.1.1.ta
 
 # Set java and hdfs env
 ENV JAVA_HOME=/root/jdk1.8.0_191 \
-    HADOOP_HOME=/root/hadoop-3.1.1 \
-    PATH=$HADOOP_HOME/bin:$PATH
+    HADOOP_HOME=/root/hadoop-3.1.1
+
+ENV PATH=$HADOOP_HOME/bin:$PATH
 
 ENV HADOOP_HDFS_HOME=${HADOOP_HOME} \
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_HOME}/jre/lib/amd64/server \
