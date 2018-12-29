@@ -116,7 +116,7 @@ class deploy:
                 continue
 
             for hostname in com["kubernetes"]["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][hostname]
+                node_config = com["layout"]["machine-list"][hostname]
                 node_config_from_cluster_conf[hostname] = node_config
 
         kube_config_path = os.path.expanduser("~/.kube/config")
@@ -200,7 +200,7 @@ class deploy:
                 continue
 
             for hostname in com["kubernetes"]["{0}-list".format(role)]:
-                node_config = com["machine"]["machine-list"][hostname]
+                node_config = com["layout"]["machine-list"][hostname]
                 self.logger.info("Begin to deploy k8s on host {0}, the node role is [ {1} ]".format(node_config["hostip"], role))
                 self.prepare_package(node_config, "{0}-deployment".format(role))
                 self.job_executer(node_config, "{0}-deployment".format(role))

@@ -344,7 +344,7 @@ class Cluster(SubCmd):
 
     def k8s_bootup(self, args):
         cluster_object_model_instance = cluster_object_model(args.config_path)
-        com = cluster_object_model_instance.run()
+        com = cluster_object_model_instance.kubernetes_config()
         logger.info("Begin to initialize PAI k8s cluster.")
         cluster_util.maintain_cluster_k8s(com, option_name="deploy", clean=True)
         logger.info("Finish initializing PAI k8s cluster.")
@@ -352,7 +352,7 @@ class Cluster(SubCmd):
     def k8s_clean(self, args):
         # just use 'k8s-clean' for testing temporarily.
         cluster_object_model_instance = cluster_object_model(args.config_path)
-        com = cluster_object_model_instance.run()
+        com = cluster_object_model_instance.kubernetes_config()
         logger.warning("--------------------------------------------------------")
         logger.warning("--------------------------------------------------------")
         logger.warning("----------     Dangerous Operation!!!    ---------------")
