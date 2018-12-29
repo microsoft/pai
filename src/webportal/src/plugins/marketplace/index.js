@@ -19,8 +19,6 @@ const querystring = require('querystring');
 
 class MarketplaceElement extends HTMLElement {
   connectedCallback() {
-    if (!this.isConnected) return;
-
     const self = this;
     const qs = location.search.replace(/^\?+/, ''); // Strip leading question marks
     const query = querystring.parse(qs);
