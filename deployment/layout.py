@@ -22,13 +22,13 @@ def generate_layout(output_file):
 
     # assgin pai-master
     master = machineList[0]
-    master['pai-master'] = True
+    master['pai-master'] = 'true'
     master['zkid'] = 1
 
     # assign pai-workers
     workers = machineList[1:] if len(machineList) > 1 else machineList
     for worker in workers:
-        worker['pai-worker'] = True
+        worker['pai-worker'] = 'true'
 
     # the default sku
     machineSku = yaml.load("""
