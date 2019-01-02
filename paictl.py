@@ -484,41 +484,31 @@ def check(args):
     print("kubernetes ready:", True)
     print("Configuration valid:", True)
 
-class Main(SubCmd):
-    def __init__(self, subcmds):
-        self.subcmds = subcmds
-
-    def register(self, parser):
-        sub_parser = parser.add_subparsers(help="paictl operations")
-
-        # create the parser for "layout" command
-        parser_layout = sub_parser.add_parser('layout', help='layout tools')
-        parser_layout.add_argument("--dry", dest="dry", type=bool, default=False, help="dry run. Generate the layout.yaml")
-        parser_layout.add_argument("--output", dest="output", default='/cluster-configuration', help="Output directory of layout.yaml")
-        parser_layout.set_defaults(handler=handle_layout)
-
-        # create the parser for "check" command
-        parser_check = sub_parser.add_parser('check', help='check PAI status')
-        parser_check.add_argument("--pre", dest="pre", type=bool, default=False, help="Precheck. Check the prerequisites, and valid the configuration.")
-        parser_check.add_argument("--config-path", dest="configPath", default='/cluster-configuration', help="Configuration path.")
-        parser_check.set_defaults(handler=check)
-
-        for name, subcmd in self.subcmds.items():
-            subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
-            subcmd.register(subparser)
-
-
 def main(args):
     parser = argparse.ArgumentParser()
 
-    main_handler = Main({
+    sub_parser = parser.add_subparsers(help="paictl operations")
+
+    # create the parser for "layout" command
+    parser_layout = sub_parser.add_parser('layout', help='layout tools')
+    parser_layout.add_argument("--dry", dest="dry", type=bool, default=False, help="dry run. Generate the layout.yaml")
+    parser_layout.add_argument("--output", dest="output", default='/cluster-configuration', help="Output directory of layout.yaml")
+    parser_layout.set_defaults(handler=handle_layout)
+
+    # create the parser for "check" command
+    parser_check = sub_parser.add_parser('check', help='check PAI status')
+    parser_check.add_argument("--pre", dest="pre", type=bool, default=False, help="Precheck. Check the prerequisites, and valid the configuration.")
+    parser_check.add_argument("--config-path", dest="configPath", default='/cluster-configuration', help="Configuration path.")
+    parser_check.set_defaults(handler=check)
+
+    for name, subcmd in {
         "machine": Machine(),
         "service": Service(),
         "cluster": Cluster(),
         "config": Configuration()
-        })
-
-    main_handler.register(parser)
+        }.items():
+        subparser = SubCmd.add_handler(sub_parser, subcmd.run, name)
+        subcmd.register(subparser)
 
     args = parser.parse_args(args)
 
