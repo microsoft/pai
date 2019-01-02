@@ -1,3 +1,5 @@
+
+
 ## 1. Overview
 
 提供可供管理员操作的Virtual Cluster（以下简称vc）的交互界面，提供可供普通用户查询vc详情的交互界面
@@ -116,6 +118,25 @@ const getUserVc = (username, virtualCluster, callback) => {
 ### 3.11 list the load of a vc
 
 现在已支持
+
+### 3.12 list the status of a vc
+
+![1546433519943](./vc_status.png)
+
+（1）新增一个“开关”，其状态展示了对应vc的状态
+
+（2）若用户是管理员，其可以改变”开关“状态
+
+（3）若改变状态失败，则弹出提示框
+
+## 4. Steps
+
+将上述功能分解为4个步骤：
+
+1. 基本功能实现，可以增、删、改、查
+2. 批量增加vc
+3. 用户列表查看和更新
+4. 用户不具有权限的vc将被置灰
 
 
 
