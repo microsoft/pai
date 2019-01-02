@@ -40,12 +40,12 @@ hdfs_uri=$HDFS_URI
   [[ ! $result == *mkdir* ]]
 }
 
-@test "upload cntk data to hdfs" {
+@test "upload cifar10 tensorflow test data to hdfs" {
   result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/tensorflow/)"
   [[ ! $result == *put* ]]
 }
 
-@test "upload cntk start script to hdfs" {
+@test "upload tensorflow script to hdfs" {
   result="$(hdfs dfs -put -f benchmarks $hdfs_uri/Test/tensorflow/)"
   [[ ! $result == *put* ]]
 }
