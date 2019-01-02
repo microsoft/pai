@@ -41,7 +41,7 @@ hdfs_uri=$HDFS_URI
 }
 
 @test "upload cifar10 tensorflow test data to hdfs" {
-  result="$(hdfs dfs -put -f CNTK/Examples/SequenceToSequence/CMUDict/Data $hdfs_uri/Test/tensorflow/)"
+  result="$(hdfs dfs -put -f cifar-10-batches-py $hdfs_uri/Test/tensorflow/)"
   [[ ! $result == *put* ]]
 }
 
