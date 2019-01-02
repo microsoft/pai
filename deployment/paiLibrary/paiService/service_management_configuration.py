@@ -25,35 +25,27 @@ from ...clusterObjectModel.cluster_object_model import cluster_object_model
 
 
 
+
 class service_management_configuration:
 
     def __init__(self, **kwargs):
-
         self.KUBE_CONFIG_LOCATION = None
         if "kube_config_path" in kwargs and kwargs["kube_config_path"] != None:
             self.KUBE_CONFIG_LOCATION = kwargs["kube_config_path"]
 
-        self.time = str(int(time.time()))
-        self.tmp_path = "tmp-service-config-{0}".format(self.time)
-        self.tmp_path = os.path.join(tempfile.gettempdir(), self.tmp_path)
-
-        self.cluster_object_service = None
-
-
-
-    def get_latest_cluster_configuration_from_pai(self):
-        config_get_handler = download_configuration(config_output_path = self.tmp_path, kube_config_path = self.KUBE_CONFIG_LOCATION)
-        config_get_handler.run()
-
-
-
-    def get_cluster_object_model_service(self):
-        objectModelFactoryHandler = cluster_object_model(configuration_path = self.tmp_path)
-        self.cluster_object_service = objectModelFactoryHandler.service_config()
-
+    def gengerate_tmp_path(self):
+        time_in_seconds = str(int(time.time()))
+        sub_directory = "tmp-service-config-{0}".format(time_in_seconds)
+        return os.path.join(tempfile.gettempdir(), sub_directory)
 
 
     def run(self):
-        self.get_latest_cluster_configuration_from_pai()
-        self.get_cluster_object_model_service()
-        return self.cluster_object_service
+        tmp_path = self.gengerate_tmp_path()
+
+        config_get_handler = download_configuration(config_output_path = tmp_path, kube_config_path = self.KUBE_CONFIG_LOCATION)
+        config_get_handler.run()
+
+        objectModelFactoryHandler = cluster_object_model(configuration_path = tmp_path)
+        cluster_object_service = objectModelFactoryHandler.service_config()
+
+        return cluster_object_service
